@@ -7,6 +7,7 @@ pipeline.
 
 from __future__ import annotations
 
+import sqlite3
 from datetime import datetime
 from threading import Lock
 from typing import Any, Protocol
@@ -70,6 +71,31 @@ class InMemoryAmbientState:
     def release(self, key: str) -> None:
         with self._lock:
             self._claimed.discard(key)
+
+
+class SqliteAmbientState:
+    """Restart-safe idempotency claims for ambient delivery and scheduling."""
+
+    def __init__(self, path: str) -> None:
+        self.connection = sqlite3.connect(path)
+        self.connection.execute(
+            "CREATE TABLE IF NOT EXISTS ambient_claims (claim_key TEXT PRIMARY KEY NOT NULL)"
+        )
+        self.connection.commit()
+
+    def claim(self, key: str) -> bool:
+        cursor = self.connection.execute(
+            "INSERT OR IGNORE INTO ambient_claims (claim_key) VALUES (?)", (key,)
+        )
+        self.connection.commit()
+        return cursor.rowcount == 1
+
+    def release(self, key: str) -> None:
+        self.connection.execute("DELETE FROM ambient_claims WHERE claim_key = ?", (key,))
+        self.connection.commit()
+
+    def close(self) -> None:
+        self.connection.close()
 
 
 class AmbientGateway(Protocol):
