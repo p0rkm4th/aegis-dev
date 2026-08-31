@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 11,
-  "current_checkpoint": "phase-11-device-readback-green",
+  "current_checkpoint": "phase-11-proactive-household-canary-green",
   "active_branch": "aegis-dev",
-  "head_sha": "a79c51cf61b8e408029c167b7809de126894f751",
-  "last_green_sha": "a79c51cf61b8e408029c167b7809de126894f751",
-  "last_pushed_sha": "a79c51cf61b8e408029c167b7809de126894f751",
+  "head_sha": "ec46086c96b7e32e04f0fe1835268956775369b6",
+  "last_green_sha": "ec46086c96b7e32e04f0fe1835268956775369b6",
+  "last_pushed_sha": "ec46086c96b7e32e04f0fe1835268956775369b6",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -26,7 +26,8 @@
     "ambient idempotency state and Home Assistant device adapter seam",
     "ambient failure retry semantics and observed device provenance",
     "restart-safe SQLite ambient idempotency claims",
-    "structured Home Assistant command acceptance and readback verification"
+    "structured Home Assistant command acceptance and readback verification",
+    "deterministic proactive household meal/grocery suggestion canary"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -45,7 +46,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "58 passed"
+    "pytest": "59 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -57,5 +58,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add a simulated proactive household suggestion journey using canonical kitchen and household signals, then assess Phase 11 exit gates"
+  "next_action": "Assess Phase 11 exit gates against live platform availability, then begin Phase 12 release hardening lanes that are not blocked by unavailable credentials or hardware"
 }
