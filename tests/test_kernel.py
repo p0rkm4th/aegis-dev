@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from aegis.contracts import (
+    ActionCard,
     ActionSpec,
     Decision,
     DecisionKind,
@@ -11,7 +12,9 @@ from aegis.contracts import (
     VerificationContract,
     VerificationResult,
 )
+from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.kernel import Kernel
+from aegis.registry import CapabilityRegistry
 
 
 class Model:
@@ -153,3 +156,30 @@ def test_replay_does_not_execute_side_effect_twice():
     assert first.state.value == "completed"
     assert second.state.value == "completed"
     assert ex.calls == 1
+
+
+def test_registry_returns_at_most_five_relevant_cards():
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(action_id=f"homelab-{i}", capability="homelab.read"),
+            summary=str(i),
+            relevance=i / 10,
+        )
+        for i in range(7)
+    )
+    assert len(CapabilityRegistry(cards).retrieve("homelab")) == 5
+
+
+def test_decoder_rejects_invented_action():
+    card = ActionCard(
+        action=ActionSpec(action_id="safe", capability="test.safe"),
+        summary="safe",
+        relevance=1,
+    )
+    response = {"kind": "ACTION", "action": {"action_id": "delete", "capability": "danger"}}
+    try:
+        StrictDecisionDecoder().decode(type("Response", (), {"raw": response})(), (card,))
+    except InvalidDecision:
+        pass
+    else:
+        raise AssertionError("invented action was accepted")
