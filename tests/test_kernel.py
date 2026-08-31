@@ -46,6 +46,7 @@ from aegis.finance import (
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
 from aegis.homelab import HomelabPack, Host, Service
 from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
+from aegis.household_proactivity import HouseholdProactivity, HouseholdSignals
 from aegis.identity import (
     InMemoryAuthorization,
     KeycloakIdentityProvider,
@@ -1418,6 +1419,27 @@ def test_sqlite_ambient_state_survives_restart_and_suppresses_replay(tmp_path):
     second.release("background:stable")
     assert second.claim("background:stable") is True
     second.close()
+
+
+def test_household_proactivity_composes_grounded_suggestion_without_executing():
+    suggestion = HouseholdProactivity.suggest_meal(
+        HouseholdSignals(
+            space_id="apartment",
+            low_groceries=("rice",),
+            expiring_ingredients=("chicken",),
+            shared_day="Wednesday",
+        )
+    )
+    assert suggestion is not None
+    assert "chicken" in suggestion.text
+    assert suggestion.proposed_action is not None
+    assert suggestion.proposed_action.arguments == {"item": "rice"}
+    assert (
+        HouseholdProactivity.suggest_meal(
+            HouseholdSignals(space_id="apartment", low_groceries=("rice",))
+        )
+        is None
+    )
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
