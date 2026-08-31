@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 8,
-  "current_checkpoint": "phase-8-private-finance-boundary-green",
+  "current_checkpoint": "phase-8-cross-domain-affordability-green",
   "active_branch": "aegis-dev",
-  "head_sha": "c509017ffd0e85292a8a42f88bf956dc530a50a2",
-  "last_green_sha": "c509017ffd0e85292a8a42f88bf956dc530a50a2",
-  "last_pushed_sha": "c509017ffd0e85292a8a42f88bf956dc530a50a2",
+  "head_sha": "62a221c4d321455c05cf2b201ae76d16b04f964c",
+  "last_green_sha": "62a221c4d321455c05cf2b201ae76d16b04f964c",
+  "last_pushed_sha": "62a221c4d321455c05cf2b201ae76d16b04f964c",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -34,7 +34,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "41 passed"
+    "pytest": "42 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -46,5 +46,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Integrate Finance Pack derived contributions with household projections and add cross-domain affordability tests"
+  "next_action": "Add Finance provider adapter provenance and household settlement scenarios, then perform beta security/recovery gate"
 }
