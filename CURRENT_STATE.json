@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-migration-clean-install-green",
+  "current_checkpoint": "phase-12-sbom-provenance-green",
   "active_branch": "aegis-dev",
-  "head_sha": "1a60c248d1dc843701cc68db25a8bf82416cadfb",
-  "last_green_sha": "1a60c248d1dc843701cc68db25a8bf82416cadfb",
-  "last_pushed_sha": "1a60c248d1dc843701cc68db25a8bf82416cadfb",
+  "head_sha": "46e5b6950fdfae15005bceb32e11a29ab80e4998",
+  "last_green_sha": "46e5b6950fdfae15005bceb32e11a29ab80e4998",
+  "last_pushed_sha": "46e5b6950fdfae15005bceb32e11a29ab80e4998",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -31,7 +31,8 @@
     "reproducible CI validation workflow",
     "validated secret-safe configuration and SQLite backup/restore",
     "structured health/readiness reporting and operations documentation",
-    "contiguous migration validation and isolated clean-install smoke gate"
+    "contiguous migration validation and isolated clean-install smoke gate",
+    "direct dependency SBOM and provenance evidence"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -67,5 +68,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add release artifact provenance/SBOM inventory and perform a final local Phase 12 validation; keep live OpenClaw, Ollama, and Home Assistant acceptance limitations explicit"
+  "next_action": "Perform final local Phase 12 release validation and audit remaining gates; do not claim production readiness while live integrations and a complete transitive lock remain unavailable"
 }
