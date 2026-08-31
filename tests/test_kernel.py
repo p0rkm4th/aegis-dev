@@ -1347,6 +1347,7 @@ def test_home_assistant_adapter_reads_state_and_never_bypasses_command_policy():
     adapter = HomeAssistantAdapter(gateway, Policy(False))
     state = adapter.read_state("light.lamp", datetime.now(timezone.utc))
     assert state.state == "on"
+    assert state.provenance is Provenance.OBSERVED
     command = DeviceCommand(entity_id="light.lamp", service="turn_off")
     try:
         adapter.execute(command)
@@ -1355,6 +1356,45 @@ def test_home_assistant_adapter_reads_state_and_never_bypasses_command_policy():
     else:
         raise AssertionError("Home Assistant command bypassed policy")
     assert gateway.commands == []
+
+
+def test_ambient_platform_failure_releases_claim_for_safe_retry():
+    class Platform:
+        def __init__(self):
+            self.fail = True
+            self.tasks = []
+
+        def deliver_notification(self, notification):
+            pass
+
+        def schedule_background(self, task):
+            if self.fail:
+                self.fail = False
+                raise RuntimeError("gateway unavailable")
+            self.tasks.append(task)
+
+        def cancel_background(self, task):
+            self.tasks.remove(task)
+
+    class Policy:
+        def allow_notification(self, notification):
+            return True
+
+        def allow_background_task(self, task):
+            return True
+
+    platform = Platform()
+    service = AmbientService(platform, Policy())
+    task = BackgroundTask(
+        run_at=datetime.now(timezone.utc), task_type="suggestion.refresh", idempotency_key="retry"
+    )
+    try:
+        service.schedule(task)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("flaky ambient platform unexpectedly succeeded")
+    assert service.schedule(task) is True
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
