@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 
@@ -63,6 +64,21 @@ class PackProposal:
     requires_approval: bool = True
 
 
+class ForgeStatus(StrEnum):
+    DRAFT = "draft"
+    VALIDATED = "validated"
+    APPROVED = "approved"
+    INSTALLED = "installed"
+    REJECTED = "rejected"
+
+
+@dataclass(frozen=True)
+class ForgeRecord:
+    proposal: PackProposal
+    status: ForgeStatus
+    license_class: str | None = None
+
+
 class Forge:
     """Draft-only Forge stage; install is a separate explicit owner operation."""
 
@@ -83,3 +99,53 @@ class Forge:
         raise NotImplementedError(
             "installation requires Pack validation and owner approval integration"
         )
+
+
+class ForgeLifecycle:
+    """Fail-closed validation and approval state for generated Pack proposals."""
+
+    def __init__(self) -> None:
+        self.records: dict[str, ForgeRecord] = {}
+
+    def validate(
+        self,
+        proposal: PackProposal,
+        *,
+        license_class: str,
+        sandbox_passed: bool,
+        tests_passed: bool,
+    ) -> ForgeRecord:
+        if license_class not in {"COPY_SAFE", "INTERFACE_ONLY", "CLEAN_ROOM_ONLY"}:
+            raise PermissionError("Forge proposal has unapproved license provenance")
+        if not sandbox_passed or not tests_passed:
+            raise ValueError("Forge proposal requires passing sandbox and tests")
+        record = ForgeRecord(proposal, ForgeStatus.VALIDATED, license_class)
+        self.records[proposal.pack_id] = record
+        return record
+
+    def approve(self, pack_id: str, owner_approved: bool) -> ForgeRecord:
+        record = self._require(pack_id)
+        if record.status is not ForgeStatus.VALIDATED:
+            raise ValueError("only validated proposals can be approved")
+        if not owner_approved:
+            self.records[pack_id] = ForgeRecord(
+                record.proposal, ForgeStatus.REJECTED, record.license_class
+            )
+            raise PermissionError("Forge installation requires owner approval")
+        record = ForgeRecord(record.proposal, ForgeStatus.APPROVED, record.license_class)
+        self.records[pack_id] = record
+        return record
+
+    def install(self, pack_id: str) -> ForgeRecord:
+        record = self._require(pack_id)
+        if record.status is not ForgeStatus.APPROVED:
+            raise PermissionError("Forge installation is not approved")
+        record = ForgeRecord(record.proposal, ForgeStatus.INSTALLED, record.license_class)
+        self.records[pack_id] = record
+        return record
+
+    def _require(self, pack_id: str) -> ForgeRecord:
+        try:
+            return self.records[pack_id]
+        except KeyError as exc:
+            raise KeyError("unknown Forge proposal") from exc
