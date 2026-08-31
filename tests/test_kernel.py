@@ -21,7 +21,13 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.evaluation import DecisionEvaluationHarness, EvaluationCase
-from aegis.finance import Account, FinanceLedger, FinanceSnapshot, Transaction
+from aegis.finance import (
+    Account,
+    AffordabilityProjection,
+    FinanceLedger,
+    FinanceSnapshot,
+    Transaction,
+)
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
 from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
 from aegis.identity import (
@@ -984,3 +990,20 @@ def test_finance_projection_requires_explicit_derive_authorization():
         pass
     else:
         raise AssertionError("finance data was projected without authorization")
+
+
+def test_cross_domain_affordability_returns_derived_fields_without_private_balance():
+    ledger = FinanceLedger()
+    ledger.record_snapshot(FinanceSnapshot("alice", (Account("checking", "alice", 500_000),)))
+    projection = ledger.assess_affordability(
+        Principal(id="alice", vault_id="alice-vault"),
+        "alice",
+        100_000,
+        (SharedObligation("rent", 200_000),),
+        reserve_cents=100_000,
+    )
+    assert isinstance(projection, AffordabilityProjection)
+    assert projection.affordable
+    assert projection.shared_obligations_cents == 200_000
+    assert projection.shortfall_cents == 0
+    assert "balance" not in projection.__dict__
