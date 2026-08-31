@@ -21,6 +21,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.evaluation import DecisionEvaluationHarness, EvaluationCase
+from aegis.finance import Account, FinanceLedger, FinanceSnapshot, Transaction
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
 from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
 from aegis.identity import (
@@ -945,3 +946,41 @@ def test_household_space_rejects_nonmember_and_private_data_is_not_accepted():
             pass
         else:
             raise AssertionError("nonmember accessed shared household state")
+
+
+def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contribution():
+    from datetime import datetime, timezone
+
+    ledger = FinanceLedger()
+    ledger.record_snapshot(
+        FinanceSnapshot(
+            "alice",
+            (Account("checking", "alice", 500_000),),
+            (Transaction("t1", "checking", -2500, datetime.now(timezone.utc), "groceries"),),
+        )
+    )
+    alice = Principal(id="alice", vault_id="alice-vault")
+    bob = Principal(id="bob", vault_id="bob-vault")
+    assert ledger.total_balance(alice, "alice") == 500_000
+    contribution = ledger.derived_contribution(alice, "alice", "apartment", 2500, True)
+    assert contribution.owner_id == "alice"
+    assert contribution.source_resource_id == "finance-contribution:apartment"
+    try:
+        ledger.private_snapshot(bob, "alice")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("private finance account crossed Vault boundary")
+
+
+def test_finance_projection_requires_explicit_derive_authorization():
+    ledger = FinanceLedger()
+    ledger.record_snapshot(FinanceSnapshot("alice", (Account("checking", "alice", 1),)))
+    try:
+        ledger.derived_contribution(
+            Principal(id="alice", vault_id="alice-vault"), "alice", "apartment", 1, False
+        )
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("finance data was projected without authorization")
