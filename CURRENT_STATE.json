@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 5,
-  "current_checkpoint": "phase-5-local-first-model-routing-green",
+  "current_checkpoint": "phase-5-ollama-adapter-contract-green",
   "active_branch": "aegis-dev",
-  "head_sha": "99f98f4c8865cc85b1373584b75aaa3634f8d3af",
-  "last_green_sha": "99f98f4c8865cc85b1373584b75aaa3634f8d3af",
-  "last_pushed_sha": "99f98f4c8865cc85b1373584b75aaa3634f8d3af",
+  "head_sha": "0466d825be73eaa88de33194f2003748bb032f9a",
+  "last_green_sha": "0466d825be73eaa88de33194f2003748bb032f9a",
+  "last_pushed_sha": "0466d825be73eaa88de33194f2003748bb032f9a",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -31,17 +31,17 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "30 passed"
+    "pytest": "32 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
-  "current_model_baseline": "provider-port baseline; Ollama/Qwen3:8B planned, live model not yet verified",
+  "current_model_baseline": "Ollama qwen3:8b adapter implemented; live baseline unavailable because localhost:11434 refused connection",
   "database_migration_version": "001_initial.sql (artifact; live PostgreSQL not available)",
   "openclaw_compatibility": {
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add Ollama provider adapter with bounded structured-output repair, then record a real local-model baseline when Ollama is reachable"
+  "next_action": "Add deterministic structured decision evaluation harness and record a live Ollama baseline when the service is available"
 }
