@@ -5,6 +5,7 @@ from aegis.contracts import (
     ActionSpec,
     Decision,
     DecisionKind,
+    ExecutionRequest,
     IntentFrame,
     Observation,
     PolicyDecision,
@@ -15,6 +16,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.kernel import Kernel
+from aegis.openclaw import OpenClawExecutor
 from aegis.reference_packs import (
     ReferenceExecutor,
     ReferenceVerifier,
@@ -268,3 +270,35 @@ def test_three_reference_packs_use_one_generic_execution_pipeline():
     assert world.tasks == [{"title": "Call landlord", "status": "open"}]
     assert world.groceries == ["rice"]
     assert world.services["test-service"] == "healthy"
+
+
+def test_openclaw_runtime_deny_prevents_gateway_call():
+    class Client:
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, request):
+            self.calls += 1
+            raise AssertionError("denied request crossed Gateway boundary")
+
+    class DenyRuntime:
+        def allows(self, request):
+            return False
+
+    class NoApproval:
+        def required(self, request):
+            return False
+
+        def approved(self, request):
+            return False
+
+    client = Client()
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(action_id="safe", capability="safe"),
+        idempotency_key="k",
+    )
+    observation = OpenClawExecutor(client, DenyRuntime(), NoApproval()).execute(request)
+    assert not observation.command_succeeded
+    assert client.calls == 0
