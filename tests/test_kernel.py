@@ -29,6 +29,7 @@ from aegis.finance import (
     Transaction,
 )
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
+from aegis.homelab import HomelabPack, Host, Service
 from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
 from aegis.identity import (
     InMemoryAuthorization,
@@ -1075,3 +1076,50 @@ def test_inactive_or_unknown_network_scope_fails_closed():
             pass
         else:
             raise AssertionError("inactive or unknown network scope allowed action")
+
+
+def test_homelab_restart_requires_scope_and_health_verification():
+    class Runtime:
+        def __init__(self, healthy):
+            self.healthy = healthy
+            self.restarts = 0
+
+        def restart(self, service):
+            self.restarts += 1
+            return True
+
+        def health(self, service):
+            return self.healthy
+
+    inventory = HomelabInventory()
+    inventory.add_scope(AuthorizedNetworkScope("lab", ("10.0.0.0/24",), "owned lab"))
+    runtime = Runtime(True)
+    pack = HomelabPack(inventory, runtime)
+    pack.add_host(Host("atlas", "10.0.0.5", "atlas"))
+    pack.add_service(Service("plex", "atlas", "Plex", "https://10.0.0.5/health"))
+    result = pack.restart_service("lab", "plex")
+    assert result.attempted and result.verified and runtime.restarts == 1
+    runtime.healthy = False
+    failed = pack.restart_service("lab", "plex")
+    assert failed.attempted and not failed.verified
+
+
+def test_homelab_restart_outside_authorized_scope_never_reaches_runtime():
+    class Runtime:
+        def restart(self, service):
+            raise AssertionError("out-of-scope service was restarted")
+
+        def health(self, service):
+            return False
+
+    inventory = HomelabInventory()
+    inventory.add_scope(AuthorizedNetworkScope("lab", ("10.0.0.0/24",), "owned lab"))
+    pack = HomelabPack(inventory, Runtime())
+    pack.add_host(Host("other", "10.0.1.5", "other"))
+    pack.add_service(Service("ssh", "other", "SSH", "https://10.0.1.5/health"))
+    try:
+        pack.restart_service("lab", "ssh")
+    except ScopeDenied:
+        pass
+    else:
+        raise AssertionError("out-of-scope Homelab action was allowed")
