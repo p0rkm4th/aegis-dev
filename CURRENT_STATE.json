@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 3,
-  "current_checkpoint": "phase-3-privacy-and-audit-canaries-green",
+  "current_checkpoint": "phase-3-kernel-audit-lifecycle-green",
   "active_branch": "aegis-dev",
-  "head_sha": "8d35f712110a64025b954f6c82f28602aeede3dc",
-  "last_green_sha": "8d35f712110a64025b954f6c82f28602aeede3dc",
-  "last_pushed_sha": "8d35f712110a64025b954f6c82f28602aeede3dc",
+  "head_sha": "f1b313b8e1dca0f5f60f232692baf02fc99be8cd",
+  "last_green_sha": "f1b313b8e1dca0f5f60f232692baf02fc99be8cd",
+  "last_pushed_sha": "f1b313b8e1dca0f5f60f232692baf02fc99be8cd",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -41,5 +41,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Integrate audit events with kernel lifecycle, then validate PostgreSQL migration and add durable database-backed identity fixtures"
+  "next_action": "Add durable audit persistence and PostgreSQL migration rehearsal, then complete Phase 3 recovery/privacy gate"
 }
