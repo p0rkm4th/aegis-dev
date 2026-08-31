@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 2,
-  "current_checkpoint": "phase-2-gateway-boundary-and-durable-store-green",
+  "current_phase": 3,
+  "current_checkpoint": "phase-3-identity-authorization-and-schema-foundation-green",
   "active_branch": "aegis-dev",
-  "head_sha": "60e405d2b57f1d761d22122a190daec633ce2496",
-  "last_green_sha": "60e405d2b57f1d761d22122a190daec633ce2496",
-  "last_pushed_sha": "60e405d2b57f1d761d22122a190daec633ce2496",
+  "head_sha": "13558edbf57fe976066906b8b687ffb3706a9d31",
+  "last_green_sha": "13558edbf57fe976066906b8b687ffb3706a9d31",
+  "last_pushed_sha": "13558edbf57fe976066906b8b687ffb3706a9d31",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -23,22 +23,23 @@
   "phase_exit_gates": {
     "0": "complete",
     "1": "in_progress",
-    "2": "in_progress"
+    "2": "in_progress",
+    "3": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "17 passed"
+    "pytest": "18 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "qwen3:8b planned; fake model tests active",
-  "database_migration_version": null,
+  "database_migration_version": "001_initial.sql (artifact; live PostgreSQL not available)",
   "openclaw_compatibility": {
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add PostgreSQL schema/migrations and identity/Vault/Space authorization ports; validate with database-backed integration tests when service is available"
+  "next_action": "Add explicit identity-provider and fine-grained authorization ports, then implement PostgreSQL integration when a test service is available"
 }
