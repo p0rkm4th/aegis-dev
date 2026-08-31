@@ -1007,3 +1007,43 @@ def test_cross_domain_affordability_returns_derived_fields_without_private_balan
     assert projection.shared_obligations_cents == 200_000
     assert projection.shortfall_cents == 0
     assert "balance" not in projection.__dict__
+
+
+def test_household_projection_handles_multi_member_settlement_remainder():
+    class Policy:
+        def may_derive(self, requester, owner_id, space_id):
+            return True
+
+    projection = PrivacyProjectionService(Policy()).build(
+        Principal(id="alice", vault_id="alice-vault"),
+        "apartment",
+        ("alice", "bob", "cara"),
+        (SharedObligation("utilities", 100),),
+        (),
+    )
+    assert projection.equal_share == 33
+    assert projection.settlements == {"alice": -34, "bob": -33, "cara": -33}
+
+
+def test_finance_snapshot_exposes_provider_provenance_only_to_owner():
+    from datetime import datetime, timezone
+
+    ledger = FinanceLedger()
+    captured = datetime(2026, 8, 31, tzinfo=timezone.utc)
+    ledger.record_snapshot(
+        FinanceSnapshot(
+            "alice", (Account("checking", "alice", 1),), provider_id="sandbox", captured_at=captured
+        )
+    )
+    alice = Principal(id="alice", vault_id="alice-vault")
+    bob = Principal(id="bob", vault_id="bob-vault")
+    assert ledger.provenance(alice, "alice") == {
+        "provider_id": "sandbox",
+        "captured_at": captured.isoformat(),
+    }
+    try:
+        ledger.provenance(bob, "alice")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("finance provenance crossed Vault boundary")
