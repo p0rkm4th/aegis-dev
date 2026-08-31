@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 3,
-  "current_checkpoint": "phase-3-identity-and-relationship-adapters-green",
+  "current_checkpoint": "phase-3-privacy-projection-canaries-green",
   "active_branch": "aegis-dev",
-  "head_sha": "4561bbab9a806eaa6ee988e5b3c3ac05c3802b18",
-  "last_green_sha": "4561bbab9a806eaa6ee988e5b3c3ac05c3802b18",
-  "last_pushed_sha": "4561bbab9a806eaa6ee988e5b3c3ac05c3802b18",
+  "head_sha": "d60a1b13f8242ae47a16590163f9afbb44187d4d",
+  "last_green_sha": "d60a1b13f8242ae47a16590163f9afbb44187d4d",
+  "last_pushed_sha": "d60a1b13f8242ae47a16590163f9afbb44187d4d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -29,7 +29,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "20 passed"
+    "pytest": "22 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -41,5 +41,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add canonical privacy projections and adversarial cross-Vault tests, then validate PostgreSQL migration through an available database service"
+  "next_action": "Add audit-chain records and privacy adversarial fixtures, then validate the PostgreSQL migration against a live test service if available"
 }
