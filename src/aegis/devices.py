@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from pydantic import Field
 
 from .contracts import StrictModel
+from .personal import Provenance
 
 
 class DeviceState(StrictModel):
@@ -15,6 +16,7 @@ class DeviceState(StrictModel):
     state: str = Field(min_length=1)
     attributes: dict[str, Any] = {}
     observed_at: datetime
+    provenance: Provenance = Provenance.OBSERVED
 
 
 class DeviceCommand(StrictModel):

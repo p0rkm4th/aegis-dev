@@ -50,6 +50,8 @@ class AmbientPlatform(Protocol):
 class AmbientState(Protocol):
     def claim(self, key: str) -> bool: ...
 
+    def release(self, key: str) -> None: ...
+
 
 class InMemoryAmbientState:
     """Replaceable idempotency state for tests and single-process operation."""
@@ -64,6 +66,10 @@ class InMemoryAmbientState:
                 return False
             self._claimed.add(key)
             return True
+
+    def release(self, key: str) -> None:
+        with self._lock:
+            self._claimed.discard(key)
 
 
 class AmbientGateway(Protocol):
@@ -116,7 +122,11 @@ class AmbientService:
             raise PermissionError("ambient notification denied by policy")
         if not self.state.claim(f"notification:{notification.notification_id}"):
             return False
-        self.platform.deliver_notification(notification)
+        try:
+            self.platform.deliver_notification(notification)
+        except Exception:
+            self.state.release(f"notification:{notification.notification_id}")
+            raise
         return True
 
     def schedule(self, task: BackgroundTask) -> bool:
@@ -124,7 +134,11 @@ class AmbientService:
             raise PermissionError("ambient background task denied by policy")
         if not self.state.claim(f"background:{task.idempotency_key}"):
             return False
-        self.platform.schedule_background(task)
+        try:
+            self.platform.schedule_background(task)
+        except Exception:
+            self.state.release(f"background:{task.idempotency_key}")
+            raise
         return True
 
     def cancel(self, task: BackgroundTask) -> None:
