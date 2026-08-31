@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Protocol
 
 from .contracts import Principal
-from .projections import PrivateContribution
+from .projections import PrivateContribution, SharedObligation
 
 
 @dataclass(frozen=True)
@@ -31,6 +31,14 @@ class FinanceSnapshot:
     owner_id: str
     accounts: tuple[Account, ...]
     transactions: tuple[Transaction, ...] = ()
+
+
+@dataclass(frozen=True)
+class AffordabilityProjection:
+    purchase_cents: int
+    shared_obligations_cents: int
+    affordable: bool
+    shortfall_cents: int
 
 
 class FinancialProvider(Protocol):
@@ -82,3 +90,23 @@ class FinanceLedger:
         if amount_cents < 0:
             raise ValueError("derived contribution cannot be negative")
         return PrivateContribution(owner_id, amount_cents, f"finance-contribution:{space_id}")
+
+    def assess_affordability(
+        self,
+        requester: Principal,
+        owner_id: str,
+        purchase_cents: int,
+        obligations: tuple[SharedObligation, ...],
+        reserve_cents: int = 0,
+    ) -> AffordabilityProjection:
+        if purchase_cents < 0 or reserve_cents < 0:
+            raise ValueError("purchase and reserve amounts cannot be negative")
+        balance = self.total_balance(requester, owner_id)
+        obligations_total = sum(obligation.amount for obligation in obligations)
+        available = balance - obligations_total - reserve_cents
+        return AffordabilityProjection(
+            purchase_cents=purchase_cents,
+            shared_obligations_cents=obligations_total,
+            affordable=available >= purchase_cents,
+            shortfall_cents=max(0, purchase_cents - available),
+        )
