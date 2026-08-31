@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 4,
-  "current_checkpoint": "phase-4-pack-safety-contracts-green",
+  "current_checkpoint": "phase-4-pack-lifecycle-audit-green",
   "active_branch": "aegis-dev",
-  "head_sha": "20bd32a82d02f969f9e1daa79ccd82f3b2f789dc",
-  "last_green_sha": "20bd32a82d02f969f9e1daa79ccd82f3b2f789dc",
-  "last_pushed_sha": "20bd32a82d02f969f9e1daa79ccd82f3b2f789dc",
+  "head_sha": "19259c7276ba6373b24b734269c930b5074d16c4",
+  "last_green_sha": "19259c7276ba6373b24b734269c930b5074d16c4",
+  "last_pushed_sha": "19259c7276ba6373b24b734269c930b5074d16c4",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -42,5 +42,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add Pack lifecycle audit events and independent Tasks/Kitchen/Homelab acceptance journeys, then begin model-routing baseline measurement"
+  "next_action": "Broaden Tasks/Kitchen/Homelab acceptance journeys and add model-router/provider contract with deterministic baseline metrics"
 }
