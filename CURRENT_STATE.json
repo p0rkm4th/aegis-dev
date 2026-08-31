@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 4,
-  "current_checkpoint": "phase-4-pack-lifecycle-foundation-green",
+  "current_checkpoint": "phase-4-pack-retrieval-integration-green",
   "active_branch": "aegis-dev",
-  "head_sha": "da19b01f545dce8e3bb986e8f2776fcbe6554dc4",
-  "last_green_sha": "da19b01f545dce8e3bb986e8f2776fcbe6554dc4",
-  "last_pushed_sha": "da19b01f545dce8e3bb986e8f2776fcbe6554dc4",
+  "head_sha": "f55560666ba63c543921696dc44b5820a66b9fcd",
+  "last_green_sha": "f55560666ba63c543921696dc44b5820a66b9fcd",
+  "last_pushed_sha": "f55560666ba63c543921696dc44b5820a66b9fcd",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -42,5 +42,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add Pack registry integration with bounded Core retrieval and Pack-specific permissions/verification, then build Tasks/Kitchen/Homelab lifecycle gates"
+  "next_action": "Add Pack-specific verification contracts and lifecycle audit events, then broaden reference Pack end-to-end journeys"
 }
