@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-config-backup-hardening-green",
+  "current_checkpoint": "phase-12-health-operations-green",
   "active_branch": "aegis-dev",
-  "head_sha": "685e231f9606c33390a10059d607ee0b623b3dc8",
-  "last_green_sha": "685e231f9606c33390a10059d607ee0b623b3dc8",
-  "last_pushed_sha": "685e231f9606c33390a10059d607ee0b623b3dc8",
+  "head_sha": "c31062fa3e2314032657d0ad11c0025a437da3bd",
+  "last_green_sha": "c31062fa3e2314032657d0ad11c0025a437da3bd",
+  "last_pushed_sha": "c31062fa3e2314032657d0ad11c0025a437da3bd",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -29,7 +29,8 @@
     "structured Home Assistant command acceptance and readback verification",
     "deterministic proactive household meal/grocery suggestion canary",
     "reproducible CI validation workflow",
-    "validated secret-safe configuration and SQLite backup/restore"
+    "validated secret-safe configuration and SQLite backup/restore",
+    "structured health/readiness reporting and operations documentation"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -49,7 +50,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "62 passed"
+    "pytest": "63 passed"
   },
   "known_failures": [
     "live Ollama endpoint unavailable in this environment",
@@ -65,5 +66,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add release health/readiness reporting and migration/backup documentation; keep live OpenClaw, Ollama, and Home Assistant acceptance limitations explicit"
+  "next_action": "Add migration manifest validation and a clean-install smoke command; keep live OpenClaw, Ollama, and Home Assistant acceptance limitations explicit"
 }
