@@ -878,3 +878,32 @@ def test_personal_memory_correction_supersedes_old_record():
         datetime(2026, 9, 1, tzinfo=timezone.utc),
     )
     assert records == (corrected,)
+
+
+def test_personal_state_serialization_survives_reload_with_supersession():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    entity = state.add_entity("Atlas", ("server",))
+    original = state.add_memory(
+        "old plan",
+        datetime(2026, 8, 30, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+        (entity.entity_id,),
+    )
+    corrected = state.correct_memory(
+        original.memory_id, "new plan", datetime(2026, 8, 31, tzinfo=timezone.utc)
+    )
+    restored = PersonalState.from_json(state.to_json())
+    assert restored.resolve_entity("SERVER") == entity
+    assert restored.memories[original.memory_id].superseded_by == corrected.memory_id
+    assert restored.memories[corrected.memory_id].provenance is Provenance.CORRECTED
+
+
+def test_personal_state_rejects_unknown_schema():
+    try:
+        PersonalState.from_json('{"schema_version":99,"entities":[],"memories":[]}')
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unknown personal-state schema was accepted")

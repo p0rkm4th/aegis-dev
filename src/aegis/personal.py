@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
@@ -55,6 +56,8 @@ class PersonalState:
     memories: dict[UUID, MemoryRecord] = field(default_factory=dict)
     projects: dict[UUID, Project] = field(default_factory=dict)
     goals: dict[UUID, Goal] = field(default_factory=dict)
+
+    schema_version = 1
 
     def add_entity(self, canonical_name: str, aliases: tuple[str, ...] = ()) -> Entity:
         if not canonical_name.strip():
@@ -115,3 +118,61 @@ class PersonalState:
                 key=lambda memory: memory.occurred_at,
             )
         )
+
+    def to_json(self) -> str:
+        payload = {
+            "schema_version": self.schema_version,
+            "entities": [
+                {
+                    "entity_id": str(entity.entity_id),
+                    "canonical_name": entity.canonical_name,
+                    "aliases": list(entity.aliases),
+                }
+                for entity in self.entities.values()
+            ],
+            "memories": [
+                {
+                    "memory_id": str(memory.memory_id),
+                    "content": memory.content,
+                    "occurred_at": memory.occurred_at.isoformat(),
+                    "provenance": memory.provenance.value,
+                    "entity_ids": [str(entity_id) for entity_id in memory.entity_ids],
+                    "superseded_by": str(memory.superseded_by) if memory.superseded_by else None,
+                }
+                for memory in self.memories.values()
+            ],
+        }
+        return json.dumps(payload, sort_keys=True)
+
+    @classmethod
+    def from_json(cls, encoded: str) -> PersonalState:
+        try:
+            payload = json.loads(encoded)
+            if payload["schema_version"] != cls.schema_version:
+                raise ValueError("unsupported personal state schema version")
+            entities = {
+                UUID(item["entity_id"]): Entity(
+                    UUID(item["entity_id"]), item["canonical_name"], tuple(item["aliases"])
+                )
+                for item in payload["entities"]
+            }
+            memories = {
+                UUID(item["memory_id"]): MemoryRecord(
+                    UUID(item["memory_id"]),
+                    item["content"],
+                    datetime.fromisoformat(item["occurred_at"]),
+                    Provenance(item["provenance"]),
+                    tuple(UUID(entity_id) for entity_id in item["entity_ids"]),
+                    UUID(item["superseded_by"]) if item["superseded_by"] else None,
+                )
+                for item in payload["memories"]
+            }
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise ValueError("invalid personal state document") from exc
+        if any(
+            entity_id not in entities
+            for memory in memories.values()
+            for entity_id in memory.entity_ids
+        ):
+            raise ValueError("memory references an entity missing from state")
+        return cls(entities=entities, memories=memories)
