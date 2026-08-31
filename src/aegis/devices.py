@@ -23,6 +23,15 @@ class DeviceCommand(StrictModel):
     entity_id: str = Field(min_length=1)
     service: str = Field(min_length=1)
     data: dict[str, Any] = {}
+    expected_state: str | None = None
+
+
+class DeviceExecution(StrictModel):
+    command: DeviceCommand
+    accepted: bool
+    observed_state: DeviceState | None = None
+    verified: bool
+    reason: str
 
 
 class DeviceGateway(Protocol):
@@ -51,7 +60,20 @@ class HomeAssistantAdapter:
             observed_at=observed_at,
         )
 
-    def execute(self, command: DeviceCommand) -> None:
+    def execute(self, command: DeviceCommand, observed_at: datetime) -> DeviceExecution:
         if not self.policy.allow_command(command):
             raise PermissionError("Home Assistant command denied by policy")
         self.gateway.call_service(command.model_dump(mode="json"))
+        state = self.read_state(command.entity_id, observed_at)
+        verified = command.expected_state is not None and state.state == command.expected_state
+        return DeviceExecution(
+            command=command,
+            accepted=True,
+            observed_state=state,
+            verified=verified,
+            reason=(
+                "device readback verified"
+                if verified
+                else "command accepted; expected postcondition unavailable or failed"
+            ),
+        )
