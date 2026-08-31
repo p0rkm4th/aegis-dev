@@ -1188,3 +1188,36 @@ def test_forge_rejects_unknown_license_or_failed_sandbox():
             pass
         else:
             raise AssertionError("unsafe Forge proposal was validated")
+
+
+def test_forge_trading_card_proposal_materializes_only_after_approval():
+    proposal = Forge().propose(CapabilityGap("trading cards", "alice"))
+    lifecycle = ForgeLifecycle()
+    with_approval = lifecycle.validate(
+        proposal, license_class="INTERFACE_ONLY", sandbox_passed=True, tests_passed=True
+    )
+    assert with_approval.status is ForgeStatus.VALIDATED
+    try:
+        lifecycle.to_bundle(proposal.pack_id, ())
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("uninstalled Forge proposal became a Pack")
+
+    lifecycle.approve(proposal.pack_id, owner_approved=True)
+    lifecycle.install(proposal.pack_id)
+    card = ActionCard(
+        action=ActionSpec(
+            action_id=f"{proposal.pack_id}.items.add",
+            capability=f"{proposal.pack_id}.items.add",
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Add an item to the card collection",
+        relevance=1.0,
+    )
+    bundle = lifecycle.to_bundle(proposal.pack_id, (card,))
+    manager = PackManager()
+    manager.discover(bundle)
+    manager.install(proposal.pack_id)
+    manager.enable(proposal.pack_id)
+    assert manager.retrieve("trading") == (card,)

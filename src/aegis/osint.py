@@ -7,6 +7,9 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
+from .contracts import ActionCard
+from .pack_lifecycle import PackBundle, PackManifest
+
 
 @dataclass(frozen=True)
 class Source:
@@ -143,6 +146,27 @@ class ForgeLifecycle:
         record = ForgeRecord(record.proposal, ForgeStatus.INSTALLED, record.license_class)
         self.records[pack_id] = record
         return record
+
+    def to_bundle(
+        self, pack_id: str, cards: tuple[ActionCard, ...], *, version: str = "0.1.0"
+    ) -> PackBundle:
+        """Materialize a validated, installed proposal for Pack lifecycle review.
+
+        Conversion does not install or enable the Pack.  PackManager remains the
+        authority for namespace, permission, and lifecycle validation.
+        """
+        record = self._require(pack_id)
+        if record.status is not ForgeStatus.INSTALLED:
+            raise PermissionError("only installed Forge proposals can become Pack bundles")
+        return PackBundle(
+            manifest=PackManifest(
+                pack_id=record.proposal.pack_id,
+                version=version,
+                permissions=record.proposal.permissions,
+                dependencies=record.proposal.dependencies,
+            ),
+            cards=cards,
+        )
 
     def _require(self, pack_id: str) -> ForgeRecord:
         try:
