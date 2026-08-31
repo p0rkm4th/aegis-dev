@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "repository": "p0rkm4th/Odysseus-revamp",
+  "branch": "hades-v1-productization",
+  "frozen_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
+  "freeze_timestamp": "2026-08-31T17:55:00-05:00",
+  "license": "AGPL-3.0",
+  "use": "CLEAN_ROOM_ONLY",
+  "feature_development_status": "ENDED; reference only",
+  "artifact_hashes": {
+    "artifacts/productization/current_state.json": "a5cb1b2e9d3a621419b791891d4b4c8a7a6a8d99",
+    "artifacts/productization/current_baseline.json": "ba44ea6d1e156c4ceff12ddc3aa6b1bbeb34afc1",
+    "artifacts/productization/architecture_current.json": "105f17fc46ed2f76df004a135e3275f82523882c",
+    "benchmarks/hades_dogfood_contract.json": "9ec85f6a0d436fb04ba517177cc024a911dcfeb2"
+  },
+  "candidate": {
+    "source_sha": "f61f66516671a1d02fcd22ee872b5cb19c5d1e98",
+    "model": "qwen3:8b",
+    "full_regression": "7145 passed, 9 skipped, 149 warnings",
+    "runtime_status": "stopped by owner request"
+  },
+  "reproducibility": [
+    "git fetch origin hades-v1-productization",
+    "git checkout 65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
+    "inspect artifacts/productization and benchmarks without copying implementation"
+  ]
+}
