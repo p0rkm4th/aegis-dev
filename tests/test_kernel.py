@@ -4,6 +4,12 @@ from uuid import uuid4
 
 from aegis.ambient import AmbientService, BackgroundTask, Notification
 from aegis.audit import AuditError, AuditLog, SqliteAuditLog
+from aegis.card_collecting import (
+    CardCollection,
+    CardCollectionExecutor,
+    CardCollectionVerifier,
+    card_collection_card,
+)
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
@@ -1193,7 +1199,7 @@ def test_forge_rejects_unknown_license_or_failed_sandbox():
 
 
 def test_forge_trading_card_proposal_materializes_only_after_approval():
-    proposal = Forge().propose(CapabilityGap("trading cards", "alice"))
+    proposal = Forge().propose(CapabilityGap("trading cards", "alice", ("collection.write",)))
     lifecycle = ForgeLifecycle()
     with_approval = lifecycle.validate(
         proposal, license_class="INTERFACE_ONLY", sandbox_passed=True, tests_passed=True
@@ -1208,21 +1214,24 @@ def test_forge_trading_card_proposal_materializes_only_after_approval():
 
     lifecycle.approve(proposal.pack_id, owner_approved=True)
     lifecycle.install(proposal.pack_id)
-    card = ActionCard(
-        action=ActionSpec(
-            action_id=f"{proposal.pack_id}.items.add",
-            capability=f"{proposal.pack_id}.items.add",
-            verification=VerificationContract(kind="readback"),
-        ),
-        summary="Add an item to the card collection",
-        relevance=1.0,
-    )
+    card = card_collection_card(proposal.pack_id)
     bundle = lifecycle.to_bundle(proposal.pack_id, (card,))
     manager = PackManager()
     manager.discover(bundle)
-    manager.install(proposal.pack_id)
+    manager.install(proposal.pack_id, frozenset({"collection.write"}))
     manager.enable(proposal.pack_id)
     assert manager.retrieve("trading") == (card,)
+
+    collection = CardCollection()
+    executor = CardCollectionExecutor(collection, card.action.action_id)
+    verifier = CardCollectionVerifier(collection)
+    action = card.action.model_copy(update={"arguments": {"name": "Pikachu"}})
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="card-1"
+    )
+    observation = executor.execute(request)
+    assert verifier.verify(observation, action.verification).verified
+    assert collection.items == [{"name": "Pikachu", "set": None, "number": None}]
 
 
 def test_ambient_suggestions_do_not_execute_actions_and_platform_is_policy_gated():
