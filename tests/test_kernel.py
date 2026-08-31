@@ -15,6 +15,12 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.kernel import Kernel
+from aegis.reference_packs import (
+    ReferenceExecutor,
+    ReferenceVerifier,
+    ReferenceWorld,
+    reference_packs,
+)
 from aegis.registry import CapabilityRegistry
 
 
@@ -228,3 +234,37 @@ def test_deterministic_fast_path_bypasses_model():
         fast_path=FastPath(expected),
     )
     assert k.run(intent()) == expected
+
+
+def test_three_reference_packs_use_one_generic_execution_pipeline():
+    world = ReferenceWorld()
+    executor = ReferenceExecutor(world)
+    verifier = ReferenceVerifier(world)
+    principal = Principal(id="alice", vault_id="alice-vault")
+    for pack in reference_packs():
+        card = pack.cards[0]
+        action = card.action.model_copy(
+            update={
+                "arguments": {"title": "Call landlord"}
+                if pack.pack_id == "tasks"
+                else {"item": "rice"}
+                if pack.pack_id == "kitchen"
+                else {"service": "test-service"}
+            }
+        )
+        decision = Decision(kind=DecisionKind.ACTION, action=action)
+        kernel = Kernel(
+            Model(object()),
+            Decoder(decision),
+            Policy(PolicyDecision(allowed=True, reason="scope permits action")),
+            executor,
+            verifier,
+        )
+        result = kernel.run(
+            IntentFrame(principal=principal, utterance=pack.pack_id),
+            (ActionCard(action=action, summary=card.summary, relevance=card.relevance),),
+        )
+        assert result.state.value == "completed"
+    assert world.tasks == [{"title": "Call landlord", "status": "open"}]
+    assert world.groceries == ["rice"]
+    assert world.services["test-service"] == "healthy"
