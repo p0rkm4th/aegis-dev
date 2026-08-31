@@ -6,6 +6,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .audit import AuditLog
 from .contracts import ActionCard
 from .registry import CapabilityRegistry
 
@@ -32,19 +33,30 @@ class PackBundle(BaseModel):
 
 
 class PackManager:
-    def __init__(self) -> None:
+    def __init__(self, audit: AuditLog | None = None) -> None:
         self._bundles: dict[str, PackBundle] = {}
         self._statuses: dict[str, PackStatus] = {}
         self._grants: dict[str, frozenset[str]] = {}
+        self.audit = audit or AuditLog()
 
-    def discover(self, bundle: PackBundle) -> None:
+    def discover(self, bundle: PackBundle, actor_id: str = "system") -> None:
         self._validate(bundle)
         if bundle.manifest.pack_id in self._bundles:
             raise ValueError("Pack is already discovered")
         self._bundles[bundle.manifest.pack_id] = bundle
         self._statuses[bundle.manifest.pack_id] = PackStatus.DISCOVERED
+        self.audit.append(
+            "pack.discovered",
+            actor_id,
+            {"pack_id": bundle.manifest.pack_id, "version": bundle.manifest.version},
+        )
 
-    def install(self, pack_id: str, granted_permissions: frozenset[str] = frozenset()) -> None:
+    def install(
+        self,
+        pack_id: str,
+        granted_permissions: frozenset[str] = frozenset(),
+        actor_id: str = "system",
+    ) -> None:
         bundle = self._require(pack_id)
         required = frozenset(bundle.manifest.permissions)
         if not required.issubset(granted_permissions):
@@ -52,20 +64,28 @@ class PackManager:
             raise PermissionError(f"Pack permissions not granted: {missing}")
         self._grants[pack_id] = granted_permissions & required
         self._statuses[pack_id] = PackStatus.INSTALLED
+        self.audit.append(
+            "pack.installed",
+            actor_id,
+            {"pack_id": pack_id, "permissions": sorted(self._grants[pack_id])},
+        )
 
-    def enable(self, pack_id: str) -> None:
+    def enable(self, pack_id: str, actor_id: str = "system") -> None:
         self._require_status(pack_id, PackStatus.INSTALLED, PackStatus.DISABLED)
         self._statuses[pack_id] = PackStatus.ENABLED
+        self.audit.append("pack.enabled", actor_id, {"pack_id": pack_id})
 
-    def disable(self, pack_id: str) -> None:
+    def disable(self, pack_id: str, actor_id: str = "system") -> None:
         self._require_status(pack_id, PackStatus.ENABLED)
         self._statuses[pack_id] = PackStatus.DISABLED
+        self.audit.append("pack.disabled", actor_id, {"pack_id": pack_id})
 
-    def remove(self, pack_id: str) -> None:
+    def remove(self, pack_id: str, actor_id: str = "system") -> None:
         self._require(pack_id)
         del self._bundles[pack_id]
         self._statuses.pop(pack_id, None)
         self._grants.pop(pack_id, None)
+        self.audit.append("pack.removed", actor_id, {"pack_id": pack_id})
 
     def status(self, pack_id: str) -> PackStatus:
         self._require(pack_id)
