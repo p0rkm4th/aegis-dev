@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 2,
-  "current_checkpoint": "phase-2-correlated-gateway-rpc-contract-green",
+  "current_checkpoint": "phase-2-gateway-boundary-and-durable-store-green",
   "active_branch": "aegis-dev",
-  "head_sha": "9390e3dd18c947325eb53e71b8e7eac1ed004679",
-  "last_green_sha": "9390e3dd18c947325eb53e71b8e7eac1ed004679",
-  "last_pushed_sha": "9390e3dd18c947325eb53e71b8e7eac1ed004679",
+  "head_sha": "60e405d2b57f1d761d22122a190daec633ce2496",
+  "last_green_sha": "60e405d2b57f1d761d22122a190daec633ce2496",
+  "last_pushed_sha": "60e405d2b57f1d761d22122a190daec633ce2496",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -40,5 +40,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Implement PostgreSQL-compatible canonical schema/migration contract and replace ad hoc store assignment with constructor injection"
+  "next_action": "Add PostgreSQL schema/migrations and identity/Vault/Space authorization ports; validate with database-backed integration tests when service is available"
 }
