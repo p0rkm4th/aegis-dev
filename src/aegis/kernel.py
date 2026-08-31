@@ -31,6 +31,7 @@ class Kernel:
         executor: Executor,
         verifier: Verifier,
         fast_path: DeterministicFastPath | None = None,
+        store: ObjectiveStore | None = None,
     ) -> None:
         self.model = model
         self.decoder = decoder
@@ -38,7 +39,7 @@ class Kernel:
         self.executor = executor
         self.verifier = verifier
         self.fast_path = fast_path or NoopFastPath()
-        self.store: ObjectiveStore = InMemoryObjectiveStore()
+        self.store: ObjectiveStore = store or InMemoryObjectiveStore()
         self.objectives: dict[UUID, Objective] = {}
         self._executed: set[str] = set()
         self._results: dict[str, Result] = {}

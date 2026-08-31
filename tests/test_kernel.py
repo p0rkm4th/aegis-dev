@@ -420,8 +420,8 @@ def test_sqlite_store_survives_kernel_restart_without_duplicate_side_effect(tmp_
         Policy(PolicyDecision(allowed=True, reason="ok")),
         ReferenceExecutor(world),
         ReferenceVerifier(world),
+        store=store,
     )
-    first_kernel.store = store
     first = first_kernel.run(
         IntentFrame(
             principal=Principal(id="alice", vault_id="alice-vault"),
@@ -436,8 +436,8 @@ def test_sqlite_store_survives_kernel_restart_without_duplicate_side_effect(tmp_
         Policy(PolicyDecision(allowed=True, reason="ok")),
         ReferenceExecutor(world),
         ReferenceVerifier(world),
+        store=store,
     )
-    second_kernel.store = store
     second = second_kernel.run(
         IntentFrame(
             principal=Principal(id="alice", vault_id="alice-vault"),
