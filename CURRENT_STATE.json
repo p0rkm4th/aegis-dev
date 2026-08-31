@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 2,
-  "current_checkpoint": "phase-2-transport-and-restart-durability-green",
+  "current_checkpoint": "phase-2-correlated-gateway-rpc-contract-green",
   "active_branch": "aegis-dev",
-  "head_sha": "e01cda5c1c8ddfa69dec678ec8a3d7fdbe0ac4e4",
-  "last_green_sha": "e01cda5c1c8ddfa69dec678ec8a3d7fdbe0ac4e4",
-  "last_pushed_sha": "e01cda5c1c8ddfa69dec678ec8a3d7fdbe0ac4e4",
+  "head_sha": "9390e3dd18c947325eb53e71b8e7eac1ed004679",
+  "last_green_sha": "9390e3dd18c947325eb53e71b8e7eac1ed004679",
+  "last_pushed_sha": "9390e3dd18c947325eb53e71b8e7eac1ed004679",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -28,7 +28,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "15 passed"
+    "pytest": "17 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -40,5 +40,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Connect the adapter to a concrete Gateway RPC client contract, then implement PostgreSQL schema/migrations behind ObjectiveStore"
+  "next_action": "Implement PostgreSQL-compatible canonical schema/migration contract and replace ad hoc store assignment with constructor injection"
 }
