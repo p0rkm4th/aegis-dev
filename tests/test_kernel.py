@@ -17,7 +17,16 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
-from aegis.identity import InMemoryAuthorization, Membership, Resource, Role, Space, Vault
+from aegis.identity import (
+    InMemoryAuthorization,
+    KeycloakIdentityProvider,
+    Membership,
+    OpenFGAAuthorization,
+    Resource,
+    Role,
+    Space,
+    Vault,
+)
 from aegis.kernel import Kernel
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.reference_packs import (
@@ -498,3 +507,30 @@ def test_vault_and_space_authorization_is_structural_and_revocable():
     assert auth.can_read(bob, "rent").allowed
     auth.revoke("bob", "apartment")
     assert not auth.can_read(bob, "rent").allowed
+
+
+def test_keycloak_claim_mapping_requires_explicit_aegis_scope_claims():
+    principal = KeycloakIdentityProvider().principal_from_claims(
+        {"sub": "alice", "aegis_vault_id": "alice-vault", "aegis_space_ids": ["apartment"]}
+    )
+    assert principal.id == "alice"
+    assert principal.space_ids == ("apartment",)
+    for claims in ({"sub": "alice"}, {"aegis_vault_id": "vault"}):
+        try:
+            KeycloakIdentityProvider().principal_from_claims(claims)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("incomplete identity claims were accepted")
+
+
+def test_openfga_adapter_is_fail_closed_on_relationship_denial():
+    class Client:
+        def check(self, user, relation, object_id):
+            assert (user, relation, object_id) == ("user:bob", "can_read", "resource:alice-bank")
+            return False
+
+    decision = OpenFGAAuthorization(Client()).can_read(
+        Principal(id="bob", vault_id="bob-vault"), "alice-bank"
+    )
+    assert not decision.allowed
