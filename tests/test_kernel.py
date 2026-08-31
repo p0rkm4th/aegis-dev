@@ -16,6 +16,7 @@ from aegis.contracts import (
     VerificationResult,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
+from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
 from aegis.kernel import Kernel
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.reference_packs import (
@@ -449,3 +450,33 @@ def test_sqlite_store_survives_kernel_restart_without_duplicate_side_effect(tmp_
     assert second.state.value == "completed"
     assert world.groceries == ["rice"]
     store.close()
+
+
+def test_gateway_rpc_requires_matching_response_correlation():
+    class Channel:
+        def send(self, request):
+            return RpcResponse(request_id=uuid4(), result={"ok": True})
+
+    try:
+        CorrelatedRpcClient(Channel()).call("agent", {"runId": "run-1"})
+    except RpcProtocolError as exc:
+        assert "correlation" in str(exc)
+    else:
+        raise AssertionError("mismatched Gateway response was accepted")
+
+
+def test_gateway_rpc_named_methods_preserve_documented_method_names():
+    class Channel:
+        def __init__(self):
+            self.methods = []
+
+        def send(self, request):
+            self.methods.append(request.method)
+            return RpcResponse(request_id=request.request_id, result={"status": "accepted"})
+
+    channel = Channel()
+    rpc = OpenClawGatewayRpc(CorrelatedRpcClient(channel))
+    assert rpc.agent({"runId": "r"})["status"] == "accepted"
+    assert rpc.agent_wait({"runId": "r"})["status"] == "accepted"
+    assert rpc.cancel({"runId": "r"})["status"] == "accepted"
+    assert channel.methods == ["agent", "agent.wait", "agent.cancel"]
