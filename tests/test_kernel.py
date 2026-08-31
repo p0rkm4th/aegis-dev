@@ -46,7 +46,7 @@ from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnav
 from aegis.network import AuthorizedNetworkScope, DiscoveredDevice, HomelabInventory, ScopeDenied
 from aegis.ollama import OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
-from aegis.osint import CapabilityGap, Forge, Investigation
+from aegis.osint import CapabilityGap, Forge, ForgeLifecycle, ForgeStatus, Investigation
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
 from aegis.personal import PersonalState, Provenance
 from aegis.projections import (
@@ -1153,3 +1153,38 @@ def test_forge_proposes_capability_gap_but_cannot_self_install():
         pass
     else:
         raise AssertionError("Forge installed without explicit approval")
+
+
+def test_forge_lifecycle_requires_provenance_sandbox_tests_and_owner_approval():
+    proposal = Forge().propose(CapabilityGap("trading cards", "alice"))
+    lifecycle = ForgeLifecycle()
+    record = lifecycle.validate(
+        proposal, license_class="INTERFACE_ONLY", sandbox_passed=True, tests_passed=True
+    )
+    assert record.status is ForgeStatus.VALIDATED
+    try:
+        lifecycle.approve(proposal.pack_id, owner_approved=False)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("Forge proposal was approved without owner consent")
+    try:
+        lifecycle.install(proposal.pack_id)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("rejected Forge proposal was installed")
+
+
+def test_forge_rejects_unknown_license_or_failed_sandbox():
+    proposal = Forge().propose(CapabilityGap("cards", "alice"))
+    for kwargs in (
+        {"license_class": "UNKNOWN", "sandbox_passed": True, "tests_passed": True},
+        {"license_class": "COPY_SAFE", "sandbox_passed": False, "tests_passed": True},
+    ):
+        try:
+            ForgeLifecycle().validate(proposal, **kwargs)
+        except (PermissionError, ValueError):
+            pass
+        else:
+            raise AssertionError("unsafe Forge proposal was validated")
