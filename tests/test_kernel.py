@@ -46,6 +46,7 @@ from aegis.finance import (
     Transaction,
 )
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
+from aegis.health import HealthService
 from aegis.homelab import HomelabPack, Host, Service
 from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
 from aegis.household_proactivity import HouseholdProactivity, HouseholdSignals
@@ -1469,6 +1470,22 @@ def test_config_requires_infrastructure_and_does_not_expose_database_secret(monk
     config = AegisConfig.from_environment()
     assert config.database_url.get_secret_value().endswith("/db")
     assert "password" not in str(config)
+
+
+def test_health_report_separates_required_readiness_from_optional_health():
+    report = HealthService(
+        (
+            ("postgres", True, True, "connected"),
+            ("home_assistant", False, False, "not configured"),
+        )
+    ).report()
+    assert report.healthy is False
+    assert report.ready is True
+    assert report.components[1].required is False
+
+    failed = HealthService((("postgres", False, True, "unavailable"),)).report()
+    assert failed.healthy is False
+    assert failed.ready is False
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
