@@ -46,6 +46,7 @@ from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnav
 from aegis.network import AuthorizedNetworkScope, DiscoveredDevice, HomelabInventory, ScopeDenied
 from aegis.ollama import OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
+from aegis.osint import CapabilityGap, Forge, Investigation
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
 from aegis.personal import PersonalState, Provenance
 from aegis.projections import (
@@ -1123,3 +1124,32 @@ def test_homelab_restart_outside_authorized_scope_never_reaches_runtime():
         pass
     else:
         raise AssertionError("out-of-scope Homelab action was allowed")
+
+
+def test_osint_findings_require_grounded_sources():
+    from datetime import datetime, timezone
+
+    investigation = Investigation()
+    source = investigation.add_source(
+        "https://example.test/report", "Report", datetime.now(timezone.utc)
+    )
+    finding = investigation.add_finding("The report states X", (source.source_id,), 0.9)
+    assert finding.source_ids == (source.source_id,)
+    try:
+        investigation.add_finding("Unsupported claim", (uuid4(),), 1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unsupported OSINT finding was accepted")
+
+
+def test_forge_proposes_capability_gap_but_cannot_self_install():
+    proposal = Forge().propose(CapabilityGap("trading cards", "alice"))
+    assert proposal.pack_id.startswith("generated-")
+    assert proposal.requires_approval
+    try:
+        Forge().install(proposal, approved=False)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("Forge installed without explicit approval")
