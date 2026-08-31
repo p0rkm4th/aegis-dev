@@ -3,23 +3,41 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "phase-0-scaffold-and-kernel-canaries",
-  "active_branch": "main",
-  "head_sha": null,
-  "last_green_sha": null,
-  "last_pushed_sha": null,
+  "current_checkpoint": "phase-1-kernel-canaries-green",
+  "active_branch": "aegis-dev",
+  "head_sha": "d4dead17e5577d73811aba94066b579ea764a150",
+  "last_green_sha": "d4dead17e5577d73811aba94066b579ea764a150",
+  "last_pushed_sha": "d4dead17e5577d73811aba94066b579ea764a150",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
-  "active_candidate_runtime": {"provider": "ollama", "model": "qwen3:8b", "status": "not_yet_tested"},
-  "completed_functionality": ["greenfield scaffold", "typed semantic contracts", "policy-before-execution kernel canaries"],
-  "phase_exit_gates": {"0": "in_progress", "1": "in_progress"},
-  "most_recent_tests": {"command": "python -m pytest", "status": "not_yet_run"},
+  "active_candidate_runtime": {
+    "provider": "ollama",
+    "model": "qwen3:8b",
+    "status": "not_yet_tested"
+  },
+  "completed_functionality": [
+    "greenfield scaffold",
+    "typed semantic contracts",
+    "policy-before-execution kernel canaries"
+  ],
+  "phase_exit_gates": {
+    "0": "complete",
+    "1": "in_progress"
+  },
+  "most_recent_tests": {
+    "command": "pytest + ruff check/format + mypy",
+    "status": "PASS",
+    "pytest": "5 passed"
+  },
   "known_failures": [],
   "blocked_lanes": [],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "qwen3:8b planned; fake model tests active",
   "database_migration_version": null,
-  "openclaw_compatibility": {"tested_release": "2026.8.1", "adapter": "not_started"},
-  "next_action": "Run focused tests, fix contract/runtime issues, commit and push Phase 0/1 coherent slice"
+  "openclaw_compatibility": {
+    "tested_release": "2026.8.1",
+    "adapter": "not_started"
+  },
+  "next_action": "Add capability registry/retrieval, deterministic fast paths, strict decision decoding, and durable in-memory run records"
 }
