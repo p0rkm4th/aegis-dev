@@ -149,6 +149,11 @@ def test_successful_command_without_verification_is_not_success():
         Verifier(True),
     )
     assert k.run(intent()).state.value == "failed"
+    assert [event.event_type for event in k.audit.events] == [
+        "objective.created",
+        "action.observed",
+        "result.failed",
+    ]
 
 
 def test_failed_postcondition_is_failed():
