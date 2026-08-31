@@ -8,6 +8,7 @@ pipeline.
 from __future__ import annotations
 
 from datetime import datetime
+from threading import Lock
 from typing import Any, Protocol
 from uuid import UUID, uuid4
 
@@ -46,6 +47,25 @@ class AmbientPlatform(Protocol):
     def cancel_background(self, task: BackgroundTask) -> None: ...
 
 
+class AmbientState(Protocol):
+    def claim(self, key: str) -> bool: ...
+
+
+class InMemoryAmbientState:
+    """Replaceable idempotency state for tests and single-process operation."""
+
+    def __init__(self) -> None:
+        self._claimed: set[str] = set()
+        self._lock = Lock()
+
+    def claim(self, key: str) -> bool:
+        with self._lock:
+            if key in self._claimed:
+                return False
+            self._claimed.add(key)
+            return True
+
+
 class AmbientGateway(Protocol):
     """Narrow seam implemented by the OpenClaw Gateway/RPC adapter."""
 
@@ -81,19 +101,31 @@ class AmbientPolicy(Protocol):
 class AmbientService:
     """Thin platform adapter; policy remains a required external boundary."""
 
-    def __init__(self, platform: AmbientPlatform, policy: AmbientPolicy) -> None:
+    def __init__(
+        self,
+        platform: AmbientPlatform,
+        policy: AmbientPolicy,
+        state: AmbientState | None = None,
+    ) -> None:
         self.platform = platform
         self.policy = policy
+        self.state = state or InMemoryAmbientState()
 
-    def deliver(self, notification: Notification) -> None:
+    def deliver(self, notification: Notification) -> bool:
         if not self.policy.allow_notification(notification):
             raise PermissionError("ambient notification denied by policy")
+        if not self.state.claim(f"notification:{notification.notification_id}"):
+            return False
         self.platform.deliver_notification(notification)
+        return True
 
-    def schedule(self, task: BackgroundTask) -> None:
+    def schedule(self, task: BackgroundTask) -> bool:
         if not self.policy.allow_background_task(task):
             raise PermissionError("ambient background task denied by policy")
+        if not self.state.claim(f"background:{task.idempotency_key}"):
+            return False
         self.platform.schedule_background(task)
+        return True
 
     def cancel(self, task: BackgroundTask) -> None:
         self.platform.cancel_background(task)
