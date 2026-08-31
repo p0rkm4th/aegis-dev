@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 9,
-  "current_checkpoint": "phase-9-homelab-scoped-verified-actions-green",
+  "current_phase": 10,
+  "current_checkpoint": "phase-10-osint-and-forge-proposal-boundary-green",
   "active_branch": "aegis-dev",
-  "head_sha": "997c3ae8511eecb3161d374a6fd8f0c1a7b9c544",
-  "last_green_sha": "997c3ae8511eecb3161d374a6fd8f0c1a7b9c544",
-  "last_pushed_sha": "997c3ae8511eecb3161d374a6fd8f0c1a7b9c544",
+  "head_sha": "6b8525947d39dd4ce33e6f1033715bbad5f9f53b",
+  "last_green_sha": "6b8525947d39dd4ce33e6f1033715bbad5f9f53b",
+  "last_pushed_sha": "6b8525947d39dd4ce33e6f1033715bbad5f9f53b",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -30,12 +30,13 @@
     "6": "in_progress",
     "7": "in_progress",
     "8": "in_progress",
-    "9": "in_progress"
+    "9": "in_progress",
+    "10": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "48 passed"
+    "pytest": "50 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -47,5 +48,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add OSINT provenance/workspace primitives and Forge capability-gap proposal contracts"
+  "next_action": "Add Forge validation/sandbox/approval lifecycle and strengthen Phase 9 scope/audit coverage"
 }
