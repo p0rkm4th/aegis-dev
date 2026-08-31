@@ -25,6 +25,7 @@ from aegis.reference_packs import (
     reference_packs,
 )
 from aegis.registry import CapabilityRegistry
+from aegis.store import SqliteObjectiveStore
 
 
 class Model:
@@ -400,3 +401,51 @@ def test_gateway_cancel_is_explicit_and_never_executes():
     observation = ReconnectingGatewayClient(transport).execute(request, event)
     assert observation.evidence["transport"] == "cancelled"
     assert transport.cancelled
+
+
+def test_sqlite_store_survives_kernel_restart_without_duplicate_side_effect(tmp_path):
+    store = SqliteObjectiveStore(str(tmp_path / "aegis.sqlite"))
+    world = ReferenceWorld()
+    action = ActionSpec(
+        action_id="kitchen.groceries.add",
+        capability="kitchen.groceries.write",
+        arguments={"item": "rice"},
+        verification=VerificationContract(kind="readback"),
+    )
+    correlation = uuid4()
+    first_kernel = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ReferenceExecutor(world),
+        ReferenceVerifier(world),
+    )
+    first_kernel.store = store
+    first = first_kernel.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="add rice",
+            correlation_id=correlation,
+        ),
+        (ActionCard(action=action, summary="add", relevance=1),),
+    )
+    second_kernel = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ReferenceExecutor(world),
+        ReferenceVerifier(world),
+    )
+    second_kernel.store = store
+    second = second_kernel.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="add rice",
+            correlation_id=correlation,
+        ),
+        (ActionCard(action=action, summary="add", relevance=1),),
+    )
+    assert first.state.value == "completed"
+    assert second.state.value == "completed"
+    assert world.groceries == ["rice"]
+    store.close()

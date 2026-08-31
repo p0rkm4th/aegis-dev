@@ -119,10 +119,12 @@ class Kernel:
         # Correlation is stable across a recovered/replayed turn; objective IDs
         # are intentionally not used as the idempotency key.
         key = f"{intent.correlation_id}:{decision.action.action_id}"
+        prior = self._results.get(key) or self.store.get_result(key)
+        if prior is not None:
+            self._results[key] = prior
+            self._executed.add(key)
+            return prior
         if key in self._executed:
-            prior = self._results.get(key)
-            if prior is not None:
-                return prior
             return Result(
                 objective_id=objective.id,
                 state=ObjectiveState.OBSERVED,
