@@ -627,7 +627,10 @@ def test_persistent_audit_log_reloads_and_detects_database_tampering(tmp_path):
 def test_pack_lifecycle_requires_explicit_permissions_and_enablement():
     card = ActionCard(
         action=ActionSpec(
-            action_id="cards.read", capability="cards.read", required_permissions=("cards.read",)
+            action_id="cards.read",
+            capability="cards.read",
+            required_permissions=("cards.read",),
+            verification=VerificationContract(kind="readback"),
         ),
         summary="Read cards",
         relevance=1,
@@ -654,3 +657,37 @@ def test_pack_lifecycle_requires_explicit_permissions_and_enablement():
     assert manager.retrieve("cards") == ()
     manager.enable("cards")
     assert manager.retrieve("cards") == (card,)
+
+
+def test_pack_validation_rejects_cross_namespace_or_unverified_mutation():
+    cross_namespace = PackBundle(
+        manifest=PackManifest(pack_id="cards", version="0.1.0"),
+        cards=(
+            ActionCard(
+                action=ActionSpec(action_id="finance.read", capability="finance.read"),
+                summary="wrong namespace",
+                relevance=1,
+            ),
+        ),
+    )
+    unverified = PackBundle(
+        manifest=PackManifest(pack_id="cards", version="0.1.0", permissions=("cards.write",)),
+        cards=(
+            ActionCard(
+                action=ActionSpec(
+                    action_id="cards.write",
+                    capability="cards.write",
+                    required_permissions=("cards.write",),
+                ),
+                summary="unverified mutation",
+                relevance=1,
+            ),
+        ),
+    )
+    for bundle in (cross_namespace, unverified):
+        try:
+            PackManager().discover(bundle)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("unsafe Pack manifest was accepted")

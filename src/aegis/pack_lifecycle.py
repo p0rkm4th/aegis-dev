@@ -105,5 +105,12 @@ class PackManager:
             raise ValueError("Pack contains duplicate action ids")
         declared = set(bundle.manifest.permissions)
         for card in bundle.cards:
+            prefix = f"{bundle.manifest.pack_id}."
+            if not card.action.action_id.startswith(prefix):
+                raise ValueError("Pack action id must remain within its Pack namespace")
+            if not card.action.capability.startswith(prefix):
+                raise ValueError("Pack capability must remain within its Pack namespace")
             if not set(card.action.required_permissions).issubset(declared):
                 raise ValueError("Action requires an undeclared Pack permission")
+            if card.action.required_permissions and card.action.verification is None:
+                raise ValueError("permissioned Pack actions require verification")
