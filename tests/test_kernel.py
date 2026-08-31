@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
 from threading import Event
 from uuid import uuid4
 
+from aegis.ambient import AmbientService, BackgroundTask, Notification
 from aegis.audit import AuditError, AuditLog, SqliteAuditLog
 from aegis.contracts import (
     ActionCard,
@@ -1221,3 +1223,63 @@ def test_forge_trading_card_proposal_materializes_only_after_approval():
     manager.install(proposal.pack_id)
     manager.enable(proposal.pack_id)
     assert manager.retrieve("trading") == (card,)
+
+
+def test_ambient_suggestions_do_not_execute_actions_and_platform_is_policy_gated():
+    class Platform:
+        def __init__(self):
+            self.notifications = []
+            self.tasks = []
+
+        def deliver_notification(self, notification):
+            self.notifications.append(notification)
+
+        def schedule_background(self, task):
+            self.tasks.append(task)
+
+    class Policy:
+        def __init__(self, allowed):
+            self.allowed = allowed
+
+        def allow_notification(self, notification):
+            return self.allowed
+
+        def allow_background_task(self, task):
+            return self.allowed
+
+    platform = Platform()
+    service = AmbientService(platform, Policy(False))
+    suggestion = service.propose(
+        "rice is low",
+        "Add rice to groceries",
+        ActionSpec(action_id="kitchen.groceries.add", capability="kitchen.groceries.add"),
+    )
+    assert suggestion.proposed_action is not None
+    assert platform.notifications == []
+    try:
+        service.deliver(
+            Notification(recipient_ids=("alice",), text="Rice is low", correlation_id=uuid4())
+        )
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("ambient notification bypassed policy")
+    try:
+        service.schedule(
+            BackgroundTask(
+                run_at=datetime.now(timezone.utc),
+                task_type="suggestion.refresh",
+                idempotency_key="ambient-1",
+            )
+        )
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("ambient task bypassed policy")
+
+    allowed = AmbientService(platform, Policy(True))
+    notification = Notification(
+        recipient_ids=("alice",), text="Rice is low", correlation_id=uuid4()
+    )
+    allowed.deliver(notification)
+    assert platform.notifications == [notification]
