@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "phase-1-model-safety-canaries-green",
+  "current_checkpoint": "phase-2-openclaw-policy-boundary",
   "active_branch": "aegis-dev",
-  "head_sha": "50ca94b9224c12e6583299596970051e450ff59e",
-  "last_green_sha": "50ca94b9224c12e6583299596970051e450ff59e",
-  "last_pushed_sha": "50ca94b9224c12e6583299596970051e450ff59e",
+  "head_sha": "7d6b9d1257d80cd075afd66772c767b363e63f9d",
+  "last_green_sha": "7d6b9d1257d80cd075afd66772c767b363e63f9d",
+  "last_pushed_sha": "7d6b9d1257d80cd075afd66772c767b363e63f9d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,12 +22,13 @@
   ],
   "phase_exit_gates": {
     "0": "complete",
-    "1": "in_progress"
+    "1": "in_progress",
+    "2": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "9 passed"
+    "pytest": "11 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -37,7 +38,7 @@
   "database_migration_version": null,
   "openclaw_compatibility": {
     "tested_release": "2026.8.1",
-    "adapter": "not_started"
+    "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Implement generic fake Task/Kitchen/Homelab adapters and vertical canaries, then introduce a versioned OpenClaw Gateway adapter boundary"
+  "next_action": "Add Gateway transport protocol/correlation and cancellation semantics, then replace in-memory objective storage with a durable SQL adapter"
 }
