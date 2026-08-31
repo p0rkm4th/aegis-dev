@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from uuid import UUID, uuid4
 
+from .audit import AuditLog
 from .contracts import (
     ActionCard,
     AuthorizationRequest,
@@ -32,6 +33,7 @@ class Kernel:
         verifier: Verifier,
         fast_path: DeterministicFastPath | None = None,
         store: ObjectiveStore | None = None,
+        audit: AuditLog | None = None,
     ) -> None:
         self.model = model
         self.decoder = decoder
@@ -40,6 +42,7 @@ class Kernel:
         self.verifier = verifier
         self.fast_path = fast_path or NoopFastPath()
         self.store: ObjectiveStore = store or InMemoryObjectiveStore()
+        self.audit = audit or AuditLog()
         self.objectives: dict[UUID, Objective] = {}
         self._executed: set[str] = set()
         self._results: dict[str, Result] = {}
@@ -53,6 +56,12 @@ class Kernel:
         objective = Objective(intent=intent, correlation_id=intent.correlation_id)
         self.objectives[objective.id] = objective
         self.store.save_objective(objective)
+        self.audit.append(
+            "objective.created",
+            intent.principal.id,
+            {"objective_id": str(objective.id), "correlation_id": str(intent.correlation_id)},
+            objective_id=objective.id,
+        )
         try:
             decision = self.decoder.decode(
                 self.model.decide(
@@ -71,16 +80,29 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
             self.store.save_result(f"decision:{objective.id}", result)
+            self.audit.append(
+                "decision.rejected",
+                intent.principal.id,
+                {"reason": str(exc)},
+                objective_id=objective.id,
+            )
             return result
         if decision.kind is not DecisionKind.ACTION:
+            state = {
+                DecisionKind.ANSWER: ObjectiveState.COMPLETED,
+                DecisionKind.NEED_CONTEXT: ObjectiveState.BLOCKED,
+                DecisionKind.CLARIFY: ObjectiveState.BLOCKED,
+                DecisionKind.BLOCKED: ObjectiveState.BLOCKED,
+            }[decision.kind]
+            self.audit.append(
+                "decision.terminal",
+                intent.principal.id,
+                {"kind": decision.kind.value, "state": state.value},
+                objective_id=objective.id,
+            )
             return Result(
                 objective_id=objective.id,
-                state={
-                    DecisionKind.ANSWER: ObjectiveState.COMPLETED,
-                    DecisionKind.NEED_CONTEXT: ObjectiveState.BLOCKED,
-                    DecisionKind.CLARIFY: ObjectiveState.BLOCKED,
-                    DecisionKind.BLOCKED: ObjectiveState.BLOCKED,
-                }[decision.kind],
+                state=state,
                 message=decision.answer or decision.reason or decision.kind,
                 correlation_id=intent.correlation_id,
             )
@@ -104,6 +126,12 @@ class Kernel:
             self.objectives[objective.id] = objective.model_copy(
                 update={"state": ObjectiveState.BLOCKED}
             )
+            self.audit.append(
+                "policy.denied",
+                intent.principal.id,
+                {"capability": decision.action.capability, "reason": policy.reason},
+                objective_id=objective.id,
+            )
             return Result(
                 objective_id=objective.id,
                 state=ObjectiveState.BLOCKED,
@@ -111,6 +139,12 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
         if policy.approval_required:
+            self.audit.append(
+                "approval.required",
+                intent.principal.id,
+                {"capability": decision.action.capability, "reason": policy.reason},
+                objective_id=objective.id,
+            )
             return Result(
                 objective_id=objective.id,
                 state=ObjectiveState.APPROVAL_REQUIRED,
@@ -126,6 +160,12 @@ class Kernel:
             self._executed.add(key)
             return prior
         if key in self._executed:
+            self.audit.append(
+                "action.replay_suppressed",
+                intent.principal.id,
+                {"capability": decision.action.capability},
+                objective_id=objective.id,
+            )
             return Result(
                 objective_id=objective.id,
                 state=ObjectiveState.OBSERVED,
@@ -133,16 +173,27 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
         self._executed.add(key)
+        execution_id = uuid4()
         observation = self.executor.execute(
             ExecutionRequest(
                 objective_id=objective.id,
-                action_id=uuid4(),
+                action_id=execution_id,
                 action=decision.action,
                 idempotency_key=key,
             )
         )
         self.objectives[objective.id] = objective.model_copy(
             update={"state": ObjectiveState.OBSERVED}
+        )
+        self.audit.append(
+            "action.observed",
+            intent.principal.id,
+            {
+                "capability": decision.action.capability,
+                "command_succeeded": observation.command_succeeded,
+            },
+            objective_id=objective.id,
+            action_id=execution_id,
         )
         if decision.action.verification is None:
             result = Result(
@@ -154,6 +205,13 @@ class Kernel:
             )
             self._results[key] = result
             self.store.save_result(key, result)
+            self.audit.append(
+                "result.failed",
+                intent.principal.id,
+                {"state": ObjectiveState.FAILED.value, "verified": False},
+                objective_id=objective.id,
+                action_id=execution_id,
+            )
             return result
         verified = self.verifier.verify(observation, decision.action.verification)
         state = ObjectiveState.COMPLETED if verified.verified else ObjectiveState.FAILED
@@ -167,4 +225,11 @@ class Kernel:
         )
         self._results[key] = result
         self.store.save_result(key, result)
+        self.audit.append(
+            "result.verified" if verified.verified else "result.failed",
+            intent.principal.id,
+            {"state": state.value, "verified": verified.verified},
+            objective_id=objective.id,
+            action_id=execution_id,
+        )
         return result
