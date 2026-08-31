@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 5,
-  "current_checkpoint": "phase-5-decision-evaluation-harness-green",
+  "current_phase": 6,
+  "current_checkpoint": "phase-6-personal-provenance-and-temporal-state-green",
   "active_branch": "aegis-dev",
-  "head_sha": "fb353dd0a5b3b49171a49a04715b8e62cebd5d47",
-  "last_green_sha": "fb353dd0a5b3b49171a49a04715b8e62cebd5d47",
-  "last_pushed_sha": "fb353dd0a5b3b49171a49a04715b8e62cebd5d47",
+  "head_sha": "91dead7ab8de31635ef92c5931adb539598336c3",
+  "last_green_sha": "91dead7ab8de31635ef92c5931adb539598336c3",
+  "last_pushed_sha": "91dead7ab8de31635ef92c5931adb539598336c3",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -26,12 +26,13 @@
     "2": "in_progress",
     "3": "in_progress",
     "4": "in_progress",
-    "5": "in_progress"
+    "5": "in_progress",
+    "6": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "33 passed"
+    "pytest": "35 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -43,5 +44,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Run evaluation harness against live Ollama/Qwen3:8B when available; meanwhile add personal intelligence entities, provenance, and temporal memory contracts"
+  "next_action": "Add durable serialization/reload for personal state and entity resolution tests, then begin shared household Space workflows"
 }
