@@ -31,6 +31,8 @@ class FinanceSnapshot:
     owner_id: str
     accounts: tuple[Account, ...]
     transactions: tuple[Transaction, ...] = ()
+    provider_id: str = "fixture"
+    captured_at: datetime | None = None
 
 
 @dataclass(frozen=True)
@@ -70,6 +72,13 @@ class FinanceLedger:
             return self._snapshots[owner_id]
         except KeyError as exc:
             raise KeyError("finance snapshot is unavailable") from exc
+
+    def provenance(self, requester: Principal, owner_id: str) -> dict[str, str | None]:
+        snapshot = self.private_snapshot(requester, owner_id)
+        return {
+            "provider_id": snapshot.provider_id,
+            "captured_at": snapshot.captured_at.isoformat() if snapshot.captured_at else None,
+        }
 
     def total_balance(self, requester: Principal, owner_id: str) -> int:
         return sum(
