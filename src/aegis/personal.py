@@ -1,0 +1,117 @@
+"""Canonical personal intelligence state with provenance and temporal queries."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import StrEnum
+from uuid import UUID, uuid4
+
+
+class Provenance(StrEnum):
+    EXPLICIT_USER = "explicit_user"
+    OBSERVED = "observed"
+    INFERRED = "inferred"
+    IMPORTED = "imported"
+    DERIVED = "derived"
+    CORRECTED = "corrected"
+
+
+@dataclass(frozen=True)
+class Entity:
+    entity_id: UUID
+    canonical_name: str
+    aliases: tuple[str, ...] = ()
+
+
+@dataclass
+class MemoryRecord:
+    memory_id: UUID
+    content: str
+    occurred_at: datetime
+    provenance: Provenance
+    entity_ids: tuple[UUID, ...] = ()
+    superseded_by: UUID | None = None
+
+
+@dataclass(frozen=True)
+class Project:
+    project_id: UUID
+    name: str
+    created_at: datetime
+
+
+@dataclass(frozen=True)
+class Goal:
+    goal_id: UUID
+    project_id: UUID | None
+    description: str
+    created_at: datetime
+
+
+@dataclass
+class PersonalState:
+    entities: dict[UUID, Entity] = field(default_factory=dict)
+    memories: dict[UUID, MemoryRecord] = field(default_factory=dict)
+    projects: dict[UUID, Project] = field(default_factory=dict)
+    goals: dict[UUID, Goal] = field(default_factory=dict)
+
+    def add_entity(self, canonical_name: str, aliases: tuple[str, ...] = ()) -> Entity:
+        if not canonical_name.strip():
+            raise ValueError("entity name is required")
+        entity = Entity(uuid4(), canonical_name, aliases)
+        self.entities[entity.entity_id] = entity
+        return entity
+
+    def resolve_entity(self, reference: str) -> Entity | None:
+        normalized = reference.casefold().strip()
+        return next(
+            (
+                entity
+                for entity in self.entities.values()
+                if entity.canonical_name.casefold() == normalized
+                or normalized in {alias.casefold() for alias in entity.aliases}
+            ),
+            None,
+        )
+
+    def add_memory(
+        self,
+        content: str,
+        occurred_at: datetime,
+        provenance: Provenance,
+        entity_ids: tuple[UUID, ...] = (),
+    ) -> MemoryRecord:
+        if not content.strip():
+            raise ValueError("memory content is required")
+        if any(entity_id not in self.entities for entity_id in entity_ids):
+            raise ValueError("memory references an unknown entity")
+        memory = MemoryRecord(uuid4(), content, occurred_at, provenance, entity_ids)
+        self.memories[memory.memory_id] = memory
+        return memory
+
+    def correct_memory(self, memory_id: UUID, content: str, corrected_at: datetime) -> MemoryRecord:
+        original = self.memories.get(memory_id)
+        if original is None or original.superseded_by is not None:
+            raise ValueError("memory is missing or already superseded")
+        corrected = self.add_memory(
+            content, corrected_at, Provenance.CORRECTED, original.entity_ids
+        )
+        original.superseded_by = corrected.memory_id
+        return corrected
+
+    def memories_between(
+        self, start: datetime, end: datetime, entity_id: UUID | None = None
+    ) -> tuple[MemoryRecord, ...]:
+        return tuple(
+            sorted(
+                (
+                    memory
+                    for memory in self.memories.values()
+                    if memory.superseded_by is None
+                    and start <= memory.occurred_at <= end
+                    and (entity_id is None or entity_id in memory.entity_ids)
+                ),
+                key=lambda memory: memory.occurred_at,
+            )
+        )
