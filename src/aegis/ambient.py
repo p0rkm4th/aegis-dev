@@ -43,6 +43,34 @@ class AmbientPlatform(Protocol):
 
     def schedule_background(self, task: BackgroundTask) -> None: ...
 
+    def cancel_background(self, task: BackgroundTask) -> None: ...
+
+
+class AmbientGateway(Protocol):
+    """Narrow seam implemented by the OpenClaw Gateway/RPC adapter."""
+
+    def notify(self, params: dict[str, Any]) -> None: ...
+
+    def schedule(self, params: dict[str, Any]) -> None: ...
+
+    def cancel(self, params: dict[str, Any]) -> None: ...
+
+
+class OpenClawAmbientPlatform:
+    """Map ambient contracts to OpenClaw without owning scheduling or delivery."""
+
+    def __init__(self, gateway: AmbientGateway) -> None:
+        self.gateway = gateway
+
+    def deliver_notification(self, notification: Notification) -> None:
+        self.gateway.notify(notification.model_dump(mode="json"))
+
+    def schedule_background(self, task: BackgroundTask) -> None:
+        self.gateway.schedule(task.model_dump(mode="json"))
+
+    def cancel_background(self, task: BackgroundTask) -> None:
+        self.gateway.cancel({"task_id": str(task.task_id), "idempotency_key": task.idempotency_key})
+
 
 class AmbientPolicy(Protocol):
     def allow_notification(self, notification: Notification) -> bool: ...
@@ -66,6 +94,9 @@ class AmbientService:
         if not self.policy.allow_background_task(task):
             raise PermissionError("ambient background task denied by policy")
         self.platform.schedule_background(task)
+
+    def cancel(self, task: BackgroundTask) -> None:
+        self.platform.cancel_background(task)
 
     @staticmethod
     def propose(
