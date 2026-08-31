@@ -9,3 +9,4 @@ def test_validation_script_and_ci_workflow_exist():
     assert workflow.is_file()
     assert "python -m pytest" in script.read_text()
     assert "bash scripts/validate.sh" in workflow.read_text()
+    assert (root / "scripts" / "smoke_install.sh").is_file()

@@ -61,6 +61,7 @@ from aegis.identity import (
     Vault,
 )
 from aegis.kernel import Kernel
+from aegis.migrations import validate_migrations
 from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
 from aegis.network import AuthorizedNetworkScope, DiscoveredDevice, HomelabInventory, ScopeDenied
 from aegis.ollama import OllamaProvider, OllamaResponseError
@@ -1486,6 +1487,10 @@ def test_health_report_separates_required_readiness_from_optional_health():
     failed = HealthService((("postgres", False, True, "unavailable"),)).report()
     assert failed.healthy is False
     assert failed.ready is False
+
+
+def test_migration_manifest_is_contiguous_and_nonempty():
+    assert validate_migrations() == ("001_initial.sql",)
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
