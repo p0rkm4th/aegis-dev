@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 6,
-  "current_checkpoint": "phase-6-personal-state-reload-green",
+  "current_phase": 7,
+  "current_checkpoint": "phase-7-household-space-workflows-green",
   "active_branch": "aegis-dev",
-  "head_sha": "1ba381155f5682cbd6d9ad5b11c980fb11cd6ce5",
-  "last_green_sha": "1ba381155f5682cbd6d9ad5b11c980fb11cd6ce5",
-  "last_pushed_sha": "1ba381155f5682cbd6d9ad5b11c980fb11cd6ce5",
+  "head_sha": "f0ee8461eb7fd106f064f4a883f2f98af4b76112",
+  "last_green_sha": "f0ee8461eb7fd106f064f4a883f2f98af4b76112",
+  "last_pushed_sha": "f0ee8461eb7fd106f064f4a883f2f98af4b76112",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -27,12 +27,13 @@
     "3": "in_progress",
     "4": "in_progress",
     "5": "in_progress",
-    "6": "in_progress"
+    "6": "in_progress",
+    "7": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "37 passed"
+    "pytest": "39 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -44,5 +45,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add shared household Space workflows for groceries, chores, events, and obligations with private/shared boundary tests"
+  "next_action": "Add household membership change/audit behavior and finance projection integration for shared obligations"
 }
