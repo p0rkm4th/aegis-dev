@@ -10,6 +10,7 @@ from aegis.contracts import (
     ExecutionRequest,
     IntentFrame,
     ModelRequest,
+    ModelResponse,
     Observation,
     PolicyDecision,
     Principal,
@@ -19,6 +20,7 @@ from aegis.contracts import (
     WorkingSet,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
+from aegis.evaluation import DecisionEvaluationHarness, EvaluationCase
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
 from aegis.identity import (
     InMemoryAuthorization,
@@ -802,3 +804,40 @@ def test_ollama_provider_does_not_retry_beyond_bound():
     else:
         raise AssertionError("malformed Ollama output was accepted")
     assert transport.calls == 2
+
+
+def test_decision_evaluation_harness_measures_valid_and_rejected_cases():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.create",
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="create task",
+        relevance=1,
+    )
+    cases = (
+        EvaluationCase(
+            "answer",
+            ModelResponse(raw={"kind": "ANSWER", "answer": "three tasks"}),
+            (),
+            expected_kind=DecisionKind.ANSWER,
+        ),
+        EvaluationCase(
+            "action",
+            ModelResponse(raw={"kind": "ACTION", "action": card.action.model_dump()}),
+            (card,),
+            expected_kind=DecisionKind.ACTION,
+            expected_action_id="tasks.create",
+        ),
+        EvaluationCase(
+            "invented",
+            ModelResponse(raw={"kind": "ACTION", "action": {"action_id": "root"}}),
+            (card,),
+            expect_rejection=True,
+        ),
+    )
+    summary = DecisionEvaluationHarness().run(cases).summary()
+    assert summary["cases"] == 3
+    assert summary["success_rate"] == 1.0
+    assert summary["security_errors"] == 0
