@@ -29,6 +29,7 @@ from aegis.identity import (
     Vault,
 )
 from aegis.kernel import Kernel
+from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
 from aegis.projections import (
@@ -699,3 +700,62 @@ def test_pack_validation_rejects_cross_namespace_or_unverified_mutation():
             pass
         else:
             raise AssertionError("unsafe Pack manifest was accepted")
+
+
+def test_model_router_prefers_available_local_provider_and_records_provenance():
+    class Provider:
+        def __init__(self, provider_id, local, available):
+            self.provider_id = provider_id
+            self.local = local
+            self._available = available
+
+        def available(self):
+            return self._available
+
+        def decide(self, request):
+            return type("Response", (), {"raw": {"kind": "ANSWER", "answer": self.provider_id}})()
+
+    router = ConfiguredModelRouter(
+        (Provider("cloud", False, True), Provider("ollama/qwen3:8b", True, True)),
+        allow_cloud=True,
+    )
+    response = router.decide(type("Request", (), {})())
+    assert response.raw["answer"] == "cloud"
+    assert router.traces[0].provider_id == "cloud"
+    local_router = ConfiguredModelRouter(
+        (Provider("cloud", False, True), Provider("ollama/qwen3:8b", True, True)),
+    )
+    assert local_router.decide(type("Request", (), {})()).raw["answer"] == "ollama/qwen3:8b"
+
+
+def test_model_router_fails_closed_when_only_disallowed_provider_exists():
+    class Cloud:
+        provider_id = "cloud"
+        local = False
+
+        def available(self):
+            return True
+
+        def decide(self, request):
+            raise AssertionError("cloud provider was used without explicit opt-in")
+
+    try:
+        ConfiguredModelRouter((Cloud(),)).decide(type("Request", (), {})())
+    except ModelUnavailable:
+        pass
+    else:
+        raise AssertionError("privacy policy was bypassed")
+
+
+def test_baseline_metrics_are_compact_and_measurable():
+    metrics = BaselineMetrics()
+    metrics.record(success=True, schema_valid=True, latency_ms=10)
+    metrics.record(success=False, schema_valid=True, false_completion=True, latency_ms=20)
+    assert metrics.summary() == {
+        "cases": 2,
+        "success_rate": 0.5,
+        "schema_valid_rate": 1.0,
+        "false_completions": 1,
+        "security_errors": 0,
+        "average_latency_ms": 15,
+    }
