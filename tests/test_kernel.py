@@ -37,6 +37,7 @@ from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnav
 from aegis.ollama import OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
+from aegis.personal import PersonalState, Provenance
 from aegis.projections import (
     HouseholdProjection,
     PrivacyProjectionService,
@@ -841,3 +842,39 @@ def test_decision_evaluation_harness_measures_valid_and_rejected_cases():
     assert summary["cases"] == 3
     assert summary["success_rate"] == 1.0
     assert summary["security_errors"] == 0
+
+
+def test_personal_state_resolves_aliases_and_preserves_provenance():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    server = state.add_entity("Atlas", ("the server", "atlas host"))
+    when = datetime(2026, 8, 30, 23, 0, tzinfo=timezone.utc)
+    memory = state.add_memory(
+        "Worked on the backup architecture", when, Provenance.EXPLICIT_USER, (server.entity_id,)
+    )
+    assert state.resolve_entity("THE SERVER") == server
+    assert state.memories_between(
+        datetime(2026, 8, 30, 22, 0, tzinfo=timezone.utc),
+        datetime(2026, 8, 31, 1, 0, tzinfo=timezone.utc),
+        server.entity_id,
+    ) == (memory,)
+    assert memory.provenance is Provenance.EXPLICIT_USER
+
+
+def test_personal_memory_correction_supersedes_old_record():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    first = state.add_memory(
+        "Use daily backups", datetime(2026, 8, 30, tzinfo=timezone.utc), Provenance.INFERRED
+    )
+    corrected = state.correct_memory(
+        first.memory_id, "Use hourly backups", datetime(2026, 8, 31, tzinfo=timezone.utc)
+    )
+    assert first.superseded_by == corrected.memory_id
+    records = state.memories_between(
+        datetime(2026, 8, 29, tzinfo=timezone.utc),
+        datetime(2026, 9, 1, tzinfo=timezone.utc),
+    )
+    assert records == (corrected,)
