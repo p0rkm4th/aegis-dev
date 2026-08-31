@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 8,
-  "current_checkpoint": "phase-8-finance-provenance-and-settlement-green",
+  "current_phase": 9,
+  "current_checkpoint": "phase-9-authorized-network-scope-green",
   "active_branch": "aegis-dev",
-  "head_sha": "5d6042c7b9b90d995f22309e54a2289c526a2492",
-  "last_green_sha": "5d6042c7b9b90d995f22309e54a2289c526a2492",
-  "last_pushed_sha": "5d6042c7b9b90d995f22309e54a2289c526a2492",
+  "head_sha": "89927056f55aabaf05ffa5785a3d688e3a2d24a9",
+  "last_green_sha": "89927056f55aabaf05ffa5785a3d688e3a2d24a9",
+  "last_pushed_sha": "89927056f55aabaf05ffa5785a3d688e3a2d24a9",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -29,12 +29,13 @@
     "5": "in_progress",
     "6": "in_progress",
     "7": "in_progress",
-    "8": "in_progress"
+    "8": "in_progress",
+    "9": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "44 passed"
+    "pytest": "46 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -46,5 +47,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Run beta security/recovery gate over current vertical canaries, then begin technical Homelab/Network scope models"
+  "next_action": "Add Homelab host/service inventory and bounded verified actions using authorized network scopes"
 }
