@@ -22,6 +22,7 @@ from aegis.contracts import (
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.evaluation import DecisionEvaluationHarness, EvaluationCase
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
+from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
 from aegis.identity import (
     InMemoryAuthorization,
     KeycloakIdentityProvider,
@@ -907,3 +908,40 @@ def test_personal_state_rejects_unknown_schema():
         pass
     else:
         raise AssertionError("unknown personal-state schema was accepted")
+
+
+def test_household_space_supports_shared_workflows_for_active_members():
+    from datetime import datetime, timezone
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    bob = Principal(id="bob", vault_id="bob-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {"alice", "bob"})
+    space.add_grocery(alice, "rice")
+    space.add_chore(alice, Chore("dishes", "Wash dishes", "bob"))
+    space.add_event(
+        alice,
+        HouseholdEvent(
+            "inspection", "Apartment inspection", datetime(2026, 9, 2, tzinfo=timezone.utc)
+        ),
+    )
+    space.add_obligation(alice, HouseholdObligation("rent", "September rent", 2000, "bob"))
+    snapshot = space.snapshot(bob)
+    assert snapshot["groceries"] == ("rice",)
+    assert len(snapshot["chores"]) == 1
+    assert len(snapshot["events"]) == 1
+    assert len(snapshot["obligations"]) == 1
+
+
+def test_household_space_rejects_nonmember_and_private_data_is_not_accepted():
+    outsider = Principal(id="mallory", vault_id="mallory-vault", space_ids=())
+    space = HouseholdSpace("apartment", {"alice", "bob"})
+    for operation in (
+        lambda: space.add_grocery(outsider, "private-bank-balance"),
+        lambda: space.snapshot(outsider),
+    ):
+        try:
+            operation()
+        except PermissionError:
+            pass
+        else:
+            raise AssertionError("nonmember accessed shared household state")
