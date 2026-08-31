@@ -1,7 +1,7 @@
 from threading import Event
 from uuid import uuid4
 
-from aegis.audit import AuditError, AuditLog
+from aegis.audit import AuditError, AuditLog, SqliteAuditLog
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
@@ -606,3 +606,18 @@ def test_audit_log_rejects_secret_fields_at_ingress():
         pass
     else:
         raise AssertionError("secret entered semantic audit log")
+
+
+def test_persistent_audit_log_reloads_and_detects_database_tampering(tmp_path):
+    path = str(tmp_path / "audit.sqlite")
+    log = SqliteAuditLog(path)
+    log.append("objective.created", "alice", {"domain": "tasks"})
+    log.close()
+    reloaded = SqliteAuditLog(path)
+    assert reloaded.verify()
+    reloaded.close()
+    tampered = SqliteAuditLog(path)
+    tampered.connection.execute("UPDATE audit_events SET payload = ?", ('{"domain":"finance"}',))
+    tampered.connection.commit()
+    tampered.close()
+    assert not SqliteAuditLog(path).verify()
