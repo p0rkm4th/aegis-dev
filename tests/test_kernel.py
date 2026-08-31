@@ -17,6 +17,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
+from aegis.identity import InMemoryAuthorization, Membership, Resource, Role, Space, Vault
 from aegis.kernel import Kernel
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.reference_packs import (
@@ -480,3 +481,20 @@ def test_gateway_rpc_named_methods_preserve_documented_method_names():
     assert rpc.agent_wait({"runId": "r"})["status"] == "accepted"
     assert rpc.cancel({"runId": "r"})["status"] == "accepted"
     assert channel.methods == ["agent", "agent.wait", "agent.cancel"]
+
+
+def test_vault_and_space_authorization_is_structural_and_revocable():
+    auth = InMemoryAuthorization()
+    auth.add_vault(Vault("alice-vault", "alice"))
+    auth.add_vault(Vault("bob-vault", "bob"))
+    auth.add_space(Space("apartment", "Apartment"))
+    auth.add_membership(Membership("bob", "apartment", Role.MEMBER))
+    auth.add_resource(Resource("alice-bank", "alice-vault"))
+    auth.add_resource(Resource("rent", "alice-vault", "apartment"))
+    alice = Principal(id="alice", vault_id="alice-vault")
+    bob = Principal(id="bob", vault_id="bob-vault")
+    assert auth.can_read(alice, "alice-bank").allowed
+    assert not auth.can_read(bob, "alice-bank").allowed
+    assert auth.can_read(bob, "rent").allowed
+    auth.revoke("bob", "apartment")
+    assert not auth.can_read(bob, "rent").allowed
