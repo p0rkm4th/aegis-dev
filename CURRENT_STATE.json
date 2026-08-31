@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 11,
-  "current_checkpoint": "phase-11-proactive-household-canary-green",
+  "current_phase": 12,
+  "current_checkpoint": "phase-12-reproducible-ci-validation-green",
   "active_branch": "aegis-dev",
-  "head_sha": "ec46086c96b7e32e04f0fe1835268956775369b6",
-  "last_green_sha": "ec46086c96b7e32e04f0fe1835268956775369b6",
-  "last_pushed_sha": "ec46086c96b7e32e04f0fe1835268956775369b6",
+  "head_sha": "9ee86e866b47ab73e9f9e8d43269e544375d5d0f",
+  "last_green_sha": "9ee86e866b47ab73e9f9e8d43269e544375d5d0f",
+  "last_pushed_sha": "9ee86e866b47ab73e9f9e8d43269e544375d5d0f",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -41,14 +41,19 @@
     "8": "in_progress",
     "9": "in_progress",
     "10": "in_progress",
-    "11": "in_progress"
+    "11": "in_progress",
+    "12": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
     "pytest": "59 passed"
   },
-  "known_failures": [],
+  "known_failures": [
+    "live Ollama endpoint unavailable in this environment",
+    "live OpenClaw Gateway transport not connected",
+    "live Home Assistant/device acceptance not performed"
+  ],
   "blocked_lanes": [],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
@@ -58,5 +63,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Assess Phase 11 exit gates against live platform availability, then begin Phase 12 release hardening lanes that are not blocked by unavailable credentials or hardware"
+  "next_action": "Add configuration validation and backup/restore evidence for canonical local state; keep live integration limitations explicit"
 }
