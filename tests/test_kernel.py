@@ -10,12 +10,14 @@ from aegis.ambient import (
     SqliteAmbientState,
 )
 from aegis.audit import AuditError, AuditLog, SqliteAuditLog
+from aegis.backup import backup_sqlite, restore_sqlite
 from aegis.card_collecting import (
     CardCollection,
     CardCollectionExecutor,
     CardCollectionVerifier,
     card_collection_card,
 )
+from aegis.config import AegisConfig
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
@@ -1440,6 +1442,33 @@ def test_household_proactivity_composes_grounded_suggestion_without_executing():
         )
         is None
     )
+
+
+def test_sqlite_backup_restore_preserves_canonical_objective_state(tmp_path):
+    source_path = str(tmp_path / "source.sqlite")
+    backup_path = str(tmp_path / "backup.sqlite")
+    restored_path = str(tmp_path / "restored.sqlite")
+    original = SqliteAmbientState(source_path)
+    assert original.claim("notification:one") is True
+    original.close()
+    backup_sqlite(source_path, backup_path)
+    restore_sqlite(backup_path, restored_path)
+    restored = SqliteAmbientState(restored_path)
+    assert restored.claim("notification:one") is False
+    restored.close()
+
+
+def test_config_requires_infrastructure_and_does_not_expose_database_secret(monkeypatch):
+    for name, value in {
+        "AEGIS_DATABASE_URL": "postgres://user:password@example/db",
+        "AEGIS_KEYCLOAK_URL": "https://keycloak.test",
+        "AEGIS_OPENFGA_URL": "https://openfga.test",
+        "AEGIS_OPENCLAW_GATEWAY_URL": "wss://openclaw.test",
+    }.items():
+        monkeypatch.setenv(name, value)
+    config = AegisConfig.from_environment()
+    assert config.database_url.get_secret_value().endswith("/db")
+    assert "password" not in str(config)
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
