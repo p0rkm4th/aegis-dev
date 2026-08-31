@@ -30,6 +30,7 @@ from aegis.identity import (
 )
 from aegis.kernel import Kernel
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
+from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
 from aegis.projections import (
     HouseholdProjection,
     PrivacyProjectionService,
@@ -621,3 +622,32 @@ def test_persistent_audit_log_reloads_and_detects_database_tampering(tmp_path):
     tampered.connection.commit()
     tampered.close()
     assert not SqliteAuditLog(path).verify()
+
+
+def test_pack_lifecycle_requires_explicit_permissions_and_enablement():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="cards.read", capability="cards.read", required_permissions=("cards.read",)
+        ),
+        summary="Read cards",
+        relevance=1,
+    )
+    bundle = PackBundle(
+        manifest=PackManifest(pack_id="cards", version="0.1.0", permissions=("cards.read",)),
+        cards=(card,),
+    )
+    manager = PackManager()
+    manager.discover(bundle)
+    assert manager.status("cards") is PackStatus.DISCOVERED
+    try:
+        manager.install("cards")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("Pack installed without permission grant")
+    manager.install("cards", frozenset({"cards.read"}))
+    assert manager.enabled_cards() == ()
+    manager.enable("cards")
+    assert manager.enabled_cards() == (card,)
+    manager.disable("cards")
+    assert manager.enabled_cards() == ()
