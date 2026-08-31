@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 10,
-  "current_checkpoint": "phase-10-forge-validation-approval-green",
+  "current_checkpoint": "phase-10-forge-pack-bundle-ambient-contracts-green",
   "active_branch": "aegis-dev",
-  "head_sha": "88c38c71f4b7d1ef5eeb93be402afd9e27e89492",
-  "last_green_sha": "88c38c71f4b7d1ef5eeb93be402afd9e27e89492",
-  "last_pushed_sha": "88c38c71f4b7d1ef5eeb93be402afd9e27e89492",
+  "head_sha": "5c7a9233560f97d06c0b77bb8d6cbd5f51a1abdf",
+  "last_green_sha": "5c7a9233560f97d06c0b77bb8d6cbd5f51a1abdf",
+  "last_pushed_sha": "5c7a9233560f97d06c0b77bb8d6cbd5f51a1abdf",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -18,7 +18,9 @@
   "completed_functionality": [
     "greenfield scaffold",
     "typed semantic contracts",
-    "policy-before-execution kernel canaries"
+    "policy-before-execution kernel canaries",
+    "Forge validation, approval, installation, and PackBundle conversion",
+    "policy-gated ambient notification and background-task contracts"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -36,7 +38,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "52 passed"
+    "pytest": "54 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -48,5 +50,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add Forge PackBundle conversion with permission review and a trading-card acceptance fixture, then add ambient notification/background contracts"
+  "next_action": "Build the trading-card Pack acceptance path on top of the approved Forge bundle, then wire ambient contracts to the OpenClaw adapter boundary"
 }
