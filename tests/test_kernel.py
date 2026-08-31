@@ -1,3 +1,4 @@
+from threading import Event
 from uuid import uuid4
 
 from aegis.contracts import (
@@ -16,7 +17,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.kernel import Kernel
-from aegis.openclaw import OpenClawExecutor
+from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.reference_packs import (
     ReferenceExecutor,
     ReferenceVerifier,
@@ -302,3 +303,100 @@ def test_openclaw_runtime_deny_prevents_gateway_call():
     observation = OpenClawExecutor(client, DenyRuntime(), NoApproval()).execute(request)
     assert not observation.command_succeeded
     assert client.calls == 0
+
+
+def test_gateway_reconnect_reuses_same_idempotency_request_when_safe():
+    class Transport:
+        def __init__(self):
+            self.calls = 0
+            self.reconnected = False
+            self.requests = []
+
+        def execute(self, request):
+            self.calls += 1
+            self.requests.append(request.idempotency_key)
+            if self.calls == 1:
+                raise GatewayDisconnected()
+            return Observation(
+                execution_id=request.action_id, evidence={"verified": True}, command_succeeded=True
+            )
+
+        def retry_is_safe(self, request):
+            return True
+
+        def reconnect(self):
+            self.reconnected = True
+
+        def cancel(self, request):
+            raise AssertionError("unexpected cancellation")
+
+    transport = Transport()
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(action_id="safe", capability="safe"),
+        idempotency_key="stable-key",
+    )
+    observation = ReconnectingGatewayClient(transport).execute(request)
+    assert observation.command_succeeded
+    assert transport.reconnected
+    assert transport.requests == ["stable-key", "stable-key"]
+
+
+def test_gateway_disconnect_with_unknown_outcome_is_not_retried():
+    class Transport:
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, request):
+            self.calls += 1
+            raise GatewayDisconnected()
+
+        def retry_is_safe(self, request):
+            return False
+
+        def reconnect(self):
+            raise AssertionError("unknown outcome must not reconnect and replay")
+
+        def cancel(self, request):
+            raise AssertionError("unexpected cancellation")
+
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(action_id="unsafe", capability="unsafe"),
+        idempotency_key="unknown-key",
+    )
+    observation = ReconnectingGatewayClient(Transport()).execute(request)
+    assert observation.evidence["outcome"] == "unknown"
+
+
+def test_gateway_cancel_is_explicit_and_never_executes():
+    class Transport:
+        def __init__(self):
+            self.cancelled = False
+
+        def execute(self, request):
+            raise AssertionError("cancelled request was executed")
+
+        def retry_is_safe(self, request):
+            return False
+
+        def reconnect(self):
+            raise AssertionError("unexpected reconnect")
+
+        def cancel(self, request):
+            self.cancelled = True
+
+    transport = Transport()
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(action_id="safe", capability="safe"),
+        idempotency_key="cancel-key",
+    )
+    event = Event()
+    event.set()
+    observation = ReconnectingGatewayClient(transport).execute(request, event)
+    assert observation.evidence["transport"] == "cancelled"
+    assert transport.cancelled
