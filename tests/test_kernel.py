@@ -33,6 +33,7 @@ from aegis.contracts import (
     WorkingSet,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
+from aegis.devices import DeviceCommand, HomeAssistantAdapter
 from aegis.evaluation import DecisionEvaluationHarness, EvaluationCase
 from aegis.finance import (
     Account,
@@ -1300,6 +1301,60 @@ def test_ambient_suggestions_do_not_execute_actions_and_platform_is_policy_gated
     )
     allowed.deliver(notification)
     assert platform.notifications == [notification]
+
+    assert allowed.deliver(notification) is False
+    assert (
+        allowed.schedule(
+            BackgroundTask(
+                run_at=datetime.now(timezone.utc),
+                task_type="suggestion.refresh",
+                idempotency_key="ambient-3",
+            )
+        )
+        is True
+    )
+    assert (
+        allowed.schedule(
+            BackgroundTask(
+                run_at=datetime.now(timezone.utc),
+                task_type="suggestion.refresh",
+                idempotency_key="ambient-3",
+            )
+        )
+        is False
+    )
+
+
+def test_home_assistant_adapter_reads_state_and_never_bypasses_command_policy():
+    class Gateway:
+        def __init__(self):
+            self.commands = []
+
+        def get_state(self, entity_id):
+            return {"state": "on", "attributes": {"friendly_name": "Lamp"}}
+
+        def call_service(self, command):
+            self.commands.append(command)
+
+    class Policy:
+        def __init__(self, allowed):
+            self.allowed = allowed
+
+        def allow_command(self, command):
+            return self.allowed
+
+    gateway = Gateway()
+    adapter = HomeAssistantAdapter(gateway, Policy(False))
+    state = adapter.read_state("light.lamp", datetime.now(timezone.utc))
+    assert state.state == "on"
+    command = DeviceCommand(entity_id="light.lamp", service="turn_off")
+    try:
+        adapter.execute(command)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("Home Assistant command bypassed policy")
+    assert gateway.commands == []
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
