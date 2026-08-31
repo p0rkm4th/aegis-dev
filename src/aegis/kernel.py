@@ -16,6 +16,7 @@ from .contracts import (
     Result,
     WorkingSet,
 )
+from .decoding import InvalidDecision
 from .fastpath import DeterministicFastPath, NoopFastPath
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
 from .store import InMemoryObjectiveStore, ObjectiveStore
@@ -51,15 +52,25 @@ class Kernel:
         objective = Objective(intent=intent, correlation_id=intent.correlation_id)
         self.objectives[objective.id] = objective
         self.store.save_objective(objective)
-        decision = self.decoder.decode(
-            self.model.decide(
-                ModelRequest(
-                    working_set=WorkingSet(intent=intent),
-                    action_cards=cards,
-                )
-            ),
-            cards,
-        )
+        try:
+            decision = self.decoder.decode(
+                self.model.decide(
+                    ModelRequest(
+                        working_set=WorkingSet(intent=intent),
+                        action_cards=cards,
+                    )
+                ),
+                cards,
+            )
+        except InvalidDecision as exc:
+            result = Result(
+                objective_id=objective.id,
+                state=ObjectiveState.BLOCKED,
+                message=f"Invalid model decision: {exc}",
+                correlation_id=intent.correlation_id,
+            )
+            self.store.save_result(f"decision:{objective.id}", result)
+            return result
         if decision.kind is not DecisionKind.ACTION:
             return Result(
                 objective_id=objective.id,
