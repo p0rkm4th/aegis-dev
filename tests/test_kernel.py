@@ -1,6 +1,7 @@
 from threading import Event
 from uuid import uuid4
 
+from aegis.audit import AuditError, AuditLog
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
@@ -582,3 +583,21 @@ def test_privacy_projection_denies_unapproved_private_input_before_derivation():
         pass
     else:
         raise AssertionError("unauthorized private data entered projection")
+
+
+def test_audit_log_is_hash_chained_and_detects_tampering():
+    log = AuditLog()
+    first = log.append("objective.created", "alice", {"domain": "kitchen"})
+    log.append("action.verified", "alice", {"result": "readback"}, objective_id=first.event_id)
+    assert log.verify()
+    log.events[0].payload["domain"] = "finance"
+    assert not log.verify()
+
+
+def test_audit_log_rejects_secret_fields_at_ingress():
+    try:
+        AuditLog().append("action.observed", "alice", {"access_token": "do-not-store"})
+    except AuditError:
+        pass
+    else:
+        raise AssertionError("secret entered semantic audit log")
