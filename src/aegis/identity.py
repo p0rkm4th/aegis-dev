@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Any, Protocol
 
 from .contracts import Principal
 
@@ -44,6 +45,47 @@ class Resource:
 class AccessDecision:
     allowed: bool
     reason: str
+
+
+class IdentityProvider(Protocol):
+    def principal_from_claims(self, claims: dict[str, Any]) -> Principal: ...
+
+
+class RelationshipAuthorizer(Protocol):
+    def can_read(self, principal: Principal, resource_id: str) -> AccessDecision: ...
+
+
+class KeycloakIdentityProvider:
+    """Map already-validated OIDC claims to Aegis identity; never validates tokens itself."""
+
+    def principal_from_claims(self, claims: dict[str, Any]) -> Principal:
+        subject = claims.get("sub")
+        vault_id = claims.get("aegis_vault_id")
+        if not isinstance(subject, str) or not subject:
+            raise ValueError("validated identity is missing sub")
+        if not isinstance(vault_id, str) or not vault_id:
+            raise ValueError("validated identity is missing aegis_vault_id")
+        spaces = claims.get("aegis_space_ids", ())
+        if not isinstance(spaces, (list, tuple)) or not all(isinstance(s, str) for s in spaces):
+            raise ValueError("aegis_space_ids must be a sequence of strings")
+        return Principal(id=subject, vault_id=vault_id, space_ids=tuple(spaces))
+
+
+class OpenFGAClient(Protocol):
+    def check(self, user: str, relation: str, object_id: str) -> bool: ...
+
+
+class OpenFGAAuthorization:
+    """Relationship adapter; OpenFGA decides relations, Aegis still owns semantics."""
+
+    def __init__(self, client: OpenFGAClient) -> None:
+        self.client = client
+
+    def can_read(self, principal: Principal, resource_id: str) -> AccessDecision:
+        allowed = self.client.check(f"user:{principal.id}", "can_read", f"resource:{resource_id}")
+        return AccessDecision(
+            allowed, "OpenFGA relationship allows read" if allowed else "OpenFGA denied read"
+        )
 
 
 class InMemoryAuthorization:
