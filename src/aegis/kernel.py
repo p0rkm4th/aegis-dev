@@ -16,6 +16,7 @@ from .contracts import (
     Result,
     WorkingSet,
 )
+from .fastpath import DeterministicFastPath, NoopFastPath
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
 from .store import InMemoryObjectiveStore, ObjectiveStore
 
@@ -28,12 +29,14 @@ class Kernel:
         policy: Policy,
         executor: Executor,
         verifier: Verifier,
+        fast_path: DeterministicFastPath | None = None,
     ) -> None:
         self.model = model
         self.decoder = decoder
         self.policy = policy
         self.executor = executor
         self.verifier = verifier
+        self.fast_path = fast_path or NoopFastPath()
         self.store: ObjectiveStore = InMemoryObjectiveStore()
         self.objectives: dict[UUID, Objective] = {}
         self._executed: set[str] = set()
@@ -42,6 +45,9 @@ class Kernel:
     def run(self, intent: IntentFrame, cards: tuple[ActionCard, ...] = ()) -> Result:
         if len(cards) > 5:
             raise ValueError("model-facing action cards must be bounded to five")
+        fast_result = self.fast_path.resolve(intent)
+        if fast_result is not None:
+            return fast_result
         objective = Objective(intent=intent, correlation_id=intent.correlation_id)
         self.objectives[objective.id] = objective
         self.store.save_objective(objective)

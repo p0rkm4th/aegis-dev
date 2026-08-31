@@ -9,6 +9,7 @@ from aegis.contracts import (
     Observation,
     PolicyDecision,
     Principal,
+    Result,
     VerificationContract,
     VerificationResult,
 )
@@ -63,6 +64,14 @@ class Verifier:
             evidence={"readback": self.verified},
             reason="verified" if self.verified else "postcondition failed",
         )
+
+
+class FastPath:
+    def __init__(self, result):
+        self.result = result
+
+    def resolve(self, intent):
+        return self.result
 
 
 def intent():
@@ -183,3 +192,25 @@ def test_decoder_rejects_invented_action():
         pass
     else:
         raise AssertionError("invented action was accepted")
+
+
+def test_deterministic_fast_path_bypasses_model():
+    class ExplodingModel:
+        def decide(self, request):
+            raise AssertionError("model should not be called")
+
+    expected = Result(
+        objective_id=uuid4(),
+        state="completed",
+        message="three tasks",
+        correlation_id=uuid4(),
+    )
+    k = Kernel(
+        ExplodingModel(),
+        Decoder(Decision(kind=DecisionKind.ANSWER, answer="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        fast_path=FastPath(expected),
+    )
+    assert k.run(intent()) == expected
