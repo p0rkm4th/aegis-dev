@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "phase-1-kernel-canaries-green",
+  "current_checkpoint": "phase-1-bounded-retrieval-and-strict-decoding",
   "active_branch": "aegis-dev",
-  "head_sha": "d4dead17e5577d73811aba94066b579ea764a150",
-  "last_green_sha": "d4dead17e5577d73811aba94066b579ea764a150",
-  "last_pushed_sha": "d4dead17e5577d73811aba94066b579ea764a150",
+  "head_sha": "5de0879e3969e884a5b2a2a2ff0c9f7bf4001b13",
+  "last_green_sha": "5de0879e3969e884a5b2a2a2ff0c9f7bf4001b13",
+  "last_pushed_sha": "5de0879e3969e884a5b2a2a2ff0c9f7bf4001b13",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -27,7 +27,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "5 passed"
+    "pytest": "7 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -39,5 +39,5 @@
     "tested_release": "2026.8.1",
     "adapter": "not_started"
   },
-  "next_action": "Add capability registry/retrieval, deterministic fast paths, strict decision decoding, and durable in-memory run records"
+  "next_action": "Add deterministic fast-path ports, real fake adapters, and explicit malformed-decision handling"
 }

@@ -17,6 +17,7 @@ from .contracts import (
     WorkingSet,
 )
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
+from .store import InMemoryObjectiveStore, ObjectiveStore
 
 
 class Kernel:
@@ -33,6 +34,7 @@ class Kernel:
         self.policy = policy
         self.executor = executor
         self.verifier = verifier
+        self.store: ObjectiveStore = InMemoryObjectiveStore()
         self.objectives: dict[UUID, Objective] = {}
         self._executed: set[str] = set()
         self._results: dict[str, Result] = {}
@@ -42,6 +44,7 @@ class Kernel:
             raise ValueError("model-facing action cards must be bounded to five")
         objective = Objective(intent=intent, correlation_id=intent.correlation_id)
         self.objectives[objective.id] = objective
+        self.store.save_objective(objective)
         decision = self.decoder.decode(
             self.model.decide(
                 ModelRequest(
@@ -130,6 +133,7 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
             self._results[key] = result
+            self.store.save_result(key, result)
             return result
         verified = self.verifier.verify(observation, decision.action.verification)
         state = ObjectiveState.COMPLETED if verified.verified else ObjectiveState.FAILED
@@ -142,4 +146,5 @@ class Kernel:
             correlation_id=intent.correlation_id,
         )
         self._results[key] = result
+        self.store.save_result(key, result)
         return result
