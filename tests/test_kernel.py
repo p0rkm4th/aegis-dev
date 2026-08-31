@@ -7,6 +7,7 @@ from aegis.ambient import (
     BackgroundTask,
     Notification,
     OpenClawAmbientPlatform,
+    SqliteAmbientState,
 )
 from aegis.audit import AuditError, AuditLog, SqliteAuditLog
 from aegis.card_collecting import (
@@ -1395,6 +1396,18 @@ def test_ambient_platform_failure_releases_claim_for_safe_retry():
     else:
         raise AssertionError("flaky ambient platform unexpectedly succeeded")
     assert service.schedule(task) is True
+
+
+def test_sqlite_ambient_state_survives_restart_and_suppresses_replay(tmp_path):
+    path = str(tmp_path / "ambient.sqlite")
+    first = SqliteAmbientState(path)
+    assert first.claim("background:stable") is True
+    first.close()
+    second = SqliteAmbientState(path)
+    assert second.claim("background:stable") is False
+    second.release("background:stable")
+    assert second.claim("background:stable") is True
+    second.close()
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
