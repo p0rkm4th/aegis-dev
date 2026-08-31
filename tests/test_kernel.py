@@ -1351,12 +1351,22 @@ def test_home_assistant_adapter_reads_state_and_never_bypasses_command_policy():
     assert state.provenance is Provenance.OBSERVED
     command = DeviceCommand(entity_id="light.lamp", service="turn_off")
     try:
-        adapter.execute(command)
+        adapter.execute(command, datetime.now(timezone.utc))
     except PermissionError:
         pass
     else:
         raise AssertionError("Home Assistant command bypassed policy")
     assert gateway.commands == []
+
+    allowed_adapter = HomeAssistantAdapter(gateway, Policy(True))
+    verified = allowed_adapter.execute(
+        command.model_copy(update={"expected_state": "on"}), datetime.now(timezone.utc)
+    )
+    assert verified.accepted is True
+    assert verified.verified is True
+    unverified = allowed_adapter.execute(command, datetime.now(timezone.utc))
+    assert unverified.accepted is True
+    assert unverified.verified is False
 
 
 def test_ambient_platform_failure_releases_claim_for_safe_retry():
