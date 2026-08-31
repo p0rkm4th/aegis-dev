@@ -7,6 +7,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field
 
 from .contracts import ActionCard
+from .registry import CapabilityRegistry
 
 
 class PackStatus(StrEnum):
@@ -77,6 +78,10 @@ class PackManager:
             if self._statuses[pack_id] is PackStatus.ENABLED
             for card in bundle.cards
         )
+
+    def retrieve(self, domain: str, limit: int = 5) -> tuple[ActionCard, ...]:
+        """Retrieve only enabled Pack capabilities through Core's bounded registry."""
+        return CapabilityRegistry(self.enabled_cards()).retrieve(domain, limit)
 
     def granted_permissions(self, pack_id: str) -> frozenset[str]:
         self._require(pack_id)

@@ -651,3 +651,6 @@ def test_pack_lifecycle_requires_explicit_permissions_and_enablement():
     assert manager.enabled_cards() == (card,)
     manager.disable("cards")
     assert manager.enabled_cards() == ()
+    assert manager.retrieve("cards") == ()
+    manager.enable("cards")
+    assert manager.retrieve("cards") == (card,)
