@@ -56,6 +56,7 @@ class Investigation:
 class CapabilityGap:
     description: str
     requested_by: str
+    requested_permissions: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -92,7 +93,7 @@ class Forge:
         return PackProposal(
             pack_id=f"generated-{normalized}",
             purpose=gap.description,
-            permissions=(),
+            permissions=gap.requested_permissions,
             dependencies=(),
         )
 
