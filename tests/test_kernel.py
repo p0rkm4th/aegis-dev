@@ -2,7 +2,12 @@ from datetime import datetime, timezone
 from threading import Event
 from uuid import uuid4
 
-from aegis.ambient import AmbientService, BackgroundTask, Notification
+from aegis.ambient import (
+    AmbientService,
+    BackgroundTask,
+    Notification,
+    OpenClawAmbientPlatform,
+)
 from aegis.audit import AuditError, AuditLog, SqliteAuditLog
 from aegis.card_collecting import (
     CardCollection,
@@ -1246,6 +1251,9 @@ def test_ambient_suggestions_do_not_execute_actions_and_platform_is_policy_gated
         def schedule_background(self, task):
             self.tasks.append(task)
 
+        def cancel_background(self, task):
+            self.tasks.remove(task)
+
     class Policy:
         def __init__(self, allowed):
             self.allowed = allowed
@@ -1292,3 +1300,38 @@ def test_ambient_suggestions_do_not_execute_actions_and_platform_is_policy_gated
     )
     allowed.deliver(notification)
     assert platform.notifications == [notification]
+
+
+def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
+    class Gateway:
+        def __init__(self):
+            self.calls = []
+
+        def notify(self, params):
+            self.calls.append(("notify", params))
+
+        def schedule(self, params):
+            self.calls.append(("schedule", params))
+
+        def cancel(self, params):
+            self.calls.append(("cancel", params))
+
+    gateway = Gateway()
+    platform = OpenClawAmbientPlatform(gateway)
+    notification = Notification(
+        recipient_ids=("alice",), text="Rice is low", correlation_id=uuid4()
+    )
+    task = BackgroundTask(
+        run_at=datetime.now(timezone.utc),
+        task_type="suggestion.refresh",
+        idempotency_key="ambient-2",
+    )
+    platform.deliver_notification(notification)
+    platform.schedule_background(task)
+    platform.cancel_background(task)
+    assert gateway.calls[0] == ("notify", notification.model_dump(mode="json"))
+    assert gateway.calls[1] == ("schedule", task.model_dump(mode="json"))
+    assert gateway.calls[2] == (
+        "cancel",
+        {"task_id": str(task.task_id), "idempotency_key": "ambient-2"},
+    )
