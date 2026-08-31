@@ -194,6 +194,20 @@ def test_decoder_rejects_invented_action():
         raise AssertionError("invented action was accepted")
 
 
+def test_kernel_blocks_malformed_model_without_execution():
+    ex = Executor()
+    k = Kernel(
+        Model(type("Response", (), {"raw": "not-json"})()),
+        StrictDecisionDecoder(),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ex,
+        Verifier(True),
+    )
+    result = k.run(intent())
+    assert result.state.value == "blocked"
+    assert ex.calls == 0
+
+
 def test_deterministic_fast_path_bypasses_model():
     class ExplodingModel:
         def decide(self, request):
