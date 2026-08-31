@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-reproducible-ci-validation-green",
+  "current_checkpoint": "phase-12-config-backup-hardening-green",
   "active_branch": "aegis-dev",
-  "head_sha": "9ee86e866b47ab73e9f9e8d43269e544375d5d0f",
-  "last_green_sha": "9ee86e866b47ab73e9f9e8d43269e544375d5d0f",
-  "last_pushed_sha": "9ee86e866b47ab73e9f9e8d43269e544375d5d0f",
+  "head_sha": "685e231f9606c33390a10059d607ee0b623b3dc8",
+  "last_green_sha": "685e231f9606c33390a10059d607ee0b623b3dc8",
+  "last_pushed_sha": "685e231f9606c33390a10059d607ee0b623b3dc8",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -27,7 +27,9 @@
     "ambient failure retry semantics and observed device provenance",
     "restart-safe SQLite ambient idempotency claims",
     "structured Home Assistant command acceptance and readback verification",
-    "deterministic proactive household meal/grocery suggestion canary"
+    "deterministic proactive household meal/grocery suggestion canary",
+    "reproducible CI validation workflow",
+    "validated secret-safe configuration and SQLite backup/restore"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -47,7 +49,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "59 passed"
+    "pytest": "62 passed"
   },
   "known_failures": [
     "live Ollama endpoint unavailable in this environment",
@@ -63,5 +65,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add configuration validation and backup/restore evidence for canonical local state; keep live integration limitations explicit"
+  "next_action": "Add release health/readiness reporting and migration/backup documentation; keep live OpenClaw, Ollama, and Home Assistant acceptance limitations explicit"
 }
