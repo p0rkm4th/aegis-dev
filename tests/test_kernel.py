@@ -29,6 +29,12 @@ from aegis.identity import (
 )
 from aegis.kernel import Kernel
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
+from aegis.projections import (
+    HouseholdProjection,
+    PrivacyProjectionService,
+    PrivateContribution,
+    SharedObligation,
+)
 from aegis.reference_packs import (
     ReferenceExecutor,
     ReferenceVerifier,
@@ -534,3 +540,45 @@ def test_openfga_adapter_is_fail_closed_on_relationship_denial():
         Principal(id="bob", vault_id="bob-vault"), "alice-bank"
     )
     assert not decision.allowed
+
+
+def test_privacy_projection_exposes_only_allowlisted_derived_household_fields():
+    class Policy:
+        def may_derive(self, requester, owner_id, space_id):
+            return (
+                requester.id == "bob" and space_id == "apartment" and owner_id in {"alice", "bob"}
+            )
+
+    result = PrivacyProjectionService(Policy()).build(
+        Principal(id="bob", vault_id="bob-vault"),
+        "apartment",
+        ("alice", "bob"),
+        (SharedObligation("rent", 2000), SharedObligation("utilities", 200)),
+        (
+            PrivateContribution("alice", 900, "alice-private-finance"),
+            PrivateContribution("bob", 400, "bob-private-finance"),
+        ),
+    )
+    assert isinstance(result, HouseholdProjection)
+    assert result.obligation_total == 2200
+    assert result.settlements == {"alice": -200, "bob": -700}
+    assert "alice-private-finance" not in repr(result)
+
+
+def test_privacy_projection_denies_unapproved_private_input_before_derivation():
+    class Deny:
+        def may_derive(self, requester, owner_id, space_id):
+            return False
+
+    try:
+        PrivacyProjectionService(Deny()).build(
+            Principal(id="bob", vault_id="bob-vault"),
+            "apartment",
+            ("alice", "bob"),
+            (SharedObligation("rent", 2000),),
+            (PrivateContribution("alice", 1000, "alice-balance"),),
+        )
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("unauthorized private data entered projection")
