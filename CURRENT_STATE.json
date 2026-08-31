@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 10,
-  "current_checkpoint": "phase-10-trading-card-pack-slice-green",
+  "current_checkpoint": "phase-11-openclaw-ambient-boundary-green",
   "active_branch": "aegis-dev",
-  "head_sha": "1574dec96094d33d126bfe037eb079edd73203de",
-  "last_green_sha": "1574dec96094d33d126bfe037eb079edd73203de",
-  "last_pushed_sha": "1574dec96094d33d126bfe037eb079edd73203de",
+  "head_sha": "47e8afb2b922d946bb1f3a8af9a65fb6ebb987e5",
+  "last_green_sha": "47e8afb2b922d946bb1f3a8af9a65fb6ebb987e5",
+  "last_pushed_sha": "47e8afb2b922d946bb1f3a8af9a65fb6ebb987e5",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -21,7 +21,8 @@
     "policy-before-execution kernel canaries",
     "Forge validation, approval, installation, and PackBundle conversion",
     "policy-gated ambient notification and background-task contracts",
-    "generated trading-card Pack add/readback vertical slice"
+    "generated trading-card Pack add/readback vertical slice",
+    "OpenClaw ambient notification, scheduling, and cancellation adapter boundary"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -39,7 +40,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "54 passed"
+    "pytest": "55 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -51,5 +52,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Wire ambient notification/background contracts to the OpenClaw adapter boundary with cancellation and policy-denial tests"
+  "next_action": "Add ambient background replay/idempotency handling and begin Phase 11 device/Home Assistant adapter contracts"
 }
