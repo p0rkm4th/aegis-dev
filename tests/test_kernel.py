@@ -9,12 +9,14 @@ from aegis.contracts import (
     DecisionKind,
     ExecutionRequest,
     IntentFrame,
+    ModelRequest,
     Observation,
     PolicyDecision,
     Principal,
     Result,
     VerificationContract,
     VerificationResult,
+    WorkingSet,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
@@ -30,6 +32,7 @@ from aegis.identity import (
 )
 from aegis.kernel import Kernel
 from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
+from aegis.ollama import OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
 from aegis.projections import (
@@ -759,3 +762,43 @@ def test_baseline_metrics_are_compact_and_measurable():
         "security_errors": 0,
         "average_latency_ms": 15,
     }
+
+
+def test_ollama_provider_repairs_malformed_json_once():
+    class Transport:
+        def __init__(self):
+            self.calls = []
+
+        def chat(self, payload):
+            self.calls.append(payload)
+            content = "not-json" if len(self.calls) == 1 else '{"kind":"ANSWER","answer":"ok"}'
+            return {"message": {"content": content}}
+
+    transport = Transport()
+    provider = OllamaProvider("qwen3:8b", transport)
+    response = provider.decide(
+        ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=())
+    )
+    assert response.raw == {"kind": "ANSWER", "answer": "ok"}
+    assert len(transport.calls) == 2
+    assert "invalid" in transport.calls[1]["messages"][0]["content"]
+
+
+def test_ollama_provider_does_not_retry_beyond_bound():
+    class Transport:
+        def __init__(self):
+            self.calls = 0
+
+        def chat(self, payload):
+            self.calls += 1
+            return {"message": {"content": "not-json"}}
+
+    transport = Transport()
+    provider = OllamaProvider("qwen3:8b", transport)
+    try:
+        provider.decide(ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=()))
+    except OllamaResponseError:
+        pass
+    else:
+        raise AssertionError("malformed Ollama output was accepted")
+    assert transport.calls == 2
