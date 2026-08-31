@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 11,
-  "current_checkpoint": "phase-11-ambient-restart-safe-green",
+  "current_checkpoint": "phase-11-device-readback-green",
   "active_branch": "aegis-dev",
-  "head_sha": "fa18b6042db46acfc16159f2d23133d6bc4df2ba",
-  "last_green_sha": "fa18b6042db46acfc16159f2d23133d6bc4df2ba",
-  "last_pushed_sha": "fa18b6042db46acfc16159f2d23133d6bc4df2ba",
+  "head_sha": "a79c51cf61b8e408029c167b7809de126894f751",
+  "last_green_sha": "a79c51cf61b8e408029c167b7809de126894f751",
+  "last_pushed_sha": "a79c51cf61b8e408029c167b7809de126894f751",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -25,7 +25,8 @@
     "OpenClaw ambient notification, scheduling, and cancellation adapter boundary",
     "ambient idempotency state and Home Assistant device adapter seam",
     "ambient failure retry semantics and observed device provenance",
-    "restart-safe SQLite ambient idempotency claims"
+    "restart-safe SQLite ambient idempotency claims",
+    "structured Home Assistant command acceptance and readback verification"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -56,5 +57,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add structured device readback observations and a simulated proactive household suggestion journey; then assess Phase 11 exit gates"
+  "next_action": "Add a simulated proactive household suggestion journey using canonical kitchen and household signals, then assess Phase 11 exit gates"
 }
