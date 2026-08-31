@@ -42,6 +42,7 @@ from aegis.identity import (
 )
 from aegis.kernel import Kernel
 from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
+from aegis.network import AuthorizedNetworkScope, DiscoveredDevice, HomelabInventory, ScopeDenied
 from aegis.ollama import OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
@@ -1047,3 +1048,30 @@ def test_finance_snapshot_exposes_provider_provenance_only_to_owner():
         pass
     else:
         raise AssertionError("finance provenance crossed Vault boundary")
+
+
+def test_network_reachability_and_discovery_do_not_grant_action_authority():
+    inventory = HomelabInventory()
+    inventory.record_discovery(DiscoveredDevice("10.0.0.5", "atlas", ("https",)))
+    inventory.record_discovery(DiscoveredDevice("10.0.1.5", "unknown", ("ssh",)))
+    inventory.add_scope(AuthorizedNetworkScope("home-lab", ("10.0.0.0/24",), "owned lab"))
+    assert inventory.authorized_devices("home-lab")[0].address == "10.0.0.5"
+    inventory.require_action_scope("home-lab", "10.0.0.5")
+    try:
+        inventory.require_action_scope("home-lab", "10.0.1.5")
+    except ScopeDenied:
+        pass
+    else:
+        raise AssertionError("discovered device outside scope was authorized")
+
+
+def test_inactive_or_unknown_network_scope_fails_closed():
+    inventory = HomelabInventory()
+    inventory.add_scope(AuthorizedNetworkScope("lab", ("192.168.1.0/24",), "lab", active=False))
+    for scope_id, address in (("lab", "192.168.1.2"), ("missing", "192.168.1.2")):
+        try:
+            inventory.require_action_scope(scope_id, address)
+        except ScopeDenied:
+            pass
+        else:
+            raise AssertionError("inactive or unknown network scope allowed action")
