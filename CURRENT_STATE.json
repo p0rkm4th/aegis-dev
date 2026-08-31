@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 3,
-  "current_checkpoint": "phase-3-persistent-audit-green",
+  "current_phase": 4,
+  "current_checkpoint": "phase-4-pack-lifecycle-foundation-green",
   "active_branch": "aegis-dev",
-  "head_sha": "fd9cf7516dcc80e4f26fd7fb095e0ace018ae095",
-  "last_green_sha": "fd9cf7516dcc80e4f26fd7fb095e0ace018ae095",
-  "last_pushed_sha": "fd9cf7516dcc80e4f26fd7fb095e0ace018ae095",
+  "head_sha": "da19b01f545dce8e3bb986e8f2776fcbe6554dc4",
+  "last_green_sha": "da19b01f545dce8e3bb986e8f2776fcbe6554dc4",
+  "last_pushed_sha": "da19b01f545dce8e3bb986e8f2776fcbe6554dc4",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -24,12 +24,13 @@
     "0": "complete",
     "1": "in_progress",
     "2": "in_progress",
-    "3": "in_progress"
+    "3": "in_progress",
+    "4": "in_progress"
   },
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "25 passed"
+    "pytest": "26 passed"
   },
   "known_failures": [],
   "blocked_lanes": [],
@@ -41,5 +42,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Complete PostgreSQL migration rehearsal and Phase 3 recovery/privacy gate, then advance Pack lifecycle contracts"
+  "next_action": "Add Pack registry integration with bounded Core retrieval and Pack-specific permissions/verification, then build Tasks/Kitchen/Homelab lifecycle gates"
 }
