@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-health-operations-green",
+  "current_checkpoint": "phase-12-migration-clean-install-green",
   "active_branch": "aegis-dev",
-  "head_sha": "c31062fa3e2314032657d0ad11c0025a437da3bd",
-  "last_green_sha": "c31062fa3e2314032657d0ad11c0025a437da3bd",
-  "last_pushed_sha": "c31062fa3e2314032657d0ad11c0025a437da3bd",
+  "head_sha": "1a60c248d1dc843701cc68db25a8bf82416cadfb",
+  "last_green_sha": "1a60c248d1dc843701cc68db25a8bf82416cadfb",
+  "last_pushed_sha": "1a60c248d1dc843701cc68db25a8bf82416cadfb",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -30,7 +30,8 @@
     "deterministic proactive household meal/grocery suggestion canary",
     "reproducible CI validation workflow",
     "validated secret-safe configuration and SQLite backup/restore",
-    "structured health/readiness reporting and operations documentation"
+    "structured health/readiness reporting and operations documentation",
+    "contiguous migration validation and isolated clean-install smoke gate"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -50,7 +51,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "63 passed"
+    "pytest": "64 passed"
   },
   "known_failures": [
     "live Ollama endpoint unavailable in this environment",
@@ -66,5 +67,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add migration manifest validation and a clean-install smoke command; keep live OpenClaw, Ollama, and Home Assistant acceptance limitations explicit"
+  "next_action": "Add release artifact provenance/SBOM inventory and perform a final local Phase 12 validation; keep live OpenClaw, Ollama, and Home Assistant acceptance limitations explicit"
 }
