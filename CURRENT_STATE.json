@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 11,
-  "current_checkpoint": "phase-11-ambient-idempotency-home-assistant-seam-green",
+  "current_checkpoint": "phase-11-ambient-retry-provenance-green",
   "active_branch": "aegis-dev",
-  "head_sha": "f71bc7002a1b2c82ac92068bf30c225dbccb73a7",
-  "last_green_sha": "f71bc7002a1b2c82ac92068bf30c225dbccb73a7",
-  "last_pushed_sha": "f71bc7002a1b2c82ac92068bf30c225dbccb73a7",
+  "head_sha": "ec41d5ffe0226e8551744fe1481ae40df3f96164",
+  "last_green_sha": "ec41d5ffe0226e8551744fe1481ae40df3f96164",
+  "last_pushed_sha": "ec41d5ffe0226e8551744fe1481ae40df3f96164",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -23,7 +23,8 @@
     "policy-gated ambient notification and background-task contracts",
     "generated trading-card Pack add/readback vertical slice",
     "OpenClaw ambient notification, scheduling, and cancellation adapter boundary",
-    "ambient idempotency state and Home Assistant device adapter seam"
+    "ambient idempotency state and Home Assistant device adapter seam",
+    "ambient failure retry semantics and observed device provenance"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -54,5 +55,5 @@
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
   },
-  "next_action": "Add ambient failure-retry semantics and device-state provenance, then assess Phase 11 end-to-end readiness"
+  "next_action": "Persist ambient idempotency claims behind the canonical state boundary, then assess Phase 11 end-to-end readiness"
 }
