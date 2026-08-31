@@ -657,6 +657,14 @@ def test_pack_lifecycle_requires_explicit_permissions_and_enablement():
     assert manager.retrieve("cards") == ()
     manager.enable("cards")
     assert manager.retrieve("cards") == (card,)
+    assert manager.audit.verify()
+    assert [event.event_type for event in manager.audit.events] == [
+        "pack.discovered",
+        "pack.installed",
+        "pack.enabled",
+        "pack.disabled",
+        "pack.enabled",
+    ]
 
 
 def test_pack_validation_rejects_cross_namespace_or_unverified_mutation():
