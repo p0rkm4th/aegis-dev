@@ -326,7 +326,7 @@ class Kernel:
             message=verified.reason,
             evidence=verified.evidence,
             correlation_id=intent.correlation_id,
-            retryable=observation.command_succeeded,
+            retryable=(state is not ObjectiveState.COMPLETED and observation.command_succeeded),
         )
         self._results[key] = result
         self.store.save_result(key, result)

@@ -330,6 +330,7 @@ def test_kernel_run_sequence_recovers_after_crash_before_aggregate_persistence(t
     )
 
     assert recovered.state is ObjectiveState.COMPLETED
+    assert recovered.retryable is False
     assert len(recovered.evidence["steps"]) == 2
     assert first_executor.calls == 2
     assert replay_executor.calls == 0
