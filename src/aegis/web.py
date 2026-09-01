@@ -79,9 +79,10 @@ placeholder="Ask AEGIS..."><button>Send</button></form>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 const refresh = document.getElementById('refresh');
+const messageTimeoutMs = 120000;
 let pendingCorrelationId = null;
 const retryableCodes = new Set([
-  'identity_unavailable', 'state_unavailable', 'request_unavailable'
+  'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
@@ -183,10 +184,12 @@ document.getElementById('chat').addEventListener('submit', async event => {
   }
   send.disabled = true; input.disabled = true;
   document.getElementById('detail').textContent = 'Status: working';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
   try {
     const response = await fetch('/api/message', {method:'POST',
       headers:{'content-type':'application/json'},
-      body:JSON.stringify({utterance, correlation_id:correlationId})});
+      body:JSON.stringify({utterance, correlation_id:correlationId}), signal:controller.signal});
     const result = await response.json();
     const answer = result.message || result.error || 'No response';
     document.getElementById('answer').textContent = answer;
@@ -201,11 +204,17 @@ document.getElementById('chat').addEventListener('submit', async event => {
       pendingCorrelationId = retryableCodes.has(result.code) ? correlationId : null;
       send.textContent = pendingCorrelationId ? 'Retry' : 'Send';
     }
-  } catch (_) {
-    document.getElementById('answer').textContent = 'AEGIS is unavailable.';
-    document.getElementById('detail').textContent = 'Status: unavailable';
+  } catch (error) {
+    const timedOut = error && error.name === 'AbortError';
+    document.getElementById('answer').textContent = timedOut
+      ? 'AEGIS did not respond in time. The outcome is unknown.'
+      : 'AEGIS is unavailable.';
+    document.getElementById('detail').textContent = timedOut
+      ? 'Status: request_timeout · Retry uses the same correlation.'
+      : 'Status: unavailable';
     pendingCorrelationId = correlationId; send.textContent = 'Retry';
   } finally {
+    clearTimeout(timeout);
     send.disabled = false; input.disabled = false;
   }
 });
