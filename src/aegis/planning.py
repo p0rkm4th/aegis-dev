@@ -363,7 +363,7 @@ class CrossDomainPlanningFastPath:
         "utilities",
     )
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
-    _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget")
+    _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget", "purchase")
     _MAX_CONTEXT_ITEMS = 5
 
     def __init__(

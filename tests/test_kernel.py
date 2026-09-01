@@ -46,6 +46,7 @@ from aegis.finance import (
     Account,
     AffordabilityProjection,
     FinanceLedger,
+    FinanceReadFastPath,
     FinanceSnapshot,
     PostgresFinanceSnapshotStore,
     Transaction,
@@ -3018,6 +3019,11 @@ def test_cross_domain_affordability_returns_derived_fields_without_private_balan
     assert projection.shared_obligations_cents == 200_000
     assert projection.shortfall_cents == 0
     assert "balance" not in projection.__dict__
+
+
+def test_finance_read_fast_path_recognizes_purchase_safety_language():
+    assert FinanceReadFastPath.matches("Is a $75 purchase safe?")
+    assert not FinanceReadFastPath.matches("Is the backup purchase safe?")
 
 
 def test_household_projection_handles_multi_member_settlement_remainder():
