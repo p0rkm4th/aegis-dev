@@ -5,9 +5,10 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
+from uuid import uuid4
 
-from .contracts import Principal
+from .contracts import IntentFrame, ObjectiveState, Principal, Result
 
 
 @dataclass(frozen=True)
@@ -182,6 +183,19 @@ class PostgresHouseholdStore:
         }
         return tuple(self.load(space_id, members).groceries)
 
+    def read_snapshot(self, principal: Principal) -> dict[str, object]:
+        """Read shared household state after rechecking current membership."""
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships "
+                "WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        return self.load(space_id, members).snapshot(principal)
+
     def _space_for(self, principal: Principal) -> str:
         if not principal.space_ids:
             raise PermissionError("household operation requires an explicit Space")
@@ -250,3 +264,57 @@ class HouseholdSpace:
             "events": tuple(self.events.values()),
             "obligations": tuple(self.obligations.values()),
         }
+
+
+class HouseholdReadFastPath:
+    """Deterministic, allowlisted reads over shared household state."""
+
+    _TRIGGERS = ("household", "chore", "chores", "inspection", "utility", "utilities", "rent")
+
+    def __init__(self, snapshot: dict[str, object]) -> None:
+        self.snapshot = snapshot
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        return any(trigger in text for trigger in cls._TRIGGERS)
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        if not self.matches(intent.utterance):
+            return None
+        text = intent.utterance.casefold()
+        evidence: dict[str, object] = {"space_id": self.snapshot["space_id"]}
+        if any(word in text for word in ("utility", "utilities", "rent")):
+            obligations = cast(tuple[HouseholdObligation, ...], self.snapshot["obligations"])
+            evidence["obligations"] = [
+                {
+                    "title": obligation.title,
+                    "responsible_id": obligation.responsible_id,
+                    "amount": obligation.amount,
+                    "settled": obligation.settled,
+                }
+                for obligation in obligations
+            ]
+        elif any(word in text for word in ("chore", "chores")):
+            chores = cast(tuple[Chore, ...], self.snapshot["chores"])
+            evidence["chores"] = [
+                {
+                    "title": chore.title,
+                    "assignee_id": chore.assignee_id,
+                    "completed": chore.completed,
+                }
+                for chore in chores
+            ]
+        else:
+            events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
+            evidence["events"] = [
+                {"title": event.title, "starts_at": event.starts_at.isoformat()}
+                for event in events
+            ]
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Shared household state read",
+            evidence=evidence,
+            correlation_id=intent.correlation_id,
+        )

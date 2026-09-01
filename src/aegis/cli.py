@@ -15,7 +15,7 @@ from .contracts import ActionCard, IntentFrame, Principal
 from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .gateway_rpc import OpenClawWebSocketChannel
-from .household import PostgresHouseholdStore
+from .household import HouseholdReadFastPath, PostgresHouseholdStore
 from .identity import KeycloakIdentityProvider, KeycloakOIDCClient, PostgresSpacePolicy, Role
 from .kernel import Kernel
 from .ollama import OllamaHttpTransport, OllamaProvider
@@ -103,7 +103,7 @@ def _ensure_local_identity(connection: Any, principal: Principal) -> None:
     connection.execute(
         "INSERT INTO space_memberships (principal_id, space_id, role, active) "
         "VALUES (%s, %s, 'owner', TRUE) ON CONFLICT (principal_id, space_id) "
-        "DO UPDATE SET active = TRUE",
+        "DO NOTHING",
         (principal.id, space_id),
     )
     connection.commit()
@@ -194,6 +194,32 @@ def _format(result: Any) -> str:
             if goals
             else "(none)"
         )
+    if evidence.get("obligations") is not None:
+        obligations = evidence["obligations"]
+        outstanding = [item for item in obligations if not item["settled"]]
+        return "Outstanding obligations: " + (
+            "; ".join(
+                f"{item['title']} ({item['responsible_id']})" for item in outstanding
+            )
+            if outstanding
+            else "(none)"
+        )
+    if evidence.get("chores") is not None:
+        chores = evidence["chores"]
+        return "Chores: " + (
+            "; ".join(
+                f"{item['title']} ({item['assignee_id']})"
+                for item in chores
+                if not item["completed"]
+            )
+            if chores
+            else "(none)"
+        )
+    if evidence.get("events") is not None:
+        events = evidence["events"]
+        return "Events: " + (
+            "; ".join(item["title"] for item in events) if events else "(none)"
+        )
     if evidence.get("title"):
         return f"Done — created task: {evidence['title']}"
     if evidence.get("item"):
@@ -209,6 +235,13 @@ def handle(utterance: str, principal: Principal) -> str:
         if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
             _ensure_local_identity(connection, principal)
         intent = IntentFrame(principal=principal, utterance=utterance)
+        household_store = PostgresHouseholdStore(connection)
+        if HouseholdReadFastPath.matches(utterance):
+            household_result = HouseholdReadFastPath(
+                household_store.read_snapshot(principal)
+            ).resolve(intent)
+            if household_result is not None:
+                return _format(household_result)
         personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load()
         semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
             "1",

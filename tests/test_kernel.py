@@ -60,6 +60,7 @@ from aegis.household import (
     Chore,
     HouseholdEvent,
     HouseholdObligation,
+    HouseholdReadFastPath,
     HouseholdSpace,
     PostgresHouseholdStore,
 )
@@ -1317,6 +1318,26 @@ def test_household_space_supports_shared_workflows_for_active_members():
     assert len(snapshot["chores"]) == 1
     assert len(snapshot["events"]) == 1
     assert len(snapshot["obligations"]) == 1
+
+
+def test_household_read_fast_path_returns_only_shared_allowlisted_fields():
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {alice.id})
+    space.add_obligation(alice, HouseholdObligation("utilities", "Utilities", 18500, alice.id))
+    result = HouseholdReadFastPath(space.snapshot(alice)).resolve(
+        IntentFrame(principal=alice, utterance="Who still needs to handle utilities?")
+    )
+
+    assert result is not None
+    assert result.evidence["obligations"] == [
+        {
+            "title": "Utilities",
+            "responsible_id": "alice",
+            "amount": 18500,
+            "settled": False,
+        }
+    ]
+    assert "private" not in repr(result.evidence).lower()
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():
