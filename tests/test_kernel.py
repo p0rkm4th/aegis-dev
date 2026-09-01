@@ -1049,6 +1049,37 @@ def test_personal_state_resolves_aliases_and_preserves_provenance():
     assert memory.provenance is Provenance.EXPLICIT_USER
 
 
+def test_personal_memory_search_is_ranked_current_and_provenance_preserving():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    entity = state.add_entity("Backup Architecture", ("backup",))
+    first = state.add_memory(
+        "Discussed backup architecture",
+        datetime(2026, 1, 1, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+        (entity.entity_id,),
+    )
+    state.add_memory(
+        "Reviewed unrelated recipe",
+        datetime(2026, 1, 2, tzinfo=timezone.utc),
+        Provenance.INFERRED,
+    )
+    corrected = state.correct_memory(
+        first.memory_id,
+        "Decided on backup architecture",
+        datetime(2026, 1, 3, tzinfo=timezone.utc),
+    )
+    assert state.search_memories("backup architecture") == (corrected,)
+    assert corrected.provenance is Provenance.CORRECTED
+    try:
+        state.search_memories("backup", 0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("non-positive memory search limit was accepted")
+
+
 def test_personal_memory_correction_supersedes_old_record():
     from datetime import datetime, timezone
 
