@@ -7,6 +7,9 @@ python -m pip install -e '.[dev]'
 bash scripts/validate.sh
 ```
 
+The clean-install smoke gate also executes the generated `aegis` command and
+its private first-run bootstrap from an isolated installation prefix.
+
 `./scripts/aegis` prefers the repository `.venv`, then an active `python3`
 environment. Use `AEGIS_PYTHON=/path/to/python` when the runtime is installed
 elsewhere; if no usable environment is found, the launcher reports the
