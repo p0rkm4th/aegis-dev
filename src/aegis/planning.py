@@ -42,6 +42,15 @@ class MultiActionFastPath:
             return None
         if not any(term in text for term in ("add", "complete", "create", "remove", "update")):
             return None
+        distinct_match = re.search(
+            r"\b(?:a\s+)?task\s+(?:to|for)\s+(.+?)\s+and\s+"
+            r"(?:a\s+)?chore\s+(?:to|for)\s+(.+)$",
+            text,
+        )
+        if distinct_match is not None:
+            task_title, chore_title = (part.strip() for part in distinct_match.groups())
+            if task_title and chore_title:
+                return task_title, chore_title
         match = re.search(r"\b(?:to|for)\s+(.+)$", text)
         if match is None:
             return None

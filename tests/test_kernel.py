@@ -2412,6 +2412,12 @@ def test_multi_action_fast_path_extracts_bounded_task_chore_plan():
     assert not MultiActionFastPath.matches("Create a task to buy cat food")
 
 
+def test_multi_action_fast_path_preserves_distinct_task_and_chore_titles():
+    assert MultiActionFastPath.task_chore_titles(
+        "Create a task to review the backup and a chore to clean the utility closet."
+    ) == ("review the backup", "clean the utility closet")
+
+
 def test_contextual_event_mutation_blocks_unsupported_memory_date_resolution():
     result = ContextualMutationGuard.resolve(
         IntentFrame(
