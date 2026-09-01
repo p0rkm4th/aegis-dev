@@ -178,16 +178,21 @@ class Kernel:
                 message="Execution already recorded; verification is required",
                 correlation_id=intent.correlation_id,
             )
-        self._executed.add(key)
-        execution_id = uuid4()
-        observation = self.executor.execute(
-            ExecutionRequest(
-                objective_id=objective.id,
-                action_id=execution_id,
-                action=decision.action,
-                idempotency_key=key,
-            )
+        existing_action = self.store.get_action(key)
+        execution_request = existing_action or ExecutionRequest(
+            objective_id=objective.id,
+            action_id=uuid4(),
+            action=decision.action,
+            idempotency_key=key,
         )
+        self.store.save_action(execution_request, ObjectiveState.EXECUTING)
+        self._executed.add(key)
+        observation = self.store.get_observation(key)
+        if observation is None:
+            observation = self.executor.execute(execution_request)
+            self.store.save_observation(key, observation)
+        self.store.update_action_state(key, ObjectiveState.OBSERVED)
+        execution_id = execution_request.action_id
         self.objectives[objective.id] = objective.model_copy(
             update={"state": ObjectiveState.OBSERVED}
         )
@@ -212,6 +217,7 @@ class Kernel:
             )
             self._results[key] = result
             self.store.save_result(key, result)
+            self.store.update_action_state(key, ObjectiveState.FAILED)
             self.audit.append(
                 "result.failed",
                 intent.principal.id,
@@ -233,6 +239,7 @@ class Kernel:
         )
         self._results[key] = result
         self.store.save_result(key, result)
+        self.store.update_action_state(key, state)
         self.audit.append(
             "result.verified" if verified.verified else "result.failed",
             intent.principal.id,
