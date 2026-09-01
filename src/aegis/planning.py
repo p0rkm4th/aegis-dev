@@ -60,13 +60,26 @@ class MultiActionFastPath:
         return title, title
 
     @classmethod
-    def task_event_details(cls, utterance: str) -> tuple[str, str] | None:
+    def task_event_details(cls, utterance: str) -> tuple[str, str, str] | None:
         """Extract a bounded task/event plan with the existing tomorrow rule."""
         text = utterance.casefold().strip().rstrip(".!?")
         if not ("task" in text and "event" in text and " and " in text):
             return None
         if not any(term in text for term in ("add", "complete", "create", "remove", "update")):
             return None
+        distinct_match = re.search(
+            r"\b(?:a\s+)?task\s+(?:to|for)\s+(.+?)\s+and\s+"
+            r"(?:an?\s+)?event\s+(?:to|for)\s+(.+)$",
+            text,
+        )
+        if distinct_match is not None:
+            task_title, event_title = (part.strip() for part in distinct_match.groups())
+            starts_at = datetime.now(timezone.utc)
+            if event_title.endswith(" tomorrow"):
+                event_title = event_title.removesuffix(" tomorrow").strip()
+                starts_at += timedelta(days=1)
+            if task_title and event_title:
+                return task_title, event_title, starts_at.isoformat()
         match = re.search(r"\b(?:to|for)\s+(.+)$", text)
         if match is None:
             return None
@@ -77,7 +90,7 @@ class MultiActionFastPath:
             starts_at += timedelta(days=1)
         if not title:
             return None
-        return title, starts_at.isoformat()
+        return title, title, starts_at.isoformat()
 
     @classmethod
     def resolve(cls, intent: IntentFrame) -> Result | None:

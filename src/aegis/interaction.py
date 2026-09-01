@@ -398,8 +398,8 @@ class InteractionBoundary:
                 event_action = event_card.action.model_copy(
                     update={
                         "arguments": {
-                            "title": event_details[0],
-                            "starts_at": event_details[1],
+                            "title": event_details[1],
+                            "starts_at": event_details[2],
                         }
                     }
                 )

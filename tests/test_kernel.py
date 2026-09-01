@@ -2466,7 +2466,18 @@ def test_multi_action_fast_path_extracts_temporal_task_event_plan():
 
     assert details is not None
     assert details[0] == "apartment inspection"
-    assert details[1].endswith("+00:00")
+    assert details[1] == "apartment inspection"
+    assert details[2].endswith("+00:00")
+
+
+def test_multi_action_fast_path_preserves_distinct_task_and_event_titles():
+    details = MultiActionFastPath.task_event_details(
+        "Create a task to review the backup and an event to inspect the utility closet tomorrow."
+    )
+
+    assert details is not None
+    assert details[0:2] == ("review the backup", "inspect the utility closet")
+    assert details[2].endswith("+00:00")
 
 
 def test_domain_clarification_fast_path_handles_underspecified_request():
