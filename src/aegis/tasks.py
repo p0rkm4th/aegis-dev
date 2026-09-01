@@ -384,13 +384,24 @@ class TaskReadFastPath:
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):
             return None
-        tasks = self.store.list(intent.principal)
+        all_tasks = self.store.list(intent.principal)
+        text = intent.utterance.casefold()
+        if any(term in text for term in ("completed", "finished")):
+            tasks = tuple(task for task in all_tasks if task.status is TaskStatus.COMPLETED)
+            status_filter = "completed"
+        elif any(term in text for term in ("open", "pending", "unfinished")):
+            tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
+            status_filter = "open"
+        else:
+            tasks = all_tasks
+            status_filter = "all"
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message="Canonical task list read",
             evidence={
                 "collection": "tasks",
+                "status_filter": status_filter,
                 "canonical_tasks": [
                     {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
                     for task in tasks
