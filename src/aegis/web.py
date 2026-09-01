@@ -81,10 +81,36 @@ const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 const refresh = document.getElementById('refresh');
 const messageTimeoutMs = 120000;
+const pendingStorageKey = 'aegis.pending-request';
 let pendingCorrelationId = null;
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
+function persistPendingRequest(utterance, correlationId) {
+  try {
+    sessionStorage.setItem(pendingStorageKey, JSON.stringify(
+      {utterance, correlation_id: correlationId}));
+  } catch (_) { /* session storage is optional; Core correlation remains authoritative. */ }
+}
+function clearPendingRequest() {
+  try { sessionStorage.removeItem(pendingStorageKey); } catch (_) { /* optional storage */ }
+}
+function restorePendingRequest() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(pendingStorageKey) || 'null');
+    if (!saved || typeof saved.utterance !== 'string' || !saved.utterance.trim() ||
+        typeof saved.correlation_id !== 'string' ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+          .test(saved.correlation_id)) {
+      clearPendingRequest(); return;
+    }
+    pendingCorrelationId = saved.correlation_id;
+    document.getElementById('utterance').value = saved.utterance;
+    document.getElementById('detail').textContent =
+      'A previous request may still be in progress. Retry uses the same correlation.';
+    document.querySelector('#chat button').textContent = 'Retry';
+  } catch (_) { clearPendingRequest(); }
+}
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
   if (!response.ok) {
@@ -137,6 +163,7 @@ function clearAuthorizedDisplays() {
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
   pendingCorrelationId = null;
+  clearPendingRequest();
 }
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
@@ -199,6 +226,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     conversation.append(userLine);
   }
   send.disabled = true; input.disabled = true;
+  persistPendingRequest(utterance, correlationId);
   document.getElementById('detail').textContent = 'Status: working';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
@@ -215,6 +243,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
       `Status: ${result.state}${result.detail ? ` · ${result.detail}` : ''}`;
     if (response.ok) {
       pendingCorrelationId = null; send.textContent = 'Send';
+      clearPendingRequest();
       if (result.state === 'completed') loadState().catch(() => {});
     } else {
       const authorizationLost = result.code === 'identity_unavailable' ||
@@ -226,6 +255,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
         send.textContent = 'Send';
       } else {
         pendingCorrelationId = retryableCodes.has(result.code) ? correlationId : null;
+        if (!pendingCorrelationId) clearPendingRequest();
         send.textContent = pendingCorrelationId ? 'Retry' : 'Send';
       }
     }
@@ -238,11 +268,13 @@ document.getElementById('chat').addEventListener('submit', async event => {
       ? 'Status: request_timeout · Retry uses the same correlation.'
       : 'Status: unavailable';
     pendingCorrelationId = correlationId; send.textContent = 'Retry';
+    persistPendingRequest(utterance, correlationId);
   } finally {
     clearTimeout(timeout);
     send.disabled = false; input.disabled = false;
   }
 });
+restorePendingRequest();
 </script></body></html>"""
 
 
