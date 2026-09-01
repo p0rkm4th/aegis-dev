@@ -300,6 +300,26 @@ def test_cli_routes_chore_completion_to_complete_action() -> None:
     assert card.action.arguments == {"title": "clean the utility closet."}
 
 
+def test_cli_routes_mark_task_done_to_complete_action() -> None:
+    domain, card = _domain_and_action(
+        "Mark the task Verify backup retention as done.", manager_with_reference_cards()
+    )
+
+    assert domain == "tasks"
+    assert card.action.action_id == "tasks.complete"
+    assert card.action.arguments == {"title": "verify backup retention"}
+
+
+def test_cli_routes_mark_chore_done_to_complete_action() -> None:
+    domain, card = _domain_and_action(
+        "Mark the chore Clean the utility closet as done.", manager_with_reference_cards()
+    )
+
+    assert domain == "tasks"
+    assert card.action.action_id == "tasks.chores.complete"
+    assert card.action.arguments == {"title": "clean the utility closet"}
+
+
 def test_cli_prepares_grocery_action_card_arguments() -> None:
     domain, card = _domain_and_action("Add rice to groceries.", manager_with_reference_cards())
 
