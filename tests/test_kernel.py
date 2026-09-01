@@ -1894,6 +1894,52 @@ def test_cross_domain_planning_recognizes_plural_utilities_context():
     )
 
 
+def test_cross_domain_planning_includes_only_relevant_current_memories():
+    from datetime import datetime, timezone
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    personal = PersonalState()
+    personal.add_memory(
+        "The server backup runbook needs a restore drill",
+        datetime(2026, 8, 3, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+    personal.add_memory(
+        "The unrelated vacation idea can wait",
+        datetime(2026, 8, 4, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+    personal.add_memory(
+        "A backup note",
+        datetime(2026, 8, 5, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+    space = HouseholdSpace("apartment", {alice.id})
+    space.add_obligation(alice, HouseholdObligation("utilities", "Utilities", 120, alice.id))
+    result = CrossDomainPlanningFastPath(
+        personal,
+        space.snapshot(alice),
+        (Task(uuid4(), "apartment", "Review backup runbook", "alice"),),
+    ).resolve(
+        IntentFrame(
+            principal=alice,
+            utterance=(
+                "Considering my server backup memory, Utilities, and open tasks, "
+                "what should I prioritize?"
+            ),
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["planning"]["memories"] == [
+        {
+            "content": "The server backup runbook needs a restore drill",
+            "occurred_at": "2026-08-03T00:00:00+00:00",
+            "provenance": "observed",
+        }
+    ]
+
+
 def test_cross_domain_planning_fast_path_includes_only_derived_finance_fields():
     from datetime import datetime, timezone
 
