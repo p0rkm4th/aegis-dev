@@ -479,13 +479,19 @@ def _apply_migrations(connection: Any) -> None:
         return
     packaged_migrations = files("aegis").joinpath("migrations")
     if packaged_migrations.is_dir():
-        migrations = sorted(packaged_migrations.iterdir(), key=lambda path: path.name)
+        migration_texts = [
+            migration.read_text(encoding="utf-8")
+            for migration in sorted(packaged_migrations.iterdir(), key=lambda path: path.name)
+            if migration.name.endswith(".sql")
+        ]
     else:
         root = Path(__file__).resolve().parents[2]
-        migrations = sorted((root / "migrations").glob("*.sql"))
-    for migration in migrations:
-        if migration.name.endswith(".sql"):
-            connection.execute(migration.read_text(encoding="utf-8"))
+        migration_texts = [
+            migration.read_text(encoding="utf-8")
+            for migration in sorted((root / "migrations").glob("*.sql"))
+        ]
+    for migration_text in migration_texts:
+        connection.execute(migration_text)
     connection.commit()
 
 
