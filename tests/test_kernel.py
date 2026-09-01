@@ -408,6 +408,32 @@ def test_kernel_blocks_malformed_model_without_execution():
     assert ex.calls == 0
 
 
+def test_model_exception_becomes_terminal_retryable_result():
+    class FailingModel:
+        def decide(self, request):
+            raise RuntimeError("private provider detail")
+
+    k = Kernel(
+        FailingModel(),
+        Decoder(Decision(kind=DecisionKind.ANSWER, answer="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+    )
+
+    result = k.run(intent())
+
+    assert result.state is ObjectiveState.FAILED
+    assert result.message == "Model unavailable; request can be retried"
+    assert result.evidence == {"model": "unavailable", "error_type": "RuntimeError"}
+    assert "private provider detail" not in str(result)
+    assert k.store.get_objective(result.objective_id).state is ObjectiveState.FAILED
+    assert [event.event_type for event in k.audit.events] == [
+        "objective.created",
+        "model.failed",
+    ]
+
+
 def test_deterministic_fast_path_bypasses_model():
     class ExplodingModel:
         def decide(self, request):
