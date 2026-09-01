@@ -6,7 +6,7 @@ import re
 
 _MUTATION_PREFIX = re.compile(
     r"^(?:(?:please|kindly)\s+|(?:(?:could|would|can)\s+you\s+)|(?:i\s+need\s+you\s+to\s+))*"
-    r"(?:add|create|update|complete|remove)\b"
+    r"(?:add|create|update|complete|remove|put|place)\b"
 )
 
 
