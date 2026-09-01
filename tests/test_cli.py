@@ -280,6 +280,19 @@ def test_cli_routes_want_to_put_task_on_list_as_mutation() -> None:
     assert card.action.arguments == {"title": "verify the restore drill."}
 
 
+def test_cli_carries_unambiguous_tomorrow_task_due_date():
+    from datetime import datetime, timedelta, timezone
+
+    _domain, card = _domain_and_action(
+        "Could you put a task on my list to review the restore drill tomorrow?",
+        manager_with_reference_cards(),
+    )
+
+    assert card.action.arguments["title"] == "review the restore drill"
+    due_at = datetime.fromisoformat(card.action.arguments["due_at"])
+    assert timedelta(hours=23) < due_at - datetime.now(timezone.utc) < timedelta(hours=25)
+
+
 def test_cli_routes_task_completion_to_complete_action() -> None:
     domain, card = _domain_and_action(
         "Complete the task Verify backup retention.", manager_with_reference_cards()

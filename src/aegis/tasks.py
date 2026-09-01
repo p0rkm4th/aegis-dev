@@ -200,11 +200,36 @@ class PostgresTaskExecutor:
                 command_succeeded=False,
             )
         if request.action.action_id == "tasks.create":
-            task = self.store.create(
-                self.principal,
-                title,
-                idempotency_key=request.idempotency_key,
-            )
+            due_at_value = request.action.arguments.get("due_at")
+            if due_at_value is not None and not isinstance(due_at_value, str):
+                return Observation(
+                    execution_id=request.action_id,
+                    evidence={"collection": "tasks", "invalid_due_at": True},
+                    command_succeeded=False,
+                )
+            due_at = None
+            if due_at_value is not None:
+                try:
+                    due_at = datetime.fromisoformat(due_at_value)
+                except ValueError:
+                    return Observation(
+                        execution_id=request.action_id,
+                        evidence={"collection": "tasks", "invalid_due_at": True},
+                        command_succeeded=False,
+                    )
+            if due_at is None:
+                task = self.store.create(
+                    self.principal,
+                    title,
+                    idempotency_key=request.idempotency_key,
+                )
+            else:
+                task = self.store.create(
+                    self.principal,
+                    title,
+                    due_at=due_at,
+                    idempotency_key=request.idempotency_key,
+                )
         else:
             matches = tuple(
                 task
@@ -228,15 +253,18 @@ class PostgresTaskExecutor:
                 if matches[0].status is TaskStatus.COMPLETED
                 else self.store.complete(self.principal, matches[0].task_id)
             )
+        evidence = {
+            "collection": "tasks",
+            "task_id": str(task.task_id),
+            "title": task.title,
+            "status": task.status.value,
+            "idempotency_key": task.idempotency_key,
+        }
+        if task.due_at is not None:
+            evidence["due_at"] = task.due_at.isoformat()
         return Observation(
             execution_id=request.action_id,
-            evidence={
-                "collection": "tasks",
-                "task_id": str(task.task_id),
-                "title": task.title,
-                "status": task.status.value,
-                "idempotency_key": task.idempotency_key,
-            },
+            evidence=evidence,
             command_succeeded=True,
         )
 
@@ -298,6 +326,13 @@ class PostgresTaskVerifier:
             task is not None
             and task.title == observation.evidence.get("title")
             and task.status.value == expected_status
+            and (
+                observation.evidence.get("due_at") is None
+                or (
+                    task.due_at is not None
+                    and task.due_at.isoformat() == observation.evidence["due_at"]
+                )
+            )
         )
         return VerificationResult(
             verified=verified,
