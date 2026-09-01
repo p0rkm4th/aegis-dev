@@ -804,6 +804,44 @@ def test_postgres_health_connection_failure_has_safe_remediation(monkeypatch):
         "connection failed: OperationalError; verify AEGIS_DATABASE_URL and ensure PostgreSQL is "
         "running"
     )
+
+
+def test_postgres_health_contains_unexpected_driver_failure(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setattr(
+        cli.psycopg,
+        "connect",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(Exception("password=private-secret")),
+    )
+
+    component = cli._postgres_health("postgresql://operator:secret@example.test/aegis")
+
+    assert component.healthy is False
+    assert component.detail == (
+        "database health check failed; verify AEGIS_DATABASE_URL and ensure PostgreSQL is running"
+    )
+    assert "private-secret" not in component.detail
+
+
+def test_ollama_health_contains_unexpected_client_failure(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setattr(
+        cli.urllib.request,
+        "urlopen",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(Exception("token=private-secret")),
+    )
+
+    component = cli._ollama_health("http://ollama.example:11434", "qwen3:8b")
+
+    assert component.healthy is False
+    assert component.detail == (
+        "Ollama health check failed at http://ollama.example:11434; check "
+        "`curl http://ollama.example:11434/api/tags`, start Ollama, or set "
+        "AEGIS_OLLAMA_URL to its reachable address"
+    )
+    assert "private-secret" not in component.detail
     assert "private-secret" not in component.detail
 
 
