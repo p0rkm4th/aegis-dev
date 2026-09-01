@@ -269,6 +269,17 @@ def test_cli_routes_put_task_on_list_as_mutation() -> None:
     assert card.action.arguments == {"title": "keep an eye on the backup before the restore drill?"}
 
 
+def test_cli_routes_want_to_put_task_on_list_as_mutation() -> None:
+    domain, card = _domain_and_action(
+        "I'd like to put a task on my list to verify the restore drill.",
+        manager_with_reference_cards(),
+    )
+
+    assert domain == "tasks"
+    assert card.action.action_id == "tasks.create"
+    assert card.action.arguments == {"title": "verify the restore drill."}
+
+
 def test_cli_prepares_grocery_action_card_arguments() -> None:
     domain, card = _domain_and_action("Add rice to groceries.", manager_with_reference_cards())
 
@@ -1887,6 +1898,7 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     assert not TaskReadFastPath.matches(
         "Could you put a task on my list to keep an eye on the backup?"
     )
+    assert not TaskReadFastPath.matches("I'd like to put a task on my list to verify the drill")
 
 
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():

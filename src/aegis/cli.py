@@ -719,6 +719,7 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
         action = action.model_copy(update={"arguments": {"item": match.group(1).strip()}})
     elif action_id == "tasks.create":
         match = re.search(
+            r"(?:(?:(?:could|would|can)\s+you|(?:i\s+want|i\s+would\s+like|i'd\s+like))\s+to\s+)?"
             r"(?:put|place)\s+(?:a\s+)?task\s+on\s+(?:my|the)\s+"
             r"(?:task\s+)?list\s+(?:to\s+)?(.+)$",
             text,
