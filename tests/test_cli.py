@@ -22,6 +22,7 @@ from aegis.interaction import (
     _authorized_context_evidence,
     _context_from_prior_result,
     _fallback_working_context,
+    _with_continuation_context,
 )
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
@@ -151,6 +152,24 @@ def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
         }
     }
     assert context.sources == ("authorized_canonical_result",)
+
+
+def test_follow_up_result_can_trace_authorized_prior_objective_without_reusing_identity():
+    prior_id = str(uuid4())
+    context = Context(
+        values={"prior_objective_id": prior_id},
+        sources=("authorized_canonical_result",),
+    )
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="follow-up",
+        correlation_id=uuid4(),
+    )
+
+    enriched = _with_continuation_context(result, context)
+    assert enriched.objective_id != UUID(prior_id)
+    assert enriched.evidence["continuation_of_objective_id"] == prior_id
 
 
 def test_model_answer_can_carry_authorized_working_facts_without_becoming_truth():
