@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-unresolved-review-mutation-safety-live-green",
+  "current_checkpoint": "phase-12-while-compound-mutation-safety-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "422d1562297c18cfd8ac269203b35da5e03f7cf1",
-  "last_green_sha": "422d1562297c18cfd8ac269203b35da5e03f7cf1",
-  "last_pushed_sha": "422d1562297c18cfd8ac269203b35da5e03f7cf1",
+  "head_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
+  "last_green_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
+  "last_pushed_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "422d1562297c18cfd8ac269203b35da5e03f7cf1",
-    "last_known_green_sha": "422d1562297c18cfd8ac269203b35da5e03f7cf1",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/422d156",
+    "running_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
+    "last_known_green_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/b0a9d77",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -620,7 +620,10 @@
     "owner_dogfood_task_event_live": "green live: authenticated owner browser correlation 78787878-7878-4787-8787-787878787878 completed objective b3ba2821-cba0-4287-8463-b6b672cbcae1 as a verified task-plus-event plan after promotion to a696695",
     "owner_dogfood_task_event_replay_live": "green live: after owner service restart, different wording with the same correlation returned the same objective and completed aggregate without duplicate task/event execution",
     "browser_plan_step_visibility_live": "green live: authenticated owner browser responses exposed two bounded canonical step records with action IDs, lifecycle states, child objective/correlation IDs, and task/event verification messages while omitting raw step evidence; the same payload survived service restart replay",
-    "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
+    "owner_while_compound_mutation_defect_live": "historical live defect: owner correlation 70707070-7070-4070-8070-707070707070 on the prior installed release accepted 'Add rice to groceries while creating a task to review the backup.' as completed task-only work, silently ignored the grocery mutation, and retained the malformed task as canonical dogfood evidence",
+    "while_compound_mutation_regression": "green deterministic: compound mutation separators including while, also, and along with recognize inflected mutation verbs such as creating and block before model/Pack dispatch",
+    "owner_while_compound_mutation_live": "green live: authenticated owner correlation 71717171-7171-4171-8171-717171717171 on release b0a9d77 returned HTTP 200 with a persisted blocked one-action clarification and matching request-status; no new task or grocery dispatch occurred",
+    "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety now covers unresolved, sequential, as-well-as, review, and inflected while/also/along-with forms. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
   "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, stale canonical reconciliation, partial failure recovery, conjoined Finance/Personal/Household reads, Kitchen/Tasks mutation fail-closed behavior, adversarial private-finance containment, prompt-injection-shaped task handling, reminder ambiguity guidance, unresolved/sequential/as-well-as/review compound mutation safety, and actionable input validation are live-green; next attack malformed/weak proposals and model-boundary ambiguity."
