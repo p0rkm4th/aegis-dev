@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-config-mode-alignment-green",
+  "current_checkpoint": "phase-12-postgres-diagnostics-green",
   "active_branch": "aegis-dev",
-  "head_sha": "51679a687b44dcdf4fef4a9b5f8f5e8ec9aabf42",
-  "last_green_sha": "51679a687b44dcdf4fef4a9b5f8f5e8ec9aabf42",
-  "last_pushed_sha": "51679a687b44dcdf4fef4a9b5f8f5e8ec9aabf42",
+  "head_sha": "7e559ec028997a180a4afb456903685c42206885",
+  "last_green_sha": "7e559ec028997a180a4afb456903685c42206885",
+  "last_pushed_sha": "7e559ec028997a180a4afb456903685c42206885",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -152,6 +152,7 @@
     ,"installed wheel completes a rendered Qwen/PostgreSQL task workflow through the browser"
     ,"browser recovery status polling has a bounded per-request timeout and never automatically replays actions"
     ,"configuration mode alignment allows local alpha startup without optional services while production requires explicit Keycloak and OpenFGA authority"
+    ,"PostgreSQL readiness failures provide safe actionable remediation without exposing connection details"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -171,7 +172,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "161 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "162 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
