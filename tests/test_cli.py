@@ -903,6 +903,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "persistPendingRequest(utterance, correlationId)" in _INDEX_HTML
     assert "/api/request-status?correlation_id=" in _INDEX_HTML
     assert "recoverPendingRequest();" in _INDEX_HTML
+    assert "maxRecoveryPolls = 60" in _INDEX_HTML
+    assert "Status checks paused after five minutes." in _INDEX_HTML
     assert "inProgressStates.has(status.state)" in _INDEX_HTML
     assert "Retry remains explicit." in _INDEX_HTML
     assert "scheduleRecoveryPoll();" in _INDEX_HTML

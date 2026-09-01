@@ -84,8 +84,10 @@ const refresh = document.getElementById('refresh');
 const messageTimeoutMs = 120000;
 const pendingStorageKey = 'aegis.pending-request';
 const recoveryPollMs = 5000;
+const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
 let recoveryPollScheduled = false;
+let recoveryPollAttempts = 0;
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
@@ -115,7 +117,14 @@ function restorePendingRequest() {
   } catch (_) { clearPendingRequest(); }
 }
 function scheduleRecoveryPoll() {
-  if (recoveryPollScheduled || !pendingCorrelationId) return;
+  if (recoveryPollScheduled || !pendingCorrelationId || recoveryPollAttempts >= maxRecoveryPolls) {
+    if (pendingCorrelationId && recoveryPollAttempts >= maxRecoveryPolls) {
+      document.getElementById('detail').textContent =
+        'Status checks paused after five minutes. Retry remains explicit.';
+    }
+    return;
+  }
+  recoveryPollAttempts += 1;
   recoveryPollScheduled = true;
   setTimeout(() => {
     recoveryPollScheduled = false;
@@ -147,12 +156,14 @@ async function recoverPendingRequest() {
       scheduleRecoveryPoll();
       return;
     }
-    pendingCorrelationId = null; clearPendingRequest();
+    pendingCorrelationId = null; recoveryPollAttempts = 0; clearPendingRequest();
     document.querySelector('#chat button').textContent = 'Send';
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
     document.getElementById('detail').textContent = `Status: ${status.state}`;
     if (status.state === 'completed') loadState().catch(() => {});
-  } catch (_) { /* status is advisory; explicit Retry remains available. */ }
+  } catch (_) {
+    scheduleRecoveryPoll();
+  }
 }
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
@@ -206,6 +217,7 @@ function clearAuthorizedDisplays() {
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
   pendingCorrelationId = null;
+  recoveryPollAttempts = 0;
   clearPendingRequest();
 }
 async function loadState() {
