@@ -26,7 +26,14 @@ class StrictDecisionDecoder:
             if decision.action is None:
                 raise InvalidDecision("ACTION requires an action")
             card = next((c for c in cards if c.action.action_id == decision.action.action_id), None)
-            if card is None or decision.action != card.action:
+            if card is None:
+                raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
+            if decision.action != card.action:
+                if len(cards) == 1:
+                    # A small model may copy the card ID while dropping defaults or
+                    # changing arguments. The retrieved card remains authoritative;
+                    # canonicalize the proposal before policy or execution.
+                    return decision.model_copy(update={"action": card.action})
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
         elif decision.kind is DecisionKind.CLARIFY:
             if not decision.clarification or not decision.clarification.strip():
