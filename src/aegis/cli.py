@@ -6,6 +6,8 @@ import argparse
 import os
 import re
 import sqlite3
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
@@ -18,6 +20,7 @@ from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
+from .health import ComponentHealth, HealthReport
 from .household import (
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -69,6 +72,111 @@ def _required(name: str) -> str:
     if not value:
         raise RuntimeError(f"missing required environment variable: {name}")
     return value
+
+
+def _runtime_report() -> HealthReport:
+    """Check operator-facing prerequisites without creating or changing state."""
+
+    components: list[ComponentHealth] = []
+    database_url = os.environ.get("AEGIS_DATABASE_URL")
+    if not database_url:
+        components.append(
+            ComponentHealth(
+                name="postgres",
+                healthy=False,
+                required=True,
+                detail="set AEGIS_DATABASE_URL",
+            )
+        )
+    else:
+        try:
+            connection = psycopg.connect(database_url, connect_timeout=2)
+            connection.execute("SELECT 1")
+            connection.close()
+            components.append(
+                ComponentHealth(
+                    name="postgres", healthy=True, required=True, detail="connection succeeded"
+                )
+            )
+        except psycopg.Error as exc:
+            components.append(
+                ComponentHealth(
+                    name="postgres",
+                    healthy=False,
+                    required=True,
+                    detail=f"connection failed: {type(exc).__name__}",
+                )
+            )
+
+    ollama_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
+    try:
+        with urllib.request.urlopen(f"{ollama_url}/api/tags", timeout=2) as response:
+            if response.status != 200:
+                raise urllib.error.URLError(f"HTTP {response.status}")
+        components.append(
+            ComponentHealth(name="ollama", healthy=True, required=True, detail="API responded")
+        )
+    except (OSError, urllib.error.URLError, ValueError) as exc:
+        components.append(
+            ComponentHealth(
+                name="ollama",
+                healthy=False,
+                required=True,
+                detail=f"API unavailable: {type(exc).__name__}",
+            )
+        )
+
+    openclaw_names = (
+        "AEGIS_OPENCLAW_GATEWAY_URL",
+        "AEGIS_OPENCLAW_TOKEN",
+        "AEGIS_OPENCLAW_DEVICE_TOKEN",
+        "AEGIS_OPENCLAW_IDENTITY_DB",
+    )
+    configured_openclaw = [name for name in openclaw_names if os.environ.get(name)]
+    if not configured_openclaw:
+        openclaw_detail = "not configured (optional until an external mutation is requested)"
+        openclaw_healthy = True
+    elif len(configured_openclaw) != len(openclaw_names):
+        missing = ", ".join(name for name in openclaw_names if not os.environ.get(name))
+        openclaw_detail = f"incomplete configuration; missing {missing}"
+        openclaw_healthy = False
+    else:
+        openclaw_detail = "configuration present"
+        openclaw_healthy = True
+    components.append(
+        ComponentHealth(
+            name="openclaw",
+            healthy=openclaw_healthy,
+            required=False,
+            detail=openclaw_detail,
+        )
+    )
+
+    identity_detail = (
+        "validated bearer-token mode configured"
+        if os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
+        else "local development identity mode"
+    )
+    components.append(
+        ComponentHealth(name="identity", healthy=True, required=True, detail=identity_detail)
+    )
+    return HealthReport(
+        healthy=all(component.healthy for component in components),
+        ready=all(component.healthy for component in components if component.required),
+        components=tuple(components),
+    )
+
+
+def _print_runtime_report(report: HealthReport, as_json: bool) -> int:
+    if as_json:
+        print(report.model_dump_json())
+    else:
+        print(f"AEGIS runtime: {'READY' if report.ready else 'NOT READY'}")
+        for component in report.components:
+            state = "OK" if component.healthy else "FAIL"
+            requirement = "required" if component.required else "optional"
+            print(f"{component.name}: {state} ({requirement}) — {component.detail}")
+    return 0 if report.ready else 1
 
 
 def _principal() -> Principal:
@@ -460,12 +568,30 @@ def main() -> int:
         action="store_true",
         help="suppress the interactive startup banner",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="check configuration and runtime readiness, then exit",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="emit machine-readable JSON (only valid with --check)",
+    )
     args = parser.parse_args()
-    principal = _principal()
+    if args.json and not args.check:
+        parser.error("--json requires --check")
+    if args.check:
+        return _print_runtime_report(_runtime_report(), args.json)
+    try:
+        principal = _principal()
+    except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
+        print(f"Not completed — unable to initialize identity: {exc}")
+        return 1
     if args.once is not None:
         try:
             print(handle(args.once, principal))
-        except (RuntimeError, ValueError, OSError) as exc:
+        except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
             print(f"Not completed — {exc}")
             return 1
         return 0

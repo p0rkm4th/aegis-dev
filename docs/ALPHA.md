@@ -26,6 +26,12 @@ handled request errors print an actionable message and exit with status 1. It
 does not bypass Core policy, authorization, execution, or verification. Add
 `--no-banner` when embedding the interactive client in a terminal wrapper.
 
+Before starting a workflow, run `./scripts/aegis --check` for readable
+configuration/readiness diagnostics, or `./scripts/aegis --check --json` for a
+machine-readable report. PostgreSQL and Ollama are required; OpenClaw is
+reported as optional until a workflow needs an external mutation. A failed
+readiness check exits with status 1 and does not alter canonical state.
+
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
 `AEGIS_OPENCLAW_IDENTITY_DB`. The CLI defaults to the explicitly configured
