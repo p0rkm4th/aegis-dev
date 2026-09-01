@@ -341,6 +341,29 @@ def test_cli_web_reports_bootstrap_failure(monkeypatch, capsys):
     assert capsys.readouterr().out == "Not completed — unable to start browser: missing database\n"
 
 
+def test_cli_web_reports_port_conflict_with_remediation(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--web", "--port", "8081"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(cli, "_prepare_local_web_runtime", lambda _principal: None)
+    monkeypatch.setattr(
+        cli,
+        "serve",
+        lambda *_args: (_ for _ in ()).throw(OSError(cli.errno.EADDRINUSE, "address occupied")),
+    )
+
+    assert cli.main() == 1
+    assert capsys.readouterr().out == (
+        "AEGIS Constellation available at http://127.0.0.1:8081\n"
+        "Not completed — browser port 8081 is already in use; choose another with --port\n"
+    )
+
+
 def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
     from aegis import cli
 
