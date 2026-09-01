@@ -60,6 +60,7 @@ from aegis.household_proactivity import HouseholdProactivity, HouseholdSignals
 from aegis.identity import (
     InMemoryAuthorization,
     KeycloakIdentityProvider,
+    KeycloakOIDCClient,
     Membership,
     OpenFGAAuthorization,
     Resource,
@@ -581,6 +582,47 @@ def test_keycloak_claim_mapping_requires_explicit_aegis_scope_claims():
             pass
         else:
             raise AssertionError("incomplete identity claims were accepted")
+
+
+def test_keycloak_oidc_client_maps_userinfo_and_fails_closed(monkeypatch):
+    import json
+
+    import aegis.identity as identity_module
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "sub": "alice",
+                    "aegis_vault_id": "alice-vault",
+                    "aegis_space_ids": ["apartment"],
+                }
+            ).encode()
+
+    def fake_urlopen(request, timeout):
+        assert request.full_url.endswith("/realms/aegis/protocol/openid-connect/userinfo")
+        assert request.get_header("Authorization") == "Bearer token"
+        assert timeout == 3.0
+        return Response()
+
+    monkeypatch.setattr(identity_module, "urlopen", fake_urlopen)
+    client = KeycloakOIDCClient("http://keycloak/realms/aegis", timeout=3.0)
+    principal = client.principal_from_access_token("token")
+    assert principal == Principal(
+        id="alice", vault_id="alice-vault", space_ids=("apartment",)
+    )
+    try:
+        client.principal_from_access_token("")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("empty access token was accepted")
 
 
 def test_openfga_adapter_is_fail_closed_on_relationship_denial():
