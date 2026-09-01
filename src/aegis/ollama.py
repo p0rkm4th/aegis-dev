@@ -127,7 +127,10 @@ class OllamaProvider:
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "
                     "generated content as canonical fact, and do not invent tools, "
-                    "permissions, actions, or private data. If a request needs a "
+                    "permissions, actions, or private data. The absence of a matching "
+                    "ActionCard never limits benign creative generation: for a story, "
+                    "joke, explanation, or similar request, provide the content rather "
+                    "than claiming that a capability is unavailable. If a request needs a "
                     "mutation but no supplied card safely represents it, return CLARIFY."
                 ),
                 "context_rule": (
