@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 5,
-  "current_checkpoint": "phase-6-personal-contextual-retrieval-green",
+  "current_checkpoint": "phase-6-pgvector-semantic-retrieval-green",
   "active_branch": "aegis-dev",
-  "head_sha": "d4b628b",
-  "last_green_sha": "d4b628b",
-  "last_pushed_sha": "d4b628b",
+  "head_sha": "53be384",
+  "last_green_sha": "53be384",
+  "last_pushed_sha": "53be384",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -15,7 +15,10 @@
     "model": "qwen3:8b",
     "status": "live_decision_accepted_through_provider_and_decoder",
     "endpoint": "http://172.18.0.1:11434",
-    "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+    "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "embedding_model": "nomic-embed-text",
+    "embedding_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
+    "embedding_dimensions": 768
   },
   "completed_functionality": [
     "greenfield scaffold",
@@ -53,6 +56,7 @@
     "Entity-oriented personal retrieval resolves aliases deterministically, normalizes punctuation, and preserves memory provenance",
     "Temporal personal-memory retrieval applies bounded last-night, yesterday, and last-week windows before ranking grounded records",
     "Contextual personal-memory references resolve grounded records without transcript-only workflow state",
+    "Optional pgvector-backed personal-memory retrieval uses live Ollama nomic-embed-text embeddings with a conservative relevance threshold and deterministic fallback",
     "Personal-state PostgreSQL supersession write-order regression coverage",
     "PostgreSQL-backed shared HouseholdSpace state with policy-supplied membership on reload",
     "Owner-partitioned PostgreSQL FinanceSnapshot store with durable provider provenance and private read enforcement",
@@ -84,11 +88,12 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
-    "pytest": "90 passed; ruff check passed; mypy passed (34 source files); migration validation passed",
+    "pytest": "108 passed; ruff check passed; mypy passed (35 source files); migration validation passed",
     "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
+    "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
     "consequential Homelab/HA action acceptance remains unperformed",
@@ -100,7 +105,7 @@
     "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
-  "database_migration_version": "001_initial.sql through 010_network_state.sql applied to disposable PostgreSQL 16.4 container; objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, replay-safe Tasks, and Network scope/device persistence green",
+  "database_migration_version": "001_initial.sql through 011_personal_memory_vectors.sql applied to disposable pgvector/pgvector:pg16 container (PostgreSQL 16.15, pgvector 0.8.6); objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, replay-safe Tasks, Network scope/device, and personal-memory vector persistence green",
   "openclaw_compatibility": {
     "root_cli_gateway_release": "2026.8.1 (ea806575e645)",
     "gateway_client_package": "2026.8.1",
@@ -170,6 +175,7 @@
         "personal_entity_cli_live": "green: ./scripts/aegis loaded a PostgreSQL Vault entity alias and returned the matching observed memory with provenance through a fresh interactive process",
         "personal_temporal_cli_live": "green: ./scripts/aegis loaded PostgreSQL memories seeded in the actual previous-night window and returned them through a fresh interactive process with explicit_user provenance",
         "personal_contextual_cli_live": "green: ./scripts/aegis loaded a PostgreSQL observed memory and answered 'What about that server problem?' through a fresh interactive process with provenance",
+        "personal_vector_cli_live": "green: semantic-enabled ./scripts/aegis indexed Vault memories in pgvector using live nomic-embed-text, answered the Gateway query through cosine retrieval, and excluded weak matches after a measured 0.50 distance threshold",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -179,5 +185,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Add the measured semantic-retrieval adapter behind the existing personal-memory boundary, retaining deterministic ranking as the safe fallback and proving provenance, supersession, and Vault isolation."
+  "next_action": "Advance the Phase 6 gate review using the live pgvector semantic-retrieval evidence, then proceed to the next unblocked campaign capability while preserving deterministic fallback and Vault isolation."
 }
