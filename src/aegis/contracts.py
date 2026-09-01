@@ -85,6 +85,7 @@ class ActionCard(StrictModel):
     action: ActionSpec
     summary: str = Field(min_length=1)
     relevance: float = Field(ge=0, le=1)
+    argument_keys: tuple[str, ...] = ()
 
 
 class Decision(StrictModel):
@@ -156,7 +157,8 @@ class Objective(StrictModel):
 
 class ModelRequest(StrictModel):
     working_set: WorkingSet
-    action_cards: tuple[ActionCard, ...] = Field(max_length=5)
+    action_cards: tuple[ActionCard, ...] = Field(max_length=10)
+    allow_argument_proposals: bool = False
 
 
 class ModelResponse(StrictModel):

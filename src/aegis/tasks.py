@@ -431,6 +431,7 @@ class TaskReadFastPath:
     """Deterministic task reads over the membership-checked canonical store."""
 
     _TRIGGERS = ("task", "tasks", "to-do", "todo", "what do i need to do")
+    _READ_PREFIXES = ("what", "show", "list", "which", "see", "display")
 
     def __init__(self, store: PostgresTaskStore) -> None:
         self.store = store
@@ -440,7 +441,11 @@ class TaskReadFastPath:
         text = utterance.casefold()
         if is_mutation_request(text):
             return False
-        return any(trigger in text for trigger in cls._TRIGGERS)
+        if not any(trigger in text for trigger in cls._TRIGGERS):
+            return False
+        # A domain noun alone is not evidence of a read. Keep this fast path
+        # high-confidence and let bounded cognition resolve unfamiliar language.
+        return text.startswith(cls._READ_PREFIXES) or text in {"task", "tasks", "todo", "to-do"}
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):

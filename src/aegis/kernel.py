@@ -71,8 +71,8 @@ class Kernel:
         cards: tuple[ActionCard, ...] = (),
         context: Context | None = None,
     ) -> Result:
-        if len(cards) > 5:
-            raise ValueError("model-facing action cards must be bounded to five")
+        if len(cards) > 10:
+            raise ValueError("model-facing action cards must be bounded to ten")
         fast_result = self.fast_path.resolve(intent)
         if fast_result is not None:
             return fast_result

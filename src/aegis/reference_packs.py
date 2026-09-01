@@ -83,6 +83,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Create a task",
                     relevance=1,
+                    argument_keys=("title", "due_at"),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -93,6 +94,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Complete a task",
                     relevance=1,
+                    argument_keys=("title",),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -103,6 +105,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Create a shared chore",
                     relevance=1,
+                    argument_keys=("title",),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -113,6 +116,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Complete a shared chore",
                     relevance=1,
+                    argument_keys=("title",),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -123,6 +127,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Create a shared event",
                     relevance=1,
+                    argument_keys=("title", "starts_at"),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -149,6 +154,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Add an item to groceries",
                     relevance=1,
+                    argument_keys=("item",),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -175,6 +181,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Restart a service and verify health",
                     relevance=1,
+                    argument_keys=("service",),
                 ),
             ),
         ),
@@ -191,6 +198,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     ),
                     summary="Probe an authorized network target",
                     relevance=1,
+                    argument_keys=("address", "scope_id"),
                 ),
             ),
         ),
