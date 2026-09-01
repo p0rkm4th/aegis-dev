@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-isolated-installed-browser-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "785b144f738230079fa84a5617ac7add6c43c24c",
-  "last_green_sha": "785b144f738230079fa84a5617ac7add6c43c24c",
-  "last_pushed_sha": "785b144f738230079fa84a5617ac7add6c43c24c",
+  "head_sha": "c7e52c36abe5c7939695fd331c69dee861b0b400",
+  "last_green_sha": "c7e52c36abe5c7939695fd331c69dee861b0b400",
+  "last_pushed_sha": "c7e52c36abe5c7939695fd331c69dee861b0b400",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -191,6 +191,7 @@
     ,"normal isolated package installation exposes the same help, version, private bootstrap, and structured readiness diagnostics as the checkout launcher"
     ,"normal isolated installation launches the loopback browser outside the checkout with authorized canonical state and truthful optional-service degradation"
     ,"browser startup diagnostics do not claim availability before socket bind; occupied ports return a truthful actionable failure"
+    ,"operator quickstart installs runtime dependencies separately from optional contributor validation tooling"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -448,5 +449,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, and occupied-port diagnostics are green. Next executable frontier: remaining operator simplification and browser/API client contract hardening; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, and runtime-only quickstart smoke are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
 }
