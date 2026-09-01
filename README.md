@@ -13,8 +13,11 @@ virtual environment, then copy the safe configuration template:
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -e '.[dev,live]'
-cp examples/aegis.env.example .env
+./scripts/aegis --init
 ```
+
+`--init` refuses to overwrite an existing file and creates it with private
+permissions. Replace its placeholders before running readiness checks.
 
 Replace the database placeholders in `.env`. Ollama must be running at the
 address in `AEGIS_OLLAMA_URL` with the configured model installed. The value

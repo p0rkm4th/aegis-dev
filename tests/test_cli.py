@@ -113,6 +113,25 @@ def test_cli_help_is_available_without_runtime_configuration(monkeypatch, capsys
     output = capsys.readouterr().out
     assert "--once REQUEST" in output
     assert "--no-banner" in output
+    assert "--init" in output
+
+
+def test_cli_init_creates_private_non_overwriting_template(monkeypatch, capsys, tmp_path):
+    from aegis import cli
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("sys.argv", ["aegis", "--init"])
+
+    assert cli.main() == 0
+    target = tmp_path / ".env"
+    assert target.is_file()
+    assert target.stat().st_mode & 0o777 == 0o600
+    assert "AEGIS_DATABASE_URL=" in target.read_text(encoding="utf-8")
+    assert "Created private configuration template: .env" in capsys.readouterr().out
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--init"])
+    assert cli.main() == 1
+    assert "configuration file already exists" in capsys.readouterr().out
 
 
 def test_cli_env_file_loads_aegis_settings_without_overriding_shell(monkeypatch, tmp_path):
