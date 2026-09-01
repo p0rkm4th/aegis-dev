@@ -17,6 +17,7 @@ class ObjectiveStore(Protocol):
     def get_objective_by_correlation(
         self, correlation_id: UUID, principal: Principal
     ) -> Objective | None: ...
+    def correlation_bound(self, correlation_id: UUID) -> bool: ...
     def save_result(self, key: str, result: Result) -> None: ...
     def get_result(self, key: str) -> Result | None: ...
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None: ...
@@ -59,6 +60,11 @@ class InMemoryObjectiveStore:
             and objective.intent.principal == principal
         ]
         return max(candidates, key=lambda objective: objective.intent.created_at, default=None)
+
+    def correlation_bound(self, correlation_id: UUID) -> bool:
+        return any(
+            objective.correlation_id == correlation_id for objective in self.objectives.values()
+        )
 
     def save_result(self, key: str, result: Result) -> None:
         self.results[key] = result
@@ -131,6 +137,13 @@ class SqliteObjectiveStore:
             and Objective.model_validate_json(row[0]).intent.principal == principal
         ]
         return max(candidates, key=lambda objective: objective.intent.created_at, default=None)
+
+    def correlation_bound(self, correlation_id: UUID) -> bool:
+        row = self.connection.execute(
+            "SELECT 1 FROM objectives WHERE json_extract(payload, '$.correlation_id') = ? LIMIT 1",
+            (str(correlation_id),),
+        ).fetchone()
+        return row is not None
 
     def save_result(self, key: str, result: Result) -> None:
         self.connection.execute(
@@ -250,6 +263,14 @@ class PostgresObjectiveStore:
             if isinstance(payload, dict)
             else Objective.model_validate_json(str(payload))
         )
+
+    def correlation_bound(self, correlation_id: UUID) -> bool:
+        cursor = self.connection.execute(
+            "SELECT EXISTS (SELECT 1 FROM objectives WHERE payload->>'correlation_id' = %s)",
+            (str(correlation_id),),
+        )
+        row = cursor.fetchone()
+        return bool(row and row[0])
 
     def save_result(self, key: str, result: Result) -> None:
         self.connection.execute(
