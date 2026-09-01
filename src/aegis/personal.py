@@ -412,11 +412,37 @@ class PersonalState:
 class PersonalMemoryFastPath:
     """Deterministic read adapter for grounded personal-context questions."""
 
-    _TRIGGERS = ("memory", "working on", "working with", "what did i", "what was i")
+    _TRIGGERS = (
+        "memory",
+        "working on",
+        "working with",
+        "what did i",
+        "what was i",
+        "what do i know",
+        "tell me about",
+    )
     _PROJECT_TRIGGERS = ("project", "projects")
     _GOAL_TRIGGERS = ("goal", "goals")
     _STOPWORDS = frozenset(
-        {"a", "an", "and", "did", "i", "on", "the", "was", "what", "with", "last", "night"}
+        {
+            "a",
+            "an",
+            "and",
+            "about",
+            "did",
+            "i",
+            "me",
+            "know",
+            "on",
+            "tell",
+            "the",
+            "was",
+            "what",
+            "with",
+            "you",
+            "last",
+            "night",
+        }
     )
     _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
 
@@ -432,9 +458,10 @@ class PersonalMemoryFastPath:
         if not any(trigger in text for trigger in self._TRIGGERS):
             return None
         query = " ".join(
-            self._NORMALIZED_TERMS.get(word, word)
+            self._NORMALIZED_TERMS.get(word.strip(".,!?;:"), word.strip(".,!?;:"))
             for word in text.split()
-            if word not in self._STOPWORDS
+            if word.strip(".,!?;:") not in self._STOPWORDS
+            and word.strip(".,!?;:")
         )
         memories = self.state.search_memories(query)
         evidence = {
