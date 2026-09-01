@@ -39,12 +39,24 @@ class OpenClawWebSocketChannel:
     """
 
     def __init__(
-        self, url: str, token: str, timeout: float = 10.0, persistent: bool = False
+        self,
+        url: str,
+        token: str,
+        timeout: float = 10.0,
+        persistent: bool = False,
+        device_id: str | None = None,
+        device_token: str | None = None,
+        private_key_pem: str | None = None,
+        public_key_pem: str | None = None,
     ) -> None:
         self.url = url
         self.token = token
         self.timeout = timeout
         self.persistent = persistent
+        self.device_id = device_id
+        self.device_token = device_token
+        self.private_key_pem = private_key_pem
+        self.public_key_pem = public_key_pem
         self._socket: Any | None = None
 
     def send(self, request: RpcRequest) -> RpcResponse:
@@ -93,11 +105,75 @@ class OpenClawWebSocketChannel:
             self._socket.close()
             self._socket = None
 
+    def receive_event(self, event_name: str) -> dict[str, Any]:
+        """Receive the next named Gateway event on a persistent connection."""
+        if self._socket is None:
+            raise RpcProtocolError("Gateway event requires a persistent connection")
+        try:
+            while True:
+                frame = cast(dict[str, Any], json.loads(self._socket.recv()))
+                if frame.get("type") == "event" and frame.get("event") == event_name:
+                    payload = frame.get("payload")
+                    if not isinstance(payload, dict):
+                        raise RpcProtocolError("Gateway event payload is not an object")
+                    return payload
+        except RpcProtocolError:
+            raise
+        except Exception as exc:
+            raise RpcProtocolError(f"Gateway event transport failed: {exc}") from exc
+
     def _connect(self, socket: Any) -> None:
         challenge = json.loads(socket.recv())
         if challenge.get("event") != "connect.challenge":
             raise RpcProtocolError("Gateway did not send connect.challenge")
         connect_id = str(uuid4())
+        scopes = ["operator.read", "operator.write", "operator.admin", "operator.approvals"]
+        auth: dict[str, str] = {"token": self.token}
+        device: dict[str, Any] | None = None
+        if all((self.device_id, self.device_token, self.private_key_pem, self.public_key_pem)):
+            try:
+                import base64
+
+                from cryptography.hazmat.primitives import serialization
+                from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+                    Ed25519PrivateKey,
+                    Ed25519PublicKey,
+                )
+
+                if not self.private_key_pem or not self.public_key_pem:
+                    raise ValueError("missing OpenClaw device key")
+                private_key = serialization.load_pem_private_key(
+                    self.private_key_pem.encode(), password=None
+                )
+                public_key = serialization.load_pem_public_key(self.public_key_pem.encode())
+                if not isinstance(private_key, Ed25519PrivateKey) or not isinstance(
+                    public_key, Ed25519PublicKey
+                ):
+                    raise ValueError("OpenClaw device identity must use Ed25519")
+                raw_public_key = public_key.public_bytes(
+                    serialization.Encoding.Raw, serialization.PublicFormat.Raw
+                )
+                signed_at = int(challenge["payload"]["ts"])
+                signed_payload = "|".join(
+                    [
+                        "v3", self.device_id or "", "gateway-client", "backend", "operator",
+                        ",".join(scopes), str(signed_at), self.token,
+                        challenge["payload"]["nonce"], "linux", "",
+                    ]
+                )
+                def encode(value: bytes) -> str:
+                    return base64.urlsafe_b64encode(value).rstrip(b"=").decode()
+
+                device = {
+                    "id": self.device_id,
+                    "publicKey": encode(raw_public_key),
+                    "signature": encode(private_key.sign(signed_payload.encode())),
+                    "signedAt": signed_at,
+                    "nonce": challenge["payload"]["nonce"],
+                }
+                auth = {"token": self.token, "deviceToken": self.device_token or ""}
+            except (KeyError, TypeError, ValueError) as exc:
+                raise RpcProtocolError("invalid OpenClaw device identity") from exc
         socket.send(json.dumps({
             "type": "req",
             "id": connect_id,
@@ -112,13 +188,14 @@ class OpenClawWebSocketChannel:
                     "mode": "backend",
                 },
                 "role": "operator",
-                "scopes": ["operator.read", "operator.write", "operator.admin"],
+                "scopes": scopes,
                 "caps": [],
                 "commands": [],
                 "permissions": {},
-                "auth": {"token": self.token},
+                "auth": auth,
                 "locale": "en-US",
                 "userAgent": "aegis-core/0.1.0-dev",
+                **({"device": device} if device is not None else {}),
             },
         }))
         hello = self._receive_response(socket, connect_id)
