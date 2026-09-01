@@ -17,6 +17,10 @@ class MultiActionFastPath:
     """Reject compound mutations until durable continuation exists."""
 
     _ACTION = r"(?:add|complete|create|remove|update)"
+    _ACTION_INFLECTED = (
+        r"(?:add|adding|added|complete|completing|completed|create|creating|created|"
+        r"remove|removing|removed|update|updating|updated)"
+    )
     _TARGET = r"(?:a task|tasks|a chore|chores|an event|events|groceries|a grocery)"
     _READ = ("can i afford", "can we afford", "affordability", "show", "list", "what")
     _UNRESOLVED_ACTION_TERMS = (
@@ -44,8 +48,14 @@ class MultiActionFastPath:
             and any(term in text for term in cls._UNRESOLVED_ACTION_TERMS)
         )
         sequential_compound = (
-            bool(re.search(r"\bthen\b|,\s*then\b|;|as well as|\bplus\b", text))
-            and len(re.findall(rf"\b{cls._ACTION}\b", text)) >= 2
+            bool(
+                re.search(
+                    r"\bthen\b|,\s*then\b|;|as well as|\bplus\b|\bwhile\b|"
+                    r"\balso\b|along with",
+                    text,
+                )
+            )
+            and len(re.findall(rf"\b{cls._ACTION_INFLECTED}\b", text)) >= 2
         )
         return bool(
             re.search(rf"{cls._ACTION}.*\band\b.*{cls._TARGET}", text)
