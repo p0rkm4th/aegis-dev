@@ -28,6 +28,7 @@
       "M09.03 authorized canonical fact candidates are exposed as bounded non-authoritative referents; full suite and owner readiness green at db73a67",
       "M09.03 singleton grocery follow-up live attempt at 2692995 remained safely blocked by Qwen3:8B; no mutation or private disclosure occurred",
       "M09.03 fresh singleton grocery follow-up at 2692995 completed after authorized context reuse (read 5e947765-c1da-4f04-92f6-4087001af177; follow-up b893a1b5-cd15-4020-a51c-463f9a05809b); capability green remains unclaimed pending varied family",
+      "M09.04 continuation trace metadata passed deterministic validation and owner readiness at 50747d7; fresh follow-up objective/correlation identity is preserved",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -53,21 +54,21 @@
     "M06": "M06.01-M06.07 complete from read/write/shared/private/external/finance/restart vertical evidence",
     "M07": "M07.01-M07.09 complete from canonical memory, retrieval, provenance, compaction, and privacy evidence",
     "M08": "M08.01-M08.04 and M08.06-M08.09 materially implemented/proven; M08.03 semantic retrieval is live-proven, M08.05 and M08.10 remain active",
-    "M09": "M09.01-M09.03 session, bounded turn, and canonical referent context implemented; singleton live cognition remains partial and M09.04 remains unmet",
+    "M09": "M09.01-M09.04 session, bounded turn, canonical referents, and continuation trace implemented; varied objective-continuation capability proof remains partial",
     "M10": "M10.01-M10.06, M10.08-M10.10 materially proven; M10.07 compensation/cancellation remains unmet",
     "M11": "M11.01-M11.06 and M11.08-M11.09 materially proven; M11.07 remains unmet",
     "M12": "M12.01-M12.10 materially proven; M12.11 is lane-limited"
   },
   "next_candidates": [
-    "M09.04",
+    "M09.07",
     "M08.05",
     "M11.07",
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "2692995",
-  "last_green_sha": "2692995",
-  "last_pushed_sha": "2692995",
+  "head_sha": "50747d7",
+  "last_green_sha": "50747d7",
+  "last_pushed_sha": "50747d7",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -82,9 +83,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "2692995",
-    "last_known_green_sha": "2692995",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/2692995",
+    "running_sha": "50747d7",
+    "last_known_green_sha": "50747d7",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/50747d7",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
