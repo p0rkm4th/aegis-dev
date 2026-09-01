@@ -545,9 +545,14 @@ def test_cli_web_reports_bootstrap_failure(monkeypatch, capsys):
         "_prepare_local_web_runtime",
         lambda _principal: (_ for _ in ()).throw(RuntimeError("missing database")),
     )
+    monkeypatch.setattr(cli, "serve", lambda *_args: None)
 
-    assert cli.main() == 1
-    assert capsys.readouterr().out == "Not completed — unable to start browser: missing database\n"
+    assert cli.main() == 0
+    assert capsys.readouterr().out == (
+        "AEGIS runtime is not ready; the browser will show diagnostics. "
+        "Run './scripts/aegis --check' to see remediation.\n"
+        "AEGIS Constellation available at http://127.0.0.1:8081\n"
+    )
 
 
 def test_cli_web_reports_port_conflict_with_remediation(monkeypatch, capsys):
@@ -589,12 +594,14 @@ def test_cli_web_hides_database_failure_details(monkeypatch, capsys):
             cli.psycopg.OperationalError("password=private-secret")
         ),
     )
+    monkeypatch.setattr(cli, "serve", lambda *_args: None)
 
-    assert cli.main() == 1
+    assert cli.main() == 0
     output = capsys.readouterr().out
     assert output == (
-        "Not completed — unable to initialize browser state; run "
-        "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL\n"
+        "AEGIS runtime is not ready; the browser will show diagnostics. "
+        "Run './scripts/aegis --check' to see remediation.\n"
+        "AEGIS Constellation available at http://127.0.0.1:8082\n"
     )
     assert "private-secret" not in output
 
