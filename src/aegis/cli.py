@@ -195,6 +195,7 @@ def handle(utterance: str, principal: Principal) -> str:
         intent = IntentFrame(principal=principal, utterance=utterance)
         memory_result = PersonalMemoryFastPath(
             PostgresPersonalStateStore(connection, principal.vault_id)
+            .load()
         ).resolve(intent)
         if memory_result is not None:
             return _format(memory_result)
