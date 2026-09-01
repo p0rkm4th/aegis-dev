@@ -21,6 +21,7 @@ PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
 _MAX_BODY_BYTES = 20_000
+_MAX_RESPONSE_BYTES = 1_000_000
 _RETRY_AFTER_SECONDS = 5
 
 
@@ -602,13 +603,18 @@ class BrowserApp:
     @staticmethod
     def _json(status: HTTPStatus, payload: Any) -> tuple[int, str, bytes]:
         try:
-            serialized = json.dumps(payload)
+            serialized = json.dumps(payload).encode()
         except (TypeError, ValueError):
             status = HTTPStatus.SERVICE_UNAVAILABLE
             serialized = json.dumps(
                 {"code": "response_unavailable", "error": "response unavailable"}
-            )
-        return status, "application/json", serialized.encode()
+            ).encode()
+        if len(serialized) > _MAX_RESPONSE_BYTES:
+            status = HTTPStatus.SERVICE_UNAVAILABLE
+            serialized = json.dumps(
+                {"code": "response_unavailable", "error": "response unavailable"}
+            ).encode()
+        return status, "application/json", serialized
 
     @classmethod
     def _error(cls, status: HTTPStatus, code: str, message: str) -> tuple[int, str, bytes]:
