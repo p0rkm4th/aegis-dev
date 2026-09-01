@@ -314,6 +314,16 @@ def test_browser_app_fails_closed_when_state_is_not_authorized():
     }
 
 
+def test_browser_app_rejects_malformed_constellation_projection():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(principal, lambda *_: "unused", lambda _: {"nodes": [{"id": "missing label"}]})
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+
+    assert status == 503
+    assert json.loads(payload) == {"code": "state_unavailable", "error": "state unavailable"}
+
+
 def test_browser_api_resolves_identity_for_each_request():
     principals = iter(
         (
