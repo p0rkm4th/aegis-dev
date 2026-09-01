@@ -133,17 +133,20 @@ class PersonalChoreComposer(PersonalTaskComposer):
     _TARGET = "chore"
 
 
-class PersonalMemoryTaskComposer:
-    """Resolve an explicit personal-memory-to-task request from Vault state."""
+class _PersonalMemoryComposer:
+    """Resolve an explicit personal-memory-to-action request from Vault state."""
 
     _ACTION_TERMS = ("create", "add", "turn", "make")
+    _TARGET = "task"
     _STOPWORDS = frozenset({"create", "task", "memory", "into", "from", "my", "a", "the"})
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
         return (
-            "task" in text and "memory" in text and any(term in text for term in cls._ACTION_TERMS)
+            cls._TARGET in text
+            and "memory" in text
+            and any(term in text for term in cls._ACTION_TERMS)
         )
 
     @classmethod
@@ -172,8 +175,18 @@ class PersonalMemoryTaskComposer:
                 return matches[0].content, None
         return (
             None,
-            "Which personal memory should I turn into a task? Please name the memory.",
+            f"Which personal memory should I turn into a {cls._TARGET}? Please name the memory.",
         )
+
+
+class PersonalMemoryTaskComposer(_PersonalMemoryComposer):
+    """Resolve an explicit personal-memory-to-task request from Vault state."""
+
+
+class PersonalMemoryChoreComposer(_PersonalMemoryComposer):
+    """Resolve an explicit personal-memory-to-shared-chore request."""
+
+    _TARGET = "chore"
 
 
 class CrossDomainPlanningFastPath:

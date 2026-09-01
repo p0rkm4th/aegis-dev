@@ -712,7 +712,7 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     elif action_id == "tasks.chores.create":
         match = re.search(r"(?:create|add)\s+(?:a\s+)?chore\s+(?:to\s+)?(.+)$", text)
         if match is None:
-            if "goal" not in text or not any(
+            if not any(source in text for source in ("goal", "memory")) or not any(
                 phrase in text for phrase in ("turn", "make", "add", "create")
             ):
                 raise ValueError(
