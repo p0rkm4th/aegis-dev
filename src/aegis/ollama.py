@@ -123,6 +123,12 @@ class OllamaProvider:
                     "than one ActionCard is plausible, return CLARIFY instead of "
                     "guessing an action; include a concise clarification question."
                 ),
+                "single_card_rule": (
+                    "If exactly one ActionCard is supplied and the utterance clearly "
+                    "requests that capability, return ACTION. Do not return CLARIFY "
+                    "only because the request contains a date or relative time such "
+                    "as tomorrow; preserve the supplied card and arguments exactly."
+                ),
                 "utterance": request.working_set.intent.utterance,
                 "action_cards": cards,
             },

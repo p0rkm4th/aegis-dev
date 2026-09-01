@@ -932,6 +932,7 @@ def test_ollama_provider_repairs_malformed_json_once():
         "required_permissions",
         "verification",
     ]
+    assert "single_card_rule" in transport.calls[0]["messages"][0]["content"]
 
 
 def test_ollama_http_transport_rejects_non_http_urls():
