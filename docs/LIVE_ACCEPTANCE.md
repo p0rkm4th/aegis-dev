@@ -168,6 +168,13 @@ owner's balance from canonical state. A different principal was denied before
 the snapshot was read, preserving the owner boundary below model and projection
 logic.
 
+Authorized household finance projection persistence was verified after
+`007_household_projections.sql`. The live path loaded Alice's private finance
+snapshot, derived an allowlisted Apartment projection under explicit policy,
+and persisted only obligations, contributions, and settlements. A fresh
+connection reloaded the projection for an active member; a non-member was
+denied, and the stored payload contained neither balances nor transactions.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
