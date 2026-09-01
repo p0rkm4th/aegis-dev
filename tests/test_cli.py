@@ -18,7 +18,7 @@ from aegis.contracts import (
     Result,
     VerificationContract,
 )
-from aegis.interaction import _fallback_working_context
+from aegis.interaction import _context_from_prior_result, _fallback_working_context
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import Task, TaskIntentClarificationFastPath, TaskReadFastPath, TaskStatus
@@ -102,6 +102,44 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
         {"title": "check the pantry", "status": "open"},
     ]
     assert context.values["as_of_date"] == datetime.now().date().isoformat()
+
+
+def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="What's on my grocery list?",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="Your list contains rice.",
+        evidence={"canonical_items": ["rice"]},
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+
+    assert context.values["recent_turns"] == [
+        {
+            "role": "user",
+            "utterance": "What's on my grocery list?",
+            "correlation_id": str(correlation_id),
+        }
+    ]
+    assert context.sources == ("authorized_canonical_result",)
 
 
 def test_fresh_working_context_does_not_suppress_unrelated_mutation_cards():
