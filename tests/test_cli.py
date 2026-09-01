@@ -1921,6 +1921,28 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     assert not TaskReadFastPath.matches("I'd like to put a task on my list to verify the drill")
 
 
+def test_task_read_fast_path_filters_explicit_status_language():
+    completed = Task(uuid4(), "apartment", "done task", "alice", status=TaskStatus.COMPLETED)
+    open_task = Task(uuid4(), "apartment", "open task", "alice", status=TaskStatus.OPEN)
+
+    class Store:
+        def list(self, _principal):
+            return (completed, open_task)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            utterance="Show my completed tasks",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["status_filter"] == "completed"
+    assert result.evidence["canonical_tasks"] == [
+        {"task_id": str(completed.task_id), "title": "done task", "status": "completed"}
+    ]
+
+
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
     bundles = reference_bundles()
 
