@@ -68,7 +68,7 @@ from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseErro
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.osint import CapabilityGap, Forge, ForgeLifecycle, ForgeStatus, Investigation
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
-from aegis.personal import PersonalState, Provenance
+from aegis.personal import PersonalState, PostgresPersonalStateStore, Provenance
 from aegis.projections import (
     HouseholdProjection,
     PrivacyProjectionService,
@@ -997,6 +997,46 @@ def test_personal_state_rejects_unknown_schema():
         pass
     else:
         raise AssertionError("unknown personal-state schema was accepted")
+
+
+def test_postgres_personal_store_writes_supersession_after_all_memory_rows():
+    from datetime import datetime, timezone
+
+    class Connection:
+        def __init__(self):
+            self.calls = []
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            self.calls.append((query, params))
+
+        def commit(self):
+            self.commits += 1
+
+    state = PersonalState()
+    first = state.add_memory(
+        "old", datetime(2026, 8, 30, tzinfo=timezone.utc), Provenance.EXPLICIT_USER
+    )
+    corrected = state.correct_memory(
+        first.memory_id, "new", datetime(2026, 8, 31, tzinfo=timezone.utc)
+    )
+    connection = Connection()
+    PostgresPersonalStateStore(connection, "alice-vault").save(state)
+
+    memory_insert_indexes = [
+        index
+        for index, (query, _) in enumerate(connection.calls)
+        if "INSERT INTO personal_memories" in query
+    ]
+    update_index = next(
+        index
+        for index, (query, _) in enumerate(connection.calls)
+        if "UPDATE personal_memories SET superseded_by" in query
+    )
+    assert len(memory_insert_indexes) == 2
+    assert max(memory_insert_indexes) < update_index
+    assert connection.calls[update_index][1][0] == str(corrected.memory_id)
+    assert connection.commits == 1
 
 
 def test_household_space_supports_shared_workflows_for_active_members():
