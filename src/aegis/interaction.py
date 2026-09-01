@@ -152,7 +152,11 @@ class InteractionBoundary:
                 )
             if recovered_plan is not None and recovered_plan.steps:
                 prior_plan_result = objective_store.get_result(f"plan:{intent.correlation_id}")
-                if prior_plan_result is not None and not prior_plan_result.retryable:
+                if (
+                    prior_plan_result is not None
+                    and prior_plan_result.state is ObjectiveState.COMPLETED
+                    and not prior_plan_result.retryable
+                ):
                     return prior_plan_result
 
             def persist_fast_result(result: Result) -> Result:
