@@ -11,6 +11,7 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
+from uuid import UUID, uuid4
 
 import psycopg
 
@@ -293,8 +294,10 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         connection.close()
 
 
-def _browser_interaction(utterance: str, principal: Principal) -> dict[str, str]:
-    result = _run_interaction(utterance, principal)
+def _browser_interaction(
+    utterance: str, principal: Principal, correlation_id: UUID | None = None
+) -> dict[str, str]:
+    result = _run_interaction(utterance, principal, correlation_id)
     return {
         "message": _format(result),
         "state": result.state.value,
@@ -534,14 +537,20 @@ def _format(result: Any) -> str:
     return f"Done — {result.message}"
 
 
-def _run_interaction(utterance: str, principal: Principal) -> Any:
+def _run_interaction(
+    utterance: str, principal: Principal, correlation_id: UUID | None = None
+) -> Any:
     connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
     channel: OpenClawWebSocketChannel | None = None
     try:
         _apply_migrations(connection)
         if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
             _ensure_local_identity(connection, principal)
-        intent = IntentFrame(principal=principal, utterance=utterance)
+        intent = IntentFrame(
+            principal=principal,
+            utterance=utterance,
+            correlation_id=correlation_id or uuid4(),
+        )
         household_store = PostgresHouseholdStore(connection)
         if FinanceReadFastPath.matches(utterance):
             snapshot = household_store.read_snapshot(principal)
