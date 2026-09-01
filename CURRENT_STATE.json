@@ -80,6 +80,7 @@
     "Owner-partitioned PostgreSQL OSINT investigations persist source provenance and reject findings access by another owner",
     "Space-scoped PostgreSQL Homelab inventory persists host resources and services and reloads across fresh connections",
     "Owner- and Space-scoped PostgreSQL Security Lab findings persist authorized evidence and reject cross-owner reloads"
+    ,"Clean-install smoke builds the package and validates the current contiguous migration endpoint"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -106,6 +107,7 @@
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
+    "PostgreSQL backup/restore requires client tools compatible with the pinned server: host PostgreSQL 18 tools cannot restore a dump to PostgreSQL 16; pinned container PostgreSQL 16 pg_dump/pg_restore round-trip is green",
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed",
     "consequential Homelab/HA action acceptance remains unperformed",
@@ -185,6 +187,8 @@
         "osint_postgres_live": "green: migration 012 applied to live PostgreSQL; a fresh connection reloaded an Alice-owned investigation with one source and grounded finding, while Bob was denied access to the same investigation",
         "homelab_inventory_postgres_live": "green: migration 013 applied to live PostgreSQL; a fresh connection reloaded the Space-scoped acceptance host resources and Plex service inventory",
         "security_lab_findings_postgres_live": "green: migration 014 applied to live PostgreSQL; a fresh connection reloaded an authorized in-scope finding and a different owner was denied",
+        "postgres_backup_restore_live": "green: pinned PostgreSQL 16.15 pg_dump/pg_restore created and restored the disposable database; restored security_lab_findings, osint_investigations, and 127 audit events were present",
+        "clean_install_smoke": "green: scripts/smoke_install.sh built and installed the package into a clean target and validated migration endpoint 014",
         "phase9_technical_gate": "green: Homelab host/resource/service inventory and verified action evidence, explicit Network scope enforcement, durable owner/Space-scoped Security Lab findings, and durable source-grounded OSINT provenance are covered; live tests reject reachability-as-authority and cross-owner disclosure",
         "phase10_forge_gate": "green: existing Forge tests cover capability-gap detection, license/provenance classification, sandbox/test prerequisites, owner approval, Pack materialization, lifecycle installation, and the trading-card acceptance path; no generated Pack can self-authorize",
         "phase11_ambient_gate": "green with external limitation: OpenClaw system-event delivery, ambient policy/idempotency/failure behavior, proactive household signal composition, and Home Assistant adapter contracts are covered; real Home Assistant/device/voice acceptance remains blocked on owner hardware or credentials and is not claimed",
