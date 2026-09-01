@@ -158,19 +158,43 @@ def _runtime_report() -> HealthReport:
         )
     )
 
-    identity_detail = (
-        "validated bearer-token mode configured"
-        if os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
-        else "local development identity mode"
-    )
+    identity_healthy, identity_detail = _identity_health()
     components.append(
-        ComponentHealth(name="identity", healthy=True, required=True, detail=identity_detail)
+        ComponentHealth(
+            name="identity", healthy=identity_healthy, required=True, detail=identity_detail
+        )
     )
     return HealthReport(
         healthy=all(component.healthy for component in components),
         ready=all(component.healthy for component in components if component.required),
         components=tuple(components),
     )
+
+
+def _identity_health() -> tuple[bool, str]:
+    """Validate configured bearer identity without exposing token/provider details."""
+
+    token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
+    issuer = os.environ.get("AEGIS_KEYCLOAK_ISSUER")
+    if not token and not issuer:
+        return True, "local development identity mode"
+    if not token or not issuer:
+        return (
+            False,
+            "incomplete bearer identity configuration; set both "
+            "AEGIS_KEYCLOAK_ISSUER and AEGIS_KEYCLOAK_ACCESS_TOKEN",
+        )
+    if not os.environ.get("AEGIS_DATABASE_URL"):
+        return False, "bearer identity requires AEGIS_DATABASE_URL for canonical subject mapping"
+    try:
+        _principal()
+    except (OSError, RuntimeError, ValueError, PermissionError, psycopg.Error):
+        return (
+            False,
+            "bearer identity is unavailable; verify the token, Keycloak issuer, "
+            "and canonical subject mapping",
+        )
+    return True, "validated bearer-token identity and canonical subject mapping"
 
 
 def _safe_endpoint(value: str) -> str:

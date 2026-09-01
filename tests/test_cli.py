@@ -621,6 +621,41 @@ def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
     assert "openclaw: OK (optional)" in output
 
 
+def test_identity_health_rejects_incomplete_bearer_configuration(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setenv("AEGIS_KEYCLOAK_ACCESS_TOKEN", "token")
+    monkeypatch.delenv("AEGIS_KEYCLOAK_ISSUER", raising=False)
+
+    assert cli._identity_health() == (
+        False,
+        "incomplete bearer identity configuration; set both AEGIS_KEYCLOAK_ISSUER and "
+        "AEGIS_KEYCLOAK_ACCESS_TOKEN",
+    )
+
+
+def test_identity_health_hides_bearer_mapping_failure(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setenv("AEGIS_KEYCLOAK_ACCESS_TOKEN", "token")
+    monkeypatch.setenv("AEGIS_KEYCLOAK_ISSUER", "https://keycloak.example/realms/aegis")
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://db")
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: (_ for _ in ()).throw(RuntimeError("password=private-secret")),
+    )
+
+    healthy, detail = cli._identity_health()
+
+    assert healthy is False
+    assert detail == (
+        "bearer identity is unavailable; verify the token, Keycloak issuer, and "
+        "canonical subject mapping"
+    )
+    assert "private-secret" not in detail
+
+
 def test_postgres_health_reports_partial_canonical_schema(monkeypatch):
     from aegis import cli
 
