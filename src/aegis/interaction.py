@@ -158,7 +158,11 @@ def _context_from_prior_result(
 
 
 def _fallback_working_context(
-    context: Context, task_store: PostgresTaskStore, principal: Principal, utterance: str
+    context: Context,
+    task_store: PostgresTaskStore,
+    household_store: PostgresHouseholdStore,
+    principal: Principal,
+    utterance: str,
 ) -> Context:
     """Add a small authorized candidate set for bounded intent resolution."""
 
@@ -169,6 +173,7 @@ def _fallback_working_context(
             values=values,
             sources=tuple(dict.fromkeys((*context.sources, "authorized_canonical_context"))),
         )
+    facts["canonical_items"] = list(household_store.list_groceries(principal)[:20])
     tasks = list(task_store.list(principal))
     query_terms = {
         term
@@ -698,7 +703,7 @@ class InteractionBoundary:
                 _domain, card = self.dependencies.select_action(utterance, manager)
             except InteractionInputError as exc:
                 fallback_context = _fallback_working_context(
-                    context, task_store, principal, utterance
+                    context, task_store, household_store, principal, utterance
                 )
                 fallback = self._fallback_decision(
                     intent,
