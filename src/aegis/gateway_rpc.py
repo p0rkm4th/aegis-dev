@@ -128,6 +128,7 @@ class OpenClawWebSocketChannel:
     def _discard_socket(self) -> None:
         socket = self._socket
         self._socket = None
+        self._pending_events.clear()
         if socket is not None:
             try:
                 socket.close()

@@ -703,6 +703,17 @@ def test_persistent_gateway_event_failure_discards_dead_socket():
     assert channel._socket is None
 
 
+def test_discarding_gateway_socket_drops_connection_local_events():
+    channel = OpenClawWebSocketChannel("ws://gateway", "token", persistent=True)
+    channel._pending_events.append(
+        {"type": "event", "event": "terminal.data", "payload": {"data": "stale"}}
+    )
+
+    channel._discard_socket()
+
+    assert channel._pending_events == []
+
+
 def test_vault_and_space_authorization_is_structural_and_revocable():
     auth = InMemoryAuthorization()
     auth.add_vault(Vault("alice-vault", "alice"))
