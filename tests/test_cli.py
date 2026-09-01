@@ -6,6 +6,7 @@ from aegis.cli import _domain_and_action, _ensure_local_identity
 from aegis.contracts import Principal
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_packs
+from aegis.web import BrowserApp
 
 
 def manager_with_reference_cards() -> PackManager:
@@ -171,3 +172,35 @@ def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
         "openclaw",
         "identity",
     }
+
+
+def test_browser_app_uses_core_callbacks_for_state_and_messages():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    seen: list[tuple[str, str]] = []
+    app = BrowserApp(
+        principal,
+        lambda utterance, current: seen.append((utterance, current.id)) or "canonical answer",
+        lambda current: {"nodes": [{"id": "tasks", "label": "Tasks", "detail": current.id}]},
+    )
+
+    status, content_type, payload = app.dispatch("GET", "/api/constellation")
+    assert status == 200
+    assert content_type == "application/json"
+    assert json.loads(payload)["nodes"][0]["detail"] == "alice"
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"Show my tasks."}')
+    assert status == 200
+    assert json.loads(payload) == {"message": "canonical answer"}
+    assert seen == [("Show my tasks.", "alice")]
+
+
+def test_browser_app_rejects_empty_messages_and_unknown_routes():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(principal, lambda *_: "unused", lambda _: {"nodes": []})
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":" "}')
+    assert status == 400
+    assert "non-empty" in json.loads(payload)["error"]
+
+    status, _, _ = app.dispatch("GET", "/missing")
+    assert status == 404
