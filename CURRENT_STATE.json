@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "2680e02",
-  "last_green_sha": "2680e02",
-  "last_pushed_sha": "2680e02",
+  "head_sha": "8e7d8d9",
+  "last_green_sha": "8e7d8d9",
+  "last_pushed_sha": "8e7d8d9",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -91,6 +91,7 @@
     ,"per-request browser identity resolution with generic fail-closed unauthorized responses"
     ,"browser readiness endpoint and bounded malformed/oversized request handling"
     ,"portable alpha launcher with explicit Python selection and safe environment fallback"
+    ,"in-session browser conversation transcript and in-flight duplicate submission guard"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -110,8 +111,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "113 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Launcher discovery and actionable failure path are covered; --help works through the repository launcher; browser health remains observable without identity-protected state"
+    "pytest": "114 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
+    "known_gate_note": "Browser transcript, safe text rendering, disabled in-flight input, and Core-status display are covered; retry/idempotency remains owned by Core"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -211,6 +212,7 @@
         "browser_identity_refresh": "green deterministic: successive browser API requests resolve different Principals through the provider, and malformed identity fails closed with generic 401 without invoking state or interaction callbacks; current PostgreSQL stores continue to recheck Space/Vault authorization",
         "browser_health_and_http_hardening": "green: /api/health returns the existing structured readiness report without requiring identity, while protected state still returns generic 401; message bodies are bounded at the HTTP adapter and malformed/oversized requests do not reach Core",
         "portable_launcher": "green: scripts/aegis prefers a usable repository .venv, supports AEGIS_PYTHON, falls back to active python3/python with source PYTHONPATH, and reports actionable installation guidance when no environment can import aegis.cli",
+        "browser_conversation_guard": "green deterministic: browser renders user and AEGIS turns into an in-session transcript using textContent, disables input/button while awaiting a response, displays canonical status, and refreshes state only after completed responses; Core correlation/idempotency remains authoritative for retries",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
