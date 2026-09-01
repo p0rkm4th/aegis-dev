@@ -216,6 +216,38 @@ def test_browser_app_fails_closed_when_state_is_not_authorized():
     assert json.loads(payload) == {"error": "state access denied"}
 
 
+def test_browser_api_resolves_identity_for_each_request():
+    principals = iter(
+        (
+            Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            Principal(id="bob", vault_id="bob-vault", space_ids=("apartment",)),
+        )
+    )
+    seen: list[str] = []
+    app = BrowserApp(
+        lambda: next(principals),
+        lambda _utterance, current: seen.append(current.id) or "answer",
+        lambda current: {"nodes": [{"id": current.id, "label": current.id}]},
+    )
+
+    app.dispatch("GET", "/api/constellation")
+    app.dispatch("POST", "/api/message", b'{"utterance":"show tasks"}')
+
+    assert seen == ["bob"]
+
+
+def test_browser_api_rejects_unavailable_identity():
+    app = BrowserApp(
+        lambda: (_ for _ in ()).throw(ValueError("malformed claims")),
+        lambda *_: "unreachable",
+        lambda _: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+    assert status == 401
+    assert json.loads(payload) == {"error": "identity unavailable"}
+
+
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
     bundles = reference_bundles()
 

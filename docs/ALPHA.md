@@ -45,6 +45,11 @@ owns only HTTP and presentation; authorization, persistence, and meaning stay
 below it. Use `--port` to select another local port; it listens on loopback by
 default.
 
+Browser API requests resolve the configured identity again for each request.
+Malformed or unavailable identity is returned as an unauthorized response;
+state access is still rechecked against current Space/Vault policy below the
+browser adapter.
+
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
 `AEGIS_OPENCLAW_IDENTITY_DB`. The CLI defaults to the explicitly configured
