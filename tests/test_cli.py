@@ -104,6 +104,35 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
     assert context.values["as_of_date"] == datetime.now().date().isoformat()
 
 
+def test_fresh_working_context_does_not_suppress_unrelated_mutation_cards():
+    from aegis.interaction import InteractionDependencies
+
+    card = reference_bundles()[0].cards[0]
+    manager = PackManager()
+    manager.discover(reference_bundles()[0])
+    manager.install("tasks", frozenset({"tasks.write", "tasks.read"}))
+    manager.enable("tasks")
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("tasks", card),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+        )
+    )
+    fresh = Context(
+        values={"canonical_facts": {"canonical_items": ["rice"]}},
+        sources=("authorized_task_candidates",),
+    )
+    prior_grocery = fresh.model_copy(update={"sources": ("authorized_canonical_context",)})
+
+    assert boundary._fallback_cards(manager, "please add a task", fresh)
+    assert boundary._fallback_cards(manager, "add those", prior_grocery) == ()
+
+
 def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):
     from aegis import interaction
 
