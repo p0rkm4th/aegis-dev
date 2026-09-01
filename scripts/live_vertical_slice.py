@@ -15,6 +15,7 @@ from uuid import UUID, uuid4
 
 import psycopg
 
+from aegis.audit import PostgresAuditLog
 from aegis.contracts import (
     ActionCard,
     ExecutionRequest,
@@ -123,6 +124,7 @@ def run_once(correlation: UUID, path: str) -> object:
             ),
             OpenClawGroceryVerifier(),
             store=PostgresObjectiveStore(connection),
+            audit=PostgresAuditLog(connection),
         )
         return kernel.run(
             IntentFrame(

@@ -41,7 +41,8 @@
     "OpenClaw terminal execution with same-connection terminal event and independent external readback",
     "Live Qwen3:8B to PostgreSQL-backed Kitchen grocery workflow through OpenClaw with restart/replay and no duplicate external mutation",
     "Durable PostgreSQL action and observation lifecycle records with action identity reuse across crash recovery",
-    "PostgreSQL-backed Space membership capability policy with live revocation denial"
+    "PostgreSQL-backed Space membership capability policy with live revocation denial",
+    "PostgreSQL-backed tamper-evident audit chain correlated to live objectives/actions"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -75,7 +76,7 @@
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
-  "database_migration_version": "001_initial.sql applied to disposable PostgreSQL 16.4 container; PostgresObjectiveStore restart/replay green",
+  "database_migration_version": "001_initial.sql and 002_audit_hash_chain.sql applied to disposable PostgreSQL 16.4 container; PostgresObjectiveStore restart/replay and audit persistence green",
   "openclaw_compatibility": {
     "root_cli_gateway_release": "2026.8.1 (ea806575e645)",
     "gateway_client_package": "2026.8.1",
@@ -101,6 +102,7 @@
     "live_grocery_interrupted_recovery": "green: correlation 7f5e7a10-ec5b-4a7e-b653-1212b4e0f4c0 dispatched through real OpenClaw, simulated process failure occurred before Result persistence, fresh Core/PostgreSQL process recovered it, persisted Result matched, and external record count was 1",
     "live_grocery_persisted_action_recovery": "green: correlation 38ba4c3a-1ce2-4224-956b-0cbbe993ec0b left an executing PostgreSQL action after simulated crash, fresh process reused the same action ID/idempotency key, persisted observation and completed Result, external record count remained 1",
     "postgresql_membership_policy": "green: live runner authorization used active Alice/apartment membership; revocation immediately changed the same kitchen.write request from allowed to denied, then fixture was restored",
+    "postgresql_audit_chain": "green: fresh PostgresAuditLog loaded 4 persisted events after live runner execution and verify() returned true; replay did not append a duplicate action chain",
     "adversarial_acceptance": "green: existing deterministic tests cover malformed model output, invented action, semantic denial, runtime denial, execution failure, verification failure, disconnect unknown outcome, cancellation, and replay; duplicate external records are rejected; live crash-before-Result recovery is green",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",

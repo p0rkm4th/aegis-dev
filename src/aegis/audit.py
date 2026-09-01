@@ -6,7 +6,7 @@ import hashlib
 import json
 import sqlite3
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
 
@@ -159,6 +159,72 @@ class SqliteAuditLog(AuditLog):
                 event.principal_id,
                 str(event.objective_id) if event.objective_id else None,
                 str(event.action_id) if event.action_id else None,
+                json.dumps(event.payload, sort_keys=True),
+                event.previous_hash,
+                event.event_hash,
+            ),
+        )
+        self.connection.commit()
+        return event
+
+    def close(self) -> None:
+        self.connection.close()
+
+
+class AuditConnection(Protocol):
+    def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
+
+    def commit(self) -> None: ...
+
+    def close(self) -> None: ...
+
+
+class PostgresAuditLog(AuditLog):
+    """PostgreSQL-backed tamper-evident audit chain."""
+
+    def __init__(self, connection: AuditConnection) -> None:
+        super().__init__()
+        self.connection = connection
+        rows = self.connection.execute(
+            """SELECT id, event_type, principal_id, objective_id, action_id,
+                      payload, previous_hash, event_hash
+               FROM audit_events ORDER BY created_at, id"""
+        ).fetchall()
+        self.events.extend(
+            AuditEvent(
+                event_id=UUID(str(row[0])),
+                event_type=str(row[1]),
+                principal_id=str(row[2]),
+                objective_id=UUID(str(row[3])) if row[3] else None,
+                action_id=UUID(str(row[4])) if row[4] else None,
+                payload=cast(dict[str, Any], row[5]),
+                previous_hash=str(row[6]),
+                event_hash=str(row[7]),
+            )
+            for row in rows
+            if row[6] is not None and row[7] is not None
+        )
+
+    def append(
+        self,
+        event_type: str,
+        principal_id: str,
+        payload: dict[str, Any],
+        objective_id: UUID | None = None,
+        action_id: UUID | None = None,
+    ) -> AuditEvent:
+        event = super().append(event_type, principal_id, payload, objective_id, action_id)
+        self.connection.execute(
+            """INSERT INTO audit_events
+               (id, principal_id, objective_id, action_id, event_type, payload,
+                previous_hash, event_hash)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                str(event.event_id),
+                event.principal_id,
+                str(event.objective_id) if event.objective_id else None,
+                str(event.action_id) if event.action_id else None,
+                event.event_type,
                 json.dumps(event.payload, sort_keys=True),
                 event.previous_hash,
                 event.event_hash,

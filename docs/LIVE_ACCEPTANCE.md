@@ -133,3 +133,8 @@ live revocation probe, Alice’s active `apartment` membership allowed
 `kitchen.write`; setting that membership inactive immediately denied the same
 authorization request below the model and Gateway layers. The fixture was
 restored to active afterward.
+
+The live runner also uses `PostgresAuditLog`. After migration
+`002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
+creation, action observation, and result events; the audit chain contained four
+events and `verify()` returned true.

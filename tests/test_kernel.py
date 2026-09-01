@@ -1525,7 +1525,7 @@ def test_health_report_separates_required_readiness_from_optional_health():
 
 
 def test_migration_manifest_is_contiguous_and_nonempty():
-    assert validate_migrations() == ("001_initial.sql",)
+    assert validate_migrations() == ("001_initial.sql", "002_audit_hash_chain.sql")
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
