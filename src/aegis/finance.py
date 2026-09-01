@@ -222,6 +222,10 @@ class FinanceReadFastPath:
     """Deterministic affordability read using private state only below Core."""
 
     _AMOUNT = re.compile(r"(?:\$\s*|usd\s*)(\d+(?:\.\d{1,2})?)", re.IGNORECASE)
+    _SAFE_PURCHASE = re.compile(
+        r"\b(?:purchase|expense|spend(?:ing)?)\b.{0,40}\b(?:safe|okay|ok|manageable)\b",
+        re.IGNORECASE,
+    )
 
     def __init__(self, ledger: FinanceLedger) -> None:
         self.ledger = ledger
@@ -229,8 +233,11 @@ class FinanceReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
-        return ("can i afford" in text or "can we afford" in text) and bool(
-            cls._AMOUNT.search(text)
+        has_amount = bool(cls._AMOUNT.search(text))
+        return has_amount and (
+            "can i afford" in text
+            or "can we afford" in text
+            or bool(cls._SAFE_PURCHASE.search(text))
         )
 
     def resolve(
