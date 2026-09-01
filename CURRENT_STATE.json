@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "e1e6211f537fa92ab27f8639ed2bb9c5d2de5acd",
-  "last_green_sha": "e1e6211f537fa92ab27f8639ed2bb9c5d2de5acd",
-  "last_pushed_sha": "e1e6211f537fa92ab27f8639ed2bb9c5d2de5acd",
+  "head_sha": "8cfcbdc2353b4aa8b2ee05667d05c38f585b1691",
+  "last_green_sha": "8cfcbdc2353b4aa8b2ee05667d05c38f585b1691",
+  "last_pushed_sha": "8cfcbdc2353b4aa8b2ee05667d05c38f585b1691",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -101,6 +101,7 @@
     ,"authorized Constellation domain detail views with generic browser rendering"
     ,"stable machine-readable browser error codes with generic fail-closed text"
     ,"browser retries restricted to recoverable identity/service failures"
+    ,"typed public run_interaction boundary shared by CLI and browser clients"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -231,6 +232,7 @@
         "browser_detail_projection_live": "green: a fresh authorized PostgreSQL constellation projection exposed generic detail views for Personal, Household, Finance availability, Homelab, Network, Tasks, and Kitchen; it contained 19 nodes/18 edges and no balance, transaction, account-number, or raw-balance fields",
         "browser_error_codes_live": "green deterministic boundary probes returned identity_unavailable (401), state_access_denied (403), invalid_request (400), and route_not_found (404), with generic user-safe error text and no callback bypass",
         "browser_retry_policy": "green deterministic: browser preserves correlation and offers Retry only for identity/service-unavailable codes; permanent denial and invalid-request codes clear pending retry state and return the client to Send",
+        "shared_interaction_runner_live": "green: CLI and browser composition now call the typed public run_interaction() runner; a fresh PostgreSQL-backed invocation returned a completed canonical task Result with correlation and evidence, without a duplicate client workflow",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
