@@ -139,14 +139,23 @@ class InteractionBoundary:
                 utterance=utterance,
                 correlation_id=correlation_id or uuid4(),
             )
-            multi_action_result = MultiActionFastPath.resolve(intent)
-            if multi_action_result is not None:
-                return multi_action_result
+            recovered_plan = PostgresObjectiveStore(connection).get_objective_by_correlation(
+                intent.correlation_id, principal
+            )
+            recovered_plan_actions = (
+                recovered_plan.steps
+                if recovered_plan is not None and recovered_plan.steps
+                else None
+            )
+            if recovered_plan_actions is None:
+                multi_action_result = MultiActionFastPath.resolve(intent)
+                if multi_action_result is not None:
+                    return multi_action_result
             domain_clarification = DomainClarificationFastPath.resolve(intent)
             if domain_clarification is not None:
                 return domain_clarification
             household_store = PostgresHouseholdStore(connection)
-            if CrossDomainPlanningFastPath.matches(utterance):
+            if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
                 task_store = PostgresTaskStore(connection)
                 personal_state = PostgresPersonalStateStore(
                     connection, principal.vault_id
@@ -175,7 +184,7 @@ class InteractionBoundary:
                 ).resolve(intent)
                 if planning_result is not None:
                     return planning_result
-            if FinanceReadFastPath.matches(utterance):
+            if recovered_plan_actions is None and FinanceReadFastPath.matches(utterance):
                 snapshot = household_store.read_snapshot(principal)
                 household_obligations = cast(
                     tuple[HouseholdObligation, ...], snapshot.get("obligations", ())
@@ -238,17 +247,21 @@ class InteractionBoundary:
                 goal_task_title or goal_chore_title or memory_task_title or memory_chore_title
             )
             household_snapshot = household_store.read_snapshot(principal)
-            if CrossDomainPlanningFastPath.matches(utterance):
+            if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
                 planning_result = CrossDomainPlanningFastPath(
                     personal_state, household_snapshot, task_store.list(principal)
                 ).resolve(intent)
                 if planning_result is not None:
                     return planning_result
-            if composed_title is None and HouseholdReadFastPath.matches(utterance):
+            if (
+                recovered_plan_actions is None
+                and composed_title is None
+                and HouseholdReadFastPath.matches(utterance)
+            ):
                 household_result = HouseholdReadFastPath(household_snapshot).resolve(intent)
                 if household_result is not None:
                     return household_result
-            if composed_title is None:
+            if recovered_plan_actions is None and composed_title is None:
                 task_result = TaskReadFastPath(task_store).resolve(intent)
                 if task_result is not None:
                     return task_result
@@ -279,7 +292,7 @@ class InteractionBoundary:
                 )
             else:
                 memory_fast_path = PersonalMemoryFastPath(personal_state)
-            if composed_title is None:
+            if recovered_plan_actions is None and composed_title is None:
                 memory_result = memory_fast_path.resolve(intent)
                 if memory_result is not None:
                     return memory_result
@@ -307,7 +320,9 @@ class InteractionBoundary:
                 elif manager.status(pack_id) is PackStatus.INSTALLED:
                     manager.enable(pack_id)
             plan_titles = MultiActionFastPath.task_chore_titles(utterance)
-            if plan_titles is not None:
+            if recovered_plan_actions is not None:
+                plan_actions = recovered_plan_actions
+            elif plan_titles is not None:
                 task_card = next(
                     card
                     for card in manager.retrieve("tasks")
@@ -324,6 +339,10 @@ class InteractionBoundary:
                 chore_action = chore_card.action.model_copy(
                     update={"arguments": {"title": plan_titles[1]}}
                 )
+                plan_actions = (task_action, chore_action)
+            else:
+                plan_actions = None
+            if plan_actions is not None:
                 principal_store = PostgresHouseholdStore(connection)
                 kernel = Kernel(
                     OllamaProvider(
@@ -354,7 +373,7 @@ class InteractionBoundary:
                     store=PostgresObjectiveStore(connection),
                     audit=PostgresAuditLog(connection),
                 )
-                return kernel.run_sequence(intent, (task_action, chore_action))
+                return kernel.run_sequence(intent, plan_actions)
             _domain, card = self.dependencies.select_action(utterance, manager)
             if goal_task_title is not None and card.action.action_id == "tasks.create":
                 card = card.model_copy(
