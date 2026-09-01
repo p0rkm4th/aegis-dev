@@ -27,6 +27,7 @@
       "M09.02 authorized prior user turn is bounded to 500 characters and passed as non-authoritative context; full suite and owner readiness green at 4058007",
       "M09.03 authorized canonical fact candidates are exposed as bounded non-authoritative referents; full suite and owner readiness green at db73a67",
       "M09.03 singleton grocery follow-up live attempt at 2692995 remained safely blocked by Qwen3:8B; no mutation or private disclosure occurred",
+      "M09.03 fresh singleton grocery follow-up at 2692995 completed after authorized context reuse (read 5e947765-c1da-4f04-92f6-4087001af177; follow-up b893a1b5-cd15-4020-a51c-463f9a05809b); capability green remains unclaimed pending varied family",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
