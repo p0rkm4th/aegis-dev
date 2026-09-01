@@ -21,6 +21,7 @@ from aegis.config import AegisConfig
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
+    AuthorizationRequest,
     Decision,
     DecisionKind,
     ExecutionRequest,
@@ -71,7 +72,13 @@ from aegis.identity import (
 from aegis.kernel import Kernel
 from aegis.migrations import validate_migrations
 from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
-from aegis.network import AuthorizedNetworkScope, DiscoveredDevice, HomelabInventory, ScopeDenied
+from aegis.network import (
+    AuthorizedNetworkScope,
+    DiscoveredDevice,
+    HomelabInventory,
+    NetworkScopePolicy,
+    ScopeDenied,
+)
 from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.osint import CapabilityGap, Forge, ForgeLifecycle, ForgeStatus, Investigation
@@ -324,7 +331,7 @@ def test_three_reference_packs_use_one_generic_execution_pipeline():
     executor = ReferenceExecutor(world)
     verifier = ReferenceVerifier(world)
     principal = Principal(id="alice", vault_id="alice-vault")
-    for pack in reference_packs():
+    for pack in reference_packs()[:3]:
         card = pack.cards[0]
         action = card.action.model_copy(
             update={
@@ -1543,6 +1550,33 @@ def test_inactive_or_unknown_network_scope_fails_closed():
             pass
         else:
             raise AssertionError("inactive or unknown network scope allowed action")
+
+
+def test_network_scope_policy_denies_reachable_target_outside_persisted_scope():
+    class BasePolicy:
+        def authorize(self, request):
+            return PolicyDecision(allowed=True, reason="Space permission allows probe")
+
+    class Store:
+        def load(self, principal):
+            inventory = HomelabInventory()
+            inventory.add_scope(AuthorizedNetworkScope("lab", ("127.0.0.0/8",), "owned lab"))
+            return inventory
+
+    request = AuthorizationRequest(
+        principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+        objective_id=uuid4(),
+        action=ActionSpec(
+            action_id="network.probe",
+            capability="network.probe",
+            arguments={"address": "192.0.2.1", "port": 80, "scope_id": "lab"},
+            required_permissions=("network.read",),
+            verification=VerificationContract(kind="health"),
+        ),
+    )
+
+    decision = NetworkScopePolicy(BasePolicy(), Store()).authorize(request)
+    assert not decision.allowed
 
 
 def test_homelab_restart_requires_scope_and_health_verification():

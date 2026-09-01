@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shlex
+import socket
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -105,6 +106,22 @@ def reference_packs() -> tuple[Pack, ...]:
                 ),
             ),
         ),
+        Pack(
+            "network",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="network.probe",
+                        capability="network.probe",
+                        required_permissions=("network.read",),
+                        verification=VerificationContract(kind="health"),
+                    ),
+                    summary="Probe an authorized network target",
+                    relevance=1,
+                ),
+            ),
+        ),
     )
 
 
@@ -114,6 +131,7 @@ def reference_bundles() -> tuple[PackBundle, ...]:
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart",),
+        "network": ("network.read",),
     }
     return tuple(
         PackBundle(
@@ -454,6 +472,106 @@ class OpenClawHomelabVerifier:
                 "health_body_bytes": body_bytes,
             },
             reason="independent service health verified" if verified else "service health failed",
+        )
+
+
+class OpenClawNetworkProbeExecutor:
+    """Run a bounded ping through OpenClaw after Core scope authorization."""
+
+    def __init__(self, channel: OpenClawWebSocketChannel) -> None:
+        if not channel.persistent:
+            raise ValueError("Network probing requires a persistent channel")
+        self.channel = channel
+        self.gateway = OpenClawGatewayRpc(CorrelatedRpcClient(channel))
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "network.probe":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        address = request.action.arguments.get("address")
+        port = request.action.arguments.get("port")
+        if not isinstance(address, str) or not isinstance(port, int) or not 1 <= port <= 65535:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"invalid_endpoint": True},
+                command_succeeded=False,
+            )
+        marker = f"AEGIS_NETWORK_DONE_{uuid4().hex}"
+        script = (
+            f"curl --fail --silent --show-error --max-time 3 "
+            f"-o /dev/null -w HTTP_%{{http_code}}\\n "
+            f"{shlex.quote(f'http://{address}:{port}/')} 2>&1; code=$?; "
+            f"printf \"%s %s\\n\" {shlex.quote(marker)} $code"
+        )
+        terminal_output = ""
+        try:
+            opened = self.gateway.terminal_open({"rows": 40, "cols": 120})
+            session_id = opened["sessionId"]
+            self.gateway.terminal_input(
+                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}\r"}
+            )
+            for _ in range(32):
+                event = self.channel.receive_event("terminal.data")
+                terminal_output += str(event.get("data", ""))
+                if marker in terminal_output:
+                    break
+            self.gateway.terminal_close({"sessionId": session_id})
+        except (KeyError, RpcProtocolError) as exc:
+            raise RpcProtocolError("Network probe did not produce a terminal outcome") from exc
+        success = any(line.strip().endswith(" 0") for line in terminal_output.splitlines())
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "gateway": "openclaw",
+                "address": address,
+                "port": request.action.arguments.get("port"),
+                "terminal_marker": marker,
+                "terminal_output_bytes": len(terminal_output),
+                "terminal_output_tail": terminal_output[-500:],
+            },
+            command_succeeded=success,
+        )
+
+
+class OpenClawNetworkProbeVerifier:
+    """Independently verify target reachability with a TCP connection."""
+
+    def __init__(self, timeout: float = 3.0) -> None:
+        self.timeout = timeout
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        address = observation.evidence.get("address")
+        port = observation.evidence.get("port")
+        if contract.kind != "health" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="network probe failed",
+            )
+        if not isinstance(address, str) or not isinstance(port, int):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="network endpoint is invalid",
+            )
+        try:
+            with socket.create_connection((address, port), timeout=self.timeout):
+                pass
+        except OSError as exc:
+            return VerificationResult(
+                False,
+                {**observation.evidence, "readback_error": str(exc)},
+                "independent network readback failed",
+            )
+        return VerificationResult(
+            True,
+            {**observation.evidence, "tcp_readback": "connected"},
+            "independent network reachability verified",
         )
 
 

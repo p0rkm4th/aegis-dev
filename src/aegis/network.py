@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from .contracts import Principal
+from .contracts import AuthorizationRequest, PolicyDecision, Principal
 
 
 class ScopeDenied(PermissionError):
@@ -144,3 +144,33 @@ class PostgresNetworkStore:
         if row is None:
             raise PermissionError("principal is not an active Space member")
         return space_id
+
+
+class NetworkScopePolicy:
+    """Compose Space permission with explicit persisted network-scope authority."""
+
+    def __init__(self, space_policy: Any, network_store: PostgresNetworkStore) -> None:
+        self.space_policy = space_policy
+        self.network_store = network_store
+
+    def authorize(self, request: AuthorizationRequest) -> PolicyDecision:
+        base = self.space_policy.authorize(request)
+        if not base.allowed:
+            return base
+        if request.action.action_id != "network.probe":
+            return PolicyDecision(
+                allowed=False, reason="network policy does not permit this action"
+            )
+        address = request.action.arguments.get("address")
+        scope_id = request.action.arguments.get("scope_id")
+        if not isinstance(address, str) or not isinstance(scope_id, str):
+            return PolicyDecision(
+                allowed=False, reason="network probe requires address and scope_id"
+            )
+        try:
+            self.network_store.load(request.principal).scopes[scope_id].require(address)
+        except (KeyError, ValueError, PermissionError) as exc:
+            return PolicyDecision(allowed=False, reason=f"network scope denies target: {exc}")
+        return PolicyDecision(
+            allowed=True, reason="active Space membership and network scope permit probe"
+        )
