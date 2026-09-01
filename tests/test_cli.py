@@ -511,6 +511,28 @@ def test_cli_once_json_returns_stable_error_for_identity_failure(monkeypatch, ca
     }
 
 
+def test_cli_human_identity_errors_are_generic(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "Show my tasks."])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: (_ for _ in ()).throw(
+            cli.psycopg.OperationalError("password=private-secret host=internal-db")
+        ),
+    )
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert output == (
+        "Not completed — identity unavailable; run './scripts/aegis --check' and "
+        "verify identity configuration\n"
+    )
+    assert "private-secret" not in output
+    assert "internal-db" not in output
+
+
 def test_cli_json_requires_check_or_once(monkeypatch):
     from aegis import cli
 

@@ -873,11 +873,14 @@ def main() -> int:
         return _print_runtime_report(_runtime_report(), args.json)
     try:
         principal = _principal()
-    except (RuntimeError, ValueError, OSError, PermissionError, psycopg.Error) as exc:
+    except (RuntimeError, ValueError, OSError, PermissionError, psycopg.Error):
         if args.json:
             _print_json_error("identity_unavailable", "identity unavailable")
             return 1
-        print(f"Not completed — unable to initialize identity: {exc}")
+        print(
+            "Not completed — identity unavailable; run './scripts/aegis --check' and "
+            "verify identity configuration"
+        )
         return 1
     if args.web:
         try:
