@@ -85,6 +85,16 @@
     "adapter": "OpenClawWebSocketChannel; protocol-4 health and paired terminal execution green; persistent socket required for terminal event evidence",
     "device_pairing": "approved on disposable loopback Gateway; scopes operator.read/operator.write/operator.admin/operator.approvals; device token and private key remain outside repository"
   },
+  "authorization_runtime": {
+    "provider": "OpenFGA",
+    "status": "live_http_check_green",
+    "image_digest": "sha256:78d1fa601d42340ecb131305d80d3767d0f254f9b1bc3646f9a557e11b24c63a",
+    "endpoint": "http://127.0.0.1:58080",
+    "store_id": "01M1D97VBSA8TK1EKBR5BTN8HY",
+    "authorization_model_id": "01M1D99T70YBRNQP4NA2P10GKM",
+    "adapter": "OpenFGAHttpClient -> OpenFGAAuthorization; real can_read allow/deny verified",
+    "authentication": "Keycloak integration remains separate and not yet live-accepted"
+  },
   "live_acceptance_evidence": {
     "ollama_command": "OllamaHttpTransport(http://172.18.0.1:11434) -> OllamaProvider(qwen3:8b, max_repairs=0) -> StrictDecisionDecoder",
     "ollama_result": "ACTION kitchen.groceries.add accepted with exact arguments item=rice and readback verification",
@@ -103,6 +113,7 @@
     "live_grocery_persisted_action_recovery": "green: correlation 38ba4c3a-1ce2-4224-956b-0cbbe993ec0b left an executing PostgreSQL action after simulated crash, fresh process reused the same action ID/idempotency key, persisted observation and completed Result, external record count remained 1",
     "postgresql_membership_policy": "green: live runner authorization used active Alice/apartment membership; revocation immediately changed the same kitchen.write request from allowed to denied, then fixture was restored",
     "postgresql_audit_chain": "green: fresh PostgresAuditLog loaded 4 persisted events after live runner execution and verify() returned true; replay did not append a duplicate action chain",
+    "openfga": "green: real OpenFGA HTTP check allowed user:alice can_read resource:grocery and denied user:bob can_read resource:grocery using the pinned disposable store/model",
     "adversarial_acceptance": "green: existing deterministic tests cover malformed model output, invented action, semantic denial, runtime denial, execution failure, verification failure, disconnect unknown outcome, cancellation, and replay; duplicate external records are rejected; live crash-before-Result recovery is green",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
