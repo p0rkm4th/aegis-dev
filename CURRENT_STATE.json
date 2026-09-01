@@ -77,8 +77,9 @@
     "Live Qwen3:8B Network probe crossed PostgreSQL scope policy and OpenClaw terminal execution, wrote a Gateway receipt, and passed independent TCP verification with same-correlation replay",
     "Deterministic affordability CLI read uses the existing PostgreSQL finance ledger and household obligation state, returning only allowlisted derived fields",
     "Security Lab scope boundary requires explicit authorized CIDR state before recording target evidence and rejects out-of-scope targets",
-    "Owner-partitioned PostgreSQL OSINT investigations persist source provenance and reject findings access by another owner"
-    ,"Space-scoped PostgreSQL Homelab inventory persists host resources and services and reloads across fresh connections"
+    "Owner-partitioned PostgreSQL OSINT investigations persist source provenance and reject findings access by another owner",
+    "Space-scoped PostgreSQL Homelab inventory persists host resources and services and reloads across fresh connections",
+    "Owner- and Space-scoped PostgreSQL Security Lab findings persist authorized evidence and reject cross-owner reloads"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -98,7 +99,7 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
-    "pytest": "113 passed; ruff check passed; mypy passed (36 source files); migration validation passed",
+    "pytest": "114 passed; ruff check passed; mypy passed (36 source files); migration validation passed",
     "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
   },
     "known_failures": [
@@ -116,7 +117,7 @@
     "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
-  "database_migration_version": "001_initial.sql through 013_homelab_inventory.sql applied to disposable pgvector/pgvector:pg16 container (PostgreSQL 16.15, pgvector 0.8.6); objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, replay-safe Tasks, Network scope/device, personal-memory vector, owner-partitioned OSINT, and Space-scoped Homelab inventory persistence green",
+  "database_migration_version": "001_initial.sql through 014_security_lab_findings.sql applied to disposable pgvector/pgvector:pg16 container (PostgreSQL 16.15, pgvector 0.8.6); objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, replay-safe Tasks, Network scope/device, personal-memory vector, owner-partitioned OSINT, Space-scoped Homelab inventory, and Security Lab finding persistence green",
   "openclaw_compatibility": {
     "root_cli_gateway_release": "2026.8.1 (ea806575e645)",
     "gateway_client_package": "2026.8.1",
@@ -183,6 +184,7 @@
         "phase8_finance_gate": "green: canonical private finance models and provider boundary, owner-only reads, allowlisted durable household projection, derived affordability query, audit correlation, PostgreSQL restart reload, and privacy holdout tests are green; no raw private fields cross the shared result boundary",
         "osint_postgres_live": "green: migration 012 applied to live PostgreSQL; a fresh connection reloaded an Alice-owned investigation with one source and grounded finding, while Bob was denied access to the same investigation",
         "homelab_inventory_postgres_live": "green: migration 013 applied to live PostgreSQL; a fresh connection reloaded the Space-scoped acceptance host resources and Plex service inventory",
+        "security_lab_findings_postgres_live": "green: migration 014 applied to live PostgreSQL; a fresh connection reloaded an authorized in-scope finding and a different owner was denied",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -210,5 +212,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Run a Phase 9 technical-suite gate review across durable Homelab inventory and verification, Network scope enforcement, Security Lab authorization evidence, and durable OSINT provenance; then close only gaps supported by live or deterministic evidence."
+  "next_action": "Run the Phase 9 technical-suite gate review across Homelab inventory/action verification, Network scope enforcement, durable Security Lab evidence, and OSINT provenance; do not claim active testing or external reachability as authorization."
 }
