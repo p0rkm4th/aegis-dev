@@ -2029,6 +2029,7 @@ def test_household_read_fast_path_returns_only_shared_allowlisted_fields():
     ]
     assert "private" not in repr(result.evidence).lower()
     assert not HouseholdReadFastPath.matches("Create a chore to clean the kitchen")
+    assert not HouseholdReadFastPath.matches("Please create a task for the apartment inspection")
 
 
 def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():

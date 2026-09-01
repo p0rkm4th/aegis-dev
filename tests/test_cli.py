@@ -1785,6 +1785,9 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
         {"task_id": str(task.task_id), "title": "replace filter", "status": "open"}
     ]
     assert not TaskReadFastPath.matches("Create a task to replace filter")
+    assert not TaskReadFastPath.matches(
+        "Please create a task to compare the inspection checklist with the backup runbook"
+    )
 
 
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
