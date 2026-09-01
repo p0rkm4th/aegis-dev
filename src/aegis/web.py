@@ -296,6 +296,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
     assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
     if (result.state) document.getElementById('detail').textContent =
       `Status: ${result.state}${result.detail ? ` · ${result.detail}` : ''}`;
+    else if (!response.ok) document.getElementById('detail').textContent =
+      `Status: ${result.code || 'request_failed'}`;
     if (response.ok) {
       pendingCorrelationId = null; send.textContent = 'Send';
       clearPendingRequest();
