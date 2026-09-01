@@ -130,7 +130,8 @@ class OllamaProvider:
                 "ambiguity_rule": (
                     "If the utterance does not clearly identify one domain and more "
                     "than one ActionCard is plausible, return CLARIFY instead of "
-                    "guessing an action; include a concise clarification question."
+                    "guessing an action; set the clarification field to a concise "
+                    "clarification question. Never put the question only in reason."
                 ),
                 "selection_rule": (
                     "Choose by the meaning of the complete utterance, not by exact "

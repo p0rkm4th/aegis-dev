@@ -220,10 +220,31 @@ class InteractionBoundary:
         self.dependencies = dependencies
 
     @staticmethod
-    def _fallback_cards(manager: PackManager) -> tuple[ActionCard, ...]:
+    def _fallback_cards(manager: PackManager, utterance: str) -> tuple[ActionCard, ...]:
         """Offer a bounded capability vocabulary; metadata remains Core-owned."""
 
-        return tuple(manager.enabled_cards())[:10]
+        text = utterance.casefold()
+        # Domain retrieval is only a candidate reduction. Action meaning and
+        # arguments still come from the bounded model proposal and decoder.
+        domain = next(
+            (
+                pack_id
+                for marker, pack_id in (
+                    ("task", "tasks"),
+                    ("chore", "tasks"),
+                    ("event", "tasks"),
+                    ("grocery", "kitchen"),
+                    ("grocerie", "kitchen"),
+                    ("homelab", "homelab"),
+                    ("service", "homelab"),
+                    ("network", "network"),
+                )
+                if marker in text
+            ),
+            None,
+        )
+        cards = manager.retrieve(domain) if domain is not None else manager.enabled_cards()
+        return tuple(cards)[:10]
 
     def _fallback_decision(
         self, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context
@@ -604,7 +625,7 @@ class InteractionBoundary:
             except InteractionInputError as exc:
                 fallback = self._fallback_decision(
                     intent,
-                    self._fallback_cards(manager),
+                    self._fallback_cards(manager, utterance),
                     _fallback_working_context(context, task_store, principal),
                 )
                 if isinstance(fallback, Result):
@@ -645,7 +666,7 @@ class InteractionBoundary:
                         fallback_card = next(
                             (
                                 candidate
-                                for candidate in self._fallback_cards(manager)
+                                for candidate in self._fallback_cards(manager, utterance)
                                 if candidate.action.action_id == fallback.action.action_id
                             ),
                             None,
