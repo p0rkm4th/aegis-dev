@@ -119,6 +119,14 @@ async function recoverPendingRequest() {
     if (!response.ok) return;
     const status = await response.json();
     if (status.state === 'unknown') return;
+    const inProgressStates = new Set([
+      'proposed', 'validated', 'authorized', 'executing', 'observed'
+    ]);
+    if (inProgressStates.has(status.state)) {
+      document.getElementById('detail').textContent =
+        `Request status recovered: ${status.state}. Retry remains explicit.`;
+      return;
+    }
     pendingCorrelationId = null; clearPendingRequest();
     document.querySelector('#chat button').textContent = 'Send';
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
