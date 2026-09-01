@@ -161,6 +161,11 @@ def _fallback_working_context(
 
     values = dict(context.values)
     facts = dict(values.get("canonical_facts", {}))
+    if "canonical_items" in facts or "canonical_tasks" in facts:
+        return Context(
+            values=values,
+            sources=tuple(dict.fromkeys((*context.sources, "authorized_canonical_context"))),
+        )
     tasks = list(task_store.list(principal))
     query_terms = {
         term
