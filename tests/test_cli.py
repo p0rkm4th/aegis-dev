@@ -1238,6 +1238,23 @@ def test_browser_rejects_undocumented_interaction_fields():
     }
 
 
+def test_browser_rejects_unknown_interaction_lifecycle_state():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: {"message": "answer", "state": "invented_state"},
+        lambda _: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"show tasks"}')
+
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "request_unavailable",
+        "error": "request unavailable",
+    }
+
+
 def test_browser_health_uses_structured_readiness_without_identity():
     from aegis.health import ComponentHealth, HealthReport
 
