@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-constellation-accessibility-green",
+  "current_checkpoint": "phase-12-constellation-detail-accessibility-green",
   "active_branch": "aegis-dev",
-  "head_sha": "2ad3e3158481d1a56975ae6c5adfcf5eb6e8c78e",
-  "last_green_sha": "2ad3e3158481d1a56975ae6c5adfcf5eb6e8c78e",
-  "last_pushed_sha": "2ad3e3158481d1a56975ae6c5adfcf5eb6e8c78e",
+  "head_sha": "3edd91a0d21c483aaf161ec8426ab2974469c816",
+  "last_green_sha": "3edd91a0d21c483aaf161ec8426ab2974469c816",
+  "last_pushed_sha": "3edd91a0d21c483aaf161ec8426ab2974469c816",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -164,6 +164,7 @@
     ,"explicit persistent OpenClaw close clears connection-local buffered events before a later session"
     ,"persistent OpenClaw close clears its socket reference even when underlying shutdown raises"
     ,"Constellation node selection exposes presentation-only aria-pressed state with a visible selected affordance"
+    ,"Constellation detail navigation exposes an announced region and accessible node names from the safe projection"
     ,"browser refresh reports health failures separately from canonical state failures while preserving authorization-loss clearing"
     ,"browser health and canonical-state refresh requests have bounded client timeouts and restore the Refresh control after stalls"
     ,"browser authorization-loss cleanup clears private displays and resets the stale Retry affordance"
