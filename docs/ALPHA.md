@@ -29,6 +29,10 @@ health checks that need one request, use non-interactive mode:
 handled request errors print an actionable message and exit with status 1. It
 does not bypass Core policy, authorization, execution, or verification. Add
 `--no-banner` when embedding the interactive client in a terminal wrapper.
+For machine consumers, add `--json` to `--once`; it emits the canonical
+Result fields (`objective_id`, `state`, `message`, `evidence`, and
+`correlation_id`) rather than presentation text. JSON request failures return
+an error object and exit with status 1.
 
 Before starting a workflow, run `./scripts/aegis --check` for readable
 configuration/readiness diagnostics, or `./scripts/aegis --check --json` for a

@@ -143,6 +143,41 @@ def test_cli_once_returns_failure_status_for_handled_error(monkeypatch, capsys):
     assert capsys.readouterr().out == "Not completed — request is ambiguous\n"
 
 
+def test_cli_once_json_serializes_canonical_result(monkeypatch, capsys):
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="task list read",
+        evidence={"canonical_tasks": []},
+        correlation_id=uuid4(),
+    )
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "Show my tasks", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(cli, "_run_interaction", lambda *_: result)
+
+    assert cli.main() == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["state"] == "completed"
+    assert payload["objective_id"] == str(result.objective_id)
+    assert payload["evidence"] == {"canonical_tasks": []}
+
+
+def test_cli_json_requires_check_or_once(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--json"])
+    with pytest.raises(SystemExit) as raised:
+        cli.main()
+
+    assert raised.value.code == 2
+
+
 def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
     from aegis import cli
 

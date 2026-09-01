@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sqlite3
@@ -730,7 +731,7 @@ def main() -> int:
     parser.add_argument(
         "--json",
         action="store_true",
-        help="emit machine-readable JSON (only valid with --check)",
+        help="emit machine-readable JSON (valid with --check or --once)",
     )
     parser.add_argument(
         "--web",
@@ -740,8 +741,8 @@ def main() -> int:
     parser.add_argument("--host", default="127.0.0.1", help=argparse.SUPPRESS)
     parser.add_argument("--port", type=int, default=8080, help="browser client port")
     args = parser.parse_args()
-    if args.json and not args.check:
-        parser.error("--json requires --check")
+    if args.json and not (args.check or args.once is not None):
+        parser.error("--json requires --check or --once")
     if args.web and (args.check or args.once is not None):
         parser.error("--web cannot be combined with --check or --once")
     if args.check:
@@ -766,9 +767,15 @@ def main() -> int:
         return 0
     if args.once is not None:
         try:
-            print(handle(args.once, principal))
+            if args.json:
+                print(_run_interaction(args.once, principal).model_dump_json())
+            else:
+                print(handle(args.once, principal))
         except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
-            print(f"Not completed — {exc}")
+            if args.json:
+                print(json.dumps({"error": str(exc), "state": "failed"}))
+            else:
+                print(f"Not completed — {exc}")
             return 1
         return 0
     if not args.no_banner:
