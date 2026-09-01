@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Protocol
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from .contracts import AuthorizationRequest, PolicyDecision, Principal
 
@@ -73,6 +76,51 @@ class KeycloakIdentityProvider:
 
 class OpenFGAClient(Protocol):
     def check(self, user: str, relation: str, object_id: str) -> bool: ...
+
+
+class OpenFGAHttpClient:
+    """Small standard-library client for the OpenFGA check endpoint."""
+
+    def __init__(
+        self,
+        api_url: str,
+        store_id: str,
+        model_id: str | None = None,
+        token: str | None = None,
+        timeout: float = 10.0,
+    ) -> None:
+        if not api_url.startswith(("http://", "https://")):
+            raise ValueError("OpenFGA API URL must use HTTP or HTTPS")
+        if not store_id:
+            raise ValueError("OpenFGA store ID is required")
+        self.endpoint = f"{api_url.rstrip('/')}/stores/{store_id}/check"
+        self.model_id = model_id
+        self.token = token
+        self.timeout = timeout
+
+    def check(self, user: str, relation: str, object_id: str) -> bool:
+        body: dict[str, Any] = {
+            "tuple_key": {"user": user, "relation": relation, "object": object_id}
+        }
+        if self.model_id:
+            body["authorization_model_id"] = self.model_id
+        headers = {"Content-Type": "application/json"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        request = Request(
+            self.endpoint,
+            data=json.dumps(body).encode(),
+            headers=headers,
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=self.timeout) as response:
+                result = json.load(response)
+        except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+            raise RuntimeError("OpenFGA check request failed") from exc
+        if not isinstance(result, dict) or not isinstance(result.get("allowed"), bool):
+            raise RuntimeError("OpenFGA check response was invalid")
+        return bool(result["allowed"])
 
 
 class OpenFGAAuthorization:

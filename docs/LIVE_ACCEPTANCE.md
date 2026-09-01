@@ -138,3 +138,11 @@ The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
 events and `verify()` returned true.
+
+OpenFGA acceptance is separate from authentication. The disposable OpenFGA
+server was exposed only at `127.0.0.1:58080`, using image digest
+`sha256:78d1fa601d42340ecb131305d80d3767d0f254f9b1bc3646f9a557e11b24c63a`.
+Through `OpenFGAHttpClient` and the existing `OpenFGAAuthorization` port, the
+real `/stores/{store}/check` API allowed Alice’s `can_read` tuple and denied
+Bob’s missing tuple. Keycloak authentication remains a separate integration
+checkpoint.
