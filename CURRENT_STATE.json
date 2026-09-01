@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-bearer-readiness-diagnostics-live-green",
+  "current_checkpoint": "phase-12-browser-interruption-clean-green",
   "active_branch": "aegis-dev",
-  "head_sha": "e558b1f5ef59e820189d5cb035d58ed997150bd3",
-  "last_green_sha": "e558b1f5ef59e820189d5cb035d58ed997150bd3",
-  "last_pushed_sha": "e558b1f5ef59e820189d5cb035d58ed997150bd3",
+  "head_sha": "91388ccd98d9ccfcf70b8c37171de71bb6a4e6f1",
+  "last_green_sha": "91388ccd98d9ccfcf70b8c37171de71bb6a4e6f1",
+  "last_pushed_sha": "91388ccd98d9ccfcf70b8c37171de71bb6a4e6f1",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -184,6 +184,7 @@
     ,"Keycloak bearer subjects resolve through canonical PostgreSQL external_subject mappings before browser authorization; unprovisioned subjects fail closed without username or local-identity fallback"
     ,"bearer identity mapping contains PostgreSQL store failures as safe identity-unavailable outcomes without exposing connection details"
     ,"--check validates bearer issuer, token, and canonical external-subject mapping instead of treating token presence as readiness"
+    ,"browser client disconnects after an interrupted request are handled without server traceback while canonical recovery continues"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -203,7 +204,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "190 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "191 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, model failure durability, pre-decision correlation-stable retry, canonical retryability projection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, restrictive browser CSP and framing headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, generic malformed request encoding handling, executor exception durability, failed-observation completion prevention, and verifier exception containment are covered"
   },
     "known_failures": [
@@ -384,6 +385,7 @@
         "browser_keycloak_bearer_live": "green live reversible acceptance: a real disposable Keycloak bearer token reached a loopback browser process, its immutable subject resolved through PostgreSQL aegis_principals.external_subject to the canonical Alice principal, and conflicting local Bob identity settings were ignored; disabling the Keycloak user mid-session made the same browser projection return generic HTTP 401 with no stale state leak, then the fixture was restored",
         "browser_keycloak_mapping_failure_boundary": "green deterministic: a PostgreSQL failure while resolving an authenticated external subject is converted to the safe canonical identity mapping unavailable error, with the original credential-bearing exception retained only as a cause and never exposed at the client boundary",
         "bearer_readiness_diagnostic_live": "green live operator acceptance: ./scripts/aegis --check --json with a deliberately invalid bearer token returned exit 1, marked identity FAIL with safe issuer/token/mapping remediation, and emitted no token or stderr detail",
+        "browser_refresh_during_execution_live": "green live rendered acceptance: Chromium submitted a bounded delayed request, refreshed while execution was still in flight, restored the same correlation as explicit Retry, recovered canonical completion through request-status, observed exactly one interaction call, and captured clean server stderr after the aborted response",
         "browser_malformed_response_boundary": "green deterministic: a non-JSON value in the authorized Constellation provider is contained as generic state_unavailable with HTTP 503; no serialization traceback or provider value crosses the browser boundary",
         "installed_bootstrap_live": "green live package acceptance: a wheel built from the pushed source included aegis/aegis.env.example, and direct python -m aegis.cli --init from an unrelated temporary directory created a private mode-600 .env without checkout-relative files",
         "cli_version_live": "green live package acceptance: both the repository launcher and a freshly built/installed wheel reported the package-owned version 'aegis 0.1.0.dev1' without runtime configuration",
@@ -432,5 +434,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; Keycloak bearer identity now resolves through canonical external-subject mappings and fails closed on mid-session revocation. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; browser refresh-during-execution now recovers without duplicate interaction or server traceback. Next executable frontier: browser recovery under service restart and operational simplification; Home Assistant/mobile/voice remain lane-limited."
 }
