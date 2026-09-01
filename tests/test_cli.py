@@ -832,6 +832,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "clearAuthorizedDisplays()" in _INDEX_HTML
     assert "Authorization lost; authorized state cleared." in _INDEX_HTML
     assert "conversation').replaceChildren()" in _INDEX_HTML
+    assert "sessionStorage" in _INDEX_HTML
+    assert "A previous request may still be in progress" in _INDEX_HTML
+    assert "persistPendingRequest(utterance, correlationId)" in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():
