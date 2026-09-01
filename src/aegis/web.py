@@ -313,6 +313,7 @@ function clearAuthorizedDisplays() {
   nodeFilter.value = '';
   document.getElementById('detail').replaceChildren();
   document.getElementById('activity').textContent = '';
+  document.getElementById('step-status').textContent = '';
   nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
