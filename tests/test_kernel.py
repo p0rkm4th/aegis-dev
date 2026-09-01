@@ -2350,6 +2350,31 @@ def test_config_requires_infrastructure_and_does_not_expose_database_secret(monk
     assert "password" not in str(config)
 
 
+def test_config_allows_local_alpha_without_optional_services(monkeypatch):
+    monkeypatch.delenv("AEGIS_KEYCLOAK_URL", raising=False)
+    monkeypatch.delenv("AEGIS_OPENFGA_URL", raising=False)
+    monkeypatch.delenv("AEGIS_OPENCLAW_GATEWAY_URL", raising=False)
+    monkeypatch.delenv("AEGIS_ENVIRONMENT", raising=False)
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgres://user:password@example/db")
+
+    config = AegisConfig.from_environment()
+
+    assert config.environment == "development"
+    assert config.keycloak_url is None
+    assert config.openfga_url is None
+    assert config.openclaw_gateway_url is None
+
+
+def test_config_requires_authority_services_in_production(monkeypatch):
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgres://user:password@example/db")
+    monkeypatch.setenv("AEGIS_ENVIRONMENT", "production")
+    monkeypatch.delenv("AEGIS_KEYCLOAK_URL", raising=False)
+    monkeypatch.delenv("AEGIS_OPENFGA_URL", raising=False)
+
+    with pytest.raises(ValueError, match="production configuration requires"):
+        AegisConfig.from_environment()
+
+
 def test_health_report_separates_required_readiness_from_optional_health():
     report = HealthService(
         (

@@ -39,3 +39,9 @@ connectivity and the configured Ollama model, it verifies the required
 canonical PostgreSQL tables exist. An incomplete schema is reported with
 migration remediation instead of being mistaken for a ready runtime. Normal
 alpha startup applies the checked-in migrations unless `AEGIS_AUTO_MIGRATE=0`.
+
+The reusable `AegisConfig` accepts the local development alpha with only the
+database configured; local identity and authorization defaults are used by the
+launcher, and OpenClaw remains optional until an external mutation is needed.
+Production configuration still requires explicit Keycloak and OpenFGA URLs so
+authority is never silently replaced by local development defaults.
