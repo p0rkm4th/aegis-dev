@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import ipaddress
+import json
 from dataclasses import dataclass, field
+from typing import Any, Protocol
+
+from .contracts import Principal
 
 
 class ScopeDenied(PermissionError):
@@ -66,3 +70,77 @@ class HomelabInventory:
         except KeyError as exc:
             raise ScopeDenied(f"unknown authorization scope {scope_id}") from exc
         return tuple(device for device in self.devices.values() if scope.authorizes(device.address))
+
+
+class NetworkStateConnection(Protocol):
+    def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
+
+    def commit(self) -> None: ...
+
+
+class PostgresNetworkStore:
+    """Persist authorized network state partitioned by the member's Space."""
+
+    def __init__(self, connection: NetworkStateConnection) -> None:
+        self.connection = connection
+
+    def save_scope(self, principal: Principal, scope: AuthorizedNetworkScope) -> None:
+        space_id = self._space_for(principal)
+        self.connection.execute(
+            "INSERT INTO network_scopes (space_id, scope_id, cidrs, purpose, active) "
+            "VALUES (%s, %s, %s, %s, %s) ON CONFLICT (space_id, scope_id) DO UPDATE SET "
+            "cidrs = EXCLUDED.cidrs, purpose = EXCLUDED.purpose, active = EXCLUDED.active, "
+            "updated_at = now()",
+            (space_id, scope.scope_id, json.dumps(list(scope.cidrs)), scope.purpose, scope.active),
+        )
+        self.connection.commit()
+
+    def save_device(self, principal: Principal, device: DiscoveredDevice) -> None:
+        space_id = self._space_for(principal)
+        ipaddress.ip_address(device.address)
+        self.connection.execute(
+            "INSERT INTO network_devices (space_id, address, hostname, services) "
+            "VALUES (%s, %s, %s, %s) ON CONFLICT (space_id, address) DO UPDATE SET "
+            "hostname = EXCLUDED.hostname, services = EXCLUDED.services, updated_at = now()",
+            (space_id, device.address, device.hostname, json.dumps(list(device.services))),
+        )
+        self.connection.commit()
+
+    def load(self, principal: Principal) -> HomelabInventory:
+        space_id = self._space_for(principal)
+        scopes = {}
+        for scope_id, cidrs, purpose, active in self.connection.execute(
+            "SELECT scope_id, cidrs, purpose, active FROM network_scopes "
+            "WHERE space_id = %s ORDER BY scope_id",
+            (space_id,),
+        ).fetchall():
+            values = cidrs if isinstance(cidrs, list) else json.loads(str(cidrs))
+            scopes[str(scope_id)] = AuthorizedNetworkScope(
+                str(scope_id), tuple(str(value) for value in values), str(purpose), bool(active)
+            )
+        devices = {}
+        for address, hostname, services in self.connection.execute(
+            "SELECT address, hostname, services FROM network_devices "
+            "WHERE space_id = %s ORDER BY address",
+            (space_id,),
+        ).fetchall():
+            values = services if isinstance(services, list) else json.loads(str(services))
+            device = DiscoveredDevice(
+                str(address), str(hostname) if hostname is not None else None,
+                tuple(str(value) for value in values),
+            )
+            devices[device.address] = device
+        return HomelabInventory(devices=devices, scopes=scopes)
+
+    def _space_for(self, principal: Principal) -> str:
+        if not principal.space_ids:
+            raise PermissionError("network state requires an explicit Space")
+        space_id = principal.space_ids[0]
+        row = self.connection.execute(
+            "SELECT 1 FROM space_memberships WHERE principal_id = %s AND space_id = %s "
+            "AND active = TRUE",
+            (principal.id, space_id),
+        ).fetchone()
+        if row is None:
+            raise PermissionError("principal is not an active Space member")
+        return space_id

@@ -1946,6 +1946,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "007_household_projections.sql",
         "008_tasks.sql",
         "009_task_idempotency.sql",
+        "010_network_state.sql",
     )
 
 
