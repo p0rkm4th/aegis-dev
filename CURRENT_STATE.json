@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-task-deadline-readback-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "2ca871f0e4c84e6a77cda26dabc3d1a69ce40f46",
+  "head_sha": "783049b72518198972b85616614bde620d80ca4f",
   "last_green_sha": "2ca871f0e4c84e6a77cda26dabc3d1a69ce40f46",
-  "last_pushed_sha": "2ca871f0e4c84e6a77cda26dabc3d1a69ce40f46",
+  "last_pushed_sha": "783049b72518198972b85616614bde620d80ca4f",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
