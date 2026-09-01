@@ -134,6 +134,21 @@ def test_cli_init_creates_private_non_overwriting_template(monkeypatch, capsys, 
     assert "configuration file already exists" in capsys.readouterr().out
 
 
+def test_cli_init_refuses_symlink_target(monkeypatch, capsys, tmp_path):
+    from aegis import cli
+
+    monkeypatch.chdir(tmp_path)
+    target = tmp_path / ".env"
+    existing = tmp_path / "existing.env"
+    existing.write_text("AEGIS_DATABASE_URL=untouched\n", encoding="utf-8")
+    target.symlink_to(existing)
+    monkeypatch.setattr("sys.argv", ["aegis", "--init"])
+
+    assert cli.main() == 1
+    assert "configuration file already exists" in capsys.readouterr().out
+    assert existing.read_text(encoding="utf-8") == "AEGIS_DATABASE_URL=untouched\n"
+
+
 def test_cli_env_file_loads_aegis_settings_without_overriding_shell(monkeypatch, tmp_path):
     from aegis import cli
 
