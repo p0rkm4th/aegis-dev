@@ -1179,6 +1179,31 @@ def test_browser_request_status_rejects_bad_query_and_contains_provider_failure(
     assert json.loads(payload) == {"code": "state_unavailable", "error": "state unavailable"}
 
 
+@pytest.mark.parametrize(
+    "request_status",
+    [
+        lambda *_: (_ for _ in ()).throw(ValueError("provider implementation detail")),
+        lambda *_: {"correlation_id": "00000000-0000-4000-8000-000000000008", "state": "bogus"},
+    ],
+)
+def test_browser_request_status_contains_provider_validation_failures(request_status):
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        request_status=request_status,
+    )
+
+    status, _, payload = app.dispatch(
+        "GET",
+        "/api/request-status?correlation_id=00000000-0000-4000-8000-000000000008",
+    )
+
+    assert status == 503
+    assert json.loads(payload) == {"code": "state_unavailable", "error": "state unavailable"}
+
+
 def test_browser_rejects_malformed_correlation_id_before_core():
     called = False
 

@@ -494,7 +494,19 @@ class BrowserApp:
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
             try:
                 correlation_id = UUID(query["correlation_id"][0])
+            except (ValueError, TypeError):
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
+            try:
                 status = self.request_status(principal, correlation_id)
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
+                )
+            try:
                 payload = (
                     status.model_dump(mode="json")
                     if isinstance(status, RequestStatus)
@@ -502,11 +514,9 @@ class BrowserApp:
                         mode="json", exclude_none=True
                     )
                 )
-            except (ValueError, TypeError, ValidationError):
-                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
-            except PermissionError:
+            except (TypeError, ValidationError):
                 return self._error(
-                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
             except Exception:
                 return self._error(
