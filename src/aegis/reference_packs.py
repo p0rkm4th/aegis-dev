@@ -27,7 +27,7 @@ from .gateway_rpc import (
     RpcProtocolError,
 )
 from .household import PostgresHouseholdStore
-from .pack_lifecycle import PackBundle, PackManifest
+from .pack_lifecycle import PackBundle, PackManifest, PackUI
 
 
 @dataclass(frozen=True)
@@ -177,6 +177,11 @@ def reference_bundles() -> tuple[PackBundle, ...]:
                 pack_id=pack.pack_id,
                 version=pack.version,
                 permissions=permissions[pack.pack_id],
+                ui=PackUI(
+                    label=pack.pack_id.replace("-", " ").title(),
+                    category="domain",
+                    detail_view="list",
+                ),
             ),
             cards=pack.cards,
         )

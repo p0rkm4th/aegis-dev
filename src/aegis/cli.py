@@ -189,15 +189,42 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         household = PostgresHouseholdStore(connection).read_snapshot(principal)
         tasks = PostgresTaskStore(connection).list(principal)
         groceries = cast(tuple[str, ...], household.get("groceries", ()))
+        persisted = {
+            bundle.manifest.pack_id: (bundle, status)
+            for bundle, status, _grants in PostgresPackStore(connection).load()
+        }
         nodes: list[dict[str, str]] = [
             {"id": "aegis", "label": "AEGIS", "detail": "central hub"},
-            {"id": "tasks", "label": "Tasks", "detail": f"{len(tasks)} tasks"},
-            {
-                "id": "kitchen",
-                "label": "Kitchen",
-                "detail": f"{len(groceries)} groceries",
-            },
         ]
+        edges: list[dict[str, str]] = []
+        available = {bundle.manifest.pack_id: bundle for bundle in reference_bundles()}
+        available.update({pack_id: item[0] for pack_id, item in persisted.items()})
+        for pack_id, bundle in sorted(available.items()):
+            ui = bundle.manifest.ui
+            label = ui.label if ui is not None else pack_id.replace("-", " ").title()
+            status = persisted.get(pack_id, (None, "available"))[1]
+            status_text = status.value if hasattr(status, "value") else str(status)
+            node_id = f"pack-{pack_id}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": label,
+                    "detail": f"{ui.category if ui else 'domain'} · {status_text}",
+                }
+            )
+            edges.append({"source": "aegis", "target": node_id})
+        task_pack_id = "pack-tasks"
+        kitchen_pack_id = "pack-kitchen"
+        nodes[1:1] = [
+            {"id": "tasks", "label": "Tasks", "detail": f"{len(tasks)} tasks"},
+            {"id": "kitchen", "label": "Kitchen", "detail": f"{len(groceries)} groceries"},
+        ]
+        edges.extend(
+            (
+                {"source": task_pack_id, "target": "tasks"},
+                {"source": kitchen_pack_id, "target": "kitchen"},
+            )
+        )
         nodes.extend(
             {
                 "id": f"task-{task.task_id}",
@@ -206,7 +233,8 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
             }
             for task in tasks
         )
-        return {"nodes": nodes}
+        edges.extend({"source": "tasks", "target": f"task-{task.task_id}"} for task in tasks)
+        return {"nodes": nodes, "edges": edges}
     finally:
         connection.close()
 

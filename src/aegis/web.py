@@ -28,8 +28,10 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><p id="detail" class="muted"></p>
 <main id="nodes"><p>Loading state…</p></main>
+<h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>
 const nodes = document.getElementById('nodes');
+const edges = document.getElementById('edges');
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
   if (!response.ok) throw new Error(state.error || 'State is unavailable.');
@@ -42,6 +44,13 @@ async function loadState() {
         `${node.label}: ${node.detail || 'No detail'}`;
     });
     card.append(title, detail); return card;
+  }));
+  const labels = Object.fromEntries((state.nodes || []).map(node => [node.id, node.label]));
+  edges.replaceChildren(...(state.edges || []).map(edge => {
+    const item = document.createElement('li');
+    item.textContent =
+      `${labels[edge.source] || 'Authorized node'} → ${labels[edge.target] || 'Authorized node'}`;
+    return item;
   }));
 }
 loadState().catch(error => { nodes.textContent = error.message; });

@@ -20,12 +20,22 @@ class PackStatus(StrEnum):
     DISABLED = "disabled"
 
 
+class PackUI(BaseModel):
+    """Optional presentation hints; these fields never grant Pack authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    label: str = Field(min_length=1)
+    category: str = Field(min_length=1)
+    detail_view: str | None = None
+
+
 class PackManifest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     pack_id: str = Field(min_length=1, pattern=r"^[a-z][a-z0-9-]*$")
     version: str = Field(min_length=1)
     permissions: tuple[str, ...] = ()
     dependencies: tuple[str, ...] = ()
+    ui: PackUI | None = None
 
 
 class PackBundle(BaseModel):
