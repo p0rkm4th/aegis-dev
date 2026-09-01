@@ -296,9 +296,24 @@ class InteractionBoundary:
                 allow_argument_proposals=True,
             )
             decoder = StrictDecisionDecoder()
-            decision = decoder.decode(
-                provider.decide(request), cards, allow_argument_proposals=True
-            )
+            response = provider.decide(request)
+            try:
+                decision = decoder.decode(response, cards, allow_argument_proposals=True)
+            except InvalidDecision as first_error:
+                # Repair an empty benign answer with no capability cards. This
+                # keeps the retry semantic and bounded without allowing a
+                # malformed answer to become a completed Result.
+                raw = response.raw
+                if not (
+                    isinstance(raw, dict)
+                    and raw.get("kind") == DecisionKind.ANSWER.value
+                    and not isinstance(raw.get("answer"), str)
+                ):
+                    raise first_error
+                focused = request.model_copy(update={"action_cards": ()})
+                decision = decoder.decode(
+                    provider.decide(focused), (), allow_argument_proposals=True
+                )
             if decision.kind is DecisionKind.ACTION and decision.action is not None:
                 card = next(
                     (card for card in cards if card.action.action_id == decision.action.action_id),

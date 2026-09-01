@@ -896,6 +896,16 @@ def test_decoder_requires_text_for_clarification():
         raise AssertionError("empty clarification was accepted")
 
 
+def test_decoder_rejects_empty_answer_content():
+    response = {"kind": "ANSWER", "reason": "model explanation without an answer"}
+    try:
+        StrictDecisionDecoder().decode(type("Response", (), {"raw": response})(), ())
+    except InvalidDecision:
+        pass
+    else:
+        raise AssertionError("empty answer was accepted")
+
+
 def test_decoder_canonicalizes_single_card_copy_errors_without_accepting_invented_actions():
     card = ActionCard(
         action=ActionSpec(
