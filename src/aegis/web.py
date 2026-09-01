@@ -122,6 +122,7 @@ let selectedNode = null;
 let renderedNodeCards = new Map();
 let renderedNodeText = new Map();
 let renderedEdgeRows = [];
+let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
 const retryableCodes = new Set([
@@ -280,6 +281,11 @@ function renderDetailValue(value) {
 }
 function clearAuthorizedDisplays() {
   nodes.replaceChildren(); edges.replaceChildren();
+  renderedNodeCards = new Map();
+  renderedNodeText = new Map();
+  renderedEdgeRows = [];
+  authorizedProjectionLoaded = false;
+  nodeFilter.value = '';
   document.getElementById('detail').replaceChildren();
   document.getElementById('activity').textContent = '';
   nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
@@ -291,6 +297,10 @@ function clearAuthorizedDisplays() {
   document.querySelector('#chat button').textContent = 'Send';
 }
 function applyNodeFilter() {
+  if (!authorizedProjectionLoaded) {
+    nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
+    return;
+  }
   const query = nodeFilter.value.trim().toLowerCase();
   let visibleCount = 0;
   renderedNodeCards.forEach((card, nodeId) => {
@@ -357,6 +367,7 @@ async function loadState() {
     card.append(title, detail); return card;
   }));
   renderedNodeCards = nodeCards;
+  authorizedProjectionLoaded = true;
   const labels = Object.fromEntries((state.nodes || []).map(node => [node.id, node.label]));
   edges.replaceChildren(...(state.edges || []).map(edge => {
     const item = document.createElement('li');
