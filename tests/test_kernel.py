@@ -2376,6 +2376,12 @@ def test_cross_domain_planning_recognizes_which_should_i_read_composition():
     )
 
 
+def test_cross_domain_planning_recognizes_conjoined_finance_memory_read():
+    assert CrossDomainPlanningFastPath.matches(
+        "Can I afford $50 after Utilities, and what do I remember about the backup?"
+    )
+
+
 def test_cross_domain_planning_includes_only_relevant_current_memories():
     from datetime import datetime, timezone
 
