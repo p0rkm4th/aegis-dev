@@ -5,9 +5,9 @@
   "current_phase": 7,
   "current_checkpoint": "phase-7-household-chore-action-green",
   "active_branch": "aegis-dev",
-  "head_sha": "9ab61be",
-  "last_green_sha": "9ab61be",
-  "last_pushed_sha": "9ab61be",
+  "head_sha": "811af1c",
+  "last_green_sha": "811af1c",
+  "last_pushed_sha": "811af1c",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -60,6 +60,7 @@
     "Guarded shared-household read fast path exposes obligations, chores, and events through canonical membership-checked state",
     "Local identity bootstrap no longer reactivates revoked Space memberships",
     "Replay-safe shared chore creation runs through the Tasks Pack, Core policy, PostgreSQL canonical state, and independent readback verification",
+    "Confirmed OpenClaw system-event notification wrapper preserves the Gateway boundary and stable idempotency key",
     "Personal-state PostgreSQL supersession write-order regression coverage",
     "PostgreSQL-backed shared HouseholdSpace state with policy-supplied membership on reload",
     "Owner-partitioned PostgreSQL FinanceSnapshot store with durable provider provenance and private read enforcement",
@@ -98,6 +99,7 @@
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
+    "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed",
     "consequential Homelab/HA action acceptance remains unperformed",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance"
@@ -148,7 +150,7 @@
     "objective_id": "c8c6aaee-31e6-46f1-844c-03709c231032",
     "external_execution": "green: OpenClawGroceryExecutor dispatched the existing Kitchen action through paired Gateway terminal and OpenClawGroceryVerifier independently read the external record",
     "postgresql": "green: postgres:16.4-bookworm, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
-    "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, and independent external readback green through AEGIS transport",
+    "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, system-event, and independent external readback green through AEGIS transport",
     "openclaw_external_proof": "command dispatched through paired AEGIS WebSocket; terminal.data contained the command; independent read of /tmp/aegis-openclaw-external-proof returned AEGIS_GATEWAY_EXEC_OK",
     "live_grocery_vertical_slice": "green: scripts/live_vertical_slice.py ran with Ollama qwen3:8b, PostgreSQL 16.4 after container restart, and paired OpenClaw 2026.8.1; first and replay Results completed with same objective/result and matching_external_records=1",
     "live_grocery_correlation_id": "4fd15a56-1622-42e9-8f30-58acc467fa76",
@@ -183,6 +185,7 @@
         "household_revocation_cli_live": "green: after Alice membership was revoked in PostgreSQL, the same household query failed closed; local identity bootstrap did not reactivate membership, and the fixture was restored",
         "household_chores_events_cli_live": "green: ./scripts/aegis loaded durable shared chores and events from PostgreSQL and returned both through a fresh interactive process",
         "household_chore_live": "green: live Qwen3:8B selected tasks.chores.create; PostgreSQL persisted the shared chore, independent canonical verification completed, and same-correlation replay returned the same objective with exactly one matching chore",
+        "openclaw_system_event_live": "green: paired AEGIS WebSocket client invoked confirmed OpenClaw system-event with wake=false and idempotencyKey aegis-acceptance-notification-001; Gateway returned ok=true; no external channel was configured",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -192,5 +195,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Extend Phase 7 acceptance to shared event/reminder mutation and verified OpenClaw notification delivery only through a confirmed Gateway method, preserving membership revocation, durable reload, and the canonical interaction boundary."
+  "next_action": "Complete Phase 7 shared event/reminder mutation and, when a channel target exists, external notification acceptance; preserve system-event transport evidence, membership revocation, durable reload, and the canonical interaction boundary."
 }
