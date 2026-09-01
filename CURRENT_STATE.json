@@ -5,9 +5,9 @@
   "current_phase": 1,
   "current_checkpoint": "live-ollama-postgres-green-openclaw-device-authenticated-transport-green",
   "active_branch": "aegis-dev",
-  "head_sha": "d9cd9be",
-  "last_green_sha": "d9cd9be",
-  "last_pushed_sha": "d9cd9be",
+  "head_sha": "ae5014a",
+  "last_green_sha": "ae5014a",
+  "last_pushed_sha": "ae5014a",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
