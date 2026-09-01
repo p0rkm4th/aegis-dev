@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
@@ -11,6 +12,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class RpcProtocolError(RuntimeError):
     """The Gateway returned an unusable or mismatched response."""
+
+
+def _safe_gateway_code(error: Any) -> str:
+    """Keep remote Gateway errors diagnostic without copying remote text."""
+
+    if isinstance(error, dict):
+        code = error.get("code")
+        if isinstance(code, str) and re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", code):
+            return code
+    return "gateway_error"
 
 
 class RpcRequest(BaseModel):
@@ -95,7 +106,7 @@ class OpenClawWebSocketChannel:
                 error = response.get("error")
                 return RpcResponse(
                     request_id=request.request_id,
-                    error=error if isinstance(error, dict) else {"message": str(error)},
+                    error={"code": _safe_gateway_code(error)},
                 )
             finally:
                 if not self.persistent:
@@ -103,7 +114,7 @@ class OpenClawWebSocketChannel:
         except RpcProtocolError:
             raise
         except Exception as exc:
-            raise RpcProtocolError(f"Gateway transport failed: {exc}") from exc
+            raise RpcProtocolError(f"Gateway transport failed: {type(exc).__name__}") from exc
 
     def close(self) -> None:
         if self._socket is not None:
@@ -134,7 +145,7 @@ class OpenClawWebSocketChannel:
         except RpcProtocolError:
             raise
         except Exception as exc:
-            raise RpcProtocolError(f"Gateway event transport failed: {exc}") from exc
+            raise RpcProtocolError(f"Gateway event transport failed: {type(exc).__name__}") from exc
 
     def _connect(self, socket: Any) -> None:
         challenge = json.loads(socket.recv())
@@ -227,15 +238,22 @@ class OpenClawWebSocketChannel:
         )
         hello = self._receive_response(socket, connect_id)
         if not hello.get("ok"):
-            raise RpcProtocolError(f"Gateway handshake failed: {hello.get('error')}")
+            raise RpcProtocolError(
+                f"Gateway handshake failed: {_safe_gateway_code(hello.get('error'))}"
+            )
 
     def _receive_response(self, socket: Any, request_id: str) -> dict[str, Any]:
-        while True:
-            frame = cast(dict[str, Any], json.loads(socket.recv()))
-            if frame.get("type") == "res" and frame.get("id") == request_id:
-                return frame
-            if frame.get("type") == "event":
-                self._pending_events.append(frame)
+        try:
+            while True:
+                frame = cast(dict[str, Any], json.loads(socket.recv()))
+                if frame.get("type") == "res" and frame.get("id") == request_id:
+                    return frame
+                if frame.get("type") == "event":
+                    self._pending_events.append(frame)
+        except RpcProtocolError:
+            raise
+        except Exception as exc:
+            raise RpcProtocolError(f"Gateway transport failed: {type(exc).__name__}") from exc
 
 
 class CorrelatedRpcClient:
@@ -248,7 +266,7 @@ class CorrelatedRpcClient:
         if response.request_id != request.request_id:
             raise RpcProtocolError("Gateway response correlation id mismatch")
         if response.error is not None:
-            raise RpcProtocolError(f"Gateway RPC failed: {response.error}")
+            raise RpcProtocolError(f"Gateway RPC failed: {_safe_gateway_code(response.error)}")
         if response.result is None:
             raise RpcProtocolError("Gateway RPC returned neither result nor error")
         return response.result
