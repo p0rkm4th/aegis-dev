@@ -1082,6 +1082,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "refreshState()" in _INDEX_HTML
     assert "state_access_denied" in _INDEX_HTML
     assert "State refresh failed" in _INDEX_HTML
+    assert "Runtime status unavailable (${code})." in _INDEX_HTML
+    assert "await loadHealth();" in _INDEX_HTML
+    assert "await loadState();" in _INDEX_HTML
     assert "response.ok" in _INDEX_HTML
     assert "clearAuthorizedDisplays()" in _INDEX_HTML
     assert "Authorization lost; authorized state cleared." in _INDEX_HTML

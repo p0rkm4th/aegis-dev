@@ -260,13 +260,22 @@ async function loadState() {
 async function refreshState() {
   refresh.disabled = true;
   try {
-    await Promise.all([loadHealth(), loadState()]);
-  } catch (error) {
-    const code = error.code || 'state_unavailable';
-    document.getElementById('state-status').textContent =
-      `State refresh failed (${code}). Use Refresh state to try again.`;
-    if (code === 'identity_unavailable' || code === 'state_access_denied') {
-      clearAuthorizedDisplays();
+    try {
+      await loadHealth();
+    } catch (error) {
+      const code = error.code || 'health_unavailable';
+      document.getElementById('health').textContent =
+        `Runtime status unavailable (${code}).`;
+    }
+    try {
+      await loadState();
+    } catch (error) {
+      const code = error.code || 'state_unavailable';
+      document.getElementById('state-status').textContent =
+        `State refresh failed (${code}). Use Refresh state to try again.`;
+      if (code === 'identity_unavailable' || code === 'state_access_denied') {
+        clearAuthorizedDisplays();
+      }
     }
   } finally {
     refresh.disabled = false;
