@@ -226,6 +226,19 @@ def test_cli_env_file_rejects_shell_syntax_and_non_aegis_keys(tmp_path):
         cli._load_env_file(str(env_file))
 
 
+def test_cli_env_file_rejects_duplicate_keys(tmp_path):
+    from aegis import cli
+
+    env_file = tmp_path / "aegis.env"
+    env_file.write_text(
+        "AEGIS_DATABASE_URL=postgresql://first\nAEGIS_DATABASE_URL=postgresql://second\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate env file key"):
+        cli._load_env_file(str(env_file))
+
+
 def test_cli_auto_discovers_local_env_file(monkeypatch, capsys, tmp_path):
     from aegis import cli
     from aegis.health import HealthReport

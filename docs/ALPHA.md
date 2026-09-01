@@ -32,8 +32,9 @@ without executing shell code:
 # alternatively: ./scripts/aegis --env-file /path/to/aegis.env --check
 ```
 
-The file accepts only `AEGIS_* = value` settings; existing shell variables
-take precedence, and secrets are never printed by diagnostics.
+The file accepts only unique `AEGIS_* = value` settings; duplicate keys are
+rejected, existing shell variables take precedence, and secrets are never
+printed by diagnostics.
 
 The launcher uses the repository `.venv` when available and otherwise falls
 back to an active `python3` environment with the checkout on `PYTHONPATH`. Set
