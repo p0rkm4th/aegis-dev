@@ -73,7 +73,8 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 <ul id="health-details" class="muted" aria-live="polite"></ul>
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
-<p id="answer" aria-live="polite"></p><div id="detail" class="muted"></div>
+<p id="answer" aria-live="polite"></p><div id="detail" class="muted" role="region"
+aria-live="polite" aria-label="Selected node details"></div>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <p><button id="refresh" type="button">Refresh state</button></p>
 <p id="state-status" class="muted" aria-live="polite"></p>
@@ -253,6 +254,7 @@ async function loadState() {
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     card.setAttribute('aria-pressed', 'false');
+    card.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
     const title = document.createElement('h2'); title.textContent = node.label;
     const detail = document.createElement('p'); detail.textContent = node.detail || '';
     card.addEventListener('click', () => {
