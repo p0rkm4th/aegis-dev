@@ -270,6 +270,71 @@ def test_kernel_run_sequence_replays_persisted_steps_without_duplicate_execution
     store.close()
 
 
+def test_kernel_run_sequence_recovers_after_crash_before_aggregate_persistence(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class CrashBeforeAggregateStore(SqliteObjectiveStore):
+        fail_aggregate = True
+
+        def save_result(self, key, result):
+            if self.fail_aggregate and key.startswith("plan:"):
+                raise RuntimeError("simulated crash before plan aggregate")
+            super().save_result(key, result)
+
+    store = CrashBeforeAggregateStore(str(tmp_path / "sequence-crash.sqlite"))
+    actions = (
+        ActionSpec(
+            action_id="first",
+            capability="first",
+            verification=VerificationContract(kind="readback"),
+        ),
+        ActionSpec(
+            action_id="second",
+            capability="second",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    first_executor = Executor()
+    first_intent = intent()
+    try:
+        Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+            Policy(PolicyDecision(allowed=True, reason="ok")),
+            first_executor,
+            Verifier(True),
+            store=store,
+        ).run_sequence(first_intent, actions)
+    except RuntimeError as exc:
+        assert "aggregate" in str(exc)
+    else:
+        raise AssertionError("simulated aggregate persistence crash was not raised")
+
+    store.fail_aggregate = False
+    replay_executor = Executor()
+    recovered = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        replay_executor,
+        Verifier(True),
+        store=store,
+    ).run_sequence(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="resume the plan",
+            correlation_id=first_intent.correlation_id,
+        ),
+        actions,
+    )
+
+    assert recovered.state is ObjectiveState.COMPLETED
+    assert len(recovered.evidence["steps"]) == 2
+    assert first_executor.calls == 2
+    assert replay_executor.calls == 0
+    store.close()
+
+
 def test_kernel_run_sequence_authorizes_each_step_independently():
     class SecondStepDeniedPolicy:
         def __init__(self):
