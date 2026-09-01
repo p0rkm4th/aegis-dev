@@ -89,6 +89,25 @@ class Kernel:
                 objective_id=objective.id,
             )
             return result
+        except Exception as exc:
+            objective = objective.model_copy(update={"state": ObjectiveState.FAILED})
+            self.objectives[objective.id] = objective
+            self.store.save_objective(objective)
+            result = Result(
+                objective_id=objective.id,
+                state=ObjectiveState.FAILED,
+                message="Model unavailable; request can be retried",
+                evidence={"model": "unavailable", "error_type": type(exc).__name__},
+                correlation_id=intent.correlation_id,
+            )
+            self.store.save_result(f"decision:{intent.correlation_id}", result)
+            self.audit.append(
+                "model.failed",
+                intent.principal.id,
+                {"error_type": type(exc).__name__},
+                objective_id=objective.id,
+            )
+            return result
         if decision.kind is not DecisionKind.ACTION:
             state = {
                 DecisionKind.ANSWER: ObjectiveState.COMPLETED,

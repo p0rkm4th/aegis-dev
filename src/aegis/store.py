@@ -205,7 +205,9 @@ class PostgresObjectiveStore:
             """INSERT INTO results
                (id, objective_id, idempotency_key, state, evidence, message)
                VALUES (%s, %s, %s, %s, %s, %s)
-               ON CONFLICT (idempotency_key) DO UPDATE SET state = EXCLUDED.state,
+               ON CONFLICT (id) DO UPDATE SET objective_id = EXCLUDED.objective_id,
+                   idempotency_key = EXCLUDED.idempotency_key,
+                   state = EXCLUDED.state,
                    evidence = EXCLUDED.evidence, message = EXCLUDED.message""",
             (
                 str(result.correlation_id),
