@@ -5,7 +5,7 @@ from __future__ import annotations
 import ipaddress
 import json
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from .contracts import AuthorizationRequest, PolicyDecision, Principal
 
@@ -156,7 +156,7 @@ class NetworkScopePolicy:
     def authorize(self, request: AuthorizationRequest) -> PolicyDecision:
         base = self.space_policy.authorize(request)
         if not base.allowed:
-            return base
+            return cast(PolicyDecision, base)
         if request.action.action_id != "network.probe":
             return PolicyDecision(
                 allowed=False, reason="network policy does not permit this action"

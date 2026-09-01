@@ -40,7 +40,7 @@ from .tasks import (
 
 class _RuntimePolicy:
     def allows(self, request: Any) -> bool:
-        return request.action.action_id == "kitchen.groceries.add"
+        return bool(request.action.action_id == "kitchen.groceries.add")
 
 
 class _NoApproval:

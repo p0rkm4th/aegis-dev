@@ -478,8 +478,7 @@ class PersonalMemoryFastPath:
         query = " ".join(
             self._NORMALIZED_TERMS.get(word.strip(".,!?;:"), word.strip(".,!?;:"))
             for word in text.split()
-            if word.strip(".,!?;:") not in self._STOPWORDS
-            and word.strip(".,!?;:")
+            if word.strip(".,!?;:") not in self._STOPWORDS and word.strip(".,!?;:")
         )
         start, end = self._temporal_window(text)
         memories = self.state.search_memories(query, start=start, end=end)
@@ -546,7 +545,9 @@ class PersonalMemoryFastPath:
             "goals": [
                 {
                     "description": goal.description,
-                    "project": project_names.get(goal.project_id),
+                    "project": (
+                        project_names.get(goal.project_id) if goal.project_id is not None else None
+                    ),
                     "created_at": goal.created_at.isoformat(),
                 }
                 for goal in goals
