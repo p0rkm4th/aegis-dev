@@ -39,7 +39,8 @@
     "OpenClaw protocol-4 loopback WebSocket health transport",
     "OpenClaw paired-device authentication with operator write/admin scopes",
     "OpenClaw terminal execution with same-connection terminal event and independent external readback",
-    "Live Qwen3:8B to PostgreSQL-backed Kitchen grocery workflow through OpenClaw with restart/replay and no duplicate external mutation"
+    "Live Qwen3:8B to PostgreSQL-backed Kitchen grocery workflow through OpenClaw with restart/replay and no duplicate external mutation",
+    "Durable PostgreSQL action and observation lifecycle records with action identity reuse across crash recovery"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -65,7 +66,6 @@
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
-    "interrupted-before-completion recovery is not yet implemented/proven for the live workflow",
     "consequential Homelab/HA action acceptance remains unperformed"
   ],
   "blocked_lanes": [
@@ -90,7 +90,7 @@
     "core_sqlite_result": "completed; groceries=[rice]; same canonical Result returned after reopen; no duplicate mutation",
     "correlation_id": "13f555c9-4e63-4f4c-8a0a-13a9d79662a5",
     "objective_id": "c8c6aaee-31e6-46f1-844c-03709c231032",
-    "external_execution": "not proven; ReferenceExecutor is a simulator",
+    "external_execution": "green: OpenClawGroceryExecutor dispatched the existing Kitchen action through paired Gateway terminal and OpenClawGroceryVerifier independently read the external record",
     "postgresql": "green: postgres:16.4-bookworm, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
     "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, and independent external readback green through AEGIS transport",
     "openclaw_external_proof": "command dispatched through paired AEGIS WebSocket; terminal.data contained the command; independent read of /tmp/aegis-openclaw-external-proof returned AEGIS_GATEWAY_EXEC_OK",
@@ -98,6 +98,7 @@
     "live_grocery_correlation_id": "4fd15a56-1622-42e9-8f30-58acc467fa76",
     "live_grocery_objective_id": "62b33f88-a67f-4e87-ad2d-7c7a07f5da26",
     "live_grocery_interrupted_recovery": "green: correlation 7f5e7a10-ec5b-4a7e-b653-1212b4e0f4c0 dispatched through real OpenClaw, simulated process failure occurred before Result persistence, fresh Core/PostgreSQL process recovered it, persisted Result matched, and external record count was 1",
+    "live_grocery_persisted_action_recovery": "green: correlation 38ba4c3a-1ce2-4224-956b-0cbbe993ec0b left an executing PostgreSQL action after simulated crash, fresh process reused the same action ID/idempotency key, persisted observation and completed Result, external record count remained 1",
     "adversarial_acceptance": "green: existing deterministic tests cover malformed model output, invented action, semantic denial, runtime denial, execution failure, verification failure, disconnect unknown outcome, cancellation, and replay; duplicate external records are rejected; live crash-before-Result recovery is green",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
