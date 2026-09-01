@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-health-contract-contained",
+  "current_checkpoint": "phase-12-browser-health-contract-clean-install-green",
   "active_branch": "aegis-dev",
   "head_sha": "89c766d77abb3a806d66694a9e4e2ee7d794b132",
   "last_green_sha": "89c766d77abb3a806d66694a9e4e2ee7d794b132",
@@ -171,6 +171,7 @@
     ,"Gateway-backed grocery, Homelab, and Network executors convert protocol failures into durable unknown observations without exception text or blind replay"
     ,"browser malformed UTF-8 request bodies receive generic invalid_request responses without decoder details"
     ,"browser health callbacks are normalized through the strict HealthReport contract and malformed payloads fail closed"
+    ,"clean-install smoke remains green after browser boundary hardening"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -381,6 +382,7 @@
         "browser_rendered_revocation_live": "green live rendered privacy acceptance: Chromium loaded an authorized 10-node view, Alice's active Space membership was revoked mid-session, Refresh state returned state_access_denied, the graph cleared to zero nodes, and protected detail remained empty; the membership fixture was restored",
         "browser_rendered_refresh_recovery_live": "green live rendered recovery acceptance: Chromium seeded the documented in-flight utterance/correlation envelope, reloaded the page, restored the utterance, showed explicit Retry with the same correlation, left the answer empty, performed no automatic request replay, and retained the authorized graph",
         "gateway_executor_unknown_outcome_regression": "green deterministic: protocol failure at the shared Gateway-backed executor seam returns a non-success Observation with outcome=unknown and the stable idempotency key for grocery, Homelab, and Network actions; no raw protocol text crosses the boundary and no event read or replay occurs",
+        "clean_install_after_browser_boundary": "green live: scripts/smoke_install.sh built and installed the current package into isolated target and prefix directories, ran the installed aegis command, and verified private mode-600 --init bootstrap",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
