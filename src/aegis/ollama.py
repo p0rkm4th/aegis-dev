@@ -159,6 +159,9 @@ class OllamaProvider:
                     "instead of asking the user to choose one. ANSWER must contain the "
                     "actual answer content; if required information is missing, use "
                     "CLARIFY with a question instead of ANSWER with only a reason."
+                    " When canonical_facts contains canonical_items, that authorized "
+                    "list is sufficient context for a grocery question: mention the "
+                    "supplied items and do not claim that grocery context is missing."
                 ),
                 "context_rule": (
                     "Use only the bounded canonical context supplied below to resolve "
