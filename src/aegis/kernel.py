@@ -2,17 +2,19 @@
 
 from __future__ import annotations
 
-from uuid import UUID, uuid4
+from uuid import UUID, uuid4, uuid5
 
 from .audit import AuditLog
 from .contracts import (
     ActionCard,
+    ActionSpec,
     AuthorizationRequest,
     Decision,
     DecisionKind,
     ExecutionRequest,
     IntentFrame,
     ModelRequest,
+    ModelResponse,
     Objective,
     ObjectiveState,
     Observation,
@@ -20,10 +22,22 @@ from .contracts import (
     VerificationResult,
     WorkingSet,
 )
-from .decoding import InvalidDecision
+from .decoding import InvalidDecision, StrictDecisionDecoder
 from .fastpath import DeterministicFastPath, NoopFastPath
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
 from .store import InMemoryObjectiveStore, ObjectiveStore
+
+
+class _FixedActionModel:
+    """Turn a preselected plan step into a proposal for the normal decoder."""
+
+    def __init__(self, action: ActionSpec) -> None:
+        self.action = action
+
+    def decide(self, request: ModelRequest) -> ModelResponse:
+        return ModelResponse(
+            raw={"kind": DecisionKind.ACTION.value, "action": self.action.model_dump(mode="json")}
+        )
 
 
 class Kernel:
@@ -318,3 +332,89 @@ class Kernel:
             action_id=execution_id,
         )
         return result
+
+    def run_sequence(self, intent: IntentFrame, actions: tuple[ActionSpec, ...]) -> Result:
+        """Execute a bounded durable sequence through the ordinary Core path.
+
+        The sequence is a persisted proposal, not a second authority layer.
+        Each step gets its own correlation/idempotency key and re-enters Kernel
+        so policy, execution, observation, and verification remain independent.
+        """
+        if not actions or len(actions) > 5:
+            raise ValueError("plans must contain between one and five actions")
+        plan_key = f"plan:{intent.correlation_id}"
+        prior = self.store.get_result(plan_key)
+        if prior is not None and not prior.retryable:
+            return prior
+        objective = self.store.get_objective_by_correlation(intent.correlation_id, intent.principal)
+        if objective is not None:
+            if objective.steps != actions:
+                return Result(
+                    objective_id=objective.id,
+                    state=ObjectiveState.BLOCKED,
+                    message="plan correlation is already bound to a different action sequence",
+                    correlation_id=intent.correlation_id,
+                )
+        else:
+            objective = Objective(
+                intent=intent,
+                correlation_id=intent.correlation_id,
+                steps=actions,
+            )
+            self.store.save_objective(objective)
+        step_results: list[dict[str, object]] = []
+        for index, action in enumerate(actions):
+            step_correlation = uuid5(
+                intent.correlation_id, f"aegis-plan-step:{index}:{action.action_id}"
+            )
+            step_intent = intent.model_copy(update={"correlation_id": step_correlation})
+            card = ActionCard(
+                action=action,
+                summary=f"Plan step {index + 1}: {action.action_id}",
+                relevance=1,
+            )
+            step_kernel = Kernel(
+                _FixedActionModel(action),
+                StrictDecisionDecoder(),
+                self.policy,
+                self.executor,
+                self.verifier,
+                store=self.store,
+                audit=self.audit,
+            )
+            result = step_kernel.run(step_intent, (card,))
+            step_results.append(
+                {
+                    "index": index,
+                    "action_id": action.action_id,
+                    "state": result.state.value,
+                    "objective_id": str(result.objective_id),
+                    "correlation_id": str(result.correlation_id),
+                    "message": result.message,
+                    "evidence": result.evidence,
+                }
+            )
+            if result.state is not ObjectiveState.COMPLETED:
+                objective = objective.model_copy(update={"state": result.state})
+                self.store.save_objective(objective)
+                aggregate = Result(
+                    objective_id=objective.id,
+                    state=result.state,
+                    message=f"Plan stopped at step {index + 1} of {len(actions)}: {result.message}",
+                    evidence={"steps": step_results},
+                    correlation_id=intent.correlation_id,
+                    retryable=result.retryable,
+                )
+                self.store.save_result(plan_key, aggregate)
+                return aggregate
+        objective = objective.model_copy(update={"state": ObjectiveState.COMPLETED})
+        self.store.save_objective(objective)
+        aggregate = Result(
+            objective_id=objective.id,
+            state=ObjectiveState.COMPLETED,
+            message=f"Completed all {len(actions)} plan steps",
+            evidence={"steps": step_results},
+            correlation_id=intent.correlation_id,
+        )
+        self.store.save_result(plan_key, aggregate)
+        return aggregate

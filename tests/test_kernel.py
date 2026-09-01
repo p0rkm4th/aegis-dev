@@ -219,6 +219,97 @@ def test_answer_is_deterministically_completed_without_execution():
     assert ex.calls == 0
 
 
+def test_kernel_run_sequence_replays_persisted_steps_without_duplicate_execution(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    store = SqliteObjectiveStore(str(tmp_path / "sequence.sqlite"))
+    actions = (
+        ActionSpec(
+            action_id="first",
+            capability="first",
+            verification=VerificationContract(kind="readback"),
+        ),
+        ActionSpec(
+            action_id="second",
+            capability="second",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    ex = Executor()
+    first = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ex,
+        Verifier(True),
+        store=store,
+    ).run_sequence(intent(), actions)
+
+    replay_executor = Executor()
+    replay = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        replay_executor,
+        Verifier(True),
+        store=store,
+    ).run_sequence(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="a different plan wording",
+            correlation_id=first.correlation_id,
+        ),
+        actions,
+    )
+
+    assert first.state is ObjectiveState.COMPLETED
+    assert len(first.evidence["steps"]) == 2
+    assert replay == first
+    assert ex.calls == 2
+    assert replay_executor.calls == 0
+    store.close()
+
+
+def test_kernel_run_sequence_authorizes_each_step_independently():
+    class SecondStepDeniedPolicy:
+        def __init__(self):
+            self.calls = 0
+
+        def authorize(self, request):
+            self.calls += 1
+            return PolicyDecision(
+                allowed=self.calls == 1,
+                reason="second step denied" if self.calls == 2 else "ok",
+            )
+
+    actions = (
+        ActionSpec(
+            action_id="first",
+            capability="first",
+            verification=VerificationContract(kind="readback"),
+        ),
+        ActionSpec(
+            action_id="second",
+            capability="second",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    ex = Executor()
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        SecondStepDeniedPolicy(),
+        ex,
+        Verifier(True),
+    ).run_sequence(intent(), actions)
+
+    assert result.state is ObjectiveState.BLOCKED
+    assert "step 2 of 2" in result.message
+    assert result.evidence["steps"][0]["state"] == ObjectiveState.COMPLETED.value
+    assert result.evidence["steps"][1]["state"] == ObjectiveState.BLOCKED.value
+    assert ex.calls == 1
+
+
 def test_policy_denial_cannot_be_bypassed_by_model_action():
     ex = Executor()
     action = ActionSpec(
