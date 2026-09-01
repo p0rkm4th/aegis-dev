@@ -255,6 +255,29 @@ def test_cli_once_json_returns_stable_error_for_request_failure(monkeypatch, cap
     }
 
 
+def test_cli_once_json_returns_stable_error_for_denied_request(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "private read", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "run_interaction",
+        lambda *_: (_ for _ in ()).throw(PermissionError("private Vault")),
+    )
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out) == {
+        "code": "request_denied",
+        "error": "request denied",
+        "state": "failed",
+    }
+
+
 def test_cli_once_json_returns_stable_error_for_identity_failure(monkeypatch, capsys):
     from aegis import cli
 
