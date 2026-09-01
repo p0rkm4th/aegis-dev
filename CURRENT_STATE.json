@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-owner-dogfood-relevant-memory-planning-live-green",
+  "current_checkpoint": "phase-12-durable-sequence-core-green-owner-promotion-pending",
   "active_branch": "aegis-dev",
-  "head_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
-  "last_green_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
-  "last_pushed_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
+  "head_sha": "a28b1c2a9b6d377adee5ce2cc1917bdb11f1ba20",
+  "last_green_sha": "a28b1c2a9b6d377adee5ce2cc1917bdb11f1ba20",
+  "last_pushed_sha": "a28b1c2a9b6d377adee5ce2cc1917bdb11f1ba20",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -238,6 +238,7 @@
     ,"Personal Memory to Household Chores composition grounds an explicit shared chore request in a unique current Vault memory while preserving Space authorization and independent verification"
     ,"Cross-domain planning recognizes plural Utilities alongside Personal and Tasks context"
     ,"Cross-domain planning adds only highest-overlap current Personal memories to bounded model context and preserves provenance"
+    ,"Core supports bounded durable action sequences with exact parent plan persistence, per-step authorization/verification, stable child correlation keys, and no duplicate replay"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -555,6 +556,8 @@
     "cross_domain_memory_relevance_live": "green live: source/runtime Qwen3:8B correlation 11111111-1111-4111-8111-111111111111 returned completed planning with one highest-overlap server/backup memory and authorized Household/Tasks sources",
     "owner_dogfood_memory_relevance_live": "green live: authenticated owner browser correlation 22222222-2222-4222-8222-222222222222 completed cross-domain planning after promotion to b23289a; owner health/readiness remained green",
     "owner_dogfood_running_checkpoint": "b23289a3afb80d5ba3576b1d655df43838e57365; installed release /home/scootz/.local/share/aegis-owner/releases/b23289a; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
+    "durable_action_sequence_regression": "green deterministic: a two-step sequence persists exact ActionSpec steps, authorizes and verifies each step independently, returns truthful partial failure, and replays the aggregate Result without invoking a second executor",
+    "durable_action_sequence_runtime_status": "green source checkpoint only: Core sequence primitive is pushed at a28b1c2 but is not yet wired to the end-user InteractionBoundary or promoted to the owner service; no live user workflow is claimed",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
