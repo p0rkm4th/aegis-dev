@@ -75,7 +75,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-        "pytest": "80 passed; ruff check passed"
+        "pytest": "83 passed; ruff check passed"
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
