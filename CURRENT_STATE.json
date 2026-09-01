@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "a14144a2482d3cbb45d2b95c36231ae16b8ca932",
-  "last_green_sha": "a14144a2482d3cbb45d2b95c36231ae16b8ca932",
-  "last_pushed_sha": "a14144a2482d3cbb45d2b95c36231ae16b8ca932",
+  "head_sha": "1a45f0193113dc9c15aa03b73b458e586fbe6346",
+  "last_green_sha": "1a45f0193113dc9c15aa03b73b458e586fbe6346",
+  "last_pushed_sha": "1a45f0193113dc9c15aa03b73b458e586fbe6346",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
