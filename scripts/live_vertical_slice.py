@@ -28,10 +28,11 @@ from aegis.identity import PostgresSpacePolicy, Role
 from aegis.kernel import Kernel
 from aegis.ollama import OllamaHttpTransport, OllamaProvider
 from aegis.openclaw import OpenClawExecutor
+from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import (
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
-    reference_packs,
+    reference_bundles,
 )
 from aegis.store import PostgresObjectiveStore
 
@@ -104,7 +105,12 @@ def run_once(correlation: UUID, path: str) -> object:
     connection = psycopg.connect(required("AEGIS_DATABASE_URL"))
     channel = open_channel()
     try:
-        card_action = reference_packs()[1].cards[0].action.model_copy(
+        manager = PackManager()
+        for bundle in reference_bundles():
+            manager.discover(bundle)
+        manager.install("kitchen", frozenset({"kitchen.write"}))
+        manager.enable("kitchen")
+        card_action = manager.retrieve("kitchen")[0].action.model_copy(
             update={"arguments": {"item": "rice"}}
         )
         card = ActionCard(action=card_action, summary="Add an item to groceries", relevance=1)

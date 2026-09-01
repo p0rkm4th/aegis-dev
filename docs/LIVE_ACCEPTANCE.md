@@ -134,6 +134,12 @@ live revocation probe, Alice’s active `apartment` membership allowed
 authorization request below the model and Gateway layers. The fixture was
 restored to active afterward.
 
+The live runner discovers all three reference Packs from manifest-backed
+`PackBundle` values, then installs/enables Kitchen with `kitchen.write` before
+retrieving its bounded ActionCard. The live grocery proof therefore crosses
+Pack discovery/lifecycle and Core; it does not rely on a Kitchen-specific Core
+branch.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four

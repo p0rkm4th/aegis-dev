@@ -22,6 +22,7 @@ from .gateway_rpc import (
     OpenClawWebSocketChannel,
     RpcProtocolError,
 )
+from .pack_lifecycle import PackBundle, PackManifest
 
 
 @dataclass(frozen=True)
@@ -81,6 +82,26 @@ def reference_packs() -> tuple[Pack, ...]:
                 ),
             ),
         ),
+    )
+
+
+def reference_bundles() -> tuple[PackBundle, ...]:
+    """Manifest-backed versions of the three reference capabilities."""
+    permissions = {
+        "tasks": ("tasks.write",),
+        "kitchen": ("kitchen.write",),
+        "homelab": ("homelab.service.restart",),
+    }
+    return tuple(
+        PackBundle(
+            manifest=PackManifest(
+                pack_id=pack.pack_id,
+                version=pack.version,
+                permissions=permissions[pack.pack_id],
+            ),
+            cards=pack.cards,
+        )
+        for pack in reference_packs()
     )
 
 
