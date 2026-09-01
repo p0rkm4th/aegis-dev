@@ -5,9 +5,9 @@
   "current_phase": 12,
   "roadmap_version": 1,
   "active_milestone": "M09",
-  "active_checkpoint": "M09.03",
+  "active_checkpoint": "M09.09",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "M09.03-resolved-referents",
+  "current_checkpoint": "M09.09-context-compaction",
   "checkpoint_evidence": {
     "deterministic": [
       "M08.01 confidence-gated deterministic reads and writes",
@@ -31,6 +31,7 @@
       "M09.04 continuation trace metadata passed deterministic validation and owner readiness at 50747d7; fresh follow-up objective/correlation identity is preserved",
       "M09.07 live owner safety proof at d6f5f5a: 'add the first two' clarified before execution and did not increase the pre-existing literal-title count",
       "M09.08 live owner restart proof at d6f5f5a: authorized grocery context survived service restart and the follow-up completed with fresh trace IDs",
+      "M09.09 bounded context budgets are deterministic and owner readiness is green at bbe65d3",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -41,7 +42,7 @@
     "unmet_or_partial": [
       "M08.05 model action selection uses bounded ActionCard references; broader action-family capability proof remains in progress",
       "M08.10 phrase-overfit production cleanup remains partial pending broader capability evaluation",
-      "M09.08-M09.09 restart continuity and small-model context compaction remain unmet; varied objective-continuation capability proof remains partial",
+      "M09.09 small-model context compaction has deterministic budget proof; varied objective-continuation capability proof remains partial",
       "M11.07 automatic defect harvesting is not yet an automated defect-to-regression loop",
       "M12.11 mobile/chat remains lane-limited"
     ]
@@ -56,21 +57,21 @@
     "M06": "M06.01-M06.07 complete from read/write/shared/private/external/finance/restart vertical evidence",
     "M07": "M07.01-M07.09 complete from canonical memory, retrieval, provenance, compaction, and privacy evidence",
     "M08": "M08.01-M08.04 and M08.06-M08.09 materially implemented/proven; M08.03 semantic retrieval is live-proven, M08.05 and M08.10 remain active",
-    "M09": "M09.01-M09.08 session, bounded turn, canonical referents, continuation trace, grounding, mutation guard, ambiguity safety, and restart continuity are implemented/proven; varied objective-continuation capability proof remains partial",
+    "M09": "M09.01-M09.09 session, bounded turn, canonical referents, continuation trace, grounding, mutation guard, ambiguity safety, restart continuity, and context compaction are implemented/proven; varied objective-continuation capability proof remains partial",
     "M10": "M10.01-M10.06, M10.08-M10.10 materially proven; M10.07 compensation/cancellation remains unmet",
     "M11": "M11.01-M11.06 and M11.08-M11.09 materially proven; M11.07 remains unmet",
     "M12": "M12.01-M12.10 materially proven; M12.11 is lane-limited"
   },
   "next_candidates": [
-    "M09.09",
+    "M08.05",
     "M08.05",
     "M11.07",
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "d6f5f5a",
-  "last_green_sha": "d6f5f5a",
-  "last_pushed_sha": "d6f5f5a",
+  "head_sha": "bbe65d3",
+  "last_green_sha": "bbe65d3",
+  "last_pushed_sha": "bbe65d3",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -85,9 +86,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "d6f5f5a",
-    "last_known_green_sha": "d6f5f5a",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/d6f5f5a",
+    "running_sha": "bbe65d3",
+    "last_known_green_sha": "bbe65d3",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/bbe65d3",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
