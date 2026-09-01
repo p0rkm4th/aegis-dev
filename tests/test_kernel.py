@@ -310,6 +310,54 @@ def test_kernel_run_sequence_authorizes_each_step_independently():
     assert ex.calls == 1
 
 
+def test_kernel_run_sequence_does_not_replay_plan_result_to_wrong_principal(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    store = SqliteObjectiveStore(str(tmp_path / "private-sequence.sqlite"))
+    actions = (
+        ActionSpec(
+            action_id="private",
+            capability="private",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    owner_intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="do private work",
+        correlation_id=uuid4(),
+    )
+    owner_result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    ).run_sequence(owner_intent, actions)
+
+    other_result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    ).run_sequence(
+        IntentFrame(
+            principal=Principal(id="bob", vault_id="bob-vault"),
+            utterance="do private work",
+            correlation_id=owner_intent.correlation_id,
+        ),
+        actions,
+    )
+
+    assert owner_result.state is ObjectiveState.COMPLETED
+    assert other_result.state is ObjectiveState.BLOCKED
+    assert other_result.objective_id != owner_result.objective_id
+    assert "unavailable" in other_result.message
+    store.close()
+
+
 def test_policy_denial_cannot_be_bypassed_by_model_action():
     ex = Executor()
     action = ActionSpec(

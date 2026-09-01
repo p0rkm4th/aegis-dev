@@ -343,10 +343,17 @@ class Kernel:
         if not actions or len(actions) > 5:
             raise ValueError("plans must contain between one and five actions")
         plan_key = f"plan:{intent.correlation_id}"
+        objective = self.store.get_objective_by_correlation(intent.correlation_id, intent.principal)
         prior = self.store.get_result(plan_key)
+        if objective is None and prior is not None:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="plan is unavailable for this identity",
+                correlation_id=intent.correlation_id,
+            )
         if prior is not None and not prior.retryable:
             return prior
-        objective = self.store.get_objective_by_correlation(intent.correlation_id, intent.principal)
         if objective is not None:
             if objective.steps != actions:
                 return Result(
