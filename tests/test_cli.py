@@ -142,6 +142,25 @@ def test_cli_env_file_rejects_shell_syntax_and_non_aegis_keys(tmp_path):
         cli._load_env_file(str(env_file))
 
 
+def test_cli_auto_discovers_local_env_file(monkeypatch, capsys, tmp_path):
+    from aegis import cli
+    from aegis.health import HealthReport
+
+    (tmp_path / ".env").write_text("AEGIS_PRINCIPAL_ID=discovered-user\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("AEGIS_PRINCIPAL_ID", raising=False)
+    monkeypatch.setattr("sys.argv", ["aegis", "--check", "--json"])
+
+    def report():
+        assert cli.os.environ["AEGIS_PRINCIPAL_ID"] == "discovered-user"
+        return HealthReport(healthy=True, ready=True, components=())
+
+    monkeypatch.setattr(cli, "_runtime_report", report)
+
+    assert cli.main() == 0
+    assert json.loads(capsys.readouterr().out)["ready"] is True
+
+
 def test_cli_env_file_json_failure_is_machine_safe(monkeypatch, capsys, tmp_path):
     from aegis import cli
 

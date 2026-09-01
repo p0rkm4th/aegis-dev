@@ -22,12 +22,14 @@ probe and set this variable to the reachable Ollama address; a running Ollama
 process bound to a different interface is not reachable through loopback.
 
 For repeatable local startup, copy `examples/aegis.env.example` to `.env` and
-replace its placeholders. The launcher can then load the simple configuration
-file without executing shell code:
+replace its placeholders. The launcher automatically discovers this repository
+`.env` file, or an explicit file can be selected. Configuration is loaded
+without executing shell code:
 
 ```sh
-./scripts/aegis --env-file .env --check
-./scripts/aegis --env-file .env --web
+./scripts/aegis --check
+./scripts/aegis --web
+# alternatively: ./scripts/aegis --env-file /path/to/aegis.env --check
 ```
 
 The file accepts only `AEGIS_* = value` settings; existing shell variables

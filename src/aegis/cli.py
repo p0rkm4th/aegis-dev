@@ -723,9 +723,12 @@ def main() -> int:
         parser.error("--json requires --check or --once")
     if args.web and (args.check or args.once is not None):
         parser.error("--web cannot be combined with --check or --once")
-    if args.env_file:
+    env_file = args.env_file
+    if env_file is None and Path(".env").is_file():
+        env_file = ".env"
+    if env_file:
         try:
-            _load_env_file(args.env_file)
+            _load_env_file(env_file)
         except ValueError as exc:
             if args.json:
                 _print_json_error("configuration_invalid", "configuration file is invalid")
