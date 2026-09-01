@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-sbom-provenance-green",
+  "current_checkpoint": "live-vertical-slice-runtime-blocked",
   "active_branch": "aegis-dev",
   "head_sha": "46e5b6950fdfae15005bceb32e11a29ab80e4998",
   "last_green_sha": "46e5b6950fdfae15005bceb32e11a29ab80e4998",
@@ -13,7 +13,9 @@
   "active_candidate_runtime": {
     "provider": "ollama",
     "model": "qwen3:8b",
-    "status": "not_yet_tested"
+    "status": "live_endpoint_reachable; structured_probe_rejected_by_decoder",
+    "endpoint": "http://172.18.0.1:11434",
+    "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
   },
   "completed_functionality": [
     "greenfield scaffold",
@@ -55,18 +57,22 @@
     "pytest": "64 passed"
   },
   "known_failures": [
-    "live Ollama endpoint unavailable in this environment",
-    "live OpenClaw Gateway transport not connected",
-    "live Home Assistant/device acceptance not performed"
+    "Ollama live structured probe returned malformed Decision semantics and was correctly rejected",
+    "OpenClaw Gateway transport is not reachable or installed in this environment",
+    "PostgreSQL is not listening on 127.0.0.1:5432 and migrations were not applied",
+    "Home Assistant/device live acceptance was not performed",
+    "full live vertical workflow, restart/replay, and external postcondition evidence are absent"
   ],
-  "blocked_lanes": [],
+  "blocked_lanes": [
+    "LIVE_VERTICAL_SLICE: requires owner environment OpenClaw Gateway and PostgreSQL; Ollama endpoint is reachable only at 172.18.0.1"
+  ],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
-  "current_model_baseline": "Ollama qwen3:8b adapter implemented; live baseline unavailable because localhost:11434 refused connection",
-  "database_migration_version": "001_initial.sql (artifact; live PostgreSQL not available)",
+  "current_model_baseline": "Ollama qwen3:8b live inventory confirmed at 172.18.0.1; first structured probe was rejected by StrictDecisionDecoder",
+  "database_migration_version": "001_initial.sql (artifact; psql 127.0.0.1:5432 connection refused)",
   "openclaw_compatibility": {
     "tested_release": "2026.8.1",
-    "adapter": "policy/approval execution boundary; live Gateway transport not yet connected"
+    "adapter": "policy/approval execution boundary; live Gateway transport unavailable; no execution evidence"
   },
-  "next_action": "Perform final local Phase 12 release validation and audit remaining gates; do not claim production readiness while live integrations and a complete transitive lock remain unavailable"
+  "next_action": "In an owner environment, run docs/LIVE_ACCEPTANCE.md with reachable OpenClaw Gateway and PostgreSQL; do not expand scope or claim the vertical slice complete until real execution, readback, restart, and replay evidence is recorded"
 }
