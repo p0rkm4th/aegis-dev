@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-identity-mode-fail-closed",
+  "current_checkpoint": "phase-12-identity-boundary-contained",
   "active_branch": "aegis-dev",
-  "head_sha": "6adf9a51603ec1df09484f9589ba32f7f7bfab53",
-  "last_green_sha": "6adf9a51603ec1df09484f9589ba32f7f7bfab53",
-  "last_pushed_sha": "6adf9a51603ec1df09484f9589ba32f7f7bfab53",
+  "head_sha": "6293c42f3649a24281e8e064235ceaa4a2effe3d",
+  "last_green_sha": "6293c42f3649a24281e8e064235ceaa4a2effe3d",
+  "last_pushed_sha": "6293c42f3649a24281e8e064235ceaa4a2effe3d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -194,6 +194,7 @@
     ,"operator quickstart installs runtime dependencies separately from optional contributor validation tooling"
     ,"human CLI identity startup failures use generic actionable diagnostics without exposing exception details"
     ,"partial Keycloak bearer configuration cannot fall back to local development identity"
+    ,"unexpected identity provider failures are contained at browser and readiness boundaries"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -426,6 +427,7 @@
         "ollama_runtime_probe_live": "green live: system Ollama at http://172.18.0.1:11434 returned qwen3:8b in /api/tags and completed a deterministic generation probe; default 127.0.0.1:11434 remains unavailable and is documented as an endpoint configuration limitation",
         "cli_human_identity_failure_boundary": "green deterministic: a human one-shot identity initialization failure containing database credentials and host details returned only the generic --check remediation, with no exception detail emitted; JSON identity errors remain stable",
         "partial_bearer_identity_fail_closed": "green deterministic: token-only and issuer-only configuration both fail before request startup with the stable incomplete-bearer diagnostic; neither path constructs or falls back to the local development Principal",
+        "unexpected_identity_failure_containment": "green deterministic: an unexpected identity-provider exception containing private database detail returns generic identity_unavailable at the protected browser route; readiness identity checks likewise collapse provider failures to safe remediation",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -453,5 +455,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, and partial-bearer fail-closed behavior are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, and unexpected identity failure containment are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
 }
