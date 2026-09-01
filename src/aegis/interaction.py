@@ -38,7 +38,7 @@ from .household import (
     PostgresHouseholdStore,
 )
 from .identity import PostgresSpacePolicy, Role
-from .kernel import Kernel
+from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
@@ -930,7 +930,11 @@ class InteractionBoundary:
                 verifier = PostgresTaskListVerifier(task_store, principal)
                 permissions = {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})}
             kernel = Kernel(
-                self._model(),
+                # The bounded model proposal was already decoded and
+                # canonicalized above. Reuse it as a fixed proposal rather
+                # than invoking cognition a second time with legacy decoder
+                # settings or allowing the action to drift.
+                _FixedActionModel(card.action),
                 StrictDecisionDecoder(),
                 PostgresSpacePolicy(connection, permissions),
                 executor,
