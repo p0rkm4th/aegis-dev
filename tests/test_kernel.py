@@ -400,6 +400,68 @@ def test_kernel_run_sequence_recovers_after_child_observation_persistence_crash(
     store.close()
 
 
+def test_kernel_run_sequence_reverifies_successful_observation_after_temporary_failure(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class ToggleVerifier:
+        def __init__(self, verified):
+            self.verified = verified
+
+        def verify(self, observation, contract):
+            return VerificationResult(
+                verified=self.verified,
+                evidence={"readback": self.verified},
+                reason="verified" if self.verified else "postcondition failed",
+            )
+
+    store = SqliteObjectiveStore(str(tmp_path / "sequence-verification-retry.sqlite"))
+    actions = (
+        ActionSpec(
+            action_id="first",
+            capability="first",
+            verification=VerificationContract(kind="readback"),
+        ),
+        ActionSpec(
+            action_id="second",
+            capability="second",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    original_intent = intent()
+    first_executor = Executor()
+    failed = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        first_executor,
+        ToggleVerifier(False),
+        store=store,
+    ).run_sequence(original_intent, actions)
+
+    retry_executor = Executor()
+    recovered = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        retry_executor,
+        ToggleVerifier(True),
+        store=store,
+    ).run_sequence(
+        original_intent.model_copy(update={"utterance": "retry after access was restored"}),
+        actions,
+    )
+
+    assert failed.state is ObjectiveState.FAILED
+    assert recovered.state is ObjectiveState.COMPLETED
+    assert [step["state"] for step in recovered.evidence["steps"]] == [
+        ObjectiveState.COMPLETED.value,
+        ObjectiveState.COMPLETED.value,
+    ]
+    assert first_executor.calls == 1
+    assert retry_executor.calls == 1
+    store.close()
+
+
 def test_kernel_run_sequence_authorizes_each_step_independently():
     class SecondStepDeniedPolicy:
         def __init__(self):

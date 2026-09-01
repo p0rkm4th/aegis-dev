@@ -206,9 +206,15 @@ class Kernel:
         key = f"{intent.correlation_id}:{decision.action.action_id}"
         prior = self._results.get(key) or self.store.get_result(key)
         if prior is not None:
-            self._results[key] = prior
-            self._executed.add(key)
-            return prior
+            prior_observation = self.store.get_observation(key)
+            if not (
+                prior.state is ObjectiveState.FAILED
+                and prior_observation is not None
+                and prior_observation.command_succeeded
+            ):
+                self._results[key] = prior
+                self._executed.add(key)
+                return prior
         if key in self._executed:
             self.audit.append(
                 "action.replay_suppressed",
