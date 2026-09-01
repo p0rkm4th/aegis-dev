@@ -112,14 +112,27 @@ class OpenClawWebSocketChannel:
                 if not self.persistent:
                     socket.close()
         except RpcProtocolError:
+            if self.persistent:
+                self._discard_socket()
             raise
         except Exception as exc:
+            if self.persistent:
+                self._discard_socket()
             raise RpcProtocolError(f"Gateway transport failed: {type(exc).__name__}") from exc
 
     def close(self) -> None:
         if self._socket is not None:
             self._socket.close()
             self._socket = None
+
+    def _discard_socket(self) -> None:
+        socket = self._socket
+        self._socket = None
+        if socket is not None:
+            try:
+                socket.close()
+            except Exception:
+                pass
 
     def receive_event(self, event_name: str) -> dict[str, Any]:
         """Receive the next named Gateway event on a persistent connection."""
@@ -143,8 +156,10 @@ class OpenClawWebSocketChannel:
                 if frame.get("type") == "event":
                     self._pending_events.append(frame)
         except RpcProtocolError:
+            self._discard_socket()
             raise
         except Exception as exc:
+            self._discard_socket()
             raise RpcProtocolError(f"Gateway event transport failed: {type(exc).__name__}") from exc
 
     def _connect(self, socket: Any) -> None:

@@ -683,6 +683,26 @@ def test_gateway_channel_buffers_events_seen_while_waiting_for_response():
     assert channel.receive_event("terminal.data")["data"] == "marker"
 
 
+def test_persistent_gateway_event_failure_discards_dead_socket():
+    class Socket:
+        def recv(self):
+            raise RuntimeError("connection reset")
+
+        def close(self):
+            pass
+
+    channel = OpenClawWebSocketChannel("ws://gateway", "token", persistent=True)
+    channel._socket = Socket()
+
+    try:
+        channel.receive_event("terminal.data")
+    except RpcProtocolError as exc:
+        assert str(exc) == "Gateway event transport failed: RuntimeError"
+    else:
+        raise AssertionError("Gateway event failure was accepted")
+    assert channel._socket is None
+
+
 def test_vault_and_space_authorization_is_structural_and_revocable():
     auth = InMemoryAuthorization()
     auth.add_vault(Vault("alice-vault", "alice"))
