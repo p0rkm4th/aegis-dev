@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 5,
-  "current_checkpoint": "phase-6-pgvector-semantic-retrieval-green",
+  "current_phase": 7,
+  "current_checkpoint": "phase-7-shared-household-foundation",
   "active_branch": "aegis-dev",
-  "head_sha": "53be384",
-  "last_green_sha": "53be384",
-  "last_pushed_sha": "53be384",
+  "head_sha": "433515d",
+  "last_green_sha": "433515d",
+  "last_pushed_sha": "433515d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -77,7 +77,7 @@
     "3": "complete",
     "4": "complete",
     "5": "in_progress",
-    "6": "in_progress",
+    "6": "complete",
     "7": "in_progress",
     "8": "in_progress",
     "9": "in_progress",
@@ -185,5 +185,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Advance the Phase 6 gate review using the live pgvector semantic-retrieval evidence, then proceed to the next unblocked campaign capability while preserving deterministic fallback and Vault isolation."
+  "next_action": "Expose the existing shared HouseholdSpace read boundary for obligations, events, and chores through the interaction surface, then live-test membership/revocation and durable reload without adding a second domain authority."
 }
