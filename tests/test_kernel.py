@@ -114,7 +114,10 @@ from aegis.projections import (
     SharedObligation,
 )
 from aegis.reference_packs import (
+    OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
+    OpenClawHomelabExecutor,
+    OpenClawNetworkProbeExecutor,
     ReferenceExecutor,
     ReferenceVerifier,
     ReferenceWorld,
@@ -736,6 +739,61 @@ def test_gateway_close_discards_socket_when_socket_close_fails():
     channel.close()
 
     assert channel._socket is None
+
+
+@pytest.mark.parametrize(
+    "executor_factory, action",
+    [
+        (
+            lambda channel: OpenClawGroceryExecutor(channel, "/tmp/aegis-groceries"),
+            ActionSpec(
+                action_id="kitchen.groceries.add",
+                capability="kitchen.groceries.write",
+                arguments={"item": "rice"},
+            ),
+        ),
+        (
+            lambda channel: OpenClawHomelabExecutor(channel, {"api": "true"}),
+            ActionSpec(
+                action_id="homelab.service.restart",
+                capability="homelab.write",
+                arguments={"service": "api"},
+            ),
+        ),
+        (
+            lambda channel: OpenClawNetworkProbeExecutor(channel),
+            ActionSpec(
+                action_id="network.probe",
+                capability="network.read",
+                arguments={"address": "127.0.0.1", "port": 80},
+            ),
+        ),
+    ],
+)
+def test_gateway_protocol_failure_becomes_unknown_observation(executor_factory, action):
+    class Channel:
+        persistent = True
+
+        def send(self, request):
+            raise RpcProtocolError("Gateway RPC failed: gateway_error")
+
+        def receive_event(self, event_name):
+            raise AssertionError("protocol failure should stop before event read")
+
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=action,
+        idempotency_key="stable-ambiguous-key",
+    )
+    observation = executor_factory(Channel()).execute(request)
+
+    assert not observation.command_succeeded
+    assert observation.evidence == {
+        "gateway": "openclaw",
+        "outcome": "unknown",
+        "idempotency_key": "stable-ambiguous-key",
+    }
 
 
 def test_vault_and_space_authorization_is_structural_and_revocable():

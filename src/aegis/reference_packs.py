@@ -54,6 +54,20 @@ def _wait_for_terminal_ready(channel: OpenClawWebSocketChannel) -> None:
     raise RpcProtocolError("OpenClaw terminal did not become ready")
 
 
+def _unknown_gateway_observation(request: ExecutionRequest) -> Observation:
+    """Record an ambiguous Gateway outcome without permitting blind replay."""
+
+    return Observation(
+        execution_id=request.action_id,
+        evidence={
+            "gateway": "openclaw",
+            "outcome": "unknown",
+            "idempotency_key": request.idempotency_key,
+        },
+        command_succeeded=False,
+    )
+
+
 def reference_packs() -> tuple[Pack, ...]:
     return (
         Pack(
@@ -321,10 +335,8 @@ class OpenClawGroceryExecutor:
                     saw_marker = True
                     break
             self.gateway.terminal_close({"sessionId": session_id})
-        except (KeyError, RpcProtocolError) as exc:
-            raise RpcProtocolError(
-                "OpenClaw grocery execution did not produce a terminal outcome"
-            ) from exc
+        except (KeyError, RpcProtocolError):
+            return _unknown_gateway_observation(request)
         if saw_marker and self.canonical_store is not None and self.principal is not None:
             try:
                 self.canonical_store.add_grocery(
@@ -467,8 +479,8 @@ class OpenClawHomelabExecutor:
                     saw_marker = True
                     break
             self.gateway.terminal_close({"sessionId": session_id})
-        except (KeyError, RpcProtocolError) as exc:
-            raise RpcProtocolError("Homelab restart did not produce a terminal outcome") from exc
+        except (KeyError, RpcProtocolError):
+            return _unknown_gateway_observation(request)
         return Observation(
             execution_id=request.action_id,
             evidence={
@@ -574,8 +586,8 @@ class OpenClawNetworkProbeExecutor:
                 if receipt_path.is_file() or marker in terminal_output:
                     break
             self.gateway.terminal_close({"sessionId": session_id})
-        except (KeyError, RpcProtocolError) as exc:
-            raise RpcProtocolError("Network probe did not produce a terminal outcome") from exc
+        except (KeyError, RpcProtocolError):
+            return _unknown_gateway_observation(request)
         receipt = receipt_path.read_text() if receipt_path.is_file() else ""
         receipt_path.unlink(missing_ok=True)
         success = any(line.strip().endswith(" 0") for line in receipt.splitlines())
