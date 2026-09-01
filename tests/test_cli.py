@@ -551,7 +551,7 @@ def test_cli_web_reports_bootstrap_failure(monkeypatch, capsys):
     assert capsys.readouterr().out == (
         "AEGIS runtime is not ready; the browser will show diagnostics. "
         "Run './scripts/aegis --check' to see remediation.\n"
-        "AEGIS Constellation available at http://127.0.0.1:8081\n"
+        "Starting AEGIS Constellation at http://127.0.0.1:8081\n"
     )
 
 
@@ -573,7 +573,7 @@ def test_cli_web_reports_port_conflict_with_remediation(monkeypatch, capsys):
 
     assert cli.main() == 1
     assert capsys.readouterr().out == (
-        "AEGIS Constellation available at http://127.0.0.1:8081\n"
+        "Starting AEGIS Constellation at http://127.0.0.1:8081\n"
         "Not completed — browser port 8081 is already in use; choose another with --port\n"
     )
 
@@ -601,7 +601,7 @@ def test_cli_web_hides_database_failure_details(monkeypatch, capsys):
     assert output == (
         "AEGIS runtime is not ready; the browser will show diagnostics. "
         "Run './scripts/aegis --check' to see remediation.\n"
-        "AEGIS Constellation available at http://127.0.0.1:8082\n"
+        "Starting AEGIS Constellation at http://127.0.0.1:8082\n"
     )
     assert "private-secret" not in output
 

@@ -892,7 +892,7 @@ def main() -> int:
                         "AEGIS runtime is not ready; the browser will show diagnostics. "
                         "Run './scripts/aegis --check' to see remediation."
                     )
-            print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
+            print(f"Starting AEGIS Constellation at http://{args.host}:{args.port}")
             serve(
                 args.host,
                 args.port,
