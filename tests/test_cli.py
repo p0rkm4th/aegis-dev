@@ -543,6 +543,31 @@ def test_browser_rejects_malformed_correlation_id_before_core():
     assert called is False
 
 
+def test_browser_rejects_undocumented_request_fields_before_core():
+    called = False
+
+    def interaction(*_args):
+        nonlocal called
+        called = True
+        return "unreachable"
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+        interaction,
+        lambda _: {"nodes": []},
+    )
+    status, _, payload = app.dispatch(
+        "POST", "/api/message", b'{"utterance":"show tasks","private_debug":true}'
+    )
+
+    assert status == 400
+    assert json.loads(payload) == {
+        "code": "invalid_request",
+        "error": "request contains undocumented fields",
+    }
+    assert called is False
+
+
 def test_browser_rejects_undocumented_interaction_fields():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(
