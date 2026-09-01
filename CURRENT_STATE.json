@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-isolated-installed-browser-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "d7ac80de8f218057fc5a69b9872b9f7fb0858831",
-  "last_green_sha": "d7ac80de8f218057fc5a69b9872b9f7fb0858831",
-  "last_pushed_sha": "d7ac80de8f218057fc5a69b9872b9f7fb0858831",
+  "head_sha": "785b144f738230079fa84a5617ac7add6c43c24c",
+  "last_green_sha": "785b144f738230079fa84a5617ac7add6c43c24c",
+  "last_pushed_sha": "785b144f738230079fa84a5617ac7add6c43c24c",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -190,6 +190,7 @@
     ,"base package metadata declares PostgreSQL runtime support so the installed CLI/browser boundary does not depend on the optional OpenClaw live extra"
     ,"normal isolated package installation exposes the same help, version, private bootstrap, and structured readiness diagnostics as the checkout launcher"
     ,"normal isolated installation launches the loopback browser outside the checkout with authorized canonical state and truthful optional-service degradation"
+    ,"browser startup diagnostics do not claim availability before socket bind; occupied ports return a truthful actionable failure"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -417,6 +418,9 @@
         "browser_degraded_start_live": "green live: with PostgreSQL configuration absent, ./scripts/aegis --web stayed available on loopback, /api/health returned ready=false with actionable PostgreSQL/Ollama remediation, and /api/constellation returned only generic state_unavailable HTTP 503",
         "browser_model_failure_retryable_live": "green live: with PostgreSQL 16.15 healthy and Ollama deliberately pointed at unavailable loopback port 1, a real browser POST returned failed with retryable=true and a correlation/objective, while the canonical request-status route returned the same safe retry signal and message; no task mutation occurred",
         "browser_model_failure_retryable_rendered_live": "green live rendered acceptance: Chromium loaded the loopback browser with PostgreSQL healthy and Ollama unavailable, submitted a model-backed task request, displayed the model-unavailable message, and showed the explicit Retry control while CSP remained enforced",
+        "cross_client_interaction_contract_live": "green live: fresh CLI and browser processes answered the same canonical task read through the shared InteractionBoundary; human presentation matched, browser detail matched the canonical Result message, both completed, and the browser preserved the supplied correlation ID without client-owned semantics",
+        "browser_occupied_port_diagnostic_live": "green live: a real loopback port holder caused ./scripts/aegis --web to exit 1 with choose-another-port remediation and no false availability claim; stderr remained empty",
+        "ollama_runtime_probe_live": "green live: system Ollama at http://172.18.0.1:11434 returned qwen3:8b in /api/tags and completed a deterministic generation probe; default 127.0.0.1:11434 remains unavailable and is documented as an endpoint configuration limitation",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -444,5 +448,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, and installed browser degradation are green. Next executable frontier: remaining operator simplification and cross-client contract audit; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, and occupied-port diagnostics are green. Next executable frontier: remaining operator simplification and browser/API client contract hardening; Home Assistant/mobile/voice remain lane-limited."
 }
