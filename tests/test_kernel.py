@@ -43,6 +43,7 @@ from aegis.finance import (
     AffordabilityProjection,
     FinanceLedger,
     FinanceSnapshot,
+    PostgresFinanceSnapshotStore,
     Transaction,
 )
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
@@ -1162,6 +1163,62 @@ def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contr
         raise AssertionError("private finance account crossed Vault boundary")
 
 
+def test_postgres_finance_store_reloads_snapshot_and_keeps_owner_boundary():
+    from datetime import datetime, timezone
+
+    class Cursor:
+        def __init__(self, row):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class Connection:
+        def __init__(self, payload=None):
+            self.payload = payload
+            self.provider_id = None
+            self.captured_at = None
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT payload"):
+                if self.payload is None:
+                    return Cursor(None)
+                return Cursor((self.payload, self.provider_id, self.captured_at))
+            self.payload, self.provider_id, self.captured_at = params[1:]
+            return Cursor(None)
+
+        def commit(self):
+            self.commits += 1
+
+    captured = datetime(2026, 8, 31, 12, 0, tzinfo=timezone.utc)
+    snapshot = FinanceSnapshot(
+        "alice",
+        (Account("checking", "alice", 500_000),),
+        (Transaction("transaction-1", "checking", -2500, captured, "groceries"),),
+        "sandbox-bank",
+        captured,
+    )
+    writer = Connection()
+    PostgresFinanceSnapshotStore(writer).save(snapshot)
+    reader = Connection(writer.payload)
+    reader.provider_id = writer.provider_id
+    reader.captured_at = writer.captured_at
+    ledger = FinanceLedger(PostgresFinanceSnapshotStore(reader))
+    restored = ledger.private_snapshot(
+        Principal(id="alice", vault_id="alice-vault"), "alice"
+    )
+    assert restored == snapshot
+    assert ledger.total_balance(Principal(id="alice", vault_id="alice-vault"), "alice") == 500_000
+    try:
+        ledger.private_snapshot(Principal(id="bob", vault_id="bob-vault"), "alice")
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("durable finance snapshot crossed owner boundary")
+    assert writer.commits == 1
+
+
 def test_finance_projection_requires_explicit_derive_authorization():
     ledger = FinanceLedger()
     ledger.record_snapshot(FinanceSnapshot("alice", (Account("checking", "alice", 1),)))
@@ -1656,6 +1713,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "003_pack_installations.sql",
         "004_personal_state.sql",
         "005_household_state.sql",
+        "006_finance_snapshots.sql",
     )
 
 

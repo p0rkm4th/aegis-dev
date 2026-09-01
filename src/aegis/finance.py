@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol
+from typing import Any, Protocol, cast
 
 from .contracts import Principal
 from .projections import PrivateContribution, SharedObligation
@@ -47,11 +48,98 @@ class FinancialProvider(Protocol):
     def snapshot(self, owner_id: str) -> FinanceSnapshot: ...
 
 
+class FinanceSnapshotStore(Protocol):
+    def save(self, snapshot: FinanceSnapshot) -> None: ...
+
+    def load(self, owner_id: str) -> FinanceSnapshot | None: ...
+
+
+class PostgresFinanceSnapshotStore:
+    """Persist private finance snapshots partitioned by owning principal."""
+
+    def __init__(self, connection: Any) -> None:
+        self.connection = connection
+
+    def save(self, snapshot: FinanceSnapshot) -> None:
+        if not snapshot.owner_id:
+            raise ValueError("finance owner is required")
+        payload = {
+            "accounts": [
+                {
+                    "account_id": account.account_id,
+                    "owner_id": account.owner_id,
+                    "balance_cents": account.balance_cents,
+                }
+                for account in snapshot.accounts
+            ],
+            "transactions": [
+                {
+                    "transaction_id": transaction.transaction_id,
+                    "account_id": transaction.account_id,
+                    "amount_cents": transaction.amount_cents,
+                    "occurred_at": transaction.occurred_at.isoformat(),
+                    "description": transaction.description,
+                }
+                for transaction in snapshot.transactions
+            ],
+        }
+        self.connection.execute(
+            "INSERT INTO finance_snapshots "
+            "(owner_id, payload, provider_id, captured_at) VALUES (%s, %s, %s, %s) "
+            "ON CONFLICT (owner_id) DO UPDATE SET payload = EXCLUDED.payload, "
+            "provider_id = EXCLUDED.provider_id, captured_at = EXCLUDED.captured_at, "
+            "updated_at = now()",
+            (
+                snapshot.owner_id,
+                json.dumps(payload, sort_keys=True),
+                snapshot.provider_id,
+                snapshot.captured_at,
+            ),
+        )
+        self.connection.commit()
+
+    def load(self, owner_id: str) -> FinanceSnapshot | None:
+        row = self.connection.execute(
+            "SELECT payload, provider_id, captured_at FROM finance_snapshots "
+            "WHERE owner_id = %s",
+            (owner_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        payload = row[0] if isinstance(row[0], dict) else json.loads(str(row[0]))
+        accounts = tuple(
+            Account(
+                str(account["account_id"]),
+                str(account["owner_id"]),
+                int(account["balance_cents"]),
+            )
+            for account in payload.get("accounts", [])
+        )
+        transactions = tuple(
+            Transaction(
+                str(transaction["transaction_id"]),
+                str(transaction["account_id"]),
+                int(transaction["amount_cents"]),
+                datetime.fromisoformat(str(transaction["occurred_at"])),
+                str(transaction["description"]),
+            )
+            for transaction in payload.get("transactions", [])
+        )
+        return FinanceSnapshot(
+            owner_id=owner_id,
+            accounts=accounts,
+            transactions=transactions,
+            provider_id=str(row[1]),
+            captured_at=cast(datetime | None, row[2]),
+        )
+
+
 class FinanceLedger:
     """Canonical private ledger; provider data enters through a typed snapshot port."""
 
-    def __init__(self) -> None:
+    def __init__(self, store: FinanceSnapshotStore | None = None) -> None:
         self._snapshots: dict[str, FinanceSnapshot] = {}
+        self.store = store
 
     def record_snapshot(self, snapshot: FinanceSnapshot) -> None:
         if snapshot.owner_id == "":
@@ -63,15 +151,25 @@ class FinanceLedger:
             raise ValueError("duplicate account id")
         if any(transaction.account_id not in account_ids for transaction in snapshot.transactions):
             raise ValueError("transaction references unknown account")
-        self._snapshots[snapshot.owner_id] = snapshot
+        if self.store is None:
+            self._snapshots[snapshot.owner_id] = snapshot
+        else:
+            self.store.save(snapshot)
+
+    def _snapshot(self, owner_id: str) -> FinanceSnapshot:
+        snapshot = (
+            self._snapshots.get(owner_id)
+            if self.store is None
+            else self.store.load(owner_id)
+        )
+        if snapshot is None:
+            raise KeyError("finance snapshot is unavailable")
+        return snapshot
 
     def private_snapshot(self, requester: Principal, owner_id: str) -> FinanceSnapshot:
         if requester.id != owner_id:
             raise PermissionError("private finance state belongs to another principal")
-        try:
-            return self._snapshots[owner_id]
-        except KeyError as exc:
-            raise KeyError("finance snapshot is unavailable") from exc
+        return self._snapshot(owner_id)
 
     def provenance(self, requester: Principal, owner_id: str) -> dict[str, str | None]:
         snapshot = self.private_snapshot(requester, owner_id)
