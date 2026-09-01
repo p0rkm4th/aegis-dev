@@ -16,7 +16,8 @@ export AEGIS_OLLAMA_URL='http://127.0.0.1:11434'
 ./scripts/aegis
 ```
 
-For repeatable local startup, the launcher can load a simple configuration
+For repeatable local startup, copy `examples/aegis.env.example` to `.env` and
+replace its placeholders. The launcher can then load the simple configuration
 file without executing shell code:
 
 ```sh
