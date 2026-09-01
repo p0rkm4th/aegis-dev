@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "e82f9a35d54314f3cf2d9949060483c0700671ab",
-  "last_green_sha": "e82f9a35d54314f3cf2d9949060483c0700671ab",
-  "last_pushed_sha": "e82f9a35d54314f3cf2d9949060483c0700671ab",
+  "head_sha": "8dae84b6d08bc275ecd7530c944e7c0c371d1ae8",
+  "last_green_sha": "8dae84b6d08bc275ecd7530c944e7c0c371d1ae8",
+  "last_pushed_sha": "8dae84b6d08bc275ecd7530c944e7c0c371d1ae8",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -112,6 +112,7 @@
     ,"one-shot JSON failures use stable generic error codes without leaking implementation details"
     ,"Constellation graph remains bounded to semantic hubs while canonical rows stay in authorized detail views"
     ,"browser renders authorized detail payloads as generic accessible data views"
+    ,"safe first-run AEGIS_* environment template and explicit env-file startup loading"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -255,6 +256,7 @@
         "cli_json_failure_live": "green live: with local identity mode and no database configured, ./scripts/aegis --once 'Show my tasks.' --json exited 1 and returned exactly code=request_unavailable, generic error=request unavailable, and state=failed; no traceback or database detail was emitted",
         "browser_bounded_projection_live": "green live: fresh ./scripts/aegis --web projection returned 10 semantic/hub nodes and 9 edges with zero task-/project- row nodes; authorized task/project records remained available under canonical detail sections",
         "browser_detail_renderer_live": "green live: fresh loopback browser page served the generic renderDetailValue data-view renderer, used textContent for keys/values, retained seven authorized detail sections, and no longer served raw JSON.stringify detail rendering",
+        "env_file_startup_live": "green live: ./scripts/aegis --env-file examples/aegis.env.example --check --json parsed the checked-in placeholder template without shell evaluation or stderr leakage and returned structured readiness failures for unavailable PostgreSQL/Ollama",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
