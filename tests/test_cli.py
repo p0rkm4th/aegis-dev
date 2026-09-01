@@ -884,6 +884,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "persistPendingRequest(utterance, correlationId)" in _INDEX_HTML
     assert "/api/request-status?correlation_id=" in _INDEX_HTML
     assert "recoverPendingRequest();" in _INDEX_HTML
+    assert "inProgressStates.has(status.state)" in _INDEX_HTML
+    assert "Retry remains explicit." in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():
