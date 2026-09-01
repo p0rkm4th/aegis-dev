@@ -198,33 +198,28 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         ]
         edges: list[dict[str, str]] = []
         available = {bundle.manifest.pack_id: bundle for bundle in reference_bundles()}
-        available.update({pack_id: item[0] for pack_id, item in persisted.items()})
+        available.update(
+            {pack_id: item[0] for pack_id, item in persisted.items() if pack_id not in available}
+        )
         for pack_id, bundle in sorted(available.items()):
             ui = bundle.manifest.ui
             label = ui.label if ui is not None else pack_id.replace("-", " ").title()
             status = persisted.get(pack_id, (None, "available"))[1]
             status_text = status.value if hasattr(status, "value") else str(status)
             node_id = f"pack-{pack_id}"
+            detail = f"{ui.category if ui else 'domain'} · {status_text}"
+            if pack_id == "tasks":
+                detail += f" · {len(tasks)} tasks"
+            elif pack_id == "kitchen":
+                detail += f" · {len(groceries)} groceries"
             nodes.append(
                 {
                     "id": node_id,
                     "label": label,
-                    "detail": f"{ui.category if ui else 'domain'} · {status_text}",
+                    "detail": detail,
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
-        task_pack_id = "pack-tasks"
-        kitchen_pack_id = "pack-kitchen"
-        nodes[1:1] = [
-            {"id": "tasks", "label": "Tasks", "detail": f"{len(tasks)} tasks"},
-            {"id": "kitchen", "label": "Kitchen", "detail": f"{len(groceries)} groceries"},
-        ]
-        edges.extend(
-            (
-                {"source": task_pack_id, "target": "tasks"},
-                {"source": kitchen_pack_id, "target": "kitchen"},
-            )
-        )
         nodes.extend(
             {
                 "id": f"task-{task.task_id}",
@@ -233,7 +228,7 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
             }
             for task in tasks
         )
-        edges.extend({"source": "tasks", "target": f"task-{task.task_id}"} for task in tasks)
+        edges.extend({"source": "pack-tasks", "target": f"task-{task.task_id}"} for task in tasks)
         return {"nodes": nodes, "edges": edges}
     finally:
         connection.close()
@@ -296,6 +291,17 @@ def _ensure_local_identity(connection: Any, principal: Principal) -> None:
         (principal.id, space_id),
     )
     connection.commit()
+
+
+def _prepare_local_web_runtime(principal: Principal) -> None:
+    """Prepare first-run local state without restoring revoked membership."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        _ensure_local_identity(connection, principal)
+    finally:
+        connection.close()
 
 
 def _openclaw_channel() -> OpenClawWebSocketChannel:
@@ -674,6 +680,8 @@ def main() -> int:
         print(f"Not completed — unable to initialize identity: {exc}")
         return 1
     if args.web:
+        if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
+            _prepare_local_web_runtime(principal)
         print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
         serve(args.host, args.port, principal, _browser_interaction, _constellation_state)
         return 0
