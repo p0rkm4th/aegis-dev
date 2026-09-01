@@ -11,6 +11,7 @@ from uuid import UUID, uuid4
 
 from .contracts import IntentFrame, ObjectiveState, Principal, Result
 from .embeddings import EmbeddingProvider, MemoryVectorIndex
+from .utterance import is_mutation_request
 
 
 class Provenance(StrEnum):
@@ -495,6 +496,8 @@ class PersonalMemoryFastPath:
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
+        if is_mutation_request(text):
+            return None
         if any(trigger in text for trigger in self._PROJECT_TRIGGERS):
             return self._projects_result(intent)
         if any(trigger in text for trigger in self._GOAL_TRIGGERS):
