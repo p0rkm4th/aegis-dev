@@ -405,8 +405,15 @@ class BrowserApp:
                     "health_unavailable",
                     "runtime status unavailable",
                 )
-            payload = report.model_dump(mode="json") if isinstance(report, HealthReport) else report
-            if route == "/api/ready" and payload.get("ready") is not True:
+            try:
+                payload = HealthReport.model_validate(report).model_dump(mode="json")
+            except (TypeError, ValueError, ValidationError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "health_unavailable",
+                    "runtime status unavailable",
+                )
+            if route == "/api/ready" and payload["ready"] is not True:
                 return self._json(HTTPStatus.SERVICE_UNAVAILABLE, payload)
             return self._json(HTTPStatus.OK, payload)
         if route.startswith("/api/"):
