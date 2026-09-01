@@ -381,8 +381,14 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
             bundle.manifest.pack_id: (bundle, status)
             for bundle, status, _grants in PostgresPackStore(connection).load()
         }
-        nodes: list[dict[str, str]] = [
-            {"id": "aegis", "label": "AEGIS", "detail": "central hub"},
+        nodes: list[dict[str, Any]] = [
+            {
+                "id": "aegis",
+                "label": "AEGIS",
+                "detail": "central hub",
+                "category": "core",
+                "detail_view": "overview",
+            },
         ]
         edges: list[dict[str, str]] = []
         available = {bundle.manifest.pack_id: bundle for bundle in reference_bundles()}
@@ -405,6 +411,8 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
                     "id": node_id,
                     "label": label,
                     "detail": detail,
+                    "category": ui.category if ui else "domain",
+                    "detail_view": ui.detail_view if ui else None,
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
@@ -439,7 +447,15 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         )
         for domain_id, label, detail in domain_summaries:
             node_id = f"domain-{domain_id}"
-            nodes.append({"id": node_id, "label": label, "detail": detail})
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": label,
+                    "detail": detail,
+                    "category": "domain",
+                    "detail_view": "list",
+                }
+            )
             edges.append({"source": "aegis", "target": node_id})
         # Record lists stay in authorized detail views. The graph is intentionally
         # bounded to hubs and semantic context rather than growing with rows.
