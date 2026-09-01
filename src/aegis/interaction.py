@@ -109,7 +109,10 @@ def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     for key in ("canonical_items", "canonical_tasks", "title", "item"):
         value = evidence.get(key)
         if isinstance(value, (list, tuple)):
-            compact[key] = list(value[:20])
+            if key == "canonical_items":
+                compact[key] = list(dict.fromkeys(str(item) for item in value))[:20]
+            else:
+                compact[key] = list(value[:20])
         elif isinstance(value, str):
             compact[key] = value
     planning = evidence.get("planning")
