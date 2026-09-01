@@ -688,11 +688,14 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             )
     elif "chore" in text:
         domain = "tasks"
-        action_id = (
-            "tasks.chores.list"
-            if text.startswith(("what", "show", "list"))
-            else "tasks.chores.create"
-        )
+        if any(term in text for term in ("complete", "completed", "finish", "finished")):
+            action_id = "tasks.chores.complete"
+        else:
+            action_id = (
+                "tasks.chores.list"
+                if text.startswith(("what", "show", "list"))
+                else "tasks.chores.create"
+            )
     elif "event" in text or "inspection" in text:
         domain = "tasks"
         action_id = "tasks.events.create"
@@ -709,6 +712,8 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
         )
     cards = manager.retrieve(domain)
     card = next((item for item in cards if item.action.action_id == action_id), None)
+    if card is None:
+        card = manager.action_card(domain, action_id)
     if card is None:
         raise RuntimeError(f"enabled Pack did not provide ActionCard {action_id}")
     action = card.action
@@ -761,6 +766,17 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             action = action.model_copy(update={"arguments": {}})
         else:
             action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.chores.complete":
+        match = re.search(
+            r"(?:complete|completed|finish|finished)\s+(?:the\s+)?chore\s+"
+            r"(?:called\s+|named\s+)?(.+)$",
+            text,
+        )
+        if match is None:
+            raise InteractionInputError(
+                "name the chore to complete, for example: Complete the chore clean the kitchen."
+            )
+        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
     elif action_id == "tasks.events.create":
         match = re.search(r"(?:create|add)\s+(?:an?\s+)?event\s+(?:for\s+)?(.+)$", text)
         if match is None:

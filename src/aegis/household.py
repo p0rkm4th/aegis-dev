@@ -234,6 +234,20 @@ class PostgresHouseholdStore:
         self.save(space)
         return chore
 
+    def complete_chore(self, principal: Principal, chore_id: str) -> Chore:
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        space = self.load(space_id, members)
+        chore = space.complete_chore(principal, chore_id)
+        self.save(space)
+        return chore
+
     def add_event(
         self,
         principal: Principal,
@@ -320,6 +334,15 @@ class HouseholdSpace:
         if idempotency_key is not None:
             self.chore_mutations[idempotency_key] = chore.chore_id
         return chore
+
+    def complete_chore(self, principal: Principal, chore_id: str) -> Chore:
+        self._require_member(principal)
+        chore = self.chores.get(chore_id)
+        if chore is None:
+            raise KeyError("chore is unavailable")
+        completed = Chore(chore.chore_id, chore.title, chore.assignee_id, True)
+        self.chores[chore_id] = completed
+        return completed
 
     def add_event(
         self, principal: Principal, event: HouseholdEvent, idempotency_key: str | None = None
@@ -417,7 +440,7 @@ class PostgresChoreExecutor:
         self.principal = principal
 
     def execute(self, request: ExecutionRequest) -> Observation:
-        if request.action.action_id != "tasks.chores.create":
+        if request.action.action_id not in {"tasks.chores.create", "tasks.chores.complete"}:
             return Observation(
                 execution_id=request.action_id,
                 evidence={"unknown_action": request.action.action_id},
@@ -432,9 +455,34 @@ class PostgresChoreExecutor:
                 command_succeeded=False,
             )
         try:
-            chore = self.store.add_chore(
-                self.principal, title.strip(), assignee_id, request.idempotency_key
-            )
+            if request.action.action_id == "tasks.chores.create":
+                chore = self.store.add_chore(
+                    self.principal, title.strip(), assignee_id, request.idempotency_key
+                )
+            else:
+                snapshot = self.store.read_snapshot(self.principal)
+                normalized = title.casefold().strip().rstrip(".!?")
+                matches = tuple(
+                    chore
+                    for chore in cast(tuple[Chore, ...], snapshot["chores"])
+                    if chore.title.casefold().strip().rstrip(".!?") == normalized
+                )
+                if len(matches) != 1:
+                    return Observation(
+                        execution_id=request.action_id,
+                        evidence={
+                            "collection": "chores",
+                            "title": title,
+                            "chore_unavailable": len(matches) == 0,
+                            "ambiguous_chore_title": len(matches) > 1,
+                        },
+                        command_succeeded=False,
+                    )
+                chore = (
+                    matches[0]
+                    if matches[0].completed
+                    else self.store.complete_chore(self.principal, matches[0].chore_id)
+                )
         except (PermissionError, ValueError) as exc:
             return Observation(
                 execution_id=request.action_id,
@@ -448,9 +496,39 @@ class PostgresChoreExecutor:
                 "chore_id": chore.chore_id,
                 "title": chore.title,
                 "assignee_id": chore.assignee_id,
+                "completed": chore.completed,
                 "idempotency_key": request.idempotency_key,
             },
             command_succeeded=True,
+        )
+
+
+class ChoreCompletionFastPath:
+    """Resolve shared chore titles before model/executor dispatch can guess."""
+
+    @staticmethod
+    def resolve(intent: IntentFrame, title: str, chores: tuple[Chore, ...]) -> Result | None:
+        normalized = title.casefold().strip().rstrip(".!?")
+        matches = tuple(
+            chore for chore in chores if chore.title.casefold().strip().rstrip(".!?") == normalized
+        )
+        if len(matches) == 1:
+            return None
+        if len(matches) == 0:
+            message = (
+                f"I couldn't find one chore named '{title}'. "
+                "Ask to complete a chore that appears in household chores."
+            )
+        else:
+            message = (
+                f"I found multiple chores named '{title}'. "
+                "Please include more detail so I complete only the intended chore."
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=message,
+            correlation_id=intent.correlation_id,
         )
 
 
@@ -475,6 +553,7 @@ class PostgresChoreVerifier:
             chore.chore_id == chore_id
             and chore.title == observation.evidence.get("title")
             and chore.assignee_id == observation.evidence.get("assignee_id")
+            and chore.completed == observation.evidence.get("completed", False)
             for chore in chores
         )
         return VerificationResult(

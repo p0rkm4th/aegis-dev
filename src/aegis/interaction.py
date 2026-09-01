@@ -14,6 +14,8 @@ from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
+    Chore,
+    ChoreCompletionFastPath,
     HouseholdObligation,
     HouseholdReadFastPath,
     PostgresChoreExecutor,
@@ -460,6 +462,7 @@ class InteractionBoundary:
                         correlation_id=intent.correlation_id,
                     )
                 )
+            principal_store = PostgresHouseholdStore(connection)
             if card.action.action_id == "tasks.complete":
                 title = card.action.arguments.get("title")
                 if not isinstance(title, str) or not title.strip():
@@ -476,6 +479,28 @@ class InteractionBoundary:
                     )
                 completion_result = TaskCompletionFastPath.resolve(
                     intent, title, task_store.list(principal)
+                )
+                if completion_result is not None:
+                    return persist_fast_result(completion_result)
+            if card.action.action_id == "tasks.chores.complete":
+                title = card.action.arguments.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    return persist_fast_result(
+                        Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=(
+                                "Name the chore to complete, for example: "
+                                "Complete the chore clean the kitchen."
+                            ),
+                            correlation_id=intent.correlation_id,
+                        )
+                    )
+                household_snapshot = principal_store.read_snapshot(principal)
+                completion_result = ChoreCompletionFastPath.resolve(
+                    intent,
+                    title,
+                    cast(tuple[Chore, ...], household_snapshot["chores"]),
                 )
                 if completion_result is not None:
                     return persist_fast_result(completion_result)
@@ -511,7 +536,6 @@ class InteractionBoundary:
                         )
                     }
                 )
-            principal_store = PostgresHouseholdStore(connection)
             if card.action.action_id == "kitchen.groceries.add":
                 channel = self.dependencies.openclaw_channel()
                 executor: Any = OpenClawExecutor(
@@ -535,6 +559,10 @@ class InteractionBoundary:
                 verifier = PostgresTaskVerifier(task_store, principal)
                 permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
             elif card.action.action_id == "tasks.chores.create":
+                executor = PostgresChoreExecutor(principal_store, principal)
+                verifier = PostgresChoreVerifier(principal_store, principal)
+                permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
+            elif card.action.action_id == "tasks.chores.complete":
                 executor = PostgresChoreExecutor(principal_store, principal)
                 verifier = PostgresChoreVerifier(principal_store, principal)
                 permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
