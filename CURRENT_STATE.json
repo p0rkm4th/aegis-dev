@@ -5,9 +5,9 @@
   "current_phase": 12,
   "roadmap_version": 1,
   "active_milestone": "M09",
-  "active_checkpoint": "M09.01",
+  "active_checkpoint": "M09.02",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "M09.01-conversation-session-identity",
+  "current_checkpoint": "M09.02-recent-turn-context",
   "checkpoint_evidence": {
     "deterministic": [
       "M08.01 confidence-gated deterministic reads and writes",
@@ -24,6 +24,7 @@
       "M08.08 unseen typo/paraphrase grocery and task evidence",
       "M09.05/M09.06 authorized context grounding and contextual mutation fail-closed",
       "M09.01 authenticated browser session identity accepted and echoed through the live owner runtime at e63f674",
+      "M09.02 authorized prior user turn is bounded to 500 characters and passed as non-authoritative context; full suite and owner readiness green at 4058007",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -49,21 +50,21 @@
     "M06": "M06.01-M06.07 complete from read/write/shared/private/external/finance/restart vertical evidence",
     "M07": "M07.01-M07.09 complete from canonical memory, retrieval, provenance, compaction, and privacy evidence",
     "M08": "M08.01-M08.04 and M08.06-M08.09 materially implemented/proven; M08.03 semantic retrieval is live-proven, M08.05 and M08.10 remain active",
-    "M09": "M09.01 browser session identity implemented and live-verified; M09.02-M09.04 remain unmet",
+    "M09": "M09.01 browser session identity and M09.02 bounded recent-turn context implemented; M09.03-M09.04 remain unmet",
     "M10": "M10.01-M10.06, M10.08-M10.10 materially proven; M10.07 compensation/cancellation remains unmet",
     "M11": "M11.01-M11.06 and M11.08-M11.09 materially proven; M11.07 remains unmet",
     "M12": "M12.01-M12.10 materially proven; M12.11 is lane-limited"
   },
   "next_candidates": [
-    "M09.02",
+    "M09.03",
     "M08.05",
     "M11.07",
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "e63f674",
-  "last_green_sha": "e63f674",
-  "last_pushed_sha": "e63f674",
+  "head_sha": "4058007",
+  "last_green_sha": "4058007",
+  "last_pushed_sha": "4058007",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -78,9 +79,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "e63f674",
-    "last_known_green_sha": "e63f674",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/e63f674",
+    "running_sha": "4058007",
+    "last_known_green_sha": "4058007",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/4058007",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
