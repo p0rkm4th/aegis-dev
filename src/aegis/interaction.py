@@ -155,15 +155,33 @@ def _context_from_prior_result(
 
 
 def _fallback_working_context(
-    context: Context, task_store: PostgresTaskStore, principal: Principal
+    context: Context, task_store: PostgresTaskStore, principal: Principal, utterance: str
 ) -> Context:
     """Add a small authorized candidate set for bounded intent resolution."""
 
     values = dict(context.values)
     facts = dict(values.get("canonical_facts", {}))
+    tasks = list(task_store.list(principal))
+    query_terms = {
+        term
+        for term in utterance.casefold().split()
+        if len(term) >= 3 and term not in {"the", "task", "tasks", "please", "complete"}
+    }
+    ranked = sorted(
+        enumerate(tasks),
+        key=lambda item: (
+            len(query_terms.intersection(set(item[1].title.casefold().split()))),
+            -item[0],
+        ),
+        reverse=True,
+    )
+    selected = [
+        task for _, task in ranked if query_terms.intersection(task.title.casefold().split())
+    ]
+    if not selected:
+        selected = tasks
     facts["canonical_tasks"] = [
-        {"title": task.title, "status": task.status.value}
-        for task in task_store.list(principal)[:20]
+        {"title": task.title, "status": task.status.value} for task in selected[:20]
     ]
     values["canonical_facts"] = facts
     return Context(
@@ -626,7 +644,7 @@ class InteractionBoundary:
                 fallback = self._fallback_decision(
                     intent,
                     self._fallback_cards(manager, utterance),
-                    _fallback_working_context(context, task_store, principal),
+                    _fallback_working_context(context, task_store, principal, utterance),
                 )
                 if isinstance(fallback, Result):
                     return persist_fast_result(fallback)
