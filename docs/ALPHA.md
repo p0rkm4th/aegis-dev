@@ -64,7 +64,7 @@ The smallest browser proof is available on loopback with:
 ./scripts/aegis --web
 ```
 
-It serves conversation through the same `handle()` boundary and renders a
+It serves conversation through the same `InteractionBoundary` and renders a
 small authorized view of canonical Pack/domain state, including available and
 installed Pack hubs plus Tasks/Kitchen context. The browser adapter
 owns only HTTP and presentation; authorization, persistence, and meaning stay
@@ -79,8 +79,9 @@ Vault ownership below the browser adapter.
 
 API failures include a stable `code` alongside generic user-safe `error` text
 (`identity_unavailable`, `state_access_denied`, `state_unavailable`,
-`invalid_request`, `request_denied`, `request_unavailable`, or
-`route_not_found`) so clients do not parse prose to choose their behavior.
+`health_unavailable`, `invalid_request`, `request_denied`,
+`request_unavailable`, `request_timeout`, or `route_not_found`) so clients do
+not parse prose to choose their behavior.
 Successful message responses use a stable envelope containing `message`,
 `correlation_id`, canonical `state`, and (when available) `objective_id` and
 the canonical Result `detail` reason (such as independent readback
