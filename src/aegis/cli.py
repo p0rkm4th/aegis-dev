@@ -303,27 +303,8 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
             node_id = f"domain-{domain_id}"
             nodes.append({"id": node_id, "label": label, "detail": detail})
             edges.append({"source": "aegis", "target": node_id})
-        nodes.extend(
-            {
-                "id": f"project-{project.project_id}",
-                "label": project.name,
-                "detail": "Personal project · Vault-private",
-            }
-            for project in personal.projects.values()
-        )
-        edges.extend(
-            {"source": "domain-personal", "target": f"project-{project.project_id}"}
-            for project in personal.projects.values()
-        )
-        nodes.extend(
-            {
-                "id": f"task-{task.task_id}",
-                "label": task.title,
-                "detail": f"Task · {task.status.value}",
-            }
-            for task in tasks
-        )
-        edges.extend({"source": "pack-tasks", "target": f"task-{task.task_id}"} for task in tasks)
+        # Record lists stay in authorized detail views. The graph is intentionally
+        # bounded to hubs and semantic context rather than growing with rows.
         details: dict[str, Any] = {
             "domain-personal": {
                 "projects": [
