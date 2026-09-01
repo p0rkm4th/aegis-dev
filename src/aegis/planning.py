@@ -19,7 +19,16 @@ class MultiActionFastPath:
     _ACTION = r"(?:add|complete|create|remove|update)"
     _TARGET = r"(?:a task|tasks|a chore|chores|an event|events|groceries|a grocery)"
     _READ = ("can i afford", "can we afford", "affordability", "show", "list", "what")
-    _UNRESOLVED_ACTION_TERMS = ("handle", "take care of", "deal with", "make sure")
+    _UNRESOLVED_ACTION_TERMS = (
+        "handle",
+        "take care of",
+        "deal with",
+        "make sure",
+        "review",
+        "check",
+        "inspect",
+        "prepare",
+    )
 
     @classmethod
     def matches(cls, utterance: str) -> bool:

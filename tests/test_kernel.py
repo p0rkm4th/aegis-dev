@@ -2569,6 +2569,19 @@ def test_multi_action_fast_path_blocks_as_well_as_mutations():
     assert "multiple actions" in result.message
 
 
+def test_multi_action_fast_path_blocks_unresolved_review_plus_mutation():
+    result = MultiActionFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            utterance="Review the backup and add rice to groceries.",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "multiple actions" in result.message
+
+
 def test_multi_action_fast_path_extracts_temporal_task_event_plan():
     details = MultiActionFastPath.task_event_details(
         "Create a task and an event for apartment inspection tomorrow."
