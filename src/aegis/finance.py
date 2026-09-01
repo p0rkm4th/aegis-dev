@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Protocol, cast
+from uuid import uuid4
 
-from .contracts import Principal
+from .contracts import IntentFrame, ObjectiveState, Principal, Result
 from .projections import PrivateContribution, SharedObligation
 
 
@@ -216,4 +218,51 @@ class FinanceLedger:
             shared_obligations_cents=obligations_total,
             affordable=available >= purchase_cents,
             shortfall_cents=max(0, purchase_cents - available),
+        )
+
+
+class FinanceReadFastPath:
+    """Deterministic affordability read using private state only below Core."""
+
+    _AMOUNT = re.compile(r"(?:\$\s*|usd\s*)(\d+(?:\.\d{1,2})?)", re.IGNORECASE)
+
+    def __init__(self, ledger: FinanceLedger) -> None:
+        self.ledger = ledger
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        return ("can i afford" in text or "can we afford" in text) and bool(
+            cls._AMOUNT.search(text)
+        )
+
+    def resolve(
+        self,
+        intent: IntentFrame,
+        obligations: tuple[SharedObligation, ...] = (),
+    ) -> Result | None:
+        if not self.matches(intent.utterance):
+            return None
+        match = self._AMOUNT.search(intent.utterance)
+        if match is None:
+            return None
+        purchase_cents = round(float(match.group(1)) * 100)
+        projection = self.ledger.assess_affordability(
+            intent.principal,
+            intent.principal.id,
+            purchase_cents,
+            obligations,
+        )
+        status = "can afford" if projection.affordable else "cannot afford"
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Based on your available snapshot, you {status} ${purchase_cents / 100:.2f}.",
+            evidence={
+                "affordable": projection.affordable,
+                "purchase_cents": projection.purchase_cents,
+                "shared_obligations_cents": projection.shared_obligations_cents,
+                "shortfall_cents": projection.shortfall_cents,
+            },
+            correlation_id=intent.correlation_id,
         )
