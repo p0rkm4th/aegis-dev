@@ -7,14 +7,18 @@ verification remain authoritative.
 
 ## Quick start
 
-Use Python 3.11 or newer. Install the development and live dependencies in a
-virtual environment, then copy the safe configuration template:
+Use Python 3.11 or newer. Install the runtime dependencies in a virtual
+environment, then copy the safe configuration template:
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[dev,live]'
+.venv/bin/python -m pip install -e '.[live]'
 ./scripts/aegis --init
 ```
+
+Contributor checks additionally need the test and lint tools; install them
+with `.venv/bin/python -m pip install -e '.[dev,live]'` when running the
+repository validation gate.
 
 The package also installs an `aegis` command; the repository wrapper above is
 useful when working directly from a checkout.
