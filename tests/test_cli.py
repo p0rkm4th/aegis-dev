@@ -447,6 +447,29 @@ def test_cli_once_json_returns_stable_error_for_request_failure(monkeypatch, cap
     }
 
 
+def test_cli_once_json_contains_value_error_details(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "do it", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "run_interaction",
+        lambda *_: (_ for _ in ()).throw(ValueError("private parser detail")),
+    )
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out) == {
+        "code": "request_unavailable",
+        "error": "request unavailable",
+        "state": "failed",
+    }
+
+
 def test_cli_once_json_returns_stable_error_for_denied_request(monkeypatch, capsys):
     from aegis import cli
 
