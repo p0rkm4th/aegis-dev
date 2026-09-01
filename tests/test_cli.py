@@ -6,7 +6,7 @@ import pytest
 from aegis.cli import _domain_and_action, _ensure_local_identity
 from aegis.contracts import ObjectiveState, Principal, Result
 from aegis.pack_lifecycle import PackManager
-from aegis.reference_packs import reference_packs
+from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.web import BrowserApp
 
 
@@ -214,6 +214,18 @@ def test_browser_app_fails_closed_when_state_is_not_authorized():
     status, _, payload = app.dispatch("GET", "/api/constellation")
     assert status == 403
     assert json.loads(payload) == {"error": "state access denied"}
+
+
+def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
+    bundles = reference_bundles()
+
+    assert {bundle.manifest.ui.label for bundle in bundles if bundle.manifest.ui} == {
+        "Tasks",
+        "Kitchen",
+        "Homelab",
+        "Network",
+    }
+    assert all(bundle.manifest.permissions for bundle in bundles)
 
 
 def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
