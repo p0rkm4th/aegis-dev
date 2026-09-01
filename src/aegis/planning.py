@@ -34,11 +34,16 @@ class MultiActionFastPath:
             and re.search(rf"\b{cls._ACTION}\b", text) is not None
             and any(term in text for term in cls._UNRESOLVED_ACTION_TERMS)
         )
+        sequential_compound = (
+            bool(re.search(r"\bthen\b|,\s*then\b|;", text))
+            and len(re.findall(rf"\b{cls._ACTION}\b", text)) >= 2
+        )
         return bool(
             re.search(rf"{cls._ACTION}.*\band\b.*{cls._TARGET}", text)
             or re.search(rf"{cls._TARGET}.*\band\b.*{cls._ACTION}", text)
             or mixed_read_and_mutation
             or unresolved_compound
+            or sequential_compound
         )
 
     @classmethod
