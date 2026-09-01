@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-cross-domain-compound-and-ambiguity-live-green",
+  "current_checkpoint": "phase-12-cross-domain-ambiguity-and-action-recovery-green",
   "active_branch": "aegis-dev",
-  "head_sha": "1d6b679c2e4268cdd914e364ab2c9e4054cee4e6",
-  "last_green_sha": "1d6b679c2e4268cdd914e364ab2c9e4054cee4e6",
-  "last_pushed_sha": "1d6b679c2e4268cdd914e364ab2c9e4054cee4e6",
+  "head_sha": "31064b67f9428ec08fb85e8899108f27a926779f",
+  "last_green_sha": "31064b67f9428ec08fb85e8899108f27a926779f",
+  "last_pushed_sha": "31064b67f9428ec08fb85e8899108f27a926779f",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -510,8 +510,9 @@
     "compound_objective_live": "green live: Qwen-runtime one-shot boundary returned blocked with the one-action clarification for 'Create a task and a chore to prepare for the apartment inspection.'; no model dispatch or canonical mutation occurred",
     "ambiguous_request_regression": "green deterministic: unsupported underspecified alpha requests return a bounded blocked clarification before Pack/model dispatch; explicit supported domain terms remain on their existing canonical paths",
     "ambiguous_request_live": "green live: ./scripts/aegis --once 'Can you take care of the house stuff?' returned the safe blocked clarification listing supported capability areas instead of opaque request_unavailable failure",
+    "persisted_action_recovery_regression": "green deterministic: after a simulated crash between durable observation and Result persistence, a fresh Kernel loaded the authorized objective/action by correlation, reused the exact ActionSpec, independently verified completion, and did not invoke a replacement model decision",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable continuation for multi-step objectives, interruption/restart during work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. The current alpha intentionally blocks compound mutations until continuation can persist and verify each step independently. Retire established browser mutation/readback/recovery/filter/accessibility/revocation paths from routine runs unless a new defect or architecture change reopens them; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable continuation for multi-step objectives, interruption/restart during work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Persisted action recovery now prevents stochastic replanning after an interrupted dispatch; next inspect multi-step plan persistence and per-step authorization/verification. Retire established browser mutation/readback/recovery/filter/accessibility/revocation paths from routine runs unless a new defect or architecture change reopens them; Home Assistant/mobile/voice remain lane-limited."
 }
