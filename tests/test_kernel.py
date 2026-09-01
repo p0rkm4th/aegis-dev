@@ -2402,6 +2402,13 @@ def test_cross_domain_planning_recognizes_conjoined_finance_memory_read():
     )
 
 
+def test_domain_clarification_does_not_preempt_cross_domain_planning_vocabulary():
+    assert not DomainClarificationFastPath.matches(
+        "Given what I remember about backup rotation, what should I prioritize "
+        "before utilities, and is a $75 purchase safe?"
+    )
+
+
 def test_cross_domain_planning_includes_only_relevant_current_memories():
     from datetime import datetime, timezone
 
