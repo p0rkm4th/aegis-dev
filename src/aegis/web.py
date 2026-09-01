@@ -442,7 +442,7 @@ class BrowserApp:
         if route.startswith("/api/"):
             try:
                 principal = self.principal_provider()
-            except (OSError, RuntimeError, ValueError, PermissionError):
+            except Exception:
                 return self._error(
                     HTTPStatus.UNAUTHORIZED, "identity_unavailable", "identity unavailable"
                 )

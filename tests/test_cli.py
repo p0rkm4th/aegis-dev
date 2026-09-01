@@ -1161,6 +1161,22 @@ def test_browser_health_uses_structured_readiness_without_identity():
     assert json.loads(payload)["ready"] is False
 
 
+def test_browser_contains_unexpected_identity_provider_failure():
+    app = BrowserApp(
+        lambda: (_ for _ in ()).throw(Exception("identity database password")),
+        lambda *_: "unreachable",
+        lambda _: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+
+    assert status == 401
+    assert json.loads(payload) == {
+        "code": "identity_unavailable",
+        "error": "identity unavailable",
+    }
+
+
 def test_browser_ready_is_healthy_for_ready_report_without_identity():
     from aegis.health import HealthReport
 
