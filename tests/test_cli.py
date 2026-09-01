@@ -937,6 +937,25 @@ def test_browser_health_uses_structured_readiness_without_identity():
     assert status == 200
     assert json.loads(payload)["ready"] is False
 
+    status, _, payload = app.dispatch("GET", "/api/ready")
+    assert status == 503
+    assert json.loads(payload)["ready"] is False
+
+
+def test_browser_ready_is_healthy_for_ready_report_without_identity():
+    from aegis.health import HealthReport
+
+    app = BrowserApp(
+        lambda: (_ for _ in ()).throw(ValueError("identity unavailable")),
+        lambda *_: "unreachable",
+        lambda _: {"nodes": []},
+        lambda: HealthReport(healthy=True, ready=True, components=()),
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/ready")
+    assert status == 200
+    assert json.loads(payload)["ready"] is True
+
 
 def test_browser_health_provider_failure_is_generic_and_recoverable():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
