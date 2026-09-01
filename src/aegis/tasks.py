@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime, timedelta, timezone
 from enum import StrEnum
 from typing import Any, Protocol
 from uuid import UUID, uuid4
@@ -49,6 +49,12 @@ def _task_projection(task: Task) -> dict[str, object]:
     if task.due_at is not None:
         projection["due_at"] = task.due_at.isoformat()
     return projection
+
+
+def _aware_datetime(value: datetime) -> datetime:
+    """Normalize legacy naive deadlines before relative-date comparisons."""
+
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
 
 
 class TaskConnection(Protocol):
@@ -437,6 +443,26 @@ class TaskReadFastPath:
         else:
             tasks = all_tasks
             status_filter = "all"
+        now = datetime.now(timezone.utc)
+        due_start: date | None = None
+        due_end: date | None = None
+        if "due tomorrow" in text:
+            due_start = (now + timedelta(days=1)).date()
+            due_end = due_start + timedelta(days=1)
+            due_filter = "tomorrow"
+        elif "due next week" in text:
+            due_start = (now + timedelta(days=7)).date()
+            due_end = due_start + timedelta(days=7)
+            due_filter = "next_week"
+        else:
+            due_filter = "all"
+        if due_start is not None and due_end is not None:
+            tasks = tuple(
+                task
+                for task in tasks
+                if task.due_at is not None
+                and due_start <= _aware_datetime(task.due_at).date() < due_end
+            )
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
@@ -444,6 +470,7 @@ class TaskReadFastPath:
             evidence={
                 "collection": "tasks",
                 "status_filter": status_filter,
+                "due_filter": due_filter,
                 "canonical_tasks": [_task_projection(task) for task in tasks],
             },
             correlation_id=intent.correlation_id,

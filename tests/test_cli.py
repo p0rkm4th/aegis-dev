@@ -1993,6 +1993,29 @@ def test_task_read_fast_path_exposes_canonical_due_at():
     assert result.evidence["canonical_tasks"][0]["due_at"] == due_at.isoformat()
 
 
+def test_task_read_fast_path_filters_relative_due_window():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    tomorrow = Task(uuid4(), "apartment", "tomorrow task", "alice", due_at=now + timedelta(days=1))
+    next_month = Task(uuid4(), "apartment", "later task", "alice", due_at=now + timedelta(days=30))
+
+    class Store:
+        def list(self, _principal):
+            return (tomorrow, next_month)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            utterance="Show my tasks due tomorrow",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["due_filter"] == "tomorrow"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
+
+
 def test_task_read_fast_path_filters_explicit_status_language():
     completed = Task(uuid4(), "apartment", "done task", "alice", status=TaskStatus.COMPLETED)
     open_task = Task(uuid4(), "apartment", "open task", "alice", status=TaskStatus.OPEN)
