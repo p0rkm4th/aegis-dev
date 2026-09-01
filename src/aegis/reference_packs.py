@@ -49,6 +49,16 @@ def reference_packs() -> tuple[Pack, ...]:
                     summary="Create a task",
                     relevance=1,
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="tasks.list",
+                        capability="tasks.read",
+                        required_permissions=("tasks.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Show tasks",
+                    relevance=1,
+                ),
             ),
         ),
         Pack(
@@ -63,6 +73,16 @@ def reference_packs() -> tuple[Pack, ...]:
                         verification=VerificationContract(kind="readback"),
                     ),
                     summary="Add an item to groceries",
+                    relevance=1,
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.groceries.list",
+                        capability="kitchen.groceries.read",
+                        required_permissions=("kitchen.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Show grocery list",
                     relevance=1,
                 ),
             ),
@@ -89,8 +109,8 @@ def reference_packs() -> tuple[Pack, ...]:
 def reference_bundles() -> tuple[PackBundle, ...]:
     """Manifest-backed versions of the three reference capabilities."""
     permissions = {
-        "tasks": ("tasks.write",),
-        "kitchen": ("kitchen.write",),
+        "tasks": ("tasks.write", "tasks.read"),
+        "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart",),
     }
     return tuple(
@@ -326,4 +346,56 @@ class OpenClawGroceryVerifier:
             reason="external and canonical grocery readback verified"
             if verified
             else "external grocery postcondition failed",
+        )
+
+
+class PostgresGroceryListExecutor:
+    """Adapt the canonical Kitchen grocery read to the generic Executor port."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "kitchen.groceries.list":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "groceries",
+                "items": list(self.store.list_groceries(self.principal)),
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresGroceryListVerifier:
+    """Independently compare a grocery list observation with canonical state."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="grocery list read failed"
+            )
+        expected = observation.evidence.get("items")
+        actual = list(self.store.list_groceries(self.principal))
+        verified = expected == actual
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_items": actual},
+            reason=(
+                "canonical grocery list verified"
+                if verified
+                else "canonical grocery list changed"
+            ),
         )

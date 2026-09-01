@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "kitchen-canonical-state-bridge-green",
+    "current_checkpoint": "end-user-alpha-interactive-cli-green",
   "active_branch": "aegis-dev",
   "head_sha": "a1a7656",
   "last_green_sha": "a1a7656",
@@ -54,7 +54,8 @@
     "Durable authorized household finance projections with raw private fields excluded",
     "Durable Tasks Pack create/complete state with Space membership and assignee enforcement",
     "Generic Tasks Executor/Verifier adapters with PostgreSQL idempotency binding and live Qwen replay",
-    "Kitchen OpenClaw mutations bridged to replay-safe canonical HouseholdSpace state and dual readback verification"
+        "Kitchen OpenClaw mutations bridged to replay-safe canonical HouseholdSpace state and dual readback verification",
+        "End-user alpha CLI over live Qwen3:8B, PostgreSQL, Pack retrieval, policy, OpenClaw grocery execution, independent readback, and durable Tasks/Kitchen reads"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -74,7 +75,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "76 passed"
+        "pytest": "80 passed; ruff check passed"
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -83,7 +84,7 @@
     "consequential Homelab/HA action acceptance remains unperformed"
   ],
   "blocked_lanes": [
-    "LIVE_VERTICAL_SLICE: first Kitchen grocery path and scoped adversarial/recovery acceptance are live-green; consequential Homelab/HA action remains optional follow-up"
+        "No alpha blocker; Homelab/HA consequential action remains outside the current end-user alpha scope"
   ],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
@@ -145,7 +146,8 @@
     "postgresql_household_state": "green: migration 005 applied; fresh PostgreSQL connection reloaded Apartment groceries, chores, events, and obligations; membership was supplied separately by policy and a non-member remained denied",
     "postgresql_finance_state": "green: migration 006 applied; fresh PostgreSQL connection reloaded owner-partitioned account/transaction snapshot with provider provenance; balance recomputation worked and Bob was denied Alice's snapshot",
     "keycloak_userinfo_adapter": "green: disposable Keycloak bearer token reached userinfo with AEGIS Vault/Space protocol-mapped claims; KeycloakOIDCClient produced the expected canonical Principal and rejected missing claims",
-    "household_projection": "green: live authorized FinanceLedger-to-PrivacyProjectionService path persisted allowlisted household output; fresh connection reloaded it for Bob, denied a non-member, and raw balance/transaction fields were absent",
+        "household_projection": "green: live authorized FinanceLedger-to-PrivacyProjectionService path persisted allowlisted household output; fresh connection reloaded it for Bob, denied a non-member, and raw balance/transaction fields were absent",
+        "end_user_alpha": "green: ./scripts/aegis accepted manual grocery and task requests through live Qwen3:8B; grocery mutation crossed paired OpenClaw and was independently read back; task/grocery state was read from PostgreSQL in a fresh CLI process after restart",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -155,5 +157,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Keep nominal phase gates unchanged. Continue existing Pack/domain integration behind existing ports; next wire Tasks and Kitchen human-facing read/list workflows through the same canonical ports, then stop before unrelated domains or Phase-12 work."
+    "next_action": "Hold backend breadth and nominal phase frontier. Use docs/ALPHA.md and ./scripts/aegis for owner dogfood; next work only on alpha usability defects or acceptance failures."
 }

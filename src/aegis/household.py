@@ -169,6 +169,19 @@ class PostgresHouseholdStore:
         space = self.load(space_id, members)
         return space.grocery_mutations.get(idempotency_key) == item
 
+    def list_groceries(self, principal: Principal) -> tuple[str, ...]:
+        """Read canonical groceries only for an active Space member."""
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships "
+                "WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        return tuple(self.load(space_id, members).groceries)
+
     def _space_for(self, principal: Principal) -> str:
         if not principal.space_ids:
             raise PermissionError("household operation requires an explicit Space")

@@ -248,3 +248,58 @@ class PostgresTaskVerifier:
                 else "canonical task readback failed"
             ),
         )
+
+
+class PostgresTaskListExecutor:
+    """Adapt the canonical Tasks read to the generic Executor port."""
+
+    def __init__(self, store: PostgresTaskStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "tasks.list":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        tasks = self.store.list(self.principal)
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "tasks",
+                "tasks": [
+                    {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
+                    for task in tasks
+                ],
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresTaskListVerifier:
+    """Independently compare a task list observation with canonical state."""
+
+    def __init__(self, store: PostgresTaskStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="task list read failed"
+            )
+        expected = observation.evidence.get("tasks")
+        actual = [
+            {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
+            for task in self.store.list(self.principal)
+        ]
+        verified = expected == actual
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_tasks": actual},
+            reason="canonical task list verified" if verified else "canonical task list changed",
+        )
