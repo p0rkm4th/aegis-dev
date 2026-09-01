@@ -1132,6 +1132,29 @@ def test_personal_context_fast_path_returns_projects_and_goals_without_model():
     assert goals.evidence["goals"][0]["project"] == "Backup architecture"
 
 
+def test_personal_memory_fast_path_resolves_entity_alias_queries():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    entity = state.add_entity("OpenClaw", ("gateway",))
+    state.add_memory(
+        "The gateway uses a paired device for terminal execution",
+        datetime(2026, 8, 30, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+        (entity.entity_id,),
+    )
+
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What do I know about the gateway?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["memories"][0]["provenance"] == "observed"
+
+
 def test_personal_memory_correction_supersedes_old_record():
     from datetime import datetime, timezone
 
