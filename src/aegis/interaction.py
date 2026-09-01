@@ -28,7 +28,7 @@ from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
-from .planning import CrossDomainPlanningFastPath
+from .planning import CrossDomainPlanningFastPath, MultiActionFastPath
 from .projections import SharedObligation
 from .reference_packs import (
     OpenClawGroceryExecutor,
@@ -103,6 +103,9 @@ class InteractionBoundary:
                 utterance=utterance,
                 correlation_id=correlation_id or uuid4(),
             )
+            multi_action_result = MultiActionFastPath.resolve(intent)
+            if multi_action_result is not None:
+                return multi_action_result
             household_store = PostgresHouseholdStore(connection)
             if FinanceReadFastPath.matches(utterance):
                 snapshot = household_store.read_snapshot(principal)
