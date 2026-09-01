@@ -768,7 +768,9 @@ def main() -> int:
     if args.once is not None:
         try:
             if args.json:
-                print(_run_interaction(args.once, principal).model_dump_json())
+                result = _run_interaction(args.once, principal)
+                print(result.model_dump_json())
+                return 0 if result.state.value == "completed" else 1
             else:
                 print(handle(args.once, principal))
         except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:

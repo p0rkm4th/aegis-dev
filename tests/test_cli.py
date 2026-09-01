@@ -168,6 +168,27 @@ def test_cli_once_json_serializes_canonical_result(monkeypatch, capsys):
     assert payload["evidence"] == {"canonical_tasks": []}
 
 
+def test_cli_once_json_returns_failure_for_non_completed_result(monkeypatch, capsys):
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.BLOCKED,
+        message="authorization denied",
+        correlation_id=uuid4(),
+    )
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "do it", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(cli, "_run_interaction", lambda *_: result)
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out)["state"] == "blocked"
+
+
 def test_cli_json_requires_check_or_once(monkeypatch):
     from aegis import cli
 
