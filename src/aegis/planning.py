@@ -26,8 +26,26 @@ class MultiActionFastPath:
         )
 
     @classmethod
+    def task_chore_titles(cls, utterance: str) -> tuple[str, str] | None:
+        """Extract the narrow, reversible task/chore plan supported by Core."""
+        text = utterance.casefold().strip().rstrip(".!?")
+        if not ("task" in text and "chore" in text and " and " in text):
+            return None
+        if not any(term in text for term in ("add", "complete", "create", "remove", "update")):
+            return None
+        match = re.search(r"\b(?:to|for)\s+(.+)$", text)
+        if match is None:
+            return None
+        title = match.group(1).strip()
+        if not title:
+            return None
+        return title, title
+
+    @classmethod
     def resolve(cls, intent: IntentFrame) -> Result | None:
         if not cls.matches(intent.utterance):
+            return None
+        if cls.task_chore_titles(intent.utterance) is not None:
             return None
         return Result(
             objective_id=uuid4(),

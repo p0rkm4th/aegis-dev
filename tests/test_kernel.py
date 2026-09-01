@@ -2069,7 +2069,7 @@ def test_cross_domain_planning_fast_path_includes_only_derived_finance_fields():
     assert "balance_cents" not in repr(planning)
 
 
-def test_multi_action_fast_path_blocks_partial_objective():
+def test_multi_action_fast_path_extracts_bounded_task_chore_plan():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(
         principal=principal,
@@ -2078,10 +2078,26 @@ def test_multi_action_fast_path_blocks_partial_objective():
 
     result = MultiActionFastPath.resolve(intent)
 
+    assert result is None
+    assert MultiActionFastPath.task_chore_titles(intent.utterance) == (
+        "prepare for the apartment inspection",
+        "prepare for the apartment inspection",
+    )
+    assert not MultiActionFastPath.matches("Create a task to buy cat food")
+
+
+def test_multi_action_fast_path_still_blocks_unbounded_compound_requests():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    result = MultiActionFastPath.resolve(
+        IntentFrame(
+            principal=principal,
+            utterance="Create a task and add groceries to prepare for the inspection.",
+        )
+    )
+
     assert result is not None
     assert result.state is ObjectiveState.BLOCKED
     assert "multiple actions" in result.message
-    assert not MultiActionFastPath.matches("Create a task to buy cat food")
 
 
 def test_domain_clarification_fast_path_handles_underspecified_request():
