@@ -679,9 +679,7 @@ def test_keycloak_oidc_client_maps_userinfo_and_fails_closed(monkeypatch):
     monkeypatch.setattr(identity_module, "urlopen", fake_urlopen)
     client = KeycloakOIDCClient("http://keycloak/realms/aegis", timeout=3.0)
     principal = client.principal_from_access_token("token")
-    assert principal == Principal(
-        id="alice", vault_id="alice-vault", space_ids=("apartment",)
-    )
+    assert principal == Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     try:
         client.principal_from_access_token("")
     except ValueError:
@@ -981,9 +979,7 @@ def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
         evidence={"external_state_path": str(path), "idempotency_key": key},
         command_succeeded=True,
     )
-    result = OpenClawGroceryVerifier().verify(
-        observation, VerificationContract(kind="readback")
-    )
+    result = OpenClawGroceryVerifier().verify(observation, VerificationContract(kind="readback"))
     assert not result.verified
     assert result.evidence["external_records_for_key"] == 2
 
@@ -1002,9 +998,9 @@ def test_openclaw_grocery_verifier_requires_canonical_household_readback(tmp_pat
         evidence={"external_state_path": str(path), "idempotency_key": key},
         command_succeeded=True,
     )
-    result = OpenClawGroceryVerifier(
-        Canonical(), Principal(id="alice", vault_id="vault")
-    ).verify(observation, VerificationContract(kind="readback"))
+    result = OpenClawGroceryVerifier(Canonical(), Principal(id="alice", vault_id="vault")).verify(
+        observation, VerificationContract(kind="readback")
+    )
     assert not result.verified
     assert result.evidence["canonical_grocery_verified"] is False
 
@@ -1121,9 +1117,12 @@ def test_personal_memory_fast_path_returns_grounded_result_without_model():
     assert result.state.value == "completed"
     assert result.evidence["memories"][0]["provenance"] == "explicit_user"
     assert len(result.evidence["memories"]) == 1
-    assert PersonalMemoryFastPath(state).resolve(
-        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance="hello")
-    ) is None
+    assert (
+        PersonalMemoryFastPath(state).resolve(
+            IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance="hello")
+        )
+        is None
+    )
 
 
 def test_personal_context_fast_path_returns_projects_and_goals_without_model():
@@ -1191,9 +1190,7 @@ def test_personal_memory_fast_path_resolves_contextual_reference():
     )
 
     assert result is not None
-    assert result.evidence["memories"][0]["content"] == (
-        "Investigated the server backup failure"
-    )
+    assert result.evidence["memories"][0]["content"] == ("Investigated the server backup failure")
 
 
 def test_personal_memory_correction_supersedes_old_record():
@@ -1460,9 +1457,7 @@ def test_postgres_task_store_persists_lifecycle_and_requires_active_membership()
     bob = Principal(id="bob", vault_id="bob-vault", space_ids=("apartment",))
     connection = Connection()
     store = PostgresTaskStore(connection)
-    task = store.create(
-        alice, "Inspect backups", datetime(2026, 9, 2, tzinfo=timezone.utc), bob.id
-    )
+    task = store.create(alice, "Inspect backups", datetime(2026, 9, 2, tzinfo=timezone.utc), bob.id)
     assert task.status is TaskStatus.OPEN
     assert (
         store.create(
@@ -1597,9 +1592,7 @@ def test_postgres_finance_store_reloads_snapshot_and_keeps_owner_boundary():
     reader.provider_id = writer.provider_id
     reader.captured_at = writer.captured_at
     ledger = FinanceLedger(PostgresFinanceSnapshotStore(reader))
-    restored = ledger.private_snapshot(
-        Principal(id="alice", vault_id="alice-vault"), "alice"
-    )
+    restored = ledger.private_snapshot(Principal(id="alice", vault_id="alice-vault"), "alice")
     assert restored == snapshot
     assert ledger.total_balance(Principal(id="alice", vault_id="alice-vault"), "alice") == 500_000
     try:
@@ -1695,9 +1688,7 @@ def test_postgres_projection_store_roundtrips_allowlisted_fields_and_checks_memb
     assert restored == projection
     assert "balance" not in connection.payload
     try:
-        store.load(
-            "apartment", Principal(id="mallory", vault_id="mallory-vault"), {"alice", "bob"}
-        )
+        store.load("apartment", Principal(id="mallory", vault_id="mallory-vault"), {"alice", "bob"})
     except PermissionError:
         pass
     else:

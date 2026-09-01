@@ -166,8 +166,7 @@ class PostgresHouseholdStore:
         members = {
             str(row[0])
             for row in self.connection.execute(
-                "SELECT principal_id FROM space_memberships "
-                "WHERE space_id = %s AND active = TRUE",
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
                 (space_id,),
             ).fetchall()
         }
@@ -181,8 +180,7 @@ class PostgresHouseholdStore:
         members = {
             str(row[0])
             for row in self.connection.execute(
-                "SELECT principal_id FROM space_memberships "
-                "WHERE space_id = %s AND active = TRUE",
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
                 (space_id,),
             ).fetchall()
         }
@@ -195,8 +193,7 @@ class PostgresHouseholdStore:
         members = {
             str(row[0])
             for row in self.connection.execute(
-                "SELECT principal_id FROM space_memberships "
-                "WHERE space_id = %s AND active = TRUE",
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
                 (space_id,),
             ).fetchall()
         }
@@ -208,8 +205,7 @@ class PostgresHouseholdStore:
         members = {
             str(row[0])
             for row in self.connection.execute(
-                "SELECT principal_id FROM space_memberships "
-                "WHERE space_id = %s AND active = TRUE",
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
                 (space_id,),
             ).fetchall()
         }
@@ -226,8 +222,7 @@ class PostgresHouseholdStore:
         members = {
             str(row[0])
             for row in self.connection.execute(
-                "SELECT principal_id FROM space_memberships "
-                "WHERE space_id = %s AND active = TRUE",
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
                 (space_id,),
             ).fetchall()
         }
@@ -249,8 +244,7 @@ class PostgresHouseholdStore:
         members = {
             str(row[0])
             for row in self.connection.execute(
-                "SELECT principal_id FROM space_memberships "
-                "WHERE space_id = %s AND active = TRUE",
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
                 (space_id,),
             ).fetchall()
         }
@@ -403,8 +397,7 @@ class HouseholdReadFastPath:
         else:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             evidence["events"] = [
-                {"title": event.title, "starts_at": event.starts_at.isoformat()}
-                for event in events
+                {"title": event.title, "starts_at": event.starts_at.isoformat()} for event in events
             ]
         return Result(
             objective_id=uuid4(),

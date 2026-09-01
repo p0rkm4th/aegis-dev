@@ -146,8 +146,7 @@ class SqliteObjectiveStore:
 
     def save_observation(self, key: str, observation: Observation) -> None:
         self.connection.execute(
-            "INSERT OR REPLACE INTO observations "
-            "(id, idempotency_key, payload) VALUES (?, ?, ?)",
+            "INSERT OR REPLACE INTO observations (id, idempotency_key, payload) VALUES (?, ?, ?)",
             (str(observation.execution_id), key, observation.model_dump_json()),
         )
         self.connection.commit()
@@ -258,8 +257,10 @@ class PostgresObjectiveStore:
             "SELECT payload FROM actions WHERE idempotency_key = %s", (key,)
         )
         row = cursor.fetchone()
-        return ExecutionRequest.model_validate(row[0]) if row and isinstance(row[0], dict) else (
-            ExecutionRequest.model_validate_json(str(row[0])) if row else None
+        return (
+            ExecutionRequest.model_validate(row[0])
+            if row and isinstance(row[0], dict)
+            else (ExecutionRequest.model_validate_json(str(row[0])) if row else None)
         )
 
     def update_action_state(self, key: str, state: ObjectiveState) -> None:

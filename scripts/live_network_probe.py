@@ -119,9 +119,7 @@ def main() -> None:
             manager.install("network", frozenset({"network.read"}))
             manager.enable("network")
         card = next(
-            card
-            for card in manager.retrieve("network")
-            if card.action.action_id == "network.probe"
+            card for card in manager.retrieve("network") if card.action.action_id == "network.probe"
         )
         card = ActionCard(
             action=card.action.model_copy(

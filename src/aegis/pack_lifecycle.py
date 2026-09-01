@@ -98,9 +98,7 @@ class PostgresPackStore:
         return tuple(loaded)
 
     def delete(self, pack_id: str) -> None:
-        self.connection.execute(
-            "DELETE FROM pack_installations WHERE pack_id = %s", (pack_id,)
-        )
+        self.connection.execute("DELETE FROM pack_installations WHERE pack_id = %s", (pack_id,))
         self.connection.commit()
 
 

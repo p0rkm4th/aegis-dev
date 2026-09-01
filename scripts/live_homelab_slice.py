@@ -39,10 +39,14 @@ def required(name: str) -> str:
 
 def open_channel() -> OpenClawWebSocketChannel:
     identity_db = required("AEGIS_OPENCLAW_IDENTITY_DB")
-    row = sqlite3.connect(identity_db).execute(
-        "SELECT device_id, private_key_pem, public_key_pem FROM device_identities "
-        "WHERE identity_key='primary'"
-    ).fetchone()
+    row = (
+        sqlite3.connect(identity_db)
+        .execute(
+            "SELECT device_id, private_key_pem, public_key_pem FROM device_identities "
+            "WHERE identity_key='primary'"
+        )
+        .fetchone()
+    )
     if row is None:
         raise SystemExit("OpenClaw identity database has no primary device identity")
     return OpenClawWebSocketChannel(
@@ -117,7 +121,8 @@ def main() -> None:
             manager.install("homelab", frozenset({"homelab.service.restart"}))
             manager.enable("homelab")
         card = next(
-            card for card in manager.retrieve("homelab")
+            card
+            for card in manager.retrieve("homelab")
             if card.action.action_id == "homelab.service.restart"
         )
         card = ActionCard(

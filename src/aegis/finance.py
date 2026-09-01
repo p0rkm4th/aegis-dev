@@ -102,8 +102,7 @@ class PostgresFinanceSnapshotStore:
 
     def load(self, owner_id: str) -> FinanceSnapshot | None:
         row = self.connection.execute(
-            "SELECT payload, provider_id, captured_at FROM finance_snapshots "
-            "WHERE owner_id = %s",
+            "SELECT payload, provider_id, captured_at FROM finance_snapshots WHERE owner_id = %s",
             (owner_id,),
         ).fetchone()
         if row is None:
@@ -160,9 +159,7 @@ class FinanceLedger:
 
     def _snapshot(self, owner_id: str) -> FinanceSnapshot:
         snapshot = (
-            self._snapshots.get(owner_id)
-            if self.store is None
-            else self.store.load(owner_id)
+            self._snapshots.get(owner_id) if self.store is None else self.store.load(owner_id)
         )
         if snapshot is None:
             raise KeyError("finance snapshot is unavailable")

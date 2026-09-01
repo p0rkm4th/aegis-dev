@@ -126,7 +126,8 @@ class PostgresNetworkStore:
         ).fetchall():
             values = services if isinstance(services, list) else json.loads(str(services))
             device = DiscoveredDevice(
-                str(address), str(hostname) if hostname is not None else None,
+                str(address),
+                str(hostname) if hostname is not None else None,
                 tuple(str(value) for value in values),
             )
             devices[device.address] = device

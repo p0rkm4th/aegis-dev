@@ -548,7 +548,7 @@ class OpenClawNetworkProbeExecutor:
             f"curl --fail --silent --show-error --max-time 3 "
             f"-o /dev/null -w HTTP_%{{http_code}}\\n "
             f"{shlex.quote(f'http://{address}:{port}/')} 2>&1; code=$?; "
-            f"printf \"%s %s\\n\" {shlex.quote(marker)} $code > {shlex.quote(str(receipt_path))}"
+            f'printf "%s %s\\n" {shlex.quote(marker)} $code > {shlex.quote(str(receipt_path))}'
         )
         terminal_output = ""
         try:
@@ -673,8 +673,6 @@ class PostgresGroceryListVerifier:
             verified=verified,
             evidence={**observation.evidence, "canonical_items": actual},
             reason=(
-                "canonical grocery list verified"
-                if verified
-                else "canonical grocery list changed"
+                "canonical grocery list verified" if verified else "canonical grocery list changed"
             ),
         )
