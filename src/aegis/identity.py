@@ -69,14 +69,17 @@ class PostgresExternalPrincipalResolver:
         self.database_url = database_url
 
     def __call__(self, external_subject: str) -> str:
-        connection = self.connect(self.database_url)
         try:
-            row = connection.execute(
-                "SELECT id FROM aegis_principals WHERE external_subject = %s",
-                (external_subject,),
-            ).fetchone()
-        finally:
-            connection.close()
+            connection = self.connect(self.database_url)
+            try:
+                row = connection.execute(
+                    "SELECT id FROM aegis_principals WHERE external_subject = %s",
+                    (external_subject,),
+                ).fetchone()
+            finally:
+                connection.close()
+        except Exception as exc:
+            raise RuntimeError("canonical identity mapping is unavailable") from exc
         if row is None or not row[0]:
             raise PermissionError("external identity is not provisioned in AEGIS")
         return str(row[0])
