@@ -11,6 +11,7 @@ import sqlite3
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
+from importlib.resources import files
 from pathlib import Path
 from typing import Any, cast
 from urllib.parse import urlsplit, urlunsplit
@@ -91,8 +92,7 @@ def _initialize_env_file(path: str) -> None:
     """Create a private placeholder configuration without overwriting files."""
 
     target = Path(path)
-    root = Path(__file__).resolve().parents[2]
-    template = (root / "examples" / "aegis.env.example").read_text(encoding="utf-8")
+    template = files("aegis").joinpath("aegis.env.example").read_text(encoding="utf-8")
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     flags |= getattr(os, "O_NOFOLLOW", 0)
     descriptor = os.open(target, flags, 0o600)
