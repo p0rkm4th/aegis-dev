@@ -410,9 +410,11 @@ class PersonalState:
 
 
 class PersonalMemoryFastPath:
-    """Deterministic read adapter for grounded personal-memory questions."""
+    """Deterministic read adapter for grounded personal-context questions."""
 
     _TRIGGERS = ("memory", "working on", "working with", "what did i", "what was i")
+    _PROJECT_TRIGGERS = ("project", "projects")
+    _GOAL_TRIGGERS = ("goal", "goals")
     _STOPWORDS = frozenset(
         {"a", "an", "and", "did", "i", "on", "the", "was", "what", "with", "last", "night"}
     )
@@ -423,6 +425,10 @@ class PersonalMemoryFastPath:
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
+        if any(trigger in text for trigger in self._PROJECT_TRIGGERS):
+            return self._projects_result(intent)
+        if any(trigger in text for trigger in self._GOAL_TRIGGERS):
+            return self._goals_result(intent)
         if not any(trigger in text for trigger in self._TRIGGERS):
             return None
         query = " ".join(
@@ -450,6 +456,48 @@ class PersonalMemoryFastPath:
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message=message,
+            evidence=evidence,
+            correlation_id=intent.correlation_id,
+        )
+
+    def _projects_result(self, intent: IntentFrame) -> Result:
+        projects = sorted(self.state.projects.values(), key=lambda project: project.created_at)
+        evidence = {
+            "projects": [
+                {
+                    "name": project.name,
+                    "created_at": project.created_at.isoformat(),
+                }
+                for project in projects
+            ]
+        }
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Found {len(projects)} personal project{'s' if len(projects) != 1 else ''}",
+            evidence=evidence,
+            correlation_id=intent.correlation_id,
+        )
+
+    def _goals_result(self, intent: IntentFrame) -> Result:
+        goals = sorted(self.state.goals.values(), key=lambda goal: goal.created_at)
+        project_names = {
+            project.project_id: project.name for project in self.state.projects.values()
+        }
+        evidence = {
+            "goals": [
+                {
+                    "description": goal.description,
+                    "project": project_names.get(goal.project_id),
+                    "created_at": goal.created_at.isoformat(),
+                }
+                for goal in goals
+            ]
+        }
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Found {len(goals)} personal goal{'s' if len(goals) != 1 else ''}",
             evidence=evidence,
             correlation_id=intent.correlation_id,
         )

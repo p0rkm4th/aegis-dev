@@ -178,6 +178,21 @@ def _format(result: Any) -> str:
         return "Memories: " + "; ".join(
             f"{item['content']} [{item['provenance']}]" for item in memories
         )
+    if evidence.get("projects") is not None:
+        projects = evidence["projects"]
+        return "Projects: " + (
+            "; ".join(item["name"] for item in projects) if projects else "(none)"
+        )
+    if evidence.get("goals") is not None:
+        goals = evidence["goals"]
+        return "Goals: " + (
+            "; ".join(
+                f"{item['description']}" + (f" [{item['project']}]" if item["project"] else "")
+                for item in goals
+            )
+            if goals
+            else "(none)"
+        )
     if evidence.get("title"):
         return f"Done — created task: {evidence['title']}"
     if evidence.get("item"):
