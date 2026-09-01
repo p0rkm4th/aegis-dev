@@ -241,6 +241,35 @@ class PostgresTaskExecutor:
         )
 
 
+class TaskCompletionFastPath:
+    """Resolve completion titles before model/executor dispatch can guess."""
+
+    @staticmethod
+    def resolve(intent: IntentFrame, title: str, tasks: tuple[Task, ...]) -> Result | None:
+        normalized = title.casefold().strip().rstrip(".!?")
+        matches = tuple(
+            task for task in tasks if task.title.casefold().strip().rstrip(".!?") == normalized
+        )
+        if len(matches) == 1:
+            return None
+        if len(matches) == 0:
+            message = (
+                f"I couldn't find one task named '{title}'. "
+                "Ask to complete a task that appears in your task list."
+            )
+        else:
+            message = (
+                f"I found multiple tasks named '{title}'. "
+                "Please include more detail so I complete only the intended task."
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=message,
+            correlation_id=intent.correlation_id,
+        )
+
+
 class PostgresTaskVerifier:
     """Verify task creation by independently reading canonical PostgreSQL state."""
 

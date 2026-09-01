@@ -143,6 +143,7 @@ from aegis.tasks import (
     PostgresTaskStore,
     PostgresTaskVerifier,
     Task,
+    TaskCompletionFastPath,
     TaskStatus,
 )
 
@@ -2985,6 +2986,24 @@ def test_task_completion_executor_blocks_ambiguous_title():
 
     assert not observation.command_succeeded
     assert observation.evidence["ambiguous_task_title"] is True
+
+
+def test_task_completion_fast_path_clarifies_missing_or_duplicate_titles():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    intent = IntentFrame(principal=principal, utterance="Complete the task Check the drill")
+    tasks = (
+        Task(uuid4(), "apartment", "Check the drill", "alice"),
+        Task(uuid4(), "apartment", "Check the drill", "alice"),
+    )
+
+    duplicate = TaskCompletionFastPath.resolve(intent, "check the drill", tasks)
+    missing = TaskCompletionFastPath.resolve(intent, "missing task", tasks)
+
+    assert duplicate is not None
+    assert duplicate.state is ObjectiveState.BLOCKED
+    assert "multiple tasks" in duplicate.message
+    assert missing is not None
+    assert "couldn't find" in missing.message
 
 
 def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contribution():
