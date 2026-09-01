@@ -29,6 +29,7 @@ from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
 from .planning import (
+    ContextualMutationGuard,
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
     MultiActionFastPath,
@@ -189,6 +190,9 @@ class InteractionBoundary:
             domain_clarification = DomainClarificationFastPath.resolve(intent)
             if domain_clarification is not None:
                 return persist_fast_result(domain_clarification)
+            contextual_mutation = ContextualMutationGuard.resolve(intent)
+            if contextual_mutation is not None:
+                return persist_fast_result(contextual_mutation)
             household_store = PostgresHouseholdStore(connection)
             if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
                 task_store = PostgresTaskStore(connection)

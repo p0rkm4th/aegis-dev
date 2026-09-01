@@ -108,6 +108,7 @@ from aegis.personal import (
     Provenance,
 )
 from aegis.planning import (
+    ContextualMutationGuard,
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
     MultiActionFastPath,
@@ -2402,6 +2403,19 @@ def test_multi_action_fast_path_extracts_bounded_task_chore_plan():
         "prepare for the apartment inspection",
     )
     assert not MultiActionFastPath.matches("Create a task to buy cat food")
+
+
+def test_contextual_event_mutation_blocks_unsupported_memory_date_resolution():
+    result = ContextualMutationGuard.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Create an event for the inspection date from my memory.",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "Provide the event date and time directly" in result.message
 
 
 def test_multi_action_fast_path_still_blocks_unbounded_compound_requests():
