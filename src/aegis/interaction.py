@@ -550,12 +550,15 @@ class InteractionBoundary:
             for bundle in reference_bundles():
                 try:
                     manager.status(bundle.manifest.pack_id)
-                    installed_ids = {
-                        card.action.action_id
-                        for card in manager._bundles[bundle.manifest.pack_id].cards
-                    }
+                    installed_bundle = manager._bundles[bundle.manifest.pack_id]
+                    installed_ids = {card.action.action_id for card in installed_bundle.cards}
                     required_ids = {card.action.action_id for card in bundle.cards}
-                    if not required_ids.issubset(installed_ids):
+                    if not required_ids.issubset(installed_ids) or tuple(
+                        installed_bundle.cards
+                    ) != tuple(bundle.cards):
+                        # Persisted Pack metadata is a contract, not merely an
+                        # ID cache. Refresh it when bounded argument/schema
+                        # details change so old runtimes cannot misroute safely.
                         manager.remove(bundle.manifest.pack_id)
                         manager.discover(bundle)
                 except KeyError:
