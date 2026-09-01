@@ -100,12 +100,15 @@ aria-live="polite" aria-label="Selected node details"></div>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <p><button id="refresh" type="button">Refresh state</button></p>
 <p id="state-status" class="muted" aria-live="polite"></p>
+<label for="node-filter">Find a node <input id="node-filter" type="search"
+autocomplete="off" placeholder="Filter authorized nodes"></label>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 const refresh = document.getElementById('refresh');
+const nodeFilter = document.getElementById('node-filter');
 const messageTimeoutMs = 120000;
 const refreshRequestTimeoutMs = 10000;
 const pendingStorageKey = 'aegis.pending-request';
@@ -114,6 +117,9 @@ const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
 let selectedNode = null;
+let renderedNodeCards = new Map();
+let renderedNodeText = new Map();
+let renderedEdgeRows = [];
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
 const retryableCodes = new Set([
@@ -281,6 +287,18 @@ function clearAuthorizedDisplays() {
   clearPendingRequest();
   document.querySelector('#chat button').textContent = 'Send';
 }
+function applyNodeFilter() {
+  const query = nodeFilter.value.trim().toLowerCase();
+  renderedNodeCards.forEach((card, nodeId) => {
+    card.hidden = Boolean(query && !renderedNodeText.get(nodeId).includes(query));
+  });
+  renderedEdgeRows.forEach(({item, edge}) => {
+    const sourceMatches = !query || renderedNodeText.get(edge.source).includes(query);
+    const targetMatches = !query || renderedNodeText.get(edge.target).includes(query);
+    item.hidden = Boolean(query && !sourceMatches && !targetMatches);
+  });
+}
+nodeFilter.addEventListener('input', applyNodeFilter);
 async function fetchWithTimeout(resource, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), refreshRequestTimeoutMs);
@@ -313,6 +331,9 @@ async function loadState() {
       panel.append(renderDetailValue(details[node.id]));
     }
   };
+  renderedNodeCards = new Map();
+  renderedNodeText = new Map();
+  renderedEdgeRows = [];
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     card.setAttribute('aria-pressed', 'false');
@@ -321,8 +342,10 @@ async function loadState() {
     const detail = document.createElement('p'); detail.textContent = node.detail || '';
     card.addEventListener('click', () => selectNode(node, card));
     nodeCards.set(node.id, card);
+    renderedNodeText.set(node.id, `${node.label} ${node.detail || ''}`.toLowerCase());
     card.append(title, detail); return card;
   }));
+  renderedNodeCards = nodeCards;
   const labels = Object.fromEntries((state.nodes || []).map(node => [node.id, node.label]));
   edges.replaceChildren(...(state.edges || []).map(edge => {
     const item = document.createElement('li');
@@ -336,8 +359,10 @@ async function loadState() {
       if (target) { target.focus(); target.click(); }
     });
     item.append(link);
+    renderedEdgeRows.push({item, edge});
     return item;
   }));
+  applyNodeFilter();
 }
 async function refreshState() {
   refresh.disabled = true;
