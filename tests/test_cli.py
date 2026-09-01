@@ -17,7 +17,7 @@ from aegis.contracts import (
 )
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
-from aegis.tasks import Task, TaskReadFastPath, TaskStatus
+from aegis.tasks import Task, TaskIntentClarificationFastPath, TaskReadFastPath, TaskStatus
 from aegis.web import BrowserApp
 
 
@@ -1962,6 +1962,19 @@ def test_task_read_fast_path_filters_explicit_status_language():
     assert result.evidence["canonical_tasks"] == [
         {"task_id": str(completed.task_id), "title": "done task", "status": "completed"}
     ]
+
+
+def test_task_intent_clarification_blocks_unresolved_task_verbs():
+    result = TaskIntentClarificationFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            utterance="Can you take care of the task Verify backup retention?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "complete the task" in result.message
 
 
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():

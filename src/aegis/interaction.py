@@ -56,6 +56,7 @@ from .tasks import (
     PostgresTaskStore,
     PostgresTaskVerifier,
     TaskCompletionFastPath,
+    TaskIntentClarificationFastPath,
     TaskReadFastPath,
 )
 
@@ -310,6 +311,9 @@ class InteractionBoundary:
                 if household_result is not None:
                     return persist_fast_result(household_result)
             if recovered_plan_actions is None and composed_title is None:
+                task_clarification = TaskIntentClarificationFastPath.resolve(intent)
+                if task_clarification is not None:
+                    return persist_fast_result(task_clarification)
                 task_result = TaskReadFastPath(task_store).resolve(intent)
                 if task_result is not None:
                     return persist_fast_result(task_result)

@@ -409,3 +409,26 @@ class TaskReadFastPath:
             },
             correlation_id=intent.correlation_id,
         )
+
+
+class TaskIntentClarificationFastPath:
+    """Clarify vague task verbs before a read path can hide the ambiguity."""
+
+    _UNRESOLVED = ("take care of", "handle", "deal with", "look after")
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame) -> Result | None:
+        text = intent.utterance.casefold()
+        if is_mutation_request(text) or "task" not in text:
+            return None
+        if not any(term in text for term in cls._UNRESOLVED):
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "Do you want me to complete that task, or just show its current status? "
+                "Please say 'complete the task' or 'show my tasks.'"
+            ),
+            correlation_id=intent.correlation_id,
+        )
