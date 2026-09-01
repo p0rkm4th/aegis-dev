@@ -48,6 +48,8 @@ health checks that need one request, use non-interactive mode:
 
 `--once` prints one canonical human-readable result and exits with status 0;
 handled request errors print an actionable message and exit with status 1.
+After a package install, the same interface is available as `aegis` without
+the repository wrapper.
 Canonical non-completed results (for example denied or incomplete work) also
 exit with status 1. Initialization or transport failures return a stable JSON
 error object with `code`, generic `error`, and `state` fields rather than
