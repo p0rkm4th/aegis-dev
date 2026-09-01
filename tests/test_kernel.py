@@ -111,6 +111,7 @@ from aegis.planning import (
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
     MultiActionFastPath,
+    PersonalTaskComposer,
 )
 from aegis.projections import (
     HouseholdProjection,
@@ -1946,6 +1947,32 @@ def test_domain_clarification_fast_path_handles_underspecified_request():
     assert result is not None
     assert result.state is ObjectiveState.BLOCKED
     assert "more direction" in result.message
+
+
+def test_personal_task_composer_grounds_task_in_unique_canonical_goal():
+    from datetime import datetime, timezone
+
+    personal = PersonalState()
+    personal.add_goal("Finish the restore drill", datetime(2026, 9, 1, tzinfo=timezone.utc))
+
+    title, error = PersonalTaskComposer.resolve("Turn my restore drill goal into a task", personal)
+
+    assert title == "Finish the restore drill"
+    assert error is None
+
+
+def test_personal_task_composer_does_not_guess_between_goals():
+    from datetime import datetime, timezone
+
+    personal = PersonalState()
+    now = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    personal.add_goal("Finish the restore drill", now)
+    personal.add_goal("Review the backup architecture", now)
+
+    title, error = PersonalTaskComposer.resolve("Create a task from my goal", personal)
+
+    assert title is None
+    assert error == "Which personal goal should I turn into a task? Please name the goal."
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():
