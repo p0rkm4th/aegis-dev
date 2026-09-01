@@ -118,6 +118,11 @@ class OllamaProvider:
                     "contain every field from the selected card with the same values. "
                     "Do not omit, add, or change any action field."
                 ),
+                "ambiguity_rule": (
+                    "If the utterance does not clearly identify one domain and more "
+                    "than one ActionCard is plausible, return CLARIFY instead of "
+                    "guessing an action."
+                ),
                 "utterance": request.working_set.intent.utterance,
                 "action_cards": cards,
             },
