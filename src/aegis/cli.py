@@ -832,7 +832,11 @@ def _format(result: Any) -> str:
         return "Groceries: " + (", ".join(items) if items else "(empty)")
     if evidence.get("canonical_tasks") is not None:
         tasks = evidence["canonical_tasks"]
-        listing = "; ".join(f"{item['title']} ({item['status']})" for item in tasks)
+        listing = "; ".join(
+            f"{item['title']} ({item['status']})"
+            + (f" due {item['due_at']}" if item.get("due_at") else "")
+            for item in tasks
+        )
         return "Tasks: " + (listing if tasks else "(empty)")
     if evidence.get("memories") is not None:
         memories = evidence["memories"]
