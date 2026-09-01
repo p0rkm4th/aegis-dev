@@ -196,7 +196,12 @@ def _fallback_working_context(
     if not selected:
         selected = tasks
     facts["canonical_tasks"] = [
-        {"title": task.title, "status": task.status.value} for task in selected[:20]
+        {
+            "title": task.title,
+            "status": task.status.value,
+            **({"due_at": task.due_at.isoformat()} if task.due_at is not None else {}),
+        }
+        for task in selected[:20]
     ]
     values["canonical_facts"] = facts
     return Context(
