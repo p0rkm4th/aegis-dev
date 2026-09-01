@@ -639,6 +639,29 @@ def test_decoder_requires_text_for_clarification():
         raise AssertionError("empty clarification was accepted")
 
 
+def test_decoder_canonicalizes_single_card_copy_errors_without_accepting_invented_actions():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.write",
+            arguments={"title": "canonical title"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="create task",
+        relevance=1,
+    )
+    malformed_copy = {
+        "kind": "ACTION",
+        "action": {"action_id": "tasks.create", "capability": "wrong"},
+    }
+
+    decision = StrictDecisionDecoder().decode(
+        type("Response", (), {"raw": malformed_copy})(), (card,)
+    )
+
+    assert decision.action == card.action
+
+
 def test_kernel_blocks_malformed_model_without_execution():
     ex = Executor()
     k = Kernel(
