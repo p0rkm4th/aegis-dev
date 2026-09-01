@@ -149,6 +149,21 @@ def test_cli_init_refuses_symlink_target(monkeypatch, capsys, tmp_path):
     assert existing.read_text(encoding="utf-8") == "AEGIS_DATABASE_URL=untouched\n"
 
 
+def test_cli_init_reads_packaged_template(monkeypatch, capsys, tmp_path):
+    from importlib.resources import files
+
+    from aegis import cli
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("sys.argv", ["aegis", "--init"])
+
+    assert cli.main() == 0
+    assert (tmp_path / ".env").read_text(encoding="utf-8") == files("aegis").joinpath(
+        "aegis.env.example"
+    ).read_text(encoding="utf-8")
+    capsys.readouterr()
+
+
 def test_cli_env_file_loads_aegis_settings_without_overriding_shell(monkeypatch, tmp_path):
     from aegis import cli
 
