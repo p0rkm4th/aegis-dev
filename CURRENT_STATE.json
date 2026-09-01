@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-compound-separator-safety-live-green",
+  "current_checkpoint": "phase-12-actionable-input-validation-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "51f601a811d6834c1a8abc749ff6c43aca6bfbec",
-  "last_green_sha": "51f601a811d6834c1a8abc749ff6c43aca6bfbec",
-  "last_pushed_sha": "51f601a811d6834c1a8abc749ff6c43aca6bfbec",
+  "head_sha": "6e41688b24250d8c34e20996b895380b6cc3a362",
+  "last_green_sha": "6e41688b24250d8c34e20996b895380b6cc3a362",
+  "last_pushed_sha": "6e41688b24250d8c34e20996b895380b6cc3a362",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "51f601a811d6834c1a8abc749ff6c43aca6bfbec",
-    "last_known_green_sha": "51f601a811d6834c1a8abc749ff6c43aca6bfbec",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/51f601a",
+    "running_sha": "6e41688b24250d8c34e20996b895380b6cc3a362",
+    "last_known_green_sha": "6e41688b24250d8c34e20996b895380b6cc3a362",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/6e41688",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -608,6 +608,9 @@
     "additional_compound_separator_regression": "green deterministic: mutation verbs joined by 'as well as' or 'plus' are treated as compound objectives and blocked before dispatch",
     "owner_additional_compound_separator_defect_live": "historical live defect: owner correlation 64646464-6464-4464-8464-646464646464 created only the task from an 'as well as' Kitchen/Tasks request and ignored the grocery mutation; no grocery mutation occurred and the malformed partial objective remains evidence",
     "owner_additional_compound_separator_live": "green live: authenticated owner correlation 65656565-6565-4565-8565-656565656565 on release 51f601a returned a persisted blocked one-action clarification for the same request, matching request-status, with no new task or grocery mutation",
+    "actionable_input_validation_regression": "green deterministic: typed selector input errors become persisted blocked canonical Results with safe actionable text, while infrastructure and unexpected Core failures retain generic containment",
+    "owner_incomplete_grocery_input_defect_live": "historical live defect: owner correlation 66666666-6666-4666-8666-666666666666 for incomplete grocery input returned generic HTTP 503 request_unavailable and no canonical status",
+    "owner_incomplete_grocery_input_live": "green live: authenticated owner correlation 67676767-6767-4767-8767-676767676767 on release 6e41688 returned HTTP 200 with a persisted blocked Result explaining the required grocery syntax; request-status matched and no model, OpenClaw, or canonical mutation was dispatched",
     "plan_child_observation_crash_recovery_regression": "green deterministic: when a simulated crash occurs after the first plan child observation is durable but before its Result is persisted, a fresh Kernel independently verifies the stored observation, executes only the remaining step, and completes the aggregate with no duplicate first-step execution",
     "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
     "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
@@ -617,5 +620,5 @@
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, stale canonical reconciliation, partial failure recovery, conjoined Finance/Personal/Household reads, Kitchen/Tasks mutation fail-closed behavior, adversarial private-finance containment, prompt-injection-shaped task handling, reminder ambiguity guidance, unresolved/sequential/as-well-as compound mutation safety are live-green; next attack malformed/weak proposals and model-boundary ambiguity."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, stale canonical reconciliation, partial failure recovery, conjoined Finance/Personal/Household reads, Kitchen/Tasks mutation fail-closed behavior, adversarial private-finance containment, prompt-injection-shaped task handling, reminder ambiguity guidance, unresolved/sequential/as-well-as compound mutation safety, and actionable input validation are live-green; next attack malformed/weak proposals and model-boundary ambiguity."
 }
