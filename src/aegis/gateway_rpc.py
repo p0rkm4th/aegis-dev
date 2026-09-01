@@ -121,10 +121,7 @@ class OpenClawWebSocketChannel:
             raise RpcProtocolError(f"Gateway transport failed: {type(exc).__name__}") from exc
 
     def close(self) -> None:
-        self._pending_events.clear()
-        if self._socket is not None:
-            self._socket.close()
-            self._socket = None
+        self._discard_socket()
 
     def _discard_socket(self) -> None:
         socket = self._socket

@@ -725,6 +725,19 @@ def test_closing_gateway_socket_drops_connection_local_events():
     assert channel._pending_events == []
 
 
+def test_gateway_close_discards_socket_when_socket_close_fails():
+    class Socket:
+        def close(self):
+            raise RuntimeError("close failed")
+
+    channel = OpenClawWebSocketChannel("ws://gateway", "token", persistent=True)
+    channel._socket = Socket()
+
+    channel.close()
+
+    assert channel._socket is None
+
+
 def test_vault_and_space_authorization_is_structural_and_revocable():
     auth = InMemoryAuthorization()
     auth.add_vault(Vault("alice-vault", "alice"))
