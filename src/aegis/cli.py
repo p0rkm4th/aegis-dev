@@ -91,12 +91,18 @@ def _initialize_env_file(path: str) -> None:
     """Create a private placeholder configuration without overwriting files."""
 
     target = Path(path)
-    if target.exists() or target.is_symlink():
-        raise FileExistsError(path)
     root = Path(__file__).resolve().parents[2]
     template = (root / "examples" / "aegis.env.example").read_text(encoding="utf-8")
-    target.write_text(template, encoding="utf-8")
-    target.chmod(0o600)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    flags |= getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(target, flags, 0o600)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+            descriptor = -1
+            output.write(template)
+    finally:
+        if descriptor != -1:
+            os.close(descriptor)
 
 
 def _runtime_report() -> HealthReport:
