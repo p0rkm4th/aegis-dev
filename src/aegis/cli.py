@@ -92,34 +92,7 @@ def _runtime_report() -> HealthReport:
 
     components: list[ComponentHealth] = []
     database_url = os.environ.get("AEGIS_DATABASE_URL")
-    if not database_url:
-        components.append(
-            ComponentHealth(
-                name="postgres",
-                healthy=False,
-                required=True,
-                detail="set AEGIS_DATABASE_URL",
-            )
-        )
-    else:
-        try:
-            connection = psycopg.connect(database_url, connect_timeout=2)
-            connection.execute("SELECT 1")
-            connection.close()
-            components.append(
-                ComponentHealth(
-                    name="postgres", healthy=True, required=True, detail="connection succeeded"
-                )
-            )
-        except psycopg.Error as exc:
-            components.append(
-                ComponentHealth(
-                    name="postgres",
-                    healthy=False,
-                    required=True,
-                    detail=f"connection failed: {type(exc).__name__}",
-                )
-            )
+    components.append(_postgres_health(database_url))
 
     ollama_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
     ollama_model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
@@ -185,6 +158,45 @@ def _safe_endpoint(value: str) -> str:
         return urlunsplit((parsed.scheme, netloc, parsed.path.rstrip("/"), "", ""))
     except ValueError:
         return "configured Ollama endpoint"
+
+
+def _postgres_health(database_url: str | None) -> ComponentHealth:
+    if not database_url:
+        return ComponentHealth(
+            name="postgres",
+            healthy=False,
+            required=True,
+            detail="set AEGIS_DATABASE_URL",
+        )
+    try:
+        connection = psycopg.connect(database_url, connect_timeout=2)
+        try:
+            row = connection.execute(
+                "SELECT to_regclass(%s), to_regclass(%s), to_regclass(%s)",
+                ("public.objectives", "public.results", "public.space_memberships"),
+            ).fetchone()
+        finally:
+            connection.close()
+        if not row or any(value is None for value in row):
+            return ComponentHealth(
+                name="postgres",
+                healthy=False,
+                required=True,
+                detail=(
+                    "connection succeeded but the canonical schema is incomplete; "
+                    "apply migrations before starting AEGIS"
+                ),
+            )
+        return ComponentHealth(
+            name="postgres", healthy=True, required=True, detail="connection and schema succeeded"
+        )
+    except psycopg.Error as exc:
+        return ComponentHealth(
+            name="postgres",
+            healthy=False,
+            required=True,
+            detail=f"connection failed: {type(exc).__name__}",
+        )
 
 
 def _ollama_health(url: str, model: str) -> ComponentHealth:

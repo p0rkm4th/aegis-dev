@@ -471,6 +471,31 @@ def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
     assert "openclaw: OK (optional)" in output
 
 
+def test_postgres_health_reports_partial_canonical_schema(monkeypatch):
+    from aegis import cli
+
+    class Cursor:
+        def fetchone(self):
+            return ("objectives", None, "space_memberships")
+
+    class Connection:
+        def execute(self, *_args, **_kwargs):
+            return Cursor()
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+
+    component = cli._postgres_health("postgresql://operator:secret@example.test/aegis")
+
+    assert component.healthy is False
+    assert component.detail == (
+        "connection succeeded but the canonical schema is incomplete; apply migrations before "
+        "starting AEGIS"
+    )
+
+
 def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
     from aegis import cli
 
