@@ -281,7 +281,16 @@ class CrossDomainPlanningFastPath:
         "what do i need to",
         "what tasks",
     )
-    _PERSONAL_TERMS = ("personal", "goal", "goals", "project", "projects", "memory")
+    _PERSONAL_TERMS = (
+        "personal",
+        "goal",
+        "goals",
+        "project",
+        "projects",
+        "memory",
+        "remember",
+        "remembers",
+    )
     _SHARED_TERMS = (
         "household",
         "obligation",
@@ -318,7 +327,10 @@ class CrossDomainPlanningFastPath:
                 any(term in text for term in cls._FINANCE_TERMS),
             )
         )
-        return domains >= 2 and any(term in text for term in cls._PLANNING_TERMS)
+        return domains >= 2 and (
+            any(term in text for term in cls._PLANNING_TERMS)
+            or ("which" in text and "should" in text)
+        )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):

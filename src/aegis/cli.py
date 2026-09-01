@@ -831,6 +831,24 @@ def _format(result: Any) -> str:
                 if isinstance(item, dict) and isinstance(item.get("title"), str)
             ]
             summaries.append("open tasks: " + ("; ".join(titles) if titles else "(none)"))
+        obligations = planning.get("open_obligations")
+        if isinstance(obligations, list):
+            titles = [
+                str(item["title"])
+                for item in obligations
+                if isinstance(item, dict) and isinstance(item.get("title"), str)
+            ]
+            summaries.append("open obligations: " + ("; ".join(titles) if titles else "(none)"))
+        memories = planning.get("memories")
+        if isinstance(memories, list):
+            contents = [
+                str(item["content"])
+                for item in memories
+                if isinstance(item, dict) and isinstance(item.get("content"), str)
+            ]
+            summaries.append(
+                "relevant memories: " + ("; ".join(contents) if contents else "(none)")
+            )
         if summaries:
             return "Planning: " + "; ".join(summaries)
     if evidence.get("affordable") is not None:
