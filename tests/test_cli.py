@@ -1747,6 +1747,10 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
         "Network",
         "Tasks",
     ]
+    assert state["nodes"][0]["category"] == "core"
+    assert state["nodes"][0]["detail_view"] == "overview"
+    assert state["nodes"][1]["category"] == "domain"
+    assert state["nodes"][1]["detail_view"] == "list"
 
 
 def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):

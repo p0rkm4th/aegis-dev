@@ -51,6 +51,8 @@ class ConstellationNode(BaseModel):
     id: str = Field(min_length=1)
     label: str = Field(min_length=1)
     detail: str = ""
+    category: str | None = Field(default=None, min_length=1)
+    detail_view: str | None = Field(default=None, min_length=1)
 
 
 class ConstellationEdge(BaseModel):
