@@ -257,7 +257,9 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         household = PostgresHouseholdStore(connection).read_snapshot(principal)
         tasks = PostgresTaskStore(connection).list(principal)
         groceries = cast(tuple[str, ...], household.get("groceries", ()))
-        personal = PostgresPersonalStateStore(connection, principal.vault_id).load()
+        personal = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
+            principal
+        )
         finance = PostgresFinanceSnapshotStore(connection).load(principal.id)
         network = PostgresNetworkStore(connection).load(principal)
         homelab = PostgresHomelabStore(connection).load(principal, _ReadOnlyHomelabRuntime())
@@ -676,7 +678,9 @@ def run_interaction(
         task_result = TaskReadFastPath(task_store).resolve(intent)
         if task_result is not None:
             return task_result
-        personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load()
+        personal_state = PostgresPersonalStateStore(
+            connection, principal.vault_id
+        ).load_for_principal(principal)
         semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
             "1",
             "true",

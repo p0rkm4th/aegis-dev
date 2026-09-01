@@ -702,7 +702,11 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     )
     monkeypatch.setattr(cli.PostgresTaskStore, "list", lambda _store, _principal: ())
     monkeypatch.setattr(cli.PostgresPackStore, "load", lambda _store: ())
-    monkeypatch.setattr(cli.PostgresPersonalStateStore, "load", lambda _store: PersonalState())
+    monkeypatch.setattr(
+        cli.PostgresPersonalStateStore,
+        "load_for_principal",
+        lambda _store, _principal: PersonalState(),
+    )
     monkeypatch.setattr(cli.PostgresFinanceSnapshotStore, "load", lambda _store, _owner: None)
     monkeypatch.setattr(
         cli.PostgresNetworkStore, "load", lambda _store, _principal: HomelabInventory()
@@ -748,7 +752,11 @@ def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):
     )
     monkeypatch.setattr(cli.PostgresTaskStore, "list", lambda _store, _principal: (task,))
     monkeypatch.setattr(cli.PostgresPackStore, "load", lambda _store: ())
-    monkeypatch.setattr(cli.PostgresPersonalStateStore, "load", lambda _store: personal)
+    monkeypatch.setattr(
+        cli.PostgresPersonalStateStore,
+        "load_for_principal",
+        lambda _store, _principal: personal,
+    )
     monkeypatch.setattr(cli.PostgresFinanceSnapshotStore, "load", lambda _store, _owner: None)
     monkeypatch.setattr(
         cli.PostgresNetworkStore, "load", lambda _store, _principal: HomelabInventory()

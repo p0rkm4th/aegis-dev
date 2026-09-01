@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 from threading import Event
 from uuid import uuid4
 
+import pytest
+
 from aegis.ambient import (
     AmbientService,
     BackgroundTask,
@@ -1302,6 +1304,23 @@ def test_postgres_personal_store_writes_supersession_after_all_memory_rows():
     assert max(memory_insert_indexes) < update_index
     assert connection.calls[update_index][1][0] == str(corrected.memory_id)
     assert connection.commits == 1
+
+
+def test_postgres_personal_store_rejects_non_owner_vault_read():
+    class Result:
+        def fetchone(self):
+            return None
+
+    class Connection:
+        def execute(self, query, params=()):
+            assert "owner_principal_id" in query
+            assert params == ("alice-vault", "bob")
+            return Result()
+
+    with pytest.raises(PermissionError, match="Vault access denied"):
+        PostgresPersonalStateStore(Connection(), "alice-vault").load_for_principal(
+            Principal(id="bob", vault_id="alice-vault")
+        )
 
 
 def test_household_space_supports_shared_workflows_for_active_members():

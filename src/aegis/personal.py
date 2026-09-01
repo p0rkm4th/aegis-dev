@@ -9,7 +9,7 @@ from enum import StrEnum
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
-from .contracts import IntentFrame, ObjectiveState, Result
+from .contracts import IntentFrame, ObjectiveState, Principal, Result
 from .embeddings import EmbeddingProvider, MemoryVectorIndex
 
 
@@ -194,6 +194,17 @@ class PostgresPersonalStateStore:
         ):
             raise ValueError("stored memory references a missing entity")
         return state
+
+    def load_for_principal(self, principal: Principal) -> PersonalState:
+        """Load only when the canonical Vault owner matches the principal."""
+
+        row = self.connection.execute(
+            "SELECT 1 FROM vaults WHERE id = %s AND owner_principal_id = %s",
+            (self.vault_id, principal.id),
+        ).fetchone()
+        if row is None:
+            raise PermissionError("personal Vault access denied")
+        return self.load()
 
 
 @dataclass
