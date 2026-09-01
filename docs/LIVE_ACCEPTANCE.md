@@ -175,6 +175,11 @@ and persisted only obligations, contributions, and settlements. A fresh
 connection reloaded the projection for an active member; a non-member was
 denied, and the stored payload contained neither balances nor transactions.
 
+Tasks Pack persistence was verified after `008_tasks.sql`. Alice created and
+completed a task with an authorized assignee; fresh PostgreSQL connections
+reloaded the completed lifecycle. Listing by a non-member and assigning to an
+inactive Space member were both denied below the task state layer.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
