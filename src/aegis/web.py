@@ -10,10 +10,13 @@ from typing import Any
 from urllib.parse import urlparse
 
 from .contracts import Principal
+from .health import HealthReport
 
 Interaction = Callable[[str, Principal], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
+HealthProvider = Callable[[], HealthReport | dict[str, Any]]
+_MAX_BODY_BYTES = 20_000
 
 
 _INDEX_HTML = """<!doctype html>
@@ -25,6 +28,7 @@ main{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1f
 form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padding:.6rem}</style>
 </head><body><h1>AEGIS Constellation</h1>
 <p class="muted">Canonical state and conversation from AEGIS Core.</p>
+<p id="health" aria-live="polite">Checking readiness…</p>
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><p id="detail" class="muted"></p>
@@ -33,6 +37,14 @@ placeholder="Ask AEGIS..."><button>Send</button></form>
 <script>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
+async function loadHealth() {
+  const response = await fetch('/api/health'); const report = await response.json();
+  const required = (report.components || []).filter(component => component.required);
+  const ready = report.ready ? 'READY' : 'NOT READY';
+  document.getElementById('health').textContent =
+    `Runtime: ${ready} · ${required.filter(component => component.healthy).length}` +
+    `/${required.length} required checks OK`;
+}
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
   if (!response.ok) throw new Error(state.error || 'State is unavailable.');
@@ -54,6 +66,9 @@ async function loadState() {
     return item;
   }));
 }
+loadHealth().catch(() => {
+  document.getElementById('health').textContent = 'Runtime status unavailable.';
+});
 loadState().catch(error => { nodes.textContent = error.message; });
 document.getElementById('chat').addEventListener('submit', async event => {
   event.preventDefault(); const input = document.getElementById('utterance');
@@ -78,15 +93,23 @@ class BrowserApp:
         principal: Principal | PrincipalProvider,
         interaction: Interaction,
         state: ConstellationState,
+        health: HealthProvider | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
         self.state = state
+        self.health = health
 
     def dispatch(self, method: str, path: str, body: bytes = b"") -> tuple[int, str, bytes]:
         route = urlparse(path).path
         if method == "GET" and route == "/":
             return HTTPStatus.OK, "text/html; charset=utf-8", _INDEX_HTML.encode()
+        if method == "GET" and route == "/api/health":
+            if self.health is None:
+                return self._json(HTTPStatus.OK, {"healthy": True, "ready": True, "components": []})
+            report = self.health()
+            payload = report.model_dump(mode="json") if isinstance(report, HealthReport) else report
+            return self._json(HTTPStatus.OK, payload)
         if route.startswith("/api/"):
             try:
                 principal = self.principal_provider()
@@ -103,6 +126,10 @@ class BrowserApp:
                 return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "state unavailable"})
             return self._json(HTTPStatus.OK, state)
         if method == "POST" and route == "/api/message":
+            if len(body) > _MAX_BODY_BYTES:
+                return self._json(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "request too large"}
+                )
             try:
                 payload = json.loads(body)
                 utterance = payload["utterance"]
@@ -131,17 +158,34 @@ def serve(
     principal: Principal | PrincipalProvider,
     interaction: Interaction,
     state: ConstellationState,
+    health: HealthProvider | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
-    app = BrowserApp(principal, interaction, state)
+    app = BrowserApp(principal, interaction, state, health)
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
             self._respond(app.dispatch("GET", self.path))
 
         def do_POST(self) -> None:  # noqa: N802
-            length = int(self.headers.get("content-length", "0"))
+            try:
+                length = int(self.headers.get("content-length", "0"))
+            except ValueError:
+                self._respond(
+                    app._json(HTTPStatus.BAD_REQUEST, {"error": "invalid content length"})
+                )
+                return
+            if length < 0:
+                self._respond(
+                    app._json(HTTPStatus.BAD_REQUEST, {"error": "invalid content length"})
+                )
+                return
+            if length > _MAX_BODY_BYTES:
+                self._respond(
+                    app._json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "request too large"})
+                )
+                return
             self._respond(app.dispatch("POST", self.path, self.rfile.read(length)))
 
         def _respond(self, response: tuple[int, str, bytes]) -> None:

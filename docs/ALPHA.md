@@ -50,6 +50,11 @@ Malformed or unavailable identity is returned as an unauthorized response;
 state access is still rechecked against current Space/Vault policy below the
 browser adapter.
 
+The browser also exposes `/api/health`, using the same structured readiness
+report as `--check`. Health is available for diagnosis without exposing
+identity-protected state. Message bodies are bounded and malformed or
+oversized requests are rejected before reaching Core.
+
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
 `AEGIS_OPENCLAW_IDENTITY_DB`. The CLI defaults to the explicitly configured

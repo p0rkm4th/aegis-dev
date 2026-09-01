@@ -248,6 +248,38 @@ def test_browser_api_rejects_unavailable_identity():
     assert json.loads(payload) == {"error": "identity unavailable"}
 
 
+def test_browser_health_uses_structured_readiness_without_identity():
+    from aegis.health import ComponentHealth, HealthReport
+
+    app = BrowserApp(
+        lambda: (_ for _ in ()).throw(ValueError("identity unavailable")),
+        lambda *_: "unreachable",
+        lambda _: {"nodes": []},
+        lambda: HealthReport(
+            healthy=False,
+            ready=False,
+            components=(
+                ComponentHealth(
+                    name="postgres", healthy=False, required=True, detail="unavailable"
+                ),
+            ),
+        ),
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/health")
+    assert status == 200
+    assert json.loads(payload)["ready"] is False
+
+
+def test_browser_rejects_oversized_request_body():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(principal, lambda *_: "unreachable", lambda _: {"nodes": []})
+
+    status, _, payload = app.dispatch("POST", "/api/message", b"x" * 20_001)
+    assert status == 413
+    assert json.loads(payload) == {"error": "request too large"}
+
+
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
     bundles = reference_bundles()
 
