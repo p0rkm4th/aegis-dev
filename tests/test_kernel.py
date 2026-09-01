@@ -2562,6 +2562,20 @@ def test_domain_clarification_fast_path_handles_underspecified_request():
     assert "more direction" in result.message
 
 
+def test_domain_clarification_fast_path_gives_reminder_guidance():
+    result = DomainClarificationFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Can you make sure I remember to review the backup?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "reminder as a task" in result.message
+    assert "Create a task to review the backup" in result.message
+
+
 def test_personal_task_composer_grounds_task_in_unique_canonical_goal():
     from datetime import datetime, timezone
 

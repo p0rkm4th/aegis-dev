@@ -138,6 +138,8 @@ class ContextualMutationGuard:
 class DomainClarificationFastPath:
     """Give unsupported or underspecified alpha requests a useful next step."""
 
+    _REMINDER_TERMS = ("remind me", "remember to", "make sure i remember")
+
     _KNOWN_TERMS = (
         "task",
         "todo",
@@ -170,14 +172,21 @@ class DomainClarificationFastPath:
     def resolve(cls, intent: IntentFrame) -> Result | None:
         if not cls.matches(intent.utterance):
             return None
-        return Result(
-            objective_id=uuid4(),
-            state=ObjectiveState.BLOCKED,
-            message=(
+        if any(term in intent.utterance.casefold() for term in cls._REMINDER_TERMS):
+            message = (
+                "I can help with a reminder as a task. Say, for example, "
+                "'Create a task to review the backup.'"
+            )
+        else:
+            message = (
                 "I need a little more direction. Ask about tasks, groceries, "
                 "household chores or events, personal goals or memories, finance, "
                 "Homelab, or Network."
-            ),
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=message,
             correlation_id=intent.correlation_id,
         )
 
