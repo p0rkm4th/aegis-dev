@@ -1,6 +1,9 @@
+from datetime import datetime, timezone
 from uuid import uuid4
 
+from aegis.contracts import IntentFrame, Principal
 from aegis.embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
+from aegis.personal import PersonalMemoryFastPath, PersonalState, Provenance
 
 
 def test_postgres_vector_index_uses_vault_scoped_vector_queries():
@@ -46,3 +49,51 @@ def test_ollama_embedding_provider_rejects_wrong_dimensions():
         assert "768" in str(exc)
     else:
         raise AssertionError("invalid embedding dimension was accepted")
+
+
+def test_semantic_retrieval_filters_superseded_records_and_falls_back_lexically():
+    state = PersonalState()
+    original = state.add_memory(
+        "Old backup plan",
+        datetime(2026, 8, 1, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    corrected = state.correct_memory(
+        original.memory_id,
+        "Current backup plan",
+        datetime(2026, 8, 2, tzinfo=timezone.utc),
+    )
+
+    class Embeddings:
+        model = "test"
+        dimensions = 768
+
+        def embed(self, texts: tuple[str, ...]) -> tuple[tuple[float, ...], ...]:
+            return (tuple(0.1 for _ in range(768)),)
+
+    class Index:
+        def search(
+            self,
+            vault_id: str,
+            embedding: tuple[float, ...],
+            limit: int,
+            max_distance: float = 0.50,
+        ) -> tuple[object, ...]:
+            return (original.memory_id, corrected.memory_id)
+
+    result = PersonalMemoryFastPath(
+        state,
+        embedding_provider=Embeddings(),
+        vector_index=Index(),
+        vault_id="alice-vault",
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What do I know about the backup plan?",
+        )
+    )
+
+    assert result is not None
+    assert [item["content"] for item in result.evidence["memories"]] == [
+        "Current backup plan"
+    ]
