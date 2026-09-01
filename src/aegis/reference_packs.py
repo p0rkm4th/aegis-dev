@@ -22,6 +22,7 @@ from .gateway_rpc import (
     OpenClawWebSocketChannel,
     RpcProtocolError,
 )
+from .household import PostgresHouseholdStore
 from .pack_lifecycle import PackBundle, PackManifest
 
 
@@ -180,12 +181,20 @@ class OpenClawGroceryExecutor:
     evidence; the verifier independently reads the record afterward.
     """
 
-    def __init__(self, channel: OpenClawWebSocketChannel, state_path: str) -> None:
+    def __init__(
+        self,
+        channel: OpenClawWebSocketChannel,
+        state_path: str,
+        canonical_store: PostgresHouseholdStore | None = None,
+        principal: Any | None = None,
+    ) -> None:
         if not channel.persistent:
             raise ValueError("OpenClaw grocery execution requires a persistent channel")
         self.channel = channel
         self.gateway = OpenClawGatewayRpc(CorrelatedRpcClient(channel))
         self.state_path = str(Path(state_path))
+        self.canonical_store = canonical_store
+        self.principal = principal
 
     def execute(self, request: ExecutionRequest) -> Observation:
         if request.action.action_id != "kitchen.groceries.add":
@@ -230,6 +239,22 @@ class OpenClawGroceryExecutor:
             raise RpcProtocolError(
                 "OpenClaw grocery execution did not produce a terminal outcome"
             ) from exc
+        if saw_marker and self.canonical_store is not None and self.principal is not None:
+            try:
+                self.canonical_store.add_grocery(
+                    self.principal, item.strip(), request.idempotency_key
+                )
+            except (PermissionError, ValueError) as exc:
+                return Observation(
+                    execution_id=request.action_id,
+                    evidence={
+                        "gateway": "openclaw",
+                        "external_state_path": self.state_path,
+                        "idempotency_key": request.idempotency_key,
+                        "canonical_persistence_error": str(exc),
+                    },
+                    command_succeeded=False,
+                )
         return Observation(
             execution_id=request.action_id,
             evidence={
@@ -246,6 +271,14 @@ class OpenClawGroceryExecutor:
 
 class OpenClawGroceryVerifier:
     """Independently read external grocery state after Gateway execution."""
+
+    def __init__(
+        self,
+        canonical_store: PostgresHouseholdStore | None = None,
+        principal: Any | None = None,
+    ) -> None:
+        self.canonical_store = canonical_store
+        self.principal = principal
 
     def verify(
         self, observation: Observation, contract: VerificationContract
@@ -274,10 +307,23 @@ class OpenClawGroceryVerifier:
             )
         matches = [line for line in lines if line.startswith(f"{key}|")]
         verified = len(matches) == 1
+        canonical_verified = True
+        if verified and self.canonical_store is not None and self.principal is not None:
+            try:
+                canonical_verified = self.canonical_store.grocery_recorded(
+                    self.principal, matches[0].split("|", 1)[1], key
+                )
+            except (PermissionError, ValueError):
+                canonical_verified = False
+        verified = verified and canonical_verified
         return VerificationResult(
             verified=verified,
-            evidence={**observation.evidence, "external_records_for_key": len(matches)},
-            reason="independent external grocery readback verified"
+            evidence={
+                **observation.evidence,
+                "external_records_for_key": len(matches),
+                "canonical_grocery_verified": canonical_verified,
+            },
+            reason="external and canonical grocery readback verified"
             if verified
             else "external grocery postcondition failed",
         )
