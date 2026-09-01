@@ -82,6 +82,16 @@ def reference_packs() -> tuple[Pack, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="tasks.events.create",
+                        capability="tasks.events.create",
+                        required_permissions=("tasks.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Create a shared event",
+                    relevance=1,
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="tasks.list",
                         capability="tasks.read",
                         required_permissions=("tasks.read",),

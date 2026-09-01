@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import re
 import sqlite3
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +16,14 @@ from .contracts import ActionCard, IntentFrame, Principal
 from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .gateway_rpc import OpenClawWebSocketChannel
-from .household import HouseholdReadFastPath, PostgresHouseholdStore
+from .household import (
+    HouseholdReadFastPath,
+    PostgresChoreExecutor,
+    PostgresChoreVerifier,
+    PostgresEventExecutor,
+    PostgresEventVerifier,
+    PostgresHouseholdStore,
+)
 from .identity import KeycloakIdentityProvider, KeycloakOIDCClient, PostgresSpacePolicy, Role
 from .kernel import Kernel
 from .ollama import OllamaHttpTransport, OllamaProvider
@@ -133,7 +141,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     text = utterance.lower()
     if "task" in text:
         domain = "tasks"
-        if "chore" in text:
+        if "event" in text:
+            action_id = "tasks.events.create"
+        elif "chore" in text:
             action_id = (
                 "tasks.chores.list"
                 if text.startswith(("what", "show", "list"))
@@ -150,6 +160,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             if text.startswith(("what", "show", "list"))
             else "tasks.chores.create"
         )
+    elif "event" in text or "inspection" in text:
+        domain = "tasks"
+        action_id = "tasks.events.create"
     elif any(word in text for word in ("grocery", "groceries", "rice", "food")):
         domain = "kitchen"
         action_id = (
@@ -181,6 +194,21 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
                 "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
             )
         action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.events.create":
+        match = re.search(r"(?:create|add)\s+(?:an?\s+)?event\s+(?:for\s+)?(.+)$", text)
+        if match is None:
+            raise ValueError(
+                "tell AEGIS the event, for example: Create an event for apartment inspection."
+            )
+        title = match.group(1).strip()
+        if title.endswith(" tomorrow"):
+            title = title.removesuffix(" tomorrow").strip()
+            starts_at = datetime.now(timezone.utc) + timedelta(days=1)
+        else:
+            starts_at = datetime.now(timezone.utc)
+        action = action.model_copy(
+            update={"arguments": {"title": title, "starts_at": starts_at.isoformat()}}
+        )
     return domain, ActionCard(action=action, summary=card.summary, relevance=card.relevance)
 
 
@@ -245,6 +273,8 @@ def _format(result: Any) -> str:
         )
     if evidence.get("collection") == "chores" and evidence.get("title"):
         return f"Done — created chore: {evidence['title']}"
+    if evidence.get("collection") == "events" and evidence.get("title"):
+        return f"Done — created event: {evidence['title']}"
     if evidence.get("title"):
         return f"Done — created task: {evidence['title']}"
     if evidence.get("item"):
@@ -343,10 +373,12 @@ def handle(utterance: str, principal: Principal) -> str:
             verifier = PostgresTaskVerifier(task_store, principal)
             permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
         elif card.action.action_id == "tasks.chores.create":
-            from .household import PostgresChoreExecutor, PostgresChoreVerifier
-
             executor = PostgresChoreExecutor(principal_store, principal)
             verifier = PostgresChoreVerifier(principal_store, principal)
+            permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
+        elif card.action.action_id == "tasks.events.create":
+            executor = PostgresEventExecutor(principal_store, principal)
+            verifier = PostgresEventVerifier(principal_store, principal)
             permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
         else:
             executor = PostgresTaskListExecutor(task_store, principal)

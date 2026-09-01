@@ -90,6 +90,7 @@ class PostgresHouseholdStore:
                 for obligation in space.obligations.values()
             ],
             "chore_mutations": space.chore_mutations,
+            "event_mutations": space.event_mutations,
         }
         self.connection.execute(
             "INSERT INTO household_spaces (space_id, payload) VALUES (%s, %s) "
@@ -142,6 +143,9 @@ class PostgresHouseholdStore:
         chore_mutations = {
             str(key): str(item) for key, item in payload.get("chore_mutations", {}).items()
         }
+        event_mutations = {
+            str(key): str(item) for key, item in payload.get("event_mutations", {}).items()
+        }
         return HouseholdSpace(
             space_id,
             set(members),
@@ -151,6 +155,7 @@ class PostgresHouseholdStore:
             obligations,
             grocery_mutations,
             chore_mutations,
+            event_mutations,
         )
 
     def add_grocery(self, principal: Principal, item: str, idempotency_key: str) -> None:
@@ -233,6 +238,31 @@ class PostgresHouseholdStore:
         self.save(space)
         return chore
 
+    def add_event(
+        self,
+        principal: Principal,
+        title: str,
+        starts_at: datetime,
+        idempotency_key: str,
+    ) -> HouseholdEvent:
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships "
+                "WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        space = self.load(space_id, members)
+        event = space.add_event(
+            principal,
+            HouseholdEvent(f"event-{uuid4().hex}", title, starts_at),
+            idempotency_key,
+        )
+        self.save(space)
+        return event
+
     def _space_for(self, principal: Principal) -> str:
         if not principal.space_ids:
             raise PermissionError("household operation requires an explicit Space")
@@ -257,6 +287,7 @@ class HouseholdSpace:
     obligations: dict[str, HouseholdObligation] = field(default_factory=dict)
     grocery_mutations: dict[str, str] = field(default_factory=dict)
     chore_mutations: dict[str, str] = field(default_factory=dict)
+    event_mutations: dict[str, str] = field(default_factory=dict)
 
     def _require_member(self, principal: Principal) -> None:
         if principal.id not in self.members or self.space_id not in principal.space_ids:
@@ -295,9 +326,21 @@ class HouseholdSpace:
             self.chore_mutations[idempotency_key] = chore.chore_id
         return chore
 
-    def add_event(self, principal: Principal, event: HouseholdEvent) -> None:
+    def add_event(
+        self, principal: Principal, event: HouseholdEvent, idempotency_key: str | None = None
+    ) -> HouseholdEvent:
         self._require_member(principal)
+        if idempotency_key is not None:
+            existing_id = self.event_mutations.get(idempotency_key)
+            if existing_id is not None:
+                existing = self.events[existing_id]
+                if existing.title != event.title or existing.starts_at != event.starts_at:
+                    raise ValueError("event idempotency key is bound to different arguments")
+                return existing
         self.events[event.event_id] = event
+        if idempotency_key is not None:
+            self.event_mutations[idempotency_key] = event.event_id
+        return event
 
     def add_obligation(self, principal: Principal, obligation: HouseholdObligation) -> None:
         self._require_member(principal)
@@ -447,5 +490,87 @@ class PostgresChoreVerifier:
                 "canonical chore readback verified"
                 if verified
                 else "canonical chore readback failed"
+            ),
+        )
+
+
+class PostgresEventExecutor:
+    """Adapt replay-safe shared event creation to the Core Executor port."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "tasks.events.create":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        title = request.action.arguments.get("title")
+        starts_at = request.action.arguments.get("starts_at")
+        if not isinstance(title, str) or not title.strip() or not isinstance(starts_at, str):
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"invalid_event": True},
+                command_succeeded=False,
+            )
+        try:
+            event = self.store.add_event(
+                self.principal,
+                title.strip(),
+                datetime.fromisoformat(starts_at),
+                request.idempotency_key,
+            )
+        except (PermissionError, ValueError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"persistence_error": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "events",
+                "event_id": event.event_id,
+                "title": event.title,
+                "starts_at": event.starts_at.isoformat(),
+                "idempotency_key": request.idempotency_key,
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresEventVerifier:
+    """Verify event creation by independently reading canonical shared state."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="event execution failed"
+            )
+        snapshot = self.store.read_snapshot(self.principal)
+        events = cast(tuple[HouseholdEvent, ...], snapshot["events"])
+        event_id = observation.evidence.get("event_id")
+        verified = any(
+            event.event_id == event_id
+            and event.title == observation.evidence.get("title")
+            and event.starts_at.isoformat() == observation.evidence.get("starts_at")
+            for event in events
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_event_count": len(events)},
+            reason=(
+                "canonical event readback verified"
+                if verified
+                else "canonical event readback failed"
             ),
         )
