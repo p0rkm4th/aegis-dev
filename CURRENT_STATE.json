@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-operator-diagnostics-green",
   "active_branch": "aegis-dev",
-  "head_sha": "04eb1225383a133be4b21d86b441a517b8f36a04",
-  "last_green_sha": "04eb1225383a133be4b21d86b441a517b8f36a04",
-  "last_pushed_sha": "04eb1225383a133be4b21d86b441a517b8f36a04",
+  "head_sha": "738dbead4e6252f940de71aa2dcf882d475c3844",
+  "last_green_sha": "738dbead4e6252f940de71aa2dcf882d475c3844",
+  "last_pushed_sha": "738dbead4e6252f940de71aa2dcf882d475c3844",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -145,6 +145,7 @@
     ,"installed wheel exposes the same aegis console command as the repository launcher"
     ,"validation and clean-install smoke scripts resolve the repository root and run from outside the checkout"
     ,"installed runtime applies packaged migrations and executes canonical requests outside the repository"
+    ,"environment files reject duplicate keys with stable safe diagnostics"
     ,"installed wheel launches the loopback browser surface with packaged migrations and authorized Constellation state"
     ,"installed wheel browser surface renders in Chromium and supports Constellation detail selection outside the repository"
     ,"clean-install smoke executes the installed aegis command and verifies private first-run bootstrap"
@@ -168,7 +169,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "157 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "158 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
@@ -346,6 +347,7 @@
         "installed_console_live": "green live package acceptance: a freshly built wheel generated an executable aegis console script; from its isolated prefix it served --help and --version with the same CLI behavior as ./scripts/aegis",
         "out_of_tree_validation_live": "green live operator acceptance: from /tmp, the repository validation script ran 156 tests plus Ruff, formatting, mypy, and migration validation, and the install smoke script built/installed the package successfully",
         "installed_runtime_live": "green live package acceptance: a freshly built wheel installed outside the checkout applied packaged migrations and completed a PostgreSQL-backed 'Show my tasks.' request through the installed aegis console command",
+        "duplicate_config_live": "green live operator acceptance: duplicate AEGIS_DATABASE_URL entries caused --check --json to exit 1 with only code=configuration_invalid, no stderr, and no configured values or secrets emitted",
         "installed_browser_live": "green live package acceptance: a freshly built wheel launched the generated aegis --web command outside the checkout; HTML, /api/health ready=true, and authorized /api/constellation with 10 nodes and 9 edges all returned successfully",
         "installed_browser_rendered_live": "green live rendered package acceptance: Chromium opened the wheel-generated aegis --web surface outside the checkout, rendered 10 authorized nodes, selected Tasks, displayed its detail panel, and showed truthful NOT READY diagnostics for the intentionally unavailable loopback Ollama endpoint",
         "enhanced_install_smoke_live": "green live operator acceptance: from /tmp, clean-install smoke built the package, validated packaged migrations, executed the generated aegis --version command, and created a mode-600 .env with the installed --init command",
