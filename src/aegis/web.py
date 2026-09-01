@@ -101,8 +101,9 @@ aria-live="polite" aria-label="Selected node details"></div>
 <p><button id="refresh" type="button">Refresh state</button></p>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
-autocomplete="off" placeholder="Filter authorized nodes"></label>
-<p id="node-filter-status" class="muted" aria-live="polite"></p>
+autocomplete="off" aria-describedby="node-filter-status"
+placeholder="Filter authorized nodes"></label>
+<p id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"></p>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>

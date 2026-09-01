@@ -1500,6 +1500,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'id="health-details"' in _INDEX_HTML
     assert 'id="node-filter"' in _INDEX_HTML
     assert 'id="node-filter-status"' in _INDEX_HTML
+    assert 'aria-describedby="node-filter-status"' in _INDEX_HTML
+    assert (
+        'id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"' in _INDEX_HTML
+    )
     assert "component.detail" in _INDEX_HTML
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
