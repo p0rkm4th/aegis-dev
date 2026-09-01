@@ -10,6 +10,8 @@ from typing import Any
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
 from .contracts import Principal
 from .health import HealthReport
 
@@ -18,6 +20,26 @@ ConstellationState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 _MAX_BODY_BYTES = 20_000
+
+
+class ConstellationNode(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    id: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    detail: str = ""
+
+
+class ConstellationEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    source: str = Field(min_length=1)
+    target: str = Field(min_length=1)
+
+
+class ConstellationProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    nodes: tuple[ConstellationNode, ...] = ()
+    edges: tuple[ConstellationEdge, ...] = ()
+    details: dict[str, Any] = {}
 
 
 _INDEX_HTML = """<!doctype html>
@@ -182,16 +204,16 @@ class BrowserApp:
             return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
         if method == "GET" and route == "/api/constellation":
             try:
-                state = self.state(principal)
+                state = ConstellationProjection.model_validate(self.state(principal))
             except PermissionError:
                 return self._error(
                     HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
                 )
-            except (OSError, RuntimeError):
+            except (OSError, RuntimeError, ValidationError):
                 return self._error(
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
-            return self._json(HTTPStatus.OK, state)
+            return self._json(HTTPStatus.OK, state.model_dump(mode="json"))
         if method == "POST" and route == "/api/message":
             if len(body) > _MAX_BODY_BYTES:
                 return self._error(
