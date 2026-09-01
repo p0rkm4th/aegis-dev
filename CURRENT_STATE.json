@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-relative-deadline-filter-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "f1982eb",
+  "head_sha": "06234c8",
   "last_green_sha": "d41d06a",
-  "last_pushed_sha": "f1982eb",
+  "last_pushed_sha": "06234c8",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
