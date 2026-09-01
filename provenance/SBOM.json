@@ -21,6 +21,14 @@
     },
     {
       "type": "library",
+      "name": "psycopg",
+      "version": "3.3.5",
+      "scope": "required",
+      "purl": "pkg:pypi/psycopg@3.3.5",
+      "licenses": [{"license": {"id": "LGPL-3.0-only"}}]
+    },
+    {
+      "type": "library",
       "name": "pytest",
       "version": "8.4.2",
       "scope": "optional",
