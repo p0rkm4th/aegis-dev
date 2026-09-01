@@ -173,7 +173,9 @@ def _fallback_working_context(
             values=values,
             sources=tuple(dict.fromkeys((*context.sources, "authorized_canonical_context"))),
         )
-    facts["canonical_items"] = list(household_store.list_groceries(principal)[:20])
+    facts["canonical_items"] = list(
+        dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
+    )[:20]
     tasks = list(task_store.list(principal))
     query_terms = {
         term
