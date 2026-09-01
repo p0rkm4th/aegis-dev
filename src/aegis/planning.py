@@ -261,9 +261,39 @@ class CrossDomainPlanningFastPath:
         open_tasks = tuple(task for task in self.tasks if task.status.value == "open")[
             : self._MAX_CONTEXT_ITEMS
         ]
+        query_terms = {
+            term.strip(".,!?;:")
+            for term in intent.utterance.casefold().split()
+            if len(term.strip(".,!?;:")) >= 4
+            and term.strip(".,!?;:")
+            not in {
+                "considering",
+                "personal",
+                "memory",
+                "utilities",
+                "open",
+                "what",
+                "should",
+                "prioritize",
+            }
+        }
+        memory_candidates = tuple(
+            (
+                sum(term in memory.content.casefold() for term in query_terms),
+                memory,
+            )
+            for memory in self.personal.memories.values()
+            if memory.superseded_by is None
+        )
+        scored_memories = tuple(candidate for candidate in memory_candidates if candidate[0] > 0)
+        highest_memory_score = max((score for score, _memory in scored_memories), default=0)
+        memory_matches = tuple(
+            memory for score, memory in scored_memories if score == highest_memory_score
+        )[: self._MAX_CONTEXT_ITEMS]
         priorities = [f"household obligation: {item.title}" for item in open_obligations]
         priorities.extend(f"personal goal: {goal.description}" for goal in goals)
         priorities.extend(f"task: {task.title}" for task in open_tasks)
+        priorities.extend(f"personal memory: {memory.content}" for memory in memory_matches)
         planning: dict[str, object] = {
             "goals": [
                 {
@@ -280,6 +310,14 @@ class CrossDomainPlanningFastPath:
             ],
             "open_tasks": [
                 {"task_id": str(task.task_id), "title": task.title} for task in open_tasks
+            ],
+            "memories": [
+                {
+                    "content": memory.content,
+                    "occurred_at": memory.occurred_at.isoformat(),
+                    "provenance": memory.provenance.value,
+                }
+                for memory in memory_matches
             ],
             "priority_candidates": priorities,
             "sources": ("personal_vault", "household_space", "tasks_space"),
