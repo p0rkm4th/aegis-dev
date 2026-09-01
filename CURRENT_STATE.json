@@ -3,17 +3,17 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "live-vertical-slice-runtime-blocked",
+  "current_checkpoint": "live-ollama-core-sqlite-green-openclaw-postgres-blocked",
   "active_branch": "aegis-dev",
-  "head_sha": "61ca8a7141b2cb0f861393ace012821d1c8ffc66",
-  "last_green_sha": "61ca8a7141b2cb0f861393ace012821d1c8ffc66",
-  "last_pushed_sha": "61ca8a7141b2cb0f861393ace012821d1c8ffc66",
+  "head_sha": "ded06e150797d8d352767f32ace8074e3688b996",
+  "last_green_sha": "ded06e150797d8d352767f32ace8074e3688b996",
+  "last_pushed_sha": "ded06e150797d8d352767f32ace8074e3688b996",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
     "provider": "ollama",
     "model": "qwen3:8b",
-    "status": "live_endpoint_reachable; structured_probe_rejected_by_decoder",
+    "status": "live_decision_accepted_through_provider_and_decoder",
     "endpoint": "http://172.18.0.1:11434",
     "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
   },
@@ -54,10 +54,10 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "64 passed"
+    "pytest": "65 passed"
   },
   "known_failures": [
-    "Ollama live structured probe returned malformed Decision semantics and was correctly rejected",
+    "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "OpenClaw Gateway transport is not reachable or installed in this environment",
     "PostgreSQL is not listening on 127.0.0.1:5432 and migrations were not applied",
     "Home Assistant/device live acceptance was not performed",
@@ -68,11 +68,22 @@
   ],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
-  "current_model_baseline": "Ollama qwen3:8b live inventory confirmed at 172.18.0.1; first structured probe was rejected by StrictDecisionDecoder",
-  "database_migration_version": "001_initial.sql (artifact; psql 127.0.0.1:5432 connection refused)",
+  "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "database_migration_version": "001_initial.sql (artifact; SQLite restart/replay evidence passed; psql 127.0.0.1:5432 connection refused)",
   "openclaw_compatibility": {
     "tested_release": "2026.8.1",
     "adapter": "policy/approval execution boundary; live Gateway transport unavailable; no execution evidence"
   },
-  "next_action": "In an owner environment, run docs/LIVE_ACCEPTANCE.md with reachable OpenClaw Gateway and PostgreSQL; do not expand scope or claim the vertical slice complete until real execution, readback, restart, and replay evidence is recorded"
+  "live_acceptance_evidence": {
+    "ollama_command": "OllamaHttpTransport(http://172.18.0.1:11434) -> OllamaProvider(qwen3:8b, max_repairs=0) -> StrictDecisionDecoder",
+    "ollama_result": "ACTION kitchen.groceries.add accepted with exact arguments item=rice and readback verification",
+    "core_sqlite_command": "Kernel + ReferenceExecutor/Verifier + SqliteObjectiveStore; close/reopen store; replay same IntentFrame correlation",
+    "core_sqlite_result": "completed; groceries=[rice]; same canonical Result returned after reopen; no duplicate mutation",
+    "correlation_id": "13f555c9-4e63-4f4c-8a0a-13a9d79662a5",
+    "objective_id": "c8c6aaee-31e6-46f1-844c-03709c231032",
+    "external_execution": "not proven; ReferenceExecutor is a simulator",
+    "postgresql": "blocked: 127.0.0.1:5432 connection refused; server package/service absent",
+    "openclaw": "blocked: Gateway transport/binary not present or reachable"
+  },
+  "next_action": "In an owner environment, run docs/LIVE_ACCEPTANCE.md with reachable PostgreSQL and OpenClaw Gateway; wire the accepted live Qwen decision into real external execution and record external observation, verification, restart, and replay evidence"
 }
