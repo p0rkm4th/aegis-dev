@@ -74,6 +74,7 @@ from aegis.identity import (
     KeycloakOIDCClient,
     Membership,
     OpenFGAAuthorization,
+    PostgresExternalPrincipalResolver,
     Resource,
     Role,
     Space,
@@ -1006,6 +1007,63 @@ def test_keycloak_oidc_client_maps_userinfo_and_fails_closed(monkeypatch):
         pass
     else:
         raise AssertionError("empty access token was accepted")
+
+
+def test_keycloak_oidc_client_resolves_immutable_subject_to_canonical_principal(
+    monkeypatch,
+):
+    import json
+
+    import aegis.identity as identity_module
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "sub": "keycloak-subject",
+                    "aegis_vault_id": "alice-vault",
+                    "aegis_space_ids": ["apartment"],
+                }
+            ).encode()
+
+    monkeypatch.setattr(identity_module, "urlopen", lambda request, timeout: Response())
+    client = KeycloakOIDCClient(
+        "http://keycloak/realms/aegis",
+        principal_resolver=lambda subject: "alice" if subject == "keycloak-subject" else "",
+    )
+
+    assert client.principal_from_access_token("token") == Principal(
+        id="alice", vault_id="alice-vault", space_ids=("apartment",)
+    )
+
+
+def test_postgres_external_principal_resolver_fails_closed_when_unprovisioned():
+    class Cursor:
+        def fetchone(self):
+            return None
+
+    class Connection:
+        def execute(self, query, params):
+            assert "external_subject = %s" in query
+            assert params == ("unknown-subject",)
+            return Cursor()
+
+        def close(self):
+            pass
+
+    resolver = PostgresExternalPrincipalResolver(lambda url: Connection(), "postgresql://db")
+    try:
+        resolver("unknown-subject")
+    except PermissionError as exc:
+        assert str(exc) == "external identity is not provisioned in AEGIS"
+    else:
+        raise AssertionError("unprovisioned external identity was accepted")
 
 
 def test_openfga_adapter_is_fail_closed_on_relationship_denial():

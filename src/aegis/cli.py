@@ -28,7 +28,11 @@ from .homelab import PostgresHomelabStore
 from .household import (
     PostgresHouseholdStore,
 )
-from .identity import KeycloakIdentityProvider, KeycloakOIDCClient
+from .identity import (
+    KeycloakIdentityProvider,
+    KeycloakOIDCClient,
+    PostgresExternalPrincipalResolver,
+)
 from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -487,7 +491,12 @@ def _principal() -> Principal:
     token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
     if token:
         issuer = _required("AEGIS_KEYCLOAK_ISSUER")
-        return KeycloakOIDCClient(issuer).principal_from_access_token(token)
+        resolver = PostgresExternalPrincipalResolver(
+            psycopg.connect, _required("AEGIS_DATABASE_URL")
+        )
+        return KeycloakOIDCClient(issuer, principal_resolver=resolver).principal_from_access_token(
+            token
+        )
     # Local alpha mode still crosses the identity mapping boundary. It uses an
     # explicitly configured development identity rather than pretending to be a
     # bearer-token session.

@@ -146,6 +146,10 @@ For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 local development Principal `alice` / `alice-vault` / `apartment`; a validated
 Keycloak bearer token can instead be supplied with
 `AEGIS_KEYCLOAK_ISSUER` and `AEGIS_KEYCLOAK_ACCESS_TOKEN`.
+Bearer mode resolves Keycloak's immutable `sub` through the canonical
+`aegis_principals.external_subject` mapping before any Vault or Space lookup;
+an authenticated but unprovisioned subject is rejected rather than falling
+back to a username or local development identity.
 
 Try `Add rice to groceries.`, `What's on my grocery list.`,
 `Create a task to buy cat food.`, and `Show my tasks.`. The CLI applies the
