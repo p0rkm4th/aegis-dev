@@ -13,6 +13,7 @@ import psycopg
 from .audit import PostgresAuditLog
 from .contracts import ActionCard, IntentFrame, Principal
 from .decoding import StrictDecisionDecoder
+from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import PostgresHouseholdStore
 from .identity import KeycloakIdentityProvider, KeycloakOIDCClient, PostgresSpacePolicy, Role
@@ -208,10 +209,35 @@ def handle(utterance: str, principal: Principal) -> str:
         if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
             _ensure_local_identity(connection, principal)
         intent = IntentFrame(principal=principal, utterance=utterance)
-        memory_result = PersonalMemoryFastPath(
-            PostgresPersonalStateStore(connection, principal.vault_id)
-            .load()
-        ).resolve(intent)
+        personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load()
+        semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+        if semantic_enabled:
+            embedding_provider = OllamaEmbeddingProvider(
+                os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
+                _required("AEGIS_OLLAMA_URL"),
+            )
+            vector_index = PostgresMemoryVectorIndex(connection)
+            embeddings = embedding_provider.embed(
+                tuple(memory.content for memory in personal_state.memories.values())
+            )
+            for memory, embedding in zip(personal_state.memories.values(), embeddings):
+                vector_index.upsert(
+                    principal.vault_id, memory.memory_id, embedding, embedding_provider.model
+                )
+            connection.commit()
+            memory_fast_path = PersonalMemoryFastPath(
+                personal_state,
+                embedding_provider=embedding_provider,
+                vector_index=vector_index,
+                vault_id=principal.vault_id,
+            )
+        else:
+            memory_fast_path = PersonalMemoryFastPath(personal_state)
+        memory_result = memory_fast_path.resolve(intent)
         if memory_result is not None:
             return _format(memory_result)
         manager = PackManager(store=PostgresPackStore(connection))
