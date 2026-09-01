@@ -87,7 +87,8 @@ Vault ownership below the browser adapter.
 API failures include a stable `code` alongside generic user-safe `error` text
 (`identity_unavailable`, `state_access_denied`, `state_unavailable`,
 `health_unavailable`, `invalid_request`, `request_denied`,
-`request_unavailable`, `request_timeout`, or `route_not_found`) so clients do
+`request_unavailable`, `response_unavailable`, `request_timeout`, or
+`route_not_found`) so clients do
 not parse prose to choose their behavior.
 Successful message responses use a stable envelope containing `message`,
 `correlation_id`, canonical `state`, and (when available) `objective_id` and
