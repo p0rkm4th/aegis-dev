@@ -245,7 +245,9 @@ function renderDetailValue(value) {
   if (Array.isArray(value)) {
     const list = document.createElement('ul');
     if (!value.length) {
-      const item = document.createElement('li'); item.textContent = 'None'; list.append(item);
+      const item = document.createElement('li');
+      item.textContent = 'No canonical records available';
+      list.append(item);
     }
     value.forEach(item => {
       const row = document.createElement('li');
@@ -256,7 +258,9 @@ function renderDetailValue(value) {
   if (typeof value === 'object') {
     const definition = document.createElement('dl');
     Object.entries(value).forEach(([key, item]) => {
-      const term = document.createElement('dt'); term.textContent = key;
+      const term = document.createElement('dt');
+      const label = key.replaceAll('_', ' ');
+      term.textContent = label.replace(/\\b\\w/g, character => character.toUpperCase());
       const description = document.createElement('dd'); description.append(renderDetailValue(item));
       definition.append(term, description);
     });
