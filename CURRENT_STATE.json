@@ -87,7 +87,7 @@
     "blocked_lanes": [
         "Home Assistant/device live acceptance remains unperformed; no current blocker for the bounded Homelab service slice"
   ],
-  "security_status": "model is untrusted; policy and verification are external",
+    "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
   "database_migration_version": "001_initial.sql through 009_task_idempotency.sql applied to disposable PostgreSQL 16.4 container; objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, and replay-safe Tasks persistence green",
@@ -148,7 +148,7 @@
     "postgresql_finance_state": "green: migration 006 applied; fresh PostgreSQL connection reloaded owner-partitioned account/transaction snapshot with provider provenance; balance recomputation worked and Bob was denied Alice's snapshot",
     "keycloak_userinfo_adapter": "green: disposable Keycloak bearer token reached userinfo with AEGIS Vault/Space protocol-mapped claims; KeycloakOIDCClient produced the expected canonical Principal and rejected missing claims",
         "household_projection": "green: live authorized FinanceLedger-to-PrivacyProjectionService path persisted allowlisted household output; fresh connection reloaded it for Bob, denied a non-member, and raw balance/transaction fields were absent",
-        "end_user_alpha": "green: ./scripts/aegis accepted manual grocery and task requests through live Qwen3:8B; grocery mutation crossed paired OpenClaw and was independently read back; task/grocery state was read from PostgreSQL in a fresh CLI process after restart",
+        "end_user_alpha": "green: ./scripts/aegis accepted manual grocery and task requests through live Qwen3:8B; grocery mutation crossed paired OpenClaw and was independently read back; task/grocery state was read from PostgreSQL in a fresh CLI process after restart; token-authenticated mode does not bootstrap membership",
         "homelab_openclaw_health": "green: scripts/live_homelab_slice.py used live Qwen3:8B and PostgreSQL policy, restarted a real local HTTP service through paired OpenClaw terminal execution, independently read HTTP 200, and a fresh process replay with correlation a01bd4b5-8b43-405e-9ce9-a3cd20590fc3 reused the same completed Result and objective without dispatching a second restart",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
