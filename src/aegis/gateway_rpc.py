@@ -58,6 +58,7 @@ class OpenClawWebSocketChannel:
         self.private_key_pem = private_key_pem
         self.public_key_pem = public_key_pem
         self._socket: Any | None = None
+        self._pending_events: list[dict[str, Any]] = []
 
     def send(self, request: RpcRequest) -> RpcResponse:
         try:
@@ -110,6 +111,13 @@ class OpenClawWebSocketChannel:
         if self._socket is None:
             raise RpcProtocolError("Gateway event requires a persistent connection")
         try:
+            for index, frame in enumerate(self._pending_events):
+                if frame.get("event") == event_name:
+                    self._pending_events.pop(index)
+                    payload = frame.get("payload")
+                    if not isinstance(payload, dict):
+                        raise RpcProtocolError("Gateway event payload is not an object")
+                    return payload
             while True:
                 frame = cast(dict[str, Any], json.loads(self._socket.recv()))
                 if frame.get("type") == "event" and frame.get("event") == event_name:
@@ -117,6 +125,8 @@ class OpenClawWebSocketChannel:
                     if not isinstance(payload, dict):
                         raise RpcProtocolError("Gateway event payload is not an object")
                     return payload
+                if frame.get("type") == "event":
+                    self._pending_events.append(frame)
         except RpcProtocolError:
             raise
         except Exception as exc:
@@ -202,12 +212,13 @@ class OpenClawWebSocketChannel:
         if not hello.get("ok"):
             raise RpcProtocolError(f"Gateway handshake failed: {hello.get('error')}")
 
-    @staticmethod
-    def _receive_response(socket: Any, request_id: str) -> dict[str, Any]:
+    def _receive_response(self, socket: Any, request_id: str) -> dict[str, Any]:
         while True:
             frame = cast(dict[str, Any], json.loads(socket.recv()))
             if frame.get("type") == "res" and frame.get("id") == request_id:
                 return frame
+            if frame.get("type") == "event":
+                self._pending_events.append(frame)
 
 
 class CorrelatedRpcClient:
