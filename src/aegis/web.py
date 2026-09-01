@@ -83,7 +83,9 @@ const edges = document.getElementById('edges');
 const refresh = document.getElementById('refresh');
 const messageTimeoutMs = 120000;
 const pendingStorageKey = 'aegis.pending-request';
+const recoveryPollMs = 5000;
 let pendingCorrelationId = null;
+let recoveryPollScheduled = false;
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
@@ -112,19 +114,37 @@ function restorePendingRequest() {
     document.querySelector('#chat button').textContent = 'Retry';
   } catch (_) { clearPendingRequest(); }
 }
+function scheduleRecoveryPoll() {
+  if (recoveryPollScheduled || !pendingCorrelationId) return;
+  recoveryPollScheduled = true;
+  setTimeout(() => {
+    recoveryPollScheduled = false;
+    recoverPendingRequest();
+  }, recoveryPollMs);
+}
 async function recoverPendingRequest() {
   if (!pendingCorrelationId) return;
   try {
     const response = await fetch(`/api/request-status?correlation_id=${pendingCorrelationId}`);
-    if (!response.ok) return;
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        clearAuthorizedDisplays();
+        document.getElementById('state-status').textContent =
+          'Authorization lost; authorized state cleared.';
+      } else {
+        scheduleRecoveryPoll();
+      }
+      return;
+    }
     const status = await response.json();
-    if (status.state === 'unknown') return;
+    if (status.state === 'unknown') { scheduleRecoveryPoll(); return; }
     const inProgressStates = new Set([
       'proposed', 'validated', 'authorized', 'executing', 'observed'
     ]);
     if (inProgressStates.has(status.state)) {
       document.getElementById('detail').textContent =
         `Request status recovered: ${status.state}. Retry remains explicit.`;
+      scheduleRecoveryPoll();
       return;
     }
     pendingCorrelationId = null; clearPendingRequest();
