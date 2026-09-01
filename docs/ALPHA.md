@@ -79,4 +79,6 @@ Try `Add rice to groceries.`, `What's on my grocery list.`,
 `Create a task to buy cat food.`, and `Show my tasks.`. The CLI applies the
 existing migrations by default, persists canonical state in PostgreSQL, and
 uses independent readback verification. Restarting the CLI does not clear
-state. Type `quit` to exit.
+state. Routine task-list, household, and affordability reads use deterministic
+canonical fast paths; model-backed mutations still require Ollama readiness.
+Type `quit` to exit.
