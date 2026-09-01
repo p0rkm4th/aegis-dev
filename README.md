@@ -16,6 +16,9 @@ python3 -m venv .venv
 ./scripts/aegis --init
 ```
 
+The package also installs an `aegis` command; the repository wrapper above is
+useful when working directly from a checkout.
+
 `--init` refuses to overwrite an existing file and creates it with private
 permissions. Replace its placeholders before running readiness checks.
 

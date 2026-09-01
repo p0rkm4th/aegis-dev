@@ -9,6 +9,9 @@ description = "Aegis local-first semantic intelligence core"
 requires-python = ">=3.11"
 dependencies = ["pydantic>=2.7,<3"]
 
+[project.scripts]
+aegis = "aegis.cli:main"
+
 [project.optional-dependencies]
 dev = ["pytest>=8,<9", "ruff>=0.6,<1", "mypy>=1.11,<2"]
 live = ["cryptography>=43,<51", "psycopg[binary]>=3.2,<4", "websocket-client>=1.8,<2"]
