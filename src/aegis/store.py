@@ -377,7 +377,8 @@ class PostgresObjectiveStore:
 
     def get_observation(self, key: str) -> Observation | None:
         cursor = self.connection.execute(
-            """SELECT o.id, o.command_succeeded, o.evidence, o.observed_at
+            """SELECT o.id, o.command_succeeded, o.evidence, o.observed_at,
+                      a.payload->'action'->>'action_id'
                FROM observations o JOIN actions a ON a.id = o.action_id
                WHERE a.idempotency_key = %s""",
             (key,),
@@ -388,6 +389,7 @@ class PostgresObjectiveStore:
         evidence = row[2] if isinstance(row[2], dict) else json.loads(str(row[2]))
         return Observation(
             execution_id=UUID(str(row[0])),
+            action_id=str(row[4]) if row[4] else None,
             evidence=evidence,
             command_succeeded=bool(row[1]),
             observed_at=cast(datetime, row[3]),

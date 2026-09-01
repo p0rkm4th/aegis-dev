@@ -116,6 +116,7 @@ class ExecutionRequest(StrictModel):
 
 class Observation(StrictModel):
     execution_id: UUID
+    action_id: str | None = None
     evidence: dict[str, Any]
     command_succeeded: bool
     observed_at: datetime = Field(default_factory=utc_now)

@@ -91,6 +91,34 @@ class _NoApproval:
         return True
 
 
+class _ActionExecutorDispatch:
+    """Dispatch plan steps to their existing Pack executor adapters."""
+
+    def __init__(self, delegates: dict[str, Any]) -> None:
+        self.delegates = delegates
+
+    def execute(self, request: Any) -> Any:
+        try:
+            delegate = self.delegates[request.action.action_id]
+        except KeyError as exc:
+            raise ValueError("plan contains an unsupported action") from exc
+        observation = delegate.execute(request)
+        return observation.model_copy(update={"action_id": request.action.action_id})
+
+
+class _ActionVerifierDispatch:
+    """Dispatch plan verification to the matching canonical verifier."""
+
+    def __init__(self, delegates: dict[str, Any]) -> None:
+        self.delegates = delegates
+
+    def verify(self, observation: Any, contract: Any) -> Any:
+        action_id = observation.action_id
+        if not isinstance(action_id, str) or action_id not in self.delegates:
+            raise ValueError("plan verifier is unavailable")
+        return self.delegates[action_id].verify(observation, contract)
+
+
 class InteractionBoundary:
     """Canonical application interaction service used by every client."""
 
@@ -278,6 +306,55 @@ class InteractionBoundary:
                     manager.enable(pack_id)
                 elif manager.status(pack_id) is PackStatus.INSTALLED:
                     manager.enable(pack_id)
+            plan_titles = MultiActionFastPath.task_chore_titles(utterance)
+            if plan_titles is not None:
+                task_card = next(
+                    card
+                    for card in manager.retrieve("tasks")
+                    if card.action.action_id == "tasks.create"
+                )
+                chore_card = next(
+                    card
+                    for card in manager.retrieve("tasks")
+                    if card.action.action_id == "tasks.chores.create"
+                )
+                task_action = task_card.action.model_copy(
+                    update={"arguments": {"title": plan_titles[0]}}
+                )
+                chore_action = chore_card.action.model_copy(
+                    update={"arguments": {"title": plan_titles[1]}}
+                )
+                principal_store = PostgresHouseholdStore(connection)
+                kernel = Kernel(
+                    OllamaProvider(
+                        os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
+                        OllamaHttpTransport(self.dependencies.required("AEGIS_OLLAMA_URL")),
+                    ),
+                    StrictDecisionDecoder(),
+                    PostgresSpacePolicy(
+                        connection,
+                        {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+                    ),
+                    _ActionExecutorDispatch(
+                        {
+                            "tasks.create": PostgresTaskExecutor(task_store, principal),
+                            "tasks.chores.create": PostgresChoreExecutor(
+                                principal_store, principal
+                            ),
+                        }
+                    ),
+                    _ActionVerifierDispatch(
+                        {
+                            "tasks.create": PostgresTaskVerifier(task_store, principal),
+                            "tasks.chores.create": PostgresChoreVerifier(
+                                principal_store, principal
+                            ),
+                        }
+                    ),
+                    store=PostgresObjectiveStore(connection),
+                    audit=PostgresAuditLog(connection),
+                )
+                return kernel.run_sequence(intent, (task_action, chore_action))
             _domain, card = self.dependencies.select_action(utterance, manager)
             if goal_task_title is not None and card.action.action_id == "tasks.create":
                 card = card.model_copy(
