@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "0e2c567",
-  "last_green_sha": "0e2c567",
-  "last_pushed_sha": "0e2c567",
+  "head_sha": "6801b08",
+  "last_green_sha": "6801b08",
+  "last_pushed_sha": "6801b08",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -81,6 +81,7 @@
     "Space-scoped PostgreSQL Homelab inventory persists host resources and services and reloads across fresh connections",
     "Owner- and Space-scoped PostgreSQL Security Lab findings persist authorized evidence and reject cross-owner reloads"
     ,"Clean-install smoke builds the package and validates the current contiguous migration endpoint"
+    ,"scriptable alpha CLI boundary with --help, --once, and --no-banner"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -98,10 +99,10 @@
     "12": "in_progress"
   },
   "most_recent_tests": {
-    "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
+    "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "97 passed; ruff check passed; ruff format check passed; mypy passed (36 source files); migration validation passed",
-    "known_gate_note": "Repository-wide validation gate is green; formatting was normalized in the affected files"
+    "pytest": "99 passed; ruff check passed; ruff format check passed; mypy passed (36 source files); migration validation passed",
+    "known_gate_note": "Scriptable CLI boundary tested; --help runs without runtime configuration; --once routes through the existing Core interaction boundary"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -191,6 +192,7 @@
         "phase9_technical_gate": "green: Homelab host/resource/service inventory and verified action evidence, explicit Network scope enforcement, durable owner/Space-scoped Security Lab findings, and durable source-grounded OSINT provenance are covered; live tests reject reachability-as-authority and cross-owner disclosure",
         "phase10_forge_gate": "green: existing Forge tests cover capability-gap detection, license/provenance classification, sandbox/test prerequisites, owner approval, Pack materialization, lifecycle installation, and the trading-card acceptance path; no generated Pack can self-authorize",
         "phase11_ambient_gate": "green with external limitation: OpenClaw system-event delivery, ambient policy/idempotency/failure behavior, proactive household signal composition, and Home Assistant adapter contracts are covered; real Home Assistant/device/voice acceptance remains blocked on owner hardware or credentials and is not claimed",
+        "scriptable_alpha_cli": "green: --help is available without database/model/OpenClaw configuration; --once emits one result and exits through handle(); --no-banner preserves the interactive boundary for wrappers",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -218,5 +220,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Complete remaining Phase 12 release gates that are executable in the current environment; owner must provide Home Assistant/mobile/voice hardware or credentials for live ambient acceptance before a final release claim."
+  "next_action": "Continue the Phase 12 release/product audit on executable usability and recovery gaps; Home Assistant/mobile/voice live acceptance remains lane-limited until owner hardware or credentials are available."
 }
