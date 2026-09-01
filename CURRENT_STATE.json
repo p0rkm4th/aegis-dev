@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-release-candidate-audit",
+  "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "5e153fb",
-  "last_green_sha": "5e153fb",
-  "last_pushed_sha": "5e153fb",
+  "head_sha": "91c4be7",
+  "last_green_sha": "91c4be7",
+  "last_pushed_sha": "91c4be7",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -219,5 +219,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Run the Phase 12 release-candidate audit against install/update, backup/restore, observability, dependency provenance, security/privacy, Pack/Forge, recovery, and representative live workflows; do not claim production readiness while gates remain unproven."
+  "next_action": "Complete remaining Phase 12 release gates that are executable in the current environment; owner must provide Home Assistant/mobile/voice hardware or credentials for live ambient acceptance before a final release claim."
 }
