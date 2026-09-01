@@ -742,7 +742,7 @@ def main() -> int:
         if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
             _prepare_local_web_runtime(principal)
         print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
-        serve(args.host, args.port, principal, _browser_interaction, _constellation_state)
+        serve(args.host, args.port, _principal, _browser_interaction, _constellation_state)
         return 0
     if args.once is not None:
         try:
