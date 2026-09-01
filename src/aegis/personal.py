@@ -280,6 +280,35 @@ class PersonalState:
             )
         )
 
+    def search_memories(self, query: str, limit: int = 10) -> tuple[MemoryRecord, ...]:
+        """Return current memories ranked by deterministic query-term matches.
+
+        This is a small fast path for local queries. It is deliberately not a
+        truth or vector-index authority: superseded memories remain excluded,
+        and callers still receive the original provenance-bearing records.
+        A future semantic index can sit behind the same retrieval boundary.
+        """
+        if not query.strip():
+            return ()
+        if limit < 1:
+            raise ValueError("memory search limit must be positive")
+        terms = tuple(dict.fromkeys(query.casefold().split()))
+        ranked: list[tuple[int, datetime, MemoryRecord]] = []
+        for memory in self.memories.values():
+            if memory.superseded_by is not None:
+                continue
+            haystack = memory.content.casefold()
+            for entity_id in memory.entity_ids:
+                entity = self.entities.get(entity_id)
+                if entity is not None:
+                    haystack += " " + entity.canonical_name.casefold()
+                    haystack += " " + " ".join(alias.casefold() for alias in entity.aliases)
+            score = sum(term in haystack for term in terms)
+            if score:
+                ranked.append((score, memory.occurred_at, memory))
+        ranked.sort(key=lambda item: (-item[0], -item[1].timestamp()))
+        return tuple(item[2] for item in ranked[:limit])
+
     def to_json(self) -> str:
         payload = {
             "schema_version": self.schema_version,
