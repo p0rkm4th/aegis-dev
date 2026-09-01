@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from datetime import datetime, timezone
 from typing import Any, cast
 from uuid import UUID, uuid4
 
@@ -167,6 +168,7 @@ def _fallback_working_context(
     """Add a small authorized candidate set for bounded intent resolution."""
 
     values = dict(context.values)
+    values.setdefault("as_of_date", datetime.now(timezone.utc).date().isoformat())
     facts = dict(values.get("canonical_facts", {}))
     if "canonical_items" in facts or "canonical_tasks" in facts:
         return Context(
