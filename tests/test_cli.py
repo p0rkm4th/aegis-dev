@@ -378,6 +378,30 @@ def test_cli_once_hides_database_failure_details(monkeypatch, capsys):
     assert "private-secret" not in output
 
 
+def test_cli_once_hides_unexpected_request_failure_details(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "Show my tasks."])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "handle",
+        lambda *_: (_ for _ in ()).throw(Exception("provider private detail")),
+    )
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert output == (
+        "Not completed — request unavailable; run "
+        "'./scripts/aegis --check' and verify configured services\n"
+    )
+    assert "provider private detail" not in output
+
+
 def test_interactive_cli_contains_database_failure(monkeypatch, capsys):
     from aegis import cli
 
@@ -422,6 +446,29 @@ def test_interactive_cli_hides_runtime_failure_details(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "request unavailable; run './scripts/aegis --check'" in output
     assert "private-secret" not in output
+
+
+def test_interactive_cli_hides_unexpected_request_failure_details(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--no-banner"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "handle",
+        lambda *_: (_ for _ in ()).throw(Exception("provider private detail")),
+    )
+    prompts = iter(["Show my tasks.", "quit"])
+    monkeypatch.setattr("builtins.input", lambda _prompt: next(prompts))
+
+    assert cli.main() == 0
+    output = capsys.readouterr().out
+    assert "request unavailable; run './scripts/aegis --check'" in output
+    assert "provider private detail" not in output
 
 
 def test_cli_once_json_returns_stable_error_for_request_failure(monkeypatch, capsys):
