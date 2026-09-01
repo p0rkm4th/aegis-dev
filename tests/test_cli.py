@@ -1496,6 +1496,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     from aegis.web import _INDEX_HTML
 
     assert 'id="conversation"' in _INDEX_HTML
+    assert 'id="activity"' in _INDEX_HTML
     assert 'id="health-details"' in _INDEX_HTML
     assert "component.detail" in _INDEX_HTML
     assert "send.disabled = true" in _INDEX_HTML
@@ -1526,6 +1527,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "function lifecycleLabel(state)" in _INDEX_HTML
     assert "lifecycleLabel(result.state)" in _INDEX_HTML
     assert "lifecycleLabel(status.state)" in _INDEX_HTML
+    assert "Request status recovered" in _INDEX_HTML
     assert "new AbortController()" in _INDEX_HTML
     assert "request_timeout" in _INDEX_HTML
     assert "refreshRequestTimeoutMs = 10000" in _INDEX_HTML

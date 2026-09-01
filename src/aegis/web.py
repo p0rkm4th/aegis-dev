@@ -96,6 +96,7 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
+<p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <p><button id="refresh" type="button">Refresh state</button></p>
 <p id="state-status" class="muted" aria-live="polite"></p>
@@ -145,7 +146,7 @@ function restorePendingRequest() {
     }
     pendingCorrelationId = saved.correlation_id;
     document.getElementById('utterance').value = saved.utterance;
-    document.getElementById('detail').textContent =
+    document.getElementById('activity').textContent =
       'A previous request may still be in progress. Retry uses the same correlation.';
     document.querySelector('#chat button').textContent = 'Retry';
   } catch (_) { clearPendingRequest(); }
@@ -153,7 +154,7 @@ function restorePendingRequest() {
 function scheduleRecoveryPoll() {
   if (recoveryPollScheduled || !pendingCorrelationId || recoveryPollAttempts >= maxRecoveryPolls) {
     if (pendingCorrelationId && recoveryPollAttempts >= maxRecoveryPolls) {
-      document.getElementById('detail').textContent =
+      document.getElementById('activity').textContent =
         'Status checks paused after five minutes. Retry remains explicit.';
     }
     return;
@@ -178,7 +179,7 @@ async function recoverPendingRequest() {
         document.getElementById('state-status').textContent =
           'Authorization lost; authorized state cleared.';
       } else {
-        document.getElementById('detail').textContent =
+        document.getElementById('activity').textContent =
           'Status check unavailable; retry remains explicit.';
         scheduleRecoveryPoll();
       }
@@ -186,7 +187,7 @@ async function recoverPendingRequest() {
     }
     const status = await response.json();
     if (status.state === 'unknown') {
-      document.getElementById('detail').textContent =
+      document.getElementById('activity').textContent =
         'Outcome unknown; checking canonical status. Retry remains explicit.';
       scheduleRecoveryPoll(); return;
     }
@@ -194,7 +195,7 @@ async function recoverPendingRequest() {
       'proposed', 'validated', 'authorized', 'executing', 'observed'
     ]);
     if (inProgressStates.has(status.state)) {
-      document.getElementById('detail').textContent =
+      document.getElementById('activity').textContent =
         `Request status recovered: ${lifecycleLabel(status.state)}. Retry remains explicit.`;
       scheduleRecoveryPoll();
       return;
@@ -202,7 +203,7 @@ async function recoverPendingRequest() {
     const recoveredCorrelationId = pendingCorrelationId;
     recoveryPollAttempts = 0;
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
-    document.getElementById('detail').textContent = `Status: ${lifecycleLabel(status.state)}`;
+    document.getElementById('activity').textContent = `Status: ${lifecycleLabel(status.state)}`;
     if (status.retryable === true) {
       document.querySelector('#chat button').textContent = 'Retry';
       persistPendingRequest(document.getElementById('utterance').value, recoveredCorrelationId);
@@ -212,7 +213,7 @@ async function recoverPendingRequest() {
     }
     if (status.state === 'completed') refreshState();
   } catch (_) {
-    document.getElementById('detail').textContent =
+    document.getElementById('activity').textContent =
       'Status check unavailable; retry remains explicit.';
     scheduleRecoveryPoll();
   } finally {
@@ -272,6 +273,7 @@ function renderDetailValue(value) {
 function clearAuthorizedDisplays() {
   nodes.replaceChildren(); edges.replaceChildren();
   document.getElementById('detail').replaceChildren();
+  document.getElementById('activity').textContent = '';
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
   pendingCorrelationId = null;
@@ -380,7 +382,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   send.disabled = true; input.disabled = true;
   event.currentTarget.setAttribute('aria-busy', 'true');
   persistPendingRequest(utterance, correlationId);
-  document.getElementById('detail').textContent = 'Status: working';
+  document.getElementById('activity').textContent = 'Status: working';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
   try {
@@ -392,9 +394,9 @@ document.getElementById('chat').addEventListener('submit', async event => {
     document.getElementById('answer').textContent = answer;
     const assistantLine = document.createElement('li');
     assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
-    if (result.state) document.getElementById('detail').textContent =
+    if (result.state) document.getElementById('activity').textContent =
       `Status: ${lifecycleLabel(result.state)}${result.detail ? ` · ${result.detail}` : ''}`;
-    else if (!response.ok) document.getElementById('detail').textContent =
+    else if (!response.ok) document.getElementById('activity').textContent =
       `Status: ${result.code || 'request_failed'}`;
     if (response.ok) {
       if (result.retryable === true) {
@@ -424,7 +426,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     document.getElementById('answer').textContent = timedOut
       ? 'AEGIS did not respond in time. The outcome is unknown.'
       : 'AEGIS is unavailable.';
-    document.getElementById('detail').textContent = timedOut
+    document.getElementById('activity').textContent = timedOut
       ? 'Status: request_timeout · Retry uses the same correlation.'
       : 'Status: unavailable';
     pendingCorrelationId = correlationId; send.textContent = 'Retry';
