@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-degraded-start-operator-contract-aligned",
+  "current_checkpoint": "phase-12-core-execution-verification-fail-closed",
   "active_branch": "aegis-dev",
-  "head_sha": "3c8ef074440e54c4ccc5c049fe8991cc5503e6cb",
-  "last_green_sha": "3c8ef074440e54c4ccc5c049fe8991cc5503e6cb",
-  "last_pushed_sha": "3c8ef074440e54c4ccc5c049fe8991cc5503e6cb",
+  "head_sha": "2ad11256a7aa3eed955ff274579a30107b166cf0",
+  "last_green_sha": "2ad11256a7aa3eed955ff274579a30107b166cf0",
+  "last_pushed_sha": "2ad11256a7aa3eed955ff274579a30107b166cf0",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -175,6 +175,7 @@
     ,"browser separates request validation from Core dispatch so Core ValueError/TypeError failures are generic request_unavailable responses"
     ,"loopback browser startup remains available in safe degraded mode when canonical PostgreSQL bootstrap is unavailable"
     ,"README, alpha, and operations documentation describe degraded browser startup and fail-closed protected routes"
+    ,"Kernel persists sanitized unknown observations on executor exceptions, prevents failed observations from verifying successfully, and records verifier failures as truthful failed Results"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -194,8 +195,8 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "180 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, and generic malformed request encoding handling are covered"
+    "pytest": "182 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed",
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, generic malformed request encoding handling, executor exception durability, failed-observation completion prevention, and verifier exception containment are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
