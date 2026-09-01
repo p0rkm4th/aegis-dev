@@ -82,6 +82,86 @@ def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatc
     assert replay == prior
 
 
+def test_interaction_boundary_does_not_short_circuit_blocked_plan_retry(monkeypatch):
+    from aegis import interaction
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    correlation_id = uuid4()
+    action = ActionSpec(
+        action_id="tasks.create",
+        capability="tasks.write",
+        verification=VerificationContract(kind="readback"),
+    )
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="Create a task and a chore.",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+        steps=(action,),
+    )
+    prior = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.BLOCKED,
+        message="step 1 denied",
+        correlation_id=correlation_id,
+    )
+    fallback = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.BLOCKED,
+        message="retry reached the interaction path",
+        correlation_id=correlation_id,
+    )
+
+    class Connection:
+        def close(self):
+            pass
+
+    class Store:
+        def __init__(self):
+            self.saved_result = None
+
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result(self, key):
+            assert key == f"plan:{correlation_id}"
+            return prior
+
+        def save_objective(self, _value):
+            pass
+
+        def save_result(self, _key, value):
+            self.saved_result = value
+
+    store = Store()
+
+    class Clarification:
+        @staticmethod
+        def resolve(_intent):
+            return fallback
+
+    monkeypatch.setattr(interaction, "PostgresObjectiveStore", lambda _connection: store)
+    monkeypatch.setattr(interaction, "DomainClarificationFastPath", Clarification)
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: Connection(),
+            required=lambda _name: "postgresql://example",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("tasks", None),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+        )
+    )
+
+    result = boundary.run("resume the denied plan", principal, correlation_id)
+
+    assert result == fallback
+    assert store.saved_result == fallback
+
+
 def test_interaction_boundary_persists_fast_path_result_for_status_recovery(monkeypatch):
     from aegis import interaction
 
