@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-health-stale-detail-cleanup-live-green",
+  "current_checkpoint": "phase-12-cross-domain-planning-qwen-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "cae6493c22283c249f594deb7406b38e7a5e236f",
-  "last_green_sha": "cae6493c22283c249f594deb7406b38e7a5e236f",
-  "last_pushed_sha": "cae6493c22283c249f594deb7406b38e7a5e236f",
+  "head_sha": "3e64dad9e3eb9b409c49f7a2bbd0d7de07efc56a",
+  "last_green_sha": "3e64dad9e3eb9b409c49f7a2bbd0d7de07efc56a",
+  "last_pushed_sha": "3e64dad9e3eb9b409c49f7a2bbd0d7de07efc56a",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -502,8 +502,12 @@
     "adversarial_acceptance": "green: existing deterministic tests cover malformed model output, invented action, semantic denial, runtime denial, execution failure, verification failure, disconnect unknown outcome, cancellation, and replay; duplicate external records are rejected; live crash-before-Result recovery is green",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
-    "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
+    "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key.",
+    "cross_domain_planning_regression": "green deterministic: explicit planning requests spanning Personal and Household/Tasks are handled before single-domain fast paths and return bounded, authorized canonical goals, open obligations, open tasks, priority candidates, and source provenance; no private finance fields or model authority are added",
+    "cross_domain_planning_live": "green live: ./scripts/aegis --once with PostgreSQL and local identity returned Personal goals, the shared Utilities obligation, and a bounded five-task working set for 'Considering my personal goals and current household obligations, what should I prioritize this week?' instead of silently returning only Household state",
+    "qwen_cross_domain_task_live": "green live: Qwen3:8B selected tasks.create for 'Create a task to review the restore drill before handling the household Utilities obligation'; PostgreSQL Space policy allowed it, the task executor persisted one canonical row, and the independent verifier returned completed with canonical task readback verified",
+    "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, human-readable lifecycle labels, explicit recovery feedback, Constellation projection integrity, request-status error classification, accessible progress state, rendered failure/retry feedback, browser parser error redaction, rendered relationship navigation, rendered detail readability, bounded browser responses, live Qwen readiness diagnostics, preserved browser activity status, browser task mutation refresh, Constellation filtering, filter empty-state recovery, authorization cache cleanup, live revocation cache cleanup, human-readable browser error statuses, accessible filter status, and stale health detail cleanup are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: multi-step objectives and continuation, interruption/restart during work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Retire established browser mutation/readback/recovery/filter/accessibility/revocation paths from routine runs unless a new defect or architecture change reopens them; Home Assistant/mobile/voice remain lane-limited."
 }
