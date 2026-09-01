@@ -1163,6 +1163,29 @@ def test_personal_memory_fast_path_resolves_entity_alias_queries():
     assert result.evidence["memories"][0]["provenance"] == "observed"
 
 
+def test_personal_memory_fast_path_resolves_contextual_reference():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    state.add_memory(
+        "Investigated the server backup failure",
+        datetime(2026, 8, 30, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about that server problem?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["memories"][0]["content"] == (
+        "Investigated the server backup failure"
+    )
+
+
 def test_personal_memory_correction_supersedes_old_record():
     from datetime import datetime, timezone
 
