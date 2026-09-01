@@ -1463,6 +1463,23 @@ def test_browser_contains_non_json_provider_payloads():
     }
 
 
+def test_browser_bounds_serialized_response_size():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": [], "details": {"oversized": "x" * 1_000_001}},
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "response_unavailable",
+        "error": "response unavailable",
+    }
+
+
 def test_browser_rejects_oversized_request_body():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(principal, lambda *_: "unreachable", lambda _: {"nodes": []})
