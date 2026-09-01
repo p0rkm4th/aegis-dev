@@ -8,7 +8,7 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, IntentFrame, Principal, Result
+from .contracts import ActionCard, IntentFrame, ObjectiveState, Principal, Result
 from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
@@ -28,7 +28,12 @@ from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
-from .planning import CrossDomainPlanningFastPath, DomainClarificationFastPath, MultiActionFastPath
+from .planning import (
+    CrossDomainPlanningFastPath,
+    DomainClarificationFastPath,
+    MultiActionFastPath,
+    PersonalTaskComposer,
+)
 from .projections import SharedObligation
 from .reference_packs import (
     OpenClawGroceryExecutor,
@@ -169,6 +174,16 @@ class InteractionBoundary:
             personal_state = PostgresPersonalStateStore(
                 connection, principal.vault_id
             ).load_for_principal(principal)
+            goal_task_title, goal_task_error = PersonalTaskComposer.resolve(
+                utterance, personal_state
+            )
+            if goal_task_error is not None:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=goal_task_error,
+                    correlation_id=intent.correlation_id,
+                )
             household_snapshot = household_store.read_snapshot(principal)
             if CrossDomainPlanningFastPath.matches(utterance):
                 planning_result = CrossDomainPlanningFastPath(
@@ -180,9 +195,10 @@ class InteractionBoundary:
                 household_result = HouseholdReadFastPath(household_snapshot).resolve(intent)
                 if household_result is not None:
                     return household_result
-            task_result = TaskReadFastPath(task_store).resolve(intent)
-            if task_result is not None:
-                return task_result
+            if goal_task_title is None:
+                task_result = TaskReadFastPath(task_store).resolve(intent)
+                if task_result is not None:
+                    return task_result
             semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
                 "1",
                 "true",
@@ -210,9 +226,10 @@ class InteractionBoundary:
                 )
             else:
                 memory_fast_path = PersonalMemoryFastPath(personal_state)
-            memory_result = memory_fast_path.resolve(intent)
-            if memory_result is not None:
-                return memory_result
+            if goal_task_title is None:
+                memory_result = memory_fast_path.resolve(intent)
+                if memory_result is not None:
+                    return memory_result
             manager = PackManager(store=PostgresPackStore(connection))
             for bundle in reference_bundles():
                 try:
@@ -237,6 +254,14 @@ class InteractionBoundary:
                 elif manager.status(pack_id) is PackStatus.INSTALLED:
                     manager.enable(pack_id)
             _domain, card = self.dependencies.select_action(utterance, manager)
+            if goal_task_title is not None and card.action.action_id == "tasks.create":
+                card = card.model_copy(
+                    update={
+                        "action": card.action.model_copy(
+                            update={"arguments": {"title": goal_task_title}}
+                        )
+                    }
+                )
             principal_store = PostgresHouseholdStore(connection)
             if card.action.action_id == "kitchen.groceries.add":
                 channel = self.dependencies.openclaw_channel()
