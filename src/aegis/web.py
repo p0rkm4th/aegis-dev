@@ -24,6 +24,15 @@ _MAX_BODY_BYTES = 20_000
 _RETRY_AFTER_SECONDS = 5
 
 
+def _write_response_payload(writer: Any, payload: bytes) -> None:
+    """Ignore a client disconnect after the response has been safely computed."""
+
+    try:
+        writer.write(payload)
+    except (BrokenPipeError, ConnectionResetError):
+        return
+
+
 class BrowserMessage(BaseModel):
     """Stable presentation envelope for one interaction response."""
 
@@ -607,7 +616,7 @@ def serve(
                 "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
             )
             self.end_headers()
-            self.wfile.write(payload)
+            _write_response_payload(self.wfile, payload)
 
         def log_message(self, _format: str, *_args: object) -> None:
             return
