@@ -7,18 +7,19 @@ from collections.abc import Callable
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from .contracts import Principal
+from .contracts import Principal, RequestStatus
 from .health import HealthReport
 
 Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
+RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
 _MAX_BODY_BYTES = 20_000
 
 
@@ -110,6 +111,20 @@ function restorePendingRequest() {
       'A previous request may still be in progress. Retry uses the same correlation.';
     document.querySelector('#chat button').textContent = 'Retry';
   } catch (_) { clearPendingRequest(); }
+}
+async function recoverPendingRequest() {
+  if (!pendingCorrelationId) return;
+  try {
+    const response = await fetch(`/api/request-status?correlation_id=${pendingCorrelationId}`);
+    if (!response.ok) return;
+    const status = await response.json();
+    if (status.state === 'unknown') return;
+    pendingCorrelationId = null; clearPendingRequest();
+    document.querySelector('#chat button').textContent = 'Send';
+    document.getElementById('answer').textContent = status.message || 'Request status recovered.';
+    document.getElementById('detail').textContent = `Status: ${status.state}`;
+    if (status.state === 'completed') loadState().catch(() => {});
+  } catch (_) { /* status is advisory; explicit Retry remains available. */ }
 }
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
@@ -275,6 +290,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   }
 });
 restorePendingRequest();
+recoverPendingRequest();
 </script></body></html>"""
 
 
@@ -287,11 +303,13 @@ class BrowserApp:
         interaction: Interaction,
         state: ConstellationState,
         health: HealthProvider | None = None,
+        request_status: RequestStatusProvider | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
         self.state = state
         self.health = health
+        self.request_status = request_status
 
     def dispatch(self, method: str, path: str, body: bytes = b"") -> tuple[int, str, bytes]:
         route = urlparse(path).path
@@ -331,6 +349,31 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
             return self._json(HTTPStatus.OK, state.model_dump(mode="json"))
+        if method == "GET" and route == "/api/request-status":
+            if self.request_status is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            query = parse_qs(urlparse(path).query, keep_blank_values=True)
+            if set(query) != {"correlation_id"} or len(query["correlation_id"]) != 1:
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
+            try:
+                correlation_id = UUID(query["correlation_id"][0])
+                status = self.request_status(principal, correlation_id)
+                payload = (
+                    status.model_dump(mode="json")
+                    if isinstance(status, RequestStatus)
+                    else RequestStatus.model_validate(status).model_dump(mode="json")
+                )
+            except (ValueError, TypeError, ValidationError):
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
+                )
+            return self._json(HTTPStatus.OK, payload)
         if method == "POST" and route == "/api/message":
             if len(body) > _MAX_BODY_BYTES:
                 return self._error(
@@ -393,10 +436,11 @@ def serve(
     interaction: Interaction,
     state: ConstellationState,
     health: HealthProvider | None = None,
+    request_status: RequestStatusProvider | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
-    app = BrowserApp(principal, interaction, state, health)
+    app = BrowserApp(principal, interaction, state, health, request_status)
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802

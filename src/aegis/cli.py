@@ -18,7 +18,7 @@ from uuid import UUID
 
 import psycopg
 
-from .contracts import ActionCard, Principal, Result
+from .contracts import ActionCard, Principal, RequestStatus, Result
 from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport
@@ -32,6 +32,7 @@ from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .personal import PostgresPersonalStateStore
 from .reference_packs import reference_bundles
+from .store import PostgresObjectiveStore
 from .tasks import PostgresTaskStore
 from .web import serve
 
@@ -401,6 +402,24 @@ def _browser_interaction(
     }
 
 
+def _browser_request_status(principal: Principal, correlation_id: UUID) -> RequestStatus:
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        status = PostgresObjectiveStore(connection).get_request_status(correlation_id, principal)
+        if status is None:
+            return RequestStatus(correlation_id=correlation_id, state="unknown")
+        objective_id, state, message = status
+        return RequestStatus(
+            correlation_id=correlation_id,
+            objective_id=objective_id,
+            state=state.value,
+            message=message,
+        )
+    finally:
+        connection.close()
+
+
 def _principal() -> Principal:
     token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
     if token:
@@ -735,6 +754,7 @@ def main() -> int:
                 _browser_interaction,
                 _constellation_state,
                 _runtime_report,
+                _browser_request_status,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

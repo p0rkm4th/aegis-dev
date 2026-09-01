@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Protocol, cast
 from uuid import UUID
 
-from .contracts import ExecutionRequest, Objective, ObjectiveState, Observation, Result
+from .contracts import ExecutionRequest, Objective, ObjectiveState, Observation, Principal, Result
 
 
 class ObjectiveStore(Protocol):
@@ -234,6 +234,35 @@ class PostgresObjectiveStore:
             message=str(row[4]),
             correlation_id=UUID(str(row[0])),
         )
+
+    def get_request_status(
+        self, correlation_id: UUID, principal: Principal
+    ) -> tuple[UUID, ObjectiveState, str | None] | None:
+        cursor = self.connection.execute(
+            """SELECT o.id, COALESCE(r.state, o.state), r.message
+               FROM objectives o
+               LEFT JOIN results r ON r.objective_id = o.id AND r.id = %s
+               WHERE o.principal_id = %s
+                 AND o.vault_id = %s
+                 AND o.payload->>'correlation_id' = %s
+                 AND (o.space_id IS NULL OR EXISTS (
+                     SELECT 1 FROM space_memberships sm
+                     WHERE sm.principal_id = %s AND sm.space_id = o.space_id AND sm.active = TRUE
+                 ))
+               ORDER BY (r.id IS NOT NULL) DESC, o.updated_at DESC
+               LIMIT 1""",
+            (
+                str(correlation_id),
+                principal.id,
+                principal.vault_id,
+                str(correlation_id),
+                principal.id,
+            ),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return UUID(str(row[0])), ObjectiveState(str(row[1])), str(row[2]) if row[2] else None
 
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
         self.connection.execute(
