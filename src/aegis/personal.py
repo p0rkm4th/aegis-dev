@@ -66,6 +66,24 @@ class PersonalState:
         self.entities[entity.entity_id] = entity
         return entity
 
+    def add_project(self, name: str, created_at: datetime) -> Project:
+        if not name.strip():
+            raise ValueError("project name is required")
+        project = Project(uuid4(), name, created_at)
+        self.projects[project.project_id] = project
+        return project
+
+    def add_goal(
+        self, description: str, created_at: datetime, project_id: UUID | None = None
+    ) -> Goal:
+        if not description.strip():
+            raise ValueError("goal description is required")
+        if project_id is not None and project_id not in self.projects:
+            raise ValueError("goal references an unknown project")
+        goal = Goal(uuid4(), project_id, description, created_at)
+        self.goals[goal.goal_id] = goal
+        return goal
+
     def resolve_entity(self, reference: str) -> Entity | None:
         normalized = reference.casefold().strip()
         return next(
@@ -141,6 +159,23 @@ class PersonalState:
                 }
                 for memory in self.memories.values()
             ],
+            "projects": [
+                {
+                    "project_id": str(project.project_id),
+                    "name": project.name,
+                    "created_at": project.created_at.isoformat(),
+                }
+                for project in self.projects.values()
+            ],
+            "goals": [
+                {
+                    "goal_id": str(goal.goal_id),
+                    "project_id": str(goal.project_id) if goal.project_id else None,
+                    "description": goal.description,
+                    "created_at": goal.created_at.isoformat(),
+                }
+                for goal in self.goals.values()
+            ],
         }
         return json.dumps(payload, sort_keys=True)
 
@@ -167,6 +202,23 @@ class PersonalState:
                 )
                 for item in payload["memories"]
             }
+            projects = {
+                UUID(item["project_id"]): Project(
+                    UUID(item["project_id"]),
+                    item["name"],
+                    datetime.fromisoformat(item["created_at"]),
+                )
+                for item in payload.get("projects", [])
+            }
+            goals = {
+                UUID(item["goal_id"]): Goal(
+                    UUID(item["goal_id"]),
+                    UUID(item["project_id"]) if item["project_id"] else None,
+                    item["description"],
+                    datetime.fromisoformat(item["created_at"]),
+                )
+                for item in payload.get("goals", [])
+            }
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
             raise ValueError("invalid personal state document") from exc
         if any(
@@ -175,4 +227,9 @@ class PersonalState:
             for entity_id in memory.entity_ids
         ):
             raise ValueError("memory references an entity missing from state")
-        return cls(entities=entities, memories=memories)
+        if any(
+            goal.project_id is not None and goal.project_id not in projects
+            for goal in goals.values()
+        ):
+            raise ValueError("goal references a project missing from state")
+        return cls(entities=entities, memories=memories, projects=projects, goals=goals)
