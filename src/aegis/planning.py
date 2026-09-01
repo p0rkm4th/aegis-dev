@@ -209,7 +209,15 @@ class CrossDomainPlanningFastPath:
         "what tasks",
     )
     _PERSONAL_TERMS = ("personal", "goal", "goals", "project", "projects", "memory")
-    _SHARED_TERMS = ("household", "obligation", "obligations", "chore", "chores", "utility")
+    _SHARED_TERMS = (
+        "household",
+        "obligation",
+        "obligations",
+        "chore",
+        "chores",
+        "utility",
+        "utilities",
+    )
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
     _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget")
     _MAX_CONTEXT_ITEMS = 5
