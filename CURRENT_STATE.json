@@ -5,9 +5,9 @@
   "current_phase": 1,
     "current_checkpoint": "end-user-alpha-interactive-cli-green",
   "active_branch": "aegis-dev",
-    "head_sha": "f817d55",
-    "last_green_sha": "f817d55",
-    "last_pushed_sha": "f817d55",
+    "head_sha": "86d5f11",
+    "last_green_sha": "86d5f11",
+    "last_pushed_sha": "86d5f11",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
