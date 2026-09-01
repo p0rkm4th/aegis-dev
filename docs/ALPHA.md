@@ -74,8 +74,8 @@ or bind failures return an actionable error rather than a traceback.
 
 Browser API requests resolve the configured identity again for each request.
 Malformed or unavailable identity is returned as an unauthorized response;
-state access is still rechecked against current Space/Vault policy below the
-browser adapter.
+state access is still rechecked against current Space membership and canonical
+Vault ownership below the browser adapter.
 
 API failures include a stable `code` alongside generic user-safe `error` text
 (`identity_unavailable`, `state_access_denied`, `state_unavailable`,
