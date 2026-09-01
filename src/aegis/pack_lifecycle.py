@@ -195,6 +195,17 @@ class PackManager:
         """Retrieve only enabled Pack capabilities through Core's bounded registry."""
         return CapabilityRegistry(self.enabled_cards()).retrieve(domain, limit)
 
+    def action_card(self, domain: str, action_id: str) -> ActionCard | None:
+        """Find one exact enabled card without widening the model shortlist."""
+        return next(
+            (
+                card
+                for card in self.enabled_cards()
+                if domain in card.action.capability and card.action.action_id == action_id
+            ),
+            None,
+        )
+
     def granted_permissions(self, pack_id: str) -> frozenset[str]:
         self._require(pack_id)
         return self._grants.get(pack_id, frozenset())

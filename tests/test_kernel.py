@@ -62,6 +62,7 @@ from aegis.health import HealthService
 from aegis.homelab import HomelabPack, Host, PostgresHomelabStore, Service
 from aegis.household import (
     Chore,
+    ChoreCompletionFastPath,
     HouseholdEvent,
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -3004,6 +3005,21 @@ def test_task_completion_fast_path_clarifies_missing_or_duplicate_titles():
     assert "multiple tasks" in duplicate.message
     assert missing is not None
     assert "couldn't find" in missing.message
+
+
+def test_chore_completion_fast_path_clarifies_duplicate_titles():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    intent = IntentFrame(principal=principal, utterance="Complete the chore Clean the closet")
+    chores = (
+        Chore("chore-1", "Clean the closet", "alice"),
+        Chore("chore-2", "Clean the closet", "alice"),
+    )
+
+    result = ChoreCompletionFastPath.resolve(intent, "clean the closet", chores)
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "multiple chores" in result.message
 
 
 def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contribution():
