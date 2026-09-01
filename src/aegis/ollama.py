@@ -175,7 +175,9 @@ class OllamaProvider:
                     "or ambiguous, return CLARIFY. The referents object contains only "
                     "Core-selected candidates from canonical_facts; it is not permission "
                     "to mutate every candidate and does not resolve an ambiguous ordinal "
-                    "without a clear user request."
+                    "without a clear user request. If referents.those has exactly one "
+                    "candidate, answer that it is the only candidate when the user asks "
+                    "which one comes first; do not ask the user to choose among nothing."
                 ),
                 "temporal_grounding_rule": (
                     "Use the supplied as_of_date and canonical task due_at values for "
