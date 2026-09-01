@@ -133,6 +133,49 @@ class PersonalChoreComposer(PersonalTaskComposer):
     _TARGET = "chore"
 
 
+class PersonalMemoryTaskComposer:
+    """Resolve an explicit personal-memory-to-task request from Vault state."""
+
+    _ACTION_TERMS = ("create", "add", "turn", "make")
+    _STOPWORDS = frozenset({"create", "task", "memory", "into", "from", "my", "a", "the"})
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        return (
+            "task" in text and "memory" in text and any(term in text for term in cls._ACTION_TERMS)
+        )
+
+    @classmethod
+    def resolve(cls, utterance: str, personal: PersonalState) -> tuple[str | None, str | None]:
+        if not cls.matches(utterance):
+            return None, None
+        text = utterance.casefold()
+        terms = tuple(
+            term.strip(".,!?;:")
+            for term in text.replace("'", "").split()
+            if len(term.strip(".,!?;:")) >= 4 and term.strip(".,!?;:") not in cls._STOPWORDS
+        )
+        candidates = tuple(
+            (
+                sum(term in memory.content.casefold() for term in terms),
+                memory,
+            )
+            for memory in personal.memories.values()
+            if memory.superseded_by is None
+        )
+        scored = tuple(candidate for candidate in candidates if candidate[0] > 0)
+        if scored:
+            highest = max(score for score, _memory in scored)
+            matches = tuple(memory for score, memory in scored if score == highest)
+            if len(matches) == 1:
+                return matches[0].content, None
+        return (
+            None,
+            "Which personal memory should I turn into a task? Please name the memory.",
+        )
+
+
 class CrossDomainPlanningFastPath:
     """Assemble bounded authorized context for explicit planning questions.
 
