@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shlex
 import socket
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -34,6 +35,23 @@ class Pack:
     pack_id: str
     version: str
     cards: tuple[ActionCard, ...]
+
+
+def _wait_for_terminal_ready(channel: OpenClawWebSocketChannel) -> None:
+    """Drain OpenClaw shell initialization before sending PTY input.
+
+    ``terminal.open`` acknowledges session creation before the shell has
+    finished its startup output.  Sending input during that window can be
+    echoed and then discarded.  OpenClaw's shell integration emits the OSC
+    prompt-start marker when the interactive prompt is ready; this remains a
+    transport concern and is shared by all Gateway-backed Packs.
+    """
+    for _ in range(32):
+        event = channel.receive_event("terminal.data")
+        data = str(event.get("data", ""))
+        if "\x1b]133;B" in data:
+            return
+    raise RpcProtocolError("OpenClaw terminal did not become ready")
 
 
 def reference_packs() -> tuple[Pack, ...]:
@@ -252,7 +270,8 @@ class OpenClawGroceryExecutor:
             )
         marker = f"AEGIS_GROCERY_DONE_{uuid4().hex}"
         # Avoid control characters in PTY input: fish interprets a literal tab
-        # as completion input rather than passing it to the command.
+        # as completion input rather than passing it to the command.  LF is
+        # required to submit the line; CR only leaves it echoed in this PTY.
         record = f"{request.idempotency_key}|{item.strip()}"
         script = (
             f"touch {shlex.quote(self.state_path)}; "
@@ -263,9 +282,11 @@ class OpenClawGroceryExecutor:
         try:
             opened = self.gateway.terminal_open({"rows": 40, "cols": 120})
             session_id = opened["sessionId"]
+            _wait_for_terminal_ready(self.channel)
             self.gateway.terminal_input(
-                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}\r"}
+                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}"}
             )
+            self.gateway.terminal_input({"sessionId": session_id, "data": "\n"})
             saw_marker = False
             terminal_output = ""
             for _ in range(32):
@@ -408,9 +429,11 @@ class OpenClawHomelabExecutor:
         try:
             opened = self.gateway.terminal_open({"rows": 40, "cols": 120})
             session_id = opened["sessionId"]
+            _wait_for_terminal_ready(self.channel)
             self.gateway.terminal_input(
-                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}\r"}
+                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}"}
             )
+            self.gateway.terminal_input({"sessionId": session_id, "data": "\n"})
             saw_marker = False
             for _ in range(32):
                 event = self.channel.receive_event("terminal.data")
@@ -500,28 +523,37 @@ class OpenClawNetworkProbeExecutor:
                 command_succeeded=False,
             )
         marker = f"AEGIS_NETWORK_DONE_{uuid4().hex}"
+        receipt_path = Path(f"/tmp/{marker}.receipt")
         script = (
             f"curl --fail --silent --show-error --max-time 3 "
             f"-o /dev/null -w HTTP_%{{http_code}}\\n "
             f"{shlex.quote(f'http://{address}:{port}/')} 2>&1; code=$?; "
-            f"printf \"%s %s\\n\" {shlex.quote(marker)} $code"
+            f"printf \"%s %s\\n\" {shlex.quote(marker)} $code > {shlex.quote(str(receipt_path))}"
         )
         terminal_output = ""
         try:
             opened = self.gateway.terminal_open({"rows": 40, "cols": 120})
             session_id = opened["sessionId"]
+            _wait_for_terminal_ready(self.channel)
             self.gateway.terminal_input(
-                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}\r"}
+                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}"}
             )
+            self.gateway.terminal_input({"sessionId": session_id, "data": "\n"})
+            for _ in range(50):
+                if receipt_path.is_file():
+                    break
+                time.sleep(0.1)
             for _ in range(32):
                 event = self.channel.receive_event("terminal.data")
                 terminal_output += str(event.get("data", ""))
-                if marker in terminal_output:
+                if receipt_path.is_file() or marker in terminal_output:
                     break
             self.gateway.terminal_close({"sessionId": session_id})
         except (KeyError, RpcProtocolError) as exc:
             raise RpcProtocolError("Network probe did not produce a terminal outcome") from exc
-        success = any(line.strip().endswith(" 0") for line in terminal_output.splitlines())
+        receipt = receipt_path.read_text() if receipt_path.is_file() else ""
+        receipt_path.unlink(missing_ok=True)
+        success = any(line.strip().endswith(" 0") for line in receipt.splitlines())
         return Observation(
             execution_id=request.action_id,
             evidence={
@@ -531,6 +563,7 @@ class OpenClawNetworkProbeExecutor:
                 "terminal_marker": marker,
                 "terminal_output_bytes": len(terminal_output),
                 "terminal_output_tail": terminal_output[-500:],
+                "gateway_receipt": receipt.strip(),
             },
             command_succeeded=success,
         )
@@ -564,14 +597,14 @@ class OpenClawNetworkProbeVerifier:
                 pass
         except OSError as exc:
             return VerificationResult(
-                False,
-                {**observation.evidence, "readback_error": str(exc)},
-                "independent network readback failed",
+                verified=False,
+                evidence={**observation.evidence, "readback_error": str(exc)},
+                reason="independent network readback failed",
             )
         return VerificationResult(
-            True,
-            {**observation.evidence, "tcp_readback": "connected"},
-            "independent network reachability verified",
+            verified=True,
+            evidence={**observation.evidence, "tcp_readback": "connected"},
+            reason="independent network reachability verified",
         )
 
 

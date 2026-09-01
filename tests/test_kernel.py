@@ -47,7 +47,13 @@ from aegis.finance import (
     PostgresFinanceSnapshotStore,
     Transaction,
 )
-from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
+from aegis.gateway_rpc import (
+    CorrelatedRpcClient,
+    OpenClawGatewayRpc,
+    OpenClawWebSocketChannel,
+    RpcProtocolError,
+    RpcResponse,
+)
 from aegis.health import HealthService
 from aegis.homelab import HomelabPack, Host, Service
 from aegis.household import (
@@ -565,6 +571,26 @@ def test_gateway_rpc_named_methods_preserve_documented_method_names():
     assert rpc.agent_wait({"runId": "r"})["status"] == "accepted"
     assert rpc.cancel({"runId": "r"})["status"] == "accepted"
     assert channel.methods == ["agent", "agent.wait", "agent.cancel"]
+
+
+def test_gateway_channel_buffers_events_seen_while_waiting_for_response():
+    class Socket:
+        def __init__(self):
+            self.frames = iter(
+                [
+                    '{"type":"event","event":"terminal.data","payload":{"data":"marker"}}',
+                    '{"type":"res","id":"request-1","ok":true,"payload":{"ok":true}}',
+                ]
+            )
+
+        def recv(self):
+            return next(self.frames)
+
+    channel = OpenClawWebSocketChannel("ws://gateway", "token", persistent=True)
+    socket = Socket()
+    assert channel._receive_response(socket, "request-1")["ok"] is True
+    channel._socket = socket
+    assert channel.receive_event("terminal.data")["data"] == "marker"
 
 
 def test_vault_and_space_authorization_is_structural_and_revocable():
