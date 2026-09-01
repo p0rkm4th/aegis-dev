@@ -32,7 +32,7 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 <p id="health" aria-live="polite">Checking readiness…</p>
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
-<p id="answer" aria-live="polite"></p><p id="detail" class="muted"></p>
+<p id="answer" aria-live="polite"></p><div id="detail" class="muted"></div>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
@@ -51,13 +51,21 @@ async function loadHealth() {
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
   if (!response.ok) throw new Error(state.error || 'State is unavailable.');
+  const details = state.details || {};
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     const title = document.createElement('h2'); title.textContent = node.label;
     const detail = document.createElement('p'); detail.textContent = node.detail || '';
     card.addEventListener('click', () => {
-      document.getElementById('detail').textContent =
-        `${node.label}: ${node.detail || 'No detail'}`;
+      const panel = document.getElementById('detail'); panel.replaceChildren();
+      const heading = document.createElement('p');
+      heading.textContent = `${node.label}: ${node.detail || 'No detail'}`;
+      panel.append(heading);
+      if (details[node.id]) {
+        const pre = document.createElement('pre');
+        pre.textContent = JSON.stringify(details[node.id], null, 2);
+        panel.append(pre);
+      }
     });
     card.append(title, detail); return card;
   }));
