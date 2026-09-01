@@ -15,10 +15,9 @@ elif command -v python >/dev/null 2>&1; then
 fi
 
 for python_bin in "${python_candidates[@]}"; do
-    if [[ -x "$python_bin" ]] && "$python_bin" -c 'import aegis.cli' >/dev/null 2>&1; then
-        if [[ "$python_bin" == "$repo_root/.venv/bin/python" ]]; then
-            exec "$python_bin" -m aegis.cli "$@"
-        fi
+    if [[ -x "$python_bin" ]] && \
+        PYTHONPATH="$repo_root/src${PYTHONPATH:+:$PYTHONPATH}" "$python_bin" -c \
+        'import sys; assert sys.version_info >= (3, 11); import aegis.cli' >/dev/null 2>&1; then
         PYTHONPATH="$repo_root/src${PYTHONPATH:+:$PYTHONPATH}" exec "$python_bin" -m aegis.cli "$@"
     fi
 done

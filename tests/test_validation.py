@@ -23,4 +23,6 @@ def test_alpha_launcher_has_environment_fallback_and_actionable_failure():
     assert "AEGIS_PYTHON" in launcher
     assert "python3" in launcher
     assert 'PYTHONPATH="$repo_root/src' in launcher
+    assert "sys.version_info >= (3, 11)" in launcher
+    assert "import aegis.cli" in launcher
     assert "could not find a usable Python environment" in launcher
