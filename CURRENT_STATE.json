@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-rendered-relationship-navigation-live-green",
+  "current_checkpoint": "phase-12-rendered-detail-readability-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "c34250b1e3f4f2997033e92f272bb321c5e2d3db",
-  "last_green_sha": "c34250b1e3f4f2997033e92f272bb321c5e2d3db",
-  "last_pushed_sha": "c34250b1e3f4f2997033e92f272bb321c5e2d3db",
+  "head_sha": "cf432efef316399dfd06c63ae69c64878bcb5e64",
+  "last_green_sha": "cf432efef316399dfd06c63ae69c64878bcb5e64",
+  "last_pushed_sha": "cf432efef316399dfd06c63ae69c64878bcb5e64",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -205,6 +205,7 @@
     ,"browser recovery visibly reports unknown and temporarily unavailable status checks without replay"
     ,"browser validation redacts UUID/parser implementation details while preserving stable safe client hints"
     ,"Constellation relationship controls navigate to authorized target-node detail views"
+    ,"browser canonical detail collections have explicit empty states and human-readable field labels"
     ,"Constellation projections reject duplicate node IDs and dangling relationship endpoints"
     ,"request-status distinguishes malformed client queries from canonical provider failures"
     ,"browser conversation and state refresh expose in-flight work through accessible busy state"
@@ -456,6 +457,7 @@
         "browser_failure_retry_rendered_live": "green live rendered acceptance: Chromium submitted a model-backed task request to a real loopback AEGIS process with PostgreSQL healthy and Ollama deliberately unavailable, displayed Status: Failed with the safe model-unavailable detail and an explicit Retry control, retained the authorized 10-node graph, and server stderr remained clean",
         "browser_parser_error_redaction": "green deterministic: malformed browser correlation UUIDs return only the stable invalid_request envelope; safe utterance/undocumented-field hints remain available and Core is not invoked",
         "browser_relationship_navigation_live": "green live rendered acceptance: Chromium loaded the real authorized 10-node/9-edge projection, clicked the first accessible relationship control, selected exactly one authorized target node, and opened its existing canonical detail panel; server stderr remained clean",
+        "browser_detail_readability_live": "green live rendered acceptance: Chromium selected the authorized Household node from a real PostgreSQL-backed projection and visibly rendered canonical collection fields with human-readable labels including Groceries, Chores, Assignee Id, and Starts At; server stderr remained clean",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -483,5 +485,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, human-readable lifecycle labels, explicit recovery feedback, Constellation projection integrity, request-status error classification, accessible progress state, rendered failure/retry feedback, browser parser error redaction, and rendered relationship navigation are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, human-readable lifecycle labels, explicit recovery feedback, Constellation projection integrity, request-status error classification, accessible progress state, rendered failure/retry feedback, browser parser error redaction, rendered relationship navigation, and rendered detail readability are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
 }
