@@ -656,6 +656,23 @@ def test_identity_health_rejects_incomplete_bearer_configuration(monkeypatch):
     )
 
 
+@pytest.mark.parametrize("configured", ["token", "issuer"])
+def test_principal_does_not_fall_back_to_local_identity_for_incomplete_bearer_config(
+    monkeypatch, configured
+):
+    from aegis import cli
+
+    monkeypatch.delenv("AEGIS_KEYCLOAK_ACCESS_TOKEN", raising=False)
+    monkeypatch.delenv("AEGIS_KEYCLOAK_ISSUER", raising=False)
+    monkeypatch.setenv(
+        "AEGIS_KEYCLOAK_ACCESS_TOKEN" if configured == "token" else "AEGIS_KEYCLOAK_ISSUER",
+        "token" if configured == "token" else "https://keycloak.example/realms/aegis",
+    )
+
+    with pytest.raises(RuntimeError, match="incomplete bearer identity configuration"):
+        cli._principal()
+
+
 def test_identity_health_hides_bearer_mapping_failure(monkeypatch):
     from aegis import cli
 
