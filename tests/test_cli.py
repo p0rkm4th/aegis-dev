@@ -600,6 +600,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "renderDetailValue(details[node.id])" in _INDEX_HTML
     assert "textContent = key" in _INDEX_HTML
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
+    assert "new AbortController()" in _INDEX_HTML
+    assert "request_timeout" in _INDEX_HTML
+    assert "outcome is unknown" in _INDEX_HTML
     assert 'id="refresh"' in _INDEX_HTML
     assert "refreshState()" in _INDEX_HTML
     assert "state_access_denied" in _INDEX_HTML

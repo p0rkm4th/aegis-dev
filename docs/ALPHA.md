@@ -105,6 +105,9 @@ stale private state is never retained across a failed authorization refresh.
 Each browser message carries a UUID correlation ID. If transport fails, the
 Retry action resubmits that same ID; Core can therefore reuse its durable
 Result instead of treating the retry as a new consequential request.
+If a request exceeds the browser timeout, the UI reports the outcome as
+unknown and offers the same correlation-preserving retry; it never assumes
+that a timed-out action failed or blindly replays it.
 
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
