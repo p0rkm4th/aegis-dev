@@ -22,6 +22,16 @@ HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 _MAX_BODY_BYTES = 20_000
 
 
+class BrowserMessage(BaseModel):
+    """Stable presentation envelope for one interaction response."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    message: str
+    state: str | None = None
+    objective_id: UUID | None = None
+    correlation_id: UUID
+
+
 class ConstellationNode(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     id: str = Field(min_length=1)
@@ -242,13 +252,19 @@ class BrowserApp:
                 return self._error(
                     HTTPStatus.SERVICE_UNAVAILABLE, "request_unavailable", "request unavailable"
                 )
-            if isinstance(message, dict):
-                message.setdefault("correlation_id", str(correlation_id))
-                return self._json(HTTPStatus.OK, message)
-            return self._json(
-                HTTPStatus.OK,
-                {"message": message, "correlation_id": str(correlation_id)},
-            )
+            try:
+                response = BrowserMessage.model_validate(
+                    {"message": message, "correlation_id": correlation_id}
+                    if isinstance(message, str)
+                    else {**message, "correlation_id": correlation_id}
+                )
+            except (TypeError, ValidationError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "request_unavailable",
+                    "request unavailable",
+                )
+            return self._json(HTTPStatus.OK, response.model_dump(mode="json", exclude_none=True))
         return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
 
     @staticmethod
