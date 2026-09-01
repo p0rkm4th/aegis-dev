@@ -672,7 +672,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     text = utterance.lower()
     if "task" in text:
         domain = "tasks"
-        if "event" in text:
+        if any(term in text for term in ("complete", "completed", "finish", "finished")):
+            action_id = "tasks.complete"
+        elif "event" in text:
             action_id = "tasks.events.create"
         elif "chore" in text:
             action_id = (
@@ -736,6 +738,17 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             action = action.model_copy(update={"arguments": {}})
         else:
             action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.complete":
+        match = re.search(
+            r"(?:complete|completed|finish|finished)\s+(?:the\s+)?task\s+"
+            r"(?:called\s+|named\s+)?(.+)$",
+            text,
+        )
+        if match is None:
+            raise InteractionInputError(
+                "name the task to complete, for example: Complete the task buy cat food."
+            )
+        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
     elif action_id == "tasks.chores.create":
         match = re.search(r"(?:create|add)\s+(?:a\s+)?chore\s+(?:to\s+)?(.+)$", text)
         if match is None:
@@ -875,6 +888,8 @@ def _format(result: Any) -> str:
     if evidence.get("collection") == "events" and evidence.get("title"):
         return f"Done — created event: {evidence['title']}"
     if evidence.get("title"):
+        if evidence.get("status") == "completed":
+            return f"Done — completed task: {evidence['title']}"
         return f"Done — created task: {evidence['title']}"
     if evidence.get("item"):
         return f"Done — added {evidence['item']} to groceries"
