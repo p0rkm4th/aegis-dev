@@ -5,9 +5,9 @@
   "current_phase": 5,
   "current_checkpoint": "phase-6-personal-contextual-retrieval-green",
   "active_branch": "aegis-dev",
-  "head_sha": "babb795",
-  "last_green_sha": "babb795",
-  "last_pushed_sha": "babb795",
+  "head_sha": "d4b628b",
+  "last_green_sha": "d4b628b",
+  "last_pushed_sha": "d4b628b",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -82,9 +82,10 @@
     "12": "in_progress"
   },
   "most_recent_tests": {
-    "command": "pytest + ruff check/format + live Qwen3:8B read-only holdout",
+    "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
-    "pytest": "88 passed; ruff check passed"
+    "pytest": "90 passed; ruff check passed; mypy passed (34 source files); migration validation passed",
+    "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -178,5 +179,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Complete the Phase 6 personal-intelligence gate by running the broad grounded retrieval regression and reviewing durable correction/supersession evidence; then proceed to the next unblocked campaign capability."
+  "next_action": "Add the measured semantic-retrieval adapter behind the existing personal-memory boundary, retaining deterministic ranking as the safe fallback and proving provenance, supersession, and Vault isolation."
 }
