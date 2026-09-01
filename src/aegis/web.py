@@ -226,6 +226,7 @@ function clearAuthorizedDisplays() {
   pendingCorrelationId = null;
   recoveryPollAttempts = 0;
   clearPendingRequest();
+  document.querySelector('#chat button').textContent = 'Send';
 }
 async function fetchWithTimeout(resource, options = {}) {
   const controller = new AbortController();
