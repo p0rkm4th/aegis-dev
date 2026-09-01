@@ -2330,6 +2330,23 @@ def test_household_read_fast_path_returns_only_shared_allowlisted_fields():
     assert not HouseholdReadFastPath.matches("Please create a task for the apartment inspection")
 
 
+def test_household_read_fast_path_filters_explicit_chore_status():
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {alice.id})
+    space.add_chore(alice, Chore("done", "Wash dishes", "alice", completed=True))
+    space.add_chore(alice, Chore("open", "Sweep floor", "alice"))
+
+    result = HouseholdReadFastPath(space.snapshot(alice)).resolve(
+        IntentFrame(principal=alice, utterance="Show my completed chores")
+    )
+
+    assert result is not None
+    assert result.evidence["status_filter"] == "completed"
+    assert result.evidence["chores"] == [
+        {"title": "Wash dishes", "assignee_id": "alice", "completed": True}
+    ]
+
+
 def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
     from datetime import datetime, timezone
 
