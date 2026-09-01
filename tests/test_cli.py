@@ -445,6 +445,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
     assert 'id="refresh"' in _INDEX_HTML
     assert "refreshState()" in _INDEX_HTML
+    assert "state_access_denied" in _INDEX_HTML
+    assert "State refresh failed" in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():

@@ -78,6 +78,11 @@ the input while a request is in flight, so a double click cannot intentionally
 submit the same visible turn twice. Core correlation/idempotency remains the
 authoritative protection for retries and process recovery.
 
+The state refresh control preserves the last authorized view during a transient
+service outage and labels the view as needing refresh. Identity failure or
+authorization denial clears the displayed nodes and relationships immediately;
+stale private state is never retained across a failed authorization refresh.
+
 Each browser message carries a UUID correlation ID. If transport fails, the
 Retry action resubmits that same ID; Core can therefore reuse its durable
 Result instead of treating the retry as a new consequential request.
