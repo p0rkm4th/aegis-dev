@@ -127,3 +127,9 @@ Result persistence, and a fresh Core/PostgreSQL process retried the same
 correlation. Independent readback completed successfully and found exactly one
 external record. The probe used correlation
 `7f5e7a10-ec5b-4a7e-b653-1212b4e0f4c0`.
+
+The runner’s semantic policy reads active membership from PostgreSQL. In a
+live revocation probe, Alice’s active `apartment` membership allowed
+`kitchen.write`; setting that membership inactive immediately denied the same
+authorization request below the model and Gateway layers. The fixture was
+restored to active afterward.

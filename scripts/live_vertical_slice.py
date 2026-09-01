@@ -17,14 +17,13 @@ import psycopg
 
 from aegis.contracts import (
     ActionCard,
-    AuthorizationRequest,
     ExecutionRequest,
     IntentFrame,
-    PolicyDecision,
     Principal,
 )
 from aegis.decoding import StrictDecisionDecoder
 from aegis.gateway_rpc import OpenClawWebSocketChannel
+from aegis.identity import PostgresSpacePolicy, Role
 from aegis.kernel import Kernel
 from aegis.ollama import OllamaHttpTransport, OllamaProvider
 from aegis.openclaw import OpenClawExecutor
@@ -34,13 +33,6 @@ from aegis.reference_packs import (
     reference_packs,
 )
 from aegis.store import PostgresObjectiveStore
-
-
-class AcceptancePolicy:
-    def authorize(self, request: AuthorizationRequest) -> PolicyDecision:
-        action = request.action
-        allowed = action.capability == "kitchen.groceries.write"
-        return PolicyDecision(allowed=allowed, reason="live acceptance kitchen scope")
 
 
 class AcceptanceRuntime:
@@ -122,7 +114,10 @@ def run_once(correlation: UUID, path: str) -> object:
                 max_repairs=0,
             ),
             StrictDecisionDecoder(),
-            AcceptancePolicy(),
+            PostgresSpacePolicy(
+                connection,
+                {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
+            ),
             OpenClawExecutor(
                 OpenClawGroceryExecutor(channel, path), AcceptanceRuntime(), NoApproval()
             ),

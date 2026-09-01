@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Protocol
 
-from .contracts import Principal
+from .contracts import AuthorizationRequest, PolicyDecision, Principal
 
 
 class Role(StrEnum):
@@ -85,6 +85,50 @@ class OpenFGAAuthorization:
         allowed = self.client.check(f"user:{principal.id}", "can_read", f"resource:{resource_id}")
         return AccessDecision(
             allowed, "OpenFGA relationship allows read" if allowed else "OpenFGA denied read"
+        )
+
+
+class SqlQueryConnection(Protocol):
+    def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
+
+
+class PostgresSpacePolicy:
+    """Fail-closed capability policy backed by canonical Space membership."""
+
+    def __init__(
+        self,
+        connection: SqlQueryConnection,
+        permission_roles: dict[str, frozenset[Role]],
+    ) -> None:
+        self.connection = connection
+        self.permission_roles = permission_roles
+
+    def authorize(self, request: AuthorizationRequest) -> PolicyDecision:
+        space_id = request.principal.space_ids[0] if request.principal.space_ids else None
+        if space_id is None:
+            return PolicyDecision(allowed=False, reason="action requires an explicit Space")
+        row = self.connection.execute(
+            "SELECT role FROM space_memberships "
+            "WHERE principal_id = %s AND space_id = %s AND active = TRUE",
+            (request.principal.id, space_id),
+        ).fetchone()
+        if row is None:
+            return PolicyDecision(
+                allowed=False, reason="principal is not an active Space member"
+            )
+        try:
+            role = Role(str(row[0]))
+        except ValueError:
+            return PolicyDecision(allowed=False, reason="membership role is invalid")
+        for permission in request.action.required_permissions:
+            allowed_roles = self.permission_roles.get(permission)
+            if allowed_roles is None or role not in allowed_roles:
+                return PolicyDecision(
+                    allowed=False,
+                    reason=f"Space policy denies permission: {permission}",
+                )
+        return PolicyDecision(
+            allowed=True, reason="active PostgreSQL Space membership permits action"
         )
 
 
