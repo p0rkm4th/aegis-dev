@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-qwen-natural-objective-live-green",
+  "current_checkpoint": "phase-12-natural-task-list-mutation-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
-  "last_green_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
-  "last_pushed_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
+  "head_sha": "20dff52a848a4c0ad1dca361cdce7f341c325d2f",
+  "last_green_sha": "20dff52a848a4c0ad1dca361cdce7f341c325d2f",
+  "last_pushed_sha": "20dff52a848a4c0ad1dca361cdce7f341c325d2f",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
-    "last_known_green_sha": "b0a9d77953900046dfd3cdab6c6d1ef9524d6e04",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/b0a9d77",
+    "running_sha": "20dff52a848a4c0ad1dca361cdce7f341c325d2f",
+    "last_known_green_sha": "20dff52a848a4c0ad1dca361cdce7f341c325d2f",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/20dff52",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -624,7 +624,10 @@
     "while_compound_mutation_regression": "green deterministic: compound mutation separators including while, also, and along with recognize inflected mutation verbs such as creating and block before model/Pack dispatch",
     "owner_while_compound_mutation_live": "green live: authenticated owner correlation 71717171-7171-4171-8171-717171717171 on release b0a9d77 returned HTTP 200 with a persisted blocked one-action clarification and matching request-status; no new task or grocery dispatch occurred",
     "owner_qwen_natural_objective_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 72727272-7272-4272-8272-727272727272 on release b0a9d77 completed a naturally phrased task objective through model proposal, authorization, execution, independent PostgreSQL readback verification, and matching request-status; objective 10a3506b-cc8a-4c82-8a5f-4ea45d9ace2f",
-    "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety now covers unresolved, sequential, as-well-as, review, and inflected while/also/along-with forms. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
+    "natural_task_list_mutation_regression": "green deterministic: the shared mutation guard recognizes put/place imperatives before task-list reads, and the CLI action selector extracts the task title from 'put a task on my list to ...'",
+    "owner_natural_task_list_mutation_defect_live": "historical live defect: owner correlation 73737373-7373-4373-8373-737373737373 for 'Could you put a task on my list to keep an eye on the backup before the restore drill?' was misclassified as a canonical task-list read because put was absent from the mutation guard",
+    "owner_natural_task_list_mutation_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 74747474-7474-4474-8474-747474747474 on release 20dff52 created exactly 'keep an eye on the backup before the restore drill?' with independent PostgreSQL readback verification; response and request-status matched objective 6afdfec5-8160-46c6-b185-7ab2452c0dcf",
+    "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety and natural task-list mutation routing are now live-green. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
   "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, stale canonical reconciliation, partial failure recovery, conjoined Finance/Personal/Household reads, Kitchen/Tasks mutation fail-closed behavior, adversarial private-finance containment, prompt-injection-shaped task handling, reminder ambiguity guidance, unresolved/sequential/as-well-as/review compound mutation safety, and actionable input validation are live-green; next attack malformed/weak proposals and model-boundary ambiguity."
