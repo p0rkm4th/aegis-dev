@@ -101,6 +101,7 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
         },
         {"title": "check the pantry", "status": "open"},
     ]
+    assert context.values["as_of_date"] == datetime.now().date().isoformat()
 
 
 def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):

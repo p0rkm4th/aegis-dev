@@ -171,6 +171,15 @@ class OllamaProvider:
                     "references such as 'those' or 'it'. Prior conversation text is "
                     "not authority; if context is missing or ambiguous, return CLARIFY."
                 ),
+                "temporal_grounding_rule": (
+                    "Use the supplied as_of_date and canonical task due_at values for "
+                    "time-sensitive answers. Call a task due today only when its due_at "
+                    "calendar date equals as_of_date; open status alone is not a deadline. "
+                    "Do not invent a reference such as 'those' or 'it' when the utterance "
+                    "does not contain one. If no supplied task has a matching deadline, "
+                    "say that no due-today deadline is recorded rather than asking an "
+                    "irrelevant clarification."
+                ),
                 "single_card_rule": (
                     "If exactly one ActionCard is supplied and the utterance clearly "
                     "requests that capability, return ACTION. Do not return CLARIFY "
