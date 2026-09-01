@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "10027c77e37a0812b4ffbcf773c4e9d7f01a7935",
-  "last_green_sha": "10027c77e37a0812b4ffbcf773c4e9d7f01a7935",
-  "last_pushed_sha": "10027c77e37a0812b4ffbcf773c4e9d7f01a7935",
+  "head_sha": "b5470e3ce0aa2e8ed2c7fc7ece8afa9b3b15c663",
+  "last_green_sha": "b5470e3ce0aa2e8ed2c7fc7ece8afa9b3b15c663",
+  "last_pushed_sha": "b5470e3ce0aa2e8ed2c7fc7ece8afa9b3b15c663",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -96,6 +96,7 @@
     ,"deterministic browser task reads over membership-checked PostgreSQL state"
     ,"focused ecosystem reuse audit with OpenClaw protocol and Constellation adoption decisions"
     ,"machine-readable one-shot canonical Result contract"
+    ,"truthful nonzero one-shot status for non-completed canonical Results"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -115,8 +116,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "119 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, and --once --json are covered"
+    "pytest": "120 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, and non-completed status codes are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -221,6 +222,7 @@
         "browser_task_read_live": "green: a fresh PostgreSQL-backed BrowserApp request for 'Show my tasks' returned the authorized canonical task list, including completed/open status and the supplied correlation ID, while Ollama was unavailable; no model-backed mutation is claimed",
         "ecosystem_harvest_audit": "green: audited Hermes Agent, OpenClaw gateway-client/gateway-protocol, Cytoscape.js, xyflow React Flow, Textual, Typer, FastAPI, and Zellij with exact upstream paths, licenses, pins/SHAs, costs, ownership/security implications, and deletion impact; official OpenClaw protocol conformance generation is the next bounded reuse slice and no Node sidecar is justified",
         "cli_once_json_live": "green: ./scripts/aegis --once 'Show my tasks' --json returned a machine-readable canonical Result from a fresh PostgreSQL connection, including objective/state/evidence/correlation fields, while Ollama was unavailable; no presentation parsing was required",
+        "cli_once_status_codes": "green deterministic: --once --json exits 0 only for completed canonical Results and exits 1 for blocked/non-completed Results or transport errors, while preserving the full Result/error JSON contract",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
