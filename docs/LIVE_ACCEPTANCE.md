@@ -180,6 +180,13 @@ completed a task with an authorized assignee; fresh PostgreSQL connections
 reloaded the completed lifecycle. Listing by a non-member and assigning to an
 inactive Space member were both denied below the task state layer.
 
+The Tasks Pack then crossed the generic Kernel execution boundary. Migration
+`009_task_idempotency.sql` added a unique mutation key; a live Qwen3:8B
+`tasks.create` request completed through PostgreSQL policy, the Tasks executor,
+and an independent PostgreSQL verifier. A fresh process replay returned the
+same canonical Result and left exactly one task row for the correlation key.
+Changed arguments under an existing key are rejected.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
