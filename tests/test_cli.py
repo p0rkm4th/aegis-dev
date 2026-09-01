@@ -806,6 +806,19 @@ def test_browser_app_rejects_empty_messages_and_unknown_routes():
     assert status == 404
 
 
+def test_browser_app_rejects_invalid_utf8_without_decoder_details():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(principal, lambda *_: "unreachable", lambda _: {"nodes": []})
+
+    status, _, payload = app.dispatch("POST", "/api/message", b"\xff")
+
+    assert status == 400
+    assert json.loads(payload) == {
+        "code": "invalid_request",
+        "error": "invalid request",
+    }
+
+
 def test_browser_app_fails_closed_when_state_is_not_authorized():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(principal, lambda *_: "unused", lambda _: _deny())
