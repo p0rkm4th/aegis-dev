@@ -294,30 +294,41 @@ async function loadState() {
   const details = state.details || {};
   selectedNode = null;
   document.getElementById('detail').replaceChildren();
+  const nodeCards = new Map();
+  const selectNode = (node, card) => {
+    if (selectedNode) selectedNode.setAttribute('aria-pressed', 'false');
+    selectedNode = card; card.setAttribute('aria-pressed', 'true');
+    const panel = document.getElementById('detail'); panel.replaceChildren();
+    const heading = document.createElement('p');
+    heading.textContent = `${node.label}: ${node.detail || 'No detail'}`;
+    panel.append(heading);
+    if (Object.prototype.hasOwnProperty.call(details, node.id)) {
+      panel.append(renderDetailValue(details[node.id]));
+    }
+  };
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     card.setAttribute('aria-pressed', 'false');
     card.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
     const title = document.createElement('h2'); title.textContent = node.label;
     const detail = document.createElement('p'); detail.textContent = node.detail || '';
-    card.addEventListener('click', () => {
-      if (selectedNode) selectedNode.setAttribute('aria-pressed', 'false');
-      selectedNode = card; card.setAttribute('aria-pressed', 'true');
-      const panel = document.getElementById('detail'); panel.replaceChildren();
-      const heading = document.createElement('p');
-      heading.textContent = `${node.label}: ${node.detail || 'No detail'}`;
-      panel.append(heading);
-      if (Object.prototype.hasOwnProperty.call(details, node.id)) {
-        panel.append(renderDetailValue(details[node.id]));
-      }
-    });
+    card.addEventListener('click', () => selectNode(node, card));
+    nodeCards.set(node.id, card);
     card.append(title, detail); return card;
   }));
   const labels = Object.fromEntries((state.nodes || []).map(node => [node.id, node.label]));
   edges.replaceChildren(...(state.edges || []).map(edge => {
     const item = document.createElement('li');
-    item.textContent =
+    const link = document.createElement('button'); link.type = 'button';
+    link.textContent =
       `${labels[edge.source] || 'Authorized node'} → ${labels[edge.target] || 'Authorized node'}`;
+    link.setAttribute(
+      'aria-label', `Open relationship to ${labels[edge.target] || 'authorized node'}`);
+    link.addEventListener('click', () => {
+      const target = nodeCards.get(edge.target);
+      if (target) { target.focus(); target.click(); }
+    });
+    item.append(link);
     return item;
   }));
 }

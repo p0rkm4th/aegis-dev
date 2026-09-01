@@ -1494,6 +1494,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'aria-label="Selected node details"' in _INDEX_HTML
     assert "card.setAttribute('aria-label'" in _INDEX_HTML
     assert "selectedNode" in _INDEX_HTML
+    assert "const nodeCards = new Map()" in _INDEX_HTML
+    assert "const selectNode = (node, card)" in _INDEX_HTML
+    assert "Open relationship to" in _INDEX_HTML
+    assert "target.focus(); target.click()" in _INDEX_HTML
     assert (
         "selectedNode = null;\n  document.getElementById('detail').replaceChildren();"
         in _INDEX_HTML
