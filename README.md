@@ -63,3 +63,15 @@ The browser binds to loopback by default. OpenClaw, Home Assistant, mobile,
 and voice integrations are optional lanes with separate live-acceptance
 requirements; do not expose their services beyond the documented local
 boundary.
+
+## Project documents
+
+- [VISION.md](VISION.md) — ideal self-hostable Jarvis-like product.
+- [CORE_CONCEPTS.md](CORE_CONCEPTS.md) — durable cognition, truth, and security invariants.
+- [ROADMAP.md](ROADMAP.md) — sequencing and maturity gates.
+- [CURRENT_STATE.json](CURRENT_STATE.json) — current implementation and evidence truth.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — ownership and system boundaries.
+- [MODEL_STRATEGY.md](MODEL_STRATEGY.md) — model roles, scale, and evaluation.
+- [SECURITY_MODEL.md](SECURITY_MODEL.md) — privacy, authorization, and verification.
+- [PACK_SPEC.md](PACK_SPEC.md) — modular Pack contracts.
+- [docs/OWNER_DOGFOOD.md](docs/OWNER_DOGFOOD.md) — installed-runtime dogfood protocol.
