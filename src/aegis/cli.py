@@ -272,6 +272,16 @@ def _postgres_health(database_url: str | None) -> ComponentHealth:
                 "and ensure PostgreSQL is running"
             ),
         )
+    except Exception:
+        return ComponentHealth(
+            name="postgres",
+            healthy=False,
+            required=True,
+            detail=(
+                "database health check failed; verify AEGIS_DATABASE_URL and ensure "
+                "PostgreSQL is running"
+            ),
+        )
 
 
 def _ollama_health(url: str, model: str) -> ComponentHealth:
@@ -321,6 +331,17 @@ def _ollama_health(url: str, model: str) -> ComponentHealth:
                 f"API unavailable at {endpoint}: {type(exc).__name__}; "
                 f"check `curl {endpoint}/api/tags`, start Ollama, or set "
                 "AEGIS_OLLAMA_URL to its reachable address"
+            ),
+        )
+    except Exception:
+        endpoint = _safe_endpoint(url)
+        return ComponentHealth(
+            name="ollama",
+            healthy=False,
+            required=True,
+            detail=(
+                f"Ollama health check failed at {endpoint}; check `curl {endpoint}/api/tags`, "
+                "start Ollama, or set AEGIS_OLLAMA_URL to its reachable address"
             ),
         )
 
