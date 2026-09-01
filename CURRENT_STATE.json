@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-error-status-labels-green",
+  "current_checkpoint": "phase-12-constellation-filter-accessible-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "5a3c9eb88ee391ae44e8f8a45b07649b39c5eb04",
-  "last_green_sha": "5a3c9eb88ee391ae44e8f8a45b07649b39c5eb04",
-  "last_pushed_sha": "5a3c9eb88ee391ae44e8f8a45b07649b39c5eb04",
+  "head_sha": "406447bc596f9e5cfccac18e1880477ff9df03ce",
+  "last_green_sha": "406447bc596f9e5cfccac18e1880477ff9df03ce",
+  "last_pushed_sha": "406447bc596f9e5cfccac18e1880477ff9df03ce",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -213,6 +213,7 @@
     ,"Constellation filtering reports explicit no-match and clear-filter authorized counts"
     ,"browser authorization cleanup clears projection caches and prevents stale filter status"
     ,"browser failure statuses use human-readable labels while retaining structured error codes"
+    ,"Constellation filter result status is explicitly associated and announced accessibly"
     ,"Constellation projections reject duplicate node IDs and dangling relationship endpoints"
     ,"request-status distinguishes malformed client queries from canonical provider failures"
     ,"browser conversation and state refresh expose in-flight work through accessible busy state"
@@ -474,6 +475,7 @@
         "browser_authorization_cache_cleanup": "green deterministic: authorization cleanup clears rendered node/edge caches, resets the filter, marks the projection unavailable, and preserves the safe authorized-nodes-unavailable status instead of exposing stale client projection state",
         "browser_revocation_cache_cleanup_live": "green live rendered privacy acceptance: Chromium loaded an authorized 10-node projection, applied a Household filter, PostgreSQL membership was revoked mid-session, and Refresh returned state_access_denied while clearing all nodes/detail and showing Authorized nodes unavailable; the membership fixture was restored and server stderr remained clean",
         "browser_error_status_labels": "green deterministic: browser error presentation maps stable identity, authorization, state, request, response, timeout, and validation codes to human-readable status labels while retaining the machine-readable code in the API envelope",
+        "browser_filter_accessibility_live": "green live rendered accessibility acceptance: Chromium loaded the browser surface and the filter input referenced node-filter-status via aria-describedby while the status region exposed aria-live=polite and aria-atomic=true; server stderr remained clean",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -501,5 +503,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, human-readable lifecycle labels, explicit recovery feedback, Constellation projection integrity, request-status error classification, accessible progress state, rendered failure/retry feedback, browser parser error redaction, rendered relationship navigation, rendered detail readability, bounded browser responses, live Qwen readiness diagnostics, preserved browser activity status, browser task mutation refresh, Constellation filtering, filter empty-state recovery, authorization cache cleanup, live revocation cache cleanup, and human-readable browser error statuses are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, human-readable lifecycle labels, explicit recovery feedback, Constellation projection integrity, request-status error classification, accessible progress state, rendered failure/retry feedback, browser parser error redaction, rendered relationship navigation, rendered detail readability, bounded browser responses, live Qwen readiness diagnostics, preserved browser activity status, browser task mutation refresh, Constellation filtering, filter empty-state recovery, authorization cache cleanup, live revocation cache cleanup, human-readable browser error statuses, and accessible filter status are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
 }
