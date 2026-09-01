@@ -30,6 +30,7 @@ from aegis.contracts import (
     IntentFrame,
     ModelRequest,
     ModelResponse,
+    ObjectiveState,
     Observation,
     PolicyDecision,
     Principal,
@@ -121,7 +122,7 @@ from aegis.reference_packs import (
 )
 from aegis.registry import CapabilityRegistry
 from aegis.security_lab import PostgresSecurityLabStore, SecurityLab
-from aegis.store import SqliteObjectiveStore
+from aegis.store import PostgresObjectiveStore, SqliteObjectiveStore
 from aegis.tasks import (
     PostgresTaskExecutor,
     PostgresTaskStore,
@@ -519,6 +520,38 @@ def test_gateway_cancel_is_explicit_and_never_executes():
     observation = ReconnectingGatewayClient(transport).execute(request, event)
     assert observation.evidence["transport"] == "cancelled"
     assert transport.cancelled
+
+
+def test_postgres_request_status_prefers_persisted_result_for_replayed_correlation():
+    correlation = uuid4()
+    objective_id = uuid4()
+
+    class Cursor:
+        def fetchone(self):
+            return (str(objective_id), "completed", "canonical readback verified")
+
+    class Connection:
+        def __init__(self):
+            self.params = None
+
+        def execute(self, _query, params=()):
+            self.params = params
+            return Cursor()
+
+    connection = Connection()
+    status = PostgresObjectiveStore(connection).get_request_status(
+        correlation,
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+
+    assert status == (objective_id, ObjectiveState.COMPLETED, "canonical readback verified")
+    assert connection.params == (
+        str(correlation),
+        "alice",
+        "alice-vault",
+        str(correlation),
+        "alice",
+    )
 
 
 def test_sqlite_store_survives_kernel_restart_without_duplicate_side_effect(tmp_path):

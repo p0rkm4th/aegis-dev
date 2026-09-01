@@ -135,6 +135,13 @@ class Result(StrictModel):
     correlation_id: UUID
 
 
+class RequestStatus(StrictModel):
+    correlation_id: UUID
+    state: str = Field(min_length=1)
+    objective_id: UUID | None = None
+    message: str | None = None
+
+
 class Objective(StrictModel):
     id: UUID = Field(default_factory=uuid4)
     intent: IntentFrame
