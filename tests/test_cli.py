@@ -117,3 +117,22 @@ def test_cli_once_routes_through_handle(monkeypatch, capsys):
     cli.main()
 
     assert capsys.readouterr().out == "handled: Show my tasks.\n"
+
+
+def test_cli_once_returns_failure_status_for_handled_error(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "Show my tasks."])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+
+    def fail(_utterance, _principal):
+        raise ValueError("request is ambiguous")
+
+    monkeypatch.setattr(cli, "handle", fail)
+
+    assert cli.main() == 1
+    assert capsys.readouterr().out == "Not completed — request is ambiguous\n"

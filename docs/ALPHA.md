@@ -21,8 +21,9 @@ health checks that need one request, use non-interactive mode:
 ./scripts/aegis --once "Show my tasks."
 ```
 
-`--once` prints one canonical human-readable result and exits; it does not
-bypass Core policy, authorization, execution, or verification. Add
+`--once` prints one canonical human-readable result and exits with status 0;
+handled request errors print an actionable message and exit with status 1. It
+does not bypass Core policy, authorization, execution, or verification. Add
 `--no-banner` when embedding the interactive client in a terminal wrapper.
 
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,

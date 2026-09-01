@@ -440,7 +440,7 @@ def handle(utterance: str, principal: Principal) -> str:
         connection.close()
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(
         prog="aegis",
         description="Run a request through the AEGIS interaction boundary.",
@@ -467,7 +467,8 @@ def main() -> None:
             print(handle(args.once, principal))
         except (RuntimeError, ValueError, OSError) as exc:
             print(f"Not completed — {exc}")
-        return
+            return 1
+        return 0
     if not args.no_banner:
         print("AEGIS alpha. Type a request, or 'quit' to exit.")
     while True:
@@ -475,9 +476,9 @@ def main() -> None:
             utterance = input("aegis> ").strip()
         except (EOFError, KeyboardInterrupt):
             print()
-            return
+            return 0
         if utterance.lower() in {"quit", "exit"}:
-            return
+            return 0
         if not utterance:
             continue
         try:
@@ -491,4 +492,4 @@ def _format_error(message: str) -> str:
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
