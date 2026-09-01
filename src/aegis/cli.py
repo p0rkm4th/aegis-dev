@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import os
 import re
@@ -729,7 +730,10 @@ def main() -> int:
                 _constellation_state,
                 _runtime_report,
             )
-        except (RuntimeError, ValueError, OSError, PermissionError, psycopg.Error) as exc:
+        except OSError as exc:
+            print(f"Not completed — {_browser_startup_error(exc, args.port)}")
+            return 1
+        except (RuntimeError, ValueError, PermissionError, psycopg.Error) as exc:
             print(f"Not completed — unable to start browser: {exc}")
             return 1
         return 0
@@ -786,6 +790,12 @@ def _port_value(value: str) -> int:
     if not 1 <= port <= 65535:
         raise argparse.ArgumentTypeError("port must be an integer from 1 to 65535")
     return port
+
+
+def _browser_startup_error(exc: OSError, port: int) -> str:
+    if exc.errno == errno.EADDRINUSE:
+        return f"browser port {port} is already in use; choose another with --port"
+    return f"unable to start browser: {exc}"
 
 
 if __name__ == "__main__":
