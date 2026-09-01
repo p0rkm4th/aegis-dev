@@ -3,7 +3,60 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-grounded-temporal-cognition-live",
+  "roadmap_version": 1,
+  "active_milestone": "M08",
+  "active_checkpoint": "M08.03",
+  "checkpoint_status": "in_progress",
+  "current_checkpoint": "M08.03-semantic-pack-capability-retrieval",
+  "checkpoint_evidence": {
+    "deterministic": [
+      "M08.01 confidence-gated deterministic reads and writes",
+      "M08.02 bounded non-authoritative ANSWER path",
+      "M08.04 strict bounded Decision schema",
+      "M08.06 declared ActionCard argument extraction",
+      "M08.07 ambiguity clarifies instead of guessing",
+      "M08.09 near-miss read/write safety guards"
+    ],
+    "live": [
+      "M08.02 story generation through authenticated Qwen3:8B owner runtime",
+      "M08.08 unseen typo/paraphrase grocery and task evidence",
+      "M09.05/M09.06 authorized context grounding and contextual mutation fail-closed",
+      "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
+      "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
+      "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
+    ],
+    "capability": [
+      "M08.08 natural-language capability green remains intentionally unclaimed; exact canaries and partial unseen-family evidence are recorded separately"
+    ],
+    "unmet_or_partial": [
+      "M08.03 Pack/capability retrieval is currently bounded lexical domain filtering, not semantic retrieval",
+      "M08.05 model action selection uses bounded ActionCard IDs but does not yet expose a durable semantic retrieval contract",
+      "M08.10 phrase-overfit production cleanup remains partial pending broader capability evaluation",
+      "M09.01-M09.04 full session/referent/continuation contract remains partial; current context is correlation-bound canonical evidence",
+      "M11.07 automatic defect harvesting is not yet an automated defect-to-regression loop",
+      "M12.11 mobile/chat remains lane-limited"
+    ]
+  },
+  "completed_checkpoints": {
+    "M00": "M00.01-M00.06 complete after durable doctrine and checkpoint roadmap registration",
+    "M01": "M01.01-M01.09 complete from typed contracts, policy, observation, verification, completion, retry, and failure evidence",
+    "M02": "M02.01-M02.07 complete from replaceable provider, strict decoder, runtime, OpenClaw, and provider evidence",
+    "M03": "M03.01-M03.08 complete from migrations, PostgreSQL truth, audit, recovery, backup, and readiness evidence",
+    "M04": "M04.01-M04.08 complete from identity, Vault/Space, policy, revocation, propagation, and multi-user evidence",
+    "M05": "M05.01-M05.09 complete; M05.10 third-party Pack proof remains unmet",
+    "M06": "M06.01-M06.07 complete from read/write/shared/private/external/finance/restart vertical evidence",
+    "M07": "M07.01-M07.09 complete from canonical memory, retrieval, provenance, compaction, and privacy evidence",
+    "M08": "M08.01-M08.02, M08.04, M08.06-M08.09 materially implemented/proven; M08.03 and M08.10 remain active",
+    "M10": "M10.01-M10.06, M10.08-M10.10 materially proven; M10.07 compensation/cancellation remains unmet",
+    "M11": "M11.01-M11.06 and M11.08-M11.09 materially proven; M11.07 remains unmet",
+    "M12": "M12.01-M12.10 materially proven; M12.11 is lane-limited"
+  },
+  "next_candidates": [
+    "M08.03",
+    "M09.01",
+    "M11.07",
+    "M16.08"
+  ],
   "active_branch": "aegis-dev",
   "head_sha": "5aa2f42",
   "last_green_sha": "4249764",
