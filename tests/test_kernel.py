@@ -363,6 +363,62 @@ def test_replay_does_not_execute_side_effect_twice():
     assert ex.calls == 1
 
 
+def test_restart_reuses_persisted_action_after_crash_before_result(tmp_path):
+    store = SqliteObjectiveStore(str(tmp_path / "objective.sqlite"))
+    original_intent = intent()
+    action = ActionSpec(
+        action_id="write",
+        capability="test.write",
+        verification=VerificationContract(kind="readback"),
+    )
+
+    class CrashBeforeResultStore:
+        def __init__(self):
+            self.failed = False
+
+        def save_result(self, key, result):
+            if not self.failed:
+                self.failed = True
+                raise RuntimeError("simulated process interruption")
+            store.save_result(key, result)
+
+        def __getattr__(self, name):
+            return getattr(store, name)
+
+    first_store = CrashBeforeResultStore()
+    with pytest.raises(RuntimeError, match="simulated process interruption"):
+        Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+            Policy(PolicyDecision(allowed=True, reason="ok")),
+            Executor(),
+            Verifier(True),
+            store=first_store,
+        ).run(original_intent)
+
+    class MustNotPlan:
+        def decide(self, _request):
+            raise AssertionError("recovery must not invoke the model")
+
+    recovered = Kernel(
+        MustNotPlan(),
+        Decoder(Decision(kind=DecisionKind.CLARIFY, clarification="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    ).run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="different wording after restart",
+            correlation_id=original_intent.correlation_id,
+        )
+    )
+
+    assert recovered.state is ObjectiveState.COMPLETED
+    assert recovered.message == "verified"
+
+
 def test_registry_returns_at_most_five_relevant_cards():
     cards = tuple(
         ActionCard(
