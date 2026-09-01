@@ -10,8 +10,11 @@ from uuid import UUID, uuid4
 
 from .contracts import (
     ExecutionRequest,
+    IntentFrame,
+    ObjectiveState,
     Observation,
     Principal,
+    Result,
     VerificationContract,
     VerificationResult,
 )
@@ -300,4 +303,38 @@ class PostgresTaskListVerifier:
             verified=verified,
             evidence={**observation.evidence, "canonical_tasks": actual},
             reason="canonical task list verified" if verified else "canonical task list changed",
+        )
+
+
+class TaskReadFastPath:
+    """Deterministic task reads over the membership-checked canonical store."""
+
+    _TRIGGERS = ("task", "tasks", "to-do", "todo", "what do i need to do")
+
+    def __init__(self, store: PostgresTaskStore) -> None:
+        self.store = store
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        if text.startswith(("add ", "create ", "update ", "complete ", "remove ")):
+            return False
+        return any(trigger in text for trigger in cls._TRIGGERS)
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        if not self.matches(intent.utterance):
+            return None
+        tasks = self.store.list(intent.principal)
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Canonical task list read",
+            evidence={
+                "collection": "tasks",
+                "canonical_tasks": [
+                    {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
+                    for task in tasks
+                ],
+            },
+            correlation_id=intent.correlation_id,
         )

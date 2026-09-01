@@ -4,9 +4,10 @@ from uuid import uuid4
 import pytest
 
 from aegis.cli import _domain_and_action, _ensure_local_identity
-from aegis.contracts import ObjectiveState, Principal, Result
+from aegis.contracts import IntentFrame, ObjectiveState, Principal, Result
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
+from aegis.tasks import Task, TaskReadFastPath, TaskStatus
 from aegis.web import BrowserApp
 
 
@@ -346,6 +347,31 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
     assert "conversation.append(assistantLine)" in _INDEX_HTML
+
+
+def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
+    task = Task(uuid4(), "apartment", "replace filter", "alice", status=TaskStatus.OPEN)
+
+    class Store:
+        def list(self, principal):
+            assert principal.id == "alice"
+            return (task,)
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    intent = IntentFrame(
+        principal=principal,
+        utterance="Show my tasks",
+        correlation_id=uuid4(),
+    )
+
+    result = TaskReadFastPath(Store()).resolve(intent)
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["canonical_tasks"] == [
+        {"task_id": str(task.task_id), "title": "replace filter", "status": "open"}
+    ]
+    assert not TaskReadFastPath.matches("Create a task to replace filter")
 
 
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
