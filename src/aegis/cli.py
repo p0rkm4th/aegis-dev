@@ -314,6 +314,17 @@ def handle(utterance: str, principal: Principal) -> str:
                 FinanceLedger(PostgresFinanceSnapshotStore(connection))
             ).resolve(intent, obligations)
             if finance_result is not None:
+                PostgresAuditLog(connection).append(
+                    "finance.affordability.read",
+                    principal.id,
+                    {
+                        "purchase_cents": finance_result.evidence["purchase_cents"],
+                        "shared_obligations_cents": finance_result.evidence[
+                            "shared_obligations_cents"
+                        ],
+                        "affordable": finance_result.evidence["affordable"],
+                    },
+                )
                 return _format(finance_result)
         if HouseholdReadFastPath.matches(utterance):
             household_result = HouseholdReadFastPath(
