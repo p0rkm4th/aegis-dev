@@ -323,6 +323,7 @@ async function loadState() {
 }
 async function refreshState() {
   refresh.disabled = true;
+  nodes.setAttribute('aria-busy', 'true');
   try {
     try {
       await loadHealth();
@@ -342,6 +343,7 @@ async function refreshState() {
       }
     }
   } finally {
+    nodes.setAttribute('aria-busy', 'false');
     refresh.disabled = false;
   }
 }
@@ -360,6 +362,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     conversation.append(userLine);
   }
   send.disabled = true; input.disabled = true;
+  event.currentTarget.setAttribute('aria-busy', 'true');
   persistPendingRequest(utterance, correlationId);
   document.getElementById('detail').textContent = 'Status: working';
   const controller = new AbortController();
@@ -412,6 +415,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     persistPendingRequest(utterance, correlationId);
   } finally {
     clearTimeout(timeout);
+    event.currentTarget.setAttribute('aria-busy', 'false');
     send.disabled = false; input.disabled = false;
   }
 });
