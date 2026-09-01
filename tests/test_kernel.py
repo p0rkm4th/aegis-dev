@@ -358,6 +358,46 @@ def test_kernel_run_sequence_does_not_replay_plan_result_to_wrong_principal(tmp_
     store.close()
 
 
+def test_kernel_run_sequence_rejects_same_principal_plan_rebinding(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    store = SqliteObjectiveStore(str(tmp_path / "bound-sequence.sqlite"))
+    first_action = ActionSpec(
+        action_id="first",
+        capability="first",
+        verification=VerificationContract(kind="readback"),
+    )
+    second_action = ActionSpec(
+        action_id="second",
+        capability="second",
+        verification=VerificationContract(kind="readback"),
+    )
+    original_intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="do the first thing",
+        correlation_id=uuid4(),
+    )
+    kernel = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    )
+    original = kernel.run_sequence(original_intent, (first_action,))
+    rebound = kernel.run_sequence(
+        original_intent.model_copy(update={"utterance": "do the second thing"}),
+        (second_action,),
+    )
+
+    assert original.state is ObjectiveState.COMPLETED
+    assert rebound.state is ObjectiveState.BLOCKED
+    assert rebound.objective_id == original.objective_id
+    assert "different action sequence" in rebound.message
+    store.close()
+
+
 def test_policy_denial_cannot_be_bypassed_by_model_action():
     ex = Executor()
     action = ActionSpec(
