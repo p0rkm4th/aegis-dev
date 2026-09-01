@@ -279,7 +279,10 @@ def test_browser_app_fails_closed_when_state_is_not_authorized():
 
     status, _, payload = app.dispatch("GET", "/api/constellation")
     assert status == 403
-    assert json.loads(payload) == {"error": "state access denied"}
+    assert json.loads(payload) == {
+        "code": "state_access_denied",
+        "error": "state access denied",
+    }
 
 
 def test_browser_api_resolves_identity_for_each_request():
@@ -311,7 +314,10 @@ def test_browser_api_rejects_unavailable_identity():
 
     status, _, payload = app.dispatch("GET", "/api/constellation")
     assert status == 401
-    assert json.loads(payload) == {"error": "identity unavailable"}
+    assert json.loads(payload) == {
+        "code": "identity_unavailable",
+        "error": "identity unavailable",
+    }
 
 
 def test_browser_reuses_correlation_id_for_retry_safe_delivery():
@@ -393,7 +399,10 @@ def test_browser_rejects_oversized_request_body():
 
     status, _, payload = app.dispatch("POST", "/api/message", b"x" * 20_001)
     assert status == 413
-    assert json.loads(payload) == {"error": "request too large"}
+    assert json.loads(payload) == {
+        "code": "request_too_large",
+        "error": "request too large",
+    }
 
 
 def test_browser_surface_has_transcript_and_duplicate_submission_guard():

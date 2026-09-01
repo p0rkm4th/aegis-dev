@@ -149,21 +149,27 @@ class BrowserApp:
             try:
                 principal = self.principal_provider()
             except (OSError, RuntimeError, ValueError, PermissionError):
-                return self._json(HTTPStatus.UNAUTHORIZED, {"error": "identity unavailable"})
+                return self._error(
+                    HTTPStatus.UNAUTHORIZED, "identity_unavailable", "identity unavailable"
+                )
         else:
-            return self._json(HTTPStatus.NOT_FOUND, {"error": "route not found"})
+            return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
         if method == "GET" and route == "/api/constellation":
             try:
                 state = self.state(principal)
             except PermissionError:
-                return self._json(HTTPStatus.FORBIDDEN, {"error": "state access denied"})
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
             except (OSError, RuntimeError):
-                return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "state unavailable"})
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
+                )
             return self._json(HTTPStatus.OK, state)
         if method == "POST" and route == "/api/message":
             if len(body) > _MAX_BODY_BYTES:
-                return self._json(
-                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "request too large"}
+                return self._error(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "request_too_large", "request too large"
                 )
             try:
                 payload = json.loads(body)
@@ -181,11 +187,13 @@ class BrowserApp:
                     raise ValueError("correlation_id must be a UUID string")
                 message = self.interaction(utterance, principal, correlation_id)
             except (ValueError, KeyError, json.JSONDecodeError, TypeError) as exc:
-                return self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
             except PermissionError:
-                return self._json(HTTPStatus.FORBIDDEN, {"error": "request denied"})
+                return self._error(HTTPStatus.FORBIDDEN, "request_denied", "request denied")
             except (OSError, RuntimeError):
-                return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "request unavailable"})
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "request_unavailable", "request unavailable"
+                )
             if isinstance(message, dict):
                 message.setdefault("correlation_id", str(correlation_id))
                 return self._json(HTTPStatus.OK, message)
@@ -193,11 +201,15 @@ class BrowserApp:
                 HTTPStatus.OK,
                 {"message": message, "correlation_id": str(correlation_id)},
             )
-        return self._json(HTTPStatus.NOT_FOUND, {"error": "route not found"})
+        return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
 
     @staticmethod
     def _json(status: HTTPStatus, payload: Any) -> tuple[int, str, bytes]:
         return status, "application/json", json.dumps(payload).encode()
+
+    @classmethod
+    def _error(cls, status: HTTPStatus, code: str, message: str) -> tuple[int, str, bytes]:
+        return cls._json(status, {"code": code, "error": message})
 
 
 def serve(
@@ -221,17 +233,25 @@ def serve(
                 length = int(self.headers.get("content-length", "0"))
             except ValueError:
                 self._respond(
-                    app._json(HTTPStatus.BAD_REQUEST, {"error": "invalid content length"})
+                    app._error(
+                        HTTPStatus.BAD_REQUEST, "invalid_content_length", "invalid content length"
+                    )
                 )
                 return
             if length < 0:
                 self._respond(
-                    app._json(HTTPStatus.BAD_REQUEST, {"error": "invalid content length"})
+                    app._error(
+                        HTTPStatus.BAD_REQUEST, "invalid_content_length", "invalid content length"
+                    )
                 )
                 return
             if length > _MAX_BODY_BYTES:
                 self._respond(
-                    app._json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "request too large"})
+                    app._error(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        "request_too_large",
+                        "request too large",
+                    )
                 )
                 return
             self._respond(app.dispatch("POST", self.path, self.rfile.read(length)))

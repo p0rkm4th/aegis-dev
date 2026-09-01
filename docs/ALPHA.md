@@ -60,6 +60,11 @@ Malformed or unavailable identity is returned as an unauthorized response;
 state access is still rechecked against current Space/Vault policy below the
 browser adapter.
 
+API failures include a stable `code` alongside generic user-safe `error` text
+(`identity_unavailable`, `state_access_denied`, `state_unavailable`,
+`invalid_request`, `request_denied`, `request_unavailable`, or
+`route_not_found`) so clients do not parse prose to choose their behavior.
+
 The browser also exposes `/api/health`, using the same structured readiness
 report as `--check`. Health is available for diagnosis without exposing
 identity-protected state. Message bodies are bounded and malformed or
