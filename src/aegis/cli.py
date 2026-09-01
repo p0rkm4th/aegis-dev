@@ -955,6 +955,15 @@ def main() -> int:
             else:
                 print(f"Not completed — {exc}")
             return 1
+        except Exception:
+            if args.json:
+                _print_json_error("request_unavailable", "request unavailable")
+            else:
+                print(
+                    "Not completed — request unavailable; run "
+                    "'./scripts/aegis --check' and verify configured services"
+                )
+            return 1
         return 0
     if not args.no_banner:
         print("AEGIS alpha. Type a request, or 'quit' to exit.")
@@ -984,6 +993,11 @@ def main() -> int:
             )
         except ValueError as exc:
             print(f"Not completed — {exc}")
+        except Exception:
+            print(
+                "Not completed — request unavailable; run "
+                "'./scripts/aegis --check' and verify configured services"
+            )
 
 
 def _format_error(message: str) -> str:
