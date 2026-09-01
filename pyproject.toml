@@ -19,6 +19,9 @@ live = ["cryptography>=43,<51", "psycopg[binary]>=3.2,<4", "websocket-client>=1.
 [tool.hatch.build.targets.wheel]
 packages = ["src/aegis"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"migrations" = "aegis/migrations"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"

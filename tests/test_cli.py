@@ -127,6 +127,30 @@ def test_cli_version_is_available_without_runtime_configuration(monkeypatch, cap
     assert capsys.readouterr().out.startswith("aegis ")
 
 
+def test_cli_migration_source_fallback_executes_sql(monkeypatch):
+    from aegis import cli
+
+    class Connection:
+        def __init__(self):
+            self.statements = []
+            self.committed = False
+
+        def execute(self, statement):
+            self.statements.append(statement)
+
+        def commit(self):
+            self.committed = True
+
+    connection = Connection()
+    monkeypatch.delenv("AEGIS_AUTO_MIGRATE", raising=False)
+
+    cli._apply_migrations(connection)
+
+    assert len(connection.statements) == 14
+    assert connection.statements[0].startswith("-- PostgreSQL canonical schema")
+    assert connection.committed is True
+
+
 def test_cli_init_creates_private_non_overwriting_template(monkeypatch, capsys, tmp_path):
     from aegis import cli
 
