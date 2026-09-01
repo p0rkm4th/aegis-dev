@@ -614,6 +614,15 @@ def test_postgres_health_connection_failure_has_safe_remediation(monkeypatch):
     assert "private-secret" not in component.detail
 
 
+def test_postgres_health_rejects_malformed_connection_configuration():
+    from aegis import cli
+
+    component = cli._postgres_health("not-a-postgresql-url")
+
+    assert component.healthy is False
+    assert component.detail == "invalid database configuration; verify AEGIS_DATABASE_URL"
+
+
 def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
     from aegis import cli
 

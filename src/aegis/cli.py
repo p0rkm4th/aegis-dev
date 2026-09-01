@@ -220,6 +220,13 @@ def _postgres_health(database_url: str | None) -> ComponentHealth:
         return ComponentHealth(
             name="postgres", healthy=True, required=True, detail="connection and schema succeeded"
         )
+    except psycopg.ProgrammingError:
+        return ComponentHealth(
+            name="postgres",
+            healthy=False,
+            required=True,
+            detail="invalid database configuration; verify AEGIS_DATABASE_URL",
+        )
     except psycopg.Error as exc:
         return ComponentHealth(
             name="postgres",
