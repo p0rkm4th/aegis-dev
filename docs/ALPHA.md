@@ -14,6 +14,10 @@ export AEGIS_OLLAMA_URL='http://127.0.0.1:11434'
 ./scripts/aegis
 ```
 
+The launcher uses the repository `.venv` when available and otherwise falls
+back to an active `python3` environment with the checkout on `PYTHONPATH`. Set
+`AEGIS_PYTHON` to choose a specific Python executable.
+
 Use `./scripts/aegis --help` to inspect the client options. For automation or
 health checks that need one request, use non-interactive mode:
 

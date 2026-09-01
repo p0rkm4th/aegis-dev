@@ -1,4 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-exec "$repo_root/.venv/bin/python" -m aegis.cli "$@"
+
+python_candidates=()
+if [[ -n "${AEGIS_PYTHON:-}" ]]; then
+    python_candidates+=("$AEGIS_PYTHON")
+elif [[ -x "$repo_root/.venv/bin/python" ]]; then
+    python_candidates+=("$repo_root/.venv/bin/python")
+fi
+if command -v python3 >/dev/null 2>&1; then
+    python_candidates+=("$(command -v python3)")
+elif command -v python >/dev/null 2>&1; then
+    python_candidates+=("$(command -v python)")
+fi
+
+for python_bin in "${python_candidates[@]}"; do
+    if [[ -x "$python_bin" ]] && "$python_bin" -c 'import aegis.cli' >/dev/null 2>&1; then
+        if [[ "$python_bin" == "$repo_root/.venv/bin/python" ]]; then
+            exec "$python_bin" -m aegis.cli "$@"
+        fi
+        PYTHONPATH="$repo_root/src${PYTHONPATH:+:$PYTHONPATH}" exec "$python_bin" -m aegis.cli "$@"
+    fi
+done
+
+echo "AEGIS could not find a usable Python environment for aegis.cli." >&2
+echo "Install Python 3.11+ dependencies with: python -m pip install -e '.[live]'" >&2
+echo "Or set AEGIS_PYTHON to an environment containing aegis-core and its live dependencies." >&2
+exit 127
