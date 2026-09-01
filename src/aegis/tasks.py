@@ -38,6 +38,19 @@ class Task:
     idempotency_key: str = ""
 
 
+def _task_projection(task: Task) -> dict[str, object]:
+    """Expose canonical task fields without inventing a second task store."""
+
+    projection: dict[str, object] = {
+        "task_id": str(task.task_id),
+        "title": task.title,
+        "status": task.status.value,
+    }
+    if task.due_at is not None:
+        projection["due_at"] = task.due_at.isoformat()
+    return projection
+
+
 class TaskConnection(Protocol):
     def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
 
@@ -365,10 +378,7 @@ class PostgresTaskListExecutor:
             execution_id=request.action_id,
             evidence={
                 "collection": "tasks",
-                "tasks": [
-                    {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
-                    for task in tasks
-                ],
+                "tasks": [_task_projection(task) for task in tasks],
             },
             command_succeeded=True,
         )
@@ -389,10 +399,7 @@ class PostgresTaskListVerifier:
                 verified=False, evidence=observation.evidence, reason="task list read failed"
             )
         expected = observation.evidence.get("tasks")
-        actual = [
-            {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
-            for task in self.store.list(self.principal)
-        ]
+        actual = [_task_projection(task) for task in self.store.list(self.principal)]
         verified = expected == actual
         return VerificationResult(
             verified=verified,
@@ -437,10 +444,7 @@ class TaskReadFastPath:
             evidence={
                 "collection": "tasks",
                 "status_filter": status_filter,
-                "canonical_tasks": [
-                    {"task_id": str(task.task_id), "title": task.title, "status": task.status.value}
-                    for task in tasks
-                ],
+                "canonical_tasks": [_task_projection(task) for task in tasks],
             },
             correlation_id=intent.correlation_id,
         )
