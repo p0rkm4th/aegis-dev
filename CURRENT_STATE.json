@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-filtered-chore-read-live-green",
+  "current_checkpoint": "phase-12-cross-pack-planning-vocabulary-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "72bdb73922e003c7471c933ac59b8f6c2a48625e",
-  "last_green_sha": "72bdb73922e003c7471c933ac59b8f6c2a48625e",
-  "last_pushed_sha": "72bdb73922e003c7471c933ac59b8f6c2a48625e",
+  "head_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
+  "last_green_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
+  "last_pushed_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "72bdb73922e003c7471c933ac59b8f6c2a48625e",
-    "last_known_green_sha": "72bdb73922e003c7471c933ac59b8f6c2a48625e",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/72bdb73",
+    "running_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
+    "last_known_green_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/f5fcb8c",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -261,7 +261,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "201 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "203 passed; Ruff check passed; Ruff format check passed; mypy passed (40 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, model failure durability, pre-decision correlation-stable retry, canonical retryability projection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, restrictive browser CSP and framing headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, generic malformed request encoding handling, executor exception durability, failed-observation completion prevention, and verifier exception containment are covered"
   },
     "known_failures": [
@@ -654,6 +654,13 @@
     "filtered_chore_read_regression": "green deterministic: HouseholdReadFastPath applies an explicit completed/finished chore filter while preserving the existing open-chore default and authorized shared-state boundary",
     "owner_filtered_chore_read_defect_live": "historical live dogfood: owner correlation 8be4c09e-ea6f-48d0-8980-c4b2e1ef214f for 'Show my completed chores.' returned the open chore set instead of honoring the completed qualifier",
     "owner_filtered_chore_read_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 6ec9abaa-011c-4f3e-a292-ca3d41c4bca0 on release 72bdb73 returned exactly one completed canonical chore, recorded status_filter=completed, and matched request-status",
+    "task_intent_clarification_regression": "green deterministic: unresolved task verbs such as take care of, handle, deal with, and look after block before task-read, model, or Pack dispatch with explicit completion-versus-status clarification",
+    "owner_task_intent_clarification_defect_live": "historical live dogfood: owner correlation f378158e-6c36-4f7d-93f8-6d2b8e19bfdc for 'Can you take care of the task Verify backup retention?' returned the full canonical task list instead of clarifying the requested intent",
+    "owner_task_intent_clarification_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 59661281-7445-4b15-9285-95fc8a18ce62 on release 1e8c36e returned a persisted blocked clarification distinguishing complete-the-task from show-my-tasks, with matching request-status and no mutation",
+    "cross_domain_planning_vocabulary_regression": "green deterministic: generic domain clarification recognizes plural utilities, prioritization, and purchase vocabulary so recognized cross-Pack planning is not intercepted before canonical projection",
+    "owner_cross_domain_planning_vocabulary_defect_live": "historical live Qwen3:8B dogfood: correlation 590e6554-1043-41e9-9c89-976671e77b53 was incorrectly blocked by generic domain clarification for a memory, utilities, prioritization, and purchase-safety request while the service was still running release 1e8c36e",
+    "owner_cross_domain_planning_vocabulary_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 0e6f7df7-1b47-4417-834b-ebe49682c2d1 on release f5fcb8c returned completed canonical planning with derived $75 affordability, Utilities, bounded open tasks, relevant backup memories, and matching request-status; service health/readiness remained green",
+    "owner_runtime_release_pointer_regression": "green operational validation: after promotion, systemd owner service environment reports PYTHONPATH=/home/scootz/.local/share/aegis-owner/releases/f5fcb8c and health reports PostgreSQL, Qwen3:8B Ollama, identity, and optional OpenClaw status without stale release execution",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety and natural task-list mutation routing are now live-green. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
