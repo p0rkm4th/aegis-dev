@@ -1888,6 +1888,12 @@ def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
     assert len(planning["open_tasks"]) <= 5
 
 
+def test_cross_domain_planning_recognizes_plural_utilities_context():
+    assert CrossDomainPlanningFastPath.matches(
+        "Considering my personal memory, Utilities, and open tasks, what should I prioritize?"
+    )
+
+
 def test_cross_domain_planning_fast_path_includes_only_derived_finance_fields():
     from datetime import datetime, timezone
 
