@@ -1108,6 +1108,30 @@ def test_personal_memory_fast_path_returns_grounded_result_without_model():
     ) is None
 
 
+def test_personal_context_fast_path_returns_projects_and_goals_without_model():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    now = datetime(2026, 8, 30, tzinfo=timezone.utc)
+    project = state.add_project("Backup architecture", now)
+    state.add_goal("Finish the restore drill", now, project.project_id)
+    principal = Principal(id="alice", vault_id="alice-vault")
+
+    projects = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(principal=principal, utterance="What projects am I working on?")
+    )
+    goals = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(principal=principal, utterance="Show my goals")
+    )
+
+    assert projects is not None
+    assert projects.evidence["projects"] == [
+        {"name": "Backup architecture", "created_at": now.isoformat()}
+    ]
+    assert goals is not None
+    assert goals.evidence["goals"][0]["project"] == "Backup architecture"
+
+
 def test_personal_memory_correction_supersedes_old_record():
     from datetime import datetime, timezone
 
