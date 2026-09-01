@@ -149,6 +149,16 @@ def _context_from_prior_result(
     evidence = _compact_context_evidence(result.evidence)
     if not evidence:
         return Context()
+    referents: dict[str, Any] = {}
+    for fact_key in ("canonical_items", "canonical_tasks", "canonical_obligations"):
+        candidates = evidence.get(fact_key)
+        if isinstance(candidates, list) and candidates:
+            referents["those"] = {
+                "source": "canonical_facts",
+                "fact_key": fact_key,
+                "candidates": candidates[:10],
+            }
+            break
     return Context(
         values={
             "prior_correlation_id": str(correlation_id),
@@ -161,6 +171,7 @@ def _context_from_prior_result(
                     "correlation_id": str(correlation_id),
                 }
             ],
+            "referents": referents,
             "canonical_facts": evidence,
         },
         sources=("authorized_canonical_result",),
