@@ -403,6 +403,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
     assert "conversation.append(assistantLine)" in _INDEX_HTML
+    assert "JSON.stringify(details[node.id]" in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():

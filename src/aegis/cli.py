@@ -291,7 +291,56 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
             for task in tasks
         )
         edges.extend({"source": "pack-tasks", "target": f"task-{task.task_id}"} for task in tasks)
-        return {"nodes": nodes, "edges": edges}
+        details: dict[str, Any] = {
+            "domain-personal": {
+                "projects": [
+                    {"name": project.name, "created_at": project.created_at.isoformat()}
+                    for project in personal.projects.values()
+                ],
+                "goals": [
+                    {
+                        "description": goal.description,
+                        "project_id": str(goal.project_id) if goal.project_id else None,
+                    }
+                    for goal in personal.goals.values()
+                ],
+            },
+            "domain-household": {
+                "groceries": list(groceries),
+                "chores": [
+                    {
+                        "title": chore.title,
+                        "assignee_id": chore.assignee_id,
+                        "completed": chore.completed,
+                    }
+                    for chore in cast(tuple[Any, ...], household.get("chores", ()))
+                ],
+                "events": [
+                    {"title": event.title, "starts_at": event.starts_at.isoformat()}
+                    for event in cast(tuple[Any, ...], household.get("events", ()))
+                ],
+            },
+            "domain-finance": {"snapshot_available": finance is not None},
+            "domain-homelab": {
+                "hosts": [{"hostname": host.hostname} for host in homelab.hosts.values()],
+                "services": [{"name": service.name} for service in homelab.services.values()],
+            },
+            "domain-network": {
+                "devices": [
+                    {
+                        "name": device.hostname or device.address,
+                        "address": device.address,
+                    }
+                    for device in network.devices.values()
+                ],
+                "authorized_scopes": [scope.scope_id for scope in network.scopes.values()],
+            },
+            "pack-tasks": {
+                "tasks": [{"title": task.title, "status": task.status.value} for task in tasks]
+            },
+            "pack-kitchen": {"groceries": list(groceries)},
+        }
+        return {"nodes": nodes, "edges": edges, "details": details}
     finally:
         connection.close()
 
