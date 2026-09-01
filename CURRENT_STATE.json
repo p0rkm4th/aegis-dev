@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "2be87cc5be284c13c006ea2591f739a6545c0b31",
-  "last_green_sha": "2be87cc5be284c13c006ea2591f739a6545c0b31",
-  "last_pushed_sha": "2be87cc5be284c13c006ea2591f739a6545c0b31",
+  "head_sha": "9228340a371b697b3c0ab775ba48b50d8c623096",
+  "last_green_sha": "9228340a371b697b3c0ab775ba48b50d8c623096",
+  "last_pushed_sha": "9228340a371b697b3c0ab775ba48b50d8c623096",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -114,6 +114,7 @@
     ,"browser renders authorized detail payloads as generic accessible data views"
     ,"safe first-run AEGIS_* environment template and explicit env-file startup loading"
     ,"browser health provider failures return generic recoverable errors and clients check HTTP status"
+    ,"browser request timeout reports unknown outcome and preserves correlation-safe retry"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -134,7 +135,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
     "pytest": "133 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, and configured Ollama model readiness validation are covered"
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, and configured Ollama model readiness validation are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -259,6 +260,7 @@
         "browser_detail_renderer_live": "green live: fresh loopback browser page served the generic renderDetailValue data-view renderer, used textContent for keys/values, retained seven authorized detail sections, and no longer served raw JSON.stringify detail rendering",
         "env_file_startup_live": "green live: ./scripts/aegis --env-file examples/aegis.env.example --check --json parsed the checked-in placeholder template without shell evaluation or stderr leakage and returned structured readiness failures for unavailable PostgreSQL/Ollama",
         "browser_health_failure_boundary": "green deterministic: a failing health provider returns HTTP 503 with only health_unavailable/runtime status unavailable, and the browser client rejects non-OK health responses instead of displaying false readiness",
+        "browser_timeout_recovery": "green deterministic: the browser message client uses AbortController timeout handling, reports timed-out outcomes as unknown, and preserves the same correlation ID for retry without assuming failure or blindly replaying a consequential request",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
