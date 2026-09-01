@@ -132,6 +132,15 @@ class OllamaProvider:
                     "than one ActionCard is plausible, return CLARIFY instead of "
                     "guessing an action; include a concise clarification question."
                 ),
+                "selection_rule": (
+                    "Choose by the meaning of the complete utterance, not by exact "
+                    "keyword matches. A request to change a named task's status to "
+                    "complete means select the card whose summary marks a task complete "
+                    "and put only the task's name in its declared title argument. "
+                    "Words describing status are part of the request, not a request to "
+                    "invent a different capability. Preserve informal wording and minor "
+                    "spelling errors when extracting the named item."
+                ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "
