@@ -84,6 +84,7 @@ const refresh = document.getElementById('refresh');
 const messageTimeoutMs = 120000;
 const pendingStorageKey = 'aegis.pending-request';
 const recoveryPollMs = 5000;
+const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
 let recoveryPollScheduled = false;
@@ -133,8 +134,11 @@ function scheduleRecoveryPoll() {
 }
 async function recoverPendingRequest() {
   if (!pendingCorrelationId) return;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), recoveryRequestTimeoutMs);
   try {
-    const response = await fetch(`/api/request-status?correlation_id=${pendingCorrelationId}`);
+    const response = await fetch(
+      `/api/request-status?correlation_id=${pendingCorrelationId}`, {signal: controller.signal});
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
         clearAuthorizedDisplays();
@@ -163,6 +167,8 @@ async function recoverPendingRequest() {
     if (status.state === 'completed') refreshState();
   } catch (_) {
     scheduleRecoveryPoll();
+  } finally {
+    clearTimeout(timeout);
   }
 }
 async function loadHealth() {

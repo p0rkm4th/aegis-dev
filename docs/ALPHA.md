@@ -123,6 +123,9 @@ Result instead of treating the retry as a new consequential request.
 If a request exceeds the browser timeout, the UI reports the outcome as
 unknown and offers the same correlation-preserving retry; it never assumes
 that a timed-out action failed or blindly replays it.
+Read-only recovery status checks have their own bounded network timeout, so a
+stalled service cannot freeze recovery polling; the next check remains a
+read-only status lookup and retrying the action remains explicit.
 
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
