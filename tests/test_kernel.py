@@ -375,6 +375,65 @@ def test_kernel_run_sequence_authorizes_each_step_independently():
     assert ex.calls == 1
 
 
+def test_kernel_run_sequence_explicit_retry_resumes_after_step_authorization_denial(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class Policy:
+        def __init__(self, allow_second):
+            self.allow_second = allow_second
+            self.calls = 0
+
+        def authorize(self, request):
+            self.calls += 1
+            return PolicyDecision(
+                allowed=self.allow_second or self.calls == 1,
+                reason="second step denied" if not self.allow_second else "ok",
+            )
+
+    store = SqliteObjectiveStore(str(tmp_path / "sequence-denial-retry.sqlite"))
+    actions = (
+        ActionSpec(
+            action_id="first",
+            capability="first",
+            verification=VerificationContract(kind="readback"),
+        ),
+        ActionSpec(
+            action_id="second",
+            capability="second",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    original_intent = intent()
+    first_executor = Executor()
+    denied = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(False),
+        first_executor,
+        Verifier(True),
+        store=store,
+    ).run_sequence(original_intent, actions)
+
+    retry_executor = Executor()
+    recovered = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(True),
+        retry_executor,
+        Verifier(True),
+        store=store,
+    ).run_sequence(
+        original_intent.model_copy(update={"utterance": "retry after authorization changed"}),
+        actions,
+    )
+
+    assert denied.state is ObjectiveState.BLOCKED
+    assert recovered.state is ObjectiveState.COMPLETED
+    assert first_executor.calls == 1
+    assert retry_executor.calls == 1
+    store.close()
+
+
 def test_kernel_run_sequence_does_not_replay_plan_result_to_wrong_principal(tmp_path):
     from aegis.store import SqliteObjectiveStore
 
