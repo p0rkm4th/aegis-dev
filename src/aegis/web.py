@@ -382,6 +382,7 @@ class BrowserApp:
         if method == "GET" and route == "/api/constellation":
             try:
                 state = ConstellationProjection.model_validate(self.state(principal))
+                payload = state.model_dump(mode="json")
             except PermissionError:
                 return self._error(
                     HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
@@ -390,7 +391,7 @@ class BrowserApp:
                 return self._error(
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
-            return self._json(HTTPStatus.OK, state.model_dump(mode="json"))
+            return self._json(HTTPStatus.OK, payload)
         if method == "GET" and route == "/api/request-status":
             if self.request_status is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -464,7 +465,14 @@ class BrowserApp:
 
     @staticmethod
     def _json(status: HTTPStatus, payload: Any) -> tuple[int, str, bytes]:
-        return status, "application/json", json.dumps(payload).encode()
+        try:
+            serialized = json.dumps(payload)
+        except (TypeError, ValueError):
+            status = HTTPStatus.SERVICE_UNAVAILABLE
+            serialized = json.dumps(
+                {"code": "response_unavailable", "error": "response unavailable"}
+            )
+        return status, "application/json", serialized.encode()
 
     @classmethod
     def _error(cls, status: HTTPStatus, code: str, message: str) -> tuple[int, str, bytes]:
