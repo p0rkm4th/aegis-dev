@@ -2008,6 +2008,20 @@ def test_cli_formats_cross_domain_memory_and_obligation_summary():
     )
 
 
+def test_cli_formats_completed_chore_as_completion():
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="canonical chore readback verified",
+        correlation_id=uuid4(),
+        evidence={"collection": "chores", "title": "Dishes", "completed": True},
+    )
+
+    assert cli._format(result) == "Done — completed chore: Dishes"
+
+
 def test_browser_interaction_projects_bounded_canonical_step_status(monkeypatch):
     from aegis import cli
 
