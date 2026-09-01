@@ -35,7 +35,7 @@ class MultiActionFastPath:
             and any(term in text for term in cls._UNRESOLVED_ACTION_TERMS)
         )
         sequential_compound = (
-            bool(re.search(r"\bthen\b|,\s*then\b|;", text))
+            bool(re.search(r"\bthen\b|,\s*then\b|;|as well as|\bplus\b", text))
             and len(re.findall(rf"\b{cls._ACTION}\b", text)) >= 2
         )
         return bool(
