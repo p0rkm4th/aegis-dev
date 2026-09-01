@@ -8,7 +8,13 @@ from enum import StrEnum
 from typing import Any, Protocol
 from uuid import UUID, uuid4
 
-from .contracts import Principal
+from .contracts import (
+    ExecutionRequest,
+    Observation,
+    Principal,
+    VerificationContract,
+    VerificationResult,
+)
 
 
 class TaskStatus(StrEnum):
@@ -25,6 +31,7 @@ class Task:
     assignee_id: str | None = None
     due_at: datetime | None = None
     status: TaskStatus = TaskStatus.OPEN
+    idempotency_key: str = ""
 
 
 class TaskConnection(Protocol):
@@ -45,13 +52,28 @@ class PostgresTaskStore:
         title: str,
         due_at: datetime | None = None,
         assignee_id: str | None = None,
+        idempotency_key: str | None = None,
     ) -> Task:
         space_id = self._space_for(principal)
         if not title.strip():
             raise ValueError("task title is required")
         if assignee_id is not None:
             self._require_member(space_id, assignee_id)
-        task = Task(uuid4(), space_id, title, principal.id, assignee_id, due_at)
+        key = idempotency_key or f"task:{uuid4()}"
+        existing = self._get_by_idempotency_key(key)
+        if existing is not None:
+            self._require_member(existing.space_id, principal.id)
+            if (
+                existing.title != title
+                or existing.space_id != space_id
+                or existing.assignee_id != assignee_id
+                or existing.due_at != due_at
+            ):
+                raise ValueError("idempotency key is already bound to different task arguments")
+            return existing
+        task = Task(
+            uuid4(), space_id, title, principal.id, assignee_id, due_at, TaskStatus.OPEN, key
+        )
         self._write(task)
         return task
 
@@ -67,13 +89,14 @@ class PostgresTaskStore:
             task.assignee_id,
             task.due_at,
             TaskStatus.COMPLETED,
+            task.idempotency_key,
         )
         self._write(completed)
         return completed
 
     def get(self, principal: Principal, task_id: UUID) -> Task | None:
         row = self.connection.execute(
-            "SELECT id, space_id, title, created_by, assignee_id, due_at, status "
+            "SELECT id, space_id, title, created_by, assignee_id, due_at, status, idempotency_key "
             "FROM tasks WHERE id = %s",
             (str(task_id),),
         ).fetchone()
@@ -85,7 +108,7 @@ class PostgresTaskStore:
     def list(self, principal: Principal) -> tuple[Task, ...]:
         space_id = self._space_for(principal)
         rows = self.connection.execute(
-            "SELECT id, space_id, title, created_by, assignee_id, due_at, status "
+            "SELECT id, space_id, title, created_by, assignee_id, due_at, status, idempotency_key "
             "FROM tasks WHERE space_id = %s ORDER BY created_at, id",
             (space_id,),
         ).fetchall()
@@ -94,11 +117,12 @@ class PostgresTaskStore:
     def _write(self, task: Task) -> None:
         self.connection.execute(
             "INSERT INTO tasks "
-            "(id, space_id, title, created_by, assignee_id, due_at, status) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s) "
+            "(id, space_id, title, created_by, assignee_id, due_at, status, idempotency_key) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s) "
             "ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, "
             "assignee_id = EXCLUDED.assignee_id, due_at = EXCLUDED.due_at, "
-            "status = EXCLUDED.status, updated_at = now()",
+            "status = EXCLUDED.status, idempotency_key = EXCLUDED.idempotency_key, "
+            "updated_at = now()",
             (
                 str(task.task_id),
                 task.space_id,
@@ -107,6 +131,7 @@ class PostgresTaskStore:
                 task.assignee_id,
                 task.due_at,
                 task.status.value,
+                task.idempotency_key,
             ),
         )
         self.connection.commit()
@@ -137,4 +162,89 @@ class PostgresTaskStore:
             str(row[4]) if row[4] is not None else None,
             row[5],  # type: ignore[arg-type]
             TaskStatus(str(row[6])),
+            str(row[7]),
+        )
+
+    def _get_by_idempotency_key(self, key: str) -> Task | None:
+        row = self.connection.execute(
+            "SELECT id, space_id, title, created_by, assignee_id, due_at, status, idempotency_key "
+            "FROM tasks WHERE idempotency_key = %s",
+            (key,),
+        ).fetchone()
+        return self._from_row(row) if row is not None else None
+
+
+class PostgresTaskExecutor:
+    """Adapt the Tasks Pack mutation to the generic Executor port."""
+
+    def __init__(self, store: PostgresTaskStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "tasks.create":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        title = request.action.arguments.get("title")
+        if not isinstance(title, str) or not title.strip():
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"invalid_title": True},
+                command_succeeded=False,
+            )
+        task = self.store.create(
+            self.principal,
+            title,
+            idempotency_key=request.idempotency_key,
+        )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "tasks",
+                "task_id": str(task.task_id),
+                "title": task.title,
+                "idempotency_key": task.idempotency_key,
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresTaskVerifier:
+    """Verify task creation by independently reading canonical PostgreSQL state."""
+
+    def __init__(self, store: PostgresTaskStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="task execution failed"
+            )
+        task_id = observation.evidence.get("task_id")
+        if not isinstance(task_id, str):
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="task identity missing"
+            )
+        try:
+            task = self.store.get(self.principal, UUID(task_id))
+        except (PermissionError, ValueError):
+            task = None
+        verified = task is not None and task.title == observation.evidence.get("title")
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "canonical_status": task.status.value if task else None,
+            },
+            reason=(
+                "canonical task readback verified"
+                if verified
+                else "canonical task readback failed"
+            ),
         )

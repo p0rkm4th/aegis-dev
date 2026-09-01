@@ -93,7 +93,13 @@ from aegis.reference_packs import (
 )
 from aegis.registry import CapabilityRegistry
 from aegis.store import SqliteObjectiveStore
-from aegis.tasks import PostgresTaskStore, TaskStatus
+from aegis.tasks import (
+    PostgresTaskExecutor,
+    PostgresTaskStore,
+    PostgresTaskVerifier,
+    Task,
+    TaskStatus,
+)
 
 
 class Model:
@@ -1205,6 +1211,9 @@ def test_postgres_task_store_persists_lifecycle_and_requires_active_membership()
                 return Cursor([(1,)] if params[0] in {"alice", "bob"} else [])
             if query.startswith("INSERT INTO tasks"):
                 self.rows[str(params[0])] = tuple(params)
+            elif query.startswith("SELECT id") and "WHERE idempotency_key" in query:
+                row = next((row for row in self.rows.values() if row[7] == params[0]), None)
+                return Cursor([row] if row else [])
             elif query.startswith("SELECT id") and "WHERE id" in query:
                 row = self.rows.get(str(params[0]))
                 return Cursor([row] if row else [])
@@ -1223,6 +1232,22 @@ def test_postgres_task_store_persists_lifecycle_and_requires_active_membership()
         alice, "Inspect backups", datetime(2026, 9, 2, tzinfo=timezone.utc), bob.id
     )
     assert task.status is TaskStatus.OPEN
+    assert (
+        store.create(
+            alice,
+            task.title,
+            task.due_at,
+            task.assignee_id,
+            idempotency_key=task.idempotency_key,
+        )
+        == task
+    )
+    try:
+        store.create(alice, "Changed title", idempotency_key=task.idempotency_key)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("idempotency key was rebound to changed task arguments")
     assert store.list(bob)[0] == task
     assert store.complete(bob, task.task_id).status is TaskStatus.COMPLETED
     try:
@@ -1231,6 +1256,46 @@ def test_postgres_task_store_persists_lifecycle_and_requires_active_membership()
         pass
     else:
         raise AssertionError("task store accepted a non-member")
+
+
+def test_task_executor_and_verifier_use_generic_observation_contract():
+    class Store:
+        def __init__(self):
+            self.task = None
+            self.key = None
+
+        def create(self, principal, title, idempotency_key=None):
+            self.key = idempotency_key
+            self.task = Task(
+                uuid4(), "apartment", title, principal.id, idempotency_key=idempotency_key
+            )
+            return self.task
+
+        def get(self, principal, task_id):
+            return self.task if self.task and self.task.task_id == task_id else None
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    store = Store()
+    executor = PostgresTaskExecutor(store, principal)
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.create",
+            arguments={"title": "Review backups"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        idempotency_key="correlation:tasks.create",
+    )
+    observation = executor.execute(request)
+    assert observation.command_succeeded
+    assert store.key == request.idempotency_key
+    verification = PostgresTaskVerifier(store, principal).verify(
+        observation, request.action.verification
+    )
+    assert verification.verified
+    assert verification.evidence["canonical_status"] == TaskStatus.OPEN.value
 
 
 def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contribution():
@@ -1859,6 +1924,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "006_finance_snapshots.sql",
         "007_household_projections.sql",
         "008_tasks.sql",
+        "009_task_idempotency.sql",
     )
 
 
