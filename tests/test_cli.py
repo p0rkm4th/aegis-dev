@@ -6,7 +6,15 @@ import pytest
 
 from aegis import InteractionBoundary, InteractionDependencies
 from aegis.cli import _domain_and_action, _ensure_local_identity
-from aegis.contracts import IntentFrame, ObjectiveState, Principal, Result
+from aegis.contracts import (
+    ActionSpec,
+    IntentFrame,
+    Objective,
+    ObjectiveState,
+    Principal,
+    Result,
+    VerificationContract,
+)
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import Task, TaskReadFastPath, TaskStatus
@@ -16,6 +24,62 @@ from aegis.web import BrowserApp
 def test_interaction_boundary_is_public_without_live_runtime():
     assert InteractionBoundary.__module__ == "aegis.interaction"
     assert InteractionDependencies.__module__ == "aegis.interaction"
+
+
+def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):
+    from aegis import interaction
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    correlation_id = uuid4()
+    action = ActionSpec(
+        action_id="tasks.create",
+        capability="tasks.write",
+        verification=VerificationContract(kind="readback"),
+    )
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="Create a task and a chore.",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+        steps=(action,),
+    )
+    prior = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="Completed all 1 plan steps",
+        correlation_id=correlation_id,
+    )
+
+    class Connection:
+        def close(self):
+            pass
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result(self, key):
+            assert key == f"plan:{correlation_id}"
+            return prior
+
+    monkeypatch.setattr(interaction, "PostgresObjectiveStore", lambda _connection: Store())
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: Connection(),
+            required=lambda _name: "postgresql://example",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("tasks", None),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+        )
+    )
+
+    replay = boundary.run("I need help with the apartment inspection.", principal, correlation_id)
+
+    assert replay == prior
 
 
 def manager_with_reference_cards() -> PackManager:

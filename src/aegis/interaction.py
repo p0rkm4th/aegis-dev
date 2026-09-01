@@ -142,6 +142,12 @@ class InteractionBoundary:
             recovered_plan = PostgresObjectiveStore(connection).get_objective_by_correlation(
                 intent.correlation_id, principal
             )
+            if recovered_plan is not None and recovered_plan.steps:
+                prior_plan_result = PostgresObjectiveStore(connection).get_result(
+                    f"plan:{intent.correlation_id}"
+                )
+                if prior_plan_result is not None and not prior_plan_result.retryable:
+                    return prior_plan_result
             recovered_plan_actions = (
                 recovered_plan.steps
                 if recovered_plan is not None and recovered_plan.steps
