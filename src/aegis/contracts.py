@@ -150,6 +150,7 @@ class Objective(StrictModel):
     state: ObjectiveState = ObjectiveState.PROPOSED
     action: ActionSpec | None = None
     correlation_id: UUID
+    steps: tuple[ActionSpec, ...] = ()
 
 
 class ModelRequest(StrictModel):
