@@ -25,18 +25,19 @@ unreachable endpoint.
 Check readiness without changing canonical state:
 
 ```sh
-./scripts/aegis --env-file .env --check
+./scripts/aegis --check
 ```
 
 Start the loopback browser alpha:
 
 ```sh
-./scripts/aegis --env-file .env --web
+./scripts/aegis --web
 ```
 
 Open the printed local URL. For a scriptable request, use
-`./scripts/aegis --env-file .env --once "Show my tasks."`; add `--json` for
-the canonical machine-readable Result envelope.
+`./scripts/aegis --once "Show my tasks."`; add `--json` for the canonical
+machine-readable Result envelope. Use `--env-file PATH` when configuration is
+stored outside the repository.
 
 Read [docs/ALPHA.md](docs/ALPHA.md) for the browser and workflow contract and
 [docs/OPERATIONS.md](docs/OPERATIONS.md) for migrations, backups, and runtime
