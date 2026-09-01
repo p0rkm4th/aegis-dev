@@ -40,6 +40,53 @@ class MultiActionFastPath:
         )
 
 
+class DomainClarificationFastPath:
+    """Give unsupported or underspecified alpha requests a useful next step."""
+
+    _KNOWN_TERMS = (
+        "task",
+        "todo",
+        "to-do",
+        "chore",
+        "event",
+        "grocery",
+        "groceries",
+        "food",
+        "household",
+        "utility",
+        "rent",
+        "memory",
+        "goal",
+        "project",
+        "personal",
+        "finance",
+        "afford",
+        "homelab",
+        "service",
+        "network",
+    )
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        return not any(term in text for term in cls._KNOWN_TERMS)
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame) -> Result | None:
+        if not cls.matches(intent.utterance):
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I need a little more direction. Ask about tasks, groceries, "
+                "household chores or events, personal goals or memories, finance, "
+                "Homelab, or Network."
+            ),
+            correlation_id=intent.correlation_id,
+        )
+
+
 class CrossDomainPlanningFastPath:
     """Assemble bounded authorized context for explicit planning questions.
 
