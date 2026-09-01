@@ -966,6 +966,30 @@ def test_personal_state_serialization_survives_reload_with_supersession():
     assert restored.memories[corrected.memory_id].provenance is Provenance.CORRECTED
 
 
+def test_personal_state_serialization_preserves_projects_and_goals():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    when = datetime(2026, 8, 31, tzinfo=timezone.utc)
+    project = state.add_project("AEGIS", when)
+    goal = state.add_goal("Ship the first beta", when, project.project_id)
+    restored = PersonalState.from_json(state.to_json())
+    assert restored.projects[project.project_id] == project
+    assert restored.goals[goal.goal_id] == goal
+
+
+def test_personal_state_rejects_goal_with_unknown_project():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    try:
+        state.add_goal("orphan", datetime.now(timezone.utc), uuid4())
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("goal with unknown project was accepted")
+
+
 def test_personal_state_rejects_unknown_schema():
     try:
         PersonalState.from_json('{"schema_version":99,"entities":[],"memories":[]}')

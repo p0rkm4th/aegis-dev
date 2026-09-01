@@ -44,7 +44,8 @@
     "PostgreSQL-backed Space membership capability policy with live revocation denial",
     "PostgreSQL-backed tamper-evident audit chain correlated to live objectives/actions",
     "Manifest-backed Tasks, Kitchen, and Homelab reference Pack registration through PackManager",
-    "Durable PostgreSQL Pack lifecycle state with persisted grants and restart reload"
+    "Durable PostgreSQL Pack lifecycle state with persisted grants and restart reload",
+    "PersonalState project/goal persistence with validated references"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -64,7 +65,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "66 passed"
+    "pytest": "68 passed"
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -137,5 +138,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Keep nominal phase gates unchanged. If continuing the campaign, use the proven live boundaries for the next required durable/action-lifecycle improvement; do not add unrelated domains or Phase-12 work."
+  "next_action": "Keep nominal phase gates unchanged. Continue durable personal/household canonical state work behind existing ports; do not add unrelated domains or Phase-12 work."
 }
