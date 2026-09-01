@@ -76,6 +76,7 @@ from aegis.projections import (
     SharedObligation,
 )
 from aegis.reference_packs import (
+    OpenClawGroceryVerifier,
     ReferenceExecutor,
     ReferenceVerifier,
     ReferenceWorld,
@@ -818,6 +819,13 @@ def test_ollama_provider_repairs_malformed_json_once():
     assert "invalid" in transport.calls[1]["messages"][0]["content"]
     assert transport.calls[0]["think"] is False
     assert transport.calls[0]["format"]["title"] == "Decision"
+    assert transport.calls[0]["format"]["$defs"]["ActionSpec"]["required"] == [
+        "action_id",
+        "capability",
+        "arguments",
+        "required_permissions",
+        "verification",
+    ]
 
 
 def test_ollama_http_transport_rejects_non_http_urls():
@@ -847,6 +855,22 @@ def test_ollama_provider_does_not_retry_beyond_bound():
     else:
         raise AssertionError("malformed Ollama output was accepted")
     assert transport.calls == 2
+
+
+def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
+    key = "correlation:kitchen.groceries.add"
+    path = tmp_path / "groceries.tsv"
+    path.write_text(f"{key}|rice\n{key}|rice\n", encoding="utf-8")
+    observation = Observation(
+        execution_id=uuid4(),
+        evidence={"external_state_path": str(path), "idempotency_key": key},
+        command_succeeded=True,
+    )
+    result = OpenClawGroceryVerifier().verify(
+        observation, VerificationContract(kind="readback")
+    )
+    assert not result.verified
+    assert result.evidence["external_records_for_key"] == 2
 
 
 def test_decision_evaluation_harness_measures_valid_and_rejected_cases():

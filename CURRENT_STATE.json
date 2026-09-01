@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "live-ollama-postgres-green-openclaw-device-authenticated-transport-green",
+  "current_checkpoint": "first-live-grocery-vertical-slice-green-adversarial-acceptance-pending",
   "active_branch": "aegis-dev",
-  "head_sha": "ae5014a",
-  "last_green_sha": "ae5014a",
-  "last_pushed_sha": "ae5014a",
+  "head_sha": "9dd0638",
+  "last_green_sha": "9dd0638",
+  "last_pushed_sha": "9dd0638",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -38,7 +38,8 @@
     "PostgreSQL ObjectiveStore lifecycle persistence and restart/replay acceptance",
     "OpenClaw protocol-4 loopback WebSocket health transport",
     "OpenClaw paired-device authentication with operator write/admin scopes",
-    "OpenClaw terminal execution with same-connection terminal event and independent external readback"
+    "OpenClaw terminal execution with same-connection terminal event and independent external readback",
+    "Live Qwen3:8B to PostgreSQL-backed Kitchen grocery workflow through OpenClaw with restart/replay and no duplicate external mutation"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -58,17 +59,17 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "65 passed"
+    "pytest": "66 passed"
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
-    "Full Core-to-Pack execution is not yet wired to the paired OpenClaw terminal executor",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
-    "full live vertical workflow, restart/replay, and external postcondition evidence are absent"
+    "interrupted-before-completion recovery is not yet implemented/proven for the live workflow",
+    "consequential Homelab/HA action acceptance remains unperformed"
   ],
   "blocked_lanes": [
-    "LIVE_VERTICAL_SLICE: PostgreSQL, Ollama, and paired OpenClaw transport are live-green; Core-to-Pack external execution and complete restart/replay acceptance remain"
+    "LIVE_VERTICAL_SLICE: first Kitchen grocery path is live-green; adversarial failure/recovery cases remain before checkpoint closure"
   ],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
@@ -93,10 +94,13 @@
     "postgresql": "green: postgres:16.4-bookworm, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
     "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, and independent external readback green through AEGIS transport",
     "openclaw_external_proof": "command dispatched through paired AEGIS WebSocket; terminal.data contained the command; independent read of /tmp/aegis-openclaw-external-proof returned AEGIS_GATEWAY_EXEC_OK",
+    "live_grocery_vertical_slice": "green: scripts/live_vertical_slice.py ran with Ollama qwen3:8b, PostgreSQL 16.4 after container restart, and paired OpenClaw 2026.8.1; first and replay Results completed with same objective/result and matching_external_records=1",
+    "live_grocery_correlation_id": "4fd15a56-1622-42e9-8f30-58acc467fa76",
+    "live_grocery_objective_id": "62b33f88-a67f-4e87-ad2d-7c7a07f5da26",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Do not advance phases. Wire the existing real capability to the paired OpenClaw executor, then run Postgres-backed execution, independent postcondition verification, AEGIS/PostgreSQL restart, replay, interrupted recovery, and adversarial cases."
+  "next_action": "Do not advance phases or add domains. Run/record malformed-output, invented-action, semantic/runtime denial, execution failure, verification failure, disconnect-after-dispatch, and restart-before-completion acceptance; implement only fixes required by those cases."
 }

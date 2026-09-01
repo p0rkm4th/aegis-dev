@@ -240,3 +240,12 @@ class OpenClawGatewayRpc:
 
     def cancel(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.client.call("agent.cancel", params)
+
+    def terminal_open(self, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        return self.client.call("terminal.open", params or {})
+
+    def terminal_input(self, params: dict[str, Any]) -> dict[str, Any]:
+        return self.client.call("terminal.input", params)
+
+    def terminal_close(self, params: dict[str, Any]) -> dict[str, Any]:
+        return self.client.call("terminal.close", params)

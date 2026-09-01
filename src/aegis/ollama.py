@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -68,7 +69,7 @@ class OllamaProvider:
                 "model": self.model,
                 "stream": False,
                 "think": False,
-                "format": Decision.model_json_schema(),
+                "format": self._decision_schema(),
                 "messages": [{"role": "user", "content": prompt}],
             }
             response = self.transport.chat(payload)
@@ -85,6 +86,26 @@ class OllamaProvider:
         raise AssertionError("bounded repair loop unexpectedly continued")
 
     @staticmethod
+    def _decision_schema() -> dict[str, Any]:
+        """Require the fields needed for an exact ActionCard copy.
+
+        Pydantic permits defaults for ergonomic in-process construction. The
+        model boundary is stricter: omitted action fields are ambiguous and
+        must be rejected before policy or execution.
+        """
+        schema = deepcopy(Decision.model_json_schema())
+        action_schema = schema.get("$defs", {}).get("ActionSpec")
+        if isinstance(action_schema, dict):
+            action_schema["required"] = [
+                "action_id",
+                "capability",
+                "arguments",
+                "required_permissions",
+                "verification",
+            ]
+        return schema
+
+    @staticmethod
     def _prompt(request: ModelRequest) -> str:
         cards = [card.model_dump(mode="json") for card in request.action_cards]
         return json.dumps(
@@ -92,7 +113,9 @@ class OllamaProvider:
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
                 "action_rule": (
                     "For ACTION, copy the selected ActionCard action object verbatim, "
-                    "including arguments, required_permissions, and verification. "
+                    "including the arguments object even when it is non-empty, "
+                    "required_permissions, and verification. The ACTION action must "
+                    "contain every field from the selected card with the same values. "
                     "Do not omit, add, or change any action field."
                 ),
                 "utterance": request.working_set.intent.utterance,

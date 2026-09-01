@@ -66,6 +66,25 @@ run in an environment where the required services are reachable.
    restart the process, and replay the same correlation. The replay must not
    duplicate the mutation.
 
+   The repository includes a repeatable acceptance runner for this path:
+
+   ```bash
+   AEGIS_DATABASE_URL='postgresql://...' \
+   AEGIS_OLLAMA_URL='http://...' \
+   AEGIS_OLLAMA_MODEL='qwen3:8b' \
+   AEGIS_OPENCLAW_GATEWAY_URL='ws://127.0.0.1:18789' \
+   AEGIS_OPENCLAW_TOKEN='...' \
+   AEGIS_OPENCLAW_DEVICE_TOKEN='...' \
+   AEGIS_OPENCLAW_IDENTITY_DB='/path/to/openclaw.sqlite' \
+   AEGIS_LIVE_GROCERY_PATH='/tmp/aegis-live-groceries.tsv' \
+   python scripts/live_vertical_slice.py
+   ```
+
+   The runner creates a fresh correlation when one is not supplied, uses a
+   new Core/store/channel instance for the initial request and replay, and
+   reports canonical Results plus the independently read external record
+   count. Run it once per fresh external-state path.
+
 6. Repeat with one consequential authorized service/device action and an
    independent health/state readback. Capture malformed output, invented
    action, semantic denial, runtime denial, execution failure, verification
@@ -86,3 +105,18 @@ command; and an independent read of `/tmp/aegis-openclaw-external-proof`
 returned `AEGIS_GATEWAY_EXEC_OK`. This proves the authenticated transport and
 external observation boundary. It does not by itself prove the complete
 Core-to-Pack workflow; that remains the next acceptance task.
+
+## Verified grocery vertical slice
+
+On 2026-08-31, the live runner completed the existing Kitchen
+`kitchen.groceries.add` ActionCard using Qwen3:8B, PostgreSQL 16.4, and the
+paired OpenClaw 2026.8.1 Gateway. Correlation
+`4fd15a56-1622-42e9-8f30-58acc467fa76` produced a completed canonical Result;
+the Gateway terminal event was observed; an independent read of the external
+grocery record found exactly one `rice` record; and a fresh process replay
+returned the same completed Result with the same objective and exactly one
+external record. PostgreSQL had been restarted before this replay.
+
+This proves the first simple end-to-end live capability. It does not claim
+interrupted-before-completion recovery, a consequential Homelab/HA action, or
+live hardware acceptance.
