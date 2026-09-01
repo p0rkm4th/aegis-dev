@@ -35,6 +35,7 @@ placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><div id="detail" class="muted"></div>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <p><button id="refresh" type="button">Refresh state</button></p>
+<p id="state-status" class="muted" aria-live="polite"></p>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>
@@ -55,7 +56,11 @@ async function loadHealth() {
 }
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
-  if (!response.ok) throw new Error(state.error || 'State is unavailable.');
+  if (!response.ok) {
+    const error = new Error(state.error || 'State is unavailable.');
+    error.code = state.code || 'state_unavailable'; throw error;
+  }
+  document.getElementById('state-status').textContent = '';
   const details = state.details || {};
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
@@ -87,7 +92,12 @@ async function refreshState() {
   try {
     await Promise.all([loadHealth(), loadState()]);
   } catch (error) {
-    nodes.textContent = error.message;
+    const code = error.code || 'state_unavailable';
+    document.getElementById('state-status').textContent =
+      `State refresh failed (${code}). Use Refresh state to try again.`;
+    if (code === 'identity_unavailable' || code === 'state_access_denied') {
+      nodes.replaceChildren(); edges.replaceChildren();
+    }
   } finally {
     refresh.disabled = false;
   }
