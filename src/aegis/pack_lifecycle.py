@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .audit import AuditLog
 from .contracts import ActionCard
-from .registry import CapabilityRegistry
+from .registry import CapabilityEmbedder, CapabilityRegistry
 
 
 class PackStatus(StrEnum):
@@ -194,6 +194,12 @@ class PackManager:
     def retrieve(self, domain: str, limit: int = 5) -> tuple[ActionCard, ...]:
         """Retrieve only enabled Pack capabilities through Core's bounded registry."""
         return CapabilityRegistry(self.enabled_cards()).retrieve(domain, limit)
+
+    def retrieve_semantic(
+        self, query: str, embedder: CapabilityEmbedder, limit: int = 5
+    ) -> tuple[ActionCard, ...]:
+        """Retrieve a bounded semantic shortlist from enabled Pack metadata."""
+        return CapabilityRegistry(self.enabled_cards()).retrieve_semantic(query, embedder, limit)
 
     def action_card(self, domain: str, action_id: str) -> ActionCard | None:
         """Find one exact enabled card without widening the model shortlist."""

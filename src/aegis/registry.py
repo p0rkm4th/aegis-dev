@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
+import math
+from typing import Protocol
+
 from .contracts import ActionCard
+
+
+class CapabilityEmbedder(Protocol):
+    """Minimal embedding seam; vectors are retrieval hints, never canonical state."""
+
+    def embed(self, texts: tuple[str, ...]) -> tuple[tuple[float, ...], ...]: ...
 
 
 class CapabilityRegistry:
@@ -23,3 +32,41 @@ class CapabilityRegistry:
             reverse=True,
         )
         return tuple(ranked[:limit])
+
+    def retrieve_semantic(
+        self, query: str, embedder: CapabilityEmbedder, limit: int = 5
+    ) -> tuple[ActionCard, ...]:
+        """Rank enabled cards by semantic description without widening authority."""
+
+        if not query.strip():
+            raise ValueError("capability query must be non-empty")
+        if not 1 <= limit <= 5:
+            raise ValueError("capability retrieval limit must be between one and five")
+        cards = tuple(self._cards.values())
+        if not cards:
+            return ()
+        descriptions = tuple(
+            f"{card.action.action_id}: {card.action.capability}. {card.summary}" for card in cards
+        )
+        vectors = embedder.embed((query, *descriptions))
+        if len(vectors) != len(descriptions) + 1:
+            raise ValueError("capability embedder returned an invalid vector count")
+        query_vector = vectors[0]
+
+        def cosine(vector: tuple[float, ...]) -> float:
+            if len(vector) != len(query_vector):
+                raise ValueError("capability embedder returned inconsistent dimensions")
+            query_norm = math.sqrt(sum(value * value for value in query_vector))
+            vector_norm = math.sqrt(sum(value * value for value in vector))
+            if query_norm == 0 or vector_norm == 0:
+                return 0.0
+            return sum(left * right for left, right in zip(query_vector, vector)) / (
+                query_norm * vector_norm
+            )
+
+        ranked = sorted(
+            zip(cards, vectors[1:]),
+            key=lambda item: (cosine(item[1]), item[0].relevance),
+            reverse=True,
+        )
+        return tuple(card for card, _ in ranked[:limit])
