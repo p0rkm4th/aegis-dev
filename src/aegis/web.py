@@ -269,6 +269,7 @@ async function loadState() {
   document.getElementById('state-status').textContent = '';
   const details = state.details || {};
   selectedNode = null;
+  document.getElementById('detail').replaceChildren();
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     card.setAttribute('aria-pressed', 'false');
