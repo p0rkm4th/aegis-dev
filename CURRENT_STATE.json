@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-readiness-gate-green",
+  "current_checkpoint": "phase-12-browser-recovery-timeout-green",
   "active_branch": "aegis-dev",
-  "head_sha": "7ea64b86c4347bd1371b7588b925565e113aef6f",
-  "last_green_sha": "7ea64b86c4347bd1371b7588b925565e113aef6f",
-  "last_pushed_sha": "7ea64b86c4347bd1371b7588b925565e113aef6f",
+  "head_sha": "acaca99b9a0430ab22e01294519f7f7ba0ef5bd1",
+  "last_green_sha": "acaca99b9a0430ab22e01294519f7f7ba0ef5bd1",
+  "last_pushed_sha": "acaca99b9a0430ab22e01294519f7f7ba0ef5bd1",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -150,6 +150,7 @@
     ,"installed wheel browser surface renders in Chromium and supports Constellation detail selection outside the repository"
     ,"clean-install smoke executes the installed aegis command and verifies private first-run bootstrap"
     ,"installed wheel completes a rendered Qwen/PostgreSQL task workflow through the browser"
+    ,"browser recovery status polling has a bounded per-request timeout and never automatically replays actions"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -170,7 +171,7 @@
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
     "pytest": "159 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, and canonical Vault-owner checks are covered"
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
