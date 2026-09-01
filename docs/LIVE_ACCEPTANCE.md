@@ -140,6 +140,12 @@ retrieving its bounded ActionCard. The live grocery proof therefore crosses
 Pack discovery/lifecycle and Core; it does not rely on a Kitchen-specific Core
 branch.
 
+Pack lifecycle persistence was verified after migration
+`003_pack_installations.sql`: a fresh `PackManager` loaded Tasks and Homelab
+as `discovered`, Kitchen as `enabled` with the `kitchen.write` grant, and one
+bounded Kitchen card. The persisted lifecycle was then used by the live
+grocery runner.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four

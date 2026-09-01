@@ -28,7 +28,7 @@ from aegis.identity import PostgresSpacePolicy, Role
 from aegis.kernel import Kernel
 from aegis.ollama import OllamaHttpTransport, OllamaProvider
 from aegis.openclaw import OpenClawExecutor
-from aegis.pack_lifecycle import PackManager
+from aegis.pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from aegis.reference_packs import (
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
@@ -105,11 +105,16 @@ def run_once(correlation: UUID, path: str) -> object:
     connection = psycopg.connect(required("AEGIS_DATABASE_URL"))
     channel = open_channel()
     try:
-        manager = PackManager()
+        manager = PackManager(store=PostgresPackStore(connection))
         for bundle in reference_bundles():
-            manager.discover(bundle)
-        manager.install("kitchen", frozenset({"kitchen.write"}))
-        manager.enable("kitchen")
+            try:
+                manager.status(bundle.manifest.pack_id)
+            except KeyError:
+                manager.discover(bundle)
+        if manager.status("kitchen") is not PackStatus.ENABLED:
+            if manager.status("kitchen") is PackStatus.DISCOVERED:
+                manager.install("kitchen", frozenset({"kitchen.write"}))
+            manager.enable("kitchen")
         card_action = manager.retrieve("kitchen")[0].action.model_copy(
             update={"arguments": {"item": "rice"}}
         )
