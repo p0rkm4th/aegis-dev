@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from aegis import InteractionBoundary, InteractionDependencies
+from aegis import InteractionBoundary, InteractionDependencies, InteractionInputError
 from aegis.cli import _domain_and_action, _ensure_local_identity
 from aegis.contracts import (
     ActionSpec,
@@ -264,6 +264,11 @@ def test_cli_prepares_grocery_action_card_arguments() -> None:
     assert domain == "kitchen"
     assert card.action.action_id == "kitchen.groceries.add"
     assert card.action.arguments == {"item": "rice"}
+
+
+def test_cli_reports_incomplete_grocery_input_as_actionable_input_error() -> None:
+    with pytest.raises(InteractionInputError, match="tell AEGIS what to add"):
+        _domain_and_action("Please add to groceries.", manager_with_reference_cards())
 
 
 def test_cli_retrieves_read_cards() -> None:

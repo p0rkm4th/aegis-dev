@@ -33,7 +33,7 @@ from .identity import (
     KeycloakOIDCClient,
     PostgresExternalPrincipalResolver,
 )
-from .interaction import InteractionBoundary, InteractionDependencies
+from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .personal import PostgresPersonalStateStore
@@ -702,7 +702,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             else "kitchen.groceries.add"
         )
     else:
-        raise ValueError("alpha supports groceries and tasks; try one of the four demo requests")
+        raise InteractionInputError(
+            "alpha supports groceries and tasks; try one of the four demo requests"
+        )
     cards = manager.retrieve(domain)
     card = next((item for item in cards if item.action.action_id == action_id), None)
     if card is None:
@@ -711,7 +713,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     if action_id == "kitchen.groceries.add":
         match = re.search(r"add\s+(.+?)\s+to\s+(?:the\s+)?grocer(?:y|ies)\b", text)
         if match is None:
-            raise ValueError("tell AEGIS what to add, for example: Add rice to groceries.")
+            raise InteractionInputError(
+                "tell AEGIS what to add, for example: Add rice to groceries."
+            )
         action = action.model_copy(update={"arguments": {"item": match.group(1).strip()}})
     elif action_id == "tasks.create":
         match = re.search(r"(?:create\s+)?(?:a\s+)?task\s+(?:to\s+)?(.+)$", text)
@@ -719,7 +723,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             if not any(source in text for source in ("goal", "memory")) or not any(
                 phrase in text for phrase in ("turn", "make", "add", "create")
             ):
-                raise ValueError("tell AEGIS the task, for example: Create a task to buy cat food.")
+                raise InteractionInputError(
+                    "tell AEGIS the task, for example: Create a task to buy cat food."
+                )
             action = action.model_copy(update={"arguments": {}})
         else:
             action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
@@ -729,7 +735,7 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             if not any(source in text for source in ("goal", "memory")) or not any(
                 phrase in text for phrase in ("turn", "make", "add", "create")
             ):
-                raise ValueError(
+                raise InteractionInputError(
                     "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
                 )
             action = action.model_copy(update={"arguments": {}})
@@ -738,7 +744,7 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     elif action_id == "tasks.events.create":
         match = re.search(r"(?:create|add)\s+(?:an?\s+)?event\s+(?:for\s+)?(.+)$", text)
         if match is None:
-            raise ValueError(
+            raise InteractionInputError(
                 "tell AEGIS the event, for example: Create an event for apartment inspection."
             )
         title = match.group(1).strip()
