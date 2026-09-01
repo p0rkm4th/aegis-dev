@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-relative-deadline-filter-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "0612960",
-  "last_green_sha": "26ecf19",
-  "last_pushed_sha": "0612960",
+  "head_sha": "571486e",
+  "last_green_sha": "571486e",
+  "last_pushed_sha": "571486e",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "26ecf19",
-    "last_known_green_sha": "26ecf19",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/26ecf19",
+    "running_sha": "571486e",
+    "last_known_green_sha": "571486e",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/571486e",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -698,11 +698,13 @@
     "owner_relative_deadline_filter_defect_live": "historical live Qwen3:8B owner dogfood: correlation 775a3028-11bd-46c6-b976-0c28c061758f for 'Show my tasks due next week.' returned all 47 open tasks instead of applying a deadline window",
     "relative_deadline_filter_regression": "green deterministic: explicit due tomorrow and due next week reads filter canonical tasks by calendar-date windows after status filtering, while undated tasks are excluded and authorization remains in the store",
     "owner_relative_deadline_filter_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation b56a3ddd-427d-45bb-8989-0a36bbd16bcd on release fd6db3c returned exactly the one canonical task due next week with its deadline rendered, completed state, and matching request-status",
-    "frontier_shift": "Browser/shared boundary paths remain established. The phrase-overfit task-completion defect is fixed for the exact owner canary and partially proven across unseen Qwen3:8B paraphrases; capability-level green is intentionally withheld pending a broader successful family. Multi-turn authorized context reaches bounded cognition and safely clarifies when canonical data lacks a ranking signal. Home Assistant/mobile/voice remain lane-limited."
+    "frontier_shift": "Browser/shared boundary paths remain established. The phrase-overfit task-completion defect is fixed and materially re-proven across unseen Qwen3:8B paraphrases; capability-level green remains conservative until a broader family and additional Packs pass. Multi-turn authorized context and owner feedback are operational; Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
   "owner_feedback_live": "green live on release 26ecf19: authorized completed correlation e759fbcc-f7cb-4bbd-a346-34d650b1f460 recorded bounded helpful/objective_failed feedback through /api/feedback; unknown correlation 11111111-1111-4111-8111-111111111111 returned feedback_denied and was not recorded",
   "owner_multiturn_task_context_live": "green safety live on release 26ecf19: task list correlation 6e93d970-29e2-407b-b17b-b310f37dfdf2 supplied authorized canonical task context to follow-up 50935d73-1a0c-4d73-bb92-3cad50a15c2e; Qwen3:8B clarified because no canonical priority signal existed",
   "owner_contextual_mutation_safety_live": "green safety live on release 26ecf19: grocery context 8c9e3f00-15eb-4144-8294-12c0516f2b2b followed by 'add the first two' correlation 1231b6dd-198b-4cb0-a57a-543c7a7d330e returned a retryable blocked model-boundary Result and dispatched no mutation",
+  "owner_task_completion_unseen_family_live": "green safety/capability evidence live on release 571486e: wrap up, I've finished, and consider done variants completed unique existing tasks with canonical readback; ambiguous 'that stale canonical task is no longer outstanding' clarified and created no task",
+  "owner_task_completion_phrase_overfit_defect_live": "historical product failure: release 26ecf19 lexical routing created malformed tasks for unseen completion language instead of resolving completion intent; fixed by routing model-enabled non-fast-path actions through bounded cognition",
   "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path. Expand the unseen task-completion family without phrase-specific routing, test multi-turn context with distinct canonical candidates and contextual mutation safety, then attack malformed/weak proposals and cross-Pack objectives. Owner feedback capture is now available; do not call natural-language capability green from exact canaries. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Home Assistant/mobile/voice remain lane-limited."
 }
