@@ -409,6 +409,23 @@ def test_browser_rejects_malformed_correlation_id_before_core():
     assert called is False
 
 
+def test_browser_rejects_undocumented_interaction_fields():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: {"message": "answer", "private_debug": "secret"},
+        lambda _: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"show tasks"}')
+
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "request_unavailable",
+        "error": "request unavailable",
+    }
+
+
 def test_browser_health_uses_structured_readiness_without_identity():
     from aegis.health import ComponentHealth, HealthReport
 
