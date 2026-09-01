@@ -236,6 +236,7 @@
     ,"browser conversation and state refresh expose in-flight work through accessible busy state"
     ,"Personal Memory to Tasks composition grounds an explicit task request in a unique current Vault memory and clarifies on equal matches"
     ,"Personal Memory to Household Chores composition grounds an explicit shared chore request in a unique current Vault memory while preserving Space authorization and independent verification"
+    ,"Cross-domain planning recognizes plural Utilities alongside Personal and Tasks context"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -545,7 +546,10 @@
     "personal_memory_chore_live": "green live: source/runtime Qwen3:8B correlation aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa completed the canonical shared chore grounded in the unique Gateway paired-device memory with independent chore readback",
     "owner_dogfood_memory_chore_live": "green live: upgraded authenticated owner browser correlation bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb completed objective 105e6189-3de0-495c-a9a2-b3c9a9525c31 as the canonical chore 'The Gateway uses a paired device for terminal execution'; health/readiness and authorized Constellation remained green",
     "owner_dogfood_memory_chore_replay_live": "green live: after restarting aegis-owner.service, the same authenticated correlation bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb with different wording returned objective 105e6189-3de0-495c-a9a2-b3c9a9525c31 and canonical chore readback verified without replaying a duplicate mutation",
-    "owner_dogfood_running_checkpoint": "e17a7216b707237fce62231ee27687836b4fb9f5; installed release /home/scootz/.local/share/aegis-owner/releases/e17a721; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
+    "owner_dogfood_running_checkpoint": "932eaaa2a7388547d0da348471fcec8425494796; installed release /home/scootz/.local/share/aegis-owner/releases/932eaaa; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
+    "cross_domain_utilities_regression": "green deterministic: plural Utilities is recognized as shared Household context when planning with Personal and Tasks terms",
+    "cross_domain_utilities_live": "green live: source/runtime Qwen3:8B correlation dddddddd-dddd-4ddd-8ddd-dddddddddddd returned completed bounded planning with personal_vault, household_space, and tasks_space sources",
+    "owner_dogfood_cross_domain_live": "green live: authenticated owner browser correlation eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee completed the same canonical cross-domain planning request after promotion to 932eaaa; health/readiness remained green",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
