@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-temporal-task-due-date-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "df025a2cd90f5928a4ca972370e700430b08a7a2",
+  "head_sha": "b4b6839ade6e0b9926b16d239196c2aa55522f75",
   "last_green_sha": "2a0dcbf1f6fb87d3a2bc49d6f16a4b7b94a33f74",
-  "last_pushed_sha": "df025a2cd90f5928a4ca972370e700430b08a7a2",
+  "last_pushed_sha": "b4b6839ade6e0b9926b16d239196c2aa55522f75",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -261,7 +261,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "203 passed; Ruff check passed; Ruff format check passed; mypy passed (40 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "204 passed; Ruff check passed; Ruff format check passed; mypy passed (40 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, model failure durability, pre-decision correlation-stable retry, canonical retryability projection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, restrictive browser CSP and framing headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, generic malformed request encoding handling, executor exception durability, failed-observation completion prevention, and verifier exception containment are covered"
   },
     "known_failures": [
@@ -664,6 +664,7 @@
     "temporal_task_due_date_regression": "green deterministic: an unambiguous tomorrow task suffix is removed from the title, carried as an ISO UTC due_at action argument, persisted by the Tasks executor, and independently required by readback verification",
     "owner_temporal_task_due_date_defect_live": "historical live Qwen3:8B owner dogfood: correlation 4974a4c3-bb70-4610-9571-c1093f7ec0c8 created the literal title 'review the restore drill tomorrow?' with null due_at despite a clear tomorrow request",
     "owner_temporal_task_due_date_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 274b3bde-06cb-4a65-acdd-263cf6a021af on release 2a0dcbf created 'review the restore drill' with canonical due_at 2026-09-02T22:05:28Z, verified readback, and matching request-status",
+    "temporal_task_due_date_executor_regression": "green deterministic: Tasks executor accepts only parseable due_at values, carries them into canonical Task state, includes them in observations, and verifier readback requires the same timestamp",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety and natural task-list mutation routing are now live-green. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
