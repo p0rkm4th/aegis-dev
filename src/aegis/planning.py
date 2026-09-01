@@ -352,6 +352,7 @@ class CrossDomainPlanningFastPath:
         return domains >= 2 and (
             any(term in text for term in cls._PLANNING_TERMS)
             or ("which" in text and "should" in text)
+            or " and " in text
         )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
