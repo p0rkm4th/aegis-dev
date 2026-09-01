@@ -971,6 +971,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "if (result.state === 'completed') refreshState();" in _INDEX_HTML
     assert "if (status.state === 'completed') refreshState();" in _INDEX_HTML
     assert "loadState().catch(() => {})" not in _INDEX_HTML
+    assert "Status: ${result.code || 'request_failed'}" in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():
