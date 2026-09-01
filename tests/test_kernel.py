@@ -975,6 +975,53 @@ def test_decoder_accepts_only_declared_bounded_action_arguments():
         raise AssertionError("undeclared model argument was accepted")
 
 
+def test_decoder_expands_bounded_action_reference_into_canonical_card():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            required_permissions=("tasks.write",),
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="complete a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    response = {
+        "kind": "ACTION",
+        "action_ref": "tasks.complete",
+        "action_arguments": {"title": "review backups"},
+    }
+
+    decision = StrictDecisionDecoder().decode(
+        type("Response", (), {"raw": response})(),
+        (card,),
+        allow_argument_proposals=True,
+    )
+
+    assert decision.action == card.action.model_copy(
+        update={"arguments": {"title": "review backups"}}
+    )
+
+
+def test_decoder_rejects_unknown_bounded_action_reference():
+    card = ActionCard(
+        action=ActionSpec(action_id="tasks.list", capability="tasks.read"),
+        summary="show tasks",
+        relevance=1,
+    )
+    response = {"kind": "ACTION", "action_ref": "tasks.delete"}
+
+    try:
+        StrictDecisionDecoder().decode(
+            type("Response", (), {"raw": response})(), (card,), allow_argument_proposals=True
+        )
+    except InvalidDecision:
+        pass
+    else:
+        raise AssertionError("unknown action reference was accepted")
+
+
 def test_kernel_blocks_malformed_model_without_execution():
     ex = Executor()
     k = Kernel(

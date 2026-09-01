@@ -112,11 +112,11 @@ class OllamaProvider:
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
                 "action_rule": (
-                    "For ACTION, copy the selected ActionCard action object verbatim, "
-                    "including the arguments object even when it is non-empty, "
-                    "required_permissions, and verification. The ACTION action must "
-                    "contain every field from the selected card with the same values. "
-                    "Do not omit, add, or change any action field."
+                    "For ACTION, set action_ref to exactly one action_id from the supplied "
+                    "ActionCards and put only declared argument values in action_arguments. "
+                    "Core will expand the reference into the canonical action fields; never "
+                    "invent or alter capabilities, permissions, or verification. A legacy "
+                    "full action object is accepted only when it exactly matches a card."
                 ),
                 "argument_proposal_rule": (
                     "This bounded request may fill only argument keys explicitly declared "

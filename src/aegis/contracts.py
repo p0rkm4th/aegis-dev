@@ -92,6 +92,8 @@ class Decision(StrictModel):
     kind: DecisionKind
     answer: str | None = None
     action: ActionSpec | None = None
+    action_ref: str | None = None
+    action_arguments: dict[str, Any] = {}
     clarification: str | None = None
     reason: str | None = None
 

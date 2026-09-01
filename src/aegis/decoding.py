@@ -29,14 +29,34 @@ class StrictDecisionDecoder:
         except ValidationError as exc:
             raise InvalidDecision("model response failed the decision schema") from exc
         if decision.kind is DecisionKind.ACTION:
-            if decision.action is None:
-                raise InvalidDecision("ACTION requires an action")
-            card = next((c for c in cards if c.action.action_id == decision.action.action_id), None)
+            proposed = decision.action
+            action_ref = decision.action_ref
+            if proposed is None:
+                if not isinstance(action_ref, str) or not action_ref:
+                    raise InvalidDecision("ACTION requires an action reference")
+                card = next((c for c in cards if c.action.action_id == action_ref), None)
+                if card is None:
+                    raise InvalidDecision("action reference is not a retrieved ActionCard")
+                if not allow_argument_proposals and decision.action_arguments:
+                    raise InvalidDecision("action arguments require bounded proposal mode")
+                if not set(decision.action_arguments).issubset(card.argument_keys):
+                    raise InvalidDecision("action proposal exceeds the ActionCard contract")
+                return decision.model_copy(
+                    update={
+                        "action": card.action.model_copy(
+                            update={"arguments": decision.action_arguments}
+                        )
+                    }
+                )
+            card = next((c for c in cards if c.action.action_id == proposed.action_id), None)
             if card is None:
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
-            if decision.action != card.action:
+            if action_ref is not None and action_ref != proposed.action_id:
+                raise InvalidDecision("action reference does not match the proposed action")
+            if decision.action_arguments:
+                raise InvalidDecision("action arguments must be inside the legacy action object")
+            if proposed != card.action:
                 if allow_argument_proposals:
-                    proposed = decision.action
                     canonical = card.action
                     if (
                         proposed.action_id != canonical.action_id
@@ -63,8 +83,12 @@ class StrictDecisionDecoder:
         elif decision.kind is DecisionKind.CLARIFY:
             if not decision.clarification or not decision.clarification.strip():
                 raise InvalidDecision("CLARIFY requires a clarification question")
-        elif decision.action is not None:
-            raise InvalidDecision("only ACTION decisions may contain an action")
+        elif (
+            decision.action is not None
+            or decision.action_ref is not None
+            or decision.action_arguments
+        ):
+            raise InvalidDecision("only ACTION decisions may contain an action proposal")
         return decision
 
 
