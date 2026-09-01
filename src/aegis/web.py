@@ -131,6 +131,13 @@ function renderDetailValue(value) {
   }
   const text = document.createElement('span'); text.textContent = String(value); return text;
 }
+function clearAuthorizedDisplays() {
+  nodes.replaceChildren(); edges.replaceChildren();
+  document.getElementById('detail').replaceChildren();
+  document.getElementById('answer').textContent = '';
+  document.getElementById('conversation').replaceChildren();
+  pendingCorrelationId = null;
+}
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
   if (!response.ok) {
@@ -171,7 +178,7 @@ async function refreshState() {
     document.getElementById('state-status').textContent =
       `State refresh failed (${code}). Use Refresh state to try again.`;
     if (code === 'identity_unavailable' || code === 'state_access_denied') {
-      nodes.replaceChildren(); edges.replaceChildren();
+      clearAuthorizedDisplays();
     }
   } finally {
     refresh.disabled = false;
