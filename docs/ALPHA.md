@@ -16,6 +16,17 @@ export AEGIS_OLLAMA_URL='http://127.0.0.1:11434'
 ./scripts/aegis
 ```
 
+For repeatable local startup, the launcher can load a simple configuration
+file without executing shell code:
+
+```sh
+./scripts/aegis --env-file .env --check
+./scripts/aegis --env-file .env --web
+```
+
+The file accepts only `AEGIS_* = value` settings; existing shell variables
+take precedence, and secrets are never printed by diagnostics.
+
 The launcher uses the repository `.venv` when available and otherwise falls
 back to an active `python3` environment with the checkout on `PYTHONPATH`. Set
 `AEGIS_PYTHON` to choose a specific Python executable.

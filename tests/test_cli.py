@@ -109,6 +109,48 @@ def test_cli_help_is_available_without_runtime_configuration(monkeypatch, capsys
     assert "--no-banner" in output
 
 
+def test_cli_env_file_loads_aegis_settings_without_overriding_shell(monkeypatch, tmp_path):
+    from aegis import cli
+
+    env_file = tmp_path / "aegis.env"
+    env_file.write_text(
+        "AEGIS_DATABASE_URL=postgresql://file\nAEGIS_PRINCIPAL_ID=file-user\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://shell")
+    monkeypatch.delenv("AEGIS_PRINCIPAL_ID", raising=False)
+
+    cli._load_env_file(str(env_file))
+
+    assert cli.os.environ["AEGIS_DATABASE_URL"] == "postgresql://shell"
+    assert cli.os.environ["AEGIS_PRINCIPAL_ID"] == "file-user"
+
+
+def test_cli_env_file_rejects_shell_syntax_and_non_aegis_keys(tmp_path):
+    from aegis import cli
+
+    env_file = tmp_path / "aegis.env"
+    env_file.write_text("export AEGIS_DATABASE_URL=secret\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="invalid env file key"):
+        cli._load_env_file(str(env_file))
+
+
+def test_cli_env_file_json_failure_is_machine_safe(monkeypatch, capsys, tmp_path):
+    from aegis import cli
+
+    env_file = tmp_path / "aegis.env"
+    env_file.write_text("not-a-setting\n", encoding="utf-8")
+    monkeypatch.setattr("sys.argv", ["aegis", "--check", "--json", "--env-file", str(env_file)])
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out) == {
+        "code": "configuration_invalid",
+        "error": "configuration file is invalid",
+        "state": "failed",
+    }
+
+
 def test_cli_once_routes_through_handle(monkeypatch, capsys):
     from aegis import cli
 
