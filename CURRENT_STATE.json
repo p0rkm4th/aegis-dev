@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 8,
-  "current_checkpoint": "phase-8-finance-affordability-cli-audit-green",
+  "current_phase": 9,
+  "current_checkpoint": "phase-9-technical-suites-start",
   "active_branch": "aegis-dev",
   "head_sha": "5e153fb",
   "last_green_sha": "5e153fb",
@@ -86,7 +86,7 @@
     "5": "in_progress",
     "6": "complete",
     "7": "in_progress",
-    "8": "in_progress",
+    "8": "complete",
     "9": "in_progress",
     "10": "in_progress",
     "11": "in_progress",
@@ -177,6 +177,7 @@
         "network_probe_live": "green: correlation e11e010f-4420-40c6-8b4d-7ee3d031b1a1 returned objective d84d989a-1dee-469b-8a5c-938e5095a9e0 completed; Qwen3:8B selected network.probe, PostgreSQL NetworkScopePolicy allowed persisted alpha-lab scope, OpenClaw wrote receipt AEGIS_NETWORK_DONE_b6c36dc9b54449a48ce407dcb18c1288 with exit 0, independent TCP readback connected, and replay returned the same objective/result without a duplicate mutation",
         "finance_cli_affordability_live": "green: ./scripts/aegis answered 'Can I afford a $1000 purchase?' from a fresh PostgreSQL connection using the owner-partitioned finance snapshot and shared obligations; response contained affordable/purchase/obligation derived fields and no private balance or transaction data",
         "finance_cli_audit_live": "green: the affordability CLI request appended a redacted finance.affordability.read event; a fresh PostgresAuditLog reload verified the persisted hash chain and event without private finance fields",
+        "phase8_finance_gate": "green: canonical private finance models and provider boundary, owner-only reads, allowlisted durable household projection, derived affordability query, audit correlation, PostgreSQL restart reload, and privacy holdout tests are green; no raw private fields cross the shared result boundary",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -204,5 +205,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Run the Phase 8 exit review against Finance Pack models, owner-only reads, allowlisted projections, affordability CLI/audit evidence, and privacy holdouts; do not add unrelated domain breadth."
+  "next_action": "Advance Phase 9 technical suites using existing Pack/Core boundaries: expand safe Homelab inventory/action verification, preserve Network authorization scopes, and add Security Lab/OSINT provenance only where it enables a tested user workflow."
 }
