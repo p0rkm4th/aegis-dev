@@ -524,6 +524,20 @@ def _browser_interaction(
         "objective_id": str(result.objective_id),
         "correlation_id": str(result.correlation_id),
     }
+    raw_steps = result.evidence.get("steps")
+    if isinstance(raw_steps, (list, tuple)):
+        response["steps"] = tuple(
+            {
+                "index": step["index"],
+                "action_id": step["action_id"],
+                "state": step["state"],
+                "objective_id": step["objective_id"],
+                "correlation_id": step["correlation_id"],
+                "message": step["message"],
+            }
+            for step in raw_steps[:5]
+            if isinstance(step, dict)
+        )
     if result.retryable:
         response["retryable"] = True
     return response

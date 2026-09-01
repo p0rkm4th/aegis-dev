@@ -34,6 +34,18 @@ def _write_response_payload(writer: Any, payload: bytes) -> None:
         return
 
 
+class BrowserStep(BaseModel):
+    """Bounded canonical step status for presentation clients."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    index: int = Field(ge=0)
+    action_id: str = Field(min_length=1)
+    state: ObjectiveState
+    objective_id: UUID
+    correlation_id: UUID
+    message: str
+
+
 class BrowserMessage(BaseModel):
     """Stable presentation envelope for one interaction response."""
 
@@ -44,6 +56,7 @@ class BrowserMessage(BaseModel):
     objective_id: UUID | None = None
     correlation_id: UUID
     retryable: bool | None = None
+    steps: tuple[BrowserStep, ...] | None = Field(default=None, max_length=5)
 
 
 class ConstellationNode(BaseModel):
@@ -96,7 +109,8 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 <ul id="health-details" class="muted" aria-live="polite"></ul>
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
-<p id="answer" aria-live="polite"></p><div id="detail" class="muted" role="region"
+<p id="answer" aria-live="polite"></p><p id="step-status" class="muted"
+aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
 <p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
@@ -457,6 +471,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
     document.getElementById('answer').textContent = answer;
     const assistantLine = document.createElement('li');
     assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
+    if (result.steps && result.steps.length) document.getElementById('step-status').textContent =
+      result.steps.map(step =>
+        `${step.action_id}: ${lifecycleLabel(step.state)} · ${step.message}`).join(' | ');
+    else document.getElementById('step-status').textContent = '';
     if (result.state) document.getElementById('activity').textContent =
       `Status: ${lifecycleLabel(result.state)}${result.detail ? ` · ${result.detail}` : ''}`;
     else if (!response.ok) document.getElementById('activity').textContent =

@@ -1702,6 +1702,49 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
     assert payload["objective_id"] == str(result.objective_id)
 
 
+def test_browser_interaction_projects_bounded_canonical_step_status(monkeypatch):
+    from aegis import cli
+
+    child_objective = uuid4()
+    child_correlation = uuid4()
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Completed all 2 plan steps",
+        correlation_id=uuid4(),
+        evidence={
+            "steps": [
+                {
+                    "index": 0,
+                    "action_id": "tasks.create",
+                    "state": "completed",
+                    "objective_id": str(child_objective),
+                    "correlation_id": str(child_correlation),
+                    "message": "canonical task readback verified",
+                    "evidence": {"title": "private detail is not projected"},
+                }
+            ]
+        },
+    )
+    monkeypatch.setattr(cli, "run_interaction", lambda *_: result)
+
+    payload = cli._browser_interaction(
+        "Create a task and a chore.",
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+
+    assert payload["steps"] == (
+        {
+            "index": 0,
+            "action_id": "tasks.create",
+            "state": "completed",
+            "objective_id": str(child_objective),
+            "correlation_id": str(child_correlation),
+            "message": "canonical task readback verified",
+        },
+    )
+
+
 def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     from aegis import cli
     from aegis.network import HomelabInventory
