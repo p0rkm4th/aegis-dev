@@ -14,6 +14,17 @@ export AEGIS_OLLAMA_URL='http://127.0.0.1:11434'
 ./scripts/aegis
 ```
 
+Use `./scripts/aegis --help` to inspect the client options. For automation or
+health checks that need one request, use non-interactive mode:
+
+```sh
+./scripts/aegis --once "Show my tasks."
+```
+
+`--once` prints one canonical human-readable result and exits; it does not
+bypass Core policy, authorization, execution, or verification. Add
+`--no-banner` when embedding the interactive client in a terminal wrapper.
+
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
 `AEGIS_OPENCLAW_IDENTITY_DB`. The CLI defaults to the explicitly configured

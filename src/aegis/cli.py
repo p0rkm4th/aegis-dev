@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import re
 import sqlite3
@@ -440,8 +441,35 @@ def handle(utterance: str, principal: Principal) -> str:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        prog="aegis",
+        description="Run a request through the AEGIS interaction boundary.",
+        epilog=(
+            "Interactive mode reads requests until quit or exit. "
+            "All state-changing requests still require the normal Core policy "
+            "and verification gates."
+        ),
+    )
+    parser.add_argument(
+        "--once",
+        metavar="REQUEST",
+        help="handle one natural-language request and exit (useful for scripts)",
+    )
+    parser.add_argument(
+        "--no-banner",
+        action="store_true",
+        help="suppress the interactive startup banner",
+    )
+    args = parser.parse_args()
     principal = _principal()
-    print("AEGIS alpha. Type a request, or 'quit' to exit.")
+    if args.once is not None:
+        try:
+            print(handle(args.once, principal))
+        except (RuntimeError, ValueError, OSError) as exc:
+            print(f"Not completed — {exc}")
+        return
+    if not args.no_banner:
+        print("AEGIS alpha. Type a request, or 'quit' to exit.")
     while True:
         try:
             utterance = input("aegis> ").strip()

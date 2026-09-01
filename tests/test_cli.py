@@ -1,3 +1,5 @@
+import pytest
+
 from aegis.cli import _domain_and_action, _ensure_local_identity
 from aegis.contracts import Principal
 from aegis.pack_lifecycle import PackManager
@@ -85,3 +87,33 @@ def test_local_identity_bootstrap_does_not_reactivate_revoked_membership():
     )
     assert "DO NOTHING" in membership_query
     assert "active = TRUE" not in membership_query.split("DO NOTHING")[1]
+
+
+def test_cli_help_is_available_without_runtime_configuration(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--help"])
+
+    with pytest.raises(SystemExit) as raised:
+        cli.main()
+
+    assert raised.value.code == 0
+    output = capsys.readouterr().out
+    assert "--once REQUEST" in output
+    assert "--no-banner" in output
+
+
+def test_cli_once_routes_through_handle(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "Show my tasks."])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(cli, "handle", lambda utterance, principal: f"handled: {utterance}")
+
+    cli.main()
+
+    assert capsys.readouterr().out == "handled: Show my tasks.\n"
