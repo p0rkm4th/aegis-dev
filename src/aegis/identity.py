@@ -74,6 +74,36 @@ class KeycloakIdentityProvider:
         return Principal(id=subject, vault_id=vault_id, space_ids=tuple(spaces))
 
 
+class KeycloakOIDCClient:
+    """Resolve a bearer token through Keycloak userinfo, then map its claims."""
+
+    def __init__(self, issuer: str, timeout: float = 10.0) -> None:
+        if not issuer.startswith(("http://", "https://")):
+            raise ValueError("Keycloak issuer must use HTTP or HTTPS")
+        self.userinfo_endpoint = (
+            f"{issuer.rstrip('/')}/protocol/openid-connect/userinfo"
+        )
+        self.timeout = timeout
+        self.identity = KeycloakIdentityProvider()
+
+    def principal_from_access_token(self, access_token: str) -> Principal:
+        if not access_token:
+            raise ValueError("access token is required")
+        request = Request(
+            self.userinfo_endpoint,
+            headers={"Authorization": f"Bearer {access_token}"},
+            method="GET",
+        )
+        try:
+            with urlopen(request, timeout=self.timeout) as response:
+                claims = json.load(response)
+        except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+            raise RuntimeError("Keycloak userinfo request failed") from exc
+        if not isinstance(claims, dict):
+            raise RuntimeError("Keycloak userinfo response was invalid")
+        return self.identity.principal_from_claims(claims)
+
+
 class OpenFGAClient(Protocol):
     def check(self, user: str, relation: str, object_id: str) -> bool: ...
 
