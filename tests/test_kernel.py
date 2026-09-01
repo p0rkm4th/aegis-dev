@@ -615,6 +615,37 @@ def test_gateway_rpc_requires_matching_response_correlation():
         raise AssertionError("mismatched Gateway response was accepted")
 
 
+def test_gateway_rpc_hides_remote_error_text():
+    class Channel:
+        def send(self, request):
+            return RpcResponse(
+                request_id=request.request_id,
+                error={"code": "permission_denied", "message": "gateway-password=secret"},
+            )
+
+    try:
+        CorrelatedRpcClient(Channel()).call("agent")
+    except RpcProtocolError as exc:
+        assert str(exc) == "Gateway RPC failed: permission_denied"
+        assert "secret" not in str(exc)
+    else:
+        raise AssertionError("Gateway error was accepted")
+
+
+def test_gateway_transport_error_hides_exception_text():
+    class Socket:
+        def recv(self):
+            raise RuntimeError("gateway-password=secret")
+
+    try:
+        OpenClawWebSocketChannel("ws://gateway", "token")._receive_response(Socket(), "request-1")
+    except RpcProtocolError as exc:
+        assert str(exc) == "Gateway transport failed: RuntimeError"
+        assert "secret" not in str(exc)
+    else:
+        raise AssertionError("Gateway transport error was accepted")
+
+
 def test_gateway_rpc_named_methods_preserve_documented_method_names():
     class Channel:
         def __init__(self):
