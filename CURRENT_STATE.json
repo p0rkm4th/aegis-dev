@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-cross-pack-planning-vocabulary-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
+  "head_sha": "16f008219d121ae2c2c33a7202113181e0f121a6",
   "last_green_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
-  "last_pushed_sha": "f5fcb8c3437b28953e6f15d84bb56bd2e81a37b1",
+  "last_pushed_sha": "16f008219d121ae2c2c33a7202113181e0f121a6",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
