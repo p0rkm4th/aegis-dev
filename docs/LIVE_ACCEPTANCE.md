@@ -120,3 +120,10 @@ external record. PostgreSQL had been restarted before this replay.
 This proves the first simple end-to-end live capability. It does not claim
 interrupted-before-completion recovery, a consequential Homelab/HA action, or
 live hardware acceptance.
+
+The interrupted-run probe was subsequently executed on the same live stack:
+the real OpenClaw dispatch completed, Core was intentionally failed before
+Result persistence, and a fresh Core/PostgreSQL process retried the same
+correlation. Independent readback completed successfully and found exactly one
+external record. The probe used correlation
+`7f5e7a10-ec5b-4a7e-b653-1212b4e0f4c0`.

@@ -5,9 +5,9 @@
   "current_phase": 1,
   "current_checkpoint": "first-live-grocery-vertical-slice-green-adversarial-acceptance-pending",
   "active_branch": "aegis-dev",
-  "head_sha": "9dd0638",
-  "last_green_sha": "9dd0638",
-  "last_pushed_sha": "9dd0638",
+  "head_sha": "bf35320",
+  "last_green_sha": "bf35320",
+  "last_pushed_sha": "bf35320",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -97,6 +97,7 @@
     "live_grocery_vertical_slice": "green: scripts/live_vertical_slice.py ran with Ollama qwen3:8b, PostgreSQL 16.4 after container restart, and paired OpenClaw 2026.8.1; first and replay Results completed with same objective/result and matching_external_records=1",
     "live_grocery_correlation_id": "4fd15a56-1622-42e9-8f30-58acc467fa76",
     "live_grocery_objective_id": "62b33f88-a67f-4e87-ad2d-7c7a07f5da26",
+    "live_grocery_interrupted_recovery": "green: correlation 7f5e7a10-ec5b-4a7e-b653-1212b4e0f4c0 dispatched through real OpenClaw, simulated process failure occurred before Result persistence, fresh Core/PostgreSQL process recovered it, persisted Result matched, and external record count was 1",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
