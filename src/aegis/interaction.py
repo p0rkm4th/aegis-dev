@@ -110,6 +110,35 @@ class InteractionBoundary:
             if domain_clarification is not None:
                 return domain_clarification
             household_store = PostgresHouseholdStore(connection)
+            if CrossDomainPlanningFastPath.matches(utterance):
+                task_store = PostgresTaskStore(connection)
+                personal_state = PostgresPersonalStateStore(
+                    connection, principal.vault_id
+                ).load_for_principal(principal)
+                household_snapshot = household_store.read_snapshot(principal)
+                obligations = tuple(
+                    SharedObligation(item.title, item.amount)
+                    for item in cast(
+                        tuple[HouseholdObligation, ...],
+                        household_snapshot.get("obligations", ()),
+                    )
+                    if not item.settled
+                )
+                finance: dict[str, Any] | None = None
+                if FinanceReadFastPath.matches(utterance):
+                    finance_result = FinanceReadFastPath(
+                        FinanceLedger(PostgresFinanceSnapshotStore(connection))
+                    ).resolve(intent, obligations)
+                    if finance_result is not None:
+                        finance = finance_result.evidence
+                planning_result = CrossDomainPlanningFastPath(
+                    personal_state,
+                    household_snapshot,
+                    task_store.list(principal),
+                    finance,
+                ).resolve(intent)
+                if planning_result is not None:
+                    return planning_result
             if FinanceReadFastPath.matches(utterance):
                 snapshot = household_store.read_snapshot(principal)
                 household_obligations = cast(

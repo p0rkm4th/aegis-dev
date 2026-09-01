@@ -104,10 +104,12 @@ class CrossDomainPlanningFastPath:
         "plan this",
         "what should i",
         "what do i need to",
+        "what tasks",
     )
     _PERSONAL_TERMS = ("personal", "goal", "goals", "project", "projects", "memory")
     _SHARED_TERMS = ("household", "obligation", "obligations", "chore", "chores", "utility")
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
+    _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget")
     _MAX_CONTEXT_ITEMS = 5
 
     def __init__(
@@ -115,10 +117,12 @@ class CrossDomainPlanningFastPath:
         personal: PersonalState,
         household_snapshot: dict[str, object],
         tasks: tuple[Task, ...],
+        finance: dict[str, Any] | None = None,
     ) -> None:
         self.personal = personal
         self.household_snapshot = household_snapshot
         self.tasks = tasks
+        self.finance = finance
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
@@ -128,6 +132,7 @@ class CrossDomainPlanningFastPath:
                 any(term in text for term in cls._PERSONAL_TERMS),
                 any(term in text for term in cls._SHARED_TERMS),
                 any(term in text for term in cls._TASK_TERMS),
+                any(term in text for term in cls._FINANCE_TERMS),
             )
         )
         return domains >= 2 and any(term in text for term in cls._PLANNING_TERMS)
@@ -149,33 +154,47 @@ class CrossDomainPlanningFastPath:
         priorities = [f"household obligation: {item.title}" for item in open_obligations]
         priorities.extend(f"personal goal: {goal.description}" for goal in goals)
         priorities.extend(f"task: {task.title}" for task in open_tasks)
+        planning: dict[str, object] = {
+            "goals": [
+                {
+                    "description": goal.description,
+                    "project": (
+                        projects.get(goal.project_id) if goal.project_id is not None else None
+                    ),
+                }
+                for goal in goals
+            ],
+            "open_obligations": [
+                {"title": item.title, "responsible_id": item.responsible_id}
+                for item in open_obligations
+            ],
+            "open_tasks": [
+                {"task_id": str(task.task_id), "title": task.title} for task in open_tasks
+            ],
+            "priority_candidates": priorities,
+            "sources": ("personal_vault", "household_space", "tasks_space"),
+        }
+        if self.finance is not None:
+            planning["affordability"] = {
+                key: self.finance[key]
+                for key in (
+                    "affordable",
+                    "purchase_cents",
+                    "shared_obligations_cents",
+                    "shortfall_cents",
+                )
+                if key in self.finance
+            }
+            planning["sources"] = (
+                "personal_vault",
+                "household_space",
+                "tasks_space",
+                "finance",
+            )
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message="Cross-domain planning context assembled from canonical state",
-            evidence={
-                "planning": {
-                    "goals": [
-                        {
-                            "description": goal.description,
-                            "project": (
-                                projects.get(goal.project_id)
-                                if goal.project_id is not None
-                                else None
-                            ),
-                        }
-                        for goal in goals
-                    ],
-                    "open_obligations": [
-                        {"title": item.title, "responsible_id": item.responsible_id}
-                        for item in open_obligations
-                    ],
-                    "open_tasks": [
-                        {"task_id": str(task.task_id), "title": task.title} for task in open_tasks
-                    ],
-                    "priority_candidates": priorities,
-                    "sources": ("personal_vault", "household_space", "tasks_space"),
-                }
-            },
+            evidence={"planning": planning},
             correlation_id=intent.correlation_id,
         )
