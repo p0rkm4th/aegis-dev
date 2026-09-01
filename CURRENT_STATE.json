@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "31aa35b",
-  "last_green_sha": "31aa35b",
-  "last_pushed_sha": "31aa35b",
+  "head_sha": "7dd84e4",
+  "last_green_sha": "7dd84e4",
+  "last_pushed_sha": "7dd84e4",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -85,6 +85,7 @@
     ,"readiness diagnostics with human-readable and machine-readable CLI output"
     ,"minimal loopback Constellation browser proof over canonical authorized state and the shared interaction boundary"
     ,"browser lifecycle status, selectable node details, and post-completion canonical refresh"
+    ,"optional non-authoritative Pack UI metadata and dynamic Constellation hubs/relationships"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -104,8 +105,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "106 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser lifecycle response tested with canonical blocked status/identifiers; selectable node detail and completed-state refresh are presentation-only"
+    "pytest": "107 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
+    "known_gate_note": "Pack UI metadata, dynamic available/installed Pack hubs, authorized task relationships, and browser relationship rendering are covered deterministically"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -199,6 +200,7 @@
         "cli_runtime_readiness": "green: --check distinguishes required PostgreSQL/Ollama readiness from optional OpenClaw configuration, reports actionable missing/inaccessible components, supports JSON automation output, and returns status 1 when not ready",
         "constellation_browser_proof": "green: ./scripts/aegis --web serves a loopback browser client with conversation through handle() and canonical Tasks/Kitchen state supplied by authorized PostgreSQL stores; browser errors do not bypass policy or disclose denied state",
         "browser_lifecycle_visibility": "green deterministic: browser receives canonical Result state plus objective/correlation identifiers, renders status, supports node detail selection, refreshes after completed results, and does not infer completion from HTTP success or prose",
+        "pack_constellation_projection": "green deterministic: optional PackManifest UI hints produce dynamic available/installed Pack hubs and edges; missing metadata falls back safely; authorized canonical task context is the only contextual data projected",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -226,5 +228,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; live Qwen/browser mutation proof resumes when Ollama is available, while Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on live browser workflows, startup/operator simplicity, and restart/revocation dogfood; live Qwen/browser mutation proof resumes when Ollama is available, while Home Assistant/mobile/voice remain lane-limited."
 }
