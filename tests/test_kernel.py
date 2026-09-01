@@ -261,6 +261,74 @@ def test_failed_postcondition_is_failed():
     assert k.run(intent()).state.value == "failed"
 
 
+def test_executor_exception_is_persisted_as_unknown_and_not_replayed():
+    class FailingExecutor:
+        calls = 0
+
+        def execute(self, request):
+            self.calls += 1
+            raise RuntimeError("private gateway detail")
+
+    action = ActionSpec(
+        action_id="write",
+        capability="test.write",
+        verification=VerificationContract(kind="readback"),
+    )
+    executor = FailingExecutor()
+    k = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        executor,
+        Verifier(True),
+    )
+
+    first = k.run(intent())
+    second = k.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do it",
+            correlation_id=first.correlation_id,
+        )
+    )
+
+    assert first.state is ObjectiveState.FAILED
+    assert second == first
+    assert executor.calls == 1
+    assert first.evidence["outcome"] == "unknown"
+    assert first.evidence["error_type"] == "RuntimeError"
+    assert "private gateway detail" not in str(first)
+
+
+def test_verifier_exception_is_a_truthful_failed_result():
+    class FailingVerifier:
+        def verify(self, observation, contract):
+            raise RuntimeError("private readback detail")
+
+    action = ActionSpec(
+        action_id="write",
+        capability="test.write",
+        verification=VerificationContract(kind="readback"),
+    )
+    k = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        FailingVerifier(),
+    )
+
+    result = k.run(intent())
+
+    assert result.state is ObjectiveState.FAILED
+    assert (
+        result.message == "verification unavailable; external state must be checked before retrying"
+    )
+    assert result.evidence["verification"] == "unavailable"
+    assert result.evidence["error_type"] == "RuntimeError"
+    assert "private readback detail" not in str(result)
+
+
 def test_replay_does_not_execute_side_effect_twice():
     ex = Executor()
     action = ActionSpec(

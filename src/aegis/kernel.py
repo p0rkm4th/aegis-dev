@@ -14,7 +14,9 @@ from .contracts import (
     ModelRequest,
     Objective,
     ObjectiveState,
+    Observation,
     Result,
+    VerificationResult,
     WorkingSet,
 )
 from .decoding import InvalidDecision
@@ -189,7 +191,22 @@ class Kernel:
         self._executed.add(key)
         observation = self.store.get_observation(key)
         if observation is None:
-            observation = self.executor.execute(execution_request)
+            try:
+                observation = self.executor.execute(execution_request)
+            except Exception as exc:
+                # An adapter may have crossed an external boundary before
+                # failing. Persist an ambiguous outcome so recovery never
+                # mistakes an exception for permission to replay blindly.
+                observation = Observation(
+                    execution_id=execution_request.action_id,
+                    evidence={
+                        "executor": "unavailable",
+                        "outcome": "unknown",
+                        "error_type": type(exc).__name__,
+                        "idempotency_key": key,
+                    },
+                    command_succeeded=False,
+                )
             self.store.save_observation(key, observation)
         self.store.update_action_state(key, ObjectiveState.OBSERVED)
         execution_id = execution_request.action_id
@@ -226,7 +243,32 @@ class Kernel:
                 action_id=execution_id,
             )
             return result
-        verified = self.verifier.verify(observation, decision.action.verification)
+        if not observation.command_succeeded:
+            outcome_unknown = observation.evidence.get("outcome") == "unknown"
+            verified = VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason=(
+                    "execution outcome is unknown; external state must be checked before retrying"
+                    if outcome_unknown
+                    else "execution failed"
+                ),
+            )
+        else:
+            try:
+                verified = self.verifier.verify(observation, decision.action.verification)
+            except Exception as exc:
+                verified = VerificationResult(
+                    verified=False,
+                    evidence={
+                        **observation.evidence,
+                        "verification": "unavailable",
+                        "error_type": type(exc).__name__,
+                    },
+                    reason=(
+                        "verification unavailable; external state must be checked before retrying"
+                    ),
+                )
         state = ObjectiveState.COMPLETED if verified.verified else ObjectiveState.FAILED
         self.objectives[objective.id] = objective.model_copy(update={"state": state})
         self.store.save_objective(self.objectives[objective.id])
