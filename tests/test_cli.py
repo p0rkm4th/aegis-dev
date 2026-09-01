@@ -1,4 +1,5 @@
-from aegis.cli import _domain_and_action
+from aegis.cli import _domain_and_action, _ensure_local_identity
+from aegis.contracts import Principal
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_packs
 
@@ -61,3 +62,26 @@ def test_cli_retrieves_read_cards() -> None:
 
     assert groceries.action.action_id == "kitchen.groceries.list"
     assert tasks.action.action_id == "tasks.list"
+
+
+def test_local_identity_bootstrap_does_not_reactivate_revoked_membership():
+    class Connection:
+        def __init__(self) -> None:
+            self.queries: list[tuple[str, tuple[object, ...]]] = []
+
+        def execute(self, query: str, params: tuple[object, ...] = ()) -> None:
+            self.queries.append((query, params))
+
+        def commit(self) -> None:
+            pass
+
+    connection = Connection()
+    _ensure_local_identity(
+        connection,
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    membership_query = next(
+        query for query, _ in connection.queries if "INSERT INTO space_memberships" in query
+    )
+    assert "DO NOTHING" in membership_query
+    assert "active = TRUE" not in membership_query.split("DO NOTHING")[1]
