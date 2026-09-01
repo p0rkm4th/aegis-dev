@@ -537,7 +537,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
     assert "conversation.append(assistantLine)" in _INDEX_HTML
-    assert "JSON.stringify(details[node.id]" in _INDEX_HTML
+    assert "renderDetailValue(details[node.id])" in _INDEX_HTML
+    assert "textContent = key" in _INDEX_HTML
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
     assert 'id="refresh"' in _INDEX_HTML
     assert "refreshState()" in _INDEX_HTML

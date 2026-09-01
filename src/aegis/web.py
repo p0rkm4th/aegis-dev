@@ -59,7 +59,11 @@ _INDEX_HTML = """<!doctype html>
 <style>body{font:16px system-ui;margin:2rem;max-width:70rem}
 main{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}
 .node{border:1px solid #bbb;border-radius:.6rem;padding:1rem}.muted{color:#666}
-form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padding:.6rem}</style>
+form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padding:.6rem}
+#detail{border:1px solid #ddd;border-radius:.6rem;padding:1rem;min-height:2rem}
+#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}
+#detail dt{font-weight:600}#detail dd{margin:0}
+#detail ul{margin:.25rem 0;padding-left:1.25rem}</style>
 </head><body><h1>AEGIS Constellation</h1>
 <p class="muted">Canonical state and conversation from AEGIS Core.</p>
 <p id="health" aria-live="polite">Checking readiness…</p>
@@ -87,6 +91,32 @@ async function loadHealth() {
     `Runtime: ${ready} · ${required.filter(component => component.healthy).length}` +
     `/${required.length} required checks OK`;
 }
+function renderDetailValue(value) {
+  if (value === null) {
+    const empty = document.createElement('span'); empty.textContent = '—'; return empty;
+  }
+  if (Array.isArray(value)) {
+    const list = document.createElement('ul');
+    if (!value.length) {
+      const item = document.createElement('li'); item.textContent = 'None'; list.append(item);
+    }
+    value.forEach(item => {
+      const row = document.createElement('li');
+      row.append(renderDetailValue(item)); list.append(row);
+    });
+    return list;
+  }
+  if (typeof value === 'object') {
+    const definition = document.createElement('dl');
+    Object.entries(value).forEach(([key, item]) => {
+      const term = document.createElement('dt'); term.textContent = key;
+      const description = document.createElement('dd'); description.append(renderDetailValue(item));
+      definition.append(term, description);
+    });
+    return definition;
+  }
+  const text = document.createElement('span'); text.textContent = String(value); return text;
+}
 async function loadState() {
   const response = await fetch('/api/constellation'); const state = await response.json();
   if (!response.ok) {
@@ -104,10 +134,8 @@ async function loadState() {
       const heading = document.createElement('p');
       heading.textContent = `${node.label}: ${node.detail || 'No detail'}`;
       panel.append(heading);
-      if (details[node.id]) {
-        const pre = document.createElement('pre');
-        pre.textContent = JSON.stringify(details[node.id], null, 2);
-        panel.append(pre);
+      if (Object.prototype.hasOwnProperty.call(details, node.id)) {
+        panel.append(renderDetailValue(details[node.id]));
       }
     });
     card.append(title, detail); return card;
