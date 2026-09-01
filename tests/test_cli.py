@@ -172,6 +172,38 @@ def test_follow_up_result_can_trace_authorized_prior_objective_without_reusing_i
     assert enriched.evidence["continuation_of_objective_id"] == prior_id
 
 
+def test_prior_context_turn_and_referents_are_bounded():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="x" * 2_000,
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="grounded list",
+        evidence={"canonical_items": [f"item-{i}" for i in range(30)]},
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+
+    assert len(context.values["recent_turns"][0]["utterance"]) == 500
+    assert len(context.values["referents"]["those"]["candidates"]) == 10
+
+
 def test_model_answer_can_carry_authorized_working_facts_without_becoming_truth():
     context = Context(
         values={"canonical_facts": {"canonical_items": ["rice", "beans"]}},

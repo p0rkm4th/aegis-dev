@@ -74,6 +74,9 @@ from .tasks import (
     requested_task_due_at,
 )
 
+_MAX_CONTEXT_TURN_CHARS = 500
+_MAX_CONTEXT_CANDIDATES = 10
+
 
 class InteractionInputError(ValueError):
     """A safe, actionable request-shape error from a client-facing selector."""
@@ -177,7 +180,7 @@ def _context_from_prior_result(
             referents["those"] = {
                 "source": "canonical_facts",
                 "fact_key": fact_key,
-                "candidates": candidates[:10],
+                "candidates": candidates[:_MAX_CONTEXT_CANDIDATES],
             }
             break
     return Context(
@@ -188,7 +191,7 @@ def _context_from_prior_result(
             "recent_turns": [
                 {
                     "role": "user",
-                    "utterance": objective.intent.utterance[:500],
+                    "utterance": objective.intent.utterance[:_MAX_CONTEXT_TURN_CHARS],
                     "correlation_id": str(correlation_id),
                 }
             ],
