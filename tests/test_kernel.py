@@ -2400,6 +2400,20 @@ def test_multi_action_fast_path_still_blocks_unbounded_compound_requests():
     assert "multiple actions" in result.message
 
 
+def test_multi_action_fast_path_blocks_read_plus_mutation_compounds():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    result = MultiActionFastPath.resolve(
+        IntentFrame(
+            principal=principal,
+            utterance="Can I afford $50 after Utilities, and add bread to groceries?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "multiple actions" in result.message
+
+
 def test_multi_action_fast_path_extracts_temporal_task_event_plan():
     details = MultiActionFastPath.task_event_details(
         "Create a task and an event for apartment inspection tomorrow."

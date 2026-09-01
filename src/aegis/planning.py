@@ -17,13 +17,20 @@ class MultiActionFastPath:
 
     _ACTION = r"(?:add|complete|create|remove|update)"
     _TARGET = r"(?:a task|tasks|a chore|chores|an event|events|groceries|a grocery)"
+    _READ = ("can i afford", "can we afford", "affordability", "show", "list", "what")
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
+        mixed_read_and_mutation = (
+            " and " in text
+            and re.search(rf"\b{cls._ACTION}\b", text) is not None
+            and any(term in text for term in cls._READ)
+        )
         return bool(
             re.search(rf"{cls._ACTION}.*\band\b.*{cls._TARGET}", text)
             or re.search(rf"{cls._TARGET}.*\band\b.*{cls._ACTION}", text)
+            or mixed_read_and_mutation
         )
 
     @classmethod
