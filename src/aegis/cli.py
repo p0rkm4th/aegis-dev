@@ -52,6 +52,7 @@ from .tasks import (
     PostgresTaskStore,
     PostgresTaskVerifier,
 )
+from .web import serve
 
 
 class _RuntimePolicy:
@@ -177,6 +178,37 @@ def _print_runtime_report(report: HealthReport, as_json: bool) -> int:
             requirement = "required" if component.required else "optional"
             print(f"{component.name}: {state} ({requirement}) — {component.detail}")
     return 0 if report.ready else 1
+
+
+def _constellation_state(principal: Principal) -> dict[str, Any]:
+    """Build a small authorized view from canonical stores for the browser adapter."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        household = PostgresHouseholdStore(connection).read_snapshot(principal)
+        tasks = PostgresTaskStore(connection).list(principal)
+        groceries = cast(tuple[str, ...], household.get("groceries", ()))
+        nodes: list[dict[str, str]] = [
+            {"id": "aegis", "label": "AEGIS", "detail": "central hub"},
+            {"id": "tasks", "label": "Tasks", "detail": f"{len(tasks)} tasks"},
+            {
+                "id": "kitchen",
+                "label": "Kitchen",
+                "detail": f"{len(groceries)} groceries",
+            },
+        ]
+        nodes.extend(
+            {
+                "id": f"task-{task.task_id}",
+                "label": task.title,
+                "detail": f"Task · {task.status.value}",
+            }
+            for task in tasks
+        )
+        return {"nodes": nodes}
+    finally:
+        connection.close()
 
 
 def _principal() -> Principal:
@@ -578,9 +610,18 @@ def main() -> int:
         action="store_true",
         help="emit machine-readable JSON (only valid with --check)",
     )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="serve the minimal Constellation browser client on loopback",
+    )
+    parser.add_argument("--host", default="127.0.0.1", help=argparse.SUPPRESS)
+    parser.add_argument("--port", type=int, default=8080, help="browser client port")
     args = parser.parse_args()
     if args.json and not args.check:
         parser.error("--json requires --check")
+    if args.web and (args.check or args.once is not None):
+        parser.error("--web cannot be combined with --check or --once")
     if args.check:
         return _print_runtime_report(_runtime_report(), args.json)
     try:
@@ -588,6 +629,10 @@ def main() -> int:
     except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
         print(f"Not completed — unable to initialize identity: {exc}")
         return 1
+    if args.web:
+        print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
+        serve(args.host, args.port, principal, handle, _constellation_state)
+        return 0
     if args.once is not None:
         try:
             print(handle(args.once, principal))

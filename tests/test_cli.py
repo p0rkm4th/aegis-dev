@@ -204,3 +204,16 @@ def test_browser_app_rejects_empty_messages_and_unknown_routes():
 
     status, _, _ = app.dispatch("GET", "/missing")
     assert status == 404
+
+
+def test_browser_app_fails_closed_when_state_is_not_authorized():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(principal, lambda *_: "unused", lambda _: _deny())
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+    assert status == 403
+    assert json.loads(payload) == {"error": "state access denied"}
+
+
+def _deny() -> dict[str, object]:
+    raise PermissionError("revoked")
