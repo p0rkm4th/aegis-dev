@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-midflow-authorization-recovery-live-green",
+  "current_checkpoint": "phase-12-stale-canonical-recovery-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "46b738142e2310de5880918ea281b3a0e3c0805e",
-  "last_green_sha": "46b738142e2310de5880918ea281b3a0e3c0805e",
-  "last_pushed_sha": "46b738142e2310de5880918ea281b3a0e3c0805e",
+  "head_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
+  "last_green_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
+  "last_pushed_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "46b738142e2310de5880918ea281b3a0e3c0805e",
-    "last_known_green_sha": "46b738142e2310de5880918ea281b3a0e3c0805e",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/46b7381",
+    "running_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
+    "last_known_green_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/040bf35",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -589,6 +589,8 @@
     "owner_compound_distinct_event_titles_live": "green live: authenticated owner correlation 38383838-3838-4838-8838-383838383838 on release ca95786 completed the distinct-title task/event objective with task 'review the backup' and event 'inspect the utility closet' scheduled tomorrow; both child results independently verified and parent request-status matched",
     "midflow_authorization_verification_retry_regression": "green deterministic: if Space authorization is revoked after a successful mutation observation but before readback, an explicit retry re-verifies the durable observation without replaying execution, then continues the remaining plan steps; unsuccessful or unknown observations remain non-replayable",
     "owner_midflow_authorization_recovery_live": "green live: owner correlation 39393939-3939-4939-8939-393939393939 was revoked during the first task step; the task mutation committed but readback failed and the second chore did not execute, while the revoked-session status query returned unknown without private objective data. After membership restoration and release 46b7381, explicit retry reused the same parent/first-child IDs, re-verified the task without duplicate execution, completed exactly one chore, and request-status matched the completed aggregate",
+    "successful_observation_retryability_regression": "green deterministic: verification failure after a successful command is explicitly retryable, completed Results remain non-retryable, and retry re-verifies the durable observation without invoking the executor again",
+    "owner_stale_canonical_recovery_live": "green live: owner correlation 42424242-4242-4242-8242-424242424242 encountered an intentional canonical task-title conflict and returned failed/retryable with one idempotent row; after canonical reconciliation, explicit retry on release 040bf35 reused the same objective and observation, independently verified completion, and left exactly one row",
     "plan_child_observation_crash_recovery_regression": "green deterministic: when a simulated crash occurs after the first plan child observation is durable but before its Result is persisted, a fresh Kernel independently verifies the stored observation, executes only the remaining step, and completes the aggregate with no duplicate first-step execution",
     "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
     "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
@@ -598,5 +600,5 @@
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: interruption/restart during multi-step work, stale or conflicting canonical state, malformed or weak-model proposals, safe partial failure recovery, and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, and successful-observation retry are now live-green; next attack stale/conflicting canonical state and partial failure boundaries."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals, safe partial failure recovery, and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, and stale canonical reconciliation are live-green; next attack partial failure boundaries and novel cross-Pack objectives."
 }
