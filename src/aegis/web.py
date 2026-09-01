@@ -59,7 +59,9 @@ _INDEX_HTML = """<!doctype html>
 <title>AEGIS Constellation</title>
 <style>body{font:16px system-ui;margin:2rem;max-width:70rem}
 main{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}
-.node{border:1px solid #bbb;border-radius:.6rem;padding:1rem}.muted{color:#666}
+.node{border:1px solid #bbb;border-radius:.6rem;padding:1rem}
+.node[aria-pressed="true"]{border-color:#2457a6;box-shadow:0 0 0 .15rem #c9dcff}
+.muted{color:#666}
 form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padding:.6rem}
 #detail{border:1px solid #ddd;border-radius:.6rem;padding:1rem;min-height:2rem}
 #detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}
@@ -88,6 +90,7 @@ const recoveryPollMs = 5000;
 const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
+let selectedNode = null;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
 const retryableCodes = new Set([
@@ -246,11 +249,15 @@ async function loadState() {
   }
   document.getElementById('state-status').textContent = '';
   const details = state.details || {};
+  selectedNode = null;
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
+    card.setAttribute('aria-pressed', 'false');
     const title = document.createElement('h2'); title.textContent = node.label;
     const detail = document.createElement('p'); detail.textContent = node.detail || '';
     card.addEventListener('click', () => {
+      if (selectedNode) selectedNode.setAttribute('aria-pressed', 'false');
+      selectedNode = card; card.setAttribute('aria-pressed', 'true');
       const panel = document.getElementById('detail'); panel.replaceChildren();
       const heading = document.createElement('p');
       heading.textContent = `${node.label}: ${node.detail || 'No detail'}`;
