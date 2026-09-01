@@ -1553,6 +1553,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "001_initial.sql",
         "002_audit_hash_chain.sql",
         "003_pack_installations.sql",
+        "004_personal_state.sql",
     )
 
 

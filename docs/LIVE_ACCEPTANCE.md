@@ -146,6 +146,14 @@ as `discovered`, Kitchen as `enabled` with the `kitchen.write` grant, and one
 bounded Kitchen card. The persisted lifecycle was then used by the live
 grocery runner.
 
+PostgreSQL personal state persistence was verified after migration
+`004_personal_state.sql`. A fresh connection reloaded an entity and alias, a
+project and linked goal, and explicit/corrected memories. The original memory's
+`superseded_by` relationship and the corrected memory's provenance survived the
+connection/process boundary; temporal retrieval returned only the active
+correction. Records are selected by the private Vault ID, so this repository
+does not use the transcript or a vector index as canonical personal state.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
