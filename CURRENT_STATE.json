@@ -31,7 +31,7 @@
       "M08.08 natural-language capability green remains intentionally unclaimed; exact canaries and partial unseen-family evidence are recorded separately"
     ],
     "unmet_or_partial": [
-      "M08.05 model action selection uses bounded ActionCard IDs; broader action-family capability proof remains in progress",
+      "M08.05 model action selection uses bounded ActionCard references; broader action-family capability proof remains in progress",
       "M08.10 phrase-overfit production cleanup remains partial pending broader capability evaluation",
       "M09.01-M09.04 full session/referent/continuation contract remains partial; current context is correlation-bound canonical evidence",
       "M11.07 automatic defect harvesting is not yet an automated defect-to-regression loop",
@@ -60,7 +60,7 @@
   ],
   "active_branch": "aegis-dev",
   "head_sha": "626d80c",
-  "last_green_sha": "4f394f3",
+  "last_green_sha": "ae742eb",
   "last_pushed_sha": "626d80c",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -76,9 +76,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "4f394f3",
-    "last_known_green_sha": "4f394f3",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/4f394f3",
+    "running_sha": "ae742eb",
+    "last_known_green_sha": "ae742eb",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/ae742eb",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -762,6 +762,8 @@
   "owner_task_completion_phrase_overfit_defect_live": "historical product failure: release 26ecf19 lexical routing created malformed tasks for unseen completion language instead of resolving completion intent; fixed by routing model-enabled non-fast-path actions through bounded cognition",
   "owner_natural_front_door_quality_live": "partial live evidence on release 6f0c00c: authenticated Qwen3:8B benign story returned useful generated content; earlier typo grocery and informal plate phrasing returned non-empty non-authoritative clarification answers without mutation. Installed-runtime release d41d06a grounded the typo and informal grocery family. Novel dogfood exposed a temporal grounding defect where open tasks were described as due today despite missing deadline context; fixed in release 4249764 by preserving canonical due_at/as_of_date context and adding a model temporal-grounding constraint. Fresh authenticated correlation 5cd5fe43-c659-44e4-96e4-f01ebf2b0ead correctly identified only tasks with canonical 2026-09-01 deadlines as due today and separated undated open tasks. Release 4f394f3 added semantic Pack retrieval; domain-free requests 'what do i need from the store?' correlation 33d8c789-f692-4cd2-960c-c7cfb35d1de2 and 'anything i should pick up for dinner?' correlation 72fb94b4-e716-43b4-8154-00f65cbdabf9 both selected grounded grocery context and returned rice without mutation; broader natural-language capability remains conservatively unclaimed until a broader unseen family is evaluated",
   "owner_semantic_capability_retrieval_live": "green live M08.03 evidence on release 4f394f3: embedding-ranked bounded ActionCards selected the authorized kitchen grocery read capability for two domain-free owner requests through Keycloak, PostgreSQL, Qwen3:8B, and the browser InteractionBoundary; both completed with canonical rice context and no mutation",
+  "owner_bounded_action_reference_defect_live": "historical live product failure on release 8d9a0ef: Qwen produced a valid bounded tasks.create reference, but InteractionBoundary invoked Kernel cognition a second time with legacy decoder settings and returned blocked; no mutation occurred",
+  "owner_bounded_action_reference_live": "green live M08.05 exact capability evidence on release ae742eb: fresh authenticated request correlation 1d382c77-318c-4983-a564-0d5b552cd4d4 selected a bounded tasks.create reference, executed one canonical task mutation, independently verified PostgreSQL readback, and request-status matched objective cc79df22-6481-4386-8a8c-e5f2947331f4; broader unseen action-family capability remains unclaimed",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
   "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path. Evaluate a broader unseen family spanning benign generation, contextual follow-ups, task completion, malformed proposals, stale state, and cross-Pack composition; add deterministic regressions only for durable defects. Do not call natural-language capability green from exact canaries. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Home Assistant/mobile/voice remain lane-limited."
