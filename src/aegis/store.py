@@ -14,6 +14,9 @@ from .contracts import ExecutionRequest, Objective, ObjectiveState, Observation,
 class ObjectiveStore(Protocol):
     def save_objective(self, objective: Objective) -> None: ...
     def get_objective(self, objective_id: UUID) -> Objective | None: ...
+    def get_objective_by_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Objective | None: ...
     def save_result(self, key: str, result: Result) -> None: ...
     def get_result(self, key: str) -> Result | None: ...
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None: ...
@@ -45,6 +48,17 @@ class InMemoryObjectiveStore:
 
     def get_objective(self, objective_id: UUID) -> Objective | None:
         return self.objectives.get(objective_id)
+
+    def get_objective_by_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Objective | None:
+        candidates = [
+            objective
+            for objective in self.objectives.values()
+            if objective.correlation_id == correlation_id
+            and objective.intent.principal == principal
+        ]
+        return max(candidates, key=lambda objective: objective.intent.created_at, default=None)
 
     def save_result(self, key: str, result: Result) -> None:
         self.results[key] = result
@@ -105,6 +119,18 @@ class SqliteObjectiveStore:
             "SELECT payload FROM objectives WHERE id = ?", (str(objective_id),)
         ).fetchone()
         return Objective.model_validate_json(row[0]) if row else None
+
+    def get_objective_by_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Objective | None:
+        rows = self.connection.execute("SELECT payload FROM objectives").fetchall()
+        candidates = [
+            Objective.model_validate_json(row[0])
+            for row in rows
+            if Objective.model_validate_json(row[0]).correlation_id == correlation_id
+            and Objective.model_validate_json(row[0]).intent.principal == principal
+        ]
+        return max(candidates, key=lambda objective: objective.intent.created_at, default=None)
 
     def save_result(self, key: str, result: Result) -> None:
         self.connection.execute(
@@ -189,6 +215,31 @@ class PostgresObjectiveStore:
     def get_objective(self, objective_id: UUID) -> Objective | None:
         cursor = self.connection.execute(
             "SELECT payload FROM objectives WHERE id = %s", (str(objective_id),)
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        payload = row[0]
+        return (
+            Objective.model_validate(payload)
+            if isinstance(payload, dict)
+            else Objective.model_validate_json(str(payload))
+        )
+
+    def get_objective_by_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Objective | None:
+        cursor = self.connection.execute(
+            """SELECT payload FROM objectives
+               WHERE principal_id = %s AND vault_id = %s
+                 AND payload->>'correlation_id' = %s
+                 AND (space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = objectives.space_id
+                     AND sm.active = TRUE
+                 ))
+               ORDER BY updated_at DESC LIMIT 1""",
+            (principal.id, principal.vault_id, str(correlation_id), principal.id),
         )
         row = cursor.fetchone()
         if row is None:

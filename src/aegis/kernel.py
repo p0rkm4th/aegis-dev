@@ -8,6 +8,7 @@ from .audit import AuditLog
 from .contracts import (
     ActionCard,
     AuthorizationRequest,
+    Decision,
     DecisionKind,
     ExecutionRequest,
     IntentFrame,
@@ -55,61 +56,67 @@ class Kernel:
         fast_result = self.fast_path.resolve(intent)
         if fast_result is not None:
             return fast_result
-        objective = Objective(intent=intent, correlation_id=intent.correlation_id)
-        self.objectives[objective.id] = objective
-        self.store.save_objective(objective)
-        self.audit.append(
-            "objective.created",
-            intent.principal.id,
-            {"objective_id": str(objective.id), "correlation_id": str(intent.correlation_id)},
-            objective_id=objective.id,
-        )
-        try:
-            decision = self.decoder.decode(
-                self.model.decide(
-                    ModelRequest(
-                        working_set=WorkingSet(intent=intent),
-                        action_cards=cards,
-                    )
-                ),
-                cards,
-            )
-        except InvalidDecision as exc:
-            result = Result(
-                objective_id=objective.id,
-                state=ObjectiveState.BLOCKED,
-                message=f"Invalid model decision: {exc}",
-                correlation_id=intent.correlation_id,
-                retryable=True,
-            )
-            self.store.save_result(f"decision:{intent.correlation_id}", result)
-            self.audit.append(
-                "decision.rejected",
-                intent.principal.id,
-                {"reason": str(exc)},
-                objective_id=objective.id,
-            )
-            return result
-        except Exception as exc:
-            objective = objective.model_copy(update={"state": ObjectiveState.FAILED})
+        recovered = self.store.get_objective_by_correlation(intent.correlation_id, intent.principal)
+        if recovered is not None and recovered.action is not None:
+            objective = recovered
+            self.objectives[objective.id] = objective
+            decision = Decision(kind=DecisionKind.ACTION, action=recovered.action)
+        else:
+            objective = Objective(intent=intent, correlation_id=intent.correlation_id)
             self.objectives[objective.id] = objective
             self.store.save_objective(objective)
-            result = Result(
-                objective_id=objective.id,
-                state=ObjectiveState.FAILED,
-                message="Model unavailable; request can be retried",
-                evidence={"model": "unavailable", "error_type": type(exc).__name__},
-                correlation_id=intent.correlation_id,
-                retryable=True,
-            )
-            self.store.save_result(f"decision:{intent.correlation_id}", result)
             self.audit.append(
-                "model.failed",
+                "objective.created",
                 intent.principal.id,
-                {"error_type": type(exc).__name__},
+                {"objective_id": str(objective.id), "correlation_id": str(intent.correlation_id)},
                 objective_id=objective.id,
             )
-            return result
+            try:
+                decision = self.decoder.decode(
+                    self.model.decide(
+                        ModelRequest(
+                            working_set=WorkingSet(intent=intent),
+                            action_cards=cards,
+                        )
+                    ),
+                    cards,
+                )
+            except InvalidDecision as exc:
+                result = Result(
+                    objective_id=objective.id,
+                    state=ObjectiveState.BLOCKED,
+                    message=f"Invalid model decision: {exc}",
+                    correlation_id=intent.correlation_id,
+                    retryable=True,
+                )
+                self.store.save_result(f"decision:{intent.correlation_id}", result)
+                self.audit.append(
+                    "decision.rejected",
+                    intent.principal.id,
+                    {"reason": str(exc)},
+                    objective_id=objective.id,
+                )
+                return result
+            except Exception as exc:
+                objective = objective.model_copy(update={"state": ObjectiveState.FAILED})
+                self.objectives[objective.id] = objective
+                self.store.save_objective(objective)
+                result = Result(
+                    objective_id=objective.id,
+                    state=ObjectiveState.FAILED,
+                    message="Model unavailable; request can be retried",
+                    evidence={"model": "unavailable", "error_type": type(exc).__name__},
+                    correlation_id=intent.correlation_id,
+                    retryable=True,
+                )
+                self.store.save_result(f"decision:{intent.correlation_id}", result)
+                self.audit.append(
+                    "model.failed",
+                    intent.principal.id,
+                    {"error_type": type(exc).__name__},
+                    objective_id=objective.id,
+                )
+                return result
         if decision.kind is not DecisionKind.ACTION:
             state = {
                 DecisionKind.ANSWER: ObjectiveState.COMPLETED,
