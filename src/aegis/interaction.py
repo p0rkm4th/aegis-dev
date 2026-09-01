@@ -154,6 +154,24 @@ def _context_from_prior_result(
     )
 
 
+def _fallback_working_context(
+    context: Context, task_store: PostgresTaskStore, principal: Principal
+) -> Context:
+    """Add a small authorized candidate set for bounded intent resolution."""
+
+    values = dict(context.values)
+    facts = dict(values.get("canonical_facts", {}))
+    facts["canonical_tasks"] = [
+        {"title": task.title, "status": task.status.value}
+        for task in task_store.list(principal)[:20]
+    ]
+    values["canonical_facts"] = facts
+    return Context(
+        values=values,
+        sources=tuple(dict.fromkeys((*context.sources, "authorized_task_candidates"))),
+    )
+
+
 class _RuntimePolicy:
     def allows(self, request: Any) -> bool:
         return bool(request.action.action_id == "kitchen.groceries.add")
@@ -584,7 +602,11 @@ class InteractionBoundary:
             try:
                 _domain, card = self.dependencies.select_action(utterance, manager)
             except InteractionInputError as exc:
-                fallback = self._fallback_decision(intent, self._fallback_cards(manager), context)
+                fallback = self._fallback_decision(
+                    intent,
+                    self._fallback_cards(manager),
+                    _fallback_working_context(context, task_store, principal),
+                )
                 if isinstance(fallback, Result):
                     return persist_fast_result(fallback)
                 if isinstance(fallback, Decision):

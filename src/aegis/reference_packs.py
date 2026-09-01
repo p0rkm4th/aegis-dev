@@ -92,7 +92,7 @@ def reference_packs() -> tuple[Pack, ...]:
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
-                    summary="Complete a task",
+                    summary="Mark the named task complete (finish or close it)",
                     relevance=1,
                     argument_keys=("title",),
                 ),
