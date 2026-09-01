@@ -5,9 +5,9 @@
   "current_phase": 5,
   "current_checkpoint": "phase-4-reference-packs-green-live",
   "active_branch": "aegis-dev",
-  "head_sha": "ea2d35d",
+  "head_sha": "c8dfb67",
   "last_green_sha": "a0bc573",
-  "last_pushed_sha": "ea2d35d",
+  "last_pushed_sha": "c8dfb67",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
