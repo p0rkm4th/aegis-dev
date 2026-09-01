@@ -541,6 +541,7 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
 
     assert payload["state"] == "blocked"
     assert payload["message"] == "Not completed — authorization denied"
+    assert payload["detail"] == "authorization denied"
     assert payload["objective_id"] == str(result.objective_id)
 
 

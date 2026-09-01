@@ -352,6 +352,7 @@ def _browser_interaction(
     return {
         "message": _format(result),
         "state": result.state.value,
+        "detail": result.message,
         "objective_id": str(result.objective_id),
         "correlation_id": str(result.correlation_id),
     }

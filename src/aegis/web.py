@@ -28,6 +28,7 @@ class BrowserMessage(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     message: str
     state: str | None = None
+    detail: str | None = None
     objective_id: UUID | None = None
     correlation_id: UUID
 
@@ -159,7 +160,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
     document.getElementById('answer').textContent = answer;
     const assistantLine = document.createElement('li');
     assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
-    if (result.state) document.getElementById('detail').textContent = `Status: ${result.state}`;
+    if (result.state) document.getElementById('detail').textContent =
+      `Status: ${result.state}${result.detail ? ` · ${result.detail}` : ''}`;
     if (response.ok) {
       pendingCorrelationId = null; send.textContent = 'Send';
       if (result.state === 'completed') loadState().catch(() => {});
