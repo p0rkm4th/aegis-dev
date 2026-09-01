@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-postgres-config-diagnostics-green",
+  "current_checkpoint": "phase-12-browser-refresh-boundary-green",
   "active_branch": "aegis-dev",
-  "head_sha": "0787e703db14d9ced55a6364bd49a2eb7c6b8844",
-  "last_green_sha": "0787e703db14d9ced55a6364bd49a2eb7c6b8844",
-  "last_pushed_sha": "0787e703db14d9ced55a6364bd49a2eb7c6b8844",
+  "head_sha": "5cab6b7b7f4ebdac30c9e6d1defaab23d855e20a",
+  "last_green_sha": "5cab6b7b7f4ebdac30c9e6d1defaab23d855e20a",
+  "last_pushed_sha": "5cab6b7b7f4ebdac30c9e6d1defaab23d855e20a",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -154,6 +154,7 @@
     ,"configuration mode alignment allows local alpha startup without optional services while production requires explicit Keycloak and OpenFGA authority"
     ,"PostgreSQL readiness failures provide safe actionable remediation without exposing connection details"
     ,"malformed PostgreSQL URLs receive configuration remediation instead of service-failure ambiguity"
+    ,"browser refresh reports health failures separately from canonical state failures while preserving authorization-loss clearing"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -389,5 +390,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, local .env auto-discovery, private non-overwriting --init bootstrap with symlink refusal, installed-wheel --init bootstrap, source/wheel --version diagnostics, fresh browser-originated verified task mutation, graceful browser degradation with unavailable Ollama, fresh browser multi-domain reads, duplicate browser submission idempotency, visible post-completion refresh failures, rendered Chromium Constellation/task/detail acceptance, rendered mid-session revocation clearing, rendered explicit refresh recovery, truthful browser failure-status rendering, rendered Ollama outage diagnostics, clean server interruption handling, and malformed provider response containment are green. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; foreground Ctrl-C acceptance remains unproven due the background-shell harness limitation; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, local .env auto-discovery, private non-overwriting --init bootstrap with symlink refusal, installed-wheel --init bootstrap, source/wheel --version diagnostics, fresh browser-originated verified task mutation, graceful browser degradation with unavailable Ollama, fresh browser multi-domain reads, duplicate browser submission idempotency, visible post-completion refresh failures, rendered Chromium Constellation/task/detail acceptance, rendered mid-session revocation clearing, rendered explicit refresh recovery, truthful browser failure-status rendering, rendered Ollama outage diagnostics, clean server interruption handling, malformed provider response containment, and separate health/state refresh failure reporting are green. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; foreground Ctrl-C acceptance remains unproven due the background-shell harness limitation; Home Assistant/mobile/voice remain lane-limited."
 }
