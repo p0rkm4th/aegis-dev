@@ -225,7 +225,10 @@ def _postgres_health(database_url: str | None) -> ComponentHealth:
             name="postgres",
             healthy=False,
             required=True,
-            detail=f"connection failed: {type(exc).__name__}",
+            detail=(
+                f"connection failed: {type(exc).__name__}; verify AEGIS_DATABASE_URL "
+                "and ensure PostgreSQL is running"
+            ),
         )
 
 

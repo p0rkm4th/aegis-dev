@@ -593,6 +593,27 @@ def test_postgres_health_reports_partial_canonical_schema(monkeypatch):
     )
 
 
+def test_postgres_health_connection_failure_has_safe_remediation(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setattr(
+        cli.psycopg,
+        "connect",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            cli.psycopg.OperationalError("password=private-secret")
+        ),
+    )
+
+    component = cli._postgres_health("postgresql://operator:secret@example.test/aegis")
+
+    assert component.healthy is False
+    assert component.detail == (
+        "connection failed: OperationalError; verify AEGIS_DATABASE_URL and ensure PostgreSQL is "
+        "running"
+    )
+    assert "private-secret" not in component.detail
+
+
 def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
     from aegis import cli
 
