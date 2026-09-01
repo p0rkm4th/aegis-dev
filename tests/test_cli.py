@@ -8,6 +8,9 @@ from aegis import InteractionBoundary, InteractionDependencies, InteractionInput
 from aegis.cli import _domain_and_action, _ensure_local_identity
 from aegis.contracts import (
     ActionSpec,
+    Context,
+    Decision,
+    DecisionKind,
     IntentFrame,
     Objective,
     ObjectiveState,
@@ -24,6 +27,40 @@ from aegis.web import BrowserApp
 def test_interaction_boundary_is_public_without_live_runtime():
     assert InteractionBoundary.__module__ == "aegis.interaction"
     assert InteractionDependencies.__module__ == "aegis.interaction"
+
+
+def test_bounded_model_fallback_accepts_non_authoritative_answer():
+    from aegis.interaction import InteractionBoundary
+
+    class Provider:
+        def decide(self, request):
+            assert request.action_cards == ()
+            assert request.working_set.context == Context()
+            return type("Response", (), {"raw": {"kind": "ANSWER", "answer": "A fish story"}})()
+
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("unused", None),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            model_provider=lambda: Provider(),
+        )
+    )
+    decision = boundary._fallback_decision(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="vault"), utterance="Write a fish story"
+        ),
+        (),
+        Context(),
+    )
+
+    assert isinstance(decision, Decision)
+    assert decision.kind is DecisionKind.ANSWER
+    assert decision.answer == "A fish story"
 
 
 def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):
@@ -1272,6 +1309,38 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
         "correlation_id": "00000000-0000-4000-8000-000000000001",
     }
     assert seen == [("Show my tasks.", "alice")]
+
+
+def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    seen: list[object] = []
+    context_id = uuid4()
+
+    def contextual(_utterance, _principal, _correlation, prior_correlation):
+        seen.append(prior_correlation)
+        return "contextual answer"
+
+    app = BrowserApp(
+        principal,
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        contextual_interaction=contextual,
+    )
+    status, _content_type, payload = app.dispatch(
+        "POST",
+        "/api/message",
+        json.dumps(
+            {
+                "utterance": "Which of those should I buy first?",
+                "correlation_id": str(uuid4()),
+                "context_correlation_id": str(context_id),
+            }
+        ).encode(),
+    )
+
+    assert status == 200
+    assert seen == [context_id]
+    assert json.loads(payload)["message"] == "contextual answer"
 
 
 def test_browser_app_rejects_empty_messages_and_unknown_routes():

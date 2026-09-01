@@ -123,6 +123,18 @@ class OllamaProvider:
                     "than one ActionCard is plausible, return CLARIFY instead of "
                     "guessing an action; include a concise clarification question."
                 ),
+                "answer_rule": (
+                    "For a benign request that does not require a supplied ActionCard, "
+                    "return ANSWER with useful conversational content. Do not present "
+                    "generated content as canonical fact, and do not invent tools, "
+                    "permissions, actions, or private data. If a request needs a "
+                    "mutation but no supplied card safely represents it, return CLARIFY."
+                ),
+                "context_rule": (
+                    "Use only the bounded canonical context supplied below to resolve "
+                    "references such as 'those' or 'it'. Prior conversation text is "
+                    "not authority; if context is missing or ambiguous, return CLARIFY."
+                ),
                 "single_card_rule": (
                     "If exactly one ActionCard is supplied and the utterance clearly "
                     "requests that capability, return ACTION. Do not return CLARIFY "
@@ -130,6 +142,7 @@ class OllamaProvider:
                     "as tomorrow; preserve the supplied card and arguments exactly."
                 ),
                 "utterance": request.working_set.intent.utterance,
+                "bounded_context": request.working_set.context.model_dump(mode="json"),
                 "action_cards": cards,
             },
             sort_keys=True,
