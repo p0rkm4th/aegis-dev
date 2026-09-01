@@ -55,7 +55,7 @@ from aegis.gateway_rpc import (
     RpcResponse,
 )
 from aegis.health import HealthService
-from aegis.homelab import HomelabPack, Host, Service
+from aegis.homelab import HomelabPack, Host, PostgresHomelabStore, Service
 from aegis.household import (
     Chore,
     HouseholdEvent,
@@ -1825,6 +1825,52 @@ def test_homelab_restart_requires_scope_and_health_verification():
     assert failed.attempted and not failed.verified
 
 
+def test_postgres_homelab_store_reloads_space_inventory():
+    import json
+
+    class Cursor:
+        def __init__(self, row):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class Connection:
+        def __init__(self):
+            self.payload = None
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT 1"):
+                return Cursor((1,))
+            if query.startswith("SELECT payload"):
+                return Cursor((self.payload,) if self.payload is not None else None)
+            self.payload = json.loads(params[1])
+            return Cursor(None)
+
+        def commit(self):
+            self.commits += 1
+
+    class Runtime:
+        def restart(self, service):
+            return True
+
+        def health(self, service):
+            return True
+
+    connection = Connection()
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    pack = HomelabPack(HomelabInventory(), Runtime())
+    pack.add_host(Host("atlas", "192.0.2.10", "atlas", {"ram_gb": 64}))
+    pack.add_service(Service("plex", "atlas", "Plex", "http://192.0.2.10:32400/health"))
+    store = PostgresHomelabStore(connection)
+    store.save(principal, pack)
+    restored = store.load(principal, Runtime())
+    assert restored.hosts["atlas"].resources == {"ram_gb": 64}
+    assert restored.services["plex"].health_endpoint.endswith("/health")
+    assert connection.commits == 1
+
+
 def test_homelab_restart_outside_authorized_scope_never_reaches_runtime():
     class Runtime:
         def restart(self, service):
@@ -2246,6 +2292,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "010_network_state.sql",
         "011_personal_memory_vectors.sql",
         "012_osint_investigations.sql",
+        "013_homelab_inventory.sql",
     )
 
 
