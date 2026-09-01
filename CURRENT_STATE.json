@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "87a245cf6a97284184db5a856e010f76d2604e70",
-  "last_green_sha": "87a245cf6a97284184db5a856e010f76d2604e70",
-  "last_pushed_sha": "87a245cf6a97284184db5a856e010f76d2604e70",
+  "head_sha": "d0d9109739e664d024d2ab8fd75279a7193724aa",
+  "last_green_sha": "d0d9109739e664d024d2ab8fd75279a7193724aa",
+  "last_pushed_sha": "d0d9109739e664d024d2ab8fd75279a7193724aa",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -98,6 +98,7 @@
     ,"machine-readable one-shot canonical Result contract"
     ,"truthful nonzero one-shot status for non-completed canonical Results"
     ,"loopback browser responses explicitly disable caching and referrer disclosure"
+    ,"authorized Constellation domain detail views with generic browser rendering"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -118,7 +119,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
     "pytest": "121 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, and no-store transport headers are covered"
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, no-store transport headers, and authorized detail projections are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -225,6 +226,7 @@
         "cli_once_json_live": "green: ./scripts/aegis --once 'Show my tasks' --json returned a machine-readable canonical Result from a fresh PostgreSQL connection, including objective/state/evidence/correlation fields, while Ollama was unavailable; no presentation parsing was required",
         "cli_once_status_codes": "green deterministic: --once --json exits 0 only for completed canonical Results and exits 1 for blocked/non-completed Results or transport errors, while preserving the full Result/error JSON contract",
         "browser_no_store_headers_live": "green: live loopback BrowserApp health response included Cache-Control: no-store, Pragma: no-cache, X-Content-Type-Options: nosniff, and Referrer-Policy: no-referrer, preventing stale/private response caching and referrer disclosure",
+        "browser_detail_projection_live": "green: a fresh authorized PostgreSQL constellation projection exposed generic detail views for Personal, Household, Finance availability, Homelab, Network, Tasks, and Kitchen; it contained 19 nodes/18 edges and no balance, transaction, account-number, or raw-balance fields",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
