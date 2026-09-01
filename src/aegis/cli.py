@@ -222,6 +222,10 @@ def _print_runtime_report(report: HealthReport, as_json: bool) -> int:
     return 0 if report.ready else 1
 
 
+def _print_json_error(code: str, message: str) -> None:
+    print(json.dumps({"code": code, "error": message, "state": "failed"}))
+
+
 def _constellation_state(principal: Principal) -> dict[str, Any]:
     """Build a small authorized view from canonical stores for the browser adapter."""
 
@@ -829,6 +833,9 @@ def main() -> int:
     try:
         principal = _principal()
     except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
+        if args.json:
+            _print_json_error("identity_unavailable", "identity unavailable")
+            return 1
         print(f"Not completed — unable to initialize identity: {exc}")
         return 1
     if args.web:
@@ -858,7 +865,7 @@ def main() -> int:
                 print(handle(args.once, principal))
         except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
             if args.json:
-                print(json.dumps({"error": str(exc), "state": "failed"}))
+                _print_json_error("request_unavailable", "request unavailable")
             else:
                 print(f"Not completed — {exc}")
             return 1
