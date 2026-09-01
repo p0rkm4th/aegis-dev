@@ -752,6 +752,11 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             if tomorrow is not None:
                 title = title[: tomorrow.start()].rstrip()
                 due_at = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+            else:
+                next_week = re.search(r"\s+next\s+week[.!?]?$", title)
+                if next_week is not None:
+                    title = title[: next_week.start()].rstrip()
+                    due_at = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
             arguments: dict[str, Any] = {"title": title}
             if due_at is not None:
                 arguments["due_at"] = due_at
