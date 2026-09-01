@@ -152,7 +152,7 @@
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
-    "current runtime probe found Ollama unavailable at the configured loopback endpoint; no new model-backed live acceptance is claimed"
+    "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "blocked_lanes": [
   ],
@@ -277,6 +277,8 @@
         "shared_interaction_boundary": "green: interaction orchestration moved to aegis.interaction.InteractionBoundary with injected infrastructure/action-selection callbacks; CLI remains a compatibility composition root and browser continues through the same typed Result path, with 136 tests plus full static/type/migration validation green",
         "shared_interaction_boundary_live": "green live: post-extraction ./scripts/aegis --once 'Show my tasks.' --json used the reusable interaction path against PostgreSQL, returned a completed canonical Result with objective/correlation/evidence fields, exited 0, and emitted no stderr",
         "public_interaction_api": "green deterministic: from aegis import InteractionBoundary, InteractionDependencies succeeds without live runtime configuration and both types retain aegis.interaction ownership",
+        "browser_task_mutation_live": "green live: with Ollama qwen3:8b reachable at 172.18.0.1:11434, browser POST crossed the shared InteractionBoundary, Qwen selected tasks.create, PostgreSQL policy/executor/verifier completed canonical task readback, the response returned objective/correlation/status, and same-correlation replay returned the identical Result; PostgreSQL contained exactly one matching idempotency key",
+        "ollama_recovery_live": "green live: systemd ollama.service is active (PID 5605), listens on 172.18.0.1:11434, /api/tags exposes qwen3:8b with digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41, and a non-mutating generation probe returned OK; loopback 127.0.0.1 remains the unconfigured endpoint",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -304,5 +306,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; next executable frontier is a user-facing configuration/bootstrap simplification or browser recovery boundary, while live Qwen/browser mutation proof resumes when Ollama is available and Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; live Qwen browser task mutation and replay are now green against 172.18.0.1:11434, so the next executable frontier is configuration/bootstrap simplification or a browser recovery/privacy boundary; Home Assistant/mobile/voice remain lane-limited."
 }
