@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-operator-diagnostics-green",
   "active_branch": "aegis-dev",
-  "head_sha": "e4003695e603cd3b87ed9302a61a7cdb5f5cceca",
-  "last_green_sha": "e4003695e603cd3b87ed9302a61a7cdb5f5cceca",
-  "last_pushed_sha": "e4003695e603cd3b87ed9302a61a7cdb5f5cceca",
+  "head_sha": "51a71fe758bcd0052aa90b73d2cbc604b1069b27",
+  "last_green_sha": "51a71fe758bcd0052aa90b73d2cbc604b1069b27",
+  "last_pushed_sha": "51a71fe758bcd0052aa90b73d2cbc604b1069b27",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -144,6 +144,7 @@
     ,"operator-facing --version reports the package-owned AEGIS release version from source and installed wheel launchers"
     ,"installed wheel exposes the same aegis console command as the repository launcher"
     ,"validation and clean-install smoke scripts resolve the repository root and run from outside the checkout"
+    ,"installed runtime applies packaged migrations and executes canonical requests outside the repository"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -163,7 +164,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "156 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "157 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
@@ -340,6 +341,7 @@
         "cli_version_live": "green live package acceptance: both the repository launcher and a freshly built/installed wheel reported the package-owned version 'aegis 0.1.0.dev1' without runtime configuration",
         "installed_console_live": "green live package acceptance: a freshly built wheel generated an executable aegis console script; from its isolated prefix it served --help and --version with the same CLI behavior as ./scripts/aegis",
         "out_of_tree_validation_live": "green live operator acceptance: from /tmp, the repository validation script ran 156 tests plus Ruff, formatting, mypy, and migration validation, and the install smoke script built/installed the package successfully",
+        "installed_runtime_live": "green live package acceptance: a freshly built wheel installed outside the checkout applied packaged migrations and completed a PostgreSQL-backed 'Show my tasks.' request through the installed aegis console command",
         "launcher_init_symlink_regression": "green deterministic: --init refuses a symlink target and leaves the symlink destination unchanged; the full validation gate passed at 152 tests",
         "browser_rendered_task_live": "green live rendered acceptance: Playwright 1.62.0 with provisioned Chromium opened a fresh loopback AEGIS process, rendered 10 authorized Constellation nodes including Tasks, submitted a task through Qwen3:8B/PostgreSQL, displayed verified completion, refreshed state, and the Tasks detail view showed the new canonical task and open status",
         "browser_rendered_detail_live": "green live rendered acceptance: after a browser-originated task mutation, selecting the rendered Tasks hub displayed the newly persisted task and status; the page reported Runtime READY with 3/3 required checks OK",
