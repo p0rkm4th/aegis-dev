@@ -360,7 +360,11 @@ class Kernel:
                     message="plan correlation is already bound to a different action sequence",
                     correlation_id=intent.correlation_id,
                 )
-            if prior is not None and not prior.retryable:
+            if (
+                prior is not None
+                and prior.state is ObjectiveState.COMPLETED
+                and not prior.retryable
+            ):
                 return prior
         else:
             if prior is not None:
