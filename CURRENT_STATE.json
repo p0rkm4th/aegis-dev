@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-finance-cross-domain-planning-live-green",
+  "current_checkpoint": "phase-12-owner-dogfood-installed-runtime-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "3b105b6b6a99ef0c17bf9dfcb4d6bb9c438547b9",
-  "last_green_sha": "3b105b6b6a99ef0c17bf9dfcb4d6bb9c438547b9",
-  "last_pushed_sha": "3b105b6b6a99ef0c17bf9dfcb4d6bb9c438547b9",
+  "head_sha": "6282926bb22b662dab9cdf25dcc64edc3e5b3abb",
+  "last_green_sha": "15e6b5f9cb0863f679b8b61b5414281769e033b6",
+  "last_pushed_sha": "6282926bb22b662dab9cdf25dcc64edc3e5b3abb",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -19,6 +19,22 @@
     "embedding_model": "nomic-embed-text",
     "embedding_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f",
     "embedding_dimensions": 768
+  },
+  "owner_dogfood_runtime": {
+    "status": "active_authenticated_loopback",
+    "running_sha": "15e6b5f9cb0863f679b8b61b5414281769e033b6",
+    "last_known_green_sha": "15e6b5f9cb0863f679b8b61b5414281769e033b6",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/15e6b5f",
+    "service": "aegis-owner.service",
+    "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
+    "browser_url": "http://127.0.0.1:18080/",
+    "bind": "127.0.0.1",
+    "provider": "ollama",
+    "model": "qwen3:8b",
+    "ollama_endpoint": "http://172.18.0.1:11434",
+    "authentication": "Keycloak OIDC userinfo mapped to canonical alice principal",
+    "canonical_database": "persistent aegis-acceptance-postgres volume",
+    "linger": true
   },
   "completed_functionality": [
     "greenfield scaffold",
@@ -515,8 +531,11 @@
     "replay_result_canonicalization_regression": "green deterministic: PostgreSQL's internal retryable persistence marker is removed when reconstructing a public Result, preserving canonical evidence and exact replay equality",
     "finance_cross_domain_regression": "green deterministic: planning requests combining affordability with Tasks/Household context include only FinanceReadFastPath's derived affordability fields alongside bounded canonical task/obligation context; raw balance fields are excluded",
     "finance_cross_domain_live": "green live: ./scripts/aegis with PostgreSQL returned one completed canonical Result for 'Can I afford $50 after Utilities, and what tasks remain?' containing derived affordability, the shared Utilities obligation, and five bounded open tasks; no private balance was exposed",
+    "owner_dogfood_service_live": "green live: installed release 15e6b5f runs as enabled user service aegis-owner.service on loopback 127.0.0.1:18080; authenticated Keycloak identity, PostgreSQL, Ollama qwen3:8b, /api/health, /api/ready, and authorized 10-node/9-edge Constellation all passed",
+    "owner_dogfood_activity_live": "green live owner-lane probe: browser-boundary goal-to-task mutation correlation 33333333-3333-4333-8333-333333333333 completed as objective 4f47fc02-a576-4fac-a318-0cbcd5d9274f with canonical task readback verified; service restart retained the authorized projection",
+    "owner_dogfood_persistence": "green live: user service is enabled with linger=yes, canonical PostgreSQL data was preserved across restart, and the token-refresh supervisor avoids static access-token expiry while keeping Keycloak authentication below the interaction boundary",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Cross-domain Personal/Household/Tasks and Finance/Household/Tasks reads are now bounded and canonical; next inspect multi-step plan persistence and per-step authorization/verification. Retire established browser mutation/readback/recovery/filter/accessibility/revocation paths from routine runs unless a new defect or architecture change reopens them; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path and owner browser lane: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain Personal/Household/Tasks and Finance/Household/Tasks reads are bounded and canonical; next inspect multi-step plan persistence and per-step authorization/verification."
 }
