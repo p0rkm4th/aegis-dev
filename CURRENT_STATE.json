@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 7,
-  "current_checkpoint": "phase-7-shared-household-foundation",
+  "current_checkpoint": "phase-7-household-chore-action-green",
   "active_branch": "aegis-dev",
-  "head_sha": "634e411",
-  "last_green_sha": "634e411",
-  "last_pushed_sha": "634e411",
+  "head_sha": "9ab61be",
+  "last_green_sha": "9ab61be",
+  "last_pushed_sha": "9ab61be",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -59,6 +59,7 @@
     "Optional pgvector-backed personal-memory retrieval uses live Ollama nomic-embed-text embeddings with a conservative relevance threshold and deterministic fallback",
     "Guarded shared-household read fast path exposes obligations, chores, and events through canonical membership-checked state",
     "Local identity bootstrap no longer reactivates revoked Space memberships",
+    "Replay-safe shared chore creation runs through the Tasks Pack, Core policy, PostgreSQL canonical state, and independent readback verification",
     "Personal-state PostgreSQL supersession write-order regression coverage",
     "PostgreSQL-backed shared HouseholdSpace state with policy-supplied membership on reload",
     "Owner-partitioned PostgreSQL FinanceSnapshot store with durable provider provenance and private read enforcement",
@@ -181,6 +182,7 @@
         "household_read_cli_live": "green: ./scripts/aegis loaded the shared Apartment obligation state from PostgreSQL and returned the outstanding Utilities responsibility through a fresh interactive process",
         "household_revocation_cli_live": "green: after Alice membership was revoked in PostgreSQL, the same household query failed closed; local identity bootstrap did not reactivate membership, and the fixture was restored",
         "household_chores_events_cli_live": "green: ./scripts/aegis loaded durable shared chores and events from PostgreSQL and returned both through a fresh interactive process",
+        "household_chore_live": "green: live Qwen3:8B selected tasks.chores.create; PostgreSQL persisted the shared chore, independent canonical verification completed, and same-correlation replay returned the same objective with exactly one matching chore",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -190,5 +192,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Extend Phase 7 acceptance across existing shared chores/events and household editing semantics, preserving membership revocation, Vault separation, durable reload, and the canonical interaction boundary."
+  "next_action": "Extend Phase 7 acceptance to shared event/reminder mutation and verified OpenClaw notification delivery only through a confirmed Gateway method, preserving membership revocation, durable reload, and the canonical interaction boundary."
 }
