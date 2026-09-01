@@ -108,6 +108,13 @@ let recoveryPollAttempts = 0;
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
+const lifecycleLabels = Object.freeze({
+  proposed: 'Proposed', validated: 'Validated', authorized: 'Authorized',
+  approval_required: 'Approval required', executing: 'Executing', observed: 'Observed',
+  verified: 'Verified', completed: 'Completed', failed: 'Failed', blocked: 'Blocked',
+  unknown: 'Outcome unknown'
+});
+function lifecycleLabel(state) { return lifecycleLabels[state] || state; }
 function persistPendingRequest(utterance, correlationId) {
   try {
     sessionStorage.setItem(pendingStorageKey, JSON.stringify(
@@ -172,14 +179,14 @@ async function recoverPendingRequest() {
     ]);
     if (inProgressStates.has(status.state)) {
       document.getElementById('detail').textContent =
-        `Request status recovered: ${status.state}. Retry remains explicit.`;
+        `Request status recovered: ${lifecycleLabel(status.state)}. Retry remains explicit.`;
       scheduleRecoveryPoll();
       return;
     }
     const recoveredCorrelationId = pendingCorrelationId;
     recoveryPollAttempts = 0;
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
-    document.getElementById('detail').textContent = `Status: ${status.state}`;
+    document.getElementById('detail').textContent = `Status: ${lifecycleLabel(status.state)}`;
     if (status.retryable === true) {
       document.querySelector('#chat button').textContent = 'Retry';
       persistPendingRequest(document.getElementById('utterance').value, recoveredCorrelationId);
@@ -350,7 +357,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     const assistantLine = document.createElement('li');
     assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
     if (result.state) document.getElementById('detail').textContent =
-      `Status: ${result.state}${result.detail ? ` · ${result.detail}` : ''}`;
+      `Status: ${lifecycleLabel(result.state)}${result.detail ? ` · ${result.detail}` : ''}`;
     else if (!response.ok) document.getElementById('detail').textContent =
       `Status: ${result.code || 'request_failed'}`;
     if (response.ok) {
