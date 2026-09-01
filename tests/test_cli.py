@@ -984,6 +984,29 @@ def test_browser_transport_disables_caching_and_referrer_disclosure():
     assert 'self.send_header("Referrer-Policy", "no-referrer")' in source
 
 
+def test_browser_server_closes_cleanly_on_keyboard_interrupt(monkeypatch):
+    from aegis import web
+
+    instances = []
+
+    class FakeServer:
+        def __init__(self, _address, _handler):
+            self.closed = False
+            instances.append(self)
+
+        def serve_forever(self):
+            raise KeyboardInterrupt
+
+        def server_close(self):
+            self.closed = True
+
+    monkeypatch.setattr(web, "ThreadingHTTPServer", FakeServer)
+
+    web.serve("127.0.0.1", 18099, lambda: None, lambda *_: "unused", lambda _: {})
+
+    assert instances[0].closed is True
+
+
 def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     task = Task(uuid4(), "apartment", "replace filter", "alice", status=TaskStatus.OPEN)
 

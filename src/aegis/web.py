@@ -531,4 +531,10 @@ def serve(
         def log_message(self, _format: str, *_args: object) -> None:
             return
 
-    ThreadingHTTPServer((host, port), Handler).serve_forever()
+    server = ThreadingHTTPServer((host, port), Handler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        return
+    finally:
+        server.server_close()
