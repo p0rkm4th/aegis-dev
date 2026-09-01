@@ -10,6 +10,7 @@ from uuid import uuid4
 from .contracts import IntentFrame, ObjectiveState, Result
 from .personal import PersonalState
 from .tasks import Task
+from .utterance import is_mutation_request
 
 
 class MultiActionFastPath:
@@ -84,6 +85,29 @@ class MultiActionFastPath:
             message=(
                 "This request contains multiple actions. Ask AEGIS to perform one "
                 "action at a time so each result can be verified independently."
+            ),
+            correlation_id=intent.correlation_id,
+        )
+
+
+class ContextualMutationGuard:
+    """Block unsupported context-to-mutation transformations before dispatch."""
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame) -> Result | None:
+        text = intent.utterance.casefold()
+        if not (
+            is_mutation_request(text)
+            and any(term in text for term in ("event", "events"))
+            and any(term in text for term in ("memory", "remember", "from my"))
+        ):
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I cannot safely create an event from a memory reference yet. "
+                "Provide the event date and time directly."
             ),
             correlation_id=intent.correlation_id,
         )
