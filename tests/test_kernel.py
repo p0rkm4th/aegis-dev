@@ -1091,10 +1091,17 @@ def test_personal_memory_fast_path_returns_grounded_result_without_model():
     state = PersonalState()
     state.add_memory(
         "Worked on the backup architecture",
-        datetime(2026, 8, 30, tzinfo=timezone.utc),
+        datetime(2026, 8, 31, 1, tzinfo=timezone.utc),
         Provenance.EXPLICIT_USER,
     )
-    result = PersonalMemoryFastPath(state).resolve(
+    state.add_memory(
+        "Worked on an unrelated older task",
+        datetime(2026, 8, 29, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    result = PersonalMemoryFastPath(
+        state, now=datetime(2026, 8, 31, 12, tzinfo=timezone.utc)
+    ).resolve(
         IntentFrame(
             principal=Principal(id="alice", vault_id="alice-vault"),
             utterance="What was I working on last night?",
@@ -1103,6 +1110,7 @@ def test_personal_memory_fast_path_returns_grounded_result_without_model():
     assert result is not None
     assert result.state.value == "completed"
     assert result.evidence["memories"][0]["provenance"] == "explicit_user"
+    assert len(result.evidence["memories"]) == 1
     assert PersonalMemoryFastPath(state).resolve(
         IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance="hello")
     ) is None
