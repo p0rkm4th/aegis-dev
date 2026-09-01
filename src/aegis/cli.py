@@ -513,8 +513,13 @@ def _browser_request_status(principal: Principal, correlation_id: UUID) -> Reque
 
 def _principal() -> Principal:
     token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
-    if token:
-        issuer = _required("AEGIS_KEYCLOAK_ISSUER")
+    issuer = os.environ.get("AEGIS_KEYCLOAK_ISSUER")
+    if token or issuer:
+        if not token or not issuer:
+            raise RuntimeError(
+                "incomplete bearer identity configuration; set both "
+                "AEGIS_KEYCLOAK_ISSUER and AEGIS_KEYCLOAK_ACCESS_TOKEN"
+            )
         resolver = PostgresExternalPrincipalResolver(
             psycopg.connect, _required("AEGIS_DATABASE_URL")
         )
