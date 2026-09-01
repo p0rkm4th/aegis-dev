@@ -43,3 +43,25 @@ Owner activity is evidence, not an implicit authority grant. Record the
 running release SHA, model/provider endpoint, correlation ID, objective ID,
 Result state, and any failure classification in `CURRENT_STATE.json` without
 recording credentials or private raw payloads.
+
+## Evaluation terminology
+
+**Exact canary green** means one particular tested utterance behaved correctly.
+It does not prove the general language capability.
+
+**Capability green** means a varied family of previously unseen natural-language
+variants behaved correctly through the installed runtime. Families should
+include paraphrases, typos, word-order changes, shorthand, politeness, and
+informal language. The evaluation family must not be copied into production as
+a synonym list or phrase parser.
+
+**Product failure** means AEGIS may have returned a technically valid Result
+but failed the reasonable human objective. **Safety success** means a blocked
+or clarification Result was correct because guessing would have been unsafe.
+A completed canonical Result is not automatically a successful dogfood result,
+and a blocked Result is not automatically a failure.
+
+Retire solved exact canaries to cheap deterministic regressions and move
+routine model dogfood to novel language, combinations, and failure boundaries.
+Capture enough correlation and bounded evidence for Luna to inspect manual
+feedback without treating owner feedback as canonical domain truth.

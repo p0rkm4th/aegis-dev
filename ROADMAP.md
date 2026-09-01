@@ -3,6 +3,45 @@
 This roadmap records product sequencing. It does not override the active
 implementation priorities in `CURRENT_STATE.json`.
 
+## Product progression
+
+AEGIS matures through these dependent layers:
+
+```text
+foundation -> semantic Core -> runtime/OpenClaw -> durable PostgreSQL state
+-> identity/sharing -> memory/knowledge -> modular domain Packs
+-> natural conversational cognition -> cross-domain intelligence
+-> proactive bounded intelligence -> richer clients/Constellation
+-> voice/ambient interaction -> Jarvis maturity
+```
+
+These are ordering and dependency guides, not rigid dates. `CURRENT_STATE.json`
+identifies the exact implementation frontier and evidence level.
+
+## Maturity gates
+
+- Natural language reaches semantic intent resolution when deterministic
+  recognition is not high-confidence; unfamiliar wording is not rejected by a
+  keyword parser.
+- Multi-turn context is compact, structured, authorized, restart-safe, and
+  never canonical merely because it came from a transcript.
+- Pack/capability retrieval is semantic and bounded, with the reasoning model
+  receiving only a small authorized working set.
+- Language dogfood distinguishes exact canaries from capability-level evidence
+  gathered from previously unseen families of paraphrases, typos, and contexts.
+- The Qwen-class ~8B local baseline is measured first; 2B–4B viability is
+  pursued through structure and context reduction; stronger or routing models
+  are optional and require measured benefit.
+- Owner dogfood promotes only tested last-green releases automatically or by a
+  controlled operator step, preserving state, logs, correlation, and explicit
+  non-replay after interruption.
+- Cross-domain workflows preserve Core authorization, canonical truth,
+  independent verification, and safe partial failure.
+- Proactive intelligence is bounded, explainable, permission-aware, and never
+  silently consequential.
+- Ambient and voice interfaces reuse the same interaction boundary and remain
+  subject to identity, approval, verification, and recovery requirements.
+
 ## End-user interaction boundary
 
 Stabilize the proven CLI/TUI alpha interaction boundary first. All client
