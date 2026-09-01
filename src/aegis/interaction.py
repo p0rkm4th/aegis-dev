@@ -269,7 +269,11 @@ class InteractionBoundary:
         text = utterance.casefold()
         facts = (context.values if context is not None else {}).get("canonical_facts", {})
         if isinstance(facts, dict):
-            if isinstance(facts.get("canonical_items"), list):
+            if (
+                isinstance(facts.get("canonical_items"), list)
+                and context is not None
+                and "authorized_canonical_context" in context.sources
+            ):
                 # A contextual grocery question is answered from the
                 # authorized projection; do not offer a mutation card that
                 # could turn an unresolved reference into a write.
