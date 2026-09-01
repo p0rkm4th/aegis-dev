@@ -1066,6 +1066,20 @@ def test_postgres_external_principal_resolver_fails_closed_when_unprovisioned():
         raise AssertionError("unprovisioned external identity was accepted")
 
 
+def test_postgres_external_principal_resolver_contains_store_failure():
+    def connect(_url):
+        raise RuntimeError("password=private-secret")
+
+    resolver = PostgresExternalPrincipalResolver(connect, "postgresql://db")
+    try:
+        resolver("subject")
+    except RuntimeError as exc:
+        assert str(exc) == "canonical identity mapping is unavailable"
+        assert "private-secret" not in str(exc)
+    else:
+        raise AssertionError("identity store failure was exposed")
+
+
 def test_openfga_adapter_is_fail_closed_on_relationship_denial():
     class Client:
         def check(self, user, relation, object_id):
