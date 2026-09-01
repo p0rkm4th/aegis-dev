@@ -1263,6 +1263,18 @@ def test_browser_transport_disables_caching_and_referrer_disclosure():
     assert 'self.send_header("Referrer-Policy", "no-referrer")' in source
 
 
+def test_browser_transport_restricts_embedding_and_resource_execution():
+    from pathlib import Path
+
+    source = Path(__file__).parents[1].joinpath("src/aegis/web.py").read_text()
+
+    assert 'self.send_header("X-Frame-Options", "DENY")' in source
+    assert "Content-Security-Policy" in source
+    assert "default-src 'none'" in source
+    assert "connect-src 'self'" in source
+    assert "frame-ancestors 'none'" in source
+
+
 def test_browser_server_closes_cleanly_on_keyboard_interrupt(monkeypatch):
     from aegis import web
 
