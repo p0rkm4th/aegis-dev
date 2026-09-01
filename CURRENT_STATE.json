@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-    "current_checkpoint": "homelab-openclaw-health-verification-green",
+    "current_checkpoint": "network-authorized-state-persistence-green",
   "active_branch": "aegis-dev",
     "head_sha": "c25429f",
     "last_green_sha": "c25429f",
@@ -56,7 +56,8 @@
     "Generic Tasks Executor/Verifier adapters with PostgreSQL idempotency binding and live Qwen replay",
         "Kitchen OpenClaw mutations bridged to replay-safe canonical HouseholdSpace state and dual readback verification",
         "End-user alpha CLI over live Qwen3:8B, PostgreSQL, Pack retrieval, policy, OpenClaw grocery execution, independent readback, and durable Tasks/Kitchen reads"
-        ,"Existing Homelab service restart crossed live Qwen3:8B, PostgreSQL Space policy, paired OpenClaw terminal execution, and independent HTTP health verification; replay reused the durable Result"
+        ,"Existing Homelab service restart crossed live Qwen3:8B, PostgreSQL Space policy, paired OpenClaw terminal execution, and independent HTTP health verification; replay reused the durable Result",
+        "Authorized Network scopes and discovered devices persist in PostgreSQL, reload across process boundaries, and fail closed after Space membership revocation"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -90,7 +91,7 @@
     "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
-  "database_migration_version": "001_initial.sql through 009_task_idempotency.sql applied to disposable PostgreSQL 16.4 container; objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, and replay-safe Tasks persistence green",
+  "database_migration_version": "001_initial.sql through 010_network_state.sql applied to disposable PostgreSQL 16.4 container; objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, replay-safe Tasks, and Network scope/device persistence green",
   "openclaw_compatibility": {
     "root_cli_gateway_release": "2026.8.1 (ea806575e645)",
     "gateway_client_package": "2026.8.1",
@@ -150,6 +151,7 @@
         "household_projection": "green: live authorized FinanceLedger-to-PrivacyProjectionService path persisted allowlisted household output; fresh connection reloaded it for Bob, denied a non-member, and raw balance/transaction fields were absent",
         "end_user_alpha": "green: ./scripts/aegis accepted manual grocery and task requests through live Qwen3:8B; grocery mutation crossed paired OpenClaw and was independently read back; task/grocery state was read from PostgreSQL in a fresh CLI process after restart; token-authenticated mode does not bootstrap membership",
         "homelab_openclaw_health": "green: scripts/live_homelab_slice.py used live Qwen3:8B and PostgreSQL policy, restarted a real local HTTP service through paired OpenClaw terminal execution, independently read HTTP 200, and a fresh process replay with correlation a01bd4b5-8b43-405e-9ce9-a3cd20590fc3 reused the same completed Result and objective without dispatching a second restart",
+        "network_state_persistence": "green: migration 010 applied to live PostgreSQL; PostgresNetworkStore persisted alpha-lab 127.0.0.0/8 authorization and localhost HTTP discovery, a fresh connection reloaded both, and inactive Alice/apartment membership denied reload before the fixture was restored",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -159,5 +161,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-    "next_action": "Preserve the end-user alpha as a regression gate. Continue the next existing technical Pack slice only after focused tests; Home Assistant/device acceptance remains a separate owner-environment concern."
+    "next_action": "Preserve the end-user alpha as a regression gate. Continue the next existing technical Pack slice only after focused tests; Network active probing and Home Assistant/device acceptance remain separate follow-up work."
 }
