@@ -1519,6 +1519,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Open relationship to" in _INDEX_HTML
     assert "target.focus(); target.click()" in _INDEX_HTML
     assert "function applyNodeFilter()" in _INDEX_HTML
+    assert "authorizedProjectionLoaded" in _INDEX_HTML
+    assert "Authorized nodes unavailable." in _INDEX_HTML
     assert "No authorized nodes match" in _INDEX_HTML
     assert "renderedEdgeRows" in _INDEX_HTML
     assert (
