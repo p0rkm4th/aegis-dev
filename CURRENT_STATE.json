@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "6801b08",
-  "last_green_sha": "6801b08",
-  "last_pushed_sha": "6801b08",
+  "head_sha": "533e3cf",
+  "last_green_sha": "533e3cf",
+  "last_pushed_sha": "533e3cf",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -101,8 +101,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "99 passed; ruff check passed; ruff format check passed; mypy passed (36 source files); migration validation passed",
-    "known_gate_note": "Scriptable CLI boundary tested; --help runs without runtime configuration; --once routes through the existing Core interaction boundary"
+    "pytest": "100 passed; ruff check passed; ruff format check passed; mypy passed (36 source files); migration validation passed",
+    "known_gate_note": "Scriptable CLI boundary tested; --help runs without runtime configuration; --once routes through the existing Core interaction boundary and returns failure status on handled errors"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -192,7 +192,7 @@
         "phase9_technical_gate": "green: Homelab host/resource/service inventory and verified action evidence, explicit Network scope enforcement, durable owner/Space-scoped Security Lab findings, and durable source-grounded OSINT provenance are covered; live tests reject reachability-as-authority and cross-owner disclosure",
         "phase10_forge_gate": "green: existing Forge tests cover capability-gap detection, license/provenance classification, sandbox/test prerequisites, owner approval, Pack materialization, lifecycle installation, and the trading-card acceptance path; no generated Pack can self-authorize",
         "phase11_ambient_gate": "green with external limitation: OpenClaw system-event delivery, ambient policy/idempotency/failure behavior, proactive household signal composition, and Home Assistant adapter contracts are covered; real Home Assistant/device/voice acceptance remains blocked on owner hardware or credentials and is not claimed",
-        "scriptable_alpha_cli": "green: --help is available without database/model/OpenClaw configuration; --once emits one result and exits through handle(); --no-banner preserves the interactive boundary for wrappers",
+        "scriptable_alpha_cli": "green: --help is available without database/model/OpenClaw configuration; --once emits one result and exits through handle() with status 0/1 for success/error; --no-banner preserves the interactive boundary for wrappers",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
