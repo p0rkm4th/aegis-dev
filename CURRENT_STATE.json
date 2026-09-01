@@ -59,9 +59,9 @@
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "561e925",
-  "last_green_sha": "4249764",
-  "last_pushed_sha": "561e925",
+  "head_sha": "92d1ffd",
+  "last_green_sha": "4f394f3",
+  "last_pushed_sha": "92d1ffd",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -76,9 +76,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "4249764",
-    "last_known_green_sha": "4249764",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/4249764",
+    "running_sha": "4f394f3",
+    "last_known_green_sha": "4f394f3",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/4f394f3",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
