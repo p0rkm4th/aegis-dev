@@ -28,6 +28,9 @@ class StrictDecisionDecoder:
             card = next((c for c in cards if c.action.action_id == decision.action.action_id), None)
             if card is None or decision.action != card.action:
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
+        elif decision.kind is DecisionKind.CLARIFY:
+            if not decision.clarification or not decision.clarification.strip():
+                raise InvalidDecision("CLARIFY requires a clarification question")
         elif decision.action is not None:
             raise InvalidDecision("only ACTION decisions may contain an action")
         return decision

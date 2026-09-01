@@ -296,6 +296,16 @@ def test_decoder_rejects_invented_action():
         raise AssertionError("invented action was accepted")
 
 
+def test_decoder_requires_text_for_clarification():
+    response = {"kind": "CLARIFY", "clarification": "   "}
+    try:
+        StrictDecisionDecoder().decode(type("Response", (), {"raw": response})(), ())
+    except InvalidDecision:
+        pass
+    else:
+        raise AssertionError("empty clarification was accepted")
+
+
 def test_kernel_blocks_malformed_model_without_execution():
     ex = Executor()
     k = Kernel(

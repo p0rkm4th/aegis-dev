@@ -121,7 +121,7 @@ class OllamaProvider:
                 "ambiguity_rule": (
                     "If the utterance does not clearly identify one domain and more "
                     "than one ActionCard is plausible, return CLARIFY instead of "
-                    "guessing an action."
+                    "guessing an action; include a concise clarification question."
                 ),
                 "utterance": request.working_set.intent.utterance,
                 "action_cards": cards,
