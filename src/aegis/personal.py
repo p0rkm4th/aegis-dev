@@ -10,6 +10,7 @@ from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
 from .contracts import IntentFrame, ObjectiveState, Result
+from .embeddings import EmbeddingProvider, MemoryVectorIndex
 
 
 class Provenance(StrEnum):
@@ -461,11 +462,25 @@ class PersonalMemoryFastPath:
     )
     _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
 
-    def __init__(self, state: PersonalState, now: datetime | None = None) -> None:
+    def __init__(
+        self,
+        state: PersonalState,
+        now: datetime | None = None,
+        embedding_provider: EmbeddingProvider | None = None,
+        vector_index: MemoryVectorIndex | None = None,
+        vault_id: str | None = None,
+    ) -> None:
         self.state = state
         self.now = now or datetime.now().astimezone()
         if self.now.tzinfo is None:
             raise ValueError("personal retrieval clock must be timezone-aware")
+        if (embedding_provider is None) != (vector_index is None):
+            raise ValueError("semantic retrieval requires both an embedding provider and index")
+        if embedding_provider is not None and not vault_id:
+            raise ValueError("semantic retrieval requires a Vault")
+        self.embedding_provider = embedding_provider
+        self.vector_index = vector_index
+        self.vault_id = vault_id
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
@@ -481,7 +496,7 @@ class PersonalMemoryFastPath:
             if word.strip(".,!?;:") not in self._STOPWORDS and word.strip(".,!?;:")
         )
         start, end = self._temporal_window(text)
-        memories = self.state.search_memories(query, start=start, end=end)
+        memories = self._search_memories(query, start, end)
         evidence = {
             "memories": [
                 {
@@ -504,6 +519,26 @@ class PersonalMemoryFastPath:
             evidence=evidence,
             correlation_id=intent.correlation_id,
         )
+
+    def _search_memories(
+        self, query: str, start: datetime | None, end: datetime | None
+    ) -> tuple[MemoryRecord, ...]:
+        if self.embedding_provider is None or self.vector_index is None or self.vault_id is None:
+            return self.state.search_memories(query, start=start, end=end)
+        embedding = self.embedding_provider.embed((query,))[0]
+        ids = self.vector_index.search(self.vault_id, embedding, 10, max_distance=0.50)
+        memories = tuple(
+            self.state.memories[memory_id]
+            for memory_id in ids
+            if memory_id in self.state.memories
+            and self.state.memories[memory_id].superseded_by is None
+            and (
+                start is None
+                or end is None
+                or start <= self.state.memories[memory_id].occurred_at <= end
+            )
+        )
+        return memories or self.state.search_memories(query, start=start, end=end)
 
     def _temporal_window(self, text: str) -> tuple[datetime | None, datetime | None]:
         local_now = self.now.astimezone()
