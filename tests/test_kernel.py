@@ -2100,6 +2100,16 @@ def test_multi_action_fast_path_still_blocks_unbounded_compound_requests():
     assert "multiple actions" in result.message
 
 
+def test_multi_action_fast_path_extracts_temporal_task_event_plan():
+    details = MultiActionFastPath.task_event_details(
+        "Create a task and an event for apartment inspection tomorrow."
+    )
+
+    assert details is not None
+    assert details[0] == "apartment inspection"
+    assert details[1].endswith("+00:00")
+
+
 def test_domain_clarification_fast_path_handles_underspecified_request():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(principal=principal, utterance="Can you take care of the house stuff?")

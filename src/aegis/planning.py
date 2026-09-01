@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 from uuid import uuid4
 
@@ -42,10 +43,33 @@ class MultiActionFastPath:
         return title, title
 
     @classmethod
+    def task_event_details(cls, utterance: str) -> tuple[str, str] | None:
+        """Extract a bounded task/event plan with the existing tomorrow rule."""
+        text = utterance.casefold().strip().rstrip(".!?")
+        if not ("task" in text and "event" in text and " and " in text):
+            return None
+        if not any(term in text for term in ("add", "complete", "create", "remove", "update")):
+            return None
+        match = re.search(r"\b(?:to|for)\s+(.+)$", text)
+        if match is None:
+            return None
+        title = match.group(1).strip()
+        starts_at = datetime.now(timezone.utc)
+        if title.endswith(" tomorrow"):
+            title = title.removesuffix(" tomorrow").strip()
+            starts_at += timedelta(days=1)
+        if not title:
+            return None
+        return title, starts_at.isoformat()
+
+    @classmethod
     def resolve(cls, intent: IntentFrame) -> Result | None:
         if not cls.matches(intent.utterance):
             return None
-        if cls.task_chore_titles(intent.utterance) is not None:
+        if (
+            cls.task_chore_titles(intent.utterance) is not None
+            or cls.task_event_details(intent.utterance) is not None
+        ):
             return None
         return Result(
             objective_id=uuid4(),
