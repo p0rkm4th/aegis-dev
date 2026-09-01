@@ -107,7 +107,11 @@ from aegis.personal import (
     PostgresPersonalStateStore,
     Provenance,
 )
-from aegis.planning import CrossDomainPlanningFastPath, MultiActionFastPath
+from aegis.planning import (
+    CrossDomainPlanningFastPath,
+    DomainClarificationFastPath,
+    MultiActionFastPath,
+)
 from aegis.projections import (
     HouseholdProjection,
     PostgresProjectionStore,
@@ -1806,6 +1810,17 @@ def test_multi_action_fast_path_blocks_partial_objective():
     assert result.state is ObjectiveState.BLOCKED
     assert "multiple actions" in result.message
     assert not MultiActionFastPath.matches("Create a task to buy cat food")
+
+
+def test_domain_clarification_fast_path_handles_underspecified_request():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    intent = IntentFrame(principal=principal, utterance="Can you take care of the house stuff?")
+
+    result = DomainClarificationFastPath.resolve(intent)
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "more direction" in result.message
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():
