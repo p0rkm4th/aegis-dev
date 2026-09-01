@@ -57,6 +57,10 @@ from .tasks import (
 )
 
 
+class InteractionInputError(ValueError):
+    """A safe, actionable request-shape error from a client-facing selector."""
+
+
 class InteractionDependencies:
     """Infrastructure callbacks supplied by the composition root."""
 
@@ -444,7 +448,17 @@ class InteractionBoundary:
                     audit=PostgresAuditLog(connection),
                 )
                 return kernel.run_sequence(intent, plan_actions)
-            _domain, card = self.dependencies.select_action(utterance, manager)
+            try:
+                _domain, card = self.dependencies.select_action(utterance, manager)
+            except InteractionInputError as exc:
+                return persist_fast_result(
+                    Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message=str(exc),
+                        correlation_id=intent.correlation_id,
+                    )
+                )
             if goal_task_title is not None and card.action.action_id == "tasks.create":
                 card = card.model_copy(
                     update={
