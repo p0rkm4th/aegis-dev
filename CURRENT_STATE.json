@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "d73b1f2",
-  "last_green_sha": "d73b1f2",
-  "last_pushed_sha": "d73b1f2",
+  "head_sha": "1698b65",
+  "last_green_sha": "1698b65",
+  "last_pushed_sha": "1698b65",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -89,6 +89,7 @@
     ,"first-run local web initialization and duplicate-free dynamic Pack hub projection"
     ,"authorized multi-domain browser summaries for Personal, Household, Finance, Infrastructure, and Network"
     ,"per-request browser identity resolution with generic fail-closed unauthorized responses"
+    ,"browser readiness endpoint and bounded malformed/oversized request handling"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -108,8 +109,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "110 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser identity provider is resolved for every API request; malformed identity returns generic 401; live PostgreSQL multi-domain projection remains green and finance output is summary-only"
+    "pytest": "112 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
+    "known_gate_note": "Browser health is observable without identity-protected state; malformed identity returns generic 401; oversized bodies are rejected before Core; live PostgreSQL multi-domain projection remains green"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -207,6 +208,7 @@
         "browser_projection_restart_safety": "green: fresh PostgreSQL-backed projection exposes AEGIS plus one current hub for each available/installed Pack, authorized Tasks/Kitchen counts, and task relationships; stale persisted Pack UI metadata does not override current manifest hints; local web bootstrap uses DO NOTHING and cannot reactivate revoked membership",
         "browser_multi_domain_projection_live": "green: fresh PostgreSQL projection for Alice includes Personal, Household, Finance, Infrastructure, and Network hubs plus authorized task/project context; serialized browser state contains no finance balances or transaction fields, and every relationship endpoint is present",
         "browser_identity_refresh": "green deterministic: successive browser API requests resolve different Principals through the provider, and malformed identity fails closed with generic 401 without invoking state or interaction callbacks; current PostgreSQL stores continue to recheck Space/Vault authorization",
+        "browser_health_and_http_hardening": "green: /api/health returns the existing structured readiness report without requiring identity, while protected state still returns generic 401; message bodies are bounded at the HTTP adapter and malformed/oversized requests do not reach Core",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
