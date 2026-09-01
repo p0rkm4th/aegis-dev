@@ -672,7 +672,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     text = utterance.lower()
     if "task" in text:
         domain = "tasks"
-        if any(term in text for term in ("complete", "completed", "finish", "finished")):
+        if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
+            "mark" in text and "done" in text
+        ):
             action_id = "tasks.complete"
         elif "event" in text:
             action_id = "tasks.events.create"
@@ -688,7 +690,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             )
     elif "chore" in text:
         domain = "tasks"
-        if any(term in text for term in ("complete", "completed", "finish", "finished")):
+        if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
+            "mark" in text and "done" in text
+        ):
             action_id = "tasks.chores.complete"
         else:
             action_id = (
@@ -750,6 +754,11 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             text,
         )
         if match is None:
+            match = re.search(
+                r"mark\s+(?:the\s+)?task\s+(.+?)\s+as\s+(?:done|complete|completed)[.!?]?$",
+                text,
+            )
+        if match is None:
             raise InteractionInputError(
                 "name the task to complete, for example: Complete the task buy cat food."
             )
@@ -772,6 +781,11 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             r"(?:called\s+|named\s+)?(.+)$",
             text,
         )
+        if match is None:
+            match = re.search(
+                r"mark\s+(?:the\s+)?chore\s+(.+?)\s+as\s+(?:done|complete|completed)[.!?]?$",
+                text,
+            )
         if match is None:
             raise InteractionInputError(
                 "name the chore to complete, for example: Complete the chore clean the kitchen."
