@@ -89,7 +89,12 @@ from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseErro
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.osint import CapabilityGap, Forge, ForgeLifecycle, ForgeStatus, Investigation
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
-from aegis.personal import PersonalState, PostgresPersonalStateStore, Provenance
+from aegis.personal import (
+    PersonalMemoryFastPath,
+    PersonalState,
+    PostgresPersonalStateStore,
+    Provenance,
+)
 from aegis.projections import (
     HouseholdProjection,
     PostgresProjectionStore,
@@ -1078,6 +1083,29 @@ def test_personal_memory_search_is_ranked_current_and_provenance_preserving():
         pass
     else:
         raise AssertionError("non-positive memory search limit was accepted")
+
+
+def test_personal_memory_fast_path_returns_grounded_result_without_model():
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    state.add_memory(
+        "Worked on the backup architecture",
+        datetime(2026, 8, 30, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What was I working on last night?",
+        )
+    )
+    assert result is not None
+    assert result.state.value == "completed"
+    assert result.evidence["memories"][0]["provenance"] == "explicit_user"
+    assert PersonalMemoryFastPath(state).resolve(
+        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance="hello")
+    ) is None
 
 
 def test_personal_memory_correction_supersedes_old_record():
