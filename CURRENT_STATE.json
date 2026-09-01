@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "9228340a371b697b3c0ab775ba48b50d8c623096",
-  "last_green_sha": "9228340a371b697b3c0ab775ba48b50d8c623096",
-  "last_pushed_sha": "9228340a371b697b3c0ab775ba48b50d8c623096",
+  "head_sha": "a3a9bb81ddfa0e75036c66e55481acd8e305de3a",
+  "last_green_sha": "a3a9bb81ddfa0e75036c66e55481acd8e305de3a",
+  "last_pushed_sha": "a3a9bb81ddfa0e75036c66e55481acd8e305de3a",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -115,6 +115,7 @@
     ,"safe first-run AEGIS_* environment template and explicit env-file startup loading"
     ,"browser health provider failures return generic recoverable errors and clients check HTTP status"
     ,"browser request timeout reports unknown outcome and preserves correlation-safe retry"
+    ,"browser displays structured readiness component diagnostics and remediation details"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -261,6 +262,7 @@
         "env_file_startup_live": "green live: ./scripts/aegis --env-file examples/aegis.env.example --check --json parsed the checked-in placeholder template without shell evaluation or stderr leakage and returned structured readiness failures for unavailable PostgreSQL/Ollama",
         "browser_health_failure_boundary": "green deterministic: a failing health provider returns HTTP 503 with only health_unavailable/runtime status unavailable, and the browser client rejects non-OK health responses instead of displaying false readiness",
         "browser_timeout_recovery": "green deterministic: the browser message client uses AbortController timeout handling, reports timed-out outcomes as unknown, and preserves the same correlation ID for retry without assuming failure or blindly replaying a consequential request",
+        "browser_health_details_live": "green deterministic boundary: the browser renders every existing health component's safe status, required/optional classification, and remediation detail via textContent; no new authorization or semantic state is created",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
