@@ -335,6 +335,70 @@ def test_kernel_run_sequence_recovers_after_crash_before_aggregate_persistence(t
     store.close()
 
 
+def test_kernel_run_sequence_recovers_after_child_observation_persistence_crash(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class CrashOnFirstChildResultStore(SqliteObjectiveStore):
+        fail_child_result = True
+
+        def save_result(self, key, result):
+            if self.fail_child_result and key.endswith(":first"):
+                raise RuntimeError("simulated crash after first child observation")
+            super().save_result(key, result)
+
+    store = CrashOnFirstChildResultStore(str(tmp_path / "sequence-child-crash.sqlite"))
+    actions = (
+        ActionSpec(
+            action_id="first",
+            capability="first",
+            verification=VerificationContract(kind="readback"),
+        ),
+        ActionSpec(
+            action_id="second",
+            capability="second",
+            verification=VerificationContract(kind="readback"),
+        ),
+    )
+    original_intent = intent()
+    first_executor = Executor()
+    try:
+        Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+            Policy(PolicyDecision(allowed=True, reason="ok")),
+            first_executor,
+            Verifier(True),
+            store=store,
+        ).run_sequence(original_intent, actions)
+    except RuntimeError as exc:
+        assert "child observation" in str(exc)
+    else:
+        raise AssertionError("simulated child result persistence crash was not raised")
+
+    store.fail_child_result = False
+    replay_executor = Executor()
+    recovered = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        replay_executor,
+        Verifier(True),
+        store=store,
+    ).run_sequence(
+        original_intent.model_copy(update={"utterance": "resume after interruption"}),
+        actions,
+    )
+
+    assert recovered.state is ObjectiveState.COMPLETED
+    assert [step["state"] for step in recovered.evidence["steps"]] == [
+        ObjectiveState.COMPLETED.value,
+        ObjectiveState.COMPLETED.value,
+    ]
+    assert first_executor.calls == 1
+    assert replay_executor.calls == 1
+    store.close()
+
+
 def test_kernel_run_sequence_authorizes_each_step_independently():
     class SecondStepDeniedPolicy:
         def __init__(self):
