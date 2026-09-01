@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-degraded-start-live-green",
+  "current_checkpoint": "phase-12-degraded-start-operator-contract-aligned",
   "active_branch": "aegis-dev",
-  "head_sha": "19249824dc036fe77664d9f0f1aeb8ce8fefff17",
-  "last_green_sha": "19249824dc036fe77664d9f0f1aeb8ce8fefff17",
-  "last_pushed_sha": "19249824dc036fe77664d9f0f1aeb8ce8fefff17",
+  "head_sha": "3c8ef074440e54c4ccc5c049fe8991cc5503e6cb",
+  "last_green_sha": "3c8ef074440e54c4ccc5c049fe8991cc5503e6cb",
+  "last_pushed_sha": "3c8ef074440e54c4ccc5c049fe8991cc5503e6cb",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -174,6 +174,7 @@
     ,"clean-install smoke remains green after browser boundary hardening"
     ,"browser separates request validation from Core dispatch so Core ValueError/TypeError failures are generic request_unavailable responses"
     ,"loopback browser startup remains available in safe degraded mode when canonical PostgreSQL bootstrap is unavailable"
+    ,"README, alpha, and operations documentation describe degraded browser startup and fail-closed protected routes"
   ],
   "phase_exit_gates": {
     "0": "complete",
