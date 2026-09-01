@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-isolated-installed-alpha-live-green",
+  "current_checkpoint": "phase-12-isolated-installed-browser-live-green",
   "active_branch": "aegis-dev",
   "head_sha": "d7ac80de8f218057fc5a69b9872b9f7fb0858831",
   "last_green_sha": "d7ac80de8f218057fc5a69b9872b9f7fb0858831",
@@ -189,6 +189,7 @@
     ,"live browser HTTP hostile-input handling preserves a usable authorized session after malformed request attacks"
     ,"base package metadata declares PostgreSQL runtime support so the installed CLI/browser boundary does not depend on the optional OpenClaw live extra"
     ,"normal isolated package installation exposes the same help, version, private bootstrap, and structured readiness diagnostics as the checkout launcher"
+    ,"normal isolated installation launches the loopback browser outside the checkout with authorized canonical state and truthful optional-service degradation"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -394,6 +395,7 @@
         "browser_hostile_http_boundary_live": "green live operator/security acceptance: a real loopback browser process returned HTTP 400 for malformed UTF-8, malformed JSON, undocumented fields, and invalid content length; the authorized 10-node projection remained available afterward and the process emitted no stderr traceback",
         "installed_wheel_runtime_dependency_live": "green live packaging acceptance: a wheel built from the current source advertises pydantic and psycopg[binary] as base Requires-Dist entries, while cryptography and websocket-client remain optional live extras",
         "isolated_installed_alpha_live": "green live operator acceptance: a fresh isolated virtualenv installed the package normally, the installed aegis command served --help and --version, --init created a mode-600 .env outside the checkout, and --check --json returned structured missing-service diagnostics with exit 1 and empty stderr",
+        "isolated_installed_browser_live": "green live rendered operator acceptance: a fresh normally-installed aegis command launched outside the checkout, Chromium rendered 10 authorized Constellation nodes and selected the Tasks detail view, then a second installed process with Ollama unavailable rendered NOT READY while preserving the authorized 10-node graph; both processes had clean stderr",
         "browser_malformed_response_boundary": "green deterministic: a non-JSON value in the authorized Constellation provider is contained as generic state_unavailable with HTTP 503; no serialization traceback or provider value crosses the browser boundary",
         "installed_bootstrap_live": "green live package acceptance: a wheel built from the pushed source included aegis/aegis.env.example, and direct python -m aegis.cli --init from an unrelated temporary directory created a private mode-600 .env without checkout-relative files",
         "cli_version_live": "green live package acceptance: both the repository launcher and a freshly built/installed wheel reported the package-owned version 'aegis 0.1.0.dev1' without runtime configuration",
@@ -442,5 +444,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, base dependency advertisement, and isolated installation are green. Next executable frontier: remaining operator simplification and installed browser/runtime diagnostics; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, and installed browser degradation are green. Next executable frontier: remaining operator simplification and cross-client contract audit; Home Assistant/mobile/voice remain lane-limited."
 }
