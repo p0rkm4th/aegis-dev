@@ -1,0 +1,104 @@
+"""Small, read-only cross-domain planning projection over canonical state."""
+
+from __future__ import annotations
+
+from typing import Any, cast
+from uuid import uuid4
+
+from .contracts import IntentFrame, ObjectiveState, Result
+from .personal import PersonalState
+from .tasks import Task
+
+
+class CrossDomainPlanningFastPath:
+    """Assemble bounded authorized context for explicit planning questions.
+
+    This is deliberately a projection, not a second store or an authority
+    layer.  Each source has already enforced its Vault/Space boundary before
+    this adapter is called.
+    """
+
+    _PLANNING_TERMS = (
+        "prioritize",
+        "priority",
+        "priorities",
+        "focus on",
+        "plan my",
+        "plan this",
+        "what should i",
+        "what do i need to",
+    )
+    _PERSONAL_TERMS = ("personal", "goal", "goals", "project", "projects", "memory")
+    _SHARED_TERMS = ("household", "obligation", "obligations", "chore", "chores", "utility")
+    _TASK_TERMS = ("task", "tasks", "to-do", "todo")
+    _MAX_CONTEXT_ITEMS = 5
+
+    def __init__(
+        self,
+        personal: PersonalState,
+        household_snapshot: dict[str, object],
+        tasks: tuple[Task, ...],
+    ) -> None:
+        self.personal = personal
+        self.household_snapshot = household_snapshot
+        self.tasks = tasks
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        domains = sum(
+            (
+                any(term in text for term in cls._PERSONAL_TERMS),
+                any(term in text for term in cls._SHARED_TERMS),
+                any(term in text for term in cls._TASK_TERMS),
+            )
+        )
+        return domains >= 2 and any(term in text for term in cls._PLANNING_TERMS)
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        if not self.matches(intent.utterance):
+            return None
+        goals = sorted(self.personal.goals.values(), key=lambda goal: goal.created_at)[
+            : self._MAX_CONTEXT_ITEMS
+        ]
+        projects = {project.project_id: project.name for project in self.personal.projects.values()}
+        obligations = cast(tuple[Any, ...], self.household_snapshot.get("obligations", ()))
+        open_obligations = tuple(item for item in obligations if not item.settled)[
+            : self._MAX_CONTEXT_ITEMS
+        ]
+        open_tasks = tuple(task for task in self.tasks if task.status.value == "open")[
+            : self._MAX_CONTEXT_ITEMS
+        ]
+        priorities = [f"household obligation: {item.title}" for item in open_obligations]
+        priorities.extend(f"personal goal: {goal.description}" for goal in goals)
+        priorities.extend(f"task: {task.title}" for task in open_tasks)
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Cross-domain planning context assembled from canonical state",
+            evidence={
+                "planning": {
+                    "goals": [
+                        {
+                            "description": goal.description,
+                            "project": (
+                                projects.get(goal.project_id)
+                                if goal.project_id is not None
+                                else None
+                            ),
+                        }
+                        for goal in goals
+                    ],
+                    "open_obligations": [
+                        {"title": item.title, "responsible_id": item.responsible_id}
+                        for item in open_obligations
+                    ],
+                    "open_tasks": [
+                        {"task_id": str(task.task_id), "title": task.title} for task in open_tasks
+                    ],
+                    "priority_candidates": priorities,
+                    "sources": ("personal_vault", "household_space", "tasks_space"),
+                }
+            },
+            correlation_id=intent.correlation_id,
+        )

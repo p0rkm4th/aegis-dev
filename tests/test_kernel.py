@@ -107,6 +107,7 @@ from aegis.personal import (
     PostgresPersonalStateStore,
     Provenance,
 )
+from aegis.planning import CrossDomainPlanningFastPath
 from aegis.projections import (
     HouseholdProjection,
     PostgresProjectionStore,
@@ -1754,6 +1755,42 @@ def test_household_read_fast_path_returns_only_shared_allowlisted_fields():
     ]
     assert "private" not in repr(result.evidence).lower()
     assert not HouseholdReadFastPath.matches("Create a chore to clean the kitchen")
+
+
+def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
+    from datetime import datetime, timezone
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    personal = PersonalState()
+    project = personal.add_project("Backup architecture", datetime(2026, 8, 1, tzinfo=timezone.utc))
+    personal.add_goal(
+        "Finish the restore drill", datetime(2026, 8, 2, tzinfo=timezone.utc), project.project_id
+    )
+    space = HouseholdSpace("apartment", {alice.id})
+    space.add_obligation(alice, HouseholdObligation("utilities", "Utilities", 120, alice.id))
+    task = Task(uuid4(), "apartment", "Review backup runbook", "alice")
+
+    utterance = (
+        "Considering my personal goals and current household obligations, "
+        "what should I prioritize this week?"
+    )
+    result = CrossDomainPlanningFastPath(personal, space.snapshot(alice), (task,)).resolve(
+        IntentFrame(principal=alice, utterance=utterance)
+    )
+
+    assert result is not None
+    planning = result.evidence["planning"]
+    assert planning["goals"][0]["description"] == "Finish the restore drill"
+    assert planning["open_obligations"] == [{"title": "Utilities", "responsible_id": "alice"}]
+    assert planning["open_tasks"][0]["title"] == "Review backup runbook"
+    assert planning["priority_candidates"] == [
+        "household obligation: Utilities",
+        "personal goal: Finish the restore drill",
+        "task: Review backup runbook",
+    ]
+    assert len(planning["goals"]) <= 5
+    assert len(planning["open_obligations"]) <= 5
+    assert len(planning["open_tasks"]) <= 5
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():

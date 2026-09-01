@@ -28,6 +28,7 @@ from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
+from .planning import CrossDomainPlanningFastPath
 from .projections import SharedObligation
 from .reference_packs import (
     OpenClawGroceryExecutor,
@@ -129,19 +130,24 @@ class InteractionBoundary:
                         },
                     )
                     return finance_result
-            if HouseholdReadFastPath.matches(utterance):
-                household_result = HouseholdReadFastPath(
-                    household_store.read_snapshot(principal)
-                ).resolve(intent)
-                if household_result is not None:
-                    return household_result
             task_store = PostgresTaskStore(connection)
-            task_result = TaskReadFastPath(task_store).resolve(intent)
-            if task_result is not None:
-                return task_result
             personal_state = PostgresPersonalStateStore(
                 connection, principal.vault_id
             ).load_for_principal(principal)
+            household_snapshot = household_store.read_snapshot(principal)
+            if CrossDomainPlanningFastPath.matches(utterance):
+                planning_result = CrossDomainPlanningFastPath(
+                    personal_state, household_snapshot, task_store.list(principal)
+                ).resolve(intent)
+                if planning_result is not None:
+                    return planning_result
+            if HouseholdReadFastPath.matches(utterance):
+                household_result = HouseholdReadFastPath(household_snapshot).resolve(intent)
+                if household_result is not None:
+                    return household_result
+            task_result = TaskReadFastPath(task_store).resolve(intent)
+            if task_result is not None:
+                return task_result
             semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
                 "1",
                 "true",
