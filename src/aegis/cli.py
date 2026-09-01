@@ -20,6 +20,7 @@ from uuid import UUID
 
 import psycopg
 
+from .audit import PostgresAuditLog
 from .contracts import ActionCard, Principal, RequestStatus, Result
 from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
@@ -571,6 +572,31 @@ def _browser_request_status(principal: Principal, correlation_id: UUID) -> Reque
         connection.close()
 
 
+def _browser_feedback(
+    principal: Principal, correlation_id: UUID, outcome: str, reason: str | None
+) -> None:
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        store = PostgresObjectiveStore(connection)
+        result = store.get_result_for_correlation(correlation_id, principal)
+        if result is None:
+            raise PermissionError("feedback correlation is unavailable")
+        PostgresAuditLog(connection).append(
+            "owner.feedback",
+            principal.id,
+            {
+                "outcome": outcome,
+                "reason": reason,
+                "result_state": result.state.value,
+                "retryable": result.retryable,
+            },
+            objective_id=result.objective_id,
+        )
+    finally:
+        connection.close()
+
+
 def _principal() -> Principal:
     token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
     issuer = os.environ.get("AEGIS_KEYCLOAK_ISSUER")
@@ -1102,6 +1128,7 @@ def main() -> int:
                 _runtime_report,
                 _browser_request_status,
                 _browser_interaction,
+                _browser_feedback,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

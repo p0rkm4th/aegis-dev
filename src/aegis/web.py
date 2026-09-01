@@ -21,6 +21,7 @@ ConstellationState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
+FeedbackRecorder = Callable[[Principal, UUID, str, str | None], None]
 _MAX_BODY_BYTES = 20_000
 _MAX_RESPONSE_BYTES = 1_000_000
 _RETRY_AFTER_SECONDS = 5
@@ -113,6 +114,10 @@ placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><p id="step-status" class="muted"
 aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
+<p id="feedback" hidden>Was this useful?
+<button type="button" data-feedback="helpful">Helpful</button>
+<button type="button" data-feedback="not_helpful">Not helpful</button>
+<span id="feedback-status" class="muted" aria-live="polite"></span></p>
 <p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <p><button id="refresh" type="button">Refresh state</button></p>
@@ -502,6 +507,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
     else if (!response.ok) document.getElementById('activity').textContent =
       `Status: ${errorLabel(result.code)} (${result.code || 'request_failed'})`;
     if (response.ok) {
+      const feedback = document.getElementById('feedback');
+      feedback.hidden = !result.correlation_id;
+      feedback.dataset.correlationId = result.correlation_id || '';
+      document.getElementById('feedback-status').textContent = '';
       if (result.retryable === true) {
         pendingCorrelationId = correlationId; send.textContent = 'Retry';
         persistPendingRequest(utterance, correlationId);
@@ -542,6 +551,23 @@ document.getElementById('chat').addEventListener('submit', async event => {
     send.disabled = false; input.disabled = false;
   }
 });
+document.querySelectorAll('[data-feedback]').forEach(button =>
+  button.addEventListener('click', async event => {
+  const feedback = document.getElementById('feedback');
+  const correlationId = feedback.dataset.correlationId;
+  if (!correlationId) return;
+  for (const item of document.querySelectorAll('[data-feedback]')) item.disabled = true;
+  try {
+    const response = await fetch('/api/feedback', {method:'POST',
+      headers:{'content-type':'application/json'}, body:JSON.stringify({
+        correlation_id:correlationId, outcome:event.currentTarget.dataset.feedback})});
+    const result = await response.json();
+    document.getElementById('feedback-status').textContent = response.ok ? 'Recorded.' :
+      (result.error || 'Feedback unavailable.');
+  } catch (_) {
+    document.getElementById('feedback-status').textContent = 'Feedback unavailable.';
+  }
+}));
 restorePendingRequest();
 recoverPendingRequest();
 </script></body></html>"""
@@ -558,6 +584,7 @@ class BrowserApp:
         health: HealthProvider | None = None,
         request_status: RequestStatusProvider | None = None,
         contextual_interaction: ContextualInteraction | None = None,
+        feedback: FeedbackRecorder | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -565,6 +592,7 @@ class BrowserApp:
         self.health = health
         self.request_status = request_status
         self.contextual_interaction = contextual_interaction
+        self.feedback = feedback
 
     def dispatch(self, method: str, path: str, body: bytes = b"") -> tuple[int, str, bytes]:
         route = urlparse(path).path
@@ -652,6 +680,44 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
             return self._json(HTTPStatus.OK, payload)
+        if method == "POST" and route == "/api/feedback":
+            if self.feedback is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            if len(body) > _MAX_BODY_BYTES:
+                return self._error(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "request_too_large", "request too large"
+                )
+            try:
+                payload = json.loads(body)
+                if not isinstance(payload, dict):
+                    raise ValueError("request body must be a JSON object")
+                if set(payload) - {"correlation_id", "outcome", "reason"}:
+                    raise ValueError("request contains undocumented fields")
+                correlation_id = UUID(str(payload["correlation_id"]))
+                outcome = payload["outcome"]
+                reason = payload.get("reason")
+                if outcome not in {"helpful", "not_helpful"}:
+                    raise ValueError("invalid outcome")
+                if reason is not None and reason not in {
+                    "objective_failed",
+                    "incorrect",
+                    "unclear",
+                    "other",
+                }:
+                    raise ValueError("invalid reason")
+            except (json.JSONDecodeError, UnicodeDecodeError, ValueError, TypeError, KeyError):
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
+            try:
+                self.feedback(principal, correlation_id, outcome, reason)
+            except PermissionError:
+                return self._error(HTTPStatus.FORBIDDEN, "feedback_denied", "feedback denied")
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "feedback_unavailable", "feedback unavailable"
+                )
+            return self._json(
+                HTTPStatus.OK, {"recorded": True, "correlation_id": str(correlation_id)}
+            )
         if method == "POST" and route == "/api/message":
             if len(body) > _MAX_BODY_BYTES:
                 return self._error(
@@ -755,10 +821,13 @@ def serve(
     health: HealthProvider | None = None,
     request_status: RequestStatusProvider | None = None,
     contextual_interaction: ContextualInteraction | None = None,
+    feedback: FeedbackRecorder | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
-    app = BrowserApp(principal, interaction, state, health, request_status, contextual_interaction)
+    app = BrowserApp(
+        principal, interaction, state, health, request_status, contextual_interaction, feedback
+    )
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802

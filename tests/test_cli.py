@@ -1349,6 +1349,54 @@ def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     assert json.loads(payload)["message"] == "contextual answer"
 
 
+def test_browser_app_records_bounded_feedback_for_a_response_correlation():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    seen: list[tuple[str, str | None]] = []
+    app = BrowserApp(
+        principal,
+        lambda *_args: "answer",
+        lambda _current: {"nodes": []},
+        feedback=lambda _principal, correlation, outcome, reason: seen.append(
+            (str(correlation), outcome if reason is None else f"{outcome}:{reason}")
+        ),
+    )
+    correlation = uuid4()
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/feedback",
+        json.dumps({"correlation_id": str(correlation), "outcome": "not_helpful"}).encode(),
+    )
+    assert status == 200
+    assert json.loads(payload) == {"recorded": True, "correlation_id": str(correlation)}
+    assert seen == [(str(correlation), "not_helpful")]
+
+
+def test_browser_app_rejects_undocumented_feedback_without_recording():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    called = False
+
+    def record(*_args):
+        nonlocal called
+        called = True
+
+    app = BrowserApp(
+        principal,
+        lambda *_args: "unused",
+        lambda _: {"nodes": []},
+        feedback=record,
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/feedback",
+        json.dumps(
+            {"correlation_id": str(uuid4()), "outcome": "helpful", "raw": "secret"}
+        ).encode(),
+    )
+    assert status == 400
+    assert json.loads(payload) == {"code": "invalid_request", "error": "invalid request"}
+    assert called is False
+
+
 def test_browser_app_rejects_empty_messages_and_unknown_routes():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(principal, lambda *_: "unused", lambda _: {"nodes": []})
