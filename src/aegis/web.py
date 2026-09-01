@@ -21,6 +21,7 @@ PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
 _MAX_BODY_BYTES = 20_000
+_RETRY_AFTER_SECONDS = 5
 
 
 class BrowserMessage(BaseModel):
@@ -598,6 +599,8 @@ def serve(
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Referrer-Policy", "no-referrer")
             self.send_header("X-Frame-Options", "DENY")
+            if status == HTTPStatus.SERVICE_UNAVAILABLE:
+                self.send_header("Retry-After", str(_RETRY_AFTER_SECONDS))
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; "
