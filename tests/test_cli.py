@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -1374,10 +1374,10 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
         b'{"utterance":"Show my tasks.","correlation_id":"00000000-0000-4000-8000-000000000001"}',
     )
     assert status == 200
-    assert json.loads(payload) == {
-        "message": "canonical answer",
-        "correlation_id": "00000000-0000-4000-8000-000000000001",
-    }
+    response = json.loads(payload)
+    assert response["message"] == "canonical answer"
+    assert response["correlation_id"] == "00000000-0000-4000-8000-000000000001"
+    assert UUID(response["session_id"])
     assert seen == [("Show my tasks.", "alice")]
 
 
@@ -1411,6 +1411,55 @@ def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     assert status == 200
     assert seen == [context_id]
     assert json.loads(payload)["message"] == "contextual answer"
+
+
+def test_browser_app_preserves_supplied_session_identity():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    session_id = uuid4()
+    app = BrowserApp(
+        principal,
+        lambda *_args: "answer",
+        lambda _current: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/message",
+        json.dumps(
+            {
+                "utterance": "show tasks",
+                "correlation_id": str(uuid4()),
+                "session_id": str(session_id),
+            }
+        ).encode(),
+    )
+
+    assert status == 200
+    assert json.loads(payload)["session_id"] == str(session_id)
+
+
+def test_browser_app_rejects_malformed_session_id_before_core():
+    called = False
+
+    def interaction(*_args):
+        nonlocal called
+        called = True
+        return "unreachable"
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+        interaction,
+        lambda _: {"nodes": []},
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/message",
+        b'{"utterance":"show tasks","session_id":"bad"}',
+    )
+
+    assert status == 400
+    assert json.loads(payload) == {"code": "invalid_request", "error": "invalid request"}
+    assert called is False
 
 
 def test_browser_app_records_bounded_feedback_for_a_response_correlation():
@@ -2047,6 +2096,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Authorization lost; authorized state cleared." in _INDEX_HTML
     assert "conversation').replaceChildren()" in _INDEX_HTML
     assert "sessionStorage" in _INDEX_HTML
+    assert "aegis.session-id" in _INDEX_HTML
+    assert "session_id:conversationSessionId" in _INDEX_HTML
     assert "A previous request may still be in progress" in _INDEX_HTML
     assert "persistPendingRequest(utterance, correlationId)" in _INDEX_HTML
     assert "/api/request-status?correlation_id=" in _INDEX_HTML

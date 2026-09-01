@@ -53,6 +53,7 @@ class BrowserMessage(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     message: str
+    session_id: UUID
     state: ObjectiveState | None = None
     detail: str | None = None
     objective_id: UUID | None = None
@@ -137,11 +138,13 @@ const nodeFilterStatus = document.getElementById('node-filter-status');
 const messageTimeoutMs = 120000;
 const refreshRequestTimeoutMs = 10000;
 const pendingStorageKey = 'aegis.pending-request';
+const sessionStorageKey = 'aegis.session-id';
 const contextStorageKey = 'aegis.context-correlation';
 const recoveryPollMs = 5000;
 const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
+let conversationSessionId = null;
 let conversationContextCorrelationId = null;
 let selectedNode = null;
 let renderedNodeCards = new Map();
@@ -150,6 +153,16 @@ let renderedEdgeRows = [];
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
+try {
+  const savedSession = sessionStorage.getItem(sessionStorageKey);
+  if (savedSession &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedSession))
+    conversationSessionId = savedSession;
+  else {
+    conversationSessionId = crypto.randomUUID();
+    sessionStorage.setItem(sessionStorageKey, conversationSessionId);
+  }
+} catch (_) { conversationSessionId = crypto.randomUUID(); }
 try {
   const savedContext = localStorage.getItem(contextStorageKey);
   if (savedContext &&
@@ -185,7 +198,7 @@ function lifecycleLabel(state) { return lifecycleLabels[state] || state; }
 function persistPendingRequest(utterance, correlationId) {
   try {
     sessionStorage.setItem(pendingStorageKey, JSON.stringify(
-      {utterance, correlation_id: correlationId}));
+    {utterance, correlation_id: correlationId, session_id: conversationSessionId}));
   } catch (_) { /* session storage is optional; Core correlation remains authoritative. */ }
 }
 function clearPendingRequest() {
@@ -487,7 +500,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
   try {
-    const requestBody = {utterance, correlation_id:correlationId};
+    const requestBody = {utterance, correlation_id:correlationId, session_id:conversationSessionId};
     if (!pendingCorrelationId && conversationContextCorrelationId)
       requestBody.context_correlation_id = conversationContextCorrelationId;
     const response = await fetch('/api/message', {method:'POST',
@@ -731,6 +744,7 @@ class BrowserApp:
                     "utterance",
                     "correlation_id",
                     "context_correlation_id",
+                    "session_id",
                 }
                 if unknown_fields:
                     raise ValueError("request contains undocumented fields")
@@ -744,6 +758,13 @@ class BrowserApp:
                     correlation_id = UUID(correlation_value)
                 else:
                     raise ValueError("correlation_id must be a UUID string")
+                session_value = payload.get("session_id")
+                if session_value is None:
+                    session_id = uuid4()
+                elif isinstance(session_value, str):
+                    session_id = UUID(session_value)
+                else:
+                    raise ValueError("session_id must be a UUID string")
                 context_value = payload.get("context_correlation_id")
                 if context_value is None:
                     context_correlation_id = None
@@ -778,9 +799,9 @@ class BrowserApp:
                 )
             try:
                 response = BrowserMessage.model_validate(
-                    {"message": message, "correlation_id": correlation_id}
+                    {"message": message, "correlation_id": correlation_id, "session_id": session_id}
                     if isinstance(message, str)
-                    else {**message, "correlation_id": correlation_id}
+                    else {**message, "correlation_id": correlation_id, "session_id": session_id}
                 )
             except (TypeError, ValidationError):
                 return self._error(
