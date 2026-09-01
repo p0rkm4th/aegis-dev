@@ -133,7 +133,23 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     text = utterance.lower()
     if "task" in text:
         domain = "tasks"
-        action_id = "tasks.list" if text.startswith(("what", "show", "list")) else "tasks.create"
+        if "chore" in text:
+            action_id = (
+                "tasks.chores.list"
+                if text.startswith(("what", "show", "list"))
+                else "tasks.chores.create"
+            )
+        else:
+            action_id = (
+                "tasks.list" if text.startswith(("what", "show", "list")) else "tasks.create"
+            )
+    elif "chore" in text:
+        domain = "tasks"
+        action_id = (
+            "tasks.chores.list"
+            if text.startswith(("what", "show", "list"))
+            else "tasks.chores.create"
+        )
     elif any(word in text for word in ("grocery", "groceries", "rice", "food")):
         domain = "kitchen"
         action_id = (
@@ -157,6 +173,13 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
         match = re.search(r"(?:create\s+)?(?:a\s+)?task\s+(?:to\s+)?(.+)$", text)
         if match is None:
             raise ValueError("tell AEGIS the task, for example: Create a task to buy cat food.")
+        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.chores.create":
+        match = re.search(r"(?:create|add)\s+(?:a\s+)?chore\s+(?:to\s+)?(.+)$", text)
+        if match is None:
+            raise ValueError(
+                "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
+            )
         action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
     return domain, ActionCard(action=action, summary=card.summary, relevance=card.relevance)
 
@@ -220,6 +243,8 @@ def _format(result: Any) -> str:
         return "Events: " + (
             "; ".join(item["title"] for item in events) if events else "(none)"
         )
+    if evidence.get("collection") == "chores" and evidence.get("title"):
+        return f"Done — created chore: {evidence['title']}"
     if evidence.get("title"):
         return f"Done — created task: {evidence['title']}"
     if evidence.get("item"):
@@ -316,6 +341,12 @@ def handle(utterance: str, principal: Principal) -> str:
         elif card.action.action_id == "tasks.create":
             executor = PostgresTaskExecutor(task_store, principal)
             verifier = PostgresTaskVerifier(task_store, principal)
+            permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
+        elif card.action.action_id == "tasks.chores.create":
+            from .household import PostgresChoreExecutor, PostgresChoreVerifier
+
+            executor = PostgresChoreExecutor(principal_store, principal)
+            verifier = PostgresChoreVerifier(principal_store, principal)
             permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
         else:
             executor = PostgresTaskListExecutor(task_store, principal)

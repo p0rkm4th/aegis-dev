@@ -1338,6 +1338,7 @@ def test_household_read_fast_path_returns_only_shared_allowlisted_fields():
         }
     ]
     assert "private" not in repr(result.evidence).lower()
+    assert not HouseholdReadFastPath.matches("Create a chore to clean the kitchen")
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():

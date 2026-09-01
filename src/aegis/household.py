@@ -8,7 +8,16 @@ from datetime import datetime
 from typing import Any, Protocol, cast
 from uuid import uuid4
 
-from .contracts import IntentFrame, ObjectiveState, Principal, Result
+from .contracts import (
+    ExecutionRequest,
+    IntentFrame,
+    ObjectiveState,
+    Observation,
+    Principal,
+    Result,
+    VerificationContract,
+    VerificationResult,
+)
 
 
 @dataclass(frozen=True)
@@ -80,6 +89,7 @@ class PostgresHouseholdStore:
                 }
                 for obligation in space.obligations.values()
             ],
+            "chore_mutations": space.chore_mutations,
         }
         self.connection.execute(
             "INSERT INTO household_spaces (space_id, payload) VALUES (%s, %s) "
@@ -129,6 +139,9 @@ class PostgresHouseholdStore:
         grocery_mutations = {
             str(key): str(item) for key, item in payload.get("grocery_mutations", {}).items()
         }
+        chore_mutations = {
+            str(key): str(item) for key, item in payload.get("chore_mutations", {}).items()
+        }
         return HouseholdSpace(
             space_id,
             set(members),
@@ -137,6 +150,7 @@ class PostgresHouseholdStore:
             events,
             obligations,
             grocery_mutations,
+            chore_mutations,
         )
 
     def add_grocery(self, principal: Principal, item: str, idempotency_key: str) -> None:
@@ -196,6 +210,29 @@ class PostgresHouseholdStore:
         }
         return self.load(space_id, members).snapshot(principal)
 
+    def add_chore(
+        self,
+        principal: Principal,
+        title: str,
+        assignee_id: str,
+        idempotency_key: str,
+    ) -> Chore:
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships "
+                "WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        space = self.load(space_id, members)
+        chore = space.add_chore(
+            principal, Chore(f"chore-{uuid4().hex}", title, assignee_id), idempotency_key
+        )
+        self.save(space)
+        return chore
+
     def _space_for(self, principal: Principal) -> str:
         if not principal.space_ids:
             raise PermissionError("household operation requires an explicit Space")
@@ -219,6 +256,7 @@ class HouseholdSpace:
     events: dict[str, HouseholdEvent] = field(default_factory=dict)
     obligations: dict[str, HouseholdObligation] = field(default_factory=dict)
     grocery_mutations: dict[str, str] = field(default_factory=dict)
+    chore_mutations: dict[str, str] = field(default_factory=dict)
 
     def _require_member(self, principal: Principal) -> None:
         if principal.id not in self.members or self.space_id not in principal.space_ids:
@@ -239,11 +277,23 @@ class HouseholdSpace:
         if idempotency_key is not None:
             self.grocery_mutations[idempotency_key] = item
 
-    def add_chore(self, principal: Principal, chore: Chore) -> None:
+    def add_chore(
+        self, principal: Principal, chore: Chore, idempotency_key: str | None = None
+    ) -> Chore:
         self._require_member(principal)
         if chore.assignee_id not in self.members:
             raise ValueError("chore assignee is not a Space member")
+        if idempotency_key is not None:
+            existing_id = self.chore_mutations.get(idempotency_key)
+            if existing_id is not None:
+                existing = self.chores[existing_id]
+                if existing.title != chore.title or existing.assignee_id != chore.assignee_id:
+                    raise ValueError("chore idempotency key is bound to different arguments")
+                return existing
         self.chores[chore.chore_id] = chore
+        if idempotency_key is not None:
+            self.chore_mutations[idempotency_key] = chore.chore_id
+        return chore
 
     def add_event(self, principal: Principal, event: HouseholdEvent) -> None:
         self._require_member(principal)
@@ -277,6 +327,8 @@ class HouseholdReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
+        if text.startswith(("add ", "create ", "update ", "complete ", "remove ")):
+            return False
         return any(trigger in text for trigger in cls._TRIGGERS)
 
     def resolve(self, intent: IntentFrame) -> Result | None:
@@ -317,4 +369,83 @@ class HouseholdReadFastPath:
             message="Shared household state read",
             evidence=evidence,
             correlation_id=intent.correlation_id,
+        )
+
+
+class PostgresChoreExecutor:
+    """Adapt replay-safe shared chore creation to the Core Executor port."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "tasks.chores.create":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        title = request.action.arguments.get("title")
+        assignee_id = request.action.arguments.get("assignee_id", self.principal.id)
+        if not isinstance(title, str) or not title.strip() or not isinstance(assignee_id, str):
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"invalid_chore": True},
+                command_succeeded=False,
+            )
+        try:
+            chore = self.store.add_chore(
+                self.principal, title.strip(), assignee_id, request.idempotency_key
+            )
+        except (PermissionError, ValueError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"persistence_error": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "chores",
+                "chore_id": chore.chore_id,
+                "title": chore.title,
+                "assignee_id": chore.assignee_id,
+                "idempotency_key": request.idempotency_key,
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresChoreVerifier:
+    """Verify chore creation by independently reading canonical shared state."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="chore execution failed"
+            )
+        snapshot = self.store.read_snapshot(self.principal)
+        chores = cast(tuple[Chore, ...], snapshot["chores"])
+        chore_id = observation.evidence.get("chore_id")
+        verified = any(
+            chore.chore_id == chore_id
+            and chore.title == observation.evidence.get("title")
+            and chore.assignee_id == observation.evidence.get("assignee_id")
+            for chore in chores
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_chore_count": len(chores)},
+            reason=(
+                "canonical chore readback verified"
+                if verified
+                else "canonical chore readback failed"
+            ),
         )
