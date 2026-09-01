@@ -79,6 +79,7 @@ from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStat
 from aegis.personal import PersonalState, PostgresPersonalStateStore, Provenance
 from aegis.projections import (
     HouseholdProjection,
+    PostgresProjectionStore,
     PrivacyProjectionService,
     PrivateContribution,
     SharedObligation,
@@ -1307,6 +1308,54 @@ def test_household_projection_handles_multi_member_settlement_remainder():
     assert projection.settlements == {"alice": -34, "bob": -33, "cara": -33}
 
 
+def test_postgres_projection_store_roundtrips_allowlisted_fields_and_checks_membership():
+    import json
+
+    class Cursor:
+        def __init__(self, row):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class Connection:
+        def __init__(self):
+            self.payload = None
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT payload"):
+                return Cursor((self.payload,) if self.payload is not None else None)
+            self.payload = json.loads(params[1])
+            return Cursor(None)
+
+        def commit(self):
+            self.commits += 1
+
+    projection = HouseholdProjection(
+        "apartment", 2200, 1100, {"alice": 500}, {"alice": -600, "bob": 1100}
+    )
+    connection = Connection()
+    store = PostgresProjectionStore(connection)
+    store.save(projection)
+    restored = store.load(
+        "apartment",
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+        {"alice", "bob"},
+    )
+    assert restored == projection
+    assert "balance" not in connection.payload
+    try:
+        store.load(
+            "apartment", Principal(id="mallory", vault_id="mallory-vault"), {"alice", "bob"}
+        )
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("projection store accepted a non-member")
+    assert connection.commits == 1
+
+
 def test_finance_snapshot_exposes_provider_provenance_only_to_owner():
     from datetime import datetime, timezone
 
@@ -1756,6 +1805,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "004_personal_state.sql",
         "005_household_state.sql",
         "006_finance_snapshots.sql",
+        "007_household_projections.sql",
     )
 
 
