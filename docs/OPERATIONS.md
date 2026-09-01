@@ -39,6 +39,8 @@ connectivity and the configured Ollama model, it verifies the required
 canonical PostgreSQL tables exist. An incomplete schema is reported with
 migration remediation instead of being mistaken for a ready runtime. Normal
 alpha startup applies the checked-in migrations unless `AEGIS_AUTO_MIGRATE=0`.
+The generated placeholder database URL is detected before any network attempt;
+replace its `USER`, `PASSWORD`, and `DBNAME` values before retrying readiness.
 
 The reusable `AegisConfig` accepts the local development alpha with only the
 database configured; local identity and authorization defaults are used by the
