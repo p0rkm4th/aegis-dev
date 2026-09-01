@@ -93,6 +93,7 @@ from aegis.reference_packs import (
 )
 from aegis.registry import CapabilityRegistry
 from aegis.store import SqliteObjectiveStore
+from aegis.tasks import PostgresTaskStore, TaskStatus
 
 
 class Model:
@@ -1181,6 +1182,57 @@ def test_household_space_rejects_nonmember_and_private_data_is_not_accepted():
             raise AssertionError("nonmember accessed shared household state")
 
 
+def test_postgres_task_store_persists_lifecycle_and_requires_active_membership():
+    from datetime import datetime, timezone
+
+    class Cursor:
+        def __init__(self, rows):
+            self.rows = rows
+
+        def fetchone(self):
+            return self.rows[0] if self.rows else None
+
+        def fetchall(self):
+            return self.rows
+
+    class Connection:
+        def __init__(self):
+            self.rows = {}
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if "FROM space_memberships" in query:
+                return Cursor([(1,)] if params[0] in {"alice", "bob"} else [])
+            if query.startswith("INSERT INTO tasks"):
+                self.rows[str(params[0])] = tuple(params)
+            elif query.startswith("SELECT id") and "WHERE id" in query:
+                row = self.rows.get(str(params[0]))
+                return Cursor([row] if row else [])
+            elif query.startswith("SELECT id"):
+                return Cursor(list(self.rows.values()))
+            return Cursor([])
+
+        def commit(self):
+            self.commits += 1
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    bob = Principal(id="bob", vault_id="bob-vault", space_ids=("apartment",))
+    connection = Connection()
+    store = PostgresTaskStore(connection)
+    task = store.create(
+        alice, "Inspect backups", datetime(2026, 9, 2, tzinfo=timezone.utc), bob.id
+    )
+    assert task.status is TaskStatus.OPEN
+    assert store.list(bob)[0] == task
+    assert store.complete(bob, task.task_id).status is TaskStatus.COMPLETED
+    try:
+        store.list(Principal(id="mallory", vault_id="mallory-vault"))
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("task store accepted a non-member")
+
+
 def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contribution():
     from datetime import datetime, timezone
 
@@ -1806,6 +1858,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "005_household_state.sql",
         "006_finance_snapshots.sql",
         "007_household_projections.sql",
+        "008_tasks.sql",
     )
 
 
