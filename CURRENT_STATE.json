@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-openclaw-error-safety-green",
+  "current_checkpoint": "phase-12-openclaw-reconnect-recovery-green",
   "active_branch": "aegis-dev",
-  "head_sha": "d87290b54bdfe5b2c23178cc353bdb1aebef8538",
-  "last_green_sha": "d87290b54bdfe5b2c23178cc353bdb1aebef8538",
-  "last_pushed_sha": "d87290b54bdfe5b2c23178cc353bdb1aebef8538",
+  "head_sha": "ca781dfe793158c57894857abfea3a2d82a37bed",
+  "last_green_sha": "ca781dfe793158c57894857abfea3a2d82a37bed",
+  "last_pushed_sha": "ca781dfe793158c57894857abfea3a2d82a37bed",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -159,6 +159,7 @@
     ,"one-shot JSON mode preserves a stable machine-readable error envelope for validation failures"
     ,"malformed browser JSON receives a generic invalid_request envelope without parser details or Core dispatch"
     ,"OpenClaw transport, handshake, and RPC errors preserve safe codes without propagating remote or exception text"
+    ,"persistent OpenClaw transport discards dead sockets after failure so the next safe retry reconnects instead of reusing a broken session"
     ,"browser refresh reports health failures separately from canonical state failures while preserving authorization-loss clearing"
     ,"browser health and canonical-state refresh requests have bounded client timeouts and restore the Refresh control after stalls"
     ,"browser authorization-loss cleanup clears private displays and resets the stale Retry affordance"
@@ -181,7 +182,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "169 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "170 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
