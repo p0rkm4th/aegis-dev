@@ -53,6 +53,7 @@ from .tasks import (
     PostgresTaskListVerifier,
     PostgresTaskStore,
     PostgresTaskVerifier,
+    TaskCompletionFastPath,
     TaskReadFastPath,
 )
 
@@ -459,6 +460,25 @@ class InteractionBoundary:
                         correlation_id=intent.correlation_id,
                     )
                 )
+            if card.action.action_id == "tasks.complete":
+                title = card.action.arguments.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    return persist_fast_result(
+                        Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=(
+                                "Name the task to complete, for example: "
+                                "Complete the task buy cat food."
+                            ),
+                            correlation_id=intent.correlation_id,
+                        )
+                    )
+                completion_result = TaskCompletionFastPath.resolve(
+                    intent, title, task_store.list(principal)
+                )
+                if completion_result is not None:
+                    return persist_fast_result(completion_result)
             if goal_task_title is not None and card.action.action_id == "tasks.create":
                 card = card.model_copy(
                     update={
