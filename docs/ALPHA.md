@@ -99,9 +99,12 @@ the canonical Result `detail` reason (such as independent readback
 verification); raw Result evidence is not exposed by the browser adapter.
 undocumented callback fields are rejected before reaching the browser.
 
-The browser also exposes `/api/health`, using the same structured readiness
-report as `--check`. Health is available for diagnosis without exposing
-identity-protected state. Message bodies are bounded and malformed or
+The browser exposes `/api/health` and `/api/ready`, using the same structured
+readiness report as `--check`. Health is available for diagnosis without
+exposing identity-protected state; `/api/health` returns HTTP 200 whenever a
+report can be produced, while `/api/ready` returns HTTP 503 when required
+components are not ready so a local supervisor can gate traffic or restart
+the service. Message bodies are bounded and malformed or
 oversized requests are rejected before reaching Core.
 
 The browser keeps the current conversation visible for the session and locks

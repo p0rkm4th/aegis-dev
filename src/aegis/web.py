@@ -357,9 +357,10 @@ class BrowserApp:
         route = urlparse(path).path
         if method == "GET" and route == "/":
             return HTTPStatus.OK, "text/html; charset=utf-8", _INDEX_HTML.encode()
-        if method == "GET" and route == "/api/health":
+        if method == "GET" and route in {"/api/health", "/api/ready"}:
             if self.health is None:
-                return self._json(HTTPStatus.OK, {"healthy": True, "ready": True, "components": []})
+                payload: dict[str, Any] = {"healthy": True, "ready": True, "components": []}
+                return self._json(HTTPStatus.OK, payload)
             try:
                 report = self.health()
             except Exception:
@@ -369,6 +370,8 @@ class BrowserApp:
                     "runtime status unavailable",
                 )
             payload = report.model_dump(mode="json") if isinstance(report, HealthReport) else report
+            if route == "/api/ready" and payload.get("ready") is not True:
+                return self._json(HTTPStatus.SERVICE_UNAVAILABLE, payload)
             return self._json(HTTPStatus.OK, payload)
         if route.startswith("/api/"):
             try:
