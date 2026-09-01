@@ -18,7 +18,11 @@ from aegis.contracts import (
     Result,
     VerificationContract,
 )
-from aegis.interaction import _context_from_prior_result, _fallback_working_context
+from aegis.interaction import (
+    _authorized_context_evidence,
+    _context_from_prior_result,
+    _fallback_working_context,
+)
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import Task, TaskIntentClarificationFastPath, TaskReadFastPath, TaskStatus
@@ -147,6 +151,15 @@ def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
         }
     }
     assert context.sources == ("authorized_canonical_result",)
+
+
+def test_model_answer_can_carry_authorized_working_facts_without_becoming_truth():
+    context = Context(
+        values={"canonical_facts": {"canonical_items": ["rice", "beans"]}},
+        sources=("authorized_task_candidates",),
+    )
+
+    assert _authorized_context_evidence(context) == {"canonical_items": ["rice", "beans"]}
 
 
 def test_fresh_working_context_does_not_suppress_unrelated_mutation_cards():

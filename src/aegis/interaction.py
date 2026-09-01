@@ -132,6 +132,15 @@ def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     return compact
 
 
+def _authorized_context_evidence(context: Context) -> dict[str, Any]:
+    """Carry only the authorized working-set facts needed by a later turn."""
+
+    raw = context.values.get("canonical_facts")
+    if not isinstance(raw, dict):
+        return {}
+    return _compact_context_evidence(raw)
+
+
 def _context_from_prior_result(
     objective_store: Any, correlation_id: UUID | None, principal: Principal
 ) -> Context:
@@ -755,15 +764,20 @@ class InteractionBoundary:
                     return persist_fast_result(fallback)
                 if isinstance(fallback, Decision):
                     if fallback.kind is DecisionKind.ANSWER:
+                        answer_evidence: dict[str, Any] = {
+                            "provenance": "model_generated",
+                            "authoritative": False,
+                        }
+                        authorized_facts = _authorized_context_evidence(fallback_context)
+                        if authorized_facts:
+                            answer_evidence.update(authorized_facts)
+                            answer_evidence["context_provenance"] = "authorized_working_set"
                         return persist_fast_result(
                             Result(
                                 objective_id=uuid4(),
                                 state=ObjectiveState.COMPLETED,
                                 message=fallback.answer or "",
-                                evidence={
-                                    "provenance": "model_generated",
-                                    "authoritative": False,
-                                },
+                                evidence=answer_evidence,
                                 correlation_id=intent.correlation_id,
                             )
                         )
