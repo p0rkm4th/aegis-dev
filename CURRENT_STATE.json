@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-refresh-boundary-green",
+  "current_checkpoint": "phase-12-browser-refresh-timeout-green",
   "active_branch": "aegis-dev",
-  "head_sha": "5cab6b7b7f4ebdac30c9e6d1defaab23d855e20a",
-  "last_green_sha": "5cab6b7b7f4ebdac30c9e6d1defaab23d855e20a",
-  "last_pushed_sha": "5cab6b7b7f4ebdac30c9e6d1defaab23d855e20a",
+  "head_sha": "9a11260969c0545e5789464c4f253d87a7484488",
+  "last_green_sha": "9a11260969c0545e5789464c4f253d87a7484488",
+  "last_pushed_sha": "9a11260969c0545e5789464c4f253d87a7484488",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -155,6 +155,7 @@
     ,"PostgreSQL readiness failures provide safe actionable remediation without exposing connection details"
     ,"malformed PostgreSQL URLs receive configuration remediation instead of service-failure ambiguity"
     ,"browser refresh reports health failures separately from canonical state failures while preserving authorization-loss clearing"
+    ,"browser health and canonical-state refresh requests have bounded client timeouts and restore the Refresh control after stalls"
   ],
   "phase_exit_gates": {
     "0": "complete",
