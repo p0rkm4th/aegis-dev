@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-browser-identity-boundary-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "959398113b0ffef515e60af4cf2c83fd114516f4",
-  "last_green_sha": "959398113b0ffef515e60af4cf2c83fd114516f4",
-  "last_pushed_sha": "959398113b0ffef515e60af4cf2c83fd114516f4",
+  "head_sha": "d98d4699736bc7305a71b3badf2156fa403c382c",
+  "last_green_sha": "d98d4699736bc7305a71b3badf2156fa403c382c",
+  "last_pushed_sha": "d98d4699736bc7305a71b3badf2156fa403c382c",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -182,6 +182,7 @@
     ,"canonical Result retryability is projected through request status and the browser preserves explicit retry only when Core marks it safe"
     ,"browser 503 responses advertise a bounded Retry-After cadence for local supervisors and clients"
     ,"Keycloak bearer subjects resolve through canonical PostgreSQL external_subject mappings before browser authorization; unprovisioned subjects fail closed without username or local-identity fallback"
+    ,"bearer identity mapping contains PostgreSQL store failures as safe identity-unavailable outcomes without exposing connection details"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -201,7 +202,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "187 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed",
+    "pytest": "188 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, model failure durability, pre-decision correlation-stable retry, canonical retryability projection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, restrictive browser CSP and framing headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, generic malformed request encoding handling, executor exception durability, failed-observation completion prevention, and verifier exception containment are covered"
   },
     "known_failures": [
@@ -380,6 +381,7 @@
         "browser_ready_retry_after_live": "green live: with required PostgreSQL/Ollama services unavailable, a real loopback server returned /api/health HTTP 200 with diagnostics and /api/ready HTTP 503 with Retry-After: 5; no-store, referrer, framing, and CSP headers remained present",
         "browser_ready_retry_after_headers_live": "green live: direct loopback header inspection confirmed /api/health remained HTTP 200 while /api/ready returned HTTP 503 with Retry-After: 5 under missing required services; both responses retained no-store, no-referrer, frame-denial, and CSP headers",
         "browser_keycloak_bearer_live": "green live reversible acceptance: a real disposable Keycloak bearer token reached a loopback browser process, its immutable subject resolved through PostgreSQL aegis_principals.external_subject to the canonical Alice principal, and conflicting local Bob identity settings were ignored; disabling the Keycloak user mid-session made the same browser projection return generic HTTP 401 with no stale state leak, then the fixture was restored",
+        "browser_keycloak_mapping_failure_boundary": "green deterministic: a PostgreSQL failure while resolving an authenticated external subject is converted to the safe canonical identity mapping unavailable error, with the original credential-bearing exception retained only as a cause and never exposed at the client boundary",
         "browser_malformed_response_boundary": "green deterministic: a non-JSON value in the authorized Constellation provider is contained as generic state_unavailable with HTTP 503; no serialization traceback or provider value crosses the browser boundary",
         "installed_bootstrap_live": "green live package acceptance: a wheel built from the pushed source included aegis/aegis.env.example, and direct python -m aegis.cli --init from an unrelated temporary directory created a private mode-600 .env without checkout-relative files",
         "cli_version_live": "green live package acceptance: both the repository launcher and a freshly built/installed wheel reported the package-owned version 'aegis 0.1.0.dev1' without runtime configuration",
