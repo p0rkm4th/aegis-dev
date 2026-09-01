@@ -58,9 +58,9 @@
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "5aa2f42",
+  "head_sha": "9f685cd",
   "last_green_sha": "4249764",
-  "last_pushed_sha": "5aa2f42",
+  "last_pushed_sha": "9f685cd",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
