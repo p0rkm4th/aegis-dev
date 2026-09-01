@@ -148,6 +148,7 @@
     ,"installed wheel launches the loopback browser surface with packaged migrations and authorized Constellation state"
     ,"installed wheel browser surface renders in Chromium and supports Constellation detail selection outside the repository"
     ,"clean-install smoke executes the installed aegis command and verifies private first-run bootstrap"
+    ,"installed wheel completes a rendered Qwen/PostgreSQL task workflow through the browser"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -348,6 +349,7 @@
         "installed_browser_live": "green live package acceptance: a freshly built wheel launched the generated aegis --web command outside the checkout; HTML, /api/health ready=true, and authorized /api/constellation with 10 nodes and 9 edges all returned successfully",
         "installed_browser_rendered_live": "green live rendered package acceptance: Chromium opened the wheel-generated aegis --web surface outside the checkout, rendered 10 authorized nodes, selected Tasks, displayed its detail panel, and showed truthful NOT READY diagnostics for the intentionally unavailable loopback Ollama endpoint",
         "enhanced_install_smoke_live": "green live operator acceptance: from /tmp, clean-install smoke built the package, validated packaged migrations, executed the generated aegis --version command, and created a mode-600 .env with the installed --init command",
+        "installed_browser_workflow_live": "green live rendered package acceptance: Chromium opened the wheel-generated aegis --web surface outside the checkout, submitted a task through Qwen3:8B/PostgreSQL/Core, displayed verified completion, refreshed state, and the selected Tasks detail view showed the new canonical task; readiness was 3/3 required checks OK",
         "launcher_init_symlink_regression": "green deterministic: --init refuses a symlink target and leaves the symlink destination unchanged; the full validation gate passed at 152 tests",
         "browser_rendered_task_live": "green live rendered acceptance: Playwright 1.62.0 with provisioned Chromium opened a fresh loopback AEGIS process, rendered 10 authorized Constellation nodes including Tasks, submitted a task through Qwen3:8B/PostgreSQL, displayed verified completion, refreshed state, and the Tasks detail view showed the new canonical task and open status",
         "browser_rendered_detail_live": "green live rendered acceptance: after a browser-originated task mutation, selecting the rendered Tasks hub displayed the newly persisted task and status; the page reported Runtime READY with 3/3 required checks OK",
