@@ -1483,6 +1483,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "component.detail" in _INDEX_HTML
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
+    assert "event.currentTarget.setAttribute('aria-busy', 'true')" in _INDEX_HTML
+    assert "event.currentTarget.setAttribute('aria-busy', 'false')" in _INDEX_HTML
+    assert "nodes.setAttribute('aria-busy', 'true')" in _INDEX_HTML
+    assert "nodes.setAttribute('aria-busy', 'false')" in _INDEX_HTML
     assert "conversation.append(assistantLine)" in _INDEX_HTML
     assert "renderDetailValue(details[node.id])" in _INDEX_HTML
     assert "aria-pressed" in _INDEX_HTML
