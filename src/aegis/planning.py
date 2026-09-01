@@ -2,12 +2,42 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, cast
 from uuid import uuid4
 
 from .contracts import IntentFrame, ObjectiveState, Result
 from .personal import PersonalState
 from .tasks import Task
+
+
+class MultiActionFastPath:
+    """Reject compound mutations until durable continuation exists."""
+
+    _ACTION = r"(?:add|complete|create|remove|update)"
+    _TARGET = r"(?:a task|tasks|a chore|chores|an event|events|groceries|a grocery)"
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        return bool(
+            re.search(rf"{cls._ACTION}.*\band\b.*{cls._TARGET}", text)
+            or re.search(rf"{cls._TARGET}.*\band\b.*{cls._ACTION}", text)
+        )
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame) -> Result | None:
+        if not cls.matches(intent.utterance):
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "This request contains multiple actions. Ask AEGIS to perform one "
+                "action at a time so each result can be verified independently."
+            ),
+            correlation_id=intent.correlation_id,
+        )
 
 
 class CrossDomainPlanningFastPath:
