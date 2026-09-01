@@ -48,7 +48,13 @@ from aegis.finance import (
 from aegis.gateway_rpc import CorrelatedRpcClient, OpenClawGatewayRpc, RpcProtocolError, RpcResponse
 from aegis.health import HealthService
 from aegis.homelab import HomelabPack, Host, Service
-from aegis.household import Chore, HouseholdEvent, HouseholdObligation, HouseholdSpace
+from aegis.household import (
+    Chore,
+    HouseholdEvent,
+    HouseholdObligation,
+    HouseholdSpace,
+    PostgresHouseholdStore,
+)
 from aegis.household_proactivity import HouseholdProactivity, HouseholdSignals
 from aegis.identity import (
     InMemoryAuthorization,
@@ -1061,6 +1067,61 @@ def test_household_space_supports_shared_workflows_for_active_members():
     assert len(snapshot["obligations"]) == 1
 
 
+def test_postgres_household_store_reloads_shared_state_without_persisting_membership():
+    from datetime import datetime, timezone
+
+    class Cursor:
+        def __init__(self, row):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class Connection:
+        def __init__(self):
+            self.payload = None
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT payload"):
+                return Cursor((self.payload,) if self.payload is not None else None)
+            self.payload = params[1]
+            return Cursor(None)
+
+        def commit(self):
+            self.commits += 1
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    bob = Principal(id="bob", vault_id="bob-vault", space_ids=("apartment",))
+    when = datetime(2026, 8, 31, 12, 0, tzinfo=timezone.utc)
+    space = HouseholdSpace("apartment", {alice.id, bob.id})
+    space.add_grocery(alice, "rice")
+    chore = Chore("chore-1", "Dishes", bob.id)
+    event = HouseholdEvent("event-1", "Inspection", when)
+    obligation = HouseholdObligation("obligation-1", "Utilities", 120, bob.id)
+    space.add_chore(alice, chore)
+    space.add_event(alice, event)
+    space.add_obligation(alice, obligation)
+
+    connection = Connection()
+    store = PostgresHouseholdStore(connection)
+    store.save(space)
+    restored = store.load("apartment", {alice.id})
+
+    assert restored.groceries == ["rice"]
+    assert restored.chores == {chore.chore_id: chore}
+    assert restored.events == {event.event_id: event}
+    assert restored.obligations == {obligation.obligation_id: obligation}
+    assert restored.members == {alice.id}
+    assert connection.commits == 1
+    try:
+        restored.snapshot(bob)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("reloaded household state accepted a non-member")
+
+
 def test_household_space_rejects_nonmember_and_private_data_is_not_accepted():
     outsider = Principal(id="mallory", vault_id="mallory-vault", space_ids=())
     space = HouseholdSpace("apartment", {"alice", "bob"})
@@ -1594,6 +1655,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "002_audit_hash_chain.sql",
         "003_pack_installations.sql",
         "004_personal_state.sql",
+        "005_household_state.sql",
     )
 
 
