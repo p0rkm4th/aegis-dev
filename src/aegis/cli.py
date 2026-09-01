@@ -35,11 +35,12 @@ from .identity import (
 )
 from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 from .network import PostgresNetworkStore
+from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .personal import PostgresPersonalStateStore
 from .reference_packs import reference_bundles
 from .store import PostgresObjectiveStore
-from .tasks import PostgresTaskStore
+from .tasks import PostgresTaskStore, requested_task_due_at
 from .web import serve
 
 
@@ -514,9 +515,17 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
 
 
 def _browser_interaction(
-    utterance: str, principal: Principal, correlation_id: UUID | None = None
+    utterance: str,
+    principal: Principal,
+    correlation_id: UUID | None = None,
+    context_correlation_id: UUID | None = None,
 ) -> dict[str, Any]:
-    result = run_interaction(utterance, principal, correlation_id)
+    if context_correlation_id is None:
+        result = run_interaction(utterance, principal, correlation_id)
+    else:
+        result = run_interaction(
+            utterance, principal, correlation_id, context_correlation_id=context_correlation_id
+        )
     response: dict[str, Any] = {
         "message": _format(result),
         "state": result.state.value,
@@ -747,16 +756,9 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
             action = action.model_copy(update={"arguments": {}})
         else:
             title = match.group(1).strip()
-            due_at = None
-            tomorrow = re.search(r"\s+tomorrow[.!?]?$", title)
-            if tomorrow is not None:
-                title = title[: tomorrow.start()].rstrip()
-                due_at = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
-            else:
-                next_week = re.search(r"\s+next\s+week[.!?]?$", title)
-                if next_week is not None:
-                    title = title[: next_week.start()].rstrip()
-                    due_at = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+            due_at = requested_task_due_at(title)
+            if due_at is not None:
+                title = re.sub(r"\s+(?:tomorrow|next\s+week)[.!?]?$", "", title).rstrip()
             arguments: dict[str, Any] = {"title": title}
             if due_at is not None:
                 arguments["due_at"] = due_at
@@ -943,7 +945,10 @@ def _format(result: Any) -> str:
 
 
 def run_interaction(
-    utterance: str, principal: Principal, correlation_id: UUID | None = None
+    utterance: str,
+    principal: Principal,
+    correlation_id: UUID | None = None,
+    context_correlation_id: UUID | None = None,
 ) -> Result:
     """Compatibility composition root for CLI and browser clients."""
 
@@ -956,9 +961,18 @@ def run_interaction(
             select_action=_domain_and_action,
             openclaw_channel=_openclaw_channel,
             local_identity=lambda: not bool(os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")),
+            model_provider=lambda: OllamaProvider(
+                os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
+                OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
+            ),
         )
     )
-    return boundary.run(utterance, principal, correlation_id)
+    return boundary.run(
+        utterance,
+        principal,
+        correlation_id,
+        context_correlation_id=context_correlation_id,
+    )
 
 
 def handle(utterance: str, principal: Principal) -> str:
@@ -1087,6 +1101,7 @@ def main() -> int:
                 _constellation_state,
                 _runtime_report,
                 _browser_request_status,
+                _browser_interaction,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

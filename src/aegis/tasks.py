@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from enum import StrEnum
@@ -55,6 +56,18 @@ def _aware_datetime(value: datetime) -> datetime:
     """Normalize legacy naive deadlines before relative-date comparisons."""
 
     return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+
+def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | None:
+    """Translate only explicit bounded relative task dates into canonical time."""
+
+    current = now or datetime.now(timezone.utc)
+    text = utterance.casefold().strip()
+    if re.search(r"\btomorrow[.!?]?$", text):
+        return (current + timedelta(days=1)).isoformat()
+    if re.search(r"\bnext\s+week[.!?]?$", text):
+        return (current + timedelta(days=7)).isoformat()
+    return None
 
 
 class TaskConnection(Protocol):

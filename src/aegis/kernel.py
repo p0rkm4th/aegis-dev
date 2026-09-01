@@ -9,6 +9,7 @@ from .contracts import (
     ActionCard,
     ActionSpec,
     AuthorizationRequest,
+    Context,
     Decision,
     DecisionKind,
     ExecutionRequest,
@@ -64,7 +65,12 @@ class Kernel:
         self._executed: set[str] = set()
         self._results: dict[str, Result] = {}
 
-    def run(self, intent: IntentFrame, cards: tuple[ActionCard, ...] = ()) -> Result:
+    def run(
+        self,
+        intent: IntentFrame,
+        cards: tuple[ActionCard, ...] = (),
+        context: Context | None = None,
+    ) -> Result:
         if len(cards) > 5:
             raise ValueError("model-facing action cards must be bounded to five")
         fast_result = self.fast_path.resolve(intent)
@@ -89,7 +95,7 @@ class Kernel:
                 decision = self.decoder.decode(
                     self.model.decide(
                         ModelRequest(
-                            working_set=WorkingSet(intent=intent),
+                            working_set=WorkingSet(intent=intent, context=context or Context()),
                             action_cards=cards,
                         )
                     ),
@@ -340,7 +346,12 @@ class Kernel:
         )
         return result
 
-    def run_sequence(self, intent: IntentFrame, actions: tuple[ActionSpec, ...]) -> Result:
+    def run_sequence(
+        self,
+        intent: IntentFrame,
+        actions: tuple[ActionSpec, ...],
+        context: Context | None = None,
+    ) -> Result:
         """Execute a bounded durable sequence through the ordinary Core path.
 
         The sequence is a persisted proposal, not a second authority layer.
@@ -407,7 +418,7 @@ class Kernel:
                 store=self.store,
                 audit=self.audit,
             )
-            result = step_kernel.run(step_intent, (card,))
+            result = step_kernel.run(step_intent, (card,), context=context)
             step_results.append(
                 {
                     "index": index,

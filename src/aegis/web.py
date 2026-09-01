@@ -16,6 +16,7 @@ from .contracts import ObjectiveState, Principal, RequestStatus
 from .health import HealthReport
 
 Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
+ContextualInteraction = Callable[[str, Principal, UUID, UUID | None], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
@@ -131,10 +132,12 @@ const nodeFilterStatus = document.getElementById('node-filter-status');
 const messageTimeoutMs = 120000;
 const refreshRequestTimeoutMs = 10000;
 const pendingStorageKey = 'aegis.pending-request';
+const contextStorageKey = 'aegis.context-correlation';
 const recoveryPollMs = 5000;
 const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
+let conversationContextCorrelationId = null;
 let selectedNode = null;
 let renderedNodeCards = new Map();
 let renderedNodeText = new Map();
@@ -142,6 +145,20 @@ let renderedEdgeRows = [];
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
+try {
+  const savedContext = localStorage.getItem(contextStorageKey);
+  if (savedContext &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedContext))
+    conversationContextCorrelationId = savedContext;
+} catch (_) { /* local storage is optional */ }
+function persistConversationContext(correlationId) {
+  conversationContextCorrelationId = correlationId;
+  try { localStorage.setItem(contextStorageKey, correlationId); } catch (_) { /* optional */ }
+}
+function clearConversationContext() {
+  conversationContextCorrelationId = null;
+  try { localStorage.removeItem(contextStorageKey); } catch (_) { /* optional */ }
+}
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
@@ -317,6 +334,7 @@ function clearAuthorizedDisplays() {
   nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
+  clearConversationContext();
   pendingCorrelationId = null;
   recoveryPollAttempts = 0;
   clearPendingRequest();
@@ -464,9 +482,12 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
   try {
+    const requestBody = {utterance, correlation_id:correlationId};
+    if (!pendingCorrelationId && conversationContextCorrelationId)
+      requestBody.context_correlation_id = conversationContextCorrelationId;
     const response = await fetch('/api/message', {method:'POST',
       headers:{'content-type':'application/json'},
-      body:JSON.stringify({utterance, correlation_id:correlationId}), signal:controller.signal});
+      body:JSON.stringify(requestBody), signal:controller.signal});
     const result = await response.json();
     const answer = result.message || result.error || 'No response';
     document.getElementById('answer').textContent = answer;
@@ -487,6 +508,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
       } else {
         pendingCorrelationId = null; send.textContent = 'Send';
         clearPendingRequest();
+        if (result.state === 'completed' && result.correlation_id)
+          persistConversationContext(result.correlation_id);
       }
       if (result.state === 'completed') refreshState();
     } else {
@@ -534,12 +557,14 @@ class BrowserApp:
         state: ConstellationState,
         health: HealthProvider | None = None,
         request_status: RequestStatusProvider | None = None,
+        contextual_interaction: ContextualInteraction | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
         self.state = state
         self.health = health
         self.request_status = request_status
+        self.contextual_interaction = contextual_interaction
 
     def dispatch(self, method: str, path: str, body: bytes = b"") -> tuple[int, str, bytes]:
         route = urlparse(path).path
@@ -636,7 +661,11 @@ class BrowserApp:
                 payload = json.loads(body)
                 if not isinstance(payload, dict):
                     raise ValueError("request body must be a JSON object")
-                unknown_fields = set(payload) - {"utterance", "correlation_id"}
+                unknown_fields = set(payload) - {
+                    "utterance",
+                    "correlation_id",
+                    "context_correlation_id",
+                }
                 if unknown_fields:
                     raise ValueError("request contains undocumented fields")
                 utterance = payload["utterance"]
@@ -649,6 +678,13 @@ class BrowserApp:
                     correlation_id = UUID(correlation_value)
                 else:
                     raise ValueError("correlation_id must be a UUID string")
+                context_value = payload.get("context_correlation_id")
+                if context_value is None:
+                    context_correlation_id = None
+                elif isinstance(context_value, str):
+                    context_correlation_id = UUID(context_value)
+                else:
+                    raise ValueError("context_correlation_id must be a UUID string")
             except (json.JSONDecodeError, UnicodeDecodeError):
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
             except (ValueError, KeyError, TypeError) as exc:
@@ -662,7 +698,12 @@ class BrowserApp:
                 validation_message = detail if detail in safe_messages else "invalid request"
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", validation_message)
             try:
-                message = self.interaction(utterance, principal, correlation_id)
+                if self.contextual_interaction is not None:
+                    message = self.contextual_interaction(
+                        utterance, principal, correlation_id, context_correlation_id
+                    )
+                else:
+                    message = self.interaction(utterance, principal, correlation_id)
             except PermissionError:
                 return self._error(HTTPStatus.FORBIDDEN, "request_denied", "request denied")
             except Exception:
@@ -713,10 +754,11 @@ def serve(
     state: ConstellationState,
     health: HealthProvider | None = None,
     request_status: RequestStatusProvider | None = None,
+    contextual_interaction: ContextualInteraction | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
-    app = BrowserApp(principal, interaction, state, health, request_status)
+    app = BrowserApp(principal, interaction, state, health, request_status, contextual_interaction)
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802

@@ -20,6 +20,9 @@ class ObjectiveStore(Protocol):
     def correlation_bound(self, correlation_id: UUID) -> bool: ...
     def save_result(self, key: str, result: Result) -> None: ...
     def get_result(self, key: str) -> Result | None: ...
+    def get_result_for_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Result | None: ...
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None: ...
     def get_action(self, key: str) -> ExecutionRequest | None: ...
     def update_action_state(self, key: str, state: ObjectiveState) -> None: ...
@@ -71,6 +74,24 @@ class InMemoryObjectiveStore:
 
     def get_result(self, key: str) -> Result | None:
         return self.results.get(key)
+
+    def get_result_for_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Result | None:
+        objectives = {
+            objective.id
+            for objective in self.objectives.values()
+            if objective.correlation_id == correlation_id
+            and objective.intent.principal == principal
+        }
+        return next(
+            (
+                result
+                for result in reversed(tuple(self.results.values()))
+                if result.correlation_id == correlation_id and result.objective_id in objectives
+            ),
+            None,
+        )
 
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
         self.actions.setdefault(request.idempotency_key, (request, state))
@@ -157,6 +178,19 @@ class SqliteObjectiveStore:
             "SELECT payload FROM results WHERE key = ?", (key,)
         ).fetchone()
         return Result.model_validate_json(row[0]) if row else None
+
+    def get_result_for_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Result | None:
+        objective = self.get_objective_by_correlation(correlation_id, principal)
+        if objective is None:
+            return None
+        rows = self.connection.execute(
+            "SELECT payload FROM results WHERE json_extract(payload, '$.correlation_id') = ?",
+            (str(correlation_id),),
+        ).fetchall()
+        results = [Result.model_validate_json(row[0]) for row in rows]
+        return next((result for result in results if result.objective_id == objective.id), None)
 
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
         self.connection.execute(
@@ -297,6 +331,35 @@ class PostgresObjectiveStore:
             "SELECT id, objective_id, state, evidence, message "
             "FROM results WHERE idempotency_key = %s",
             (key,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        evidence = row[3] if isinstance(row[3], dict) else json.loads(str(row[3]))
+        retryable = bool(evidence.pop("retryable", False))
+        return Result(
+            objective_id=UUID(str(row[1])),
+            state=ObjectiveState(str(row[2])),
+            evidence=evidence,
+            message=str(row[4]),
+            correlation_id=UUID(str(row[0])),
+            retryable=retryable,
+        )
+
+    def get_result_for_correlation(
+        self, correlation_id: UUID, principal: Principal
+    ) -> Result | None:
+        cursor = self.connection.execute(
+            """SELECT r.id, r.objective_id, r.state, r.evidence, r.message
+               FROM results r JOIN objectives o ON o.id = r.objective_id
+               WHERE r.id = %s AND o.principal_id = %s AND o.vault_id = %s
+                 AND (o.space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = o.space_id
+                     AND sm.active = TRUE
+                 ))
+               ORDER BY r.id LIMIT 1""",
+            (str(correlation_id), principal.id, principal.vault_id, principal.id),
         )
         row = cursor.fetchone()
         if row is None:

@@ -8,8 +8,20 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, IntentFrame, Objective, ObjectiveState, Principal, Result
-from .decoding import StrictDecisionDecoder
+from .contracts import (
+    ActionCard,
+    Context,
+    Decision,
+    DecisionKind,
+    IntentFrame,
+    ModelRequest,
+    Objective,
+    ObjectiveState,
+    Principal,
+    Result,
+    WorkingSet,
+)
+from .decoding import InvalidDecision, StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
@@ -58,6 +70,7 @@ from .tasks import (
     TaskCompletionFastPath,
     TaskIntentClarificationFastPath,
     TaskReadFastPath,
+    requested_task_due_at,
 )
 
 
@@ -77,6 +90,7 @@ class InteractionDependencies:
         select_action: Callable[[str, PackManager], tuple[str, ActionCard]],
         openclaw_channel: Callable[[], OpenClawWebSocketChannel],
         local_identity: Callable[[], bool],
+        model_provider: Callable[[], Any] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -85,6 +99,59 @@ class InteractionDependencies:
         self.select_action = select_action
         self.openclaw_channel = openclaw_channel
         self.local_identity = local_identity
+        self.model_provider = model_provider
+
+
+def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
+    """Keep only bounded canonical facts for a follow-up model working set."""
+
+    compact: dict[str, Any] = {}
+    for key in ("canonical_items", "canonical_tasks", "title", "item"):
+        value = evidence.get(key)
+        if isinstance(value, (list, tuple)):
+            compact[key] = list(value[:20])
+        elif isinstance(value, str):
+            compact[key] = value
+    planning = evidence.get("planning")
+    if isinstance(planning, dict):
+        compact_planning: dict[str, Any] = {}
+        for key in ("open_tasks", "open_obligations", "memories", "affordability"):
+            value = planning.get(key)
+            if isinstance(value, (list, tuple)):
+                compact_planning[key] = list(value[:10])
+            elif isinstance(value, dict):
+                compact_planning[key] = value
+        if compact_planning:
+            compact["planning"] = compact_planning
+    return compact
+
+
+def _context_from_prior_result(
+    objective_store: Any, correlation_id: UUID | None, principal: Principal
+) -> Context:
+    """Resolve follow-up context only through the authorized canonical store."""
+
+    if correlation_id is None:
+        return Context()
+    objective = objective_store.get_objective_by_correlation(correlation_id, principal)
+    getter = getattr(objective_store, "get_result_for_correlation", None)
+    if objective is None or not callable(getter):
+        return Context()
+    result = getter(correlation_id, principal)
+    if result is None:
+        return Context()
+    evidence = _compact_context_evidence(result.evidence)
+    if not evidence:
+        return Context()
+    return Context(
+        values={
+            "prior_correlation_id": str(correlation_id),
+            "prior_objective_id": str(objective.id),
+            "prior_state": result.state.value,
+            "canonical_facts": evidence,
+        },
+        sources=("authorized_canonical_result",),
+    )
 
 
 class _RuntimePolicy:
@@ -134,8 +201,72 @@ class InteractionBoundary:
     def __init__(self, dependencies: InteractionDependencies) -> None:
         self.dependencies = dependencies
 
+    @staticmethod
+    def _fallback_cards(manager: PackManager) -> tuple[ActionCard, ...]:
+        """Offer only bounded, non-mutating cards to ambiguous cognition."""
+
+        cards = tuple(
+            card
+            for card in manager.enabled_cards()
+            if card.action.action_id.endswith(".list")
+            or any(permission.endswith(".read") for permission in card.action.required_permissions)
+        )
+        return cards[:5]
+
+    def _fallback_decision(
+        self, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context
+    ) -> Decision | Result | None:
+        if self.dependencies.model_provider is None:
+            return None
+        try:
+            provider = self.dependencies.model_provider()
+            decision = StrictDecisionDecoder().decode(
+                provider.decide(
+                    ModelRequest(
+                        working_set=WorkingSet(intent=intent, context=context),
+                        action_cards=cards,
+                    )
+                ),
+                cards,
+            )
+            return decision
+        except InvalidDecision:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="I could not safely interpret that request. Please rephrase it.",
+                evidence={"provenance": "model_boundary", "authoritative": False},
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+        except Exception as exc:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="Model unavailable; request can be retried",
+                evidence={
+                    "provenance": "model_boundary",
+                    "authoritative": False,
+                    "error_type": type(exc).__name__,
+                },
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+
+    def _model(self) -> Any:
+        if self.dependencies.model_provider is not None:
+            return self.dependencies.model_provider()
+        return OllamaProvider(
+            os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
+            OllamaHttpTransport(self.dependencies.required("AEGIS_OLLAMA_URL")),
+        )
+
     def run(
-        self, utterance: str, principal: Principal, correlation_id: UUID | None = None
+        self,
+        utterance: str,
+        principal: Principal,
+        correlation_id: UUID | None = None,
+        context_correlation_id: UUID | None = None,
     ) -> Result:
         connection = self.dependencies.connect(self.dependencies.required("AEGIS_DATABASE_URL"))
         channel: OpenClawWebSocketChannel | None = None
@@ -149,6 +280,7 @@ class InteractionBoundary:
                 correlation_id=correlation_id or uuid4(),
             )
             objective_store = PostgresObjectiveStore(connection)
+            context = _context_from_prior_result(objective_store, context_correlation_id, principal)
             recovered_plan = objective_store.get_objective_by_correlation(
                 intent.correlation_id, principal
             )
@@ -195,9 +327,10 @@ class InteractionBoundary:
                 multi_action_result = MultiActionFastPath.resolve(intent)
                 if multi_action_result is not None:
                     return persist_fast_result(multi_action_result)
-            domain_clarification = DomainClarificationFastPath.resolve(intent)
-            if domain_clarification is not None:
-                return persist_fast_result(domain_clarification)
+            if self.dependencies.model_provider is None:
+                domain_clarification = DomainClarificationFastPath.resolve(intent)
+                if domain_clarification is not None:
+                    return persist_fast_result(domain_clarification)
             contextual_mutation = ContextualMutationGuard.resolve(intent)
             if contextual_mutation is not None:
                 return persist_fast_result(contextual_mutation)
@@ -420,10 +553,7 @@ class InteractionBoundary:
             if plan_actions is not None:
                 principal_store = PostgresHouseholdStore(connection)
                 kernel = Kernel(
-                    OllamaProvider(
-                        os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
-                        OllamaHttpTransport(self.dependencies.required("AEGIS_OLLAMA_URL")),
-                    ),
+                    self._model(),
                     StrictDecisionDecoder(),
                     PostgresSpacePolicy(
                         connection,
@@ -454,18 +584,89 @@ class InteractionBoundary:
                     store=PostgresObjectiveStore(connection),
                     audit=PostgresAuditLog(connection),
                 )
-                return kernel.run_sequence(intent, plan_actions)
+                return kernel.run_sequence(intent, plan_actions, context=context)
             try:
                 _domain, card = self.dependencies.select_action(utterance, manager)
             except InteractionInputError as exc:
-                return persist_fast_result(
-                    Result(
-                        objective_id=uuid4(),
-                        state=ObjectiveState.BLOCKED,
-                        message=str(exc),
-                        correlation_id=intent.correlation_id,
+                fallback = self._fallback_decision(intent, self._fallback_cards(manager), context)
+                if isinstance(fallback, Result):
+                    return persist_fast_result(fallback)
+                if isinstance(fallback, Decision):
+                    if fallback.kind is DecisionKind.ANSWER:
+                        return persist_fast_result(
+                            Result(
+                                objective_id=uuid4(),
+                                state=ObjectiveState.COMPLETED,
+                                message=fallback.answer or "",
+                                evidence={
+                                    "provenance": "model_generated",
+                                    "authoritative": False,
+                                },
+                                correlation_id=intent.correlation_id,
+                            )
+                        )
+                    if fallback.kind is DecisionKind.CLARIFY:
+                        return persist_fast_result(
+                            Result(
+                                objective_id=uuid4(),
+                                state=ObjectiveState.BLOCKED,
+                                message=fallback.clarification or "Please clarify your request.",
+                                correlation_id=intent.correlation_id,
+                            )
+                        )
+                    if fallback.kind is DecisionKind.NEED_CONTEXT:
+                        return persist_fast_result(
+                            Result(
+                                objective_id=uuid4(),
+                                state=ObjectiveState.BLOCKED,
+                                message="I need more context to safely interpret that request.",
+                                correlation_id=intent.correlation_id,
+                            )
+                        )
+                    if fallback.kind is DecisionKind.ACTION and fallback.action is not None:
+                        fallback_card = next(
+                            (
+                                candidate
+                                for candidate in self._fallback_cards(manager)
+                                if candidate.action == fallback.action
+                            ),
+                            None,
+                        )
+                        if fallback_card is None:
+                            return persist_fast_result(
+                                Result(
+                                    objective_id=uuid4(),
+                                    state=ObjectiveState.BLOCKED,
+                                    message=(
+                                        "I could not safely match that request to an "
+                                        "available capability."
+                                    ),
+                                    correlation_id=intent.correlation_id,
+                                    retryable=True,
+                                )
+                            )
+                        card = fallback_card
+                    else:
+                        return persist_fast_result(
+                            Result(
+                                objective_id=uuid4(),
+                                state=ObjectiveState.BLOCKED,
+                                message=fallback.reason or str(fallback.kind),
+                                correlation_id=intent.correlation_id,
+                            )
+                        )
+                else:
+                    domain_clarification = DomainClarificationFastPath.resolve(intent)
+                    if domain_clarification is not None:
+                        return persist_fast_result(domain_clarification)
+                    return persist_fast_result(
+                        Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=str(exc),
+                            correlation_id=intent.correlation_id,
+                        )
                     )
-                )
             principal_store = PostgresHouseholdStore(connection)
             if card.action.action_id == "tasks.complete":
                 title = card.action.arguments.get("title")
@@ -525,12 +726,12 @@ class InteractionBoundary:
                     }
                 )
             elif memory_task_title is not None and card.action.action_id == "tasks.create":
+                arguments: dict[str, Any] = {"title": memory_task_title}
+                due_at = requested_task_due_at(utterance)
+                if due_at is not None:
+                    arguments["due_at"] = due_at
                 card = card.model_copy(
-                    update={
-                        "action": card.action.model_copy(
-                            update={"arguments": {"title": memory_task_title}}
-                        )
-                    }
+                    update={"action": card.action.model_copy(update={"arguments": arguments})}
                 )
             elif memory_chore_title is not None and card.action.action_id == "tasks.chores.create":
                 card = card.model_copy(
@@ -579,10 +780,7 @@ class InteractionBoundary:
                 verifier = PostgresTaskListVerifier(task_store, principal)
                 permissions = {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})}
             kernel = Kernel(
-                OllamaProvider(
-                    os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
-                    OllamaHttpTransport(self.dependencies.required("AEGIS_OLLAMA_URL")),
-                ),
+                self._model(),
                 StrictDecisionDecoder(),
                 PostgresSpacePolicy(connection, permissions),
                 executor,
@@ -590,7 +788,7 @@ class InteractionBoundary:
                 store=PostgresObjectiveStore(connection),
                 audit=PostgresAuditLog(connection),
             )
-            return kernel.run(intent, (card,))
+            return kernel.run(intent, (card,), context=context)
         finally:
             if channel is not None:
                 channel.close()
