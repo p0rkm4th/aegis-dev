@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Protocol
@@ -54,6 +55,33 @@ class IdentityProvider(Protocol):
     def principal_from_claims(self, claims: dict[str, Any]) -> Principal: ...
 
 
+class ExternalPrincipalResolver(Protocol):
+    """Resolve a validated provider subject to AEGIS's canonical principal ID."""
+
+    def __call__(self, external_subject: str) -> str: ...
+
+
+class PostgresExternalPrincipalResolver:
+    """Look up the canonical principal mapped to an immutable external subject."""
+
+    def __init__(self, connect: Callable[[str], Any], database_url: str) -> None:
+        self.connect = connect
+        self.database_url = database_url
+
+    def __call__(self, external_subject: str) -> str:
+        connection = self.connect(self.database_url)
+        try:
+            row = connection.execute(
+                "SELECT id FROM aegis_principals WHERE external_subject = %s",
+                (external_subject,),
+            ).fetchone()
+        finally:
+            connection.close()
+        if row is None or not row[0]:
+            raise PermissionError("external identity is not provisioned in AEGIS")
+        return str(row[0])
+
+
 class RelationshipAuthorizer(Protocol):
     def can_read(self, principal: Principal, resource_id: str) -> AccessDecision: ...
 
@@ -77,12 +105,18 @@ class KeycloakIdentityProvider:
 class KeycloakOIDCClient:
     """Resolve a bearer token through Keycloak userinfo, then map its claims."""
 
-    def __init__(self, issuer: str, timeout: float = 10.0) -> None:
+    def __init__(
+        self,
+        issuer: str,
+        timeout: float = 10.0,
+        principal_resolver: ExternalPrincipalResolver | None = None,
+    ) -> None:
         if not issuer.startswith(("http://", "https://")):
             raise ValueError("Keycloak issuer must use HTTP or HTTPS")
         self.userinfo_endpoint = f"{issuer.rstrip('/')}/protocol/openid-connect/userinfo"
         self.timeout = timeout
         self.identity = KeycloakIdentityProvider()
+        self.principal_resolver = principal_resolver
 
     def principal_from_access_token(self, access_token: str) -> Principal:
         if not access_token:
@@ -99,7 +133,13 @@ class KeycloakOIDCClient:
             raise RuntimeError("Keycloak userinfo request failed") from exc
         if not isinstance(claims, dict):
             raise RuntimeError("Keycloak userinfo response was invalid")
-        return self.identity.principal_from_claims(claims)
+        principal = self.identity.principal_from_claims(claims)
+        if self.principal_resolver is None:
+            return principal
+        canonical_id = self.principal_resolver(principal.id)
+        if not canonical_id:
+            raise RuntimeError("external identity resolved to an empty principal")
+        return principal.model_copy(update={"id": canonical_id})
 
 
 class OpenFGAClient(Protocol):

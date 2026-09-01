@@ -53,3 +53,7 @@ database configured; local identity and authorization defaults are used by the
 launcher, and OpenClaw remains optional until an external mutation is needed.
 Production configuration still requires explicit Keycloak and OpenFGA URLs so
 authority is never silently replaced by local development defaults.
+Before using a Keycloak bearer token, provision its immutable subject in
+`aegis_principals.external_subject` and map it to the canonical `id` used by
+AEGIS state. AEGIS does not use mutable usernames as identity fallbacks; a
+missing mapping fails closed.
