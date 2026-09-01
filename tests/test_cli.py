@@ -401,6 +401,33 @@ def test_cli_check_rejects_missing_ollama_model(monkeypatch, capsys):
     assert "ollama pull qwen3:8b" in output
 
 
+def test_cli_check_explains_unreachable_ollama_endpoint(monkeypatch, capsys):
+    from aegis import cli
+
+    def unavailable(*_args, **_kwargs):
+        raise cli.urllib.error.URLError("connection refused")
+
+    monkeypatch.setattr(cli.urllib.request, "urlopen", unavailable)
+    monkeypatch.setattr("sys.argv", ["aegis", "--check"])
+    monkeypatch.delenv("AEGIS_DATABASE_URL", raising=False)
+    monkeypatch.setenv("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert (
+        "API unavailable at http://127.0.0.1:11434: URLError; "
+        "check `curl http://127.0.0.1:11434/api/tags`" in output
+    )
+
+
+def test_safe_endpoint_does_not_render_url_credentials():
+    from aegis.cli import _safe_endpoint
+
+    assert _safe_endpoint("http://secret:password@example.test:11434/api") == (
+        "http://example.test:11434/api"
+    )
+
+
 def test_browser_app_uses_core_callbacks_for_state_and_messages():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[tuple[str, str]] = []
