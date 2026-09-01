@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import shlex
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -346,6 +348,112 @@ class OpenClawGroceryVerifier:
             reason="external and canonical grocery readback verified"
             if verified
             else "external grocery postcondition failed",
+        )
+
+
+class OpenClawHomelabExecutor:
+    """Run a preconfigured service restart through OpenClaw terminal execution.
+
+    Commands are supplied by the trusted adapter configuration, never by model
+    arguments. The model can select a known service identifier only.
+    """
+
+    def __init__(
+        self,
+        channel: OpenClawWebSocketChannel,
+        services: dict[str, str],
+    ) -> None:
+        if not channel.persistent:
+            raise ValueError("Homelab execution requires a persistent channel")
+        self.channel = channel
+        self.gateway = OpenClawGatewayRpc(CorrelatedRpcClient(channel))
+        self.services = services
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "homelab.service.restart":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        service = request.action.arguments.get("service")
+        command = self.services.get(str(service))
+        if command is None:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_service": service},
+                command_succeeded=False,
+            )
+        marker = f"AEGIS_HOMELAB_DONE_{uuid4().hex}"
+        script = f"{command}; printf '%s\\n' {shlex.quote(marker)}"
+        terminal_output = ""
+        try:
+            opened = self.gateway.terminal_open({"rows": 40, "cols": 120})
+            session_id = opened["sessionId"]
+            self.gateway.terminal_input(
+                {"sessionId": session_id, "data": f"sh -c {shlex.quote(script)}\r"}
+            )
+            saw_marker = False
+            for _ in range(32):
+                event = self.channel.receive_event("terminal.data")
+                terminal_output += str(event.get("data", ""))
+                if any(line.strip() == marker for line in terminal_output.splitlines()):
+                    saw_marker = True
+                    break
+            self.gateway.terminal_close({"sessionId": session_id})
+        except (KeyError, RpcProtocolError) as exc:
+            raise RpcProtocolError("Homelab restart did not produce a terminal outcome") from exc
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "gateway": "openclaw",
+                "service": str(service),
+                "terminal_marker": marker,
+                "terminal_marker_observed": saw_marker,
+                "terminal_output_bytes": len(terminal_output),
+            },
+            command_succeeded=saw_marker,
+        )
+
+
+class OpenClawHomelabVerifier:
+    """Verify service health with an independent HTTP read, not Gateway output."""
+
+    def __init__(self, health_endpoints: dict[str, str], timeout: float = 5.0) -> None:
+        self.health_endpoints = health_endpoints
+        self.timeout = timeout
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        service = observation.evidence.get("service")
+        endpoint = self.health_endpoints.get(str(service))
+        if contract.kind != "health" or not observation.command_succeeded or endpoint is None:
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab restart or health contract failed",
+            )
+        try:
+            with urllib.request.urlopen(endpoint, timeout=self.timeout) as response:
+                status = response.status
+                body_bytes = len(response.read())
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "health_error": str(exc)},
+                reason="independent service health read failed",
+            )
+        verified = status == 200
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "health_endpoint": endpoint,
+                "health_status": status,
+                "health_body_bytes": body_bytes,
+            },
+            reason="independent service health verified" if verified else "service health failed",
         )
 
 
