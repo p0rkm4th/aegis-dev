@@ -33,6 +33,7 @@ from .planning import (
     DomainClarificationFastPath,
     MultiActionFastPath,
     PersonalChoreComposer,
+    PersonalMemoryChoreComposer,
     PersonalMemoryTaskComposer,
     PersonalTaskComposer,
 )
@@ -185,9 +186,17 @@ class InteractionBoundary:
             memory_task_title, memory_task_error = PersonalMemoryTaskComposer.resolve(
                 utterance, personal_state
             )
+            memory_chore_title, memory_chore_error = PersonalMemoryChoreComposer.resolve(
+                utterance, personal_state
+            )
             composer_errors = tuple(
                 error
-                for error in (goal_task_error, goal_chore_error, memory_task_error)
+                for error in (
+                    goal_task_error,
+                    goal_chore_error,
+                    memory_task_error,
+                    memory_chore_error,
+                )
                 if error is not None
             )
             if composer_errors:
@@ -197,7 +206,9 @@ class InteractionBoundary:
                     message=composer_errors[0],
                     correlation_id=intent.correlation_id,
                 )
-            composed_title = goal_task_title or goal_chore_title or memory_task_title
+            composed_title = (
+                goal_task_title or goal_chore_title or memory_task_title or memory_chore_title
+            )
             household_snapshot = household_store.read_snapshot(principal)
             if CrossDomainPlanningFastPath.matches(utterance):
                 planning_result = CrossDomainPlanningFastPath(
@@ -289,6 +300,14 @@ class InteractionBoundary:
                     update={
                         "action": card.action.model_copy(
                             update={"arguments": {"title": memory_task_title}}
+                        )
+                    }
+                )
+            elif memory_chore_title is not None and card.action.action_id == "tasks.chores.create":
+                card = card.model_copy(
+                    update={
+                        "action": card.action.model_copy(
+                            update={"arguments": {"title": memory_chore_title}}
                         )
                     }
                 )

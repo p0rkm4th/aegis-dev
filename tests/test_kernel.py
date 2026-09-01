@@ -112,6 +112,7 @@ from aegis.planning import (
     DomainClarificationFastPath,
     MultiActionFastPath,
     PersonalChoreComposer,
+    PersonalMemoryChoreComposer,
     PersonalMemoryTaskComposer,
     PersonalTaskComposer,
 )
@@ -2023,6 +2024,24 @@ def test_personal_memory_task_composer_clarifies_equal_memory_matches():
 
     assert title is None
     assert error == "Which personal memory should I turn into a task? Please name the memory."
+
+
+def test_personal_memory_chore_composer_grounds_shared_chore_in_current_memory():
+    from datetime import datetime, timezone
+
+    personal = PersonalState()
+    personal.add_memory(
+        "The garage filter needs replacing",
+        datetime(2026, 9, 1, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+
+    title, error = PersonalMemoryChoreComposer.resolve(
+        "Turn my garage filter memory into a chore", personal
+    )
+
+    assert title == "The garage filter needs replacing"
+    assert error is None
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():
