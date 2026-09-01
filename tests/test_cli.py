@@ -4,12 +4,18 @@ from uuid import uuid4
 
 import pytest
 
+from aegis import InteractionBoundary, InteractionDependencies
 from aegis.cli import _domain_and_action, _ensure_local_identity
 from aegis.contracts import IntentFrame, ObjectiveState, Principal, Result
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import Task, TaskReadFastPath, TaskStatus
 from aegis.web import BrowserApp
+
+
+def test_interaction_boundary_is_public_without_live_runtime():
+    assert InteractionBoundary.__module__ == "aegis.interaction"
+    assert InteractionDependencies.__module__ == "aegis.interaction"
 
 
 def manager_with_reference_cards() -> PackManager:
