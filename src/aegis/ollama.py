@@ -4,12 +4,40 @@ from __future__ import annotations
 
 import json
 from typing import Any, Protocol
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
-from .contracts import ModelRequest, ModelResponse
+from .contracts import Decision, ModelRequest, ModelResponse
 
 
 class OllamaTransport(Protocol):
     def chat(self, payload: dict[str, Any]) -> dict[str, Any]: ...
+
+
+class OllamaHttpTransport:
+    """Small standard-library transport for the Ollama HTTP API."""
+
+    def __init__(self, base_url: str, timeout: float = 120.0) -> None:
+        if not base_url.startswith(("http://", "https://")):
+            raise ValueError("Ollama base URL must use HTTP or HTTPS")
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+
+    def chat(self, payload: dict[str, Any]) -> dict[str, Any]:
+        request = Request(
+            f"{self.base_url}/api/chat",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=self.timeout) as response:
+                value = json.load(response)
+        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise OllamaResponseError("Ollama HTTP request failed") from exc
+        if not isinstance(value, dict):
+            raise OllamaResponseError("Ollama returned a non-object response")
+        return value
 
 
 class OllamaResponseError(ValueError):
@@ -39,7 +67,8 @@ class OllamaProvider:
             payload = {
                 "model": self.model,
                 "stream": False,
-                "format": "json",
+                "think": False,
+                "format": Decision.model_json_schema(),
                 "messages": [{"role": "user", "content": prompt}],
             }
             response = self.transport.chat(payload)
@@ -61,6 +90,11 @@ class OllamaProvider:
         return json.dumps(
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
+                "action_rule": (
+                    "For ACTION, copy the selected ActionCard action object verbatim, "
+                    "including arguments, required_permissions, and verification. "
+                    "Do not omit, add, or change any action field."
+                ),
                 "utterance": request.working_set.intent.utterance,
                 "action_cards": cards,
             },

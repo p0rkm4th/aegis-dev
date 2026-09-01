@@ -64,7 +64,7 @@ from aegis.kernel import Kernel
 from aegis.migrations import validate_migrations
 from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
 from aegis.network import AuthorizedNetworkScope, DiscoveredDevice, HomelabInventory, ScopeDenied
-from aegis.ollama import OllamaProvider, OllamaResponseError
+from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
 from aegis.osint import CapabilityGap, Forge, ForgeLifecycle, ForgeStatus, Investigation
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
@@ -816,6 +816,17 @@ def test_ollama_provider_repairs_malformed_json_once():
     assert response.raw == {"kind": "ANSWER", "answer": "ok"}
     assert len(transport.calls) == 2
     assert "invalid" in transport.calls[1]["messages"][0]["content"]
+    assert transport.calls[0]["think"] is False
+    assert transport.calls[0]["format"]["title"] == "Decision"
+
+
+def test_ollama_http_transport_rejects_non_http_urls():
+    try:
+        OllamaHttpTransport("unix:///run/ollama.sock")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("non-HTTP Ollama transport URL was accepted")
 
 
 def test_ollama_provider_does_not_retry_beyond_bound():
