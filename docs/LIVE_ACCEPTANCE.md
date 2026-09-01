@@ -154,6 +154,13 @@ connection/process boundary; temporal retrieval returned only the active
 correction. Records are selected by the private Vault ID, so this repository
 does not use the transcript or a vector index as canonical personal state.
 
+Shared household persistence was verified after migration
+`005_household_state.sql`. A fresh PostgreSQL connection reloaded shared
+groceries, chores, events, and obligations for the Apartment Space. The
+reloaded object received its active member set from policy at load time; a
+principal not supplied by that policy remained denied, so persistence does not
+turn serialized Space data into authorization.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
