@@ -271,17 +271,28 @@ class InteractionBoundary:
             return None
         try:
             provider = self.dependencies.model_provider()
-            decision = StrictDecisionDecoder().decode(
-                provider.decide(
-                    ModelRequest(
-                        working_set=WorkingSet(intent=intent, context=context),
-                        action_cards=cards,
-                        allow_argument_proposals=True,
-                    )
-                ),
-                cards,
+            request = ModelRequest(
+                working_set=WorkingSet(intent=intent, context=context),
+                action_cards=cards,
                 allow_argument_proposals=True,
             )
+            decoder = StrictDecisionDecoder()
+            decision = decoder.decode(
+                provider.decide(request), cards, allow_argument_proposals=True
+            )
+            if decision.kind is DecisionKind.ACTION and decision.action is not None:
+                card = next(
+                    (card for card in cards if card.action.action_id == decision.action.action_id),
+                    None,
+                )
+                if card is not None and card.argument_keys and not decision.action.arguments:
+                    # A small model can identify the capability but omit its
+                    # object argument. Re-ask with the already-selected card;
+                    # this remains bounded cognition, not phrase extraction.
+                    focused = request.model_copy(update={"action_cards": (card,)})
+                    decision = decoder.decode(
+                        provider.decide(focused), (card,), allow_argument_proposals=True
+                    )
             return decision
         except InvalidDecision:
             return Result(
