@@ -552,7 +552,15 @@ class BrowserApp:
             except (json.JSONDecodeError, UnicodeDecodeError):
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
             except (ValueError, KeyError, TypeError) as exc:
-                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
+                # Keep the one useful user-facing validation hint, but never
+                # expose parser/implementation details such as UUID errors.
+                detail = str(exc)
+                safe_messages = {
+                    "utterance must be a non-empty string",
+                    "request contains undocumented fields",
+                }
+                validation_message = detail if detail in safe_messages else "invalid request"
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", validation_message)
             try:
                 message = self.interaction(utterance, principal, correlation_id)
             except PermissionError:

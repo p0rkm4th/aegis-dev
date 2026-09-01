@@ -1222,7 +1222,7 @@ def test_browser_rejects_malformed_correlation_id_before_core():
     )
 
     assert status == 400
-    assert "badly formed" in json.loads(payload)["error"]
+    assert json.loads(payload) == {"code": "invalid_request", "error": "invalid request"}
     assert called is False
 
 
