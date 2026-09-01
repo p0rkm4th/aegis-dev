@@ -91,11 +91,16 @@ class PersonalTaskComposer:
     """Resolve an explicit personal-goal-to-task request from Vault state."""
 
     _ACTION_TERMS = ("create", "add", "turn", "make")
+    _TARGET = "task"
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
-        return "task" in text and "goal" in text and any(term in text for term in cls._ACTION_TERMS)
+        return (
+            cls._TARGET in text
+            and "goal" in text
+            and any(term in text for term in cls._ACTION_TERMS)
+        )
 
     @classmethod
     def resolve(cls, utterance: str, personal: PersonalState) -> tuple[str | None, str | None]:
@@ -111,15 +116,21 @@ class PersonalTaskComposer:
             if any(
                 term in goal.description.casefold()
                 for term in text.replace("'", "").split()
-                if len(term) >= 4 and term not in {"create", "task", "goal", "into"}
+                if len(term) >= 4 and term not in {"create", cls._TARGET, "goal", "into"}
             )
         )
         if len(matches) == 1:
             return matches[0].description, None
         return (
             None,
-            "Which personal goal should I turn into a task? Please name the goal.",
+            f"Which personal goal should I turn into a {cls._TARGET}? Please name the goal.",
         )
+
+
+class PersonalChoreComposer(PersonalTaskComposer):
+    """Resolve an explicit personal-goal-to-shared-chore request."""
+
+    _TARGET = "chore"
 
 
 class CrossDomainPlanningFastPath:

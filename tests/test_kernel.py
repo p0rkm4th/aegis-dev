@@ -111,6 +111,7 @@ from aegis.planning import (
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
     MultiActionFastPath,
+    PersonalChoreComposer,
     PersonalTaskComposer,
 )
 from aegis.projections import (
@@ -1973,6 +1974,20 @@ def test_personal_task_composer_does_not_guess_between_goals():
 
     assert title is None
     assert error == "Which personal goal should I turn into a task? Please name the goal."
+
+
+def test_personal_chore_composer_grounds_shared_chore_in_goal():
+    from datetime import datetime, timezone
+
+    personal = PersonalState()
+    personal.add_goal("Finish the restore drill", datetime(2026, 9, 1, tzinfo=timezone.utc))
+
+    title, error = PersonalChoreComposer.resolve(
+        "Turn my restore drill goal into a chore", personal
+    )
+
+    assert title == "Finish the restore drill"
+    assert error is None
 
 
 def test_postgres_household_store_reloads_shared_state_without_persisting_membership():

@@ -712,10 +712,15 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
     elif action_id == "tasks.chores.create":
         match = re.search(r"(?:create|add)\s+(?:a\s+)?chore\s+(?:to\s+)?(.+)$", text)
         if match is None:
-            raise ValueError(
-                "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
-            )
-        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+            if "goal" not in text or not any(
+                phrase in text for phrase in ("turn", "make", "add", "create")
+            ):
+                raise ValueError(
+                    "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
+                )
+            action = action.model_copy(update={"arguments": {}})
+        else:
+            action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
     elif action_id == "tasks.events.create":
         match = re.search(r"(?:create|add)\s+(?:an?\s+)?event\s+(?:for\s+)?(.+)$", text)
         if match is None:

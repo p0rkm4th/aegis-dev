@@ -32,6 +32,7 @@ from .planning import (
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
     MultiActionFastPath,
+    PersonalChoreComposer,
     PersonalTaskComposer,
 )
 from .projections import SharedObligation
@@ -177,13 +178,17 @@ class InteractionBoundary:
             goal_task_title, goal_task_error = PersonalTaskComposer.resolve(
                 utterance, personal_state
             )
-            if goal_task_error is not None:
+            goal_chore_title, goal_chore_error = PersonalChoreComposer.resolve(
+                utterance, personal_state
+            )
+            if goal_task_error is not None or goal_chore_error is not None:
                 return Result(
                     objective_id=uuid4(),
                     state=ObjectiveState.BLOCKED,
-                    message=goal_task_error,
+                    message=goal_task_error or goal_chore_error or "personal goal is unavailable",
                     correlation_id=intent.correlation_id,
                 )
+            composed_title = goal_task_title or goal_chore_title
             household_snapshot = household_store.read_snapshot(principal)
             if CrossDomainPlanningFastPath.matches(utterance):
                 planning_result = CrossDomainPlanningFastPath(
@@ -191,11 +196,11 @@ class InteractionBoundary:
                 ).resolve(intent)
                 if planning_result is not None:
                     return planning_result
-            if HouseholdReadFastPath.matches(utterance):
+            if composed_title is None and HouseholdReadFastPath.matches(utterance):
                 household_result = HouseholdReadFastPath(household_snapshot).resolve(intent)
                 if household_result is not None:
                     return household_result
-            if goal_task_title is None:
+            if composed_title is None:
                 task_result = TaskReadFastPath(task_store).resolve(intent)
                 if task_result is not None:
                     return task_result
@@ -226,7 +231,7 @@ class InteractionBoundary:
                 )
             else:
                 memory_fast_path = PersonalMemoryFastPath(personal_state)
-            if goal_task_title is None:
+            if composed_title is None:
                 memory_result = memory_fast_path.resolve(intent)
                 if memory_result is not None:
                     return memory_result
@@ -259,6 +264,14 @@ class InteractionBoundary:
                     update={
                         "action": card.action.model_copy(
                             update={"arguments": {"title": goal_task_title}}
+                        )
+                    }
+                )
+            elif goal_chore_title is not None and card.action.action_id == "tasks.chores.create":
+                card = card.model_copy(
+                    update={
+                        "action": card.action.model_copy(
+                            update={"arguments": {"title": goal_chore_title}}
                         )
                     }
                 )
