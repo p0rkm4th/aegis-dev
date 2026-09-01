@@ -199,6 +199,35 @@ def test_cli_json_requires_check_or_once(monkeypatch):
     assert raised.value.code == 2
 
 
+def test_cli_rejects_invalid_browser_port(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--web", "--port", "70000"])
+    with pytest.raises(SystemExit) as raised:
+        cli.main()
+
+    assert raised.value.code == 2
+
+
+def test_cli_web_reports_bootstrap_failure(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--web", "--port", "8081"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_prepare_local_web_runtime",
+        lambda _principal: (_ for _ in ()).throw(RuntimeError("missing database")),
+    )
+
+    assert cli.main() == 1
+    assert capsys.readouterr().out == "Not completed — unable to start browser: missing database\n"
+
+
 def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
     from aegis import cli
 

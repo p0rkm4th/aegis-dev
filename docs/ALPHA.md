@@ -54,8 +54,9 @@ It serves conversation through the same `handle()` boundary and renders a
 small authorized view of canonical Pack/domain state, including available and
 installed Pack hubs plus Tasks/Kitchen context. The browser adapter
 owns only HTTP and presentation; authorization, persistence, and meaning stay
-below it. Use `--port` to select another local port; it listens on loopback by
-default.
+below it. Use `--port` to select another local port (1–65535); invalid values
+are rejected before startup. It listens on loopback by default, and bootstrap
+or bind failures return an actionable error rather than a traceback.
 
 Browser API requests resolve the configured identity again for each request.
 Malformed or unavailable identity is returned as an unauthorized response;
