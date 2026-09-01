@@ -340,6 +340,29 @@ class InteractionBoundary:
                     update={"arguments": {"title": plan_titles[1]}}
                 )
                 plan_actions = (task_action, chore_action)
+            elif (event_details := MultiActionFastPath.task_event_details(utterance)) is not None:
+                task_card = next(
+                    card
+                    for card in manager.retrieve("tasks")
+                    if card.action.action_id == "tasks.create"
+                )
+                event_card = next(
+                    card
+                    for card in manager.retrieve("tasks")
+                    if card.action.action_id == "tasks.events.create"
+                )
+                task_action = task_card.action.model_copy(
+                    update={"arguments": {"title": event_details[0]}}
+                )
+                event_action = event_card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "title": event_details[0],
+                            "starts_at": event_details[1],
+                        }
+                    }
+                )
+                plan_actions = (task_action, event_action)
             else:
                 plan_actions = None
             if plan_actions is not None:
@@ -360,12 +383,18 @@ class InteractionBoundary:
                             "tasks.chores.create": PostgresChoreExecutor(
                                 principal_store, principal
                             ),
+                            "tasks.events.create": PostgresEventExecutor(
+                                principal_store, principal
+                            ),
                         }
                     ),
                     _ActionVerifierDispatch(
                         {
                             "tasks.create": PostgresTaskVerifier(task_store, principal),
                             "tasks.chores.create": PostgresChoreVerifier(
+                                principal_store, principal
+                            ),
+                            "tasks.events.create": PostgresEventVerifier(
                                 principal_store, principal
                             ),
                         }
