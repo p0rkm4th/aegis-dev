@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-contextual-mutation-safety-live-green",
+  "current_checkpoint": "phase-12-cross-domain-read-composition-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "40feb55f4374c1390886c5ee0e597716dbb6d11a",
-  "last_green_sha": "40feb55f4374c1390886c5ee0e597716dbb6d11a",
-  "last_pushed_sha": "40feb55f4374c1390886c5ee0e597716dbb6d11a",
+  "head_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
+  "last_green_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
+  "last_pushed_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "4d6c7b45128ed0a59a486c2f6954241f5172117c",
-    "last_known_green_sha": "4d6c7b45128ed0a59a486c2f6954241f5172117c",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/4d6c7b4",
+    "running_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
+    "last_known_green_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/15394cb",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -577,6 +577,8 @@
     "owner_persisted_plan_retry_live": "green live: fresh owner plan correlation 24242424-2424-4242-8242-242424242424 had only its aggregate Result changed to simulated blocked state, then an explicit browser retry through InteractionBoundary reached Kernel recovery, reused the same parent and child objective IDs, verified both steps, and returned matching completed request status without duplicate mutations",
     "owner_mixed_objective_fail_closed_live": "green live: fresh authenticated owner request correlation 26262626-2626-4262-8262-262626262626 combining affordability with a grocery mutation was blocked before either dispatch, returned the one-action verification guidance, and produced matching canonical blocked request status",
     "owner_contextual_mutation_safety_live": "green live: fresh authenticated owner request correlation 29292929-2929-4292-8292-292929292929 requesting an event date from memory was blocked before dispatch with an actionable direct-date clarification; response and canonical request status matched and no event mutation occurred",
+    "cross_domain_memory_obligation_regression": "green deterministic: multi-domain read composition recognizes natural 'which ... should I' prioritization wording, includes bounded canonical memory and open-obligation context, and formats both without adding frontend or model authority",
+    "owner_cross_domain_memory_obligation_live": "green live: authenticated owner browser correlation 31313131-3131-4313-8313-313131313131 on release 15394cb returned completed canonical planning context containing relevant backup memory and the open Utilities obligation; request-status matched correlation/objective/state and owner health/readiness remained green",
     "plan_child_observation_crash_recovery_regression": "green deterministic: when a simulated crash occurs after the first plan child observation is durable but before its Result is persisted, a fresh Kernel independently verifies the stored observation, executes only the remaining step, and completes the aggregate with no duplicate first-step execution",
     "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
     "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
@@ -586,5 +588,5 @@
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path and owner browser lane: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain Personal/Household/Tasks and Finance/Household/Tasks reads are bounded and canonical; next inspect multi-step plan persistence and per-step authorization/verification."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain Personal/Household/Tasks and Finance/Household/Tasks reads are bounded and canonical; next inspect multi-step plan persistence and per-step authorization/verification."
 }
