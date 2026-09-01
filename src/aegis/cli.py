@@ -82,6 +82,7 @@ def _load_env_file(path: str) -> None:
         lines = env_path.read_text(encoding="utf-8").splitlines()
     except OSError as exc:
         raise ValueError(f"unable to read env file {path!r}: {type(exc).__name__}") from exc
+    seen: set[str] = set()
     for line_number, raw_line in enumerate(lines, start=1):
         line = raw_line.strip()
         if not line or line.startswith("#"):
@@ -91,6 +92,9 @@ def _load_env_file(path: str) -> None:
         name, value = (part.strip() for part in line.split("=", 1))
         if not re.fullmatch(r"AEGIS_[A-Z0-9_]+", name):
             raise ValueError(f"invalid env file key on line {line_number}; use AEGIS_* keys")
+        if name in seen:
+            raise ValueError(f"duplicate env file key on line {line_number}: {name}")
+        seen.add(name)
         if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
             value = value[1:-1]
         os.environ.setdefault(name, value)
