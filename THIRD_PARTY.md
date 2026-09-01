@@ -3,6 +3,7 @@
 | Component | Version/pin | License | Use | Status |
 |---|---|---|---|---|
 | Pydantic | `>=2.7,<3` | MIT | typed contracts | direct dependency; verify lock at release |
+| Psycopg | `>=3.2,<4` (`binary` extra) | LGPL-3.0-only | PostgreSQL canonical state and migrations | direct runtime dependency; verify lock at release |
 | Pytest | `>=8,<9` | MIT | tests | development-only |
 | Ruff | `>=0.6,<1` | MIT | lint/format | development-only |
 | Mypy | `>=1.11,<2` | MIT | type checking | development-only |

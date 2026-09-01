@@ -14,6 +14,7 @@ def test_validation_script_and_ci_workflow_exist():
     sbom = json.loads((root / "provenance" / "SBOM.json").read_text())
     assert sbom["bomFormat"] == "CycloneDX"
     assert any(component["name"] == "pydantic" for component in sbom["components"])
+    assert any(component["name"] == "psycopg" for component in sbom["components"])
 
 
 def test_alpha_launcher_has_environment_fallback_and_actionable_failure():
