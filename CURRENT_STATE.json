@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "7e79934ad0a870c6be207b479fc83ddad2898ac8",
-  "last_green_sha": "7e79934ad0a870c6be207b479fc83ddad2898ac8",
-  "last_pushed_sha": "7e79934ad0a870c6be207b479fc83ddad2898ac8",
+  "head_sha": "4fcc96e44e1cdbe5eae78ceb26b90157e25e2b9d",
+  "last_green_sha": "4fcc96e44e1cdbe5eae78ceb26b90157e25e2b9d",
+  "last_pushed_sha": "4fcc96e44e1cdbe5eae78ceb26b90157e25e2b9d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -107,6 +107,7 @@
     ,"browser preserves stale state only for service outage and clears it on auth loss"
     ,"strict browser Constellation projection validation with generic fail-closed response"
     ,"strict browser interaction response envelope with undocumented-field rejection"
+    ,"browser exposes bounded canonical Result detail for lifecycle and verification visibility"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -127,7 +128,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
     "pytest": "121 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, no-store transport headers, authorized detail projections, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, and strict interaction envelopes are covered"
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, no-store transport headers, authorized detail projections, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, and bounded canonical detail visibility are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -243,6 +244,7 @@
         "browser_auth_loss_state_policy": "green deterministic: the browser refresh path preserves an existing projection for service-unavailable errors with a visible warning, but clears nodes and relationships for identity_unavailable or state_access_denied responses",
         "browser_projection_validation_live": "green: a fresh authorized PostgreSQL constellation response validated into the strict browser projection model with 19 nodes and 18 edges; a malformed projection failed closed as generic state_unavailable (503) before client rendering",
         "browser_interaction_envelope": "green deterministic: normal browser string/canonical responses serialize through the strict message envelope, while an undocumented private_debug field fails closed as generic request_unavailable (503)",
+        "browser_result_detail_live": "green: a fresh PostgreSQL-backed browser task read returned canonical state and Result detail ('Canonical task list read') alongside objective/correlation fields, while raw evidence remained absent from the browser response",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
