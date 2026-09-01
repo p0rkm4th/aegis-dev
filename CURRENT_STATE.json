@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-rendered-browser-alpha-green",
+  "current_checkpoint": "phase-12-browser-lifecycle-green",
   "active_branch": "aegis-dev",
-  "head_sha": "d87328e914a52593b305aa24a58b0f65884ab583",
-  "last_green_sha": "d87328e914a52593b305aa24a58b0f65884ab583",
-  "last_pushed_sha": "d87328e914a52593b305aa24a58b0f65884ab583",
+  "head_sha": "5c04a9eb192ac3951765d82667221cb026dbd50d",
+  "last_green_sha": "5c04a9eb192ac3951765d82667221cb026dbd50d",
+  "last_pushed_sha": "5c04a9eb192ac3951765d82667221cb026dbd50d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -159,7 +159,7 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; PATH=.venv/bin:$PATH bash scripts/smoke_install.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "152 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "153 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
@@ -170,7 +170,8 @@
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
-    "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
+    "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs",
+    "foreground Ctrl-C live acceptance was not proven because the background-shell probe inherited SIGINT-ignore behavior; deterministic server close coverage is green"
   ],
   "blocked_lanes": [
   ],
@@ -329,6 +330,7 @@
         "browser_post_completion_refresh": "green deterministic and served-HTML: successful interaction and recovered completion now call the existing status-aware refresh path; refresh failures are visible and authorization loss still clears protected displays instead of being silently discarded",
         "browser_failure_status_rendered": "green rendered boundary: after a completed state, an invalid browser request displays the structured invalid_request status and replaces stale completion detail; no false completed state remains visible",
         "browser_ollama_failure_rendered": "green live rendered degradation: Chromium displayed Runtime NOT READY with 2/3 required checks OK and actionable AEGIS_OLLAMA_URL remediation while retaining the authorized 10-node canonical graph",
+        "browser_server_shutdown": "green deterministic: the web adapter closes its HTTP server in a finally block when serve_forever raises KeyboardInterrupt; no server resource is left open",
         "launcher_init_symlink_regression": "green deterministic: --init refuses a symlink target and leaves the symlink destination unchanged; the full validation gate passed at 152 tests",
         "browser_rendered_task_live": "green live rendered acceptance: Playwright 1.62.0 with provisioned Chromium opened a fresh loopback AEGIS process, rendered 10 authorized Constellation nodes including Tasks, submitted a task through Qwen3:8B/PostgreSQL, displayed verified completion, refreshed state, and the Tasks detail view showed the new canonical task and open status",
         "browser_rendered_detail_live": "green live rendered acceptance: after a browser-originated task mutation, selecting the rendered Tasks hub displayed the newly persisted task and status; the page reported Runtime READY with 3/3 required checks OK",
@@ -361,5 +363,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, local .env auto-discovery, private non-overwriting --init bootstrap with symlink refusal, fresh browser-originated verified task mutation, graceful browser degradation with unavailable Ollama, fresh browser multi-domain reads, duplicate browser submission idempotency, visible post-completion refresh failures, rendered Chromium Constellation/task/detail acceptance, rendered mid-session revocation clearing, rendered explicit refresh recovery, truthful browser failure-status rendering, and rendered Ollama outage diagnostics are green. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, local .env auto-discovery, private non-overwriting --init bootstrap with symlink refusal, fresh browser-originated verified task mutation, graceful browser degradation with unavailable Ollama, fresh browser multi-domain reads, duplicate browser submission idempotency, visible post-completion refresh failures, rendered Chromium Constellation/task/detail acceptance, rendered mid-session revocation clearing, rendered explicit refresh recovery, truthful browser failure-status rendering, rendered Ollama outage diagnostics, and clean server interruption handling are green. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; foreground Ctrl-C acceptance remains unproven due the background-shell harness limitation; Home Assistant/mobile/voice remain lane-limited."
 }
