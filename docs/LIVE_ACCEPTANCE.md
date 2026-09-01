@@ -146,3 +146,13 @@ Through `OpenFGAHttpClient` and the existing `OpenFGAAuthorization` port, the
 real `/stores/{store}/check` API allowed Alice’s `can_read` tuple and denied
 Bob’s missing tuple. Keycloak authentication remains a separate integration
 checkpoint.
+
+The disposable Keycloak identity runtime was then started at
+`http://127.0.0.1:58081` from `quay.io/keycloak/keycloak:26.7.2`, resolved to
+image digest
+`sha256:9d1f1b2b7261ff53c66cb1092dfcdc34a5fb77e81f9e6a6e75b8b6a795de8067`.
+The management `/health/ready` endpoint returned `UP` on port 9000 inside the
+container. OIDC discovery, token issuance, and `/realms/aegis/.../userinfo`
+returned the disposable Alice subject. `KeycloakIdentityProvider` then maps
+that validated subject to canonical Vault/Space context; it does not validate
+tokens or place identity rules in prompts.
