@@ -293,6 +293,23 @@ def test_cli_carries_unambiguous_tomorrow_task_due_date():
     assert timedelta(hours=23) < due_at - datetime.now(timezone.utc) < timedelta(hours=25)
 
 
+def test_cli_carries_unambiguous_next_week_task_due_date():
+    from datetime import datetime, timedelta, timezone
+
+    _domain, card = _domain_and_action(
+        "Please create a task to review the restore drill next week.",
+        manager_with_reference_cards(),
+    )
+
+    assert card.action.arguments["title"] == "review the restore drill"
+    due_at = datetime.fromisoformat(card.action.arguments["due_at"])
+    assert (
+        timedelta(days=6, hours=23)
+        < due_at - datetime.now(timezone.utc)
+        < timedelta(days=7, hours=1)
+    )
+
+
 def test_cli_routes_task_completion_to_complete_action() -> None:
     domain, card = _domain_and_action(
         "Complete the task Verify backup retention.", manager_with_reference_cards()
