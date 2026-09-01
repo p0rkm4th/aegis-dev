@@ -189,6 +189,47 @@ def test_cli_once_json_returns_failure_for_non_completed_result(monkeypatch, cap
     assert json.loads(capsys.readouterr().out)["state"] == "blocked"
 
 
+def test_cli_once_json_returns_stable_error_for_request_failure(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "do it", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "run_interaction",
+        lambda *_: (_ for _ in ()).throw(RuntimeError("secret implementation detail")),
+    )
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out) == {
+        "code": "request_unavailable",
+        "error": "request unavailable",
+        "state": "failed",
+    }
+
+
+def test_cli_once_json_returns_stable_error_for_identity_failure(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "do it", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: (_ for _ in ()).throw(RuntimeError("secret identity detail")),
+    )
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out) == {
+        "code": "identity_unavailable",
+        "error": "identity unavailable",
+        "state": "failed",
+    }
+
+
 def test_cli_json_requires_check_or_once(monkeypatch):
     from aegis import cli
 

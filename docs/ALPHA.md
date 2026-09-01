@@ -30,7 +30,9 @@ health checks that need one request, use non-interactive mode:
 `--once` prints one canonical human-readable result and exits with status 0;
 handled request errors print an actionable message and exit with status 1.
 Canonical non-completed results (for example denied or incomplete work) also
-exit with status 1. It does not bypass Core policy, authorization, execution,
+exit with status 1. Initialization or transport failures return a stable JSON
+error object with `code`, generic `error`, and `state` fields rather than
+implementation details. It does not bypass Core policy, authorization, execution,
 or verification. Add
 `--no-banner` when embedding the interactive client in a terminal wrapper.
 For machine consumers, add `--json` to `--once`; it emits the canonical
