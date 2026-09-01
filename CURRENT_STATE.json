@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-owner-dogfood-memory-task-live-green",
+  "current_checkpoint": "phase-12-owner-dogfood-memory-chore-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "fc26faee9f8a03c08b2dde1c30882e8107ff1624",
-  "last_green_sha": "fc26faee9f8a03c08b2dde1c30882e8107ff1624",
-  "last_pushed_sha": "fc26faee9f8a03c08b2dde1c30882e8107ff1624",
+  "head_sha": "e17a7216b707237fce62231ee27687836b4fb9f5",
+  "last_green_sha": "e17a7216b707237fce62231ee27687836b4fb9f5",
+  "last_pushed_sha": "e17a7216b707237fce62231ee27687836b4fb9f5",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "fc26faee9f8a03c08b2dde1c30882e8107ff1624",
-    "last_known_green_sha": "fc26faee9f8a03c08b2dde1c30882e8107ff1624",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/fc26fae",
+    "running_sha": "e17a7216b707237fce62231ee27687836b4fb9f5",
+    "last_known_green_sha": "e17a7216b707237fce62231ee27687836b4fb9f5",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/e17a721",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -235,6 +235,7 @@
     ,"request-status distinguishes malformed client queries from canonical provider failures"
     ,"browser conversation and state refresh expose in-flight work through accessible busy state"
     ,"Personal Memory to Tasks composition grounds an explicit task request in a unique current Vault memory and clarifies on equal matches"
+    ,"Personal Memory to Household Chores composition grounds an explicit shared chore request in a unique current Vault memory while preserving Space authorization and independent verification"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -540,7 +541,10 @@
     "personal_memory_task_regression": "green deterministic: lexical scoring selects a unique highest-match current Vault memory, excludes superseded memories, and blocks equal matches without guessing",
     "personal_memory_task_live": "green live: source/runtime Qwen3:8B request correlation 88888888-8888-4888-8888-888888888888 completed a PostgreSQL canonical task grounded in the unique 'Investigated the server backup failure' memory with canonical task readback verified",
     "owner_dogfood_memory_task_live": "green live: upgraded authenticated owner browser request correlation 99999999-9999-4999-8999-999999999999 completed objective 36157e53-68aa-4fb4-8273-66e7b66d7cb1 as the canonical task 'Investigated the server backup failure'; owner service health/readiness and 10-node/9-edge Constellation remained green after upgrade",
-    "owner_dogfood_running_checkpoint": "fc26faee9f8a03c08b2dde1c30882e8107ff1624; installed release /home/scootz/.local/share/aegis-owner/releases/fc26fae; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
+    "personal_memory_chore_regression": "green deterministic: the shared-chore resolver reuses scored unique current-memory matching, clarifies ties, and does not grant authority from Vault context",
+    "personal_memory_chore_live": "green live: source/runtime Qwen3:8B correlation aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa completed the canonical shared chore grounded in the unique Gateway paired-device memory with independent chore readback",
+    "owner_dogfood_memory_chore_live": "green live: upgraded authenticated owner browser correlation bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb completed objective 105e6189-3de0-495c-a9a2-b3c9a9525c31 as the canonical chore 'The Gateway uses a paired device for terminal execution'; health/readiness and authorized Constellation remained green",
+    "owner_dogfood_running_checkpoint": "e17a7216b707237fce62231ee27687836b4fb9f5; installed release /home/scootz/.local/share/aegis-owner/releases/e17a721; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
