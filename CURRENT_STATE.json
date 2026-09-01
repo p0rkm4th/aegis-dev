@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-natural-purchase-safety-cross-pack-live-green",
+  "current_checkpoint": "phase-12-verified-task-completion-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "80c84a78091d806bf0586a6ca3e8681bc4c56056",
-  "last_green_sha": "80c84a78091d806bf0586a6ca3e8681bc4c56056",
-  "last_pushed_sha": "80c84a78091d806bf0586a6ca3e8681bc4c56056",
+  "head_sha": "156d7eac77be22ed1f77bcc4d48954775ddd4d65",
+  "last_green_sha": "156d7eac77be22ed1f77bcc4d48954775ddd4d65",
+  "last_pushed_sha": "156d7eac77be22ed1f77bcc4d48954775ddd4d65",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "80c84a78091d806bf0586a6ca3e8681bc4c56056",
-    "last_known_green_sha": "80c84a78091d806bf0586a6ca3e8681bc4c56056",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/80c84a7",
+    "running_sha": "156d7eac77be22ed1f77bcc4d48954775ddd4d65",
+    "last_known_green_sha": "156d7eac77be22ed1f77bcc4d48954775ddd4d65",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/156d7ea",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -261,7 +261,7 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "191 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
+    "pytest": "194 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, malformed UTF-8 rejection, malformed health payload rejection, Core error containment, model failure durability, pre-decision correlation-stable retry, canonical retryability projection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, restrictive browser CSP and framing headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, fail-closed Gateway unknown-outcome observations, generic malformed request encoding handling, executor exception durability, failed-observation completion prevention, and verifier exception containment are covered"
   },
     "known_failures": [
@@ -635,6 +635,10 @@
     "natural_purchase_safety_regression": "green deterministic: dollar-denominated purchase/expense safety language such as 'is a $75 purchase safe?' enters the existing derived affordability path without exposing private balances",
     "owner_natural_purchase_safety_defect_live": "historical live dogfood: correlation 85858585-8585-4585-8585-858585858585 used natural purchase-safety wording and returned Personal/Household planning context but omitted Finance because the phrase was outside the affordability vocabulary",
     "owner_natural_purchase_safety_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 86868686-8686-4686-8686-868686868686 on release 80c84a7 returned derived affordability for $75, Personal memory, Utilities context, bounded tasks, canonical PostgreSQL evidence, and matching request-status; objective 988f059a-f7eb-44e0-8f43-c805a3defada",
+    "task_completion_regression": "green deterministic: Tasks exposes a bounded tasks.complete ActionCard; unique authorized title resolution completes one canonical task, independent readback verifies completed status, duplicate titles fail closed, and already-completed tasks are not rewritten",
+    "owner_task_completion_dispatch_defect_live": "historical live defect: fresh owner correlation 87878787-8787-4787-8787-878787878787 reached the new completion card but InteractionBoundary fell through to tasks.read policy, returning a truthful tasks.write denial and leaving Verify backup retention open",
+    "owner_task_completion_correlation_reuse_note": "local harness note: correlation 88888888-8888-4888-8888-888888888888 was already bound to an older completed task objective; AEGIS correctly returned that canonical result without mutating Verify backup retention, so it is not completion evidence",
+    "owner_task_completion_live": "green live Qwen3:8B owner dogfood: database-checked fresh correlation 43f81da7-f3ad-42e8-9920-87aaf0085ae4 on release 156d7ea completed Verify backup retention, independently verified the PostgreSQL row as completed, and returned matching request-status; objective 11451c5e-ae02-4639-aa73-71896956a610",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety and natural task-list mutation routing are now live-green. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
