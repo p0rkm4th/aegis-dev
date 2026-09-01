@@ -255,7 +255,10 @@ class InteractionBoundary:
         facts = (context.values if context is not None else {}).get("canonical_facts", {})
         if isinstance(facts, dict):
             if isinstance(facts.get("canonical_items"), list):
-                return tuple(manager.retrieve("kitchen"))[:10]
+                # A contextual grocery question is answered from the
+                # authorized projection; do not offer a mutation card that
+                # could turn an unresolved reference into a write.
+                return ()
             if isinstance(facts.get("canonical_tasks"), list):
                 return tuple(manager.retrieve("tasks"))[:10]
         # Domain retrieval is only a candidate reduction. Action meaning and
