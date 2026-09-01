@@ -5,9 +5,9 @@
   "current_phase": 5,
   "current_checkpoint": "phase-4-reference-packs-green-live",
   "active_branch": "aegis-dev",
-  "head_sha": "3fb994e",
+  "head_sha": "bce55e3",
   "last_green_sha": "a0bc573",
-  "last_pushed_sha": "3fb994e",
+  "last_pushed_sha": "bce55e3",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -47,6 +47,7 @@
     "Durable PostgreSQL Pack lifecycle state with persisted grants and restart reload",
     "PersonalState project/goal persistence with validated references",
     "PostgreSQL personal state repository for Vault-partitioned entities, memories, projects, and goals with supersession recovery",
+    "Deterministic personal-memory retrieval fast path that excludes superseded records and preserves provenance",
     "Personal-state PostgreSQL supersession write-order regression coverage",
     "PostgreSQL-backed shared HouseholdSpace state with policy-supplied membership on reload",
     "Owner-partitioned PostgreSQL FinanceSnapshot store with durable provider provenance and private read enforcement",
@@ -78,7 +79,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + live Qwen3:8B read-only holdout",
     "status": "PASS",
-    "pytest": "85 passed; ruff check passed"
+    "pytest": "86 passed; ruff check passed"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -156,6 +157,7 @@
         "network_state_persistence": "green: migration 010 applied to live PostgreSQL; PostgresNetworkStore persisted alpha-lab 127.0.0.0/8 authorization and localhost HTTP discovery, a fresh connection reloaded both, and inactive Alice/apartment membership denied reload before the fixture was restored",
     "network_probe_live": "green: correlation e11e010f-4420-40c6-8b4d-7ee3d031b1a1 returned objective d84d989a-1dee-469b-8a5c-938e5095a9e0 completed; Qwen3:8B selected network.probe, PostgreSQL NetworkScopePolicy allowed persisted alpha-lab scope, OpenClaw wrote receipt AEGIS_NETWORK_DONE_b6c36dc9b54449a48ce407dcb18c1288 with exit 0, independent TCP readback connected, and replay returned the same objective/result without a duplicate mutation",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
+    "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
