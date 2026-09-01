@@ -16,6 +16,11 @@ export AEGIS_OLLAMA_URL='http://127.0.0.1:11434'
 ./scripts/aegis
 ```
 
+`AEGIS_OLLAMA_URL` must be the address where Ollama is actually listening. If
+`--check` reports that the API is unavailable, use the suggested `/api/tags`
+probe and set this variable to the reachable Ollama address; a running Ollama
+process bound to a different interface is not reachable through loopback.
+
 For repeatable local startup, copy `examples/aegis.env.example` to `.env` and
 replace its placeholders. The launcher can then load the simple configuration
 file without executing shell code:

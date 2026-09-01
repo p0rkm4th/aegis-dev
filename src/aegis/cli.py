@@ -12,6 +12,7 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
+from urllib.parse import urlsplit, urlunsplit
 from uuid import UUID
 
 import psycopg
@@ -160,7 +161,9 @@ def _runtime_report() -> HealthReport:
                 healthy=False,
                 required=True,
                 detail=(
-                    f"API unavailable: {type(exc).__name__}; start Ollama or set AEGIS_OLLAMA_URL"
+                    f"API unavailable at {_safe_endpoint(ollama_url)}: {type(exc).__name__}; "
+                    f"check `curl {_safe_endpoint(ollama_url)}/api/tags`, start Ollama, or set "
+                    "AEGIS_OLLAMA_URL to its reachable address"
                 ),
             )
         )
@@ -204,6 +207,27 @@ def _runtime_report() -> HealthReport:
         ready=all(component.healthy for component in components if component.required),
         components=tuple(components),
     )
+
+
+def _safe_endpoint(value: str) -> str:
+    """Render a diagnostic endpoint without exposing URL userinfo."""
+
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        return "configured Ollama endpoint"
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return "configured Ollama endpoint"
+    try:
+        host = parsed.hostname
+        if ":" in host and not host.startswith("["):
+            host = f"[{host}]"
+        netloc = host
+        if parsed.port is not None:
+            netloc += f":{parsed.port}"
+        return urlunsplit((parsed.scheme, netloc, parsed.path.rstrip("/"), "", ""))
+    except ValueError:
+        return "configured Ollama endpoint"
 
 
 def _print_runtime_report(report: HealthReport, as_json: bool) -> int:

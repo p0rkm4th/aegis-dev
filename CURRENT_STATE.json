@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
+  "current_checkpoint": "phase-12-readiness-endpoint-diagnostic-green",
   "active_branch": "aegis-dev",
   "head_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
   "last_green_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
@@ -122,6 +122,7 @@
     ,"browser interaction requests reject undocumented fields before Core"
     ,"reusable InteractionBoundary owns application orchestration beneath CLI and browser adapters"
     ,"InteractionBoundary and InteractionDependencies are exported from the public aegis package API"
+    ,"actionable Ollama endpoint diagnostics preserve safe operator remediation"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -141,7 +142,7 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "137 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed",
+    "pytest": "139 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
@@ -279,6 +280,7 @@
         "public_interaction_api": "green deterministic: from aegis import InteractionBoundary, InteractionDependencies succeeds without live runtime configuration and both types retain aegis.interaction ownership",
         "browser_task_mutation_live": "green live: with Ollama qwen3:8b reachable at 172.18.0.1:11434, browser POST crossed the shared InteractionBoundary, Qwen selected tasks.create, PostgreSQL policy/executor/verifier completed canonical task readback, the response returned objective/correlation/status, and same-correlation replay returned the identical Result; PostgreSQL contained exactly one matching idempotency key",
         "ollama_recovery_live": "green live: systemd ollama.service is active (PID 5605), listens on 172.18.0.1:11434, /api/tags exposes qwen3:8b with digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41, and a non-mutating generation probe returned OK; loopback 127.0.0.1 remains the unconfigured endpoint",
+        "ollama_endpoint_diagnostic_live": "green live: default ./scripts/aegis --check identifies the unreachable loopback endpoint, prints a safe /api/tags probe and remediation to set AEGIS_OLLAMA_URL, and preserves the optional OpenClaw distinction without leaking credentials",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -306,5 +308,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; live Qwen browser task mutation and replay are now green against 172.18.0.1:11434, so the next executable frontier is configuration/bootstrap simplification or a browser recovery/privacy boundary; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama endpoint diagnostics are green and live Qwen browser task mutation/replay is green against 172.18.0.1:11434, so the next executable frontier is another configuration/bootstrap or browser recovery/privacy boundary; Home Assistant/mobile/voice remain lane-limited."
 }
