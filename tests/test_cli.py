@@ -1293,6 +1293,7 @@ def test_browser_transport_restricts_embedding_and_resource_execution():
     assert "default-src 'none'" in source
     assert "connect-src 'self'" in source
     assert "frame-ancestors 'none'" in source
+    assert 'self.send_header("Retry-After", str(_RETRY_AFTER_SECONDS))' in source
 
 
 def test_browser_server_closes_cleanly_on_keyboard_interrupt(monkeypatch):
