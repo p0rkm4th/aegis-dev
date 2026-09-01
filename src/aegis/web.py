@@ -168,12 +168,18 @@ async function recoverPendingRequest() {
         document.getElementById('state-status').textContent =
           'Authorization lost; authorized state cleared.';
       } else {
+        document.getElementById('detail').textContent =
+          'Status check unavailable; retry remains explicit.';
         scheduleRecoveryPoll();
       }
       return;
     }
     const status = await response.json();
-    if (status.state === 'unknown') { scheduleRecoveryPoll(); return; }
+    if (status.state === 'unknown') {
+      document.getElementById('detail').textContent =
+        'Outcome unknown; checking canonical status. Retry remains explicit.';
+      scheduleRecoveryPoll(); return;
+    }
     const inProgressStates = new Set([
       'proposed', 'validated', 'authorized', 'executing', 'observed'
     ]);
@@ -196,6 +202,8 @@ async function recoverPendingRequest() {
     }
     if (status.state === 'completed') refreshState();
   } catch (_) {
+    document.getElementById('detail').textContent =
+      'Status check unavailable; retry remains explicit.';
     scheduleRecoveryPoll();
   } finally {
     clearTimeout(timeout);
