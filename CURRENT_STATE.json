@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 10,
-  "current_checkpoint": "phase-10-forge-capability-gap-review",
+  "current_phase": 11,
+  "current_checkpoint": "phase-11-ambient-integration-review",
   "active_branch": "aegis-dev",
   "head_sha": "5e153fb",
   "last_green_sha": "5e153fb",
@@ -92,7 +92,7 @@
     "7": "in_progress",
     "8": "complete",
     "9": "complete",
-    "10": "in_progress",
+    "10": "complete",
     "11": "in_progress",
     "12": "in_progress"
   },
@@ -186,6 +186,7 @@
         "homelab_inventory_postgres_live": "green: migration 013 applied to live PostgreSQL; a fresh connection reloaded the Space-scoped acceptance host resources and Plex service inventory",
         "security_lab_findings_postgres_live": "green: migration 014 applied to live PostgreSQL; a fresh connection reloaded an authorized in-scope finding and a different owner was denied",
         "phase9_technical_gate": "green: Homelab host/resource/service inventory and verified action evidence, explicit Network scope enforcement, durable owner/Space-scoped Security Lab findings, and durable source-grounded OSINT provenance are covered; live tests reject reachability-as-authority and cross-owner disclosure",
+        "phase10_forge_gate": "green: existing Forge tests cover capability-gap detection, license/provenance classification, sandbox/test prerequisites, owner approval, Pack materialization, lifecycle installation, and the trading-card acceptance path; no generated Pack can self-authorize",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -213,5 +214,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Review the existing Forge capability-gap, provenance, sandbox/test, approval, and Pack-install lifecycle against the Phase 10 gate; preserve explicit owner approval and do not self-grant authority."
+  "next_action": "Review Phase 11 ambient adapters and OpenClaw/Home Assistant boundaries; exercise only available simulated or disposable runtime paths and record any physical-device acceptance blocker without claiming live hardware validation."
 }
