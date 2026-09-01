@@ -40,6 +40,9 @@ placeholder="Ask AEGIS..."><button>Send</button></form>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 let pendingCorrelationId = null;
+const retryableCodes = new Set([
+  'identity_unavailable', 'state_unavailable', 'request_unavailable'
+]);
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
   const required = (report.components || []).filter(component => component.required);
@@ -107,7 +110,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
       pendingCorrelationId = null; send.textContent = 'Send';
       if (result.state === 'completed') loadState().catch(() => {});
     } else {
-      pendingCorrelationId = correlationId; send.textContent = 'Retry';
+      pendingCorrelationId = retryableCodes.has(result.code) ? correlationId : null;
+      send.textContent = pendingCorrelationId ? 'Retry' : 'Send';
     }
   } catch (_) {
     document.getElementById('answer').textContent = 'AEGIS is unavailable.';
