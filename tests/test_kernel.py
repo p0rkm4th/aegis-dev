@@ -118,7 +118,7 @@ from aegis.reference_packs import (
     reference_packs,
 )
 from aegis.registry import CapabilityRegistry
-from aegis.security_lab import SecurityLab
+from aegis.security_lab import PostgresSecurityLabStore, SecurityLab
 from aegis.store import SqliteObjectiveStore
 from aegis.tasks import (
     PostgresTaskExecutor,
@@ -1772,6 +1772,51 @@ def test_security_lab_requires_explicit_scope_before_recording_evidence():
         raise AssertionError("reachable but out-of-scope target was accepted")
 
 
+def test_postgres_security_lab_store_reloads_owner_scoped_finding():
+    import json
+
+    class Cursor:
+        def __init__(self, row):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class Connection:
+        def __init__(self):
+            self.row = None
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT 1"):
+                return Cursor((1,))
+            if query.startswith("SELECT owner_id"):
+                return Cursor(self.row)
+            self.row = (params[1], json.loads(params[3]))
+            return Cursor(None)
+
+        def commit(self):
+            self.commits += 1
+
+    inventory = HomelabInventory()
+    inventory.add_scope(AuthorizedNetworkScope("lab", ("192.0.2.0/24",), "fixture lab"))
+    finding = SecurityLab(inventory).record_finding(
+        "lab", "192.0.2.10", "fixture service observed", ("banner=fixture",)
+    )
+    connection = Connection()
+    store = PostgresSecurityLabStore(connection)
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    store.save(alice, finding)
+    assert store.load(alice, finding.finding_id) == finding
+    try:
+        store.load(Principal(id="bob", vault_id="bob-vault"), finding.finding_id)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("security finding crossed owner boundary")
+    assert connection.commits == 1
+
+
 def test_network_scope_policy_denies_reachable_target_outside_persisted_scope():
     class BasePolicy:
         def authorize(self, request):
@@ -2293,6 +2338,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "011_personal_memory_vectors.sql",
         "012_osint_investigations.sql",
         "013_homelab_inventory.sql",
+        "014_security_lab_findings.sql",
     )
 
 
