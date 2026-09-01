@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-relative-deadline-filter-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "4eec5dd6916ed059da74ebb099b3210b3501a64e",
-  "last_green_sha": "fd6db3c48cfe0e95508114c7c724c2fa92e19763",
-  "last_pushed_sha": "4eec5dd6916ed059da74ebb099b3210b3501a64e",
+  "head_sha": "65f07cb",
+  "last_green_sha": "65f07cb",
+  "last_pushed_sha": "65f07cb",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "fd6db3c48cfe0e95508114c7c724c2fa92e19763",
-    "last_known_green_sha": "fd6db3c48cfe0e95508114c7c724c2fa92e19763",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/fd6db3c",
+    "running_sha": "65f07cb",
+    "last_known_green_sha": "65f07cb",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/65f07cb",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -34,7 +34,25 @@
     "ollama_endpoint": "http://172.18.0.1:11434",
     "authentication": "Keycloak OIDC userinfo mapped to canonical alice principal",
     "canonical_database": "persistent aegis-acceptance-postgres volume",
-    "linger": true
+    "linger": true,
+    "natural_cognition_evaluation": {
+      "exact_canary_green": [
+        "set task status get gud scrub complete"
+      ],
+      "capability_green": false,
+      "family_live_evidence": {
+        "completed": [
+          "set task status get gud scrub complete",
+          "I finished verify correlation recovery b077bcde",
+          "close out installed rendered workflow 10210210"
+        ],
+        "safety_clarified_or_blocked": [
+          "knock rendered detail acceptance 91919191 off my list",
+          "finish the task investigate stale canonical state."
+        ],
+        "notes": "Owner release 65f07cb used Qwen3:8B, authorized PostgreSQL task candidates, strict bounded ActionCards, and canonical readback. The family is partial evidence, not capability-green: one shorthand variant failed title resolution and one duplicate title correctly clarified."
+      }
+    }
   },
   "completed_functionality": [
     "greenfield scaffold",
@@ -674,8 +692,8 @@
     "owner_relative_deadline_filter_defect_live": "historical live Qwen3:8B owner dogfood: correlation 775a3028-11bd-46c6-b976-0c28c061758f for 'Show my tasks due next week.' returned all 47 open tasks instead of applying a deadline window",
     "relative_deadline_filter_regression": "green deterministic: explicit due tomorrow and due next week reads filter canonical tasks by calendar-date windows after status filtering, while undated tasks are excluded and authorization remains in the store",
     "owner_relative_deadline_filter_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation b56a3ddd-427d-45bb-8989-0a36bbd16bcd on release fd6db3c returned exactly the one canonical task due next week with its deadline rendered, completed state, and matching request-status",
-    "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety and natural task-list mutation routing are now live-green. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
+    "frontier_shift": "Browser/shared boundary paths remain established. The phrase-overfit task-completion defect is fixed for the exact owner canary and partially proven across unseen Qwen3:8B paraphrases; capability-level green is intentionally withheld pending a broader successful family. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, stale canonical reconciliation, partial failure recovery, conjoined Finance/Personal/Household reads, Kitchen/Tasks mutation fail-closed behavior, adversarial private-finance containment, prompt-injection-shaped task handling, reminder ambiguity guidance, unresolved/sequential/as-well-as/review compound mutation safety, and actionable input validation are live-green; next attack malformed/weak proposals and model-boundary ambiguity."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path. Expand the unseen task-completion family without phrase-specific routing, then test multi-turn authorized context, malformed/weak proposals, cross-Pack objectives, and owner feedback capture. Do not call natural-language capability green from exact canaries. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Home Assistant/mobile/voice remain lane-limited."
 }
