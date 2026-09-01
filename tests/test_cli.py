@@ -560,6 +560,24 @@ def test_browser_health_uses_structured_readiness_without_identity():
     assert json.loads(payload)["ready"] is False
 
 
+def test_browser_health_provider_failure_is_generic_and_recoverable():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: "unreachable",
+        lambda _: {"nodes": []},
+        lambda: (_ for _ in ()).throw(RuntimeError("database password")),
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/health")
+
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "health_unavailable",
+        "error": "runtime status unavailable",
+    }
+
+
 def test_browser_rejects_oversized_request_body():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(principal, lambda *_: "unreachable", lambda _: {"nodes": []})
@@ -586,6 +604,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "refreshState()" in _INDEX_HTML
     assert "state_access_denied" in _INDEX_HTML
     assert "State refresh failed" in _INDEX_HTML
+    assert "response.ok" in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():

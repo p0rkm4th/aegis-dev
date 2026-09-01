@@ -85,6 +85,10 @@ const retryableCodes = new Set([
 ]);
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
+  if (!response.ok) {
+    const error = new Error(report.error || 'Runtime status unavailable.');
+    error.code = report.code || 'health_unavailable'; throw error;
+  }
   const required = (report.components || []).filter(component => component.required);
   const ready = report.ready ? 'READY' : 'NOT READY';
   document.getElementById('health').textContent =
@@ -230,7 +234,14 @@ class BrowserApp:
         if method == "GET" and route == "/api/health":
             if self.health is None:
                 return self._json(HTTPStatus.OK, {"healthy": True, "ready": True, "components": []})
-            report = self.health()
+            try:
+                report = self.health()
+            except (OSError, RuntimeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "health_unavailable",
+                    "runtime status unavailable",
+                )
             payload = report.model_dump(mode="json") if isinstance(report, HealthReport) else report
             return self._json(HTTPStatus.OK, payload)
         if route.startswith("/api/"):
