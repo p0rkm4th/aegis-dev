@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
@@ -282,7 +282,13 @@ class PersonalState:
             )
         )
 
-    def search_memories(self, query: str, limit: int = 10) -> tuple[MemoryRecord, ...]:
+    def search_memories(
+        self,
+        query: str,
+        limit: int = 10,
+        start: datetime | None = None,
+        end: datetime | None = None,
+    ) -> tuple[MemoryRecord, ...]:
         """Return current memories ranked by deterministic query-term matches.
 
         This is a small fast path for local queries. It is deliberately not a
@@ -294,10 +300,16 @@ class PersonalState:
             return ()
         if limit < 1:
             raise ValueError("memory search limit must be positive")
+        if (start is None) != (end is None):
+            raise ValueError("memory search requires both temporal bounds")
+        if start is not None and end is not None and start > end:
+            raise ValueError("memory search start must not be after end")
         terms = tuple(dict.fromkeys(query.casefold().split()))
         ranked: list[tuple[int, datetime, MemoryRecord]] = []
         for memory in self.memories.values():
             if memory.superseded_by is not None:
+                continue
+            if start is not None and end is not None and not start <= memory.occurred_at <= end:
                 continue
             haystack = memory.content.casefold()
             for entity_id in memory.entity_ids:
@@ -446,8 +458,11 @@ class PersonalMemoryFastPath:
     )
     _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
 
-    def __init__(self, state: PersonalState) -> None:
+    def __init__(self, state: PersonalState, now: datetime | None = None) -> None:
         self.state = state
+        self.now = now or datetime.now().astimezone()
+        if self.now.tzinfo is None:
+            raise ValueError("personal retrieval clock must be timezone-aware")
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
@@ -463,7 +478,8 @@ class PersonalMemoryFastPath:
             if word.strip(".,!?;:") not in self._STOPWORDS
             and word.strip(".,!?;:")
         )
-        memories = self.state.search_memories(query)
+        start, end = self._temporal_window(text)
+        memories = self.state.search_memories(query, start=start, end=end)
         evidence = {
             "memories": [
                 {
@@ -486,6 +502,18 @@ class PersonalMemoryFastPath:
             evidence=evidence,
             correlation_id=intent.correlation_id,
         )
+
+    def _temporal_window(self, text: str) -> tuple[datetime | None, datetime | None]:
+        local_now = self.now.astimezone()
+        if "last night" in text:
+            today = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+            return today.replace(hour=18) - timedelta(days=1), today.replace(hour=6)
+        if "yesterday" in text:
+            today = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+            return today - timedelta(days=1), today
+        if "last week" in text:
+            return local_now - timedelta(days=7), local_now
+        return None, None
 
     def _projects_result(self, intent: IntentFrame) -> Result:
         projects = sorted(self.state.projects.values(), key=lambda project: project.created_at)
