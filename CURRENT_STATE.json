@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "05b9c417a4e17a2905a4baad594087e5453e559a",
-  "last_green_sha": "05b9c417a4e17a2905a4baad594087e5453e559a",
-  "last_pushed_sha": "05b9c417a4e17a2905a4baad594087e5453e559a",
+  "head_sha": "1a2360bf582c7491cc31ef084e0b2550e80721a5",
+  "last_green_sha": "1a2360bf582c7491cc31ef084e0b2550e80721a5",
+  "last_pushed_sha": "1a2360bf582c7491cc31ef084e0b2550e80721a5",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -117,6 +117,7 @@
     ,"browser request timeout reports unknown outcome and preserves correlation-safe retry"
     ,"browser displays structured readiness component diagnostics and remediation details"
     ,"browser clears all authorized display state on identity or authorization loss"
+    ,"browser and interaction personal reads enforce canonical Vault ownership"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -136,8 +137,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "133 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, and configured Ollama model readiness validation are covered"
+    "pytest": "134 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -265,6 +266,7 @@
         "browser_timeout_recovery": "green deterministic: the browser message client uses AbortController timeout handling, reports timed-out outcomes as unknown, and preserves the same correlation ID for retry without assuming failure or blindly replaying a consequential request",
         "browser_health_details_live": "green deterministic boundary: the browser renders every existing health component's safe status, required/optional classification, and remediation detail via textContent; no new authorization or semantic state is created",
         "browser_auth_loss_cleanup": "green deterministic: identity_unavailable or state_access_denied during refresh clears graph nodes, relationships, selected detail, assistant answer, conversation transcript, and pending retry correlation so stale private browser state is not retained",
+        "personal_vault_owner_boundary": "green deterministic: the personal PostgreSQL store's authorized load path requires a vaults row matching both the claimed Vault ID and principal owner; mismatched owner access raises PermissionError before personal rows are read, and CLI/Constellation reads use that path",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
