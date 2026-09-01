@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-durable-sequence-core-green-owner-promotion-pending",
+  "current_checkpoint": "phase-12-owner-durable-task-chore-continuation-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "a28b1c2a9b6d377adee5ce2cc1917bdb11f1ba20",
-  "last_green_sha": "a28b1c2a9b6d377adee5ce2cc1917bdb11f1ba20",
-  "last_pushed_sha": "a28b1c2a9b6d377adee5ce2cc1917bdb11f1ba20",
+  "head_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
+  "last_green_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
+  "last_pushed_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
-    "last_known_green_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/b23289a",
+    "running_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
+    "last_known_green_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/a3fd634",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -239,6 +239,7 @@
     ,"Cross-domain planning recognizes plural Utilities alongside Personal and Tasks context"
     ,"Cross-domain planning adds only highest-overlap current Personal memories to bounded model context and preserves provenance"
     ,"Core supports bounded durable action sequences with exact parent plan persistence, per-step authorization/verification, stable child correlation keys, and no duplicate replay"
+    ,"InteractionBoundary admits only the bounded existing task-plus-chore compound form and resumes persisted plans by authorized correlation before natural-language fast paths"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -548,16 +549,18 @@
     "personal_memory_chore_live": "green live: source/runtime Qwen3:8B correlation aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa completed the canonical shared chore grounded in the unique Gateway paired-device memory with independent chore readback",
     "owner_dogfood_memory_chore_live": "green live: upgraded authenticated owner browser correlation bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb completed objective 105e6189-3de0-495c-a9a2-b3c9a9525c31 as the canonical chore 'The Gateway uses a paired device for terminal execution'; health/readiness and authorized Constellation remained green",
     "owner_dogfood_memory_chore_replay_live": "green live: after restarting aegis-owner.service, the same authenticated correlation bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb with different wording returned objective 105e6189-3de0-495c-a9a2-b3c9a9525c31 and canonical chore readback verified without replaying a duplicate mutation",
-    "owner_dogfood_running_checkpoint": "932eaaa2a7388547d0da348471fcec8425494796; installed release /home/scootz/.local/share/aegis-owner/releases/932eaaa; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
     "cross_domain_utilities_regression": "green deterministic: plural Utilities is recognized as shared Household context when planning with Personal and Tasks terms",
     "cross_domain_utilities_live": "green live: source/runtime Qwen3:8B correlation dddddddd-dddd-4ddd-8ddd-dddddddddddd returned completed bounded planning with personal_vault, household_space, and tasks_space sources",
     "owner_dogfood_cross_domain_live": "green live: authenticated owner browser correlation eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee completed the same canonical cross-domain planning request after promotion to 932eaaa; health/readiness remained green",
     "cross_domain_memory_relevance_regression": "green deterministic: cross-domain planning excludes weak memory matches, retains highest-overlap ties, excludes superseded records, and keeps Vault provenance",
     "cross_domain_memory_relevance_live": "green live: source/runtime Qwen3:8B correlation 11111111-1111-4111-8111-111111111111 returned completed planning with one highest-overlap server/backup memory and authorized Household/Tasks sources",
     "owner_dogfood_memory_relevance_live": "green live: authenticated owner browser correlation 22222222-2222-4222-8222-222222222222 completed cross-domain planning after promotion to b23289a; owner health/readiness remained green",
-    "owner_dogfood_running_checkpoint": "b23289a3afb80d5ba3576b1d655df43838e57365; installed release /home/scootz/.local/share/aegis-owner/releases/b23289a; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
     "durable_action_sequence_regression": "green deterministic: a two-step sequence persists exact ActionSpec steps, authorizes and verifies each step independently, returns truthful partial failure, and replays the aggregate Result without invoking a second executor",
-    "durable_action_sequence_runtime_status": "green source checkpoint only: Core sequence primitive is pushed at a28b1c2 but is not yet wired to the end-user InteractionBoundary or promoted to the owner service; no live user workflow is claimed",
+    "durable_action_sequence_runtime_status": "green live: bounded task-plus-chore continuation is wired through InteractionBoundary and promoted to owner release a3fd634; broader compound forms remain blocked",
+    "compound_task_chore_live": "green live: authenticated owner browser request correlation 56565656-5656-4565-8565-565656565656 completed a bounded task-plus-chore plan as objective 4c63fefc-75c6-408c-b388-3029c5f9fc07; both steps returned canonical verified results",
+    "compound_task_chore_restart_replay_live": "green live: after owner service restart, different wording with the same correlation returned the same objective and completed aggregate without duplicate task/chore execution",
+    "compound_task_chore_recovery_regression": "green deterministic: persisted plan lookup precedes read fast paths, exact action sequence is correlation-bound, child observations recover their action IDs from PostgreSQL action payloads, and unbounded compounds remain blocked",
+    "owner_dogfood_running_checkpoint": "a3fd63445e44c5cc646557be45806b43604c9eb9; installed release /home/scootz/.local/share/aegis-owner/releases/a3fd634; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
