@@ -122,52 +122,7 @@ def _runtime_report() -> HealthReport:
 
     ollama_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
     ollama_model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
-    try:
-        with urllib.request.urlopen(f"{ollama_url}/api/tags", timeout=2) as response:
-            if response.status != 200:
-                raise urllib.error.URLError(f"HTTP {response.status}")
-            payload = json.loads(response.read())
-        if not isinstance(payload, dict):
-            raise ValueError("invalid Ollama model response")
-        model_names = {
-            str(item.get("name"))
-            for item in payload.get("models", [])
-            if isinstance(item, dict) and item.get("name")
-        }
-        if ollama_model not in model_names:
-            components.append(
-                ComponentHealth(
-                    name="ollama",
-                    healthy=False,
-                    required=True,
-                    detail=(
-                        f"model {ollama_model!r} is not installed; run "
-                        f"'ollama pull {ollama_model}' or set AEGIS_OLLAMA_MODEL"
-                    ),
-                )
-            )
-        else:
-            components.append(
-                ComponentHealth(
-                    name="ollama",
-                    healthy=True,
-                    required=True,
-                    detail=f"API responded; model {ollama_model} is available",
-                )
-            )
-    except (OSError, urllib.error.URLError, ValueError) as exc:
-        components.append(
-            ComponentHealth(
-                name="ollama",
-                healthy=False,
-                required=True,
-                detail=(
-                    f"API unavailable at {_safe_endpoint(ollama_url)}: {type(exc).__name__}; "
-                    f"check `curl {_safe_endpoint(ollama_url)}/api/tags`, start Ollama, or set "
-                    "AEGIS_OLLAMA_URL to its reachable address"
-                ),
-            )
-        )
+    components.append(_ollama_health(ollama_url, ollama_model))
 
     openclaw_names = (
         "AEGIS_OPENCLAW_GATEWAY_URL",
@@ -229,6 +184,57 @@ def _safe_endpoint(value: str) -> str:
         return urlunsplit((parsed.scheme, netloc, parsed.path.rstrip("/"), "", ""))
     except ValueError:
         return "configured Ollama endpoint"
+
+
+def _ollama_health(url: str, model: str) -> ComponentHealth:
+    parsed = urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return ComponentHealth(
+            name="ollama",
+            healthy=False,
+            required=True,
+            detail="invalid URL; set AEGIS_OLLAMA_URL to an http:// or https:// endpoint",
+        )
+    try:
+        with urllib.request.urlopen(f"{url}/api/tags", timeout=2) as response:
+            if response.status != 200:
+                raise urllib.error.URLError(f"HTTP {response.status}")
+            payload = json.loads(response.read())
+        if not isinstance(payload, dict):
+            raise ValueError("invalid Ollama model response")
+        model_names = {
+            str(item.get("name"))
+            for item in payload.get("models", [])
+            if isinstance(item, dict) and item.get("name")
+        }
+        if model not in model_names:
+            return ComponentHealth(
+                name="ollama",
+                healthy=False,
+                required=True,
+                detail=(
+                    f"model {model!r} is not installed; run 'ollama pull {model}' "
+                    "or set AEGIS_OLLAMA_MODEL"
+                ),
+            )
+        return ComponentHealth(
+            name="ollama",
+            healthy=True,
+            required=True,
+            detail=f"API responded; model {model} is available",
+        )
+    except (OSError, urllib.error.URLError, ValueError) as exc:
+        endpoint = _safe_endpoint(url)
+        return ComponentHealth(
+            name="ollama",
+            healthy=False,
+            required=True,
+            detail=(
+                f"API unavailable at {endpoint}: {type(exc).__name__}; "
+                f"check `curl {endpoint}/api/tags`, start Ollama, or set "
+                "AEGIS_OLLAMA_URL to its reachable address"
+            ),
+        )
 
 
 def _print_runtime_report(report: HealthReport, as_json: bool) -> int:

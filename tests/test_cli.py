@@ -516,6 +516,19 @@ def test_cli_check_explains_unreachable_ollama_endpoint(monkeypatch, capsys):
     )
 
 
+def test_cli_check_rejects_invalid_ollama_endpoint(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--check"])
+    monkeypatch.delenv("AEGIS_DATABASE_URL", raising=False)
+    monkeypatch.setenv("AEGIS_OLLAMA_URL", "ftp://ollama.example.invalid")
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert "ollama: FAIL (required) — invalid URL" in output
+    assert "set AEGIS_OLLAMA_URL to an http:// or https:// endpoint" in output
+
+
 def test_safe_endpoint_does_not_render_url_credentials():
     from aegis.cli import _safe_endpoint
 
