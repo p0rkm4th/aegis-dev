@@ -2667,6 +2667,25 @@ def test_contextual_event_mutation_blocks_unsupported_memory_date_resolution():
     assert "Provide the event date and time directly" in result.message
 
 
+@pytest.mark.parametrize(
+    "utterance",
+    ["add the first two", "complete those", "remove it from my list"],
+)
+def test_contextual_reference_mutation_fails_closed_instead_of_becoming_a_literal_title(
+    utterance,
+):
+    result = ContextualMutationGuard.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance=utterance,
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "will not guess" in result.message
+
+
 def test_multi_action_fast_path_still_blocks_unbounded_compound_requests():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     result = MultiActionFastPath.resolve(

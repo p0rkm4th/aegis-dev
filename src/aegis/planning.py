@@ -146,9 +146,23 @@ class MultiActionFastPath:
 class ContextualMutationGuard:
     """Block unsupported context-to-mutation transformations before dispatch."""
 
+    _REFERENCE = re.compile(
+        r"\b(?:those|these|it|that|first|second|third|fourth|last|next|previous)\b"
+    )
+
     @classmethod
     def resolve(cls, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
+        if is_mutation_request(text) and cls._REFERENCE.search(text) is not None:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I need the specific item or record to change. I will not guess "
+                    "what a reference such as 'those' or 'the first two' means."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         if not (
             is_mutation_request(text)
             and any(term in text for term in ("event", "events"))
