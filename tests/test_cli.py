@@ -1824,6 +1824,38 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
     assert payload["objective_id"] == str(result.objective_id)
 
 
+def test_cli_formats_safe_cross_domain_planning_summary():
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Cross-domain planning context assembled from canonical state",
+        correlation_id=uuid4(),
+        evidence={
+            "planning": {
+                "affordability": {
+                    "affordable": False,
+                    "purchase_cents": 5000,
+                    "shared_obligations_cents": 12000,
+                    "shortfall_cents": 2000,
+                    "balance_cents": 999999,
+                },
+                "open_tasks": [{"title": "Review backup runbook", "task_id": "private-id"}],
+            }
+        },
+    )
+
+    formatted = cli._format(result)
+
+    assert formatted == (
+        "Planning: affordable: no (purchase $50.00; shared obligations $120.00); "
+        "open tasks: Review backup runbook"
+    )
+    assert "balance" not in formatted
+    assert "private-id" not in formatted
+
+
 def test_browser_interaction_projects_bounded_canonical_step_status(monkeypatch):
     from aegis import cli
 

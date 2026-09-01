@@ -808,6 +808,31 @@ def _format(result: Any) -> str:
     if evidence.get("events") is not None:
         events = evidence["events"]
         return "Events: " + ("; ".join(item["title"] for item in events) if events else "(none)")
+    if isinstance(evidence.get("planning"), dict):
+        planning = evidence["planning"]
+        summaries: list[str] = []
+        affordability = planning.get("affordability")
+        if isinstance(affordability, dict) and affordability.get("affordable") is not None:
+            status = "yes" if affordability["affordable"] else "no"
+            purchase = affordability.get("purchase_cents")
+            obligations = affordability.get("shared_obligations_cents")
+            if isinstance(purchase, int) and isinstance(obligations, int):
+                summaries.append(
+                    f"affordable: {status} (purchase ${purchase / 100:.2f}; "
+                    f"shared obligations ${obligations / 100:.2f})"
+                )
+            else:
+                summaries.append(f"affordable: {status}")
+        open_tasks = planning.get("open_tasks")
+        if isinstance(open_tasks, list):
+            titles = [
+                str(item["title"])
+                for item in open_tasks
+                if isinstance(item, dict) and isinstance(item.get("title"), str)
+            ]
+            summaries.append("open tasks: " + ("; ".join(titles) if titles else "(none)"))
+        if summaries:
+            return "Planning: " + "; ".join(summaries)
     if evidence.get("affordable") is not None:
         status = "yes" if evidence["affordable"] else "no"
         return (
