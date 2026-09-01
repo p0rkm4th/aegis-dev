@@ -39,7 +39,8 @@ The smallest browser proof is available on loopback with:
 ```
 
 It serves conversation through the same `handle()` boundary and renders a
-small authorized view of canonical Tasks/Kitchen state. The browser adapter
+small authorized view of canonical Pack/domain state, including available and
+installed Pack hubs plus Tasks/Kitchen context. The browser adapter
 owns only HTTP and presentation; authorization, persistence, and meaning stay
 below it. Use `--port` to select another local port; it listens on loopback by
 default.
