@@ -8,7 +8,7 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, IntentFrame, ObjectiveState, Principal, Result
+from .contracts import ActionCard, IntentFrame, Objective, ObjectiveState, Principal, Result
 from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
@@ -139,15 +139,40 @@ class InteractionBoundary:
                 utterance=utterance,
                 correlation_id=correlation_id or uuid4(),
             )
-            recovered_plan = PostgresObjectiveStore(connection).get_objective_by_correlation(
+            objective_store = PostgresObjectiveStore(connection)
+            recovered_plan = objective_store.get_objective_by_correlation(
                 intent.correlation_id, principal
             )
-            if recovered_plan is not None and recovered_plan.steps:
-                prior_plan_result = PostgresObjectiveStore(connection).get_result(
-                    f"plan:{intent.correlation_id}"
+            if recovered_plan is None and objective_store.correlation_bound(intent.correlation_id):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="request correlation is unavailable",
+                    correlation_id=intent.correlation_id,
                 )
+            if recovered_plan is not None and recovered_plan.steps:
+                prior_plan_result = objective_store.get_result(f"plan:{intent.correlation_id}")
                 if prior_plan_result is not None and not prior_plan_result.retryable:
                     return prior_plan_result
+
+            def persist_fast_result(result: Result) -> Result:
+                objective_store.save_objective(
+                    Objective(
+                        id=result.objective_id,
+                        intent=intent,
+                        correlation_id=intent.correlation_id,
+                        state=result.state,
+                    )
+                )
+                objective_store.save_result(f"interaction:{intent.correlation_id}", result)
+                return result
+
+            if recovered_plan is not None and not recovered_plan.steps:
+                prior_interaction_result = objective_store.get_result(
+                    f"interaction:{intent.correlation_id}"
+                )
+                if prior_interaction_result is not None and not prior_interaction_result.retryable:
+                    return prior_interaction_result
             recovered_plan_actions = (
                 recovered_plan.steps
                 if recovered_plan is not None and recovered_plan.steps
@@ -156,10 +181,10 @@ class InteractionBoundary:
             if recovered_plan_actions is None:
                 multi_action_result = MultiActionFastPath.resolve(intent)
                 if multi_action_result is not None:
-                    return multi_action_result
+                    return persist_fast_result(multi_action_result)
             domain_clarification = DomainClarificationFastPath.resolve(intent)
             if domain_clarification is not None:
-                return domain_clarification
+                return persist_fast_result(domain_clarification)
             household_store = PostgresHouseholdStore(connection)
             if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
                 task_store = PostgresTaskStore(connection)
@@ -189,7 +214,7 @@ class InteractionBoundary:
                     finance,
                 ).resolve(intent)
                 if planning_result is not None:
-                    return planning_result
+                    return persist_fast_result(planning_result)
             if recovered_plan_actions is None and FinanceReadFastPath.matches(utterance):
                 snapshot = household_store.read_snapshot(principal)
                 household_obligations = cast(
@@ -215,7 +240,7 @@ class InteractionBoundary:
                             "affordable": finance_result.evidence["affordable"],
                         },
                     )
-                    return finance_result
+                    return persist_fast_result(finance_result)
             task_store = PostgresTaskStore(connection)
             personal_state = PostgresPersonalStateStore(
                 connection, principal.vault_id
@@ -243,11 +268,13 @@ class InteractionBoundary:
                 if error is not None
             )
             if composer_errors:
-                return Result(
-                    objective_id=uuid4(),
-                    state=ObjectiveState.BLOCKED,
-                    message=composer_errors[0],
-                    correlation_id=intent.correlation_id,
+                return persist_fast_result(
+                    Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message=composer_errors[0],
+                        correlation_id=intent.correlation_id,
+                    )
                 )
             composed_title = (
                 goal_task_title or goal_chore_title or memory_task_title or memory_chore_title
@@ -258,7 +285,7 @@ class InteractionBoundary:
                     personal_state, household_snapshot, task_store.list(principal)
                 ).resolve(intent)
                 if planning_result is not None:
-                    return planning_result
+                    return persist_fast_result(planning_result)
             if (
                 recovered_plan_actions is None
                 and composed_title is None
@@ -266,11 +293,11 @@ class InteractionBoundary:
             ):
                 household_result = HouseholdReadFastPath(household_snapshot).resolve(intent)
                 if household_result is not None:
-                    return household_result
+                    return persist_fast_result(household_result)
             if recovered_plan_actions is None and composed_title is None:
                 task_result = TaskReadFastPath(task_store).resolve(intent)
                 if task_result is not None:
-                    return task_result
+                    return persist_fast_result(task_result)
             semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
                 "1",
                 "true",
@@ -301,7 +328,7 @@ class InteractionBoundary:
             if recovered_plan_actions is None and composed_title is None:
                 memory_result = memory_fast_path.resolve(intent)
                 if memory_result is not None:
-                    return memory_result
+                    return persist_fast_result(memory_result)
             manager = PackManager(store=PostgresPackStore(connection))
             for bundle in reference_bundles():
                 try:
