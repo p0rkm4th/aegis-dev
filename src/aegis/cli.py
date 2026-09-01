@@ -733,7 +733,13 @@ def main() -> int:
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
             return 1
-        except (RuntimeError, ValueError, PermissionError, psycopg.Error) as exc:
+        except psycopg.Error:
+            print(
+                "Not completed — unable to initialize browser state; run "
+                "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
+            )
+            return 1
+        except (RuntimeError, ValueError, PermissionError) as exc:
             print(f"Not completed — unable to start browser: {exc}")
             return 1
         return 0
