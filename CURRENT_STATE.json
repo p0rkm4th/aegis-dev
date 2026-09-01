@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-cross-domain-read-composition-live-green",
+  "current_checkpoint": "phase-12-distinct-compound-title-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
-  "last_green_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
-  "last_pushed_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
+  "head_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
+  "last_green_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
+  "last_pushed_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
-    "last_known_green_sha": "15394cb6b76afccdb281a28826e8b596f4d2174e",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/15394cb",
+    "running_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
+    "last_known_green_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/812e20f",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -581,6 +581,9 @@
     "owner_cross_domain_memory_obligation_live": "green live: authenticated owner browser correlation 31313131-3131-4313-8313-313131313131 on release 15394cb returned completed canonical planning context containing relevant backup memory and the open Utilities obligation; request-status matched correlation/objective/state and owner health/readiness remained green",
     "owner_mixed_personal_mutation_live": "green live adversarial owner acceptance: authenticated browser correlation 32323232-3232-4332-8332-323232323232 combining a personal-memory read with task creation was blocked before model/Pack dispatch; immediate request-status matched the blocked canonical Result and no mutation was requested or created",
     "owner_qwen_backup_rotation_task_live": "green live Qwen3:8B owner acceptance: authenticated browser correlation 34343434-3434-4434-8434-343434343434 naturally phrased a backup-credential reminder into one canonical task, completed through model proposal, authorization, execution, independent PostgreSQL readback verification, and matching request-status",
+    "compound_distinct_titles_regression": "green deterministic: bounded task-plus-chore extraction separates explicit task and chore clauses while retaining the existing shared-title shorthand; each plan step remains independently authorized and verified",
+    "compound_distinct_titles_defect_live": "historical live defect: owner correlation 35353535-3535-4535-8535-353535353535 completed a distinct-title request but applied the combined remainder to both records; malformed canonical records were preserved as dogfood evidence and not silently rewritten",
+    "owner_compound_distinct_titles_live": "green live: authenticated owner correlation 36363636-3636-4636-8636-363636363636 on release 812e20f completed the same distinct-title task/chore objective with task 'review the backup' and chore 'clean the utility closet'; both child results independently verified and parent request-status matched",
     "plan_child_observation_crash_recovery_regression": "green deterministic: when a simulated crash occurs after the first plan child observation is durable but before its Result is persisted, a fresh Kernel independently verifies the stored observation, executes only the remaining step, and completes the aggregate with no duplicate first-step execution",
     "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
     "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
@@ -590,5 +593,5 @@
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain reads and mixed personal-mutation fail-closed behavior are green; next inspect multi-step plan persistence and per-step authorization/verification under interruption or mid-flow authorization change."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain reads, mixed personal-mutation fail-closed behavior, and distinct compound titles are green; next inspect multi-step plan persistence and per-step authorization/verification under interruption or mid-flow authorization change."
 }
