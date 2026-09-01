@@ -1142,6 +1142,24 @@ def test_browser_contains_unexpected_service_exceptions_at_the_boundary():
     }
 
 
+def test_browser_does_not_treat_core_value_error_as_client_validation():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: (_ for _ in ()).throw(ValueError("database password=private-secret")),
+        lambda _: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"show tasks"}')
+
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "request_unavailable",
+        "error": "request unavailable",
+    }
+    assert b"private-secret" not in payload
+
+
 def test_browser_contains_non_json_provider_payloads():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(
