@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-polite-task-list-mutation-live-green",
+  "current_checkpoint": "phase-12-cross-pack-natural-prioritization-live-green",
   "active_branch": "aegis-dev",
   "head_sha": "7c070e21dfd530fe74544c74fa12c3b1eaef75bf",
   "last_green_sha": "7c070e21dfd530fe74544c74fa12c3b1eaef75bf",
@@ -629,6 +629,9 @@
     "owner_natural_task_list_mutation_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 74747474-7474-4474-8474-747474747474 on release 20dff52 created exactly 'keep an eye on the backup before the restore drill?' with independent PostgreSQL readback verification; response and request-status matched objective 6afdfec5-8160-46c6-b185-7ab2452c0dcf",
     "polite_task_list_mutation_regression": "green deterministic: polite 'I'd like to put...' prefixes are recognized by the shared mutation guard and the task selector extracts the intended title without allowing a task-list read fast path",
     "owner_polite_task_list_mutation_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 75757575-7575-4575-8575-757575757575 on release 7c070e2 created exactly 'verify the restore drill.' with independent PostgreSQL readback verification; response and request-status matched objective 5df7937d-c218-4ab9-9f79-c0be4fc204a9",
+    "cross_pack_natural_prioritization_regression": "green deterministic: cross-domain planning retains derived affordability alongside bounded household obligations and task context, while excluding private balance fields",
+    "owner_cross_pack_natural_prioritization_live": "green live Qwen3:8B owner dogfood: authenticated browser correlation 84848484-8484-4484-8484-848484848484 on release 7c070e2 returned affordability for literal $75, Utilities context, bounded open tasks, canonical PostgreSQL evidence, and matching request-status; objective d9b6c7a4-3dbc-4d51-8e63-c4b79de01623",
+    "owner_dogfood_harness_quoting_note": "local harness note: an earlier double-quoted shell argument expanded $75 to 5, so its missing affordability was not an AEGIS defect; corrected single-quoted/literal-dollar replay is recorded above",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Compound mutation safety and natural task-list mutation routing are now live-green. Next dogfood targets malformed or weak-model proposals, cross-Pack objectives, and model-boundary ambiguity. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
