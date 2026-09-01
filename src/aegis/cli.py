@@ -900,6 +900,8 @@ def _format(result: Any) -> str:
             f"shared obligations ${evidence['shared_obligations_cents'] / 100:.2f})"
         )
     if evidence.get("collection") == "chores" and evidence.get("title"):
+        if evidence.get("completed") is True:
+            return f"Done — completed chore: {evidence['title']}"
         return f"Done — created chore: {evidence['title']}"
     if evidence.get("collection") == "events" and evidence.get("title"):
         return f"Done — created event: {evidence['title']}"
