@@ -251,6 +251,8 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
 
 def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     from aegis import cli
+    from aegis.network import HomelabInventory
+    from aegis.personal import PersonalState
 
     class Connection:
         def close(self):
@@ -266,6 +268,16 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     )
     monkeypatch.setattr(cli.PostgresTaskStore, "list", lambda _store, _principal: ())
     monkeypatch.setattr(cli.PostgresPackStore, "load", lambda _store: ())
+    monkeypatch.setattr(cli.PostgresPersonalStateStore, "load", lambda _store: PersonalState())
+    monkeypatch.setattr(cli.PostgresFinanceSnapshotStore, "load", lambda _store, _owner: None)
+    monkeypatch.setattr(
+        cli.PostgresNetworkStore, "load", lambda _store, _principal: HomelabInventory()
+    )
+    monkeypatch.setattr(
+        cli.PostgresHomelabStore,
+        "load",
+        lambda _store, _principal, _runtime: type("Pack", (), {"hosts": {}, "services": {}})(),
+    )
 
     state = cli._constellation_state(
         Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))

@@ -21,6 +21,7 @@ from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport
+from .homelab import PostgresHomelabStore
 from .household import (
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -32,6 +33,7 @@ from .household import (
 )
 from .identity import KeycloakIdentityProvider, KeycloakOIDCClient, PostgresSpacePolicy, Role
 from .kernel import Kernel
+from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
@@ -66,6 +68,14 @@ class _NoApproval:
 
     def approved(self, request: Any) -> bool:
         return True
+
+
+class _ReadOnlyHomelabRuntime:
+    def restart(self, service: Any) -> bool:
+        return False
+
+    def health(self, service: Any) -> bool:
+        return False
 
 
 def _required(name: str) -> str:
@@ -189,6 +199,10 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         household = PostgresHouseholdStore(connection).read_snapshot(principal)
         tasks = PostgresTaskStore(connection).list(principal)
         groceries = cast(tuple[str, ...], household.get("groceries", ()))
+        personal = PostgresPersonalStateStore(connection, principal.vault_id).load()
+        finance = PostgresFinanceSnapshotStore(connection).load(principal.id)
+        network = PostgresNetworkStore(connection).load(principal)
+        homelab = PostgresHomelabStore(connection).load(principal, _ReadOnlyHomelabRuntime())
         persisted = {
             bundle.manifest.pack_id: (bundle, status)
             for bundle, status, _grants in PostgresPackStore(connection).load()
@@ -220,6 +234,51 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
+        domain_summaries = (
+            (
+                "personal",
+                "Personal",
+                f"{len(personal.projects)} projects · {len(personal.goals)} goals · "
+                f"{len(personal.memories)} memories",
+            ),
+            (
+                "household",
+                "Household",
+                f"{len(cast(tuple[object, ...], household.get('chores', ())))} chores · "
+                f"{len(cast(tuple[object, ...], household.get('events', ())))} events",
+            ),
+            (
+                "finance",
+                "Finance",
+                "private snapshot available" if finance is not None else "no private snapshot",
+            ),
+            (
+                "homelab",
+                "Infrastructure",
+                f"{len(homelab.hosts)} hosts · {len(homelab.services)} services",
+            ),
+            (
+                "network",
+                "Network",
+                f"{len(network.devices)} devices · {len(network.scopes)} authorized scopes",
+            ),
+        )
+        for domain_id, label, detail in domain_summaries:
+            node_id = f"domain-{domain_id}"
+            nodes.append({"id": node_id, "label": label, "detail": detail})
+            edges.append({"source": "aegis", "target": node_id})
+        nodes.extend(
+            {
+                "id": f"project-{project.project_id}",
+                "label": project.name,
+                "detail": "Personal project · Vault-private",
+            }
+            for project in personal.projects.values()
+        )
+        edges.extend(
+            {"source": "domain-personal", "target": f"project-{project.project_id}"}
+            for project in personal.projects.values()
+        )
         nodes.extend(
             {
                 "id": f"task-{task.task_id}",
