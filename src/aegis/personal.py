@@ -9,6 +9,8 @@ from enum import StrEnum
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
+from .contracts import IntentFrame, ObjectiveState, Result
+
 
 class Provenance(StrEnum):
     EXPLICIT_USER = "explicit_user"
@@ -405,3 +407,49 @@ class PersonalState:
         ):
             raise ValueError("goal references a project missing from state")
         return cls(entities=entities, memories=memories, projects=projects, goals=goals)
+
+
+class PersonalMemoryFastPath:
+    """Deterministic read adapter for grounded personal-memory questions."""
+
+    _TRIGGERS = ("memory", "working on", "working with", "what did i", "what was i")
+    _STOPWORDS = frozenset(
+        {"a", "an", "and", "did", "i", "on", "the", "was", "what", "with", "last", "night"}
+    )
+    _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
+
+    def __init__(self, state: PersonalState) -> None:
+        self.state = state
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        text = intent.utterance.casefold()
+        if not any(trigger in text for trigger in self._TRIGGERS):
+            return None
+        query = " ".join(
+            self._NORMALIZED_TERMS.get(word, word)
+            for word in text.split()
+            if word not in self._STOPWORDS
+        )
+        memories = self.state.search_memories(query)
+        evidence = {
+            "memories": [
+                {
+                    "content": memory.content,
+                    "occurred_at": memory.occurred_at.isoformat(),
+                    "provenance": memory.provenance.value,
+                }
+                for memory in memories
+            ]
+        }
+        message = (
+            f"Found {len(memories)} relevant memor{'y' if len(memories) == 1 else 'ies'}"
+            if memories
+            else "No matching personal memories found"
+        )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=message,
+            evidence=evidence,
+            correlation_id=intent.correlation_id,
+        )

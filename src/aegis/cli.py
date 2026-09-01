@@ -20,6 +20,7 @@ from .kernel import Kernel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
+from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
 from .reference_packs import (
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
@@ -170,6 +171,13 @@ def _format(result: Any) -> str:
         tasks = evidence["canonical_tasks"]
         listing = "; ".join(f"{item['title']} ({item['status']})" for item in tasks)
         return "Tasks: " + (listing if tasks else "(empty)")
+    if evidence.get("memories") is not None:
+        memories = evidence["memories"]
+        if not memories:
+            return "Memories: (none found)"
+        return "Memories: " + "; ".join(
+            f"{item['content']} [{item['provenance']}]" for item in memories
+        )
     if evidence.get("title"):
         return f"Done — created task: {evidence['title']}"
     if evidence.get("item"):
@@ -184,6 +192,12 @@ def handle(utterance: str, principal: Principal) -> str:
         _apply_migrations(connection)
         if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
             _ensure_local_identity(connection, principal)
+        intent = IntentFrame(principal=principal, utterance=utterance)
+        memory_result = PersonalMemoryFastPath(
+            PostgresPersonalStateStore(connection, principal.vault_id)
+        ).resolve(intent)
+        if memory_result is not None:
+            return _format(memory_result)
         manager = PackManager(store=PostgresPackStore(connection))
         for bundle in reference_bundles():
             try:
@@ -243,7 +257,7 @@ def handle(utterance: str, principal: Principal) -> str:
             verifier,
             store=PostgresObjectiveStore(connection), audit=PostgresAuditLog(connection),
         )
-        result = kernel.run(IntentFrame(principal=principal, utterance=utterance), (card,))
+        result = kernel.run(intent, (card,))
         return _format(result)
     finally:
         if channel is not None:
