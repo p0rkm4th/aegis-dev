@@ -892,11 +892,17 @@ def main() -> int:
                     "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
                 )
             return 1
-        except (RuntimeError, ValueError, OSError) as exc:
+        except (RuntimeError, OSError):
             if args.json:
                 _print_json_error("request_unavailable", "request unavailable")
             else:
-                print(f"Not completed — {exc}")
+                print(
+                    "Not completed — request unavailable; run "
+                    "'./scripts/aegis --check' and verify configured services"
+                )
+            return 1
+        except ValueError as exc:
+            print(f"Not completed — {exc}")
             return 1
         return 0
     if not args.no_banner:
@@ -920,7 +926,12 @@ def main() -> int:
                 "Not completed — request unavailable; run "
                 "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
             )
-        except (RuntimeError, ValueError, OSError) as exc:
+        except (RuntimeError, OSError):
+            print(
+                "Not completed — request unavailable; run "
+                "'./scripts/aegis --check' and verify configured services"
+            )
+        except ValueError as exc:
             print(f"Not completed — {exc}")
 
 

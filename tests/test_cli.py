@@ -401,6 +401,29 @@ def test_interactive_cli_contains_database_failure(monkeypatch, capsys):
     assert "private-secret" not in output
 
 
+def test_interactive_cli_hides_runtime_failure_details(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--no-banner"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "handle",
+        lambda *_: (_ for _ in ()).throw(RuntimeError("gateway-password=private-secret")),
+    )
+    prompts = iter(["Show my tasks.", "quit"])
+    monkeypatch.setattr("builtins.input", lambda _prompt: next(prompts))
+
+    assert cli.main() == 0
+    output = capsys.readouterr().out
+    assert "request unavailable; run './scripts/aegis --check'" in output
+    assert "private-secret" not in output
+
+
 def test_cli_once_json_returns_stable_error_for_request_failure(monkeypatch, capsys):
     from aegis import cli
 
