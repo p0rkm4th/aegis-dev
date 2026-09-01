@@ -217,8 +217,17 @@ document.getElementById('chat').addEventListener('submit', async event => {
       pendingCorrelationId = null; send.textContent = 'Send';
       if (result.state === 'completed') loadState().catch(() => {});
     } else {
-      pendingCorrelationId = retryableCodes.has(result.code) ? correlationId : null;
-      send.textContent = pendingCorrelationId ? 'Retry' : 'Send';
+      const authorizationLost = result.code === 'identity_unavailable' ||
+        result.code === 'state_access_denied';
+      if (authorizationLost) {
+        clearAuthorizedDisplays();
+        document.getElementById('state-status').textContent =
+          'Authorization lost; authorized state cleared.';
+        send.textContent = 'Send';
+      } else {
+        pendingCorrelationId = retryableCodes.has(result.code) ? correlationId : null;
+        send.textContent = pendingCorrelationId ? 'Retry' : 'Send';
+      }
     }
   } catch (error) {
     const timedOut = error && error.name === 'AbortError';
