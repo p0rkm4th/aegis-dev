@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-    "current_checkpoint": "network-scope-policy-green-live-probe-runtime-blocked",
+  "current_checkpoint": "network-probe-openclaw-health-green",
   "active_branch": "aegis-dev",
-    "head_sha": "c25429f",
-    "last_green_sha": "c25429f",
-    "last_pushed_sha": "c25429f",
+  "head_sha": "a0bc573",
+  "last_green_sha": "a0bc573",
+  "last_pushed_sha": "a0bc573",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -57,7 +57,8 @@
         "Kitchen OpenClaw mutations bridged to replay-safe canonical HouseholdSpace state and dual readback verification",
         "End-user alpha CLI over live Qwen3:8B, PostgreSQL, Pack retrieval, policy, OpenClaw grocery execution, independent readback, and durable Tasks/Kitchen reads"
         ,"Existing Homelab service restart crossed live Qwen3:8B, PostgreSQL Space policy, paired OpenClaw terminal execution, and independent HTTP health verification; replay reused the durable Result",
-        "Authorized Network scopes and discovered devices persist in PostgreSQL, reload across process boundaries, and fail closed after Space membership revocation"
+    "Authorized Network scopes and discovered devices persist in PostgreSQL, reload across process boundaries, and fail closed after Space membership revocation",
+    "Live Qwen3:8B Network probe crossed PostgreSQL scope policy and OpenClaw terminal execution, wrote a Gateway receipt, and passed independent TCP verification with same-correlation replay"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -77,17 +78,17 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-        "pytest": "83 passed; ruff check passed"
+    "pytest": "84 passed; ruff check passed"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
     "consequential Homelab/HA action acceptance remains unperformed",
-    "live Network probe reached the paired OpenClaw terminal but even a harmless printf was echoed without execution; ping and curl likewise emitted no completion marker, so Network live acceptance is not claimed"
+    "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance"
   ],
-    "blocked_lanes": [
-        "Network live probe is blocked by the current OpenClaw terminal runtime not executing terminal.input commands; Home Assistant/device live acceptance remains unperformed"
+  "blocked_lanes": [
+    "Home Assistant/device live acceptance remains unperformed"
   ],
     "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
@@ -153,7 +154,7 @@
         "end_user_alpha": "green: ./scripts/aegis accepted manual grocery and task requests through live Qwen3:8B; grocery mutation crossed paired OpenClaw and was independently read back; task/grocery state was read from PostgreSQL in a fresh CLI process after restart; token-authenticated mode does not bootstrap membership",
         "homelab_openclaw_health": "green: scripts/live_homelab_slice.py used live Qwen3:8B and PostgreSQL policy, restarted a real local HTTP service through paired OpenClaw terminal execution, independently read HTTP 200, and a fresh process replay with correlation a01bd4b5-8b43-405e-9ce9-a3cd20590fc3 reused the same completed Result and objective without dispatching a second restart",
         "network_state_persistence": "green: migration 010 applied to live PostgreSQL; PostgresNetworkStore persisted alpha-lab 127.0.0.0/8 authorization and localhost HTTP discovery, a fresh connection reloaded both, and inactive Alice/apartment membership denied reload before the fixture was restored",
-        "network_probe_live": "blocked/unverified: scripts/live_network_probe.py reached OpenClaw and PostgreSQL policy, but the paired terminal echoed printf/curl input without executing it; owner/runtime action required is to restart or repair the disposable OpenClaw Gateway terminal runtime, then rerun the script",
+    "network_probe_live": "green: correlation e11e010f-4420-40c6-8b4d-7ee3d031b1a1 returned objective d84d989a-1dee-469b-8a5c-938e5095a9e0 completed; Qwen3:8B selected network.probe, PostgreSQL NetworkScopePolicy allowed persisted alpha-lab scope, OpenClaw wrote receipt AEGIS_NETWORK_DONE_b6c36dc9b54449a48ce407dcb18c1288 with exit 0, independent TCP readback connected, and replay returned the same objective/result without a duplicate mutation",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -163,5 +164,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-    "next_action": "Preserve the end-user alpha as a regression gate. Network persistence and scope policy are green; rerun scripts/live_network_probe.py after the OpenClaw terminal runtime is repaired, while continuing other unblocked campaign lanes."
+  "next_action": "Preserve the end-user alpha and live OpenClaw/PostgreSQL/Qwen regression gates. Continue the next unblocked campaign functionality; do not advance nominal phase gates until their explicit acceptance criteria are met."
 }
