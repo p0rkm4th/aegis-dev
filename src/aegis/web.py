@@ -261,7 +261,7 @@ class BrowserApp:
                 return self._json(HTTPStatus.OK, {"healthy": True, "ready": True, "components": []})
             try:
                 report = self.health()
-            except (OSError, RuntimeError, ValueError):
+            except Exception:
                 return self._error(
                     HTTPStatus.SERVICE_UNAVAILABLE,
                     "health_unavailable",
@@ -285,7 +285,7 @@ class BrowserApp:
                 return self._error(
                     HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
                 )
-            except (OSError, RuntimeError, ValidationError):
+            except Exception:
                 return self._error(
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
@@ -317,7 +317,7 @@ class BrowserApp:
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
             except PermissionError:
                 return self._error(HTTPStatus.FORBIDDEN, "request_denied", "request denied")
-            except (OSError, RuntimeError):
+            except Exception:
                 return self._error(
                     HTTPStatus.SERVICE_UNAVAILABLE, "request_unavailable", "request unavailable"
                 )
