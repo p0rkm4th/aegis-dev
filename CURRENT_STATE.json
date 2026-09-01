@@ -32,6 +32,7 @@
       "M09.07 live owner safety proof at d6f5f5a: 'add the first two' clarified before execution and did not increase the pre-existing literal-title count",
       "M09.08 live owner restart proof at d6f5f5a: authorized grocery context survived service restart and the follow-up completed with fresh trace IDs",
       "M09.09 bounded context budgets are deterministic and owner readiness is green at bbe65d3",
+      "M08.05 fresh owner action-family probe at bbe65d3 remained capability-non-green: create variants clarified, completion variants failed to resolve absent canonical titles, and one informal completion was harmlessly misrouted to a grocery read (78556d24-7d2a-45da-bb28-de96e5865558; 97c15e24-b0af-46ef-a591-e299208e3e16; 5395064c-e5bc-4df1-9297-2d828797cc58; 04f48c7e-d0f8-43fe-9306-af06afb146bf)",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
