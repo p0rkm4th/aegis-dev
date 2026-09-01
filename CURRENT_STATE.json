@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "2947ed5",
-  "last_green_sha": "2947ed5",
-  "last_pushed_sha": "2947ed5",
+  "head_sha": "2fbecba",
+  "last_green_sha": "2fbecba",
+  "last_pushed_sha": "2fbecba",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -87,6 +87,7 @@
     ,"browser lifecycle status, selectable node details, and post-completion canonical refresh"
     ,"optional non-authoritative Pack UI metadata and dynamic Constellation hubs/relationships"
     ,"first-run local web initialization and duplicate-free dynamic Pack hub projection"
+    ,"authorized multi-domain browser summaries for Personal, Household, Finance, Infrastructure, and Network"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -107,7 +108,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
     "pytest": "108 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "First-run local web preparation preserves revoked memberships; current Pack metadata wins over stale persisted manifests; fresh PostgreSQL projection has one hub per Pack and only authorized contextual nodes"
+    "known_gate_note": "Fresh PostgreSQL multi-domain projection is green; finance output is summary-only with raw balances/transactions excluded; contextual nodes are loaded through authorized stores"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -203,6 +204,7 @@
         "browser_lifecycle_visibility": "green deterministic: browser receives canonical Result state plus objective/correlation identifiers, renders status, supports node detail selection, refreshes after completed results, and does not infer completion from HTTP success or prose",
         "pack_constellation_projection": "green deterministic: optional PackManifest UI hints produce dynamic available/installed Pack hubs and edges; missing metadata falls back safely; authorized canonical task context is the only contextual data projected",
         "browser_projection_restart_safety": "green: fresh PostgreSQL-backed projection exposes AEGIS plus one current hub for each available/installed Pack, authorized Tasks/Kitchen counts, and task relationships; stale persisted Pack UI metadata does not override current manifest hints; local web bootstrap uses DO NOTHING and cannot reactivate revoked membership",
+        "browser_multi_domain_projection_live": "green: fresh PostgreSQL projection for Alice includes Personal, Household, Finance, Infrastructure, and Network hubs plus authorized task/project context; serialized browser state contains no finance balances or transaction fields, and every relationship endpoint is present",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
