@@ -1026,6 +1026,31 @@ def test_browser_app_rejects_malformed_constellation_projection():
     assert json.loads(payload) == {"code": "state_unavailable", "error": "state unavailable"}
 
 
+@pytest.mark.parametrize(
+    "projection",
+    [
+        {
+            "nodes": [
+                {"id": "tasks", "label": "Tasks"},
+                {"id": "tasks", "label": "Duplicate"},
+            ]
+        },
+        {
+            "nodes": [{"id": "tasks", "label": "Tasks"}],
+            "edges": [{"source": "aegis", "target": "tasks"}],
+        },
+    ],
+)
+def test_browser_rejects_ambiguous_constellation_relationships(projection):
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(principal, lambda *_: "unused", lambda _: projection)
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+
+    assert status == 503
+    assert json.loads(payload) == {"code": "state_unavailable", "error": "state unavailable"}
+
+
 def test_browser_api_resolves_identity_for_each_request():
     principals = iter(
         (
