@@ -853,7 +853,7 @@ def main() -> int:
         return _print_runtime_report(_runtime_report(), args.json)
     try:
         principal = _principal()
-    except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
+    except (RuntimeError, ValueError, OSError, PermissionError, psycopg.Error) as exc:
         if args.json:
             _print_json_error("identity_unavailable", "identity unavailable")
             return 1
@@ -872,7 +872,7 @@ def main() -> int:
                 _constellation_state,
                 _runtime_report,
             )
-        except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
+        except (RuntimeError, ValueError, OSError, PermissionError, psycopg.Error) as exc:
             print(f"Not completed — unable to start browser: {exc}")
             return 1
         return 0
@@ -884,6 +884,12 @@ def main() -> int:
                 return 0 if result.state.value == "completed" else 1
             else:
                 print(handle(args.once, principal))
+        except PermissionError:
+            if args.json:
+                _print_json_error("request_denied", "request denied")
+            else:
+                print("Not completed — request denied")
+            return 1
         except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
             if args.json:
                 _print_json_error("request_unavailable", "request unavailable")
@@ -905,6 +911,8 @@ def main() -> int:
             continue
         try:
             print(_format_error(handle(utterance, principal)))
+        except PermissionError:
+            print("Not completed — request denied")
         except (RuntimeError, ValueError, OSError) as exc:
             print(f"Not completed — {exc}")
 

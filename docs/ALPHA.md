@@ -45,7 +45,7 @@ Canonical non-completed results (for example denied or incomplete work) also
 exit with status 1. Initialization or transport failures return a stable JSON
 error object with `code`, generic `error`, and `state` fields rather than
 implementation details. It does not bypass Core policy, authorization, execution,
-or verification. Add
+or verification; denied requests use the stable `request_denied` code. Add
 `--no-banner` when embedding the interactive client in a terminal wrapper.
 For machine consumers, add `--json` to `--once`; it emits the canonical
 Result fields (`objective_id`, `state`, `message`, `evidence`, and
