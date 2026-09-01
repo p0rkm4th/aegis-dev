@@ -161,6 +161,13 @@ reloaded object received its active member set from policy at load time; a
 principal not supplied by that policy remained denied, so persistence does not
 turn serialized Space data into authorization.
 
+Private finance persistence was verified after migration
+`006_finance_snapshots.sql`. A fresh PostgreSQL connection reloaded a
+provider-tagged account and transaction snapshot, and the ledger recomputed the
+owner's balance from canonical state. A different principal was denied before
+the snapshot was read, preserving the owner boundary below model and projection
+logic.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
