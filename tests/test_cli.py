@@ -159,7 +159,7 @@ def test_cli_once_json_serializes_canonical_result(monkeypatch, capsys):
         "_principal",
         lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
     )
-    monkeypatch.setattr(cli, "_run_interaction", lambda *_: result)
+    monkeypatch.setattr(cli, "run_interaction", lambda *_: result)
 
     assert cli.main() == 0
     payload = json.loads(capsys.readouterr().out)
@@ -183,7 +183,7 @@ def test_cli_once_json_returns_failure_for_non_completed_result(monkeypatch, cap
         "_principal",
         lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
     )
-    monkeypatch.setattr(cli, "_run_interaction", lambda *_: result)
+    monkeypatch.setattr(cli, "run_interaction", lambda *_: result)
 
     assert cli.main() == 1
     assert json.loads(capsys.readouterr().out)["state"] == "blocked"
@@ -472,7 +472,7 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
         message="authorization denied",
         correlation_id=uuid4(),
     )
-    monkeypatch.setattr(cli, "_run_interaction", lambda *_: result)
+    monkeypatch.setattr(cli, "run_interaction", lambda *_: result)
 
     payload = cli._browser_interaction(
         "Add rice to groceries.",
