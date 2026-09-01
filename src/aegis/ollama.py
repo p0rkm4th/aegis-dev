@@ -151,6 +151,10 @@ class OllamaProvider:
                     "joke, explanation, or similar request, provide the content rather "
                     "than claiming that a capability is unavailable. If a request needs a "
                     "mutation but no supplied card safely represents it, return CLARIFY."
+                    " If authorized canonical facts are supplied and the request is a "
+                    "read-only question about them, answer from those facts; do not "
+                    "ask the user to identify an action merely because the answer is "
+                    "not itself a database field."
                 ),
                 "context_rule": (
                     "Use only the bounded canonical context supplied below to resolve "
