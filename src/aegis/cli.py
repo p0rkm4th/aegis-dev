@@ -845,7 +845,16 @@ def main() -> int:
     if args.web:
         try:
             if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
-                _prepare_local_web_runtime(principal)
+                try:
+                    _prepare_local_web_runtime(principal)
+                except (RuntimeError, psycopg.Error):
+                    # The loopback shell can still expose readiness diagnostics when
+                    # canonical storage is unavailable. State and interaction routes
+                    # fail closed until the operator repairs the reported dependency.
+                    print(
+                        "AEGIS runtime is not ready; the browser will show diagnostics. "
+                        "Run './scripts/aegis --check' to see remediation."
+                    )
             print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
             serve(
                 args.host,
@@ -858,12 +867,6 @@ def main() -> int:
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
-            return 1
-        except psycopg.Error:
-            print(
-                "Not completed — unable to initialize browser state; run "
-                "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
-            )
             return 1
         except (RuntimeError, ValueError, PermissionError) as exc:
             print(f"Not completed — unable to start browser: {exc}")
