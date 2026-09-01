@@ -470,7 +470,9 @@ class BrowserApp:
                 else:
                     raise ValueError("correlation_id must be a UUID string")
                 message = self.interaction(utterance, principal, correlation_id)
-            except (ValueError, KeyError, json.JSONDecodeError, TypeError) as exc:
+            except json.JSONDecodeError:
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
+            except (ValueError, KeyError, TypeError) as exc:
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
             except PermissionError:
                 return self._error(HTTPStatus.FORBIDDEN, "request_denied", "request denied")
