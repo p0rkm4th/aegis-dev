@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-endpoint-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
-  "last_green_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
-  "last_pushed_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
+  "head_sha": "502a665f70be9627a5a1a6dbe3105c8d0c95a2ca",
+  "last_green_sha": "502a665f70be9627a5a1a6dbe3105c8d0c95a2ca",
+  "last_pushed_sha": "502a665f70be9627a5a1a6dbe3105c8d0c95a2ca",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
