@@ -30,6 +30,7 @@
       "M09.03 fresh singleton grocery follow-up at 2692995 completed after authorized context reuse (read 5e947765-c1da-4f04-92f6-4087001af177; follow-up b893a1b5-cd15-4020-a51c-463f9a05809b); capability green remains unclaimed pending varied family",
       "M09.04 continuation trace metadata passed deterministic validation and owner readiness at 50747d7; fresh follow-up objective/correlation identity is preserved",
       "M09.07 live owner safety proof at d6f5f5a: 'add the first two' clarified before execution and did not increase the pre-existing literal-title count",
+      "M09.08 live owner restart proof at d6f5f5a: authorized grocery context survived service restart and the follow-up completed with fresh trace IDs",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -55,13 +56,13 @@
     "M06": "M06.01-M06.07 complete from read/write/shared/private/external/finance/restart vertical evidence",
     "M07": "M07.01-M07.09 complete from canonical memory, retrieval, provenance, compaction, and privacy evidence",
     "M08": "M08.01-M08.04 and M08.06-M08.09 materially implemented/proven; M08.03 semantic retrieval is live-proven, M08.05 and M08.10 remain active",
-    "M09": "M09.01-M09.07 session, bounded turn, canonical referents, continuation trace, grounding, mutation guard, and ambiguity safety are implemented/proven; varied objective-continuation capability proof remains partial",
+    "M09": "M09.01-M09.08 session, bounded turn, canonical referents, continuation trace, grounding, mutation guard, ambiguity safety, and restart continuity are implemented/proven; varied objective-continuation capability proof remains partial",
     "M10": "M10.01-M10.06, M10.08-M10.10 materially proven; M10.07 compensation/cancellation remains unmet",
     "M11": "M11.01-M11.06 and M11.08-M11.09 materially proven; M11.07 remains unmet",
     "M12": "M12.01-M12.10 materially proven; M12.11 is lane-limited"
   },
   "next_candidates": [
-    "M09.08",
+    "M09.09",
     "M08.05",
     "M11.07",
     "M16.08"
