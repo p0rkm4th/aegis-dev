@@ -432,6 +432,7 @@ class PersonalMemoryFastPath:
         "what was i",
         "what do i know",
         "tell me about",
+        "what about",
     )
     _PROJECT_TRIGGERS = ("project", "projects")
     _GOAL_TRIGGERS = ("goal", "goals")
@@ -441,7 +442,9 @@ class PersonalMemoryFastPath:
             "an",
             "and",
             "about",
+            "that",
             "did",
+            "from",
             "i",
             "me",
             "know",
