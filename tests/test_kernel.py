@@ -1821,6 +1821,34 @@ def test_pack_lifecycle_requires_explicit_permissions_and_enablement():
     ]
 
 
+def test_capability_registry_semantic_retrieval_ranks_bounded_pack_cards():
+    cards = (
+        ActionCard(
+            action=ActionSpec(
+                action_id="kitchen.groceries.list", capability="kitchen.groceries.read"
+            ),
+            summary="Show groceries and food needed from the store",
+            relevance=1,
+        ),
+        ActionCard(
+            action=ActionSpec(action_id="tasks.list", capability="tasks.read"),
+            summary="Show outstanding tasks and obligations",
+            relevance=1,
+        ),
+    )
+
+    class Embedder:
+        def embed(self, texts):
+            return tuple(
+                (1.0, 0.0) if index == 0 or "grocery" in text or "food" in text else (0.0, 1.0)
+                for index, text in enumerate(texts)
+            )
+
+    retrieved = CapabilityRegistry(cards).retrieve_semantic("what should i buy", Embedder())
+
+    assert retrieved == (cards[0], cards[1])
+
+
 def test_pack_validation_rejects_cross_namespace_or_unverified_mutation():
     cross_namespace = PackBundle(
         manifest=PackManifest(pack_id="cards", version="0.1.0"),

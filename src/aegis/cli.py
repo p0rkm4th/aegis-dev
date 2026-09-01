@@ -22,6 +22,7 @@ import psycopg
 
 from .audit import PostgresAuditLog
 from .contracts import ActionCard, Principal, RequestStatus, Result
+from .embeddings import OllamaEmbeddingProvider
 from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport
@@ -990,6 +991,13 @@ def run_interaction(
             model_provider=lambda: OllamaProvider(
                 os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
                 OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
+            ),
+            capability_retriever=lambda query, manager: manager.retrieve_semantic(
+                query,
+                OllamaEmbeddingProvider(
+                    os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
+                    _required("AEGIS_OLLAMA_URL"),
+                ),
             ),
         )
     )

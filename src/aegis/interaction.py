@@ -92,6 +92,7 @@ class InteractionDependencies:
         openclaw_channel: Callable[[], OpenClawWebSocketChannel],
         local_identity: Callable[[], bool],
         model_provider: Callable[[], Any] | None = None,
+        capability_retriever: Callable[[str, PackManager], tuple[ActionCard, ...]] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -101,6 +102,7 @@ class InteractionDependencies:
         self.openclaw_channel = openclaw_channel
         self.local_identity = local_identity
         self.model_provider = model_provider
+        self.capability_retriever = capability_retriever
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -259,9 +261,8 @@ class InteractionBoundary:
     def __init__(self, dependencies: InteractionDependencies) -> None:
         self.dependencies = dependencies
 
-    @staticmethod
     def _fallback_cards(
-        manager: PackManager, utterance: str, context: Context | None = None
+        self, manager: PackManager, utterance: str, context: Context | None = None
     ) -> tuple[ActionCard, ...]:
         """Offer a bounded capability vocabulary; metadata remains Core-owned."""
 
@@ -275,6 +276,15 @@ class InteractionBoundary:
                 return ()
             if isinstance(facts.get("canonical_tasks"), list):
                 return tuple(manager.retrieve("tasks"))[:10]
+        if self.dependencies.capability_retriever is not None:
+            try:
+                semantic_cards = self.dependencies.capability_retriever(utterance, manager)
+            except Exception:
+                # Retrieval is an optimization; a provider outage must not
+                # bypass the bounded model/decoder or change authority.
+                semantic_cards = ()
+            if semantic_cards:
+                return tuple(semantic_cards)[:10]
         # Domain retrieval is only a candidate reduction. Action meaning and
         # arguments still come from the bounded model proposal and decoder.
         domain = next(
