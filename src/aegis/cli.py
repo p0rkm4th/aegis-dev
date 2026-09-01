@@ -198,6 +198,13 @@ def _postgres_health(database_url: str | None) -> ComponentHealth:
             required=True,
             detail="set AEGIS_DATABASE_URL",
         )
+    if any(placeholder in database_url for placeholder in ("USER", "PASSWORD", "DBNAME")):
+        return ComponentHealth(
+            name="postgres",
+            healthy=False,
+            required=True,
+            detail="configuration contains template placeholders; replace AEGIS_DATABASE_URL",
+        )
     try:
         connection = psycopg.connect(database_url, connect_timeout=2)
         try:

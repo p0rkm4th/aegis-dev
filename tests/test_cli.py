@@ -623,6 +623,17 @@ def test_postgres_health_rejects_malformed_connection_configuration():
     assert component.detail == "invalid database configuration; verify AEGIS_DATABASE_URL"
 
 
+def test_postgres_health_detects_generated_template_placeholder():
+    from aegis import cli
+
+    component = cli._postgres_health("postgresql://USER:PASSWORD@127.0.0.1:5432/DBNAME")
+
+    assert component.healthy is False
+    assert component.detail == (
+        "configuration contains template placeholders; replace AEGIS_DATABASE_URL"
+    )
+
+
 def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
     from aegis import cli
 
