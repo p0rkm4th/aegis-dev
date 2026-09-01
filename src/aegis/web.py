@@ -299,6 +299,9 @@ class BrowserApp:
                 payload = json.loads(body)
                 if not isinstance(payload, dict):
                     raise ValueError("request body must be a JSON object")
+                unknown_fields = set(payload) - {"utterance", "correlation_id"}
+                if unknown_fields:
+                    raise ValueError("request contains undocumented fields")
                 utterance = payload["utterance"]
                 if not isinstance(utterance, str) or not utterance.strip():
                     raise ValueError("utterance must be a non-empty string")
