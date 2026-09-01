@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
-  "current_phase": 7,
-  "current_checkpoint": "phase-7-household-event-temporal-action-green",
+  "current_phase": 8,
+  "current_checkpoint": "phase-8-finance-live-postgres-boundary-green",
   "active_branch": "aegis-dev",
-  "head_sha": "88addac",
-  "last_green_sha": "88addac",
-  "last_pushed_sha": "88addac",
+  "head_sha": "5e153fb",
+  "last_green_sha": "5e153fb",
+  "last_pushed_sha": "5e153fb",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -151,7 +151,7 @@
     "correlation_id": "13f555c9-4e63-4f4c-8a0a-13a9d79662a5",
     "objective_id": "c8c6aaee-31e6-46f1-844c-03709c231032",
     "external_execution": "green: OpenClawGroceryExecutor dispatched the existing Kitchen action through paired Gateway terminal and OpenClawGroceryVerifier independently read the external record",
-    "postgresql": "green: postgres:16.4-bookworm, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
+    "postgresql": "green: pgvector/pgvector:pg16, PostgreSQL 16.15 with pgvector 0.8.6, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
     "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, system-event, and independent external readback green through AEGIS transport",
     "openclaw_external_proof": "command dispatched through paired AEGIS WebSocket; terminal.data contained the command; independent read of /tmp/aegis-openclaw-external-proof returned AEGIS_GATEWAY_EXEC_OK",
     "live_grocery_vertical_slice": "green: scripts/live_vertical_slice.py ran with Ollama qwen3:8b, PostgreSQL 16.4 after container restart, and paired OpenClaw 2026.8.1; first and replay Results completed with same objective/result and matching_external_records=1",
@@ -190,6 +190,8 @@
         "openclaw_system_event_live": "green: paired AEGIS WebSocket client invoked confirmed OpenClaw system-event with wake=false and idempotencyKey aegis-acceptance-notification-001; Gateway returned ok=true; no external channel was configured",
         "household_event_live": "green: live Qwen3:8B selected tasks.events.create for a shared event; PostgreSQL persisted it, independent canonical verification completed, and same-correlation replay returned the same objective with exactly one matching event",
         "household_event_temporal_live": "green: live Qwen3:8B created 'apartment inspection' from the relative-date request 'Create an event for apartment inspection tomorrow'; CLI returned the correct event result and canonical household readback listed it",
+        "phase7_household_gate": "green with limitation: durable multi-member shared household state, grocery/task/chore/event workflows, membership revocation, independent readback, replay safety, and paired OpenClaw system-event acceptance are green; no external channel is configured in the disposable Gateway, so mobile/chat delivery remains unaccepted",
+        "phase8_finance_postgres_boundary": "green: fresh PostgreSQL connections reloaded Alice's private sandbox-bank snapshot and the allowlisted Apartment projection; Bob was denied the raw snapshot, projection reload exposed no private balance or transaction fields, and affordability returned only derived purchase/obligation/shortfall values",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -199,5 +201,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Review the Phase 7 shared-household gate against live chores/events, membership revocation, durable reload, and OpenClaw system-event evidence; then proceed to the next unblocked campaign capability without claiming external channel delivery."
+  "next_action": "Complete the Phase 8 finance gate with an auditable user-facing affordability/projection journey and local-model privacy holdouts; do not expose raw private finance state or add unrelated domain breadth."
 }
