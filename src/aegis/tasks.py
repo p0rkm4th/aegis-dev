@@ -18,6 +18,7 @@ from .contracts import (
     VerificationContract,
     VerificationResult,
 )
+from .utterance import is_mutation_request
 
 
 class TaskStatus(StrEnum):
@@ -317,7 +318,7 @@ class TaskReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
-        if text.startswith(("add ", "create ", "update ", "complete ", "remove ")):
+        if is_mutation_request(text):
             return False
         return any(trigger in text for trigger in cls._TRIGGERS)
 
