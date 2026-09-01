@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "8bc469fee73a95e62e3a2fb6733a8d9a113c6f44",
-  "last_green_sha": "8bc469fee73a95e62e3a2fb6733a8d9a113c6f44",
-  "last_pushed_sha": "8bc469fee73a95e62e3a2fb6733a8d9a113c6f44",
+  "head_sha": "fbffd394320c8ae5bd85f2b2e67a05228d41d567",
+  "last_green_sha": "fbffd394320c8ae5bd85f2b2e67a05228d41d567",
+  "last_pushed_sha": "fbffd394320c8ae5bd85f2b2e67a05228d41d567",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -104,6 +104,7 @@
     ,"typed public run_interaction boundary shared by CLI and browser clients"
     ,"bounded browser port validation and graceful web startup failure reporting"
     ,"browser state/readiness refresh control for transient failures"
+    ,"browser preserves stale state only for service outage and clears it on auth loss"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -124,7 +125,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
     "pytest": "121 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, no-store transport headers, authorized detail projections, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, and refresh control are covered"
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, no-store transport headers, authorized detail projections, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, refresh control, and auth-loss state clearing are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -237,6 +238,7 @@
         "shared_interaction_runner_live": "green: CLI and browser composition now call the typed public run_interaction() runner; a fresh PostgreSQL-backed invocation returned a completed canonical task Result with correlation and evidence, without a duplicate client workflow",
         "browser_startup_diagnostics": "green deterministic: invalid --web ports are rejected in argparse with a 1–65535 remediation message, and bootstrap failures return 'unable to start browser' with status 1 instead of an unhandled traceback",
         "browser_refresh_control_live": "green: the current ./scripts/aegis --web launcher served the refresh-enabled browser HTML on free loopback port 18083; the page contains Refresh state, refreshState(), and disabled-while-refreshing behavior, while the earlier 18082 probe was correctly classified as a port collision",
+        "browser_auth_loss_state_policy": "green deterministic: the browser refresh path preserves an existing projection for service-unavailable errors with a visible warning, but clears nodes and relationships for identity_unavailable or state_access_denied responses",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
