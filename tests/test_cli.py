@@ -364,6 +364,32 @@ def test_cli_web_reports_port_conflict_with_remediation(monkeypatch, capsys):
     )
 
 
+def test_cli_web_hides_database_failure_details(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--web", "--port", "8082"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_prepare_local_web_runtime",
+        lambda _principal: (_ for _ in ()).throw(
+            cli.psycopg.OperationalError("password=private-secret")
+        ),
+    )
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert output == (
+        "Not completed — unable to initialize browser state; run "
+        "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL\n"
+    )
+    assert "private-secret" not in output
+
+
 def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
     from aegis import cli
 
