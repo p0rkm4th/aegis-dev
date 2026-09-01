@@ -788,7 +788,7 @@ def main() -> int:
         help="serve the minimal Constellation browser client on loopback",
     )
     parser.add_argument("--host", default="127.0.0.1", help=argparse.SUPPRESS)
-    parser.add_argument("--port", type=int, default=8080, help="browser client port")
+    parser.add_argument("--port", type=_port_value, default=8080, help="browser client port")
     args = parser.parse_args()
     if args.json and not (args.check or args.once is not None):
         parser.error("--json requires --check or --once")
@@ -802,17 +802,21 @@ def main() -> int:
         print(f"Not completed — unable to initialize identity: {exc}")
         return 1
     if args.web:
-        if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
-            _prepare_local_web_runtime(principal)
-        print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
-        serve(
-            args.host,
-            args.port,
-            _principal,
-            _browser_interaction,
-            _constellation_state,
-            _runtime_report,
-        )
+        try:
+            if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
+                _prepare_local_web_runtime(principal)
+            print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
+            serve(
+                args.host,
+                args.port,
+                _principal,
+                _browser_interaction,
+                _constellation_state,
+                _runtime_report,
+            )
+        except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
+            print(f"Not completed — unable to start browser: {exc}")
+            return 1
         return 0
     if args.once is not None:
         try:
@@ -849,6 +853,16 @@ def main() -> int:
 
 def _format_error(message: str) -> str:
     return message
+
+
+def _port_value(value: str) -> int:
+    try:
+        port = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("port must be an integer from 1 to 65535") from exc
+    if not 1 <= port <= 65535:
+        raise argparse.ArgumentTypeError("port must be an integer from 1 to 65535")
+    return port
 
 
 if __name__ == "__main__":
