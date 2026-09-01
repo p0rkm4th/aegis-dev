@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-distinct-compound-title-live-green",
+  "current_checkpoint": "phase-12-distinct-compound-event-title-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
-  "last_green_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
-  "last_pushed_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
+  "head_sha": "ca957869509f72076d462c78725e8d09221853ba",
+  "last_green_sha": "ca957869509f72076d462c78725e8d09221853ba",
+  "last_pushed_sha": "ca957869509f72076d462c78725e8d09221853ba",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
-    "last_known_green_sha": "812e20fd4ead247200e3c9a5ec1911e6f85364ad",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/812e20f",
+    "running_sha": "ca957869509f72076d462c78725e8d09221853ba",
+    "last_known_green_sha": "ca957869509f72076d462c78725e8d09221853ba",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/ca95786",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -584,6 +584,9 @@
     "compound_distinct_titles_regression": "green deterministic: bounded task-plus-chore extraction separates explicit task and chore clauses while retaining the existing shared-title shorthand; each plan step remains independently authorized and verified",
     "compound_distinct_titles_defect_live": "historical live defect: owner correlation 35353535-3535-4535-8535-353535353535 completed a distinct-title request but applied the combined remainder to both records; malformed canonical records were preserved as dogfood evidence and not silently rewritten",
     "owner_compound_distinct_titles_live": "green live: authenticated owner correlation 36363636-3636-4636-8636-363636363636 on release 812e20f completed the same distinct-title task/chore objective with task 'review the backup' and chore 'clean the utility closet'; both child results independently verified and parent request-status matched",
+    "compound_distinct_event_titles_regression": "green deterministic: bounded task-plus-event extraction separates explicit task and event clauses, preserves the existing shared-title temporal shorthand, and keeps the event timestamp independently derived",
+    "compound_distinct_event_titles_defect_live": "historical live defect: owner correlation 37373737-3737-4737-8737-373737373737 completed a distinct-title task/event request but applied the combined remainder to both records; the malformed event was preserved as canonical dogfood history",
+    "owner_compound_distinct_event_titles_live": "green live: authenticated owner correlation 38383838-3838-4838-8838-383838383838 on release ca95786 completed the distinct-title task/event objective with task 'review the backup' and event 'inspect the utility closet' scheduled tomorrow; both child results independently verified and parent request-status matched",
     "plan_child_observation_crash_recovery_regression": "green deterministic: when a simulated crash occurs after the first plan child observation is durable but before its Result is persisted, a fresh Kernel independently verifies the stored observation, executes only the remaining step, and completes the aggregate with no duplicate first-step execution",
     "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
     "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
@@ -593,5 +596,5 @@
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain reads, mixed personal-mutation fail-closed behavior, and distinct compound titles are green; next inspect multi-step plan persistence and per-step authorization/verification under interruption or mid-flow authorization change."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Cross-domain reads, mixed personal-mutation fail-closed behavior, and distinct task/chore/event titles are green; next inspect multi-step plan persistence and per-step authorization/verification under interruption or mid-flow authorization change."
 }
