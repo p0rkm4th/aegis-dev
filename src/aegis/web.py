@@ -305,6 +305,9 @@ function clearAuthorizedDisplays() {
   clearPendingRequest();
   document.querySelector('#chat button').textContent = 'Send';
 }
+function clearHealthDetails() {
+  document.getElementById('health-details').replaceChildren();
+}
 function applyNodeFilter() {
   if (!authorizedProjectionLoaded) {
     nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
@@ -403,6 +406,7 @@ async function refreshState() {
       await loadHealth();
     } catch (error) {
       const code = error.code || 'health_unavailable';
+      clearHealthDetails();
       document.getElementById('health').textContent =
         `${errorLabel(code)} (${code}).`;
     }
@@ -423,6 +427,7 @@ async function refreshState() {
 }
 refresh.addEventListener('click', refreshState);
 refreshState().catch(() => {
+  clearHealthDetails();
   document.getElementById('health').textContent = 'Runtime status unavailable.';
 });
 document.getElementById('chat').addEventListener('submit', async event => {

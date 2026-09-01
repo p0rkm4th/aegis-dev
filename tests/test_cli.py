@@ -1537,6 +1537,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "const lifecycleLabels = Object.freeze" in _INDEX_HTML
     assert "const errorLabels = Object.freeze" in _INDEX_HTML
     assert "function errorLabel(code)" in _INDEX_HTML
+    assert "function clearHealthDetails()" in _INDEX_HTML
+    assert "clearHealthDetails();" in _INDEX_HTML
     assert "function lifecycleLabel(state)" in _INDEX_HTML
     assert "lifecycleLabel(result.state)" in _INDEX_HTML
     assert "lifecycleLabel(status.state)" in _INDEX_HTML
