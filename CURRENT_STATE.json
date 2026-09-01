@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "a324d9a4a47667b7834ca8169a05916a7d6c6d16",
-  "last_green_sha": "a324d9a4a47667b7834ca8169a05916a7d6c6d16",
-  "last_pushed_sha": "a324d9a4a47667b7834ca8169a05916a7d6c6d16",
+  "head_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
+  "last_green_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
+  "last_pushed_sha": "7462e870a24e7bd74f4620b0173f32a24dac760d",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -121,6 +121,7 @@
     ,"denied personal reads produce stable fail-closed CLI errors without tracebacks"
     ,"browser interaction requests reject undocumented fields before Core"
     ,"reusable InteractionBoundary owns application orchestration beneath CLI and browser adapters"
+    ,"InteractionBoundary and InteractionDependencies are exported from the public aegis package API"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -140,8 +141,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "136 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
+    "pytest": "137 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed",
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -275,6 +276,7 @@
         "browser_request_contract": "green deterministic: undocumented browser request fields return invalid_request before the interaction callback executes, preserving the strict machine-facing boundary",
         "shared_interaction_boundary": "green: interaction orchestration moved to aegis.interaction.InteractionBoundary with injected infrastructure/action-selection callbacks; CLI remains a compatibility composition root and browser continues through the same typed Result path, with 136 tests plus full static/type/migration validation green",
         "shared_interaction_boundary_live": "green live: post-extraction ./scripts/aegis --once 'Show my tasks.' --json used the reusable interaction path against PostgreSQL, returned a completed canonical Result with objective/correlation/evidence fields, exited 0, and emitted no stderr",
+        "public_interaction_api": "green deterministic: from aegis import InteractionBoundary, InteractionDependencies succeeds without live runtime configuration and both types retain aegis.interaction ownership",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
