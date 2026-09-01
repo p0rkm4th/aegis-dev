@@ -33,6 +33,7 @@ from .planning import (
     DomainClarificationFastPath,
     MultiActionFastPath,
     PersonalChoreComposer,
+    PersonalMemoryTaskComposer,
     PersonalTaskComposer,
 )
 from .projections import SharedObligation
@@ -181,14 +182,22 @@ class InteractionBoundary:
             goal_chore_title, goal_chore_error = PersonalChoreComposer.resolve(
                 utterance, personal_state
             )
-            if goal_task_error is not None or goal_chore_error is not None:
+            memory_task_title, memory_task_error = PersonalMemoryTaskComposer.resolve(
+                utterance, personal_state
+            )
+            composer_errors = tuple(
+                error
+                for error in (goal_task_error, goal_chore_error, memory_task_error)
+                if error is not None
+            )
+            if composer_errors:
                 return Result(
                     objective_id=uuid4(),
                     state=ObjectiveState.BLOCKED,
-                    message=goal_task_error or goal_chore_error or "personal goal is unavailable",
+                    message=composer_errors[0],
                     correlation_id=intent.correlation_id,
                 )
-            composed_title = goal_task_title or goal_chore_title
+            composed_title = goal_task_title or goal_chore_title or memory_task_title
             household_snapshot = household_store.read_snapshot(principal)
             if CrossDomainPlanningFastPath.matches(utterance):
                 planning_result = CrossDomainPlanningFastPath(
@@ -272,6 +281,14 @@ class InteractionBoundary:
                     update={
                         "action": card.action.model_copy(
                             update={"arguments": {"title": goal_chore_title}}
+                        )
+                    }
+                )
+            elif memory_task_title is not None and card.action.action_id == "tasks.create":
+                card = card.model_copy(
+                    update={
+                        "action": card.action.model_copy(
+                            update={"arguments": {"title": memory_task_title}}
                         )
                     }
                 )
