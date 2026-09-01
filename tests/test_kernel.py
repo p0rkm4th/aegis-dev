@@ -2213,3 +2213,22 @@ def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():
         "cancel",
         {"task_id": str(task.task_id), "idempotency_key": "ambient-2"},
     )
+
+
+def test_openclaw_gateway_notification_uses_confirmed_system_event_method():
+    class Client:
+        def __init__(self):
+            self.calls = []
+
+        def call(self, method, params):
+            self.calls.append((method, params))
+            return {"queued": True}
+
+    client = Client()
+    gateway = OpenClawGatewayRpc(client)
+    assert gateway.notify({"text": "Apartment inspection tomorrow", "wake": False}) == {
+        "queued": True
+    }
+    assert client.calls == [
+        ("system-event", {"text": "Apartment inspection tomorrow", "wake": False})
+    ]
