@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-relative-deadline-filter-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "bc0bfac",
-  "last_green_sha": "571486e",
-  "last_pushed_sha": "bc0bfac",
+  "head_sha": "6f0c00c",
+  "last_green_sha": "6f0c00c",
+  "last_pushed_sha": "6f0c00c",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "571486e",
-    "last_known_green_sha": "571486e",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/571486e",
+    "running_sha": "6f0c00c",
+    "last_known_green_sha": "6f0c00c",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/6f0c00c",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -706,5 +706,7 @@
   "owner_contextual_mutation_safety_live": "green safety live on release 26ecf19: grocery context 8c9e3f00-15eb-4144-8294-12c0516f2b2b followed by 'add the first two' correlation 1231b6dd-198b-4cb0-a57a-543c7a7d330e returned a retryable blocked model-boundary Result and dispatched no mutation",
   "owner_task_completion_unseen_family_live": "green safety/capability evidence live on release 571486e: wrap up, I've finished, and consider done variants completed unique existing tasks with canonical readback; ambiguous 'that stale canonical task is no longer outstanding' clarified and created no task",
   "owner_task_completion_phrase_overfit_defect_live": "historical product failure: release 26ecf19 lexical routing created malformed tasks for unseen completion language instead of resolving completion intent; fixed by routing model-enabled non-fast-path actions through bounded cognition",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path. Expand the unseen task-completion family without phrase-specific routing, test multi-turn context with distinct canonical candidates and contextual mutation safety, then attack malformed/weak proposals and cross-Pack objectives. Owner feedback capture is now available; do not call natural-language capability green from exact canaries. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Home Assistant/mobile/voice remain lane-limited."
+  "owner_natural_front_door_quality_live": "partial live evidence on release 6f0c00c: authenticated Qwen3:8B benign story returned useful generated content; typo grocery and informal plate phrasing returned non-empty non-authoritative clarification answers without mutation, but did not yet ground their answers in canonical grocery/task projections",
+  "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path. Improve grounded answers for typo/informal reads, expand the unseen task-completion family without phrase-specific routing, then attack malformed/weak proposals and cross-Pack objectives. Owner feedback capture is available; do not call natural-language capability green from exact canaries. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Home Assistant/mobile/voice remain lane-limited."
 }
