@@ -59,6 +59,11 @@ report as `--check`. Health is available for diagnosis without exposing
 identity-protected state. Message bodies are bounded and malformed or
 oversized requests are rejected before reaching Core.
 
+The browser keeps the current conversation visible for the session and locks
+the input while a request is in flight, so a double click cannot intentionally
+submit the same visible turn twice. Core correlation/idempotency remains the
+authoritative protection for retries and process recovery.
+
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
 `AEGIS_OPENCLAW_IDENTITY_DB`. The CLI defaults to the explicitly configured

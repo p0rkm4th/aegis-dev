@@ -280,6 +280,15 @@ def test_browser_rejects_oversized_request_body():
     assert json.loads(payload) == {"error": "request too large"}
 
 
+def test_browser_surface_has_transcript_and_duplicate_submission_guard():
+    from aegis.web import _INDEX_HTML
+
+    assert 'id="conversation"' in _INDEX_HTML
+    assert "send.disabled = true" in _INDEX_HTML
+    assert "input.disabled = true" in _INDEX_HTML
+    assert "conversation.append(assistantLine)" in _INDEX_HTML
+
+
 def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
     bundles = reference_bundles()
 
