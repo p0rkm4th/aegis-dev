@@ -352,8 +352,6 @@ class Kernel:
                 message="plan is unavailable for this identity",
                 correlation_id=intent.correlation_id,
             )
-        if prior is not None and not prior.retryable:
-            return prior
         if objective is not None:
             if objective.steps != actions:
                 return Result(
@@ -362,7 +360,16 @@ class Kernel:
                     message="plan correlation is already bound to a different action sequence",
                     correlation_id=intent.correlation_id,
                 )
+            if prior is not None and not prior.retryable:
+                return prior
         else:
+            if prior is not None:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="plan is unavailable for this identity",
+                    correlation_id=intent.correlation_id,
+                )
             objective = Objective(
                 intent=intent,
                 correlation_id=intent.correlation_id,
