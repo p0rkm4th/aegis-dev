@@ -190,3 +190,10 @@ container. OIDC discovery, token issuance, and `/realms/aegis/.../userinfo`
 returned the disposable Alice subject. `KeycloakIdentityProvider` then maps
 that validated subject to canonical Vault/Space context; it does not validate
 tokens or place identity rules in prompts.
+
+The repository now also provides `KeycloakOIDCClient`, which sends a bearer
+token to Keycloak userinfo and passes only the returned claims to the existing
+validated-claims mapper. In the disposable live check, a real token returned
+`aegis_vault_id=alice-vault` and `aegis_space_ids=[apartment]`, and the adapter
+produced the expected Principal. Missing or malformed AEGIS claims remain a
+fail-closed mapping error.
