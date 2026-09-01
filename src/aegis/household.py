@@ -381,6 +381,19 @@ class HouseholdReadFastPath:
     """Deterministic, allowlisted reads over shared household state."""
 
     _TRIGGERS = ("household", "chore", "chores", "inspection", "utility", "utilities", "rent")
+    _READ_PREFIXES = (
+        "what",
+        "show",
+        "list",
+        "which",
+        "see",
+        "display",
+        "is",
+        "are",
+        "when",
+        "where",
+        "who",
+    )
 
     def __init__(self, snapshot: dict[str, object]) -> None:
         self.snapshot = snapshot
@@ -390,7 +403,9 @@ class HouseholdReadFastPath:
         text = utterance.casefold()
         if is_mutation_request(text):
             return False
-        return any(trigger in text for trigger in cls._TRIGGERS)
+        return any(trigger in text for trigger in cls._TRIGGERS) and (
+            text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS
+        )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):
