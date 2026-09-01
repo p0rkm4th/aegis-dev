@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-    "current_checkpoint": "network-authorized-state-persistence-green",
+    "current_checkpoint": "network-scope-policy-green-live-probe-runtime-blocked",
   "active_branch": "aegis-dev",
     "head_sha": "c25429f",
     "last_green_sha": "c25429f",
@@ -83,10 +83,11 @@
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
-    "consequential Homelab/HA action acceptance remains unperformed"
+    "consequential Homelab/HA action acceptance remains unperformed",
+    "live Network probe reached the paired OpenClaw terminal but even a harmless printf was echoed without execution; ping and curl likewise emitted no completion marker, so Network live acceptance is not claimed"
   ],
     "blocked_lanes": [
-        "Home Assistant/device live acceptance remains unperformed; no current blocker for the bounded Homelab service slice"
+        "Network live probe is blocked by the current OpenClaw terminal runtime not executing terminal.input commands; Home Assistant/device live acceptance remains unperformed"
   ],
     "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
@@ -152,6 +153,7 @@
         "end_user_alpha": "green: ./scripts/aegis accepted manual grocery and task requests through live Qwen3:8B; grocery mutation crossed paired OpenClaw and was independently read back; task/grocery state was read from PostgreSQL in a fresh CLI process after restart; token-authenticated mode does not bootstrap membership",
         "homelab_openclaw_health": "green: scripts/live_homelab_slice.py used live Qwen3:8B and PostgreSQL policy, restarted a real local HTTP service through paired OpenClaw terminal execution, independently read HTTP 200, and a fresh process replay with correlation a01bd4b5-8b43-405e-9ce9-a3cd20590fc3 reused the same completed Result and objective without dispatching a second restart",
         "network_state_persistence": "green: migration 010 applied to live PostgreSQL; PostgresNetworkStore persisted alpha-lab 127.0.0.0/8 authorization and localhost HTTP discovery, a fresh connection reloaded both, and inactive Alice/apartment membership denied reload before the fixture was restored",
+        "network_probe_live": "blocked/unverified: scripts/live_network_probe.py reached OpenClaw and PostgreSQL policy, but the paired terminal echoed printf/curl input without executing it; owner/runtime action required is to restart or repair the disposable OpenClaw Gateway terminal runtime, then rerun the script",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -161,5 +163,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-    "next_action": "Preserve the end-user alpha as a regression gate. Continue the next existing technical Pack slice only after focused tests; Network active probing and Home Assistant/device acceptance remain separate follow-up work."
+    "next_action": "Preserve the end-user alpha as a regression gate. Network persistence and scope policy are green; rerun scripts/live_network_probe.py after the OpenClaw terminal runtime is repaired, while continuing other unblocked campaign lanes."
 }

@@ -20,6 +20,8 @@ def manager_with_reference_cards() -> PackManager:
                     if pack.pack_id == "tasks"
                     else ("kitchen.write", "kitchen.read")
                     if pack.pack_id == "kitchen"
+                    else ("network.read",)
+                    if pack.pack_id == "network"
                     else ("homelab.service.restart",),
                 ),
                 cards=pack.cards,
