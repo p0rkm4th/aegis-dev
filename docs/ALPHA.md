@@ -121,6 +121,8 @@ Health and state refresh requests have a bounded client timeout so a stalled
 local service cannot leave the Refresh control disabled indefinitely.
 Authorization cleanup also resets the action control to a new `Send` request;
 it never leaves a stale `Retry` affordance after the original identity is gone.
+Constellation node selection is exposed through keyboard-operable buttons and
+`aria-pressed` state, while the detail panel remains a conventional view.
 
 Each browser message carries a UUID correlation ID. If transport fails, the
 Retry action resubmits that same ID; Core can therefore reuse its durable

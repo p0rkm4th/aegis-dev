@@ -1150,6 +1150,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "input.disabled = true" in _INDEX_HTML
     assert "conversation.append(assistantLine)" in _INDEX_HTML
     assert "renderDetailValue(details[node.id])" in _INDEX_HTML
+    assert "aria-pressed" in _INDEX_HTML
+    assert "selectedNode" in _INDEX_HTML
     assert "textContent = key" in _INDEX_HTML
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
     assert "new AbortController()" in _INDEX_HTML
