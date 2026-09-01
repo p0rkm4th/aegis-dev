@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "754d1a296c3169b16cdf7bb16a1886ade7747fa3",
-  "last_green_sha": "754d1a296c3169b16cdf7bb16a1886ade7747fa3",
-  "last_pushed_sha": "754d1a296c3169b16cdf7bb16a1886ade7747fa3",
+  "head_sha": "db26b16f36427ad86a85df0476b27f8a5561395e",
+  "last_green_sha": "db26b16f36427ad86a85df0476b27f8a5561395e",
+  "last_pushed_sha": "db26b16f36427ad86a85df0476b27f8a5561395e",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -94,6 +94,7 @@
     ,"in-session browser conversation transcript and in-flight duplicate submission guard"
     ,"browser correlation UUID propagation and retry-safe request identity"
     ,"deterministic browser task reads over membership-checked PostgreSQL state"
+    ,"focused ecosystem reuse audit with OpenClaw protocol and Constellation adoption decisions"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -217,6 +218,7 @@
         "browser_conversation_guard": "green deterministic: browser renders user and AEGIS turns into an in-session transcript using textContent, disables input/button while awaiting a response, displays canonical status, and refreshes state only after completed responses; Core correlation/idempotency remains authoritative for retries",
         "browser_retry_correlation": "green deterministic: browser POST accepts or generates a UUID correlation_id, passes it unchanged to the shared interaction boundary, returns it for correlation, rejects malformed IDs before Core, and the UI reuses the same ID after transport failure or retry",
         "browser_task_read_live": "green: a fresh PostgreSQL-backed BrowserApp request for 'Show my tasks' returned the authorized canonical task list, including completed/open status and the supplied correlation ID, while Ollama was unavailable; no model-backed mutation is claimed",
+        "ecosystem_harvest_audit": "green: audited Hermes Agent, OpenClaw gateway-client/gateway-protocol, Cytoscape.js, xyflow React Flow, Textual, Typer, FastAPI, and Zellij with exact upstream paths, licenses, pins/SHAs, costs, ownership/security implications, and deletion impact; official OpenClaw protocol conformance generation is the next bounded reuse slice and no Node sidecar is justified",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
