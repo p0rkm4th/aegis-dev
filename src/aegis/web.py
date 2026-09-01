@@ -32,6 +32,7 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><p id="detail" class="muted"></p>
+<h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>
@@ -72,14 +73,27 @@ loadHealth().catch(() => {
 loadState().catch(error => { nodes.textContent = error.message; });
 document.getElementById('chat').addEventListener('submit', async event => {
   event.preventDefault(); const input = document.getElementById('utterance');
-  const response = await fetch('/api/message', {method:'POST',
-    headers:{'content-type':'application/json'},
-    body:JSON.stringify({utterance:input.value})});
-  const result = await response.json();
-  document.getElementById('answer').textContent = result.message || result.error;
-  if (result.state) document.getElementById('detail').textContent = `Status: ${result.state}`;
-  if (response.ok) {
-    input.value = ''; if (result.state === 'completed') loadState().catch(() => {});
+  const send = event.currentTarget.querySelector('button');
+  const utterance = input.value.trim(); if (!utterance || send.disabled) return;
+  const conversation = document.getElementById('conversation');
+  const userLine = document.createElement('li'); userLine.textContent = `You: ${utterance}`;
+  conversation.append(userLine); send.disabled = true; input.disabled = true;
+  document.getElementById('detail').textContent = 'Status: working';
+  try {
+    const response = await fetch('/api/message', {method:'POST',
+      headers:{'content-type':'application/json'}, body:JSON.stringify({utterance})});
+    const result = await response.json();
+    const answer = result.message || result.error || 'No response';
+    document.getElementById('answer').textContent = answer;
+    const assistantLine = document.createElement('li');
+    assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
+    if (result.state) document.getElementById('detail').textContent = `Status: ${result.state}`;
+    if (response.ok && result.state === 'completed') loadState().catch(() => {});
+  } catch (_) {
+    document.getElementById('answer').textContent = 'AEGIS is unavailable.';
+    document.getElementById('detail').textContent = 'Status: unavailable';
+  } finally {
+    send.disabled = false; input.disabled = false;
   }
 });
 </script></body></html>"""
