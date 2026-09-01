@@ -434,6 +434,53 @@ def test_model_exception_becomes_terminal_retryable_result():
     ]
 
 
+def test_same_correlation_can_retry_after_pre_decision_model_failure():
+    class SwitchableModel:
+        def __init__(self):
+            self.failure = True
+
+        def decide(self, request):
+            if self.failure:
+                raise RuntimeError("provider unavailable")
+            return object()
+
+    action = ActionSpec(
+        action_id="write",
+        capability="test.write",
+        verification=VerificationContract(kind="readback"),
+    )
+    model = SwitchableModel()
+    store = SqliteObjectiveStore(":memory:")
+    first_kernel = Kernel(
+        model,
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    )
+    correlation_id = uuid4()
+    first = first_kernel.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do it",
+            correlation_id=correlation_id,
+        )
+    )
+    model.failure = False
+    second = first_kernel.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do it",
+            correlation_id=correlation_id,
+        )
+    )
+
+    assert first.state is ObjectiveState.FAILED
+    assert second.state is ObjectiveState.COMPLETED
+    store.close()
+
+
 def test_deterministic_fast_path_bypasses_model():
     class ExplodingModel:
         def decide(self, request):

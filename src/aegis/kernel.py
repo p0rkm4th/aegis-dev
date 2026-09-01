@@ -81,7 +81,7 @@ class Kernel:
                 message=f"Invalid model decision: {exc}",
                 correlation_id=intent.correlation_id,
             )
-            self.store.save_result(f"decision:{objective.id}", result)
+            self.store.save_result(f"decision:{intent.correlation_id}", result)
             self.audit.append(
                 "decision.rejected",
                 intent.principal.id,
