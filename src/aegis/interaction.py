@@ -296,24 +296,29 @@ class InteractionBoundary:
                 allow_argument_proposals=True,
             )
             decoder = StrictDecisionDecoder()
-            response = provider.decide(request)
-            try:
-                decision = decoder.decode(response, cards, allow_argument_proposals=True)
-            except InvalidDecision as first_error:
-                # Repair an empty benign answer with no capability cards. This
-                # keeps the retry semantic and bounded without allowing a
-                # malformed answer to become a completed Result.
-                raw = response.raw
-                if not (
-                    isinstance(raw, dict)
-                    and raw.get("kind") == DecisionKind.ANSWER.value
-                    and not isinstance(raw.get("answer"), str)
-                ):
-                    raise first_error
-                focused = request.model_copy(update={"action_cards": ()})
-                decision = decoder.decode(
-                    provider.decide(focused), (), allow_argument_proposals=True
-                )
+            decision: Decision | None = None
+            for attempt in range(2):
+                response = provider.decide(request)
+                try:
+                    decision = decoder.decode(
+                        response, request.action_cards, allow_argument_proposals=True
+                    )
+                    break
+                except InvalidDecision as error:
+                    # Repair only an empty benign answer with no capability
+                    # cards. This remains bounded cognition and cannot turn a
+                    # malformed action into an executable proposal.
+                    raw = response.raw
+                    if not (
+                        attempt == 0
+                        and isinstance(raw, dict)
+                        and raw.get("kind") == DecisionKind.ANSWER.value
+                        and not isinstance(raw.get("answer"), str)
+                    ):
+                        raise error
+                    request = request.model_copy(update={"action_cards": ()})
+            if decision is None:
+                raise InvalidDecision("model answer repair did not produce a decision")
             if decision.kind is DecisionKind.ACTION and decision.action is not None:
                 card = next(
                     (card for card in cards if card.action.action_id == decision.action.action_id),

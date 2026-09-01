@@ -156,7 +156,9 @@ class OllamaProvider:
                     "ask the user to identify an action merely because the answer is "
                     "not itself a database field. If a requested ordering has only one "
                     "distinct supplied value, explain that the candidates are tied "
-                    "instead of asking the user to choose one."
+                    "instead of asking the user to choose one. ANSWER must contain the "
+                    "actual answer content; if required information is missing, use "
+                    "CLARIFY with a question instead of ANSWER with only a reason."
                 ),
                 "context_rule": (
                     "Use only the bounded canonical context supplied below to resolve "
