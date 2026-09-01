@@ -510,7 +510,7 @@ class InteractionBoundary:
                 executor = PostgresGroceryListExecutor(principal_store, principal)
                 verifier = PostgresGroceryListVerifier(principal_store, principal)
                 permissions = {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})}
-            elif card.action.action_id == "tasks.create":
+            elif card.action.action_id in {"tasks.create", "tasks.complete"}:
                 executor = PostgresTaskExecutor(task_store, principal)
                 verifier = PostgresTaskVerifier(task_store, principal)
                 permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
