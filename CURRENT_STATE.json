@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "5a9d5218262d3173d6c0c2c235a17e23d79ed044",
-  "last_green_sha": "5a9d5218262d3173d6c0c2c235a17e23d79ed044",
-  "last_pushed_sha": "5a9d5218262d3173d6c0c2c235a17e23d79ed044",
+  "head_sha": "e82f9a35d54314f3cf2d9949060483c0700671ab",
+  "last_green_sha": "e82f9a35d54314f3cf2d9949060483c0700671ab",
+  "last_pushed_sha": "e82f9a35d54314f3cf2d9949060483c0700671ab",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -111,6 +111,7 @@
     ,"readiness verifies the configured Ollama model is installed before declaring the runtime ready"
     ,"one-shot JSON failures use stable generic error codes without leaking implementation details"
     ,"Constellation graph remains bounded to semantic hubs while canonical rows stay in authorized detail views"
+    ,"browser renders authorized detail payloads as generic accessible data views"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -131,7 +132,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
     "pytest": "129 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, no-store transport headers, authorized detail projections, bounded semantic graph projections, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, and configured Ollama model readiness validation are covered"
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured error codes, failure-aware retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, and configured Ollama model readiness validation are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -253,6 +254,7 @@
         "browser_boundary_reacceptance": "green live: fresh ./scripts/aegis --web on loopback with PostgreSQL returned /api/health showing the Ollama lane unavailable, authorized /api/constellation with 19 nodes and 18 edges, and a canonical completed 'Show my tasks.' response preserving the supplied correlation ID without exposing raw evidence; no model-backed mutation is claimed",
         "cli_json_failure_live": "green live: with local identity mode and no database configured, ./scripts/aegis --once 'Show my tasks.' --json exited 1 and returned exactly code=request_unavailable, generic error=request unavailable, and state=failed; no traceback or database detail was emitted",
         "browser_bounded_projection_live": "green live: fresh ./scripts/aegis --web projection returned 10 semantic/hub nodes and 9 edges with zero task-/project- row nodes; authorized task/project records remained available under canonical detail sections",
+        "browser_detail_renderer_live": "green live: fresh loopback browser page served the generic renderDetailValue data-view renderer, used textContent for keys/values, retained seven authorized detail sections, and no longer served raw JSON.stringify detail rendering",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
