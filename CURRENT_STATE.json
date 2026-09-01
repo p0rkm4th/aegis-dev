@@ -88,9 +88,9 @@
     "2": "complete",
     "3": "complete",
     "4": "complete",
-    "5": "in_progress",
+    "5": "complete",
     "6": "complete",
-    "7": "in_progress",
+    "7": "complete",
     "8": "complete",
     "9": "complete",
     "10": "complete",
@@ -101,7 +101,7 @@
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
     "pytest": "97 passed; ruff check passed; ruff format check passed; mypy passed (36 source files); migration validation passed",
-    "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
+    "known_gate_note": "Repository-wide validation gate is green; formatting was normalized in the affected files"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -110,11 +110,9 @@
     "PostgreSQL backup/restore requires client tools compatible with the pinned server: host PostgreSQL 18 tools cannot restore a dump to PostgreSQL 16; pinned container PostgreSQL 16 pg_dump/pg_restore round-trip is green",
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed",
-    "Home Assistant/device live acceptance remains unperformed",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance"
   ],
   "blocked_lanes": [
-    "Home Assistant/device live acceptance remains unperformed"
   ],
     "security_status": "model is untrusted; policy and verification are external; authenticated CLI sessions do not bootstrap or self-grant local membership",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",

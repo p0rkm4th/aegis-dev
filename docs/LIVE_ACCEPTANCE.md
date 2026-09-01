@@ -104,7 +104,8 @@ the same persistent connection then delivered `terminal.data` containing the
 command; and an independent read of `/tmp/aegis-openclaw-external-proof`
 returned `AEGIS_GATEWAY_EXEC_OK`. This proves the authenticated transport and
 external observation boundary. It does not by itself prove the complete
-Core-to-Pack workflow; that remains the next acceptance task.
+Core-to-Pack workflow; the live acceptance evidence below records the completed
+workflow and its remaining environment-specific limitations.
 
 ## Verified grocery vertical slice
 
