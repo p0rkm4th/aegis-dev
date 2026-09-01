@@ -405,6 +405,16 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "conversation.append(assistantLine)" in _INDEX_HTML
 
 
+def test_browser_transport_disables_caching_and_referrer_disclosure():
+    from pathlib import Path
+
+    source = Path(__file__).parents[1].joinpath("src/aegis/web.py").read_text()
+
+    assert 'self.send_header("Cache-Control", "no-store")' in source
+    assert 'self.send_header("Pragma", "no-cache")' in source
+    assert 'self.send_header("Referrer-Policy", "no-referrer")' in source
+
+
 def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     task = Task(uuid4(), "apartment", "replace filter", "alice", status=TaskStatus.OPEN)
 
