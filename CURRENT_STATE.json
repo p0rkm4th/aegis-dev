@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-stale-canonical-recovery-live-green",
+  "current_checkpoint": "phase-12-partial-failure-recovery-live-green",
   "active_branch": "aegis-dev",
   "head_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
   "last_green_sha": "040bf35be1cb0f01b5fe9a6d75fa436a3412efa3",
@@ -591,6 +591,7 @@
     "owner_midflow_authorization_recovery_live": "green live: owner correlation 39393939-3939-4939-8939-393939393939 was revoked during the first task step; the task mutation committed but readback failed and the second chore did not execute, while the revoked-session status query returned unknown without private objective data. After membership restoration and release 46b7381, explicit retry reused the same parent/first-child IDs, re-verified the task without duplicate execution, completed exactly one chore, and request-status matched the completed aggregate",
     "successful_observation_retryability_regression": "green deterministic: verification failure after a successful command is explicitly retryable, completed Results remain non-retryable, and retry re-verifies the durable observation without invoking the executor again",
     "owner_stale_canonical_recovery_live": "green live: owner correlation 42424242-4242-4242-8242-424242424242 encountered an intentional canonical task-title conflict and returned failed/retryable with one idempotent row; after canonical reconciliation, explicit retry on release 040bf35 reused the same objective and observation, independently verified completion, and left exactly one row",
+    "owner_partial_event_failure_recovery_live": "green live: owner correlation 51515151-5151-4515-8515-515151515151 completed the task step, encountered a canonical event conflict on step 2, returned a truthful retryable aggregate with no step-2 duplicate execution, then after canonical reconciliation explicitly retried the same parent and child objectives and completed exactly one verified event",
     "plan_child_observation_crash_recovery_regression": "green deterministic: when a simulated crash occurs after the first plan child observation is durable but before its Result is persisted, a fresh Kernel independently verifies the stored observation, executes only the remaining step, and completes the aggregate with no duplicate first-step execution",
     "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
     "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
@@ -600,5 +601,5 @@
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals, safe partial failure recovery, and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, and stale canonical reconciliation are live-green; next attack partial failure boundaries and novel cross-Pack objectives."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: malformed or weak-model proposals and cross-Pack objectives not already proven. Owner dogfood bootstrap is established; do not routinely re-prove it unless deployment/runtime architecture changes. Multi-step persistence, per-step authorization, revoked-session privacy, successful-observation retry, stale canonical reconciliation, and partial failure recovery are live-green; next attack malformed/weak proposals and novel cross-Pack objectives."
 }
