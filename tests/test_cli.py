@@ -659,6 +659,35 @@ def test_browser_health_provider_failure_is_generic_and_recoverable():
     }
 
 
+def test_browser_contains_unexpected_service_exceptions_at_the_boundary():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+
+    app = BrowserApp(
+        principal,
+        lambda *_: (_ for _ in ()).throw(Exception("database password")),
+        lambda _: (_ for _ in ()).throw(Exception("private row")),
+        lambda: (_ for _ in ()).throw(Exception("provider secret")),
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/health")
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "health_unavailable",
+        "error": "runtime status unavailable",
+    }
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+    assert status == 503
+    assert json.loads(payload) == {"code": "state_unavailable", "error": "state unavailable"}
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"show tasks"}')
+    assert status == 503
+    assert json.loads(payload) == {
+        "code": "request_unavailable",
+        "error": "request unavailable",
+    }
+
+
 def test_browser_rejects_oversized_request_body():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(principal, lambda *_: "unreachable", lambda _: {"nodes": []})
