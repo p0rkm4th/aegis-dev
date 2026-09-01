@@ -10,7 +10,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .contracts import ObjectiveState, Principal, RequestStatus
 from .health import HealthReport
@@ -63,6 +63,15 @@ class ConstellationProjection(BaseModel):
     nodes: tuple[ConstellationNode, ...] = ()
     edges: tuple[ConstellationEdge, ...] = ()
     details: dict[str, Any] = {}
+
+    @model_validator(mode="after")
+    def validate_relationship_integrity(self) -> "ConstellationProjection":
+        node_ids = {node.id for node in self.nodes}
+        if len(node_ids) != len(self.nodes):
+            raise ValueError("Constellation node IDs must be unique")
+        if any(edge.source not in node_ids or edge.target not in node_ids for edge in self.edges):
+            raise ValueError("Constellation edge references an unknown node")
+        return self
 
 
 _INDEX_HTML = """<!doctype html>
