@@ -69,6 +69,7 @@ boundary.
 - [VISION.md](VISION.md) — ideal self-hostable Jarvis-like product.
 - [CORE_CONCEPTS.md](CORE_CONCEPTS.md) — durable cognition, truth, and security invariants.
 - [ROADMAP.md](ROADMAP.md) — sequencing and maturity gates.
+- [MASTER_ROADMAP.md](MASTER_ROADMAP.md) — detailed checkpoint route and proof requirements.
 - [CURRENT_STATE.json](CURRENT_STATE.json) — current implementation and evidence truth.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — ownership and system boundaries.
 - [MODEL_STRATEGY.md](MODEL_STRATEGY.md) — model roles, scale, and evaluation.

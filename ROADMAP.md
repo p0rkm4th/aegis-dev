@@ -18,6 +18,11 @@ foundation -> semantic Core -> runtime/OpenClaw -> durable PostgreSQL state
 These are ordering and dependency guides, not rigid dates. `CURRENT_STATE.json`
 identifies the exact implementation frontier and evidence level.
 
+For checkpoint-level execution, use the durable [MASTER_ROADMAP.md](MASTER_ROADMAP.md).
+It records dependencies, proof requirements, dogfood standards, and the
+definition of each numbered checkpoint; it does not replace current-state
+evidence.
+
 ## Maturity gates
 
 - Natural language reaches semantic intent resolution when deterministic
