@@ -746,7 +746,16 @@ def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, Actio
                 )
             action = action.model_copy(update={"arguments": {}})
         else:
-            action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+            title = match.group(1).strip()
+            due_at = None
+            tomorrow = re.search(r"\s+tomorrow[.!?]?$", title)
+            if tomorrow is not None:
+                title = title[: tomorrow.start()].rstrip()
+                due_at = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+            arguments: dict[str, Any] = {"title": title}
+            if due_at is not None:
+                arguments["due_at"] = due_at
+            action = action.model_copy(update={"arguments": arguments})
     elif action_id == "tasks.complete":
         match = re.search(
             r"(?:complete|completed|finish|finished)\s+(?:the\s+)?task\s+"
