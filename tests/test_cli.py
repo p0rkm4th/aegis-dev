@@ -261,6 +261,33 @@ def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
     }
 
 
+def test_cli_check_rejects_missing_ollama_model(monkeypatch, capsys):
+    from aegis import cli
+
+    class Response:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"models": [{"name": "another-model"}]}'
+
+    monkeypatch.setattr(cli.urllib.request, "urlopen", lambda *_args, **_kwargs: Response())
+    monkeypatch.setattr("sys.argv", ["aegis", "--check"])
+    monkeypatch.delenv("AEGIS_DATABASE_URL", raising=False)
+    monkeypatch.setenv("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
+    monkeypatch.setenv("AEGIS_OLLAMA_MODEL", "qwen3:8b")
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert "ollama: FAIL (required)" in output
+    assert "ollama pull qwen3:8b" in output
+
+
 def test_browser_app_uses_core_callbacks_for_state_and_messages():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[tuple[str, str]] = []

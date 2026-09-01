@@ -123,20 +123,49 @@ def _runtime_report() -> HealthReport:
             )
 
     ollama_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
+    ollama_model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
     try:
         with urllib.request.urlopen(f"{ollama_url}/api/tags", timeout=2) as response:
             if response.status != 200:
                 raise urllib.error.URLError(f"HTTP {response.status}")
-        components.append(
-            ComponentHealth(name="ollama", healthy=True, required=True, detail="API responded")
-        )
+            payload = json.loads(response.read())
+        if not isinstance(payload, dict):
+            raise ValueError("invalid Ollama model response")
+        model_names = {
+            str(item.get("name"))
+            for item in payload.get("models", [])
+            if isinstance(item, dict) and item.get("name")
+        }
+        if ollama_model not in model_names:
+            components.append(
+                ComponentHealth(
+                    name="ollama",
+                    healthy=False,
+                    required=True,
+                    detail=(
+                        f"model {ollama_model!r} is not installed; run "
+                        f"'ollama pull {ollama_model}' or set AEGIS_OLLAMA_MODEL"
+                    ),
+                )
+            )
+        else:
+            components.append(
+                ComponentHealth(
+                    name="ollama",
+                    healthy=True,
+                    required=True,
+                    detail=f"API responded; model {ollama_model} is available",
+                )
+            )
     except (OSError, urllib.error.URLError, ValueError) as exc:
         components.append(
             ComponentHealth(
                 name="ollama",
                 healthy=False,
                 required=True,
-                detail=f"API unavailable: {type(exc).__name__}",
+                detail=(
+                    f"API unavailable: {type(exc).__name__}; start Ollama or set AEGIS_OLLAMA_URL"
+                ),
             )
         )
 
