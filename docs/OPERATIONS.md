@@ -42,6 +42,12 @@ alpha startup applies the checked-in migrations unless `AEGIS_AUTO_MIGRATE=0`.
 The generated placeholder database URL is detected before any network attempt;
 replace its `USER`, `PASSWORD`, and `DBNAME` values before retrying readiness.
 
+`./scripts/aegis --web` starts a loopback diagnostics shell even when local
+PostgreSQL bootstrap is unavailable. The browser reports the failed readiness
+components, but canonical state and interaction endpoints fail closed until
+the required services recover. Identity and bind failures still prevent the
+server from starting.
+
 The reusable `AegisConfig` accepts the local development alpha with only the
 database configured; local identity and authorization defaults are used by the
 launcher, and OpenClaw remains optional until an external mutation is needed.

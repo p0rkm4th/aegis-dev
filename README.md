@@ -45,6 +45,11 @@ Open the printed local URL. For a scriptable request, use
 machine-readable Result envelope. Use `--env-file PATH` when configuration is
 stored outside the repository.
 
+If a required service is unavailable, `--web` can still open a loopback
+diagnostics shell. It will show the same readiness remediation as `--check`,
+while protected state and interaction remain fail-closed until the service is
+repaired.
+
 Read [docs/ALPHA.md](docs/ALPHA.md) for the browser and workflow contract and
 [docs/OPERATIONS.md](docs/OPERATIONS.md) for migrations, backups, and runtime
 operations. Architecture and security invariants are documented in
