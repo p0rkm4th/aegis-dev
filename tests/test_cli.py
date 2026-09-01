@@ -594,6 +594,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     from aegis.web import _INDEX_HTML
 
     assert 'id="conversation"' in _INDEX_HTML
+    assert 'id="health-details"' in _INDEX_HTML
+    assert "component.detail" in _INDEX_HTML
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
     assert "conversation.append(assistantLine)" in _INDEX_HTML
