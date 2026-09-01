@@ -280,6 +280,16 @@ def test_cli_routes_want_to_put_task_on_list_as_mutation() -> None:
     assert card.action.arguments == {"title": "verify the restore drill."}
 
 
+def test_cli_routes_task_completion_to_complete_action() -> None:
+    domain, card = _domain_and_action(
+        "Complete the task Verify backup retention.", manager_with_reference_cards()
+    )
+
+    assert domain == "tasks"
+    assert card.action.action_id == "tasks.complete"
+    assert card.action.arguments == {"title": "verify backup retention."}
+
+
 def test_cli_prepares_grocery_action_card_arguments() -> None:
     domain, card = _domain_and_action("Add rice to groceries.", manager_with_reference_cards())
 

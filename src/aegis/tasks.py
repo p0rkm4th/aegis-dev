@@ -186,7 +186,7 @@ class PostgresTaskExecutor:
         self.principal = principal
 
     def execute(self, request: ExecutionRequest) -> Observation:
-        if request.action.action_id != "tasks.create":
+        if request.action.action_id not in {"tasks.create", "tasks.complete"}:
             return Observation(
                 execution_id=request.action_id,
                 evidence={"unknown_action": request.action.action_id},
@@ -199,17 +199,42 @@ class PostgresTaskExecutor:
                 evidence={"invalid_title": True},
                 command_succeeded=False,
             )
-        task = self.store.create(
-            self.principal,
-            title,
-            idempotency_key=request.idempotency_key,
-        )
+        if request.action.action_id == "tasks.create":
+            task = self.store.create(
+                self.principal,
+                title,
+                idempotency_key=request.idempotency_key,
+            )
+        else:
+            matches = tuple(
+                task
+                for task in self.store.list(self.principal)
+                if task.title.casefold().strip().rstrip(".!?")
+                == title.casefold().strip().rstrip(".!?")
+            )
+            if len(matches) != 1:
+                return Observation(
+                    execution_id=request.action_id,
+                    evidence={
+                        "collection": "tasks",
+                        "title": title,
+                        "task_unavailable": len(matches) == 0,
+                        "ambiguous_task_title": len(matches) > 1,
+                    },
+                    command_succeeded=False,
+                )
+            task = (
+                matches[0]
+                if matches[0].status is TaskStatus.COMPLETED
+                else self.store.complete(self.principal, matches[0].task_id)
+            )
         return Observation(
             execution_id=request.action_id,
             evidence={
                 "collection": "tasks",
                 "task_id": str(task.task_id),
                 "title": task.title,
+                "status": task.status.value,
                 "idempotency_key": task.idempotency_key,
             },
             command_succeeded=True,
@@ -239,7 +264,12 @@ class PostgresTaskVerifier:
             task = self.store.get(self.principal, UUID(task_id))
         except (PermissionError, ValueError):
             task = None
-        verified = task is not None and task.title == observation.evidence.get("title")
+        expected_status = observation.evidence.get("status", TaskStatus.OPEN.value)
+        verified = (
+            task is not None
+            and task.title == observation.evidence.get("title")
+            and task.status.value == expected_status
+        )
         return VerificationResult(
             verified=verified,
             evidence={

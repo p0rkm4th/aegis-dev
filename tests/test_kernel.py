@@ -2912,6 +2912,81 @@ def test_task_executor_and_verifier_use_generic_observation_contract():
     assert verification.evidence["canonical_status"] == TaskStatus.OPEN.value
 
 
+def test_task_completion_executor_resolves_unique_title_and_verifies_status():
+    class Store:
+        def __init__(self):
+            self.task = Task(uuid4(), "apartment", "Verify backup retention", "alice")
+
+        def list(self, _principal):
+            return (self.task,)
+
+        def complete(self, _principal, task_id):
+            assert task_id == self.task.task_id
+            self.task = Task(
+                self.task.task_id,
+                self.task.space_id,
+                self.task.title,
+                self.task.created_by,
+                status=TaskStatus.COMPLETED,
+            )
+            return self.task
+
+        def get(self, _principal, task_id):
+            return self.task if task_id == self.task.task_id else None
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    store = Store()
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            arguments={"title": "verify backup retention."},
+            verification=VerificationContract(kind="readback"),
+        ),
+        idempotency_key="correlation:tasks.complete",
+    )
+
+    observation = PostgresTaskExecutor(store, principal).execute(request)
+    verification = PostgresTaskVerifier(store, principal).verify(
+        observation, request.action.verification
+    )
+
+    assert observation.command_succeeded
+    assert observation.evidence["status"] == TaskStatus.COMPLETED.value
+    assert verification.verified
+    assert verification.evidence["canonical_status"] == TaskStatus.COMPLETED.value
+
+
+def test_task_completion_executor_blocks_ambiguous_title():
+    class Store:
+        def list(self, _principal):
+            return (
+                Task(uuid4(), "apartment", "Check the drill", "alice"),
+                Task(uuid4(), "apartment", "Check the drill", "alice"),
+            )
+
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            arguments={"title": "check the drill"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        idempotency_key="correlation:tasks.complete.ambiguous",
+    )
+
+    observation = PostgresTaskExecutor(
+        Store(), Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    ).execute(request)
+
+    assert not observation.command_succeeded
+    assert observation.evidence["ambiguous_task_title"] is True
+
+
 def test_finance_ledger_keeps_private_accounts_and_allows_explicit_derived_contribution():
     from datetime import datetime, timezone
 
