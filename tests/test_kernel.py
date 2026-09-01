@@ -88,7 +88,14 @@ from aegis.network import (
 )
 from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseError
 from aegis.openclaw import GatewayDisconnected, OpenClawExecutor, ReconnectingGatewayClient
-from aegis.osint import CapabilityGap, Forge, ForgeLifecycle, ForgeStatus, Investigation
+from aegis.osint import (
+    CapabilityGap,
+    Forge,
+    ForgeLifecycle,
+    ForgeStatus,
+    Investigation,
+    PostgresInvestigationStore,
+)
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus
 from aegis.personal import (
     PersonalMemoryFastPath,
@@ -1856,6 +1863,49 @@ def test_osint_findings_require_grounded_sources():
         raise AssertionError("unsupported OSINT finding was accepted")
 
 
+def test_postgres_osint_store_reloads_sources_and_denies_other_owner():
+    import json
+
+    class Cursor:
+        def __init__(self, row):
+            self.row = row
+
+        def fetchone(self):
+            return self.row
+
+    class Connection:
+        def __init__(self):
+            self.row = None
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT owner_id"):
+                return Cursor(self.row)
+            self.row = (params[1], json.loads(params[2]))
+            return Cursor(None)
+
+        def commit(self):
+            self.commits += 1
+
+    investigation = Investigation()
+    source = investigation.add_source(
+        "https://example.test/source", "Fixture source", datetime.now(timezone.utc)
+    )
+    finding = investigation.add_finding("Observed fixture fact", (source.source_id,), 0.8)
+    connection = Connection()
+    store = PostgresInvestigationStore(connection)
+    alice = Principal(id="alice", vault_id="alice-vault")
+    store.save(alice, investigation)
+    assert store.load(alice, investigation.investigation_id).findings[finding.finding_id] == finding
+    try:
+        store.load(Principal(id="bob", vault_id="bob-vault"), investigation.investigation_id)
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("OSINT investigation crossed owner boundary")
+    assert connection.commits == 1
+
+
 def test_forge_proposes_capability_gap_but_cannot_self_install():
     proposal = Forge().propose(CapabilityGap("trading cards", "alice"))
     assert proposal.pack_id.startswith("generated-")
@@ -2195,6 +2245,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "009_task_idempotency.sql",
         "010_network_state.sql",
         "011_personal_memory_vectors.sql",
+        "012_osint_investigations.sql",
     )
 
 

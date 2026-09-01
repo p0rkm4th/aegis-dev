@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
+from typing import Any
 from uuid import UUID, uuid4
 
-from .contracts import ActionCard
+from .contracts import ActionCard, Principal
 from .pack_lifecycle import PackBundle, PackManifest
 
 
@@ -50,6 +52,77 @@ class Investigation:
         finding = Finding(uuid4(), statement, source_ids, confidence)
         self.findings[finding.finding_id] = finding
         return finding
+
+
+class PostgresInvestigationStore:
+    """Persist source-grounded investigations partitioned by Vault owner."""
+
+    def __init__(self, connection: Any) -> None:
+        self.connection = connection
+
+    def save(self, principal: Principal, investigation: Investigation) -> None:
+        payload = {
+            "sources": [
+                {
+                    "source_id": str(source.source_id),
+                    "locator": source.locator,
+                    "title": source.title,
+                    "collected_at": source.collected_at.isoformat(),
+                }
+                for source in investigation.sources.values()
+            ],
+            "findings": [
+                {
+                    "finding_id": str(finding.finding_id),
+                    "statement": finding.statement,
+                    "source_ids": [str(source_id) for source_id in finding.source_ids],
+                    "confidence": finding.confidence,
+                }
+                for finding in investigation.findings.values()
+            ],
+        }
+        self.connection.execute(
+            "INSERT INTO osint_investigations (investigation_id, owner_id, payload) "
+            "VALUES (%s, %s, %s) ON CONFLICT (investigation_id) DO UPDATE SET "
+            "payload = EXCLUDED.payload, updated_at = now()",
+            (
+                str(investigation.investigation_id),
+                principal.id,
+                json.dumps(payload, sort_keys=True),
+            ),
+        )
+        self.connection.commit()
+
+    def load(self, principal: Principal, investigation_id: UUID) -> Investigation:
+        row = self.connection.execute(
+            "SELECT owner_id, payload FROM osint_investigations WHERE investigation_id = %s",
+            (str(investigation_id),),
+        ).fetchone()
+        if row is None:
+            raise KeyError("OSINT investigation is unavailable")
+        if str(row[0]) != principal.id:
+            raise PermissionError("OSINT investigation belongs to another Vault")
+        payload = row[1] if isinstance(row[1], dict) else json.loads(str(row[1]))
+        investigation = Investigation(investigation_id)
+        for item in payload.get("sources", []):
+            source = Source(
+                UUID(str(item["source_id"])),
+                str(item["locator"]),
+                str(item["title"]),
+                datetime.fromisoformat(str(item["collected_at"])),
+            )
+            investigation.sources[source.source_id] = source
+        for item in payload.get("findings", []):
+            finding = Finding(
+                UUID(str(item["finding_id"])),
+                str(item["statement"]),
+                tuple(UUID(str(source_id)) for source_id in item["source_ids"]),
+                float(item["confidence"]),
+            )
+            if any(source_id not in investigation.sources for source_id in finding.source_ids):
+                raise ValueError("persisted finding references an unknown source")
+            investigation.findings[finding.finding_id] = finding
+        return investigation
 
 
 @dataclass(frozen=True)
