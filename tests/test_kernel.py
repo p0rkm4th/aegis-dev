@@ -2071,6 +2071,24 @@ def test_personal_memory_fast_path_resolves_contextual_reference():
     assert result.evidence["memories"][0]["content"] == ("Investigated the server backup failure")
 
 
+def test_personal_memory_fast_path_yields_to_explicit_mutation_requests():
+    state = PersonalState()
+    state.add_memory(
+        "The apartment inspection is tomorrow",
+        datetime(2026, 8, 30, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Create an event for the apartment inspection date from my memory.",
+        )
+    )
+
+    assert result is None
+
+
 def test_personal_memory_correction_supersedes_old_record():
     from datetime import datetime, timezone
 
