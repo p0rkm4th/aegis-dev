@@ -123,6 +123,8 @@ Authorization cleanup also resets the action control to a new `Send` request;
 it never leaves a stale `Retry` affordance after the original identity is gone.
 Constellation node selection is exposed through keyboard-operable buttons and
 `aria-pressed` state, while the detail panel remains a conventional view.
+The detail region and each node’s accessible name include the same safe
+projection text shown visually.
 
 Each browser message carries a UUID correlation ID. If transport fails, the
 Retry action resubmits that same ID; Core can therefore reuse its durable
