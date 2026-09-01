@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-isolated-installed-browser-live-green",
+  "current_checkpoint": "phase-12-identity-diagnostics-hardened",
   "active_branch": "aegis-dev",
-  "head_sha": "c7e52c36abe5c7939695fd331c69dee861b0b400",
-  "last_green_sha": "c7e52c36abe5c7939695fd331c69dee861b0b400",
-  "last_pushed_sha": "c7e52c36abe5c7939695fd331c69dee861b0b400",
+  "head_sha": "ceece5de2b2c2f8e9a132296687d53e267884967",
+  "last_green_sha": "ceece5de2b2c2f8e9a132296687d53e267884967",
+  "last_pushed_sha": "ceece5de2b2c2f8e9a132296687d53e267884967",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -192,6 +192,7 @@
     ,"normal isolated installation launches the loopback browser outside the checkout with authorized canonical state and truthful optional-service degradation"
     ,"browser startup diagnostics do not claim availability before socket bind; occupied ports return a truthful actionable failure"
     ,"operator quickstart installs runtime dependencies separately from optional contributor validation tooling"
+    ,"human CLI identity startup failures use generic actionable diagnostics without exposing exception details"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -422,6 +423,7 @@
         "cross_client_interaction_contract_live": "green live: fresh CLI and browser processes answered the same canonical task read through the shared InteractionBoundary; human presentation matched, browser detail matched the canonical Result message, both completed, and the browser preserved the supplied correlation ID without client-owned semantics",
         "browser_occupied_port_diagnostic_live": "green live: a real loopback port holder caused ./scripts/aegis --web to exit 1 with choose-another-port remediation and no false availability claim; stderr remained empty",
         "ollama_runtime_probe_live": "green live: system Ollama at http://172.18.0.1:11434 returned qwen3:8b in /api/tags and completed a deterministic generation probe; default 127.0.0.1:11434 remains unavailable and is documented as an endpoint configuration limitation",
+        "cli_human_identity_failure_boundary": "green deterministic: a human one-shot identity initialization failure containing database credentials and host details returned only the generic --check remediation, with no exception detail emitted; JSON identity errors remain stable",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -449,5 +451,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, and runtime-only quickstart smoke are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, and identity error redaction are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
 }
