@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "live-ollama-postgres-green-openclaw-write-scope-blocked",
+  "current_checkpoint": "live-ollama-postgres-green-openclaw-device-authenticated-transport-green",
   "active_branch": "aegis-dev",
   "head_sha": "d9cd9be",
   "last_green_sha": "d9cd9be",
@@ -36,7 +36,9 @@
     "contiguous migration validation and isolated clean-install smoke gate",
     "direct dependency SBOM and provenance evidence",
     "PostgreSQL ObjectiveStore lifecycle persistence and restart/replay acceptance",
-    "OpenClaw protocol-4 loopback WebSocket health transport"
+    "OpenClaw protocol-4 loopback WebSocket health transport",
+    "OpenClaw paired-device authentication with operator write/admin scopes",
+    "OpenClaw terminal execution with same-connection terminal event and independent external readback"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -60,13 +62,13 @@
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
-    "OpenClaw Gateway write/admin execution is blocked until a device identity is paired; the loopback backend token negotiates zero WS scopes",
+    "Full Core-to-Pack execution is not yet wired to the paired OpenClaw terminal executor",
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
     "full live vertical workflow, restart/replay, and external postcondition evidence are absent"
   ],
   "blocked_lanes": [
-    "LIVE_VERTICAL_SLICE: PostgreSQL and Ollama are live-green; OpenClaw execution requires pairing a Gateway client/device and granting operator.write/operator.admin"
+    "LIVE_VERTICAL_SLICE: PostgreSQL, Ollama, and paired OpenClaw transport are live-green; Core-to-Pack external execution and complete restart/replay acceptance remain"
   ],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
@@ -77,7 +79,8 @@
     "gateway_client_package": "2026.8.1",
     "gateway_protocol_package": "2026.8.1",
     "wire_protocol": 4,
-    "adapter": "OpenClawWebSocketChannel; live health RPC green; write/admin execution requires paired device scope"
+    "adapter": "OpenClawWebSocketChannel; protocol-4 health and paired terminal execution green; persistent socket required for terminal event evidence",
+    "device_pairing": "approved on disposable loopback Gateway; scopes operator.read/operator.write/operator.admin/operator.approvals; device token and private key remain outside repository"
   },
   "live_acceptance_evidence": {
     "ollama_command": "OllamaHttpTransport(http://172.18.0.1:11434) -> OllamaProvider(qwen3:8b, max_repairs=0) -> StrictDecisionDecoder",
@@ -88,8 +91,12 @@
     "objective_id": "c8c6aaee-31e6-46f1-844c-03709c231032",
     "external_execution": "not proven; ReferenceExecutor is a simulator",
     "postgresql": "green: postgres:16.4-bookworm, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
-    "openclaw": "health green through AEGIS WebSocket protocol-4 transport; execution blocked by no paired device / zero negotiated WS scopes",
-    "openclaw_owner_action": "Using the exact pinned OpenClaw install and state directory, create/approve the AEGIS Gateway client device with `openclaw devices list --token <token>` followed by `openclaw devices approve <requestId>`; reconnect with the resulting device token and operator.write/operator.admin scopes. Do not expose the Gateway beyond loopback."
+    "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, and independent external readback green through AEGIS transport",
+    "openclaw_external_proof": "command dispatched through paired AEGIS WebSocket; terminal.data contained the command; independent read of /tmp/aegis-openclaw-external-proof returned AEGIS_GATEWAY_EXEC_OK",
+    "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
+    "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
+    "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
-  "next_action": "Do not advance phases. Complete the paired OpenClaw client/device authorization on the disposable loopback Gateway, then run the real external-action acceptance with PostgresObjectiveStore, independent postcondition readback, AEGIS restart, PostgreSQL restart, replay, and adversarial cases."
+  "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
+  "next_action": "Do not advance phases. Wire the existing real capability to the paired OpenClaw executor, then run Postgres-backed execution, independent postcondition verification, AEGIS/PostgreSQL restart, replay, interrupted recovery, and adversarial cases."
 }
