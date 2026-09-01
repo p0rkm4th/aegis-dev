@@ -160,7 +160,7 @@ async function recoverPendingRequest() {
     document.querySelector('#chat button').textContent = 'Send';
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
     document.getElementById('detail').textContent = `Status: ${status.state}`;
-    if (status.state === 'completed') loadState().catch(() => {});
+    if (status.state === 'completed') refreshState();
   } catch (_) {
     scheduleRecoveryPoll();
   }
@@ -299,7 +299,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     if (response.ok) {
       pendingCorrelationId = null; send.textContent = 'Send';
       clearPendingRequest();
-      if (result.state === 'completed') loadState().catch(() => {});
+      if (result.state === 'completed') refreshState();
     } else {
       const authorizationLost = result.code === 'identity_unavailable' ||
         result.code === 'state_access_denied';
