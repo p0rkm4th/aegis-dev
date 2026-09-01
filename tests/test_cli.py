@@ -18,6 +18,7 @@ from aegis.contracts import (
     Result,
     VerificationContract,
 )
+from aegis.interaction import _fallback_working_context
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import Task, TaskIntentClarificationFastPath, TaskReadFastPath, TaskStatus
@@ -67,6 +68,39 @@ def test_task_read_fast_path_requires_high_confidence_read_shape():
     assert TaskReadFastPath.matches("Show my tasks")
     assert not TaskReadFastPath.matches("set task status get gud scrub complete")
     assert not TaskReadFastPath.matches("I finished the task get gud scrub")
+
+
+def test_model_working_context_preserves_only_canonical_task_deadlines():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    dated = Task(
+        uuid4(),
+        "apartment",
+        "review the restore drill",
+        "alice",
+        due_at=datetime(2026, 9, 4, 12, 0),
+    )
+    undated = Task(uuid4(), "apartment", "check the pantry", "alice")
+
+    class Tasks:
+        def list(self, _principal):
+            return [dated, undated]
+
+    class Household:
+        def list_groceries(self, _principal):
+            return []
+
+    context = _fallback_working_context(
+        Context(), Tasks(), Household(), principal, "what deserves my attention?"
+    )
+
+    assert context.values["canonical_facts"]["canonical_tasks"] == [
+        {
+            "title": "review the restore drill",
+            "status": "open",
+            "due_at": "2026-09-04T12:00:00",
+        },
+        {"title": "check the pantry", "status": "open"},
+    ]
 
 
 def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):
