@@ -118,6 +118,15 @@ class OllamaProvider:
                     "contain every field from the selected card with the same values. "
                     "Do not omit, add, or change any action field."
                 ),
+                "argument_proposal_rule": (
+                    "This bounded request may fill only argument keys explicitly declared "
+                    "by the selected ActionCard. Copy action_id, capability, required_permissions, "
+                    "and verification exactly from that card. Never invent argument keys, "
+                    "permissions, tools, or canonical facts; if the target is ambiguous, "
+                    "return CLARIFY."
+                    if request.allow_argument_proposals
+                    else "Argument proposals are disabled; copy ActionCard actions verbatim."
+                ),
                 "ambiguity_rule": (
                     "If the utterance does not clearly identify one domain and more "
                     "than one ActionCard is plausible, return CLARIFY instead of "

@@ -919,6 +919,52 @@ def test_decoder_canonicalizes_single_card_copy_errors_without_accepting_invente
     assert decision.action == card.action
 
 
+def test_decoder_accepts_only_declared_bounded_action_arguments():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            required_permissions=("tasks.write",),
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="complete a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    response = {
+        "kind": "ACTION",
+        "action": {
+            "action_id": "tasks.complete",
+            "capability": "tasks.complete",
+            "arguments": {"title": "get gud scrub"},
+            "required_permissions": ["tasks.write"],
+            "verification": {"kind": "readback", "expected": {}},
+        },
+    }
+    decision = StrictDecisionDecoder().decode(
+        type("Response", (), {"raw": response})(),
+        (card,),
+        allow_argument_proposals=True,
+    )
+    assert decision.action == card.action.model_copy(
+        update={"arguments": {"title": "get gud scrub"}}
+    )
+
+    unsafe = dict(response)
+    unsafe["action"] = dict(response["action"])
+    unsafe["action"]["arguments"] = {"title": "get gud scrub", "permission": "owner"}
+    try:
+        StrictDecisionDecoder().decode(
+            type("Response", (), {"raw": unsafe})(),
+            (card,),
+            allow_argument_proposals=True,
+        )
+    except InvalidDecision:
+        pass
+    else:
+        raise AssertionError("undeclared model argument was accepted")
+
+
 def test_kernel_blocks_malformed_model_without_execution():
     ex = Executor()
     k = Kernel(

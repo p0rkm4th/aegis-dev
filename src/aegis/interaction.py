@@ -203,15 +203,9 @@ class InteractionBoundary:
 
     @staticmethod
     def _fallback_cards(manager: PackManager) -> tuple[ActionCard, ...]:
-        """Offer only bounded, non-mutating cards to ambiguous cognition."""
+        """Offer a bounded capability vocabulary; metadata remains Core-owned."""
 
-        cards = tuple(
-            card
-            for card in manager.enabled_cards()
-            if card.action.action_id.endswith(".list")
-            or any(permission.endswith(".read") for permission in card.action.required_permissions)
-        )
-        return cards[:5]
+        return tuple(manager.enabled_cards())[:10]
 
     def _fallback_decision(
         self, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context
@@ -225,9 +219,11 @@ class InteractionBoundary:
                     ModelRequest(
                         working_set=WorkingSet(intent=intent, context=context),
                         action_cards=cards,
+                        allow_argument_proposals=True,
                     )
                 ),
                 cards,
+                allow_argument_proposals=True,
             )
             return decision
         except InvalidDecision:
@@ -628,7 +624,7 @@ class InteractionBoundary:
                             (
                                 candidate
                                 for candidate in self._fallback_cards(manager)
-                                if candidate.action == fallback.action
+                                if candidate.action.action_id == fallback.action.action_id
                             ),
                             None,
                         )
@@ -645,7 +641,9 @@ class InteractionBoundary:
                                     retryable=True,
                                 )
                             )
-                        card = fallback_card
+                        # Keep the model's bounded arguments while restoring the
+                        # canonical card metadata that the decoder validated.
+                        card = fallback_card.model_copy(update={"action": fallback.action})
                     else:
                         return persist_fast_result(
                             Result(

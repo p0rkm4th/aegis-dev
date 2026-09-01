@@ -63,6 +63,12 @@ def test_bounded_model_fallback_accepts_non_authoritative_answer():
     assert decision.answer == "A fish story"
 
 
+def test_task_read_fast_path_requires_high_confidence_read_shape():
+    assert TaskReadFastPath.matches("Show my tasks")
+    assert not TaskReadFastPath.matches("set task status get gud scrub complete")
+    assert not TaskReadFastPath.matches("I finished the task get gud scrub")
+
+
 def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):
     from aegis import interaction
 

@@ -14,7 +14,13 @@ class InvalidDecision(ValueError):
 
 
 class StrictDecisionDecoder:
-    def decode(self, response: ModelResponse, cards: tuple[ActionCard, ...]) -> Decision:
+    def decode(
+        self,
+        response: ModelResponse,
+        cards: tuple[ActionCard, ...],
+        *,
+        allow_argument_proposals: bool = False,
+    ) -> Decision:
         if not isinstance(response.raw, dict):
             raise InvalidDecision("model response must be an object")
         raw: dict[str, Any] = response.raw
@@ -29,6 +35,22 @@ class StrictDecisionDecoder:
             if card is None:
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
             if decision.action != card.action:
+                if allow_argument_proposals:
+                    proposed = decision.action
+                    canonical = card.action
+                    if (
+                        proposed.action_id != canonical.action_id
+                        or proposed.capability != canonical.capability
+                        or proposed.required_permissions != canonical.required_permissions
+                        or proposed.verification != canonical.verification
+                        or not set(proposed.arguments).issubset(card.argument_keys)
+                    ):
+                        raise InvalidDecision("action proposal exceeds the ActionCard contract")
+                    return decision.model_copy(
+                        update={
+                            "action": canonical.model_copy(update={"arguments": proposed.arguments})
+                        }
+                    )
                 if len(cards) == 1:
                     # A small model may copy the card ID while dropping defaults or
                     # changing arguments. The retrieved card remains authoritative;
