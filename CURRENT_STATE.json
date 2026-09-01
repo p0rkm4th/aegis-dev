@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-canonical-replay-result-recovery-live-green",
+  "current_checkpoint": "phase-12-finance-cross-domain-planning-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "843c58eb13022d3f160bbc0f10d959b2faa797f7",
-  "last_green_sha": "843c58eb13022d3f160bbc0f10d959b2faa797f7",
-  "last_pushed_sha": "843c58eb13022d3f160bbc0f10d959b2faa797f7",
+  "head_sha": "3b105b6b6a99ef0c17bf9dfcb4d6bb9c438547b9",
+  "last_green_sha": "3b105b6b6a99ef0c17bf9dfcb4d6bb9c438547b9",
+  "last_pushed_sha": "3b105b6b6a99ef0c17bf9dfcb4d6bb9c438547b9",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -513,8 +513,10 @@
     "persisted_action_recovery_regression": "green deterministic: after a simulated crash between durable observation and Result persistence, a fresh Kernel loaded the authorized objective/action by correlation, reused the exact ActionSpec, independently verified completion, and did not invoke a replacement model decision",
     "persisted_action_recovery_live": "green live: fresh PostgreSQL/Qwen interaction boundaries reused the same persisted task ActionSpec for a fixed correlation despite different second-request wording; both Results were exactly equal, objective identity matched, and the second call returned the original task title",
     "replay_result_canonicalization_regression": "green deterministic: PostgreSQL's internal retryable persistence marker is removed when reconstructing a public Result, preserving canonical evidence and exact replay equality",
+    "finance_cross_domain_regression": "green deterministic: planning requests combining affordability with Tasks/Household context include only FinanceReadFastPath's derived affordability fields alongside bounded canonical task/obligation context; raw balance fields are excluded",
+    "finance_cross_domain_live": "green live: ./scripts/aegis with PostgreSQL returned one completed canonical Result for 'Can I afford $50 after Utilities, and what tasks remain?' containing derived affordability, the shared Utilities obligation, and five bounded open tasks; no private balance was exposed",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Persisted action recovery and exact canonical replay are now green; next inspect multi-step plan persistence and per-step authorization/verification. Retire established browser mutation/readback/recovery/filter/accessibility/revocation paths from routine runs unless a new defect or architecture change reopens them; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed/runtime path: durable multi-step continuation, interruption/restart during multi-step work, stale or conflicting canonical state, authorization/revocation during execution, malformed or weak-model proposals, and safe partial failure recovery. Cross-domain Personal/Household/Tasks and Finance/Household/Tasks reads are now bounded and canonical; next inspect multi-step plan persistence and per-step authorization/verification. Retire established browser mutation/readback/recovery/filter/accessibility/revocation paths from routine runs unless a new defect or architecture change reopens them; Home Assistant/mobile/voice remain lane-limited."
 }
