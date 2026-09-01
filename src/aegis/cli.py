@@ -182,7 +182,8 @@ def handle(utterance: str, principal: Principal) -> str:
     channel: OpenClawWebSocketChannel | None = None
     try:
         _apply_migrations(connection)
-        _ensure_local_identity(connection, principal)
+        if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
+            _ensure_local_identity(connection, principal)
         manager = PackManager(store=PostgresPackStore(connection))
         for bundle in reference_bundles():
             try:
