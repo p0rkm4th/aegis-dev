@@ -1936,6 +1936,27 @@ def test_cli_formats_safe_cross_domain_planning_summary():
     assert "private-id" not in formatted
 
 
+def test_cli_formats_cross_domain_memory_and_obligation_summary():
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Cross-domain planning context assembled from canonical state",
+        correlation_id=uuid4(),
+        evidence={
+            "planning": {
+                "open_obligations": [{"title": "Utilities", "responsible_id": "alice"}],
+                "memories": [{"content": "The backup needs a restore drill"}],
+            }
+        },
+    )
+
+    assert cli._format(result) == (
+        "Planning: open obligations: Utilities; relevant memories: The backup needs a restore drill"
+    )
+
+
 def test_browser_interaction_projects_bounded_canonical_step_status(monkeypatch):
     from aegis import cli
 

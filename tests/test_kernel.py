@@ -2304,6 +2304,13 @@ def test_cross_domain_planning_recognizes_plural_utilities_context():
     )
 
 
+def test_cross_domain_planning_recognizes_which_should_i_read_composition():
+    assert CrossDomainPlanningFastPath.matches(
+        "Please tell me what you remember about the backup and which household obligation "
+        "I should handle first."
+    )
+
+
 def test_cross_domain_planning_includes_only_relevant_current_memories():
     from datetime import datetime, timezone
 
