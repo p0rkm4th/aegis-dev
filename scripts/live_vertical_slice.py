@@ -24,6 +24,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import StrictDecisionDecoder
 from aegis.gateway_rpc import OpenClawWebSocketChannel
+from aegis.household import PostgresHouseholdStore
 from aegis.identity import PostgresSpacePolicy, Role
 from aegis.kernel import Kernel
 from aegis.ollama import OllamaHttpTransport, OllamaProvider
@@ -131,9 +132,21 @@ def run_once(correlation: UUID, path: str) -> object:
                 {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
             ),
             OpenClawExecutor(
-                OpenClawGroceryExecutor(channel, path), AcceptanceRuntime(), NoApproval()
+                OpenClawGroceryExecutor(
+                    channel,
+                    path,
+                    canonical_store=PostgresHouseholdStore(connection),
+                    principal=Principal(
+                        id="alice", vault_id="alice-vault", space_ids=("apartment",)
+                    ),
+                ),
+                AcceptanceRuntime(),
+                NoApproval(),
             ),
-            OpenClawGroceryVerifier(),
+            OpenClawGroceryVerifier(
+                canonical_store=PostgresHouseholdStore(connection),
+                principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            ),
             store=PostgresObjectiveStore(connection),
             audit=PostgresAuditLog(connection),
         )

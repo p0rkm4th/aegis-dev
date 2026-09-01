@@ -930,6 +930,27 @@ def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
     assert result.evidence["external_records_for_key"] == 2
 
 
+def test_openclaw_grocery_verifier_requires_canonical_household_readback(tmp_path):
+    key = "correlation:kitchen.groceries.add"
+    path = tmp_path / "groceries.tsv"
+    path.write_text(f"{key}|rice\n", encoding="utf-8")
+
+    class Canonical:
+        def grocery_recorded(self, principal, item, idempotency_key):
+            return False
+
+    observation = Observation(
+        execution_id=uuid4(),
+        evidence={"external_state_path": str(path), "idempotency_key": key},
+        command_succeeded=True,
+    )
+    result = OpenClawGroceryVerifier(
+        Canonical(), Principal(id="alice", vault_id="vault")
+    ).verify(observation, VerificationContract(kind="readback"))
+    assert not result.verified
+    assert result.evidence["canonical_grocery_verified"] is False
+
+
 def test_decision_evaluation_harness_measures_valid_and_rejected_cases():
     card = ActionCard(
         action=ActionSpec(

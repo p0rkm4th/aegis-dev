@@ -51,6 +51,7 @@ class PostgresHouseholdStore:
             raise ValueError("household state requires a Space")
         payload = {
             "groceries": list(space.groceries),
+            "grocery_mutations": space.grocery_mutations,
             "chores": [
                 {
                     "chore_id": chore.chore_id,
@@ -124,6 +125,9 @@ class PostgresHouseholdStore:
             for item in payload.get("obligations", [])
         }
         groceries = [str(item) for item in payload.get("groceries", [])]
+        grocery_mutations = {
+            str(key): str(item) for key, item in payload.get("grocery_mutations", {}).items()
+        }
         return HouseholdSpace(
             space_id,
             set(members),
@@ -131,7 +135,52 @@ class PostgresHouseholdStore:
             chores,
             events,
             obligations,
+            grocery_mutations,
         )
+
+    def add_grocery(self, principal: Principal, item: str, idempotency_key: str) -> None:
+        """Apply one authorized, replay-safe grocery mutation to canonical state."""
+        if not idempotency_key:
+            raise ValueError("grocery mutation requires an idempotency key")
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships "
+                "WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        space = self.load(space_id, members)
+        space.add_grocery(principal, item, idempotency_key)
+        self.save(space)
+
+    def grocery_recorded(self, principal: Principal, item: str, idempotency_key: str) -> bool:
+        """Read canonical grocery mutation evidence after membership validation."""
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships "
+                "WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        space = self.load(space_id, members)
+        return space.grocery_mutations.get(idempotency_key) == item
+
+    def _space_for(self, principal: Principal) -> str:
+        if not principal.space_ids:
+            raise PermissionError("household operation requires an explicit Space")
+        space_id = principal.space_ids[0]
+        row = self.connection.execute(
+            "SELECT 1 FROM space_memberships "
+            "WHERE principal_id = %s AND space_id = %s AND active = TRUE",
+            (principal.id, space_id),
+        ).fetchone()
+        if row is None:
+            raise PermissionError("principal is not an active Space member")
+        return space_id
 
 
 @dataclass
@@ -142,16 +191,26 @@ class HouseholdSpace:
     chores: dict[str, Chore] = field(default_factory=dict)
     events: dict[str, HouseholdEvent] = field(default_factory=dict)
     obligations: dict[str, HouseholdObligation] = field(default_factory=dict)
+    grocery_mutations: dict[str, str] = field(default_factory=dict)
 
     def _require_member(self, principal: Principal) -> None:
         if principal.id not in self.members or self.space_id not in principal.space_ids:
             raise PermissionError("principal is not an active member of this Space")
 
-    def add_grocery(self, principal: Principal, item: str) -> None:
+    def add_grocery(
+        self, principal: Principal, item: str, idempotency_key: str | None = None
+    ) -> None:
         self._require_member(principal)
         if not item.strip():
             raise ValueError("grocery item is required")
+        if idempotency_key is not None:
+            if self.grocery_mutations.get(idempotency_key) == item:
+                return
+            if idempotency_key in self.grocery_mutations:
+                raise ValueError("grocery idempotency key is bound to another item")
         self.groceries.append(item)
+        if idempotency_key is not None:
+            self.grocery_mutations[idempotency_key] = item
 
     def add_chore(self, principal: Principal, chore: Chore) -> None:
         self._require_member(principal)
