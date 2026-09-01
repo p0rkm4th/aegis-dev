@@ -1884,6 +1884,44 @@ def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
     assert len(planning["open_tasks"]) <= 5
 
 
+def test_cross_domain_planning_fast_path_includes_only_derived_finance_fields():
+    from datetime import datetime, timezone
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    personal = PersonalState()
+    personal.add_goal("Finish the restore drill", datetime(2026, 8, 2, tzinfo=timezone.utc))
+    space = HouseholdSpace("apartment", {alice.id})
+    space.add_obligation(alice, HouseholdObligation("utilities", "Utilities", 120, alice.id))
+
+    result = CrossDomainPlanningFastPath(
+        personal,
+        space.snapshot(alice),
+        (Task(uuid4(), "apartment", "Review backup runbook", "alice"),),
+        {
+            "affordable": True,
+            "purchase_cents": 5000,
+            "shared_obligations_cents": 120,
+            "shortfall_cents": 0,
+            "balance_cents": 999999,
+        },
+    ).resolve(
+        IntentFrame(
+            principal=alice,
+            utterance="Can I afford $50 after Utilities, and what tasks remain?",
+        )
+    )
+
+    assert result is not None
+    planning = result.evidence["planning"]
+    assert planning["affordability"] == {
+        "affordable": True,
+        "purchase_cents": 5000,
+        "shared_obligations_cents": 120,
+        "shortfall_cents": 0,
+    }
+    assert "balance_cents" not in repr(planning)
+
+
 def test_multi_action_fast_path_blocks_partial_objective():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(
