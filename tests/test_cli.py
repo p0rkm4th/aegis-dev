@@ -533,6 +533,25 @@ def test_cli_human_identity_errors_are_generic(monkeypatch, capsys):
     assert "internal-db" not in output
 
 
+def test_cli_human_unexpected_identity_errors_are_generic(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--once", "Show my tasks."])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: (_ for _ in ()).throw(Exception("provider private detail")),
+    )
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert output == (
+        "Not completed — identity unavailable; run './scripts/aegis --check' and "
+        "verify identity configuration\n"
+    )
+    assert "provider private detail" not in output
+
+
 def test_cli_json_requires_check_or_once(monkeypatch):
     from aegis import cli
 
