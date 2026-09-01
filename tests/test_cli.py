@@ -1560,6 +1560,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "await loadState();" in _INDEX_HTML
     assert "response.ok" in _INDEX_HTML
     assert "clearAuthorizedDisplays()" in _INDEX_HTML
+    assert "document.getElementById('step-status').textContent = '';" in _INDEX_HTML
     assert "document.querySelector('#chat button').textContent = 'Send';" in _INDEX_HTML
     assert "Authorization lost; authorized state cleared." in _INDEX_HTML
     assert "conversation').replaceChildren()" in _INDEX_HTML
