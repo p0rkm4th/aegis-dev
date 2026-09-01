@@ -32,6 +32,7 @@ class BrowserMessage(BaseModel):
     detail: str | None = None
     objective_id: UUID | None = None
     correlation_id: UUID
+    retryable: bool | None = None
 
 
 class ConstellationNode(BaseModel):
@@ -165,10 +166,17 @@ async function recoverPendingRequest() {
       scheduleRecoveryPoll();
       return;
     }
-    pendingCorrelationId = null; recoveryPollAttempts = 0; clearPendingRequest();
-    document.querySelector('#chat button').textContent = 'Send';
+    const recoveredCorrelationId = pendingCorrelationId;
+    recoveryPollAttempts = 0;
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
     document.getElementById('detail').textContent = `Status: ${status.state}`;
+    if (status.retryable === true) {
+      document.querySelector('#chat button').textContent = 'Retry';
+      persistPendingRequest(document.getElementById('utterance').value, recoveredCorrelationId);
+    } else {
+      pendingCorrelationId = null; clearPendingRequest();
+      document.querySelector('#chat button').textContent = 'Send';
+    }
     if (status.state === 'completed') refreshState();
   } catch (_) {
     scheduleRecoveryPoll();
@@ -335,8 +343,13 @@ document.getElementById('chat').addEventListener('submit', async event => {
     else if (!response.ok) document.getElementById('detail').textContent =
       `Status: ${result.code || 'request_failed'}`;
     if (response.ok) {
-      pendingCorrelationId = null; send.textContent = 'Send';
-      clearPendingRequest();
+      if (result.retryable === true) {
+        pendingCorrelationId = correlationId; send.textContent = 'Retry';
+        persistPendingRequest(utterance, correlationId);
+      } else {
+        pendingCorrelationId = null; send.textContent = 'Send';
+        clearPendingRequest();
+      }
       if (result.state === 'completed') refreshState();
     } else {
       const authorizationLost = result.code === 'identity_unavailable' ||
@@ -450,7 +463,9 @@ class BrowserApp:
                 payload = (
                     status.model_dump(mode="json")
                     if isinstance(status, RequestStatus)
-                    else RequestStatus.model_validate(status).model_dump(mode="json")
+                    else RequestStatus.model_validate(status).model_dump(
+                        mode="json", exclude_none=True
+                    )
                 )
             except (ValueError, TypeError, ValidationError):
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")

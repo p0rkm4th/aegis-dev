@@ -450,15 +450,18 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
 
 def _browser_interaction(
     utterance: str, principal: Principal, correlation_id: UUID | None = None
-) -> dict[str, str]:
+) -> dict[str, Any]:
     result = run_interaction(utterance, principal, correlation_id)
-    return {
+    response: dict[str, Any] = {
         "message": _format(result),
         "state": result.state.value,
         "detail": result.message,
         "objective_id": str(result.objective_id),
         "correlation_id": str(result.correlation_id),
     }
+    if result.retryable:
+        response["retryable"] = True
+    return response
 
 
 def _browser_request_status(principal: Principal, correlation_id: UUID) -> RequestStatus:
@@ -468,12 +471,13 @@ def _browser_request_status(principal: Principal, correlation_id: UUID) -> Reque
         status = PostgresObjectiveStore(connection).get_request_status(correlation_id, principal)
         if status is None:
             return RequestStatus(correlation_id=correlation_id, state="unknown")
-        objective_id, state, message = status
+        objective_id, state, message, retryable = status
         return RequestStatus(
             correlation_id=correlation_id,
             objective_id=objective_id,
             state=state.value,
             message=message,
+            retryable=retryable or None,
         )
     finally:
         connection.close()
