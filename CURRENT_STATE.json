@@ -75,7 +75,8 @@
         ,"Existing Homelab service restart crossed live Qwen3:8B, PostgreSQL Space policy, paired OpenClaw terminal execution, and independent HTTP health verification; replay reused the durable Result",
     "Authorized Network scopes and discovered devices persist in PostgreSQL, reload across process boundaries, and fail closed after Space membership revocation",
     "Live Qwen3:8B Network probe crossed PostgreSQL scope policy and OpenClaw terminal execution, wrote a Gateway receipt, and passed independent TCP verification with same-correlation replay",
-    "Deterministic affordability CLI read uses the existing PostgreSQL finance ledger and household obligation state, returning only allowlisted derived fields"
+    "Deterministic affordability CLI read uses the existing PostgreSQL finance ledger and household obligation state, returning only allowlisted derived fields",
+    "Security Lab scope boundary requires explicit authorized CIDR state before recording target evidence and rejects out-of-scope targets"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -95,7 +96,7 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
-    "pytest": "110 passed; ruff check passed; mypy passed (35 source files); migration validation passed",
+    "pytest": "111 passed; ruff check passed; mypy passed (36 source files); migration validation passed",
     "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
   },
     "known_failures": [
@@ -205,5 +206,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Advance Phase 9 technical suites using existing Pack/Core boundaries: expand safe Homelab inventory/action verification, preserve Network authorization scopes, and add Security Lab/OSINT provenance only where it enables a tested user workflow."
+  "next_action": "Build the smallest Phase 9 OSINT source-to-finding workflow with provenance, then exercise it alongside the existing Network scope and Homelab verification lanes."
 }

@@ -111,6 +111,7 @@ from aegis.reference_packs import (
     reference_packs,
 )
 from aegis.registry import CapabilityRegistry
+from aegis.security_lab import SecurityLab
 from aegis.store import SqliteObjectiveStore
 from aegis.tasks import (
     PostgresTaskExecutor,
@@ -1746,6 +1747,22 @@ def test_inactive_or_unknown_network_scope_fails_closed():
             pass
         else:
             raise AssertionError("inactive or unknown network scope allowed action")
+
+
+def test_security_lab_requires_explicit_scope_before_recording_evidence():
+    inventory = HomelabInventory()
+    inventory.add_scope(AuthorizedNetworkScope("owned-lab", ("192.0.2.0/24",), "CTF lab"))
+    lab = SecurityLab(inventory)
+    finding = lab.record_finding(
+        "owned-lab", "192.0.2.10", "service banner observed", ("banner=fixture",)
+    )
+    assert finding.target == "192.0.2.10"
+    try:
+        lab.record_finding("owned-lab", "192.0.3.10", "reachable target", ("ping",))
+    except PermissionError:
+        pass
+    else:
+        raise AssertionError("reachable but out-of-scope target was accepted")
 
 
 def test_network_scope_policy_denies_reachable_target_outside_persisted_scope():
