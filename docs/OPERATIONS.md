@@ -30,3 +30,9 @@ integration may be unhealthy without preventing startup, while a required
 component makes readiness false. Live OpenClaw, Ollama, and Home Assistant
 acceptance must be recorded from the actual environment; simulator tests do not
 substitute for that evidence.
+
+`./scripts/aegis --check` is non-mutating: in addition to testing PostgreSQL
+connectivity and the configured Ollama model, it verifies the required
+canonical PostgreSQL tables exist. An incomplete schema is reported with
+migration remediation instead of being mistaken for a ready runtime. Normal
+alpha startup applies the checked-in migrations unless `AEGIS_AUTO_MIGRATE=0`.
