@@ -141,6 +141,18 @@ def _authorized_context_evidence(context: Context) -> dict[str, Any]:
     return _compact_context_evidence(raw)
 
 
+def _with_continuation_context(result: Result, context: Context) -> Result:
+    """Trace a follow-up to authorized context without changing its identity."""
+
+    prior_objective_id = context.values.get("prior_objective_id")
+    if not isinstance(prior_objective_id, str):
+        return result
+    evidence = dict(result.evidence)
+    evidence["continuation_of_objective_id"] = prior_objective_id
+    evidence["continuation_context"] = "authorized_prior_result"
+    return result.model_copy(update={"evidence": evidence})
+
+
 def _context_from_prior_result(
     objective_store: Any, correlation_id: UUID | None, principal: Principal
 ) -> Context:
@@ -459,6 +471,7 @@ class InteractionBoundary:
                     return prior_plan_result
 
             def persist_fast_result(result: Result) -> Result:
+                result = _with_continuation_context(result, context)
                 objective_store.save_objective(
                     Objective(
                         id=result.objective_id,
