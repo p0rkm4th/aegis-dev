@@ -7,7 +7,7 @@ import re
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import psycopg
 
@@ -15,8 +15,10 @@ from .audit import PostgresAuditLog
 from .contracts import ActionCard, IntentFrame, Principal
 from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
+from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
+    HouseholdObligation,
     HouseholdReadFastPath,
     PostgresChoreExecutor,
     PostgresChoreVerifier,
@@ -30,6 +32,7 @@ from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
+from .projections import SharedObligation
 from .reference_packs import (
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
@@ -271,6 +274,12 @@ def _format(result: Any) -> str:
         return "Events: " + (
             "; ".join(item["title"] for item in events) if events else "(none)"
         )
+    if evidence.get("affordable") is not None:
+        status = "yes" if evidence["affordable"] else "no"
+        return (
+            f"Affordable: {status} (purchase ${evidence['purchase_cents'] / 100:.2f}; "
+            f"shared obligations ${evidence['shared_obligations_cents'] / 100:.2f})"
+        )
     if evidence.get("collection") == "chores" and evidence.get("title"):
         return f"Done — created chore: {evidence['title']}"
     if evidence.get("collection") == "events" and evidence.get("title"):
@@ -291,6 +300,21 @@ def handle(utterance: str, principal: Principal) -> str:
             _ensure_local_identity(connection, principal)
         intent = IntentFrame(principal=principal, utterance=utterance)
         household_store = PostgresHouseholdStore(connection)
+        if FinanceReadFastPath.matches(utterance):
+            snapshot = household_store.read_snapshot(principal)
+            household_obligations = cast(
+                tuple[HouseholdObligation, ...], snapshot.get("obligations", ())
+            )
+            obligations = tuple(
+                SharedObligation(item.title, item.amount)
+                for item in household_obligations
+                if not item.settled
+            )
+            finance_result = FinanceReadFastPath(
+                FinanceLedger(PostgresFinanceSnapshotStore(connection))
+            ).resolve(intent, obligations)
+            if finance_result is not None:
+                return _format(finance_result)
         if HouseholdReadFastPath.matches(utterance):
             household_result = HouseholdReadFastPath(
                 household_store.read_snapshot(principal)
