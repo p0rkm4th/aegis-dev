@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-first-run-placeholder-live-green",
+  "current_checkpoint": "phase-12-gateway-unknown-outcome-contract-green",
   "active_branch": "aegis-dev",
-  "head_sha": "b18375899c7be49f670002c76bec42aef8342777",
-  "last_green_sha": "b18375899c7be49f670002c76bec42aef8342777",
-  "last_pushed_sha": "b18375899c7be49f670002c76bec42aef8342777",
+  "head_sha": "496c919ae5aab8af7e8cc59bca5e0a78af0189a3",
+  "last_green_sha": "496c919ae5aab8af7e8cc59bca5e0a78af0189a3",
+  "last_pushed_sha": "496c919ae5aab8af7e8cc59bca5e0a78af0189a3",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -168,6 +168,7 @@
     ,"browser refresh reports health failures separately from canonical state failures while preserving authorization-loss clearing"
     ,"browser health and canonical-state refresh requests have bounded client timeouts and restore the Refresh control after stalls"
     ,"browser authorization-loss cleanup clears private displays and resets the stale Retry affordance"
+    ,"Gateway-backed grocery, Homelab, and Network executors convert protocol failures into durable unknown observations without exception text or blind replay"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -187,8 +188,8 @@
   "most_recent_tests": {
     "command": "PYTHONPATH=src PATH=.venv/bin:$PATH python -m pytest -q; ruff check .; ruff format --check .; python -m mypy; python -c 'from aegis.migrations import validate_migrations; validate_migrations()'",
     "status": "PASS",
-    "pytest": "174 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, and canonical Vault-owner checks are covered"
+    "pytest": "177 passed; Ruff check passed; Ruff format check passed; mypy passed (38 source files); migration validation passed",
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, bounded recovery status request timeout, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, browser /api/ready HTTP gating, canonical Vault-owner checks, and fail-closed Gateway unknown-outcome observations are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -377,6 +378,7 @@
         "browser_rendered_detail_live": "green live rendered acceptance: after a browser-originated task mutation, selecting the rendered Tasks hub displayed the newly persisted task and status; the page reported Runtime READY with 3/3 required checks OK",
         "browser_rendered_revocation_live": "green live rendered privacy acceptance: Chromium loaded an authorized 10-node view, Alice's active Space membership was revoked mid-session, Refresh state returned state_access_denied, the graph cleared to zero nodes, and protected detail remained empty; the membership fixture was restored",
         "browser_rendered_refresh_recovery_live": "green live rendered recovery acceptance: Chromium seeded the documented in-flight utterance/correlation envelope, reloaded the page, restored the utterance, showed explicit Retry with the same correlation, left the answer empty, performed no automatic request replay, and retained the authorized graph",
+        "gateway_executor_unknown_outcome_regression": "green deterministic: protocol failure at the shared Gateway-backed executor seam returns a non-success Observation with outcome=unknown and the stable idempotency key for grocery, Homelab, and Network actions; no raw protocol text crosses the boundary and no event read or replay occurs",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -404,5 +406,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, local .env auto-discovery, private non-overwriting --init bootstrap with symlink refusal, installed-wheel --init bootstrap, source/wheel --version diagnostics, fresh browser-originated verified task mutation, graceful browser degradation with unavailable Ollama, fresh browser multi-domain reads, duplicate browser submission idempotency, visible post-completion refresh failures, rendered Chromium Constellation/task/detail acceptance, rendered mid-session revocation clearing, rendered explicit refresh recovery, truthful browser failure-status rendering, rendered Ollama outage diagnostics, clean server interruption handling, malformed provider response containment, and separate health/state refresh failure reporting are green. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; foreground Ctrl-C acceptance remains unproven due the background-shell harness limitation; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; Gateway protocol failures now fail closed into durable unknown observations for all external reference executors. Next executable frontier: browser recovery under interrupted/unavailable services and operational simplification; foreground Ctrl-C acceptance remains unproven due the background-shell harness limitation; Home Assistant/mobile/voice remain lane-limited."
 }
