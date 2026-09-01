@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "live-ollama-core-sqlite-green-openclaw-postgres-blocked",
+  "current_checkpoint": "live-ollama-postgres-green-openclaw-write-scope-blocked",
   "active_branch": "aegis-dev",
-  "head_sha": "ded06e150797d8d352767f32ace8074e3688b996",
-  "last_green_sha": "ded06e150797d8d352767f32ace8074e3688b996",
-  "last_pushed_sha": "ded06e150797d8d352767f32ace8074e3688b996",
+  "head_sha": "WORKTREE_PENDING",
+  "last_green_sha": "WORKTREE_PENDING",
+  "last_pushed_sha": "7528953",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -34,7 +34,9 @@
     "validated secret-safe configuration and SQLite backup/restore",
     "structured health/readiness reporting and operations documentation",
     "contiguous migration validation and isolated clean-install smoke gate",
-    "direct dependency SBOM and provenance evidence"
+    "direct dependency SBOM and provenance evidence",
+    "PostgreSQL ObjectiveStore lifecycle persistence and restart/replay acceptance",
+    "OpenClaw protocol-4 loopback WebSocket health transport"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -58,21 +60,24 @@
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
-    "OpenClaw Gateway transport is not reachable or installed in this environment",
-    "PostgreSQL is not listening on 127.0.0.1:5432 and migrations were not applied",
+    "OpenClaw Gateway write/admin execution is blocked until a device identity is paired; the loopback backend token negotiates zero WS scopes",
+    "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "Home Assistant/device live acceptance was not performed",
     "full live vertical workflow, restart/replay, and external postcondition evidence are absent"
   ],
   "blocked_lanes": [
-    "LIVE_VERTICAL_SLICE: requires owner environment OpenClaw Gateway and PostgreSQL; Ollama endpoint is reachable only at 172.18.0.1"
+    "LIVE_VERTICAL_SLICE: PostgreSQL and Ollama are live-green; OpenClaw execution requires pairing a Gateway client/device and granting operator.write/operator.admin"
   ],
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
-  "database_migration_version": "001_initial.sql (artifact; SQLite restart/replay evidence passed; psql 127.0.0.1:5432 connection refused)",
+  "database_migration_version": "001_initial.sql applied to disposable PostgreSQL 16.4 container; PostgresObjectiveStore restart/replay green",
   "openclaw_compatibility": {
-    "tested_release": "2026.8.1",
-    "adapter": "policy/approval execution boundary; live Gateway transport unavailable; no execution evidence"
+    "root_cli_gateway_release": "2026.8.1 (ea806575e645)",
+    "gateway_client_package": "2026.8.1",
+    "gateway_protocol_package": "2026.8.1",
+    "wire_protocol": 4,
+    "adapter": "OpenClawWebSocketChannel; live health RPC green; write/admin execution requires paired device scope"
   },
   "live_acceptance_evidence": {
     "ollama_command": "OllamaHttpTransport(http://172.18.0.1:11434) -> OllamaProvider(qwen3:8b, max_repairs=0) -> StrictDecisionDecoder",
@@ -82,8 +87,9 @@
     "correlation_id": "13f555c9-4e63-4f4c-8a0a-13a9d79662a5",
     "objective_id": "c8c6aaee-31e6-46f1-844c-03709c231032",
     "external_execution": "not proven; ReferenceExecutor is a simulator",
-    "postgresql": "blocked: 127.0.0.1:5432 connection refused; server package/service absent",
-    "openclaw": "blocked: Gateway transport/binary not present or reachable"
+    "postgresql": "green: postgres:16.4-bookworm, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
+    "openclaw": "health green through AEGIS WebSocket protocol-4 transport; execution blocked by no paired device / zero negotiated WS scopes",
+    "openclaw_owner_action": "Using the exact pinned OpenClaw install and state directory, create/approve the AEGIS Gateway client device with `openclaw devices list --token <token>` followed by `openclaw devices approve <requestId>`; reconnect with the resulting device token and operator.write/operator.admin scopes. Do not expose the Gateway beyond loopback."
   },
-  "next_action": "In an owner environment, run docs/LIVE_ACCEPTANCE.md with reachable PostgreSQL and OpenClaw Gateway; wire the accepted live Qwen decision into real external execution and record external observation, verification, restart, and replay evidence"
+  "next_action": "Do not advance phases. Complete the paired OpenClaw client/device authorization on the disposable loopback Gateway, then run the real external-action acceptance with PostgresObjectiveStore, independent postcondition readback, AEGIS restart, PostgreSQL restart, replay, and adversarial cases."
 }
