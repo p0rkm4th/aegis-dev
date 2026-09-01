@@ -21,8 +21,8 @@ export AEGIS_OLLAMA_URL='http://127.0.0.1:11434'
 probe and set this variable to the reachable Ollama address; a running Ollama
 process bound to a different interface is not reachable through loopback.
 
-For repeatable local startup, copy `examples/aegis.env.example` to `.env` and
-replace its placeholders. The launcher automatically discovers this repository
+For repeatable local startup, run `./scripts/aegis --init` to create a private
+`.env` template, then replace its placeholders. The launcher automatically discovers this repository
 `.env` file, or an explicit file can be selected. Configuration is loaded
 without executing shell code:
 

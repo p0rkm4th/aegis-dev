@@ -87,6 +87,18 @@ def _load_env_file(path: str) -> None:
         os.environ.setdefault(name, value)
 
 
+def _initialize_env_file(path: str) -> None:
+    """Create a private placeholder configuration without overwriting files."""
+
+    target = Path(path)
+    if target.exists() or target.is_symlink():
+        raise FileExistsError(path)
+    root = Path(__file__).resolve().parents[2]
+    template = (root / "examples" / "aegis.env.example").read_text(encoding="utf-8")
+    target.write_text(template, encoding="utf-8")
+    target.chmod(0o600)
+
+
 def _runtime_report() -> HealthReport:
     """Check operator-facing prerequisites without creating or changing state."""
 
@@ -724,6 +736,11 @@ def main() -> int:
         help="load AEGIS_* settings from a simple KEY=value file before startup",
     )
     parser.add_argument(
+        "--init",
+        action="store_true",
+        help="create a private placeholder .env file and exit (refuses to overwrite)",
+    )
+    parser.add_argument(
         "--web",
         action="store_true",
         help="serve the minimal Constellation browser client on loopback",
@@ -735,6 +752,21 @@ def main() -> int:
         parser.error("--json requires --check or --once")
     if args.web and (args.check or args.once is not None):
         parser.error("--web cannot be combined with --check or --once")
+    if args.init and (args.check or args.once is not None or args.web):
+        parser.error("--init cannot be combined with --check, --once, or --web")
+    if args.init:
+        target = args.env_file or ".env"
+        try:
+            _initialize_env_file(target)
+        except FileExistsError:
+            print(f"Not completed — configuration file already exists: {target}")
+            return 1
+        except OSError:
+            print(f"Not completed — unable to create configuration file: {target}")
+            return 1
+        print(f"Created private configuration template: {target}")
+        print("Replace its placeholders, then run './scripts/aegis --check'.")
+        return 0
     env_file = args.env_file
     if env_file is None and Path(".env").is_file():
         env_file = ".env"

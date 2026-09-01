@@ -3,7 +3,7 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-readiness-schema-diagnostic-green",
+  "current_checkpoint": "phase-12-private-config-bootstrap-green",
   "active_branch": "aegis-dev",
   "head_sha": "e91be28a95c7fe95f0e6f9c538f597cd9b9debf1",
   "last_green_sha": "e91be28a95c7fe95f0e6f9c538f597cd9b9debf1",
@@ -138,6 +138,7 @@
     ,"browser recovery bounds background status polling and preserves explicit retry"
     ,"launcher automatically discovers repository-local .env while preserving explicit override and shell precedence"
     ,"readiness checks required canonical PostgreSQL tables without mutating schema state"
+    ,"non-destructive --init creates a private placeholder configuration and refuses overwrite"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -155,9 +156,9 @@
     "12": "in_progress"
   },
   "most_recent_tests": {
-    "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
+    "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; PATH=.venv/bin:$PATH bash scripts/smoke_install.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "150 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed",
+    "pytest": "151 passed; ruff check passed; ruff format check passed; mypy passed (38 source files); migration validation passed; clean-install smoke passed",
     "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, shared InteractionBoundary orchestration, public InteractionBoundary package export, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
@@ -319,6 +320,7 @@
         "postgres_schema_readiness": "green deterministic: PostgreSQL readiness verifies objectives, results, and space_memberships exist via non-mutating to_regclass checks, reports incomplete canonical schema with migration remediation, and keeps connection failures distinct",
         "runtime_readiness_schema_live": "green live: ./scripts/aegis --check --json against PostgreSQL 16.15 and Ollama qwen3:8b at 172.18.0.1:11434 returned healthy=true and ready=true, reported connection and schema succeeded, and preserved OpenClaw as optional when unconfigured",
         "browser_http_route_smoke_live": "green live HTTP smoke: a real loopback --web process served the Constellation HTML with recovery code, /api/health returned ready=true, /api/constellation returned 10 nodes and 9 edges, completed /api/request-status returned canonical objective/message, and malformed status input returned the safe 400 invalid_request envelope; no browser-engine rendering claim made",
+        "launcher_init_live": "green live: the repository launcher in a temporary directory created .env from the checked-in template with mode 600; a second invocation refused overwrite with exit 1 and concise remediation",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -346,5 +348,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, and local .env auto-discovery are green, while Qwen task mutation/replay is green against 172.18.0.1:11434. Browser-engine rendering remains unproven because no engine is installed. Next executable frontier: configuration/bootstrap simplification or additional recovery/security dogfood; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, endpoint validation, PostgreSQL schema readiness, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, launcher runtime selection, root install quickstart, explicit browser refresh retry recovery, authorized canonical request status, HTTP route smoke, status privacy under revocation and wrong-Vault claims, nonterminal-state recovery, bounded read-only status polling, local .env auto-discovery, and private non-overwriting --init bootstrap are green, while Qwen task mutation/replay is green against 172.18.0.1:11434. Browser-engine rendering remains unproven because no engine is installed. Next executable frontier: additional recovery/security dogfood or browser workflow acceptance; Home Assistant/mobile/voice remain lane-limited."
 }
