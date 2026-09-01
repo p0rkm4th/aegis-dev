@@ -154,6 +154,13 @@ def _context_from_prior_result(
             "prior_correlation_id": str(correlation_id),
             "prior_objective_id": str(objective.id),
             "prior_state": result.state.value,
+            "recent_turns": [
+                {
+                    "role": "user",
+                    "utterance": objective.intent.utterance[:500],
+                    "correlation_id": str(correlation_id),
+                }
+            ],
             "canonical_facts": evidence,
         },
         sources=("authorized_canonical_result",),
