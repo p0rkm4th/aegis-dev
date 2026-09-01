@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any, Protocol
 
 from .contracts import Principal
 
@@ -30,6 +32,106 @@ class HouseholdObligation:
     amount: int
     responsible_id: str
     settled: bool = False
+
+
+class HouseholdStateConnection(Protocol):
+    def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
+
+    def commit(self) -> None: ...
+
+
+class PostgresHouseholdStore:
+    """Persist shared Space state while leaving membership to policy storage."""
+
+    def __init__(self, connection: HouseholdStateConnection) -> None:
+        self.connection = connection
+
+    def save(self, space: HouseholdSpace) -> None:
+        if not space.space_id:
+            raise ValueError("household state requires a Space")
+        payload = {
+            "groceries": list(space.groceries),
+            "chores": [
+                {
+                    "chore_id": chore.chore_id,
+                    "title": chore.title,
+                    "assignee_id": chore.assignee_id,
+                    "completed": chore.completed,
+                }
+                for chore in space.chores.values()
+            ],
+            "events": [
+                {
+                    "event_id": event.event_id,
+                    "title": event.title,
+                    "starts_at": event.starts_at.isoformat(),
+                }
+                for event in space.events.values()
+            ],
+            "obligations": [
+                {
+                    "obligation_id": obligation.obligation_id,
+                    "title": obligation.title,
+                    "amount": obligation.amount,
+                    "responsible_id": obligation.responsible_id,
+                    "settled": obligation.settled,
+                }
+                for obligation in space.obligations.values()
+            ],
+        }
+        self.connection.execute(
+            "INSERT INTO household_spaces (space_id, payload) VALUES (%s, %s) "
+            "ON CONFLICT (space_id) DO UPDATE SET payload = EXCLUDED.payload, "
+            "updated_at = now()",
+            (space.space_id, json.dumps(payload, sort_keys=True)),
+        )
+        self.connection.commit()
+
+    def load(self, space_id: str, members: set[str]) -> HouseholdSpace:
+        if not space_id:
+            raise ValueError("household state requires a Space")
+        row = self.connection.execute(
+            "SELECT payload FROM household_spaces WHERE space_id = %s", (space_id,)
+        ).fetchone()
+        if row is None:
+            return HouseholdSpace(space_id, set(members))
+        payload = row[0] if isinstance(row[0], dict) else json.loads(str(row[0]))
+        chores = {
+            str(item["chore_id"]): Chore(
+                str(item["chore_id"]),
+                str(item["title"]),
+                str(item["assignee_id"]),
+                bool(item.get("completed", False)),
+            )
+            for item in payload.get("chores", [])
+        }
+        events = {
+            str(item["event_id"]): HouseholdEvent(
+                str(item["event_id"]),
+                str(item["title"]),
+                datetime.fromisoformat(str(item["starts_at"])),
+            )
+            for item in payload.get("events", [])
+        }
+        obligations = {
+            str(item["obligation_id"]): HouseholdObligation(
+                str(item["obligation_id"]),
+                str(item["title"]),
+                int(item["amount"]),
+                str(item["responsible_id"]),
+                bool(item.get("settled", False)),
+            )
+            for item in payload.get("obligations", [])
+        }
+        groceries = [str(item) for item in payload.get("groceries", [])]
+        return HouseholdSpace(
+            space_id,
+            set(members),
+            groceries,
+            chores,
+            events,
+            obligations,
+        )
 
 
 @dataclass
