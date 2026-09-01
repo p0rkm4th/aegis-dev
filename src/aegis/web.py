@@ -67,6 +67,7 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 </head><body><h1>AEGIS Constellation</h1>
 <p class="muted">Canonical state and conversation from AEGIS Core.</p>
 <p id="health" aria-live="polite">Checking readiness…</p>
+<ul id="health-details" class="muted" aria-live="polite"></ul>
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><div id="detail" class="muted"></div>
@@ -95,6 +96,14 @@ async function loadHealth() {
   document.getElementById('health').textContent =
     `Runtime: ${ready} · ${required.filter(component => component.healthy).length}` +
     `/${required.length} required checks OK`;
+  const healthDetails = document.getElementById('health-details');
+  healthDetails.replaceChildren(...(report.components || []).map(component => {
+    const item = document.createElement('li');
+    const requirement = component.required ? 'required' : 'optional';
+    const status = component.healthy ? 'OK' : 'FAIL';
+    item.textContent = `${component.name}: ${status} (${requirement}) — ${component.detail || ''}`;
+    return item;
+  }));
 }
 function renderDetailValue(value) {
   if (value === null) {
