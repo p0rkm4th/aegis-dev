@@ -7,6 +7,11 @@ python -m pip install -e '.[dev]'
 bash scripts/validate.sh
 ```
 
+`./scripts/aegis` prefers the repository `.venv`, then an active `python3`
+environment. Use `AEGIS_PYTHON=/path/to/python` when the runtime is installed
+elsewhere; if no usable environment is found, the launcher reports the
+installation command instead of failing with an opaque missing-file error.
+
 The canonical production database is PostgreSQL. Apply migrations in filename
 order; the current schema starts at `migrations/001_initial.sql`. Do not use a
 destructive recreate as an upgrade path.
