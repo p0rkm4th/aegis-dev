@@ -188,7 +188,7 @@ def _identity_health() -> tuple[bool, str]:
         return False, "bearer identity requires AEGIS_DATABASE_URL for canonical subject mapping"
     try:
         _principal()
-    except (OSError, RuntimeError, ValueError, PermissionError, psycopg.Error):
+    except Exception:
         return (
             False,
             "bearer identity is unavailable; verify the token, Keycloak issuer, "
