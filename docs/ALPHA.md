@@ -32,6 +32,18 @@ machine-readable report. PostgreSQL and Ollama are required; OpenClaw is
 reported as optional until a workflow needs an external mutation. A failed
 readiness check exits with status 1 and does not alter canonical state.
 
+The smallest browser proof is available on loopback with:
+
+```sh
+./scripts/aegis --web
+```
+
+It serves conversation through the same `handle()` boundary and renders a
+small authorized view of canonical Tasks/Kitchen state. The browser adapter
+owns only HTTP and presentation; authorization, persistence, and meaning stay
+below it. Use `--port` to select another local port; it listens on loopback by
+default.
+
 For grocery mutation, also set `AEGIS_OPENCLAW_GATEWAY_URL`,
 `AEGIS_OPENCLAW_TOKEN`, `AEGIS_OPENCLAW_DEVICE_TOKEN`, and
 `AEGIS_OPENCLAW_IDENTITY_DB`. The CLI defaults to the explicitly configured

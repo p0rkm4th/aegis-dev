@@ -64,7 +64,13 @@ class BrowserApp:
         if method == "GET" and route == "/":
             return HTTPStatus.OK, "text/html; charset=utf-8", _INDEX_HTML.encode()
         if method == "GET" and route == "/api/constellation":
-            return self._json(HTTPStatus.OK, self.state(self.principal))
+            try:
+                state = self.state(self.principal)
+            except PermissionError:
+                return self._json(HTTPStatus.FORBIDDEN, {"error": "state access denied"})
+            except (OSError, RuntimeError):
+                return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "state unavailable"})
+            return self._json(HTTPStatus.OK, state)
         if method == "POST" and route == "/api/message":
             try:
                 payload = json.loads(body)
@@ -74,6 +80,10 @@ class BrowserApp:
                 message = self.interaction(utterance, self.principal)
             except (ValueError, KeyError, json.JSONDecodeError) as exc:
                 return self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+            except PermissionError:
+                return self._json(HTTPStatus.FORBIDDEN, {"error": "request denied"})
+            except (OSError, RuntimeError):
+                return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "request unavailable"})
             return self._json(HTTPStatus.OK, {"message": message})
         return self._json(HTTPStatus.NOT_FOUND, {"error": "route not found"})
 
