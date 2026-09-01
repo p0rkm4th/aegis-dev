@@ -1531,6 +1531,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "key.replaceAll('_', ' ')" in _INDEX_HTML
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
     assert "const lifecycleLabels = Object.freeze" in _INDEX_HTML
+    assert "const errorLabels = Object.freeze" in _INDEX_HTML
+    assert "function errorLabel(code)" in _INDEX_HTML
     assert "function lifecycleLabel(state)" in _INDEX_HTML
     assert "lifecycleLabel(result.state)" in _INDEX_HTML
     assert "lifecycleLabel(status.state)" in _INDEX_HTML
@@ -1547,7 +1549,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "refreshState()" in _INDEX_HTML
     assert "state_access_denied" in _INDEX_HTML
     assert "State refresh failed" in _INDEX_HTML
-    assert "Runtime status unavailable (${code})." in _INDEX_HTML
+    assert "${errorLabel(code)} (${code})." in _INDEX_HTML
     assert "await loadHealth();" in _INDEX_HTML
     assert "await loadState();" in _INDEX_HTML
     assert "response.ok" in _INDEX_HTML
@@ -1574,7 +1576,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "if (result.state === 'completed') refreshState();" in _INDEX_HTML
     assert "if (status.state === 'completed') refreshState();" in _INDEX_HTML
     assert "loadState().catch(() => {})" not in _INDEX_HTML
-    assert "Status: ${result.code || 'request_failed'}" in _INDEX_HTML
+    assert "Status: ${errorLabel(result.code)}" in _INDEX_HTML
     assert "result.retryable === true" in _INDEX_HTML
     assert "status.retryable === true" in _INDEX_HTML
 

@@ -128,6 +128,14 @@ let recoveryPollAttempts = 0;
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
 ]);
+const errorLabels = Object.freeze({
+  identity_unavailable: 'Identity unavailable', state_access_denied: 'Authorization denied',
+  state_unavailable: 'State unavailable', health_unavailable: 'Runtime status unavailable',
+  request_denied: 'Request denied', request_unavailable: 'Request unavailable',
+  response_unavailable: 'Response unavailable', request_timeout: 'Request timed out',
+  invalid_request: 'Invalid request', request_too_large: 'Request too large'
+});
+function errorLabel(code) { return errorLabels[code] || 'Request failed'; }
 const lifecycleLabels = Object.freeze({
   proposed: 'Proposed', validated: 'Validated', authorized: 'Authorized',
   approval_required: 'Approval required', executing: 'Executing', observed: 'Observed',
@@ -395,14 +403,14 @@ async function refreshState() {
     } catch (error) {
       const code = error.code || 'health_unavailable';
       document.getElementById('health').textContent =
-        `Runtime status unavailable (${code}).`;
+        `${errorLabel(code)} (${code}).`;
     }
     try {
       await loadState();
     } catch (error) {
       const code = error.code || 'state_unavailable';
       document.getElementById('state-status').textContent =
-        `State refresh failed (${code}). Use Refresh state to try again.`;
+        `State refresh failed — ${errorLabel(code)} (${code}). Use Refresh state to try again.`;
       if (code === 'identity_unavailable' || code === 'state_access_denied') {
         clearAuthorizedDisplays();
       }
@@ -444,7 +452,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     if (result.state) document.getElementById('activity').textContent =
       `Status: ${lifecycleLabel(result.state)}${result.detail ? ` · ${result.detail}` : ''}`;
     else if (!response.ok) document.getElementById('activity').textContent =
-      `Status: ${result.code || 'request_failed'}`;
+      `Status: ${errorLabel(result.code)} (${result.code || 'request_failed'})`;
     if (response.ok) {
       if (result.retryable === true) {
         pendingCorrelationId = correlationId; send.textContent = 'Retry';
