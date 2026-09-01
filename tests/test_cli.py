@@ -258,6 +258,17 @@ def test_cli_routes_task_before_food_keyword() -> None:
     assert card.action.arguments == {"title": "buy cat food."}
 
 
+def test_cli_routes_put_task_on_list_as_mutation() -> None:
+    domain, card = _domain_and_action(
+        "Could you put a task on my list to keep an eye on the backup before the restore drill?",
+        manager_with_reference_cards(),
+    )
+
+    assert domain == "tasks"
+    assert card.action.action_id == "tasks.create"
+    assert card.action.arguments == {"title": "keep an eye on the backup before the restore drill?"}
+
+
 def test_cli_prepares_grocery_action_card_arguments() -> None:
     domain, card = _domain_and_action("Add rice to groceries.", manager_with_reference_cards())
 
@@ -1872,6 +1883,9 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     assert not TaskReadFastPath.matches("Create a task to replace filter")
     assert not TaskReadFastPath.matches(
         "Please create a task to compare the inspection checklist with the backup runbook"
+    )
+    assert not TaskReadFastPath.matches(
+        "Could you put a task on my list to keep an eye on the backup?"
     )
 
 
