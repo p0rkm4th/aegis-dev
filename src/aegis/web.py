@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from .contracts import Principal, RequestStatus
+from .contracts import ObjectiveState, Principal, RequestStatus
 from .health import HealthReport
 
 Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
@@ -38,7 +38,7 @@ class BrowserMessage(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     message: str
-    state: str | None = None
+    state: ObjectiveState | None = None
     detail: str | None = None
     objective_id: UUID | None = None
     correlation_id: UUID

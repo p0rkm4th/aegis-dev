@@ -138,7 +138,7 @@ class Result(StrictModel):
 
 class RequestStatus(StrictModel):
     correlation_id: UUID
-    state: str = Field(min_length=1)
+    state: ObjectiveState | Literal["unknown"]
     objective_id: UUID | None = None
     message: str | None = None
     retryable: bool | None = None

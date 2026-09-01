@@ -524,7 +524,7 @@ def _browser_request_status(principal: Principal, correlation_id: UUID) -> Reque
         return RequestStatus(
             correlation_id=correlation_id,
             objective_id=objective_id,
-            state=state.value,
+            state=state,
             message=message,
             retryable=retryable or None,
         )
