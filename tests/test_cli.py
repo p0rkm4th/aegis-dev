@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from aegis.cli import _domain_and_action, _ensure_local_identity
@@ -136,3 +138,36 @@ def test_cli_once_returns_failure_status_for_handled_error(monkeypatch, capsys):
 
     assert cli.main() == 1
     assert capsys.readouterr().out == "Not completed — request is ambiguous\n"
+
+
+def test_cli_check_reports_missing_required_configuration(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--check"])
+    for name in ("AEGIS_DATABASE_URL", "AEGIS_OLLAMA_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+    assert cli.main() == 1
+    output = capsys.readouterr().out
+    assert "AEGIS runtime: NOT READY" in output
+    assert "postgres: FAIL (required) — set AEGIS_DATABASE_URL" in output
+    assert "ollama: FAIL (required)" in output
+    assert "openclaw: OK (optional)" in output
+
+
+def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--check", "--json"])
+    monkeypatch.delenv("AEGIS_DATABASE_URL", raising=False)
+    monkeypatch.delenv("AEGIS_OLLAMA_URL", raising=False)
+
+    assert cli.main() == 1
+    report = json.loads(capsys.readouterr().out)
+    assert report["ready"] is False
+    assert {item["name"] for item in report["components"]} == {
+        "postgres",
+        "ollama",
+        "openclaw",
+        "identity",
+    }
