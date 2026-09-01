@@ -54,6 +54,7 @@ from .tasks import (
     PostgresTaskListVerifier,
     PostgresTaskStore,
     PostgresTaskVerifier,
+    TaskReadFastPath,
 )
 from .web import serve
 
@@ -584,6 +585,10 @@ def _run_interaction(
             ).resolve(intent)
             if household_result is not None:
                 return household_result
+        task_store = PostgresTaskStore(connection)
+        task_result = TaskReadFastPath(task_store).resolve(intent)
+        if task_result is not None:
+            return task_result
         personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load()
         semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
             "1",
@@ -637,7 +642,6 @@ def _run_interaction(
                 manager.enable(pack_id)
         domain, card = _domain_and_action(utterance, manager)
         principal_store = PostgresHouseholdStore(connection)
-        task_store = PostgresTaskStore(connection)
         if card.action.action_id == "kitchen.groceries.add":
             channel = _openclaw_channel()
             executor: Any = OpenClawExecutor(
