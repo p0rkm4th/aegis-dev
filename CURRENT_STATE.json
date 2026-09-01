@@ -5,9 +5,9 @@
   "current_phase": 7,
   "current_checkpoint": "phase-7-shared-household-foundation",
   "active_branch": "aegis-dev",
-  "head_sha": "433515d",
-  "last_green_sha": "433515d",
-  "last_pushed_sha": "433515d",
+  "head_sha": "634e411",
+  "last_green_sha": "634e411",
+  "last_pushed_sha": "634e411",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -57,6 +57,8 @@
     "Temporal personal-memory retrieval applies bounded last-night, yesterday, and last-week windows before ranking grounded records",
     "Contextual personal-memory references resolve grounded records without transcript-only workflow state",
     "Optional pgvector-backed personal-memory retrieval uses live Ollama nomic-embed-text embeddings with a conservative relevance threshold and deterministic fallback",
+    "Guarded shared-household read fast path exposes obligations, chores, and events through canonical membership-checked state",
+    "Local identity bootstrap no longer reactivates revoked Space memberships",
     "Personal-state PostgreSQL supersession write-order regression coverage",
     "PostgreSQL-backed shared HouseholdSpace state with policy-supplied membership on reload",
     "Owner-partitioned PostgreSQL FinanceSnapshot store with durable provider provenance and private read enforcement",
@@ -88,7 +90,7 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
-    "pytest": "108 passed; ruff check passed; mypy passed (35 source files); migration validation passed",
+    "pytest": "110 passed; ruff check passed; mypy passed (35 source files); migration validation passed",
     "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
   },
     "known_failures": [
@@ -176,6 +178,8 @@
         "personal_temporal_cli_live": "green: ./scripts/aegis loaded PostgreSQL memories seeded in the actual previous-night window and returned them through a fresh interactive process with explicit_user provenance",
         "personal_contextual_cli_live": "green: ./scripts/aegis loaded a PostgreSQL observed memory and answered 'What about that server problem?' through a fresh interactive process with provenance",
         "personal_vector_cli_live": "green: semantic-enabled ./scripts/aegis indexed Vault memories in pgvector using live nomic-embed-text, answered the Gateway query through cosine retrieval, and excluded weak matches after a measured 0.50 distance threshold",
+        "household_read_cli_live": "green: ./scripts/aegis loaded the shared Apartment obligation state from PostgreSQL and returned the outstanding Utilities responsibility through a fresh interactive process",
+        "household_revocation_cli_live": "green: after Alice membership was revoked in PostgreSQL, the same household query failed closed; local identity bootstrap did not reactivate membership, and the fixture was restored",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
     "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "kitchen_canonical_bridge": "green: correlation 26aa85c9-254c-4276-821c-44c81882096a completed through live Qwen3:8B, PostgreSQL policy, paired OpenClaw, external readback, and canonical HouseholdSpace grocery readback; replay returned the same verified Result",
@@ -185,5 +189,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Expose the existing shared HouseholdSpace read boundary for obligations, events, and chores through the interaction surface, then live-test membership/revocation and durable reload without adding a second domain authority."
+  "next_action": "Extend Phase 7 acceptance across existing shared chores/events and household editing semantics, preserving membership revocation, Vault separation, durable reload, and the canonical interaction boundary."
 }
