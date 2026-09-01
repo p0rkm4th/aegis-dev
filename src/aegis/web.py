@@ -8,11 +8,12 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import urlparse
+from uuid import UUID, uuid4
 
 from .contracts import Principal
 from .health import HealthReport
 
-Interaction = Callable[[str, Principal], str | dict[str, Any]]
+Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
@@ -38,6 +39,7 @@ placeholder="Ask AEGIS..."><button>Send</button></form>
 <script>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
+let pendingCorrelationId = null;
 async function loadHealth() {
   const response = await fetch('/api/health'); const report = await response.json();
   const required = (report.components || []).filter(component => component.required);
@@ -76,22 +78,33 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const send = event.currentTarget.querySelector('button');
   const utterance = input.value.trim(); if (!utterance || send.disabled) return;
   const conversation = document.getElementById('conversation');
-  const userLine = document.createElement('li'); userLine.textContent = `You: ${utterance}`;
-  conversation.append(userLine); send.disabled = true; input.disabled = true;
+  const correlationId = pendingCorrelationId || crypto.randomUUID();
+  if (!pendingCorrelationId) {
+    const userLine = document.createElement('li'); userLine.textContent = `You: ${utterance}`;
+    conversation.append(userLine);
+  }
+  send.disabled = true; input.disabled = true;
   document.getElementById('detail').textContent = 'Status: working';
   try {
     const response = await fetch('/api/message', {method:'POST',
-      headers:{'content-type':'application/json'}, body:JSON.stringify({utterance})});
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({utterance, correlation_id:correlationId})});
     const result = await response.json();
     const answer = result.message || result.error || 'No response';
     document.getElementById('answer').textContent = answer;
     const assistantLine = document.createElement('li');
     assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
     if (result.state) document.getElementById('detail').textContent = `Status: ${result.state}`;
-    if (response.ok && result.state === 'completed') loadState().catch(() => {});
+    if (response.ok) {
+      pendingCorrelationId = null; send.textContent = 'Send';
+      if (result.state === 'completed') loadState().catch(() => {});
+    } else {
+      pendingCorrelationId = correlationId; send.textContent = 'Retry';
+    }
   } catch (_) {
     document.getElementById('answer').textContent = 'AEGIS is unavailable.';
     document.getElementById('detail').textContent = 'Status: unavailable';
+    pendingCorrelationId = correlationId; send.textContent = 'Retry';
   } finally {
     send.disabled = false; input.disabled = false;
   }
@@ -146,19 +159,32 @@ class BrowserApp:
                 )
             try:
                 payload = json.loads(body)
+                if not isinstance(payload, dict):
+                    raise ValueError("request body must be a JSON object")
                 utterance = payload["utterance"]
                 if not isinstance(utterance, str) or not utterance.strip():
                     raise ValueError("utterance must be a non-empty string")
-                message = self.interaction(utterance, principal)
-            except (ValueError, KeyError, json.JSONDecodeError) as exc:
+                correlation_value = payload.get("correlation_id")
+                if correlation_value is None:
+                    correlation_id = uuid4()
+                elif isinstance(correlation_value, str):
+                    correlation_id = UUID(correlation_value)
+                else:
+                    raise ValueError("correlation_id must be a UUID string")
+                message = self.interaction(utterance, principal, correlation_id)
+            except (ValueError, KeyError, json.JSONDecodeError, TypeError) as exc:
                 return self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
             except PermissionError:
                 return self._json(HTTPStatus.FORBIDDEN, {"error": "request denied"})
             except (OSError, RuntimeError):
                 return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "request unavailable"})
             if isinstance(message, dict):
+                message.setdefault("correlation_id", str(correlation_id))
                 return self._json(HTTPStatus.OK, message)
-            return self._json(HTTPStatus.OK, {"message": message})
+            return self._json(
+                HTTPStatus.OK,
+                {"message": message, "correlation_id": str(correlation_id)},
+            )
         return self._json(HTTPStatus.NOT_FOUND, {"error": "route not found"})
 
     @staticmethod

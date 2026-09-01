@@ -180,7 +180,9 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     seen: list[tuple[str, str]] = []
     app = BrowserApp(
         principal,
-        lambda utterance, current: seen.append((utterance, current.id)) or "canonical answer",
+        lambda utterance, current, _correlation_id: (
+            seen.append((utterance, current.id)) or "canonical answer"
+        ),
         lambda current: {"nodes": [{"id": "tasks", "label": "Tasks", "detail": current.id}]},
     )
 
@@ -189,9 +191,16 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     assert content_type == "application/json"
     assert json.loads(payload)["nodes"][0]["detail"] == "alice"
 
-    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"Show my tasks."}')
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/message",
+        b'{"utterance":"Show my tasks.","correlation_id":"00000000-0000-4000-8000-000000000001"}',
+    )
     assert status == 200
-    assert json.loads(payload) == {"message": "canonical answer"}
+    assert json.loads(payload) == {
+        "message": "canonical answer",
+        "correlation_id": "00000000-0000-4000-8000-000000000001",
+    }
     assert seen == [("Show my tasks.", "alice")]
 
 
@@ -226,7 +235,7 @@ def test_browser_api_resolves_identity_for_each_request():
     seen: list[str] = []
     app = BrowserApp(
         lambda: next(principals),
-        lambda _utterance, current: seen.append(current.id) or "answer",
+        lambda _utterance, current, _correlation_id: seen.append(current.id) or "answer",
         lambda current: {"nodes": [{"id": current.id, "label": current.id}]},
     )
 
@@ -246,6 +255,56 @@ def test_browser_api_rejects_unavailable_identity():
     status, _, payload = app.dispatch("GET", "/api/constellation")
     assert status == 401
     assert json.loads(payload) == {"error": "identity unavailable"}
+
+
+def test_browser_reuses_correlation_id_for_retry_safe_delivery():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    seen: list[str] = []
+    app = BrowserApp(
+        principal,
+        lambda _utterance, _principal, correlation_id: (
+            seen.append(str(correlation_id)) or {"message": "completed", "state": "completed"}
+        ),
+        lambda _: {"nodes": []},
+    )
+    body = (
+        b'{"utterance":"Add rice to groceries.",'
+        b'"correlation_id":"00000000-0000-4000-8000-000000000007"}'
+    )
+
+    first_status, _, first_payload = app.dispatch("POST", "/api/message", body)
+    second_status, _, second_payload = app.dispatch("POST", "/api/message", body)
+
+    assert first_status == second_status == 200
+    assert seen == [
+        "00000000-0000-4000-8000-000000000007",
+        "00000000-0000-4000-8000-000000000007",
+    ]
+    assert (
+        json.loads(first_payload)["correlation_id"] == json.loads(second_payload)["correlation_id"]
+    )
+
+
+def test_browser_rejects_malformed_correlation_id_before_core():
+    called = False
+
+    def interaction(*_args):
+        nonlocal called
+        called = True
+        return "unreachable"
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+        interaction,
+        lambda _: {"nodes": []},
+    )
+    status, _, payload = app.dispatch(
+        "POST", "/api/message", b'{"utterance":"show tasks","correlation_id":"bad"}'
+    )
+
+    assert status == 400
+    assert "badly formed" in json.loads(payload)["error"]
+    assert called is False
 
 
 def test_browser_health_uses_structured_readiness_without_identity():
