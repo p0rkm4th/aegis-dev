@@ -11,6 +11,10 @@ The canonical production database is PostgreSQL. Apply migrations in filename
 order; the current schema starts at `migrations/001_initial.sql`. Do not use a
 destructive recreate as an upgrade path.
 
+For PostgreSQL canonical state, use `aegis.backup.backup_postgres` and
+`restore_postgres` with `pg_dump`/`pg_restore` from the same major version as
+the server. The acceptance runtime uses PostgreSQL 16.15 tooling; mismatched
+newer clients can emit restore directives unsupported by the pinned server.
 For local SQLite rehearsal state, use `aegis.backup.backup_sqlite` and
 `restore_sqlite`, then run the integrity check and the validation suite. Keep
 backup destinations protected like the source database because canonical state

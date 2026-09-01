@@ -110,7 +110,7 @@
     "PostgreSQL backup/restore requires client tools compatible with the pinned server: host PostgreSQL 18 tools cannot restore a dump to PostgreSQL 16; pinned container PostgreSQL 16 pg_dump/pg_restore round-trip is green",
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed",
-    "consequential Homelab/HA action acceptance remains unperformed",
+    "Home Assistant/device live acceptance remains unperformed",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance"
   ],
   "blocked_lanes": [
@@ -161,7 +161,7 @@
     "postgresql": "green: pgvector/pgvector:pg16, PostgreSQL 16.15 with pgvector 0.8.6, localhost 127.0.0.1:55432, persistent volume aegis_acceptance_pgdata, migrations applied; PostgresObjectiveStore result/state survived AEGIS and PostgreSQL restart and replay did not duplicate grocery mutation",
     "openclaw": "health, paired-device authentication, terminal.open, terminal.input, terminal.data, terminal.close, system-event, and independent external readback green through AEGIS transport",
     "openclaw_external_proof": "command dispatched through paired AEGIS WebSocket; terminal.data contained the command; independent read of /tmp/aegis-openclaw-external-proof returned AEGIS_GATEWAY_EXEC_OK",
-    "live_grocery_vertical_slice": "green: scripts/live_vertical_slice.py ran with Ollama qwen3:8b, PostgreSQL 16.4 after container restart, and paired OpenClaw 2026.8.1; first and replay Results completed with same objective/result and matching_external_records=1",
+    "live_grocery_vertical_slice": "green: scripts/live_vertical_slice.py ran with Ollama qwen3:8b, PostgreSQL 16.15 after container restart, and paired OpenClaw 2026.8.1; first and replay Results completed with same objective/result and matching_external_records=1",
     "live_grocery_correlation_id": "4fd15a56-1622-42e9-8f30-58acc467fa76",
     "live_grocery_objective_id": "62b33f88-a67f-4e87-ad2d-7c7a07f5da26",
     "live_grocery_interrupted_recovery": "green: correlation 7f5e7a10-ec5b-4a7e-b653-1212b4e0f4c0 dispatched through real OpenClaw, simulated process failure occurred before Result persistence, fresh Core/PostgreSQL process recovered it, persisted Result matched, and external record count was 1",
