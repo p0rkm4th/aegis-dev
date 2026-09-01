@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-owner-dogfood-cross-domain-planning-live-green",
+  "current_checkpoint": "phase-12-owner-dogfood-relevant-memory-planning-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "932eaaa2a7388547d0da348471fcec8425494796",
-  "last_green_sha": "932eaaa2a7388547d0da348471fcec8425494796",
-  "last_pushed_sha": "932eaaa2a7388547d0da348471fcec8425494796",
+  "head_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
+  "last_green_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
+  "last_pushed_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "932eaaa2a7388547d0da348471fcec8425494796",
-    "last_known_green_sha": "932eaaa2a7388547d0da348471fcec8425494796",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/932eaaa",
+    "running_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
+    "last_known_green_sha": "b23289a3afb80d5ba3576b1d655df43838e57365",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/b23289a",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -237,6 +237,7 @@
     ,"Personal Memory to Tasks composition grounds an explicit task request in a unique current Vault memory and clarifies on equal matches"
     ,"Personal Memory to Household Chores composition grounds an explicit shared chore request in a unique current Vault memory while preserving Space authorization and independent verification"
     ,"Cross-domain planning recognizes plural Utilities alongside Personal and Tasks context"
+    ,"Cross-domain planning adds only highest-overlap current Personal memories to bounded model context and preserves provenance"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -550,6 +551,10 @@
     "cross_domain_utilities_regression": "green deterministic: plural Utilities is recognized as shared Household context when planning with Personal and Tasks terms",
     "cross_domain_utilities_live": "green live: source/runtime Qwen3:8B correlation dddddddd-dddd-4ddd-8ddd-dddddddddddd returned completed bounded planning with personal_vault, household_space, and tasks_space sources",
     "owner_dogfood_cross_domain_live": "green live: authenticated owner browser correlation eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee completed the same canonical cross-domain planning request after promotion to 932eaaa; health/readiness remained green",
+    "cross_domain_memory_relevance_regression": "green deterministic: cross-domain planning excludes weak memory matches, retains highest-overlap ties, excludes superseded records, and keeps Vault provenance",
+    "cross_domain_memory_relevance_live": "green live: source/runtime Qwen3:8B correlation 11111111-1111-4111-8111-111111111111 returned completed planning with one highest-overlap server/backup memory and authorized Household/Tasks sources",
+    "owner_dogfood_memory_relevance_live": "green live: authenticated owner browser correlation 22222222-2222-4222-8222-222222222222 completed cross-domain planning after promotion to b23289a; owner health/readiness remained green",
+    "owner_dogfood_running_checkpoint": "b23289a3afb80d5ba3576b1d655df43838e57365; installed release /home/scootz/.local/share/aegis-owner/releases/b23289a; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
