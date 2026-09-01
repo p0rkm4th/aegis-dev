@@ -139,6 +139,13 @@ def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
             "correlation_id": str(correlation_id),
         }
     ]
+    assert context.values["referents"] == {
+        "those": {
+            "source": "canonical_facts",
+            "fact_key": "canonical_items",
+            "candidates": ["rice"],
+        }
+    }
     assert context.sources == ("authorized_canonical_result",)
 
 
