@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-readiness-model-diagnostic-green",
   "active_branch": "aegis-dev",
-  "head_sha": "1a2360bf582c7491cc31ef084e0b2550e80721a5",
-  "last_green_sha": "1a2360bf582c7491cc31ef084e0b2550e80721a5",
-  "last_pushed_sha": "1a2360bf582c7491cc31ef084e0b2550e80721a5",
+  "head_sha": "e786954811a903dcfa18df5e2bb6280a6e920700",
+  "last_green_sha": "e786954811a903dcfa18df5e2bb6280a6e920700",
+  "last_pushed_sha": "e786954811a903dcfa18df5e2bb6280a6e920700",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -119,6 +119,7 @@
     ,"browser clears all authorized display state on identity or authorization loss"
     ,"browser and interaction personal reads enforce canonical Vault ownership"
     ,"denied personal reads produce stable fail-closed CLI errors without tracebacks"
+    ,"browser interaction requests reject undocumented fields before Core"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -138,8 +139,8 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh; python -m aegis.cli --help",
     "status": "PASS",
-    "pytest": "135 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
-    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
+    "pytest": "136 passed; ruff check passed; ruff format check passed; mypy passed (37 source files); migration validation passed",
+    "known_gate_note": "Browser correlation UUID propagation, retry reuse, malformed UUID rejection, transcript, in-flight guard, Core-status display, deterministic task reads, --once --json, non-completed status codes, stable one-shot JSON errors, denied-request handling, strict browser request envelopes, no-store transport headers, authorized detail projections, bounded semantic graph projections, generic accessible detail rendering, structured health-provider failure handling, structured error codes, failure-aware timeout/retry behavior, port validation, startup failure reporting, refresh control, auth-loss state clearing, strict projection validation, strict interaction envelopes, bounded canonical detail visibility, configured Ollama model readiness validation, and canonical Vault-owner checks are covered"
   },
     "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -270,6 +271,7 @@
         "personal_vault_owner_boundary": "green deterministic: the personal PostgreSQL store's authorized load path requires a vaults row matching both the claimed Vault ID and principal owner; mismatched owner access raises PermissionError before personal rows are read, and CLI/Constellation reads use that path",
         "personal_vault_owner_live": "green live read-only probe: PostgreSQL principal bob-live-probe claiming alice-vault was denied with personal Vault access denied before any personal rows were loaded; transaction was rolled back",
         "denied_cli_failure_boundary": "green deterministic: a PermissionError from the personal authorization path is converted to request_denied in one-shot JSON or concise human denial in interactive mode; no traceback or internal denial detail crosses the client boundary",
+        "browser_request_contract": "green deterministic: undocumented browser request fields return invalid_request before the interaction callback executes, preserving the strict machine-facing boundary",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
