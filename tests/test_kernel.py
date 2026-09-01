@@ -2938,6 +2938,50 @@ def test_task_executor_and_verifier_use_generic_observation_contract():
     assert verification.evidence["canonical_status"] == TaskStatus.OPEN.value
 
 
+def test_task_executor_and_verifier_preserve_due_at():
+    class Store:
+        def __init__(self):
+            self.task = None
+
+        def create(self, principal, title, due_at=None, idempotency_key=None):
+            self.task = Task(
+                uuid4(),
+                "apartment",
+                title,
+                principal.id,
+                due_at=due_at,
+                idempotency_key=idempotency_key or "",
+            )
+            return self.task
+
+        def get(self, _principal, task_id):
+            return self.task if self.task and self.task.task_id == task_id else None
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    due_at = datetime(2026, 9, 2, 22, 0, tzinfo=timezone.utc)
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.create",
+            arguments={"title": "Review the restore drill", "due_at": due_at.isoformat()},
+            verification=VerificationContract(kind="readback"),
+        ),
+        idempotency_key="correlation:tasks.create.due",
+    )
+    store = Store()
+
+    observation = PostgresTaskExecutor(store, principal).execute(request)
+    verification = PostgresTaskVerifier(store, principal).verify(
+        observation, request.action.verification
+    )
+
+    assert observation.command_succeeded
+    assert observation.evidence["due_at"] == due_at.isoformat()
+    assert verification.verified
+
+
 def test_task_completion_executor_resolves_unique_title_and_verifies_status():
     class Store:
         def __init__(self):
