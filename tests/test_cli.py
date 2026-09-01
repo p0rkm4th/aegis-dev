@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
@@ -654,6 +655,50 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
         "Network",
         "Tasks",
     ]
+
+
+def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):
+    from aegis import cli
+    from aegis.network import HomelabInventory
+    from aegis.personal import PersonalState, Project
+
+    class Connection:
+        def close(self):
+            pass
+
+    project = Project(uuid4(), "Private project", datetime(2026, 1, 1))
+    task = Task(uuid4(), "apartment", "Private task", "alice")
+    personal = PersonalState(projects={project.project_id: project})
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    monkeypatch.setattr(
+        cli.PostgresHouseholdStore,
+        "read_snapshot",
+        lambda _store, _principal: {"groceries": ()},
+    )
+    monkeypatch.setattr(cli.PostgresTaskStore, "list", lambda _store, _principal: (task,))
+    monkeypatch.setattr(cli.PostgresPackStore, "load", lambda _store: ())
+    monkeypatch.setattr(cli.PostgresPersonalStateStore, "load", lambda _store: personal)
+    monkeypatch.setattr(cli.PostgresFinanceSnapshotStore, "load", lambda _store, _owner: None)
+    monkeypatch.setattr(
+        cli.PostgresNetworkStore, "load", lambda _store, _principal: HomelabInventory()
+    )
+    monkeypatch.setattr(
+        cli.PostgresHomelabStore,
+        "load",
+        lambda _store, _principal, _runtime: type("Pack", (), {"hosts": {}, "services": {}})(),
+    )
+
+    state = cli._constellation_state(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    )
+    node_ids = {node["id"] for node in state["nodes"]}
+
+    assert f"project-{project.project_id}" not in node_ids
+    assert f"task-{task.task_id}" not in node_ids
+    assert state["details"]["domain-personal"]["projects"][0]["name"] == "Private project"
+    assert state["details"]["pack-tasks"]["tasks"][0]["title"] == "Private task"
 
 
 def _deny() -> dict[str, object]:
