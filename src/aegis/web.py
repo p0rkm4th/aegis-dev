@@ -34,11 +34,13 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 placeholder="Ask AEGIS..."><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><div id="detail" class="muted"></div>
 <h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
+<p><button id="refresh" type="button">Refresh state</button></p>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
+const refresh = document.getElementById('refresh');
 let pendingCorrelationId = null;
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable'
@@ -80,10 +82,20 @@ async function loadState() {
     return item;
   }));
 }
-loadHealth().catch(() => {
+async function refreshState() {
+  refresh.disabled = true;
+  try {
+    await Promise.all([loadHealth(), loadState()]);
+  } catch (error) {
+    nodes.textContent = error.message;
+  } finally {
+    refresh.disabled = false;
+  }
+}
+refresh.addEventListener('click', refreshState);
+refreshState().catch(() => {
   document.getElementById('health').textContent = 'Runtime status unavailable.';
 });
-loadState().catch(error => { nodes.textContent = error.message; });
 document.getElementById('chat').addEventListener('submit', async event => {
   event.preventDefault(); const input = document.getElementById('utterance');
   const send = event.currentTarget.querySelector('button');
