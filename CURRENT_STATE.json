@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 1,
-  "current_checkpoint": "durable-tasks-pack-state-green",
+  "current_checkpoint": "tasks-generic-pipeline-replay-green",
   "active_branch": "aegis-dev",
-  "head_sha": "b93e657",
-  "last_green_sha": "b93e657",
-  "last_pushed_sha": "b93e657",
+  "head_sha": "f2d8983",
+  "last_green_sha": "f2d8983",
+  "last_pushed_sha": "f2d8983",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -52,7 +52,8 @@
     "Owner-partitioned PostgreSQL FinanceSnapshot store with durable provider provenance and private read enforcement",
     "Keycloak OIDC userinfo bearer-token adapter to validated canonical Principal",
     "Durable authorized household finance projections with raw private fields excluded",
-    "Durable Tasks Pack create/complete state with Space membership and assignee enforcement"
+    "Durable Tasks Pack create/complete state with Space membership and assignee enforcement",
+    "Generic Tasks Executor/Verifier adapters with PostgreSQL idempotency binding and live Qwen replay"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -72,7 +73,7 @@
   "most_recent_tests": {
     "command": "pytest + ruff check/format + mypy",
     "status": "PASS",
-    "pytest": "74 passed"
+    "pytest": "75 passed"
   },
   "known_failures": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -86,7 +87,7 @@
   "security_status": "model is untrusted; policy and verification are external",
   "provenance_license_status": "Hades clean-room; original Core rights-reserved; ledger present",
   "current_model_baseline": "Ollama qwen3:8b live decision accepted through OllamaHttpTransport, OllamaProvider, and StrictDecisionDecoder; digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
-  "database_migration_version": "001_initial.sql through 008_tasks.sql applied to disposable PostgreSQL 16.4 container; objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, and Tasks persistence green",
+  "database_migration_version": "001_initial.sql through 009_task_idempotency.sql applied to disposable PostgreSQL 16.4 container; objective/action/result, audit, Pack, personal-state, shared household, private finance, authorized projection, and replay-safe Tasks persistence green",
   "openclaw_compatibility": {
     "root_cli_gateway_release": "2026.8.1 (ea806575e645)",
     "gateway_client_package": "2026.8.1",
@@ -145,11 +146,12 @@
     "keycloak_userinfo_adapter": "green: disposable Keycloak bearer token reached userinfo with AEGIS Vault/Space protocol-mapped claims; KeycloakOIDCClient produced the expected canonical Principal and rejected missing claims",
     "household_projection": "green: live authorized FinanceLedger-to-PrivacyProjectionService path persisted allowlisted household output; fresh connection reloaded it for Bob, denied a non-member, and raw balance/transaction fields were absent",
     "tasks_pack_state": "green: live PostgreSQL Tasks create/complete state reloaded across fresh connections; non-member listing and inactive-assignee assignment were denied",
+    "tasks_generic_pipeline": "green: live Qwen3:8B tasks.create completed through Core policy, PostgresTaskExecutor, PostgresTaskVerifier, and PostgreSQL canonical readback; fresh-process replay returned the same Result and one task row remained for the key",
     "adversarial_acceptance": "green: existing deterministic tests cover malformed model output, invented action, semantic denial, runtime denial, execution failure, verification failure, disconnect unknown outcome, cancellation, and replay; duplicate external records are rejected; live crash-before-Result recovery is green",
     "openclaw_pairing_request_id": "17834457-5b7e-456d-97bf-043b7440dd99",
     "openclaw_device_id": "426b10327c8f0cd575e7141ff0a5ccd8b8d77197c525820b8788dd807ad633f8",
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Keep nominal phase gates unchanged. Continue existing Pack/domain integration behind existing ports; next wire the durable Tasks state into the generic action pipeline, then stop before unrelated domains or Phase-12 work."
+  "next_action": "Keep nominal phase gates unchanged. Continue existing Pack/domain integration behind existing ports; next close the smallest remaining Kitchen canonical-state integration gap, then stop before unrelated domains or Phase-12 work."
 }
