@@ -11,6 +11,7 @@ import sqlite3
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
+from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
 from pathlib import Path
 from typing import Any, cast
@@ -64,6 +65,13 @@ def _required(name: str) -> str:
     if not value:
         raise RuntimeError(f"missing required environment variable: {name}")
     return value
+
+
+def _distribution_version() -> str:
+    try:
+        return version("aegis-core")
+    except PackageNotFoundError:
+        return "source-checkout"
 
 
 def _load_env_file(path: str) -> None:
@@ -715,6 +723,12 @@ def main() -> int:
             "All state-changing requests still require the normal Core policy "
             "and verification gates."
         ),
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {_distribution_version()}",
+        help="show the installed AEGIS package version and exit",
     )
     parser.add_argument(
         "--once",

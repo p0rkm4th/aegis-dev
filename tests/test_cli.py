@@ -116,6 +116,17 @@ def test_cli_help_is_available_without_runtime_configuration(monkeypatch, capsys
     assert "--init" in output
 
 
+def test_cli_version_is_available_without_runtime_configuration(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.setattr("sys.argv", ["aegis", "--version"])
+    with pytest.raises(SystemExit) as raised:
+        cli.main()
+
+    assert raised.value.code == 0
+    assert capsys.readouterr().out.startswith("aegis ")
+
+
 def test_cli_init_creates_private_non_overwriting_template(monkeypatch, capsys, tmp_path):
     from aegis import cli
 
