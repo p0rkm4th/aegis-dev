@@ -249,5 +249,36 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
     assert payload["objective_id"] == str(result.objective_id)
 
 
+def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
+    from aegis import cli
+
+    class Connection:
+        def close(self):
+            pass
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    monkeypatch.setattr(
+        cli.PostgresHouseholdStore,
+        "read_snapshot",
+        lambda _store, _principal: {"groceries": ()},
+    )
+    monkeypatch.setattr(cli.PostgresTaskStore, "list", lambda _store, _principal: ())
+    monkeypatch.setattr(cli.PostgresPackStore, "load", lambda _store: ())
+
+    state = cli._constellation_state(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    )
+
+    assert [node["label"] for node in state["nodes"][:5]] == [
+        "AEGIS",
+        "Homelab",
+        "Kitchen",
+        "Network",
+        "Tasks",
+    ]
+
+
 def _deny() -> dict[str, object]:
     raise PermissionError("revoked")
