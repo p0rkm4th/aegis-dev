@@ -117,6 +117,7 @@ class Kernel:
             update={"action": decision.action, "state": ObjectiveState.VALIDATED}
         )
         self.objectives[objective.id] = objective
+        self.store.save_objective(objective)
         policy = self.policy.authorize(
             AuthorizationRequest(
                 principal=intent.principal, objective_id=objective.id, action=decision.action
@@ -126,6 +127,7 @@ class Kernel:
             self.objectives[objective.id] = objective.model_copy(
                 update={"state": ObjectiveState.BLOCKED}
             )
+            self.store.save_objective(self.objectives[objective.id])
             self.audit.append(
                 "policy.denied",
                 intent.principal.id,
@@ -139,6 +141,10 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
         if policy.approval_required:
+            self.objectives[objective.id] = objective.model_copy(
+                update={"state": ObjectiveState.APPROVAL_REQUIRED}
+            )
+            self.store.save_objective(self.objectives[objective.id])
             self.audit.append(
                 "approval.required",
                 intent.principal.id,
@@ -185,6 +191,7 @@ class Kernel:
         self.objectives[objective.id] = objective.model_copy(
             update={"state": ObjectiveState.OBSERVED}
         )
+        self.store.save_objective(self.objectives[objective.id])
         self.audit.append(
             "action.observed",
             intent.principal.id,
@@ -216,6 +223,7 @@ class Kernel:
         verified = self.verifier.verify(observation, decision.action.verification)
         state = ObjectiveState.COMPLETED if verified.verified else ObjectiveState.FAILED
         self.objectives[objective.id] = objective.model_copy(update={"state": state})
+        self.store.save_objective(self.objectives[objective.id])
         result = Result(
             objective_id=objective.id,
             state=state,

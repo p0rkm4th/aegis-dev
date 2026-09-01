@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from typing import Protocol
 from uuid import UUID
 
-from .contracts import Objective, Result
+from .contracts import Objective, ObjectiveState, Result
 
 
 class ObjectiveStore(Protocol):
@@ -14,6 +15,16 @@ class ObjectiveStore(Protocol):
     def get_objective(self, objective_id: UUID) -> Objective | None: ...
     def save_result(self, key: str, result: Result) -> None: ...
     def get_result(self, key: str) -> Result | None: ...
+
+
+class PostgresCursor(Protocol):
+    def fetchone(self) -> tuple[object, ...] | None: ...
+
+
+class PostgresConnection(Protocol):
+    def execute(self, query: str, params: tuple[object, ...] = ()) -> PostgresCursor: ...
+
+    def commit(self) -> None: ...
 
 
 class InMemoryObjectiveStore:
@@ -75,3 +86,78 @@ class SqliteObjectiveStore:
 
     def close(self) -> None:
         self.connection.close()
+
+
+class PostgresObjectiveStore:
+    """PostgreSQL implementation of the canonical ObjectiveStore port."""
+
+    def __init__(self, connection: PostgresConnection) -> None:
+        self.connection = connection
+
+    def save_objective(self, objective: Objective) -> None:
+        self.connection.execute(
+            """INSERT INTO objectives (id, principal_id, vault_id, space_id, state, payload)
+               VALUES (%s, %s, %s, %s, %s, %s)
+               ON CONFLICT (id) DO UPDATE SET state = EXCLUDED.state,
+                   payload = EXCLUDED.payload, updated_at = now()""",
+            (
+                str(objective.id),
+                objective.intent.principal.id,
+                objective.intent.principal.vault_id,
+                objective.intent.principal.space_ids[0]
+                if objective.intent.principal.space_ids
+                else None,
+                objective.state.value,
+                objective.model_dump_json(),
+            ),
+        )
+        self.connection.commit()
+
+    def get_objective(self, objective_id: UUID) -> Objective | None:
+        cursor = self.connection.execute(
+            "SELECT payload FROM objectives WHERE id = %s", (str(objective_id),)
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        payload = row[0]
+        return (
+            Objective.model_validate(payload)
+            if isinstance(payload, dict)
+            else Objective.model_validate_json(str(payload))
+        )
+
+    def save_result(self, key: str, result: Result) -> None:
+        self.connection.execute(
+            """INSERT INTO results
+               (id, objective_id, idempotency_key, state, evidence, message)
+               VALUES (%s, %s, %s, %s, %s, %s)
+               ON CONFLICT (idempotency_key) DO UPDATE SET state = EXCLUDED.state,
+                   evidence = EXCLUDED.evidence, message = EXCLUDED.message""",
+            (
+                str(result.correlation_id),
+                str(result.objective_id),
+                key,
+                result.state.value,
+                json.dumps(result.evidence, sort_keys=True),
+                result.message,
+            ),
+        )
+        self.connection.commit()
+
+    def get_result(self, key: str) -> Result | None:
+        cursor = self.connection.execute(
+            "SELECT id, objective_id, state, evidence, message "
+            "FROM results WHERE idempotency_key = %s",
+            (key,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return Result(
+            objective_id=UUID(str(row[1])),
+            state=ObjectiveState(str(row[2])),
+            evidence=row[3] if isinstance(row[3], dict) else json.loads(str(row[3])),
+            message=str(row[4]),
+            correlation_id=UUID(str(row[0])),
+        )
