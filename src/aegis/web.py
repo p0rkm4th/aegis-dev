@@ -13,6 +13,7 @@ from .contracts import Principal
 
 Interaction = Callable[[str, Principal], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
+PrincipalProvider = Callable[[], Principal]
 
 
 _INDEX_HTML = """<!doctype html>
@@ -73,9 +74,12 @@ class BrowserApp:
     """HTTP presentation adapter; callbacks retain semantic and state ownership."""
 
     def __init__(
-        self, principal: Principal, interaction: Interaction, state: ConstellationState
+        self,
+        principal: Principal | PrincipalProvider,
+        interaction: Interaction,
+        state: ConstellationState,
     ) -> None:
-        self.principal = principal
+        self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
         self.state = state
 
@@ -83,9 +87,16 @@ class BrowserApp:
         route = urlparse(path).path
         if method == "GET" and route == "/":
             return HTTPStatus.OK, "text/html; charset=utf-8", _INDEX_HTML.encode()
+        if route.startswith("/api/"):
+            try:
+                principal = self.principal_provider()
+            except (OSError, RuntimeError, ValueError, PermissionError):
+                return self._json(HTTPStatus.UNAUTHORIZED, {"error": "identity unavailable"})
+        else:
+            return self._json(HTTPStatus.NOT_FOUND, {"error": "route not found"})
         if method == "GET" and route == "/api/constellation":
             try:
-                state = self.state(self.principal)
+                state = self.state(principal)
             except PermissionError:
                 return self._json(HTTPStatus.FORBIDDEN, {"error": "state access denied"})
             except (OSError, RuntimeError):
@@ -97,7 +108,7 @@ class BrowserApp:
                 utterance = payload["utterance"]
                 if not isinstance(utterance, str) or not utterance.strip():
                     raise ValueError("utterance must be a non-empty string")
-                message = self.interaction(utterance, self.principal)
+                message = self.interaction(utterance, principal)
             except (ValueError, KeyError, json.JSONDecodeError) as exc:
                 return self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
             except PermissionError:
@@ -115,7 +126,11 @@ class BrowserApp:
 
 
 def serve(
-    host: str, port: int, principal: Principal, interaction: Interaction, state: ConstellationState
+    host: str,
+    port: int,
+    principal: Principal | PrincipalProvider,
+    interaction: Interaction,
+    state: ConstellationState,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
