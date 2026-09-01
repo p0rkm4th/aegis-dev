@@ -128,6 +128,7 @@
     ,"browser bootstrap hides database exception details and points operators to readiness diagnostics"
     ,"browser message authorization loss clears stale authorized displays and retry identity"
     ,"CLI one-shot and interactive service failures are contained with credential-safe remediation"
+    ,"root README provides install, readiness, browser, and canonical Result quickstart"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -293,6 +294,7 @@
         "browser_message_auth_loss_cleanup": "green deterministic boundary: message responses carrying identity_unavailable or state_access_denied clear graph, detail, answer, transcript, and pending correlation state, display a safe authorization-loss status, and do not offer a stale-identity retry",
         "browser_process_restart_live": "green live: a real loopback browser server returned an authorized 10-node/9-edge projection, was stopped, restarted as a fresh AEGIS process, and returned the same canonical projection; no browser process memory was required for state recovery",
         "cli_service_failure_boundary": "green live: one-shot CLI with an unreachable PostgreSQL URL containing a private credential returned only request-unavailable readiness remediation, without the credential or traceback; deterministic coverage also contains the interactive path",
+        "root_quickstart_smoke": "green: root README quickstart commands align with the checked-in launcher and env template; scripts/smoke_install.sh built and installed the package into a clean target and migration endpoint validation passed",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -320,5 +322,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, and fresh-process projection recovery are green, while Qwen task mutation/replay is green against 172.18.0.1:11434. Next executable frontier: browser refresh/interruption recovery or configuration/bootstrap simplification; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and restart/revocation dogfood; actionable Ollama diagnostics, browser/CLI service-exception containment, live browser revocation denial, occupied-port remediation, credential-safe bootstrap failures, message-time authorization cleanup, fresh-process projection recovery, and the root install quickstart are green, while Qwen task mutation/replay is green against 172.18.0.1:11434. Next executable frontier: browser refresh/interruption recovery or configuration/bootstrap simplification; Home Assistant/mobile/voice remain lane-limited."
 }
