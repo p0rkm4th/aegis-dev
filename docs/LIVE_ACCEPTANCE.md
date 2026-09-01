@@ -187,6 +187,15 @@ and an independent PostgreSQL verifier. A fresh process replay returned the
 same canonical Result and left exactly one task row for the correlation key.
 Changed arguments under an existing key are rejected.
 
+The Kitchen runner now also bridges the OpenClaw mutation into canonical
+`HouseholdSpace` state. The household payload records the grocery idempotency
+key, so a replay cannot append a second canonical item. The verifier requires
+both the external record and the PostgreSQL canonical mutation before returning
+success. On 2026-08-31, correlation
+`26aa85c9-254c-4276-821c-44c81882096a` completed this path with one external
+record and `canonical_grocery_verified=true`; the fresh-process replay returned
+the same verified Result.
+
 The live runner also uses `PostgresAuditLog`. After migration
 `002_audit_hash_chain.sql`, a fresh process loaded the persisted objective
 creation, action observation, and result events; the audit chain contained four
