@@ -117,6 +117,8 @@ service outage and labels the affected health or state surface independently.
 Identity failure or authorization denial clears the displayed nodes and
 relationships immediately; stale private state is never retained across a
 failed authorization refresh.
+Health and state refresh requests have a bounded client timeout so a stalled
+local service cannot leave the Refresh control disabled indefinitely.
 
 Each browser message carries a UUID correlation ID. If transport fails, the
 Retry action resubmits that same ID; Core can therefore reuse its durable

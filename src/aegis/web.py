@@ -82,6 +82,7 @@ const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 const refresh = document.getElementById('refresh');
 const messageTimeoutMs = 120000;
+const refreshRequestTimeoutMs = 10000;
 const pendingStorageKey = 'aegis.pending-request';
 const recoveryPollMs = 5000;
 const recoveryRequestTimeoutMs = 10000;
@@ -172,7 +173,7 @@ async function recoverPendingRequest() {
   }
 }
 async function loadHealth() {
-  const response = await fetch('/api/health'); const report = await response.json();
+  const response = await fetchWithTimeout('/api/health'); const report = await response.json();
   if (!response.ok) {
     const error = new Error(report.error || 'Runtime status unavailable.');
     error.code = report.code || 'health_unavailable'; throw error;
@@ -226,8 +227,18 @@ function clearAuthorizedDisplays() {
   recoveryPollAttempts = 0;
   clearPendingRequest();
 }
+async function fetchWithTimeout(resource, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), refreshRequestTimeoutMs);
+  try {
+    return await fetch(resource, {...options, signal: controller.signal});
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 async function loadState() {
-  const response = await fetch('/api/constellation'); const state = await response.json();
+  const response = await fetchWithTimeout('/api/constellation');
+  const state = await response.json();
   if (!response.ok) {
     const error = new Error(state.error || 'State is unavailable.');
     error.code = state.code || 'state_unavailable'; throw error;
