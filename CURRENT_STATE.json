@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-owner-durable-task-chore-continuation-live-green",
+  "current_checkpoint": "phase-12-owner-temporal-task-event-continuation-live-green",
   "active_branch": "aegis-dev",
-  "head_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
-  "last_green_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
-  "last_pushed_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
+  "head_sha": "a696695e40f0fec79dfd07672fa7eed0a5787dcb",
+  "last_green_sha": "a696695e40f0fec79dfd07672fa7eed0a5787dcb",
+  "last_pushed_sha": "a696695e40f0fec79dfd07672fa7eed0a5787dcb",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -22,9 +22,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
-    "last_known_green_sha": "a3fd63445e44c5cc646557be45806b43604c9eb9",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/a3fd634",
+    "running_sha": "a696695e40f0fec79dfd07672fa7eed0a5787dcb",
+    "last_known_green_sha": "a696695e40f0fec79dfd07672fa7eed0a5787dcb",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/a696695",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -240,6 +240,7 @@
     ,"Cross-domain planning adds only highest-overlap current Personal memories to bounded model context and preserves provenance"
     ,"Core supports bounded durable action sequences with exact parent plan persistence, per-step authorization/verification, stable child correlation keys, and no duplicate replay"
     ,"InteractionBoundary admits only the bounded existing task-plus-chore compound form and resumes persisted plans by authorized correlation before natural-language fast paths"
+    ,"InteractionBoundary extends bounded continuation to task-plus-temporal-event plans while keeping other compound forms blocked"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -560,7 +561,11 @@
     "compound_task_chore_live": "green live: authenticated owner browser request correlation 56565656-5656-4565-8565-565656565656 completed a bounded task-plus-chore plan as objective 4c63fefc-75c6-408c-b388-3029c5f9fc07; both steps returned canonical verified results",
     "compound_task_chore_restart_replay_live": "green live: after owner service restart, different wording with the same correlation returned the same objective and completed aggregate without duplicate task/chore execution",
     "compound_task_chore_recovery_regression": "green deterministic: persisted plan lookup precedes read fast paths, exact action sequence is correlation-bound, child observations recover their action IDs from PostgreSQL action payloads, and unbounded compounds remain blocked",
-    "owner_dogfood_running_checkpoint": "a3fd63445e44c5cc646557be45806b43604c9eb9; installed release /home/scootz/.local/share/aegis-owner/releases/a3fd634; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
+    "owner_dogfood_running_checkpoint": "a696695e40f0fec79dfd07672fa7eed0a5787dcb; installed release /home/scootz/.local/share/aegis-owner/releases/a696695; provider ollama, model qwen3:8b, endpoint http://172.18.0.1:11434",
+    "compound_task_event_regression": "green deterministic: task-plus-event extraction applies the existing tomorrow temporal rule, uses separate canonical event verification, persists exact step actions, and leaves unbounded compounds blocked",
+    "compound_task_event_live": "green live: source/runtime PostgreSQL request correlation 67676767-6767-4676-8676-676767676767 completed task and temporal event steps with canonical readback evidence",
+    "owner_dogfood_task_event_live": "green live: authenticated owner browser correlation 78787878-7878-4787-8787-787878787878 completed objective b3ba2821-cba0-4287-8463-b6b672cbcae1 as a verified task-plus-event plan after promotion to a696695",
+    "owner_dogfood_task_event_replay_live": "green live: after owner service restart, different wording with the same correlation returned the same objective and completed aggregate without duplicate task/event execution",
     "frontier_shift": "browser/shared boundary paths are established; routine browser polish is retired from the active frontier. Next dogfood targets multi-step objectives, continuation, interruption/restart, stale or conflicting canonical state, and authorization changes during execution. Home Assistant/mobile/voice remain lane-limited."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
