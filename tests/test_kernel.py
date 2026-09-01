@@ -698,7 +698,9 @@ def test_failed_postcondition_is_failed():
         Executor(),
         Verifier(False),
     )
-    assert k.run(intent()).state.value == "failed"
+    result = k.run(intent())
+    assert result.state.value == "failed"
+    assert result.retryable is True
 
 
 def test_executor_exception_is_persisted_as_unknown_and_not_replayed():
