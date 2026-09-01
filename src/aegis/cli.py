@@ -211,6 +211,16 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         connection.close()
 
 
+def _browser_interaction(utterance: str, principal: Principal) -> dict[str, str]:
+    result = _run_interaction(utterance, principal)
+    return {
+        "message": _format(result),
+        "state": result.state.value,
+        "objective_id": str(result.objective_id),
+        "correlation_id": str(result.correlation_id),
+    }
+
+
 def _principal() -> Principal:
     token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
     if token:
@@ -431,7 +441,7 @@ def _format(result: Any) -> str:
     return f"Done — {result.message}"
 
 
-def handle(utterance: str, principal: Principal) -> str:
+def _run_interaction(utterance: str, principal: Principal) -> Any:
     connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
     channel: OpenClawWebSocketChannel | None = None
     try:
@@ -465,13 +475,13 @@ def handle(utterance: str, principal: Principal) -> str:
                         "affordable": finance_result.evidence["affordable"],
                     },
                 )
-                return _format(finance_result)
+                return finance_result
         if HouseholdReadFastPath.matches(utterance):
             household_result = HouseholdReadFastPath(
                 household_store.read_snapshot(principal)
             ).resolve(intent)
             if household_result is not None:
-                return _format(household_result)
+                return household_result
         personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load()
         semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
             "1",
@@ -502,7 +512,7 @@ def handle(utterance: str, principal: Principal) -> str:
             memory_fast_path = PersonalMemoryFastPath(personal_state)
         memory_result = memory_fast_path.resolve(intent)
         if memory_result is not None:
-            return _format(memory_result)
+            return memory_result
         manager = PackManager(store=PostgresPackStore(connection))
         for bundle in reference_bundles():
             try:
@@ -573,11 +583,17 @@ def handle(utterance: str, principal: Principal) -> str:
             audit=PostgresAuditLog(connection),
         )
         result = kernel.run(intent, (card,))
-        return _format(result)
+        return result
     finally:
         if channel is not None:
             channel.close()
         connection.close()
+
+
+def handle(utterance: str, principal: Principal) -> str:
+    """Preserve the human CLI presentation over the shared interaction result."""
+
+    return _format(_run_interaction(utterance, principal))
 
 
 def main() -> int:
@@ -631,7 +647,7 @@ def main() -> int:
         return 1
     if args.web:
         print(f"AEGIS Constellation available at http://{args.host}:{args.port}")
-        serve(args.host, args.port, principal, handle, _constellation_state)
+        serve(args.host, args.port, principal, _browser_interaction, _constellation_state)
         return 0
     if args.once is not None:
         try:

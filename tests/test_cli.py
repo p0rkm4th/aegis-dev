@@ -1,9 +1,10 @@
 import json
+from uuid import uuid4
 
 import pytest
 
 from aegis.cli import _domain_and_action, _ensure_local_identity
-from aegis.contracts import Principal
+from aegis.contracts import ObjectiveState, Principal, Result
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_packs
 from aegis.web import BrowserApp
@@ -213,6 +214,27 @@ def test_browser_app_fails_closed_when_state_is_not_authorized():
     status, _, payload = app.dispatch("GET", "/api/constellation")
     assert status == 403
     assert json.loads(payload) == {"error": "state access denied"}
+
+
+def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.BLOCKED,
+        message="authorization denied",
+        correlation_id=uuid4(),
+    )
+    monkeypatch.setattr(cli, "_run_interaction", lambda *_: result)
+
+    payload = cli._browser_interaction(
+        "Add rice to groceries.",
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+
+    assert payload["state"] == "blocked"
+    assert payload["message"] == "Not completed — authorization denied"
+    assert payload["objective_id"] == str(result.objective_id)
 
 
 def _deny() -> dict[str, object]:

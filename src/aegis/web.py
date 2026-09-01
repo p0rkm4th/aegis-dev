@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 from .contracts import Principal
 
-Interaction = Callable[[str, Principal], str]
+Interaction = Callable[[str, Principal], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 
 
@@ -26,17 +26,25 @@ form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padd
 <p class="muted">Canonical state and conversation from AEGIS Core.</p>
 <form id="chat"><input id="utterance" autocomplete="off"
 placeholder="Ask AEGIS..."><button>Send</button></form>
-<p id="answer" aria-live="polite"></p><main id="nodes"><p>Loading state…</p></main>
+<p id="answer" aria-live="polite"></p><p id="detail" class="muted"></p>
+<main id="nodes"><p>Loading state…</p></main>
 <script>
 const nodes = document.getElementById('nodes');
-fetch('/api/constellation').then(r => r.json()).then(state => {
+async function loadState() {
+  const response = await fetch('/api/constellation'); const state = await response.json();
+  if (!response.ok) throw new Error(state.error || 'State is unavailable.');
   nodes.replaceChildren(...(state.nodes || []).map(node => {
-    const card = document.createElement('article'); card.className = 'node';
+    const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     const title = document.createElement('h2'); title.textContent = node.label;
     const detail = document.createElement('p'); detail.textContent = node.detail || '';
+    card.addEventListener('click', () => {
+      document.getElementById('detail').textContent =
+        `${node.label}: ${node.detail || 'No detail'}`;
+    });
     card.append(title, detail); return card;
   }));
-}).catch(() => { nodes.textContent = 'State is unavailable.'; });
+}
+loadState().catch(error => { nodes.textContent = error.message; });
 document.getElementById('chat').addEventListener('submit', async event => {
   event.preventDefault(); const input = document.getElementById('utterance');
   const response = await fetch('/api/message', {method:'POST',
@@ -44,7 +52,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
     body:JSON.stringify({utterance:input.value})});
   const result = await response.json();
   document.getElementById('answer').textContent = result.message || result.error;
-  if (response.ok) input.value = '';
+  if (result.state) document.getElementById('detail').textContent = `Status: ${result.state}`;
+  if (response.ok) {
+    input.value = ''; if (result.state === 'completed') loadState().catch(() => {});
+  }
 });
 </script></body></html>"""
 
@@ -84,6 +95,8 @@ class BrowserApp:
                 return self._json(HTTPStatus.FORBIDDEN, {"error": "request denied"})
             except (OSError, RuntimeError):
                 return self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "request unavailable"})
+            if isinstance(message, dict):
+                return self._json(HTTPStatus.OK, message)
             return self._json(HTTPStatus.OK, {"message": message})
         return self._json(HTTPStatus.NOT_FOUND, {"error": "route not found"})
 
