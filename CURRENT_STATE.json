@@ -5,9 +5,9 @@
   "current_phase": 12,
   "current_checkpoint": "phase-12-release-candidate-audit-green-with-device-limitation",
   "active_branch": "aegis-dev",
-  "head_sha": "91c4be7",
-  "last_green_sha": "91c4be7",
-  "last_pushed_sha": "91c4be7",
+  "head_sha": "0e2c567",
+  "last_green_sha": "0e2c567",
+  "last_pushed_sha": "0e2c567",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -100,7 +100,7 @@
   "most_recent_tests": {
     "command": "PATH=.venv/bin:$PATH bash scripts/validate.sh (format check reported pre-existing drift); pytest + ruff check + mypy + migration validation",
     "status": "PASS",
-    "pytest": "114 passed; ruff check passed; mypy passed (36 source files); migration validation passed",
+    "pytest": "97 passed; ruff check passed; ruff format check passed; mypy passed (36 source files); migration validation passed",
     "known_gate_note": "Repository-wide ruff format --check remains red on pre-existing files; no unrelated mass reformat applied"
   },
     "known_failures": [
@@ -189,6 +189,7 @@
         "security_lab_findings_postgres_live": "green: migration 014 applied to live PostgreSQL; a fresh connection reloaded an authorized in-scope finding and a different owner was denied",
         "postgres_backup_restore_live": "green: pinned PostgreSQL 16.15 pg_dump/pg_restore created and restored the disposable database; restored security_lab_findings, osint_investigations, and 127 audit events were present",
         "clean_install_smoke": "green: scripts/smoke_install.sh built and installed the package into a clean target and validated migration endpoint 014",
+        "repository_validation": "green: scripts/validate.sh passed with 97 collected tests, Ruff check and format check, mypy, and migration validation",
         "phase9_technical_gate": "green: Homelab host/resource/service inventory and verified action evidence, explicit Network scope enforcement, durable owner/Space-scoped Security Lab findings, and durable source-grounded OSINT provenance are covered; live tests reject reachability-as-authority and cross-owner disclosure",
         "phase10_forge_gate": "green: existing Forge tests cover capability-gap detection, license/provenance classification, sandbox/test prerequisites, owner approval, Pack materialization, lifecycle installation, and the trading-card acceptance path; no generated Pack can self-authorize",
         "phase11_ambient_gate": "green with external limitation: OpenClaw system-event delivery, ambient policy/idempotency/failure behavior, proactive household signal composition, and Home Assistant adapter contracts are covered; real Home Assistant/device/voice acceptance remains blocked on owner hardware or credentials and is not claimed",
