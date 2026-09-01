@@ -410,6 +410,12 @@ class HouseholdReadFastPath:
             ]
         elif any(word in text for word in ("chore", "chores")):
             chores = cast(tuple[Chore, ...], self.snapshot["chores"])
+            if any(term in text for term in ("completed", "finished")):
+                chores = tuple(chore for chore in chores if chore.completed)
+                status_filter = "completed"
+            else:
+                chores = tuple(chore for chore in chores if not chore.completed)
+                status_filter = "open"
             evidence["chores"] = [
                 {
                     "title": chore.title,
@@ -418,6 +424,7 @@ class HouseholdReadFastPath:
                 }
                 for chore in chores
             ]
+            evidence["status_filter"] = status_filter
         else:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             evidence["events"] = [

@@ -853,11 +853,7 @@ def _format(result: Any) -> str:
     if evidence.get("chores") is not None:
         chores = evidence["chores"]
         return "Chores: " + (
-            "; ".join(
-                f"{item['title']} ({item['assignee_id']})"
-                for item in chores
-                if not item["completed"]
-            )
+            "; ".join(f"{item['title']} ({item['assignee_id']})" for item in chores)
             if chores
             else "(none)"
         )
