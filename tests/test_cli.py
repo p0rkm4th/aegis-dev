@@ -1077,6 +1077,11 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
     assert "new AbortController()" in _INDEX_HTML
     assert "request_timeout" in _INDEX_HTML
+    assert "refreshRequestTimeoutMs = 10000" in _INDEX_HTML
+    assert "async function fetchWithTimeout(resource, options = {})" in _INDEX_HTML
+    assert "setTimeout(() => controller.abort(), refreshRequestTimeoutMs)" in _INDEX_HTML
+    assert "fetchWithTimeout('/api/health')" in _INDEX_HTML
+    assert "fetchWithTimeout('/api/constellation')" in _INDEX_HTML
     assert "outcome is unknown" in _INDEX_HTML
     assert 'id="refresh"' in _INDEX_HTML
     assert "refreshState()" in _INDEX_HTML
