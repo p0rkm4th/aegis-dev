@@ -12,51 +12,25 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import psycopg
 
-from .audit import PostgresAuditLog
-from .contracts import ActionCard, IntentFrame, Principal, Result
-from .decoding import StrictDecisionDecoder
-from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
-from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
+from .contracts import ActionCard, Principal, Result
+from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport
 from .homelab import PostgresHomelabStore
 from .household import (
-    HouseholdObligation,
-    HouseholdReadFastPath,
-    PostgresChoreExecutor,
-    PostgresChoreVerifier,
-    PostgresEventExecutor,
-    PostgresEventVerifier,
     PostgresHouseholdStore,
 )
-from .identity import KeycloakIdentityProvider, KeycloakOIDCClient, PostgresSpacePolicy, Role
-from .kernel import Kernel
+from .identity import KeycloakIdentityProvider, KeycloakOIDCClient
+from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
-from .ollama import OllamaHttpTransport, OllamaProvider
-from .openclaw import OpenClawExecutor
-from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
-from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
-from .projections import SharedObligation
-from .reference_packs import (
-    OpenClawGroceryExecutor,
-    OpenClawGroceryVerifier,
-    PostgresGroceryListExecutor,
-    PostgresGroceryListVerifier,
-    reference_bundles,
-)
-from .store import PostgresObjectiveStore
-from .tasks import (
-    PostgresTaskExecutor,
-    PostgresTaskListExecutor,
-    PostgresTaskListVerifier,
-    PostgresTaskStore,
-    PostgresTaskVerifier,
-    TaskReadFastPath,
-)
+from .pack_lifecycle import PackManager, PostgresPackStore
+from .personal import PostgresPersonalStateStore
+from .reference_packs import reference_bundles
+from .tasks import PostgresTaskStore
 from .web import serve
 
 
@@ -630,161 +604,20 @@ def _format(result: Any) -> str:
 def run_interaction(
     utterance: str, principal: Principal, correlation_id: UUID | None = None
 ) -> Result:
-    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
-    channel: OpenClawWebSocketChannel | None = None
-    try:
-        _apply_migrations(connection)
-        if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
-            _ensure_local_identity(connection, principal)
-        intent = IntentFrame(
-            principal=principal,
-            utterance=utterance,
-            correlation_id=correlation_id or uuid4(),
+    """Compatibility composition root for CLI and browser clients."""
+
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=psycopg.connect,
+            required=_required,
+            apply_migrations=_apply_migrations,
+            ensure_local_identity=_ensure_local_identity,
+            select_action=_domain_and_action,
+            openclaw_channel=_openclaw_channel,
+            local_identity=lambda: not bool(os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")),
         )
-        household_store = PostgresHouseholdStore(connection)
-        if FinanceReadFastPath.matches(utterance):
-            snapshot = household_store.read_snapshot(principal)
-            household_obligations = cast(
-                tuple[HouseholdObligation, ...], snapshot.get("obligations", ())
-            )
-            obligations = tuple(
-                SharedObligation(item.title, item.amount)
-                for item in household_obligations
-                if not item.settled
-            )
-            finance_result = FinanceReadFastPath(
-                FinanceLedger(PostgresFinanceSnapshotStore(connection))
-            ).resolve(intent, obligations)
-            if finance_result is not None:
-                PostgresAuditLog(connection).append(
-                    "finance.affordability.read",
-                    principal.id,
-                    {
-                        "purchase_cents": finance_result.evidence["purchase_cents"],
-                        "shared_obligations_cents": finance_result.evidence[
-                            "shared_obligations_cents"
-                        ],
-                        "affordable": finance_result.evidence["affordable"],
-                    },
-                )
-                return finance_result
-        if HouseholdReadFastPath.matches(utterance):
-            household_result = HouseholdReadFastPath(
-                household_store.read_snapshot(principal)
-            ).resolve(intent)
-            if household_result is not None:
-                return household_result
-        task_store = PostgresTaskStore(connection)
-        task_result = TaskReadFastPath(task_store).resolve(intent)
-        if task_result is not None:
-            return task_result
-        personal_state = PostgresPersonalStateStore(
-            connection, principal.vault_id
-        ).load_for_principal(principal)
-        semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
-            "1",
-            "true",
-            "yes",
-        }
-        if semantic_enabled:
-            embedding_provider = OllamaEmbeddingProvider(
-                os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
-                _required("AEGIS_OLLAMA_URL"),
-            )
-            vector_index = PostgresMemoryVectorIndex(connection)
-            embeddings = embedding_provider.embed(
-                tuple(memory.content for memory in personal_state.memories.values())
-            )
-            for memory, embedding in zip(personal_state.memories.values(), embeddings):
-                vector_index.upsert(
-                    principal.vault_id, memory.memory_id, embedding, embedding_provider.model
-                )
-            connection.commit()
-            memory_fast_path = PersonalMemoryFastPath(
-                personal_state,
-                embedding_provider=embedding_provider,
-                vector_index=vector_index,
-                vault_id=principal.vault_id,
-            )
-        else:
-            memory_fast_path = PersonalMemoryFastPath(personal_state)
-        memory_result = memory_fast_path.resolve(intent)
-        if memory_result is not None:
-            return memory_result
-        manager = PackManager(store=PostgresPackStore(connection))
-        for bundle in reference_bundles():
-            try:
-                manager.status(bundle.manifest.pack_id)
-                installed_ids = {
-                    card.action.action_id
-                    for card in manager._bundles[bundle.manifest.pack_id].cards
-                }
-                required_ids = {card.action.action_id for card in bundle.cards}
-                if not required_ids.issubset(installed_ids):
-                    manager.remove(bundle.manifest.pack_id)
-                    manager.discover(bundle)
-            except KeyError:
-                manager.discover(bundle)
-        for pack_id in ("tasks", "kitchen"):
-            if manager.status(pack_id) is PackStatus.DISCOVERED:
-                manager.install(pack_id, frozenset(manager._bundles[pack_id].manifest.permissions))
-                manager.enable(pack_id)
-            elif manager.status(pack_id) is PackStatus.INSTALLED:
-                manager.enable(pack_id)
-        domain, card = _domain_and_action(utterance, manager)
-        principal_store = PostgresHouseholdStore(connection)
-        if card.action.action_id == "kitchen.groceries.add":
-            channel = _openclaw_channel()
-            executor: Any = OpenClawExecutor(
-                OpenClawGroceryExecutor(
-                    channel,
-                    os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
-                    principal_store,
-                    principal,
-                ),
-                _RuntimePolicy(),
-                _NoApproval(),
-            )
-            verifier: Any = OpenClawGroceryVerifier(principal_store, principal)
-            permissions = {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})}
-        elif card.action.action_id == "kitchen.groceries.list":
-            executor = PostgresGroceryListExecutor(principal_store, principal)
-            verifier = PostgresGroceryListVerifier(principal_store, principal)
-            permissions = {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})}
-        elif card.action.action_id == "tasks.create":
-            executor = PostgresTaskExecutor(task_store, principal)
-            verifier = PostgresTaskVerifier(task_store, principal)
-            permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
-        elif card.action.action_id == "tasks.chores.create":
-            executor = PostgresChoreExecutor(principal_store, principal)
-            verifier = PostgresChoreVerifier(principal_store, principal)
-            permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
-        elif card.action.action_id == "tasks.events.create":
-            executor = PostgresEventExecutor(principal_store, principal)
-            verifier = PostgresEventVerifier(principal_store, principal)
-            permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
-        else:
-            executor = PostgresTaskListExecutor(task_store, principal)
-            verifier = PostgresTaskListVerifier(task_store, principal)
-            permissions = {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})}
-        kernel = Kernel(
-            OllamaProvider(
-                os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
-                OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
-            ),
-            StrictDecisionDecoder(),
-            PostgresSpacePolicy(connection, permissions),
-            executor,
-            verifier,
-            store=PostgresObjectiveStore(connection),
-            audit=PostgresAuditLog(connection),
-        )
-        result = kernel.run(intent, (card,))
-        return result
-    finally:
-        if channel is not None:
-            channel.close()
-        connection.close()
+    )
+    return boundary.run(utterance, principal, correlation_id)
 
 
 def handle(utterance: str, principal: Principal) -> str:
