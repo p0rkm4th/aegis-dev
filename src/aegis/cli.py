@@ -757,7 +757,16 @@ def main() -> int:
             else:
                 print("Not completed — request denied")
             return 1
-        except (RuntimeError, ValueError, OSError, psycopg.Error) as exc:
+        except psycopg.Error:
+            if args.json:
+                _print_json_error("request_unavailable", "request unavailable")
+            else:
+                print(
+                    "Not completed — request unavailable; run "
+                    "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
+                )
+            return 1
+        except (RuntimeError, ValueError, OSError) as exc:
             if args.json:
                 _print_json_error("request_unavailable", "request unavailable")
             else:
@@ -780,6 +789,11 @@ def main() -> int:
             print(_format_error(handle(utterance, principal)))
         except PermissionError:
             print("Not completed — request denied")
+        except psycopg.Error:
+            print(
+                "Not completed — request unavailable; run "
+                "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
+            )
         except (RuntimeError, ValueError, OSError) as exc:
             print(f"Not completed — {exc}")
 
