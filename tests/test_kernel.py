@@ -760,6 +760,37 @@ def test_postgres_request_status_prefers_persisted_result_for_replayed_correlati
     )
 
 
+def test_postgres_result_replay_does_not_leak_storage_retry_marker():
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="verified",
+        evidence={"canonical": True},
+        correlation_id=uuid4(),
+        retryable=False,
+    )
+
+    class Cursor:
+        def fetchone(self):
+            return (
+                str(result.correlation_id),
+                str(result.objective_id),
+                result.state.value,
+                {"canonical": True, "retryable": False},
+                result.message,
+            )
+
+    class Connection:
+        def execute(self, query, params=()):
+            assert "FROM results" in query
+            return Cursor()
+
+    replayed = PostgresObjectiveStore(Connection()).get_result("correlation:write")
+
+    assert replayed == result
+    assert "retryable" not in replayed.evidence
+
+
 def test_sqlite_store_survives_kernel_restart_without_duplicate_side_effect(tmp_path):
     store = SqliteObjectiveStore(str(tmp_path / "aegis.sqlite"))
     world = ReferenceWorld()

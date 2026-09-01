@@ -281,13 +281,14 @@ class PostgresObjectiveStore:
         if row is None:
             return None
         evidence = row[3] if isinstance(row[3], dict) else json.loads(str(row[3]))
+        retryable = bool(evidence.pop("retryable", False))
         return Result(
             objective_id=UUID(str(row[1])),
             state=ObjectiveState(str(row[2])),
             evidence=evidence,
             message=str(row[4]),
             correlation_id=UUID(str(row[0])),
-            retryable=bool(evidence.get("retryable")),
+            retryable=retryable,
         )
 
     def get_request_status(
