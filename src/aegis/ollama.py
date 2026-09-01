@@ -154,7 +154,9 @@ class OllamaProvider:
                     " If authorized canonical facts are supplied and the request is a "
                     "read-only question about them, answer from those facts; do not "
                     "ask the user to identify an action merely because the answer is "
-                    "not itself a database field."
+                    "not itself a database field. If a requested ordering has only one "
+                    "distinct supplied value, explain that the candidates are tied "
+                    "instead of asking the user to choose one."
                 ),
                 "context_rule": (
                     "Use only the bounded canonical context supplied below to resolve "
