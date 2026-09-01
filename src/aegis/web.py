@@ -102,6 +102,7 @@ aria-live="polite" aria-label="Selected node details"></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
 autocomplete="off" placeholder="Filter authorized nodes"></label>
+<p id="node-filter-status" class="muted" aria-live="polite"></p>
 <main id="nodes"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
 <script>
@@ -109,6 +110,7 @@ const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 const refresh = document.getElementById('refresh');
 const nodeFilter = document.getElementById('node-filter');
+const nodeFilterStatus = document.getElementById('node-filter-status');
 const messageTimeoutMs = 120000;
 const refreshRequestTimeoutMs = 10000;
 const pendingStorageKey = 'aegis.pending-request';
@@ -280,6 +282,7 @@ function clearAuthorizedDisplays() {
   nodes.replaceChildren(); edges.replaceChildren();
   document.getElementById('detail').replaceChildren();
   document.getElementById('activity').textContent = '';
+  nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
   pendingCorrelationId = null;
@@ -289,14 +292,21 @@ function clearAuthorizedDisplays() {
 }
 function applyNodeFilter() {
   const query = nodeFilter.value.trim().toLowerCase();
+  let visibleCount = 0;
   renderedNodeCards.forEach((card, nodeId) => {
     card.hidden = Boolean(query && !renderedNodeText.get(nodeId).includes(query));
+    if (!card.hidden) visibleCount += 1;
   });
   renderedEdgeRows.forEach(({item, edge}) => {
     const sourceMatches = !query || renderedNodeText.get(edge.source).includes(query);
     const targetMatches = !query || renderedNodeText.get(edge.target).includes(query);
     item.hidden = Boolean(query && !sourceMatches && !targetMatches);
   });
+  nodeFilterStatus.textContent = query
+    ? (visibleCount
+      ? `Showing ${visibleCount} of ${renderedNodeCards.size} authorized nodes.`
+      : `No authorized nodes match “${nodeFilter.value.trim()}”.`)
+    : `${renderedNodeCards.size} authorized nodes.`;
 }
 nodeFilter.addEventListener('input', applyNodeFilter);
 async function fetchWithTimeout(resource, options = {}) {
@@ -316,6 +326,7 @@ async function loadState() {
     error.code = state.code || 'state_unavailable'; throw error;
   }
   document.getElementById('state-status').textContent = '';
+  nodeFilterStatus.textContent = '';
   const details = state.details || {};
   selectedNode = null;
   document.getElementById('detail').replaceChildren();

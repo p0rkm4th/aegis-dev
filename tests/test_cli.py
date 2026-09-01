@@ -1499,6 +1499,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'id="activity"' in _INDEX_HTML
     assert 'id="health-details"' in _INDEX_HTML
     assert 'id="node-filter"' in _INDEX_HTML
+    assert 'id="node-filter-status"' in _INDEX_HTML
     assert "component.detail" in _INDEX_HTML
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
@@ -1518,6 +1519,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Open relationship to" in _INDEX_HTML
     assert "target.focus(); target.click()" in _INDEX_HTML
     assert "function applyNodeFilter()" in _INDEX_HTML
+    assert "No authorized nodes match" in _INDEX_HTML
     assert "renderedEdgeRows" in _INDEX_HTML
     assert (
         "selectedNode = null;\n  document.getElementById('detail').replaceChildren();"
