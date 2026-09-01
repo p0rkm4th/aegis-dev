@@ -243,9 +243,7 @@ class PostgresTaskVerifier:
                 "canonical_status": task.status.value if task else None,
             },
             reason=(
-                "canonical task readback verified"
-                if verified
-                else "canonical task readback failed"
+                "canonical task readback verified" if verified else "canonical task readback failed"
             ),
         )
 

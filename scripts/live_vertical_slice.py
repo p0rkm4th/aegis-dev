@@ -60,10 +60,14 @@ def required(name: str) -> str:
 
 def device_identity() -> tuple[str, str, str, str]:
     identity_db = required("AEGIS_OPENCLAW_IDENTITY_DB")
-    row = sqlite3.connect(identity_db).execute(
-        "select device_id, private_key_pem, public_key_pem "
-        "from device_identities where identity_key='primary'"
-    ).fetchone()
+    row = (
+        sqlite3.connect(identity_db)
+        .execute(
+            "select device_id, private_key_pem, public_key_pem "
+            "from device_identities where identity_key='primary'"
+        )
+        .fetchone()
+    )
     if row is None:
         raise SystemExit("OpenClaw identity database has no primary device identity")
     return (
@@ -152,9 +156,7 @@ def run_once(correlation: UUID, path: str) -> object:
         )
         return kernel.run(
             IntentFrame(
-                principal=Principal(
-                    id="alice", vault_id="alice-vault", space_ids=("apartment",)
-                ),
+                principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
                 utterance="Add rice to groceries.",
                 correlation_id=correlation,
             ),

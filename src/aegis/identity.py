@@ -80,9 +80,7 @@ class KeycloakOIDCClient:
     def __init__(self, issuer: str, timeout: float = 10.0) -> None:
         if not issuer.startswith(("http://", "https://")):
             raise ValueError("Keycloak issuer must use HTTP or HTTPS")
-        self.userinfo_endpoint = (
-            f"{issuer.rstrip('/')}/protocol/openid-connect/userinfo"
-        )
+        self.userinfo_endpoint = f"{issuer.rstrip('/')}/protocol/openid-connect/userinfo"
         self.timeout = timeout
         self.identity = KeycloakIdentityProvider()
 
@@ -191,9 +189,7 @@ class PostgresSpacePolicy:
             (request.principal.id, space_id),
         ).fetchone()
         if row is None:
-            return PolicyDecision(
-                allowed=False, reason="principal is not an active Space member"
-            )
+            return PolicyDecision(allowed=False, reason="principal is not an active Space member")
         try:
             role = Role(str(row[0]))
         except ValueError:

@@ -103,8 +103,7 @@ def _ensure_local_identity(connection: Any, principal: Principal) -> None:
         (principal.id, principal.id),
     )
     connection.execute(
-        "INSERT INTO vaults (id, owner_principal_id) VALUES (%s, %s) "
-        "ON CONFLICT (id) DO NOTHING",
+        "INSERT INTO vaults (id, owner_principal_id) VALUES (%s, %s) ON CONFLICT (id) DO NOTHING",
         (principal.vault_id, principal.id),
     )
     connection.execute(
@@ -122,10 +121,14 @@ def _ensure_local_identity(connection: Any, principal: Principal) -> None:
 
 def _openclaw_channel() -> OpenClawWebSocketChannel:
     identity_db = _required("AEGIS_OPENCLAW_IDENTITY_DB")
-    row = sqlite3.connect(identity_db).execute(
-        "SELECT device_id, private_key_pem, public_key_pem FROM device_identities "
-        "WHERE identity_key='primary'"
-    ).fetchone()
+    row = (
+        sqlite3.connect(identity_db)
+        .execute(
+            "SELECT device_id, private_key_pem, public_key_pem FROM device_identities "
+            "WHERE identity_key='primary'"
+        )
+        .fetchone()
+    )
     if row is None:
         raise RuntimeError("OpenClaw primary device identity was not found")
     return OpenClawWebSocketChannel(
@@ -252,9 +255,7 @@ def _format(result: Any) -> str:
         obligations = evidence["obligations"]
         outstanding = [item for item in obligations if not item["settled"]]
         return "Outstanding obligations: " + (
-            "; ".join(
-                f"{item['title']} ({item['responsible_id']})" for item in outstanding
-            )
+            "; ".join(f"{item['title']} ({item['responsible_id']})" for item in outstanding)
             if outstanding
             else "(none)"
         )
@@ -271,9 +272,7 @@ def _format(result: Any) -> str:
         )
     if evidence.get("events") is not None:
         events = evidence["events"]
-        return "Events: " + (
-            "; ".join(item["title"] for item in events) if events else "(none)"
-        )
+        return "Events: " + ("; ".join(item["title"] for item in events) if events else "(none)")
     if evidence.get("affordable") is not None:
         status = "yes" if evidence["affordable"] else "no"
         return (
@@ -395,7 +394,8 @@ def handle(utterance: str, principal: Principal) -> str:
                     principal_store,
                     principal,
                 ),
-                _RuntimePolicy(), _NoApproval(),
+                _RuntimePolicy(),
+                _NoApproval(),
             )
             verifier: Any = OpenClawGroceryVerifier(principal_store, principal)
             permissions = {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})}
@@ -428,7 +428,8 @@ def handle(utterance: str, principal: Principal) -> str:
             PostgresSpacePolicy(connection, permissions),
             executor,
             verifier,
-            store=PostgresObjectiveStore(connection), audit=PostgresAuditLog(connection),
+            store=PostgresObjectiveStore(connection),
+            audit=PostgresAuditLog(connection),
         )
         result = kernel.run(intent, (card,))
         return _format(result)

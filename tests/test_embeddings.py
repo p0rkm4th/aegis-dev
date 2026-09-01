@@ -38,6 +38,7 @@ def test_postgres_vector_index_uses_vault_scoped_vector_queries():
 def test_ollama_embedding_provider_rejects_wrong_dimensions():
     provider = OllamaEmbeddingProvider("nomic-embed-text", "http://127.0.0.1")
     try:
+
         class Connection:
             def execute(self, query: str, params: tuple[object, ...] = ()) -> object:
                 raise AssertionError("invalid vector should be rejected before SQL")
@@ -94,6 +95,4 @@ def test_semantic_retrieval_filters_superseded_records_and_falls_back_lexically(
     )
 
     assert result is not None
-    assert [item["content"] for item in result.evidence["memories"]] == [
-        "Current backup plan"
-    ]
+    assert [item["content"] for item in result.evidence["memories"]] == ["Current backup plan"]

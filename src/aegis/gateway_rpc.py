@@ -76,12 +76,16 @@ class OpenClawWebSocketChannel:
             try:
                 if new_socket:
                     self._connect(socket)
-                socket.send(json.dumps({
-                    "type": "req",
-                    "id": str(request.request_id),
-                    "method": request.method,
-                    "params": request.params,
-                }))
+                socket.send(
+                    json.dumps(
+                        {
+                            "type": "req",
+                            "id": str(request.request_id),
+                            "method": request.method,
+                            "params": request.params,
+                        }
+                    )
+                )
                 response = self._receive_response(socket, str(request.request_id))
                 if response.get("ok"):
                     payload = response.get("payload")
@@ -166,11 +170,20 @@ class OpenClawWebSocketChannel:
                 signed_at = int(challenge["payload"]["ts"])
                 signed_payload = "|".join(
                     [
-                        "v3", self.device_id or "", "gateway-client", "backend", "operator",
-                        ",".join(scopes), str(signed_at), self.token,
-                        challenge["payload"]["nonce"], "linux", "",
+                        "v3",
+                        self.device_id or "",
+                        "gateway-client",
+                        "backend",
+                        "operator",
+                        ",".join(scopes),
+                        str(signed_at),
+                        self.token,
+                        challenge["payload"]["nonce"],
+                        "linux",
+                        "",
                     ]
                 )
+
                 def encode(value: bytes) -> str:
                     return base64.urlsafe_b64encode(value).rstrip(b"=").decode()
 
@@ -184,30 +197,34 @@ class OpenClawWebSocketChannel:
                 auth = {"token": self.token, "deviceToken": self.device_token or ""}
             except (KeyError, TypeError, ValueError) as exc:
                 raise RpcProtocolError("invalid OpenClaw device identity") from exc
-        socket.send(json.dumps({
-            "type": "req",
-            "id": connect_id,
-            "method": "connect",
-            "params": {
-                "minProtocol": 4,
-                "maxProtocol": 4,
-                "client": {
-                    "id": "gateway-client",
-                    "version": "0.1.0-dev",
-                    "platform": "linux",
-                    "mode": "backend",
-                },
-                "role": "operator",
-                "scopes": scopes,
-                "caps": [],
-                "commands": [],
-                "permissions": {},
-                "auth": auth,
-                "locale": "en-US",
-                "userAgent": "aegis-core/0.1.0-dev",
-                **({"device": device} if device is not None else {}),
-            },
-        }))
+        socket.send(
+            json.dumps(
+                {
+                    "type": "req",
+                    "id": connect_id,
+                    "method": "connect",
+                    "params": {
+                        "minProtocol": 4,
+                        "maxProtocol": 4,
+                        "client": {
+                            "id": "gateway-client",
+                            "version": "0.1.0-dev",
+                            "platform": "linux",
+                            "mode": "backend",
+                        },
+                        "role": "operator",
+                        "scopes": scopes,
+                        "caps": [],
+                        "commands": [],
+                        "permissions": {},
+                        "auth": auth,
+                        "locale": "en-US",
+                        "userAgent": "aegis-core/0.1.0-dev",
+                        **({"device": device} if device is not None else {}),
+                    },
+                }
+            )
+        )
         hello = self._receive_response(socket, connect_id)
         if not hello.get("ok"):
             raise RpcProtocolError(f"Gateway handshake failed: {hello.get('error')}")
