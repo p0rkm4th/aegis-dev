@@ -214,7 +214,7 @@ class PostgresObjectiveStore:
                 str(result.objective_id),
                 key,
                 result.state.value,
-                json.dumps(result.evidence, sort_keys=True),
+                json.dumps({**result.evidence, "retryable": result.retryable}, sort_keys=True),
                 result.message,
             ),
         )
@@ -229,19 +229,22 @@ class PostgresObjectiveStore:
         row = cursor.fetchone()
         if row is None:
             return None
+        evidence = row[3] if isinstance(row[3], dict) else json.loads(str(row[3]))
         return Result(
             objective_id=UUID(str(row[1])),
             state=ObjectiveState(str(row[2])),
-            evidence=row[3] if isinstance(row[3], dict) else json.loads(str(row[3])),
+            evidence=evidence,
             message=str(row[4]),
             correlation_id=UUID(str(row[0])),
+            retryable=bool(evidence.get("retryable")),
         )
 
     def get_request_status(
         self, correlation_id: UUID, principal: Principal
-    ) -> tuple[UUID, ObjectiveState, str | None] | None:
+    ) -> tuple[UUID, ObjectiveState, str | None, bool] | None:
         cursor = self.connection.execute(
-            """SELECT o.id, COALESCE(r.state, o.state), r.message
+            """SELECT o.id, COALESCE(r.state, o.state), r.message,
+                      COALESCE((r.evidence->>'retryable')::boolean, FALSE)
                FROM objectives o
                LEFT JOIN results r ON r.objective_id = o.id AND r.id = %s
                WHERE o.principal_id = %s
@@ -264,7 +267,12 @@ class PostgresObjectiveStore:
         row = cursor.fetchone()
         if row is None:
             return None
-        return UUID(str(row[0])), ObjectiveState(str(row[1])), str(row[2]) if row[2] else None
+        return (
+            UUID(str(row[0])),
+            ObjectiveState(str(row[1])),
+            str(row[2]) if row[2] else None,
+            bool(row[3]),
+        )
 
     def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
         self.connection.execute(

@@ -80,6 +80,7 @@ class Kernel:
                 state=ObjectiveState.BLOCKED,
                 message=f"Invalid model decision: {exc}",
                 correlation_id=intent.correlation_id,
+                retryable=True,
             )
             self.store.save_result(f"decision:{intent.correlation_id}", result)
             self.audit.append(
@@ -99,6 +100,7 @@ class Kernel:
                 message="Model unavailable; request can be retried",
                 evidence={"model": "unavailable", "error_type": type(exc).__name__},
                 correlation_id=intent.correlation_id,
+                retryable=True,
             )
             self.store.save_result(f"decision:{intent.correlation_id}", result)
             self.audit.append(

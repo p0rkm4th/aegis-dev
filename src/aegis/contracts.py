@@ -133,6 +133,7 @@ class Result(StrictModel):
     message: str
     evidence: dict[str, Any] = {}
     correlation_id: UUID
+    retryable: bool = False
 
 
 class RequestStatus(StrictModel):
@@ -140,6 +141,7 @@ class RequestStatus(StrictModel):
     state: str = Field(min_length=1)
     objective_id: UUID | None = None
     message: str | None = None
+    retryable: bool | None = None
 
 
 class Objective(StrictModel):

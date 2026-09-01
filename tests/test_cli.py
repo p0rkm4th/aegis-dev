@@ -911,6 +911,24 @@ def test_browser_reuses_correlation_id_for_retry_safe_delivery():
     )
 
 
+def test_browser_exposes_core_retryability_without_inventing_it():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_: {
+            "message": "Model unavailable; request can be retried",
+            "state": "failed",
+            "retryable": True,
+        },
+        lambda _: {"nodes": []},
+    )
+
+    status, _, payload = app.dispatch("POST", "/api/message", b'{"utterance":"show tasks"}')
+
+    assert status == 200
+    assert json.loads(payload)["retryable"] is True
+
+
 def test_browser_request_status_is_a_bounded_canonical_projection():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     correlation_id = "00000000-0000-4000-8000-000000000008"
@@ -1251,6 +1269,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "if (status.state === 'completed') refreshState();" in _INDEX_HTML
     assert "loadState().catch(() => {})" not in _INDEX_HTML
     assert "Status: ${result.code || 'request_failed'}" in _INDEX_HTML
+    assert "result.retryable === true" in _INDEX_HTML
+    assert "status.retryable === true" in _INDEX_HTML
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():

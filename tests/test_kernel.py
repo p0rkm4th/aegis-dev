@@ -672,7 +672,7 @@ def test_postgres_request_status_prefers_persisted_result_for_replayed_correlati
 
     class Cursor:
         def fetchone(self):
-            return (str(objective_id), "completed", "canonical readback verified")
+            return (str(objective_id), "completed", "canonical readback verified", False)
 
     class Connection:
         def __init__(self):
@@ -688,7 +688,7 @@ def test_postgres_request_status_prefers_persisted_result_for_replayed_correlati
         Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
     )
 
-    assert status == (objective_id, ObjectiveState.COMPLETED, "canonical readback verified")
+    assert status == (objective_id, ObjectiveState.COMPLETED, "canonical readback verified", False)
     assert connection.params == (
         str(correlation),
         "alice",
