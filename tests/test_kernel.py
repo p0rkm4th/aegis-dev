@@ -1896,6 +1896,13 @@ def test_capability_registry_semantic_retrieval_ranks_bounded_pack_cards():
     assert retrieved == (cards[0], cards[1])
 
 
+def test_household_read_fast_path_does_not_capture_explicit_task_completion():
+    from aegis.household import HouseholdReadFastPath
+
+    assert HouseholdReadFastPath.matches("What chores are on the list?")
+    assert not HouseholdReadFastPath.matches("Finish the task called the quarterly inspection.")
+
+
 def test_pack_validation_rejects_cross_namespace_or_unverified_mutation():
     cross_namespace = PackBundle(
         manifest=PackManifest(pack_id="cards", version="0.1.0"),
