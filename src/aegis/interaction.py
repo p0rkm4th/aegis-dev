@@ -673,6 +673,8 @@ class InteractionBoundary:
                 )
                 return kernel.run_sequence(intent, plan_actions, context=context)
             try:
+                if self.dependencies.model_provider is not None:
+                    raise InteractionInputError("semantic action resolution required")
                 _domain, card = self.dependencies.select_action(utterance, manager)
             except InteractionInputError as exc:
                 fallback_context = _fallback_working_context(
