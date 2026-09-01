@@ -3,11 +3,11 @@
   "project": "aegis-dev",
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
-  "current_checkpoint": "phase-12-browser-lifecycle-usable",
+  "current_checkpoint": "phase-12-browser-recovery-feedback-usable",
   "active_branch": "aegis-dev",
-  "head_sha": "667ae3ef7c086a9d82fb7a902345addb07d97fec",
-  "last_green_sha": "667ae3ef7c086a9d82fb7a902345addb07d97fec",
-  "last_pushed_sha": "667ae3ef7c086a9d82fb7a902345addb07d97fec",
+  "head_sha": "06b9316572f541f9bb763b10ff92504447241928",
+  "last_green_sha": "06b9316572f541f9bb763b10ff92504447241928",
+  "last_pushed_sha": "06b9316572f541f9bb763b10ff92504447241928",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -202,6 +202,7 @@
     ,"browser lifecycle responses accept only canonical ObjectiveState values or explicit recovery unknown"
     ,"rendered Playwright browser acceptance covers readiness, authorized Constellation nodes, and Tasks detail"
     ,"browser lifecycle statuses use human-readable presentation labels while preserving canonical state values"
+    ,"browser recovery visibly reports unknown and temporarily unavailable status checks without replay"
   ],
   "phase_exit_gates": {
     "0": "complete",
@@ -443,6 +444,7 @@
         "browser_lifecycle_contract_validation": "green deterministic: BrowserMessage rejects invented lifecycle states, while canonical ObjectiveState values remain valid and RequestStatus additionally accepts only its explicit unknown recovery sentinel; malformed lifecycle payloads fail closed",
         "browser_lifecycle_rendered_live": "green live rendered acceptance: a real AEGIS loopback process backed by PostgreSQL and Qwen3:8B loaded in provisioned Chromium, reported Runtime READY with 3/3 required checks, rendered 10 authorized Constellation nodes including Tasks, and selected Tasks to display its canonical detail view; server stderr remained clean",
         "browser_lifecycle_labels": "green deterministic: browser status and recovery text maps every canonical ObjectiveState plus unknown to human-readable labels; the raw state remains the typed API value and no client policy or lifecycle meaning is introduced",
+        "browser_recovery_feedback": "green deterministic: recovery visibly distinguishes an unknown canonical outcome from a temporarily unavailable status lookup, while retaining the same correlation and explicit Retry behavior without automatic action replay",
     "phase5_qwen_user_style_holdout": "green: six non-mutating read phrasings across Tasks and Kitchen returned schema-valid safe decisions through qwen3:8b; explicit domain cases selected the exact ActionCard, while ambiguous 'what is on the list again' returns CLARIFY with a usable question after the fail-closed decoder/prompt repair; no actions executed",
     "personal_memory_retrieval": "green: deterministic search ranks current personal memories by query terms, includes entity aliases, excludes superseded records, preserves provenance, and rejects invalid limits",
     "personal_memory_fastpath": "green: a canonical personal-memory fast path recognizes grounded work/memory queries, normalizes temporal wording, returns provenance-bearing Results, and leaves unrelated utterances for normal Pack routing",
@@ -470,5 +472,5 @@
     "openclaw_owner_action": "No owner action currently required for the disposable paired runtime; do not expose the Gateway beyond loopback or commit its token/device private key."
   },
   "model_follow_up_candidate": "After the live slice is green, evaluate selecting a bounded ActionCard ID/index and having Core expand it deterministically into the canonical ActionSpec; do not make this prerequisite.",
-  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, and human-readable lifecycle labels are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue the Phase 12 release/product audit on browser workflow acceptance, startup/operator simplicity, and unavailable-service dogfood; interruption, PostgreSQL restart, hostile-input recovery, isolated installation, installed browser degradation, cross-client interaction parity, occupied-port diagnostics, runtime-only quickstart smoke, identity error redaction, partial-bearer fail-closed behavior, CLI/browser identity failure containment, CLI request failure containment, cross-principal request-status privacy, readiness failure containment, browser refresh detail consistency, typed browser lifecycle contracts, rendered browser readiness/detail acceptance, human-readable lifecycle labels, and explicit recovery feedback are green. Next executable frontier: remaining browser/API client contract hardening and measured Constellation usability work; Home Assistant/mobile/voice remain lane-limited."
 }
