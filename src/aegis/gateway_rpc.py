@@ -252,6 +252,12 @@ class OpenClawGatewayRpc:
     def cancel(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.client.call("agent.cancel", params)
 
+    def notify(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Queue a Gateway system event; it is not an authorization decision."""
+        if not isinstance(params.get("text"), str) or not params["text"].strip():
+            raise ValueError("Gateway notification requires non-empty text")
+        return self.client.call("system-event", params)
+
     def terminal_open(self, params: dict[str, Any] | None = None) -> dict[str, Any]:
         return self.client.call("terminal.open", params or {})
 
