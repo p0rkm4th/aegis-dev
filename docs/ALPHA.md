@@ -2,7 +2,9 @@
 
 The alpha is an interactive CLI adapter over the existing Core, PostgreSQL
 canonical store, Qwen3:8B provider, Pack lifecycle, policy, and OpenClaw
-executor. It does not create a second workflow or state store.
+executor. The reusable `aegis.cli.run_interaction()` boundary returns the
+canonical `Result`; CLI and browser code only adapt transport and presentation
+around it. It does not create a second workflow or state store.
 
 ## Launch
 

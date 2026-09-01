@@ -17,7 +17,7 @@ from uuid import UUID, uuid4
 import psycopg
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, IntentFrame, Principal
+from .contracts import ActionCard, IntentFrame, Principal, Result
 from .decoding import StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
@@ -348,7 +348,7 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
 def _browser_interaction(
     utterance: str, principal: Principal, correlation_id: UUID | None = None
 ) -> dict[str, str]:
-    result = _run_interaction(utterance, principal, correlation_id)
+    result = run_interaction(utterance, principal, correlation_id)
     return {
         "message": _format(result),
         "state": result.state.value,
@@ -588,9 +588,9 @@ def _format(result: Any) -> str:
     return f"Done — {result.message}"
 
 
-def _run_interaction(
+def run_interaction(
     utterance: str, principal: Principal, correlation_id: UUID | None = None
-) -> Any:
+) -> Result:
     connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
     channel: OpenClawWebSocketChannel | None = None
     try:
@@ -749,7 +749,7 @@ def _run_interaction(
 def handle(utterance: str, principal: Principal) -> str:
     """Preserve the human CLI presentation over the shared interaction result."""
 
-    return _format(_run_interaction(utterance, principal))
+    return _format(run_interaction(utterance, principal))
 
 
 def main() -> int:
@@ -817,7 +817,7 @@ def main() -> int:
     if args.once is not None:
         try:
             if args.json:
-                result = _run_interaction(args.once, principal)
+                result = run_interaction(args.once, principal)
                 print(result.model_dump_json())
                 return 0 if result.state.value == "completed" else 1
             else:
