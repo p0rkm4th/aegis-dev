@@ -57,6 +57,9 @@ class StrictDecisionDecoder:
                     # canonicalize the proposal before policy or execution.
                     return decision.model_copy(update={"action": card.action})
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
+        elif decision.kind is DecisionKind.ANSWER:
+            if not decision.answer or not decision.answer.strip():
+                raise InvalidDecision("ANSWER requires non-empty answer content")
         elif decision.kind is DecisionKind.CLARIFY:
             if not decision.clarification or not decision.clarification.strip():
                 raise InvalidDecision("CLARIFY requires a clarification question")
