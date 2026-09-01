@@ -902,7 +902,10 @@ def main() -> int:
                 )
             return 1
         except ValueError as exc:
-            print(f"Not completed — {exc}")
+            if args.json:
+                _print_json_error("request_unavailable", "request unavailable")
+            else:
+                print(f"Not completed — {exc}")
             return 1
         return 0
     if not args.no_banner:
