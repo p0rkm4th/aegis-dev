@@ -9,9 +9,16 @@ _MUTATION_PREFIX = re.compile(
     r"(?:(?:i\s+want|i\s+would\s+like|i'd\s+like)\s+to\s+)*"
     r"(?:add|create|update|complete|remove|put|place)\b"
 )
+_MARK_DONE = re.compile(
+    r"^mark\s+(?:the\s+)?(?:task|chore)\s+.+?\s+as\s+"
+    r"(?:done|complete|completed)[.!?]?$"
+)
 
 
 def is_mutation_request(utterance: str) -> bool:
     """Recognize polite imperative prefixes before read fast paths inspect terms."""
 
-    return _MUTATION_PREFIX.match(" ".join(utterance.casefold().split())) is not None
+    normalized = " ".join(utterance.casefold().split())
+    return (
+        _MUTATION_PREFIX.match(normalized) is not None or _MARK_DONE.match(normalized) is not None
+    )
