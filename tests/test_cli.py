@@ -1446,6 +1446,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     )
     assert "textContent = key" in _INDEX_HTML
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
+    assert "const lifecycleLabels = Object.freeze" in _INDEX_HTML
+    assert "function lifecycleLabel(state)" in _INDEX_HTML
+    assert "lifecycleLabel(result.state)" in _INDEX_HTML
+    assert "lifecycleLabel(status.state)" in _INDEX_HTML
     assert "new AbortController()" in _INDEX_HTML
     assert "request_timeout" in _INDEX_HTML
     assert "refreshRequestTimeoutMs = 10000" in _INDEX_HTML
