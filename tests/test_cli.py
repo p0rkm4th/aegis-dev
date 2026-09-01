@@ -1318,6 +1318,16 @@ def test_browser_transport_disables_caching_and_referrer_disclosure():
     assert 'self.send_header("Referrer-Policy", "no-referrer")' in source
 
 
+def test_browser_transport_ignores_expected_client_disconnect():
+    from aegis.web import _write_response_payload
+
+    class DisconnectedWriter:
+        def write(self, _payload):
+            raise BrokenPipeError
+
+    _write_response_payload(DisconnectedWriter(), b"response")
+
+
 def test_browser_transport_restricts_embedding_and_resource_execution():
     from pathlib import Path
 
