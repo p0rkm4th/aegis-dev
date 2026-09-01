@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
+from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
 
@@ -48,6 +49,148 @@ class Goal:
     project_id: UUID | None
     description: str
     created_at: datetime
+
+
+class PersonalStateConnection(Protocol):
+    def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
+
+    def commit(self) -> None: ...
+
+
+class PostgresPersonalStateStore:
+    """Persist personal state under one canonical private Vault."""
+
+    def __init__(self, connection: PersonalStateConnection, vault_id: str) -> None:
+        if not vault_id:
+            raise ValueError("personal state requires a Vault")
+        self.connection = connection
+        self.vault_id = vault_id
+
+    def save(self, state: PersonalState) -> None:
+        for entity in state.entities.values():
+            self.connection.execute(
+                """INSERT INTO personal_entities (id, vault_id, canonical_name, aliases)
+                   VALUES (%s, %s, %s, %s)
+                   ON CONFLICT (id) DO UPDATE SET canonical_name = EXCLUDED.canonical_name,
+                     aliases = EXCLUDED.aliases""",
+                (
+                    str(entity.entity_id),
+                    self.vault_id,
+                    entity.canonical_name,
+                    json.dumps(entity.aliases),
+                ),
+            )
+        for project in state.projects.values():
+            self.connection.execute(
+                """INSERT INTO personal_projects (id, vault_id, name, created_at)
+                   VALUES (%s, %s, %s, %s)
+                   ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name,
+                     created_at = EXCLUDED.created_at""",
+                (str(project.project_id), self.vault_id, project.name, project.created_at),
+            )
+        for goal in state.goals.values():
+            self.connection.execute(
+                """INSERT INTO personal_goals (id, vault_id, project_id, description, created_at)
+                   VALUES (%s, %s, %s, %s, %s)
+                   ON CONFLICT (id) DO UPDATE SET project_id = EXCLUDED.project_id,
+                     description = EXCLUDED.description, created_at = EXCLUDED.created_at""",
+                (
+                    str(goal.goal_id),
+                    self.vault_id,
+                    str(goal.project_id) if goal.project_id else None,
+                    goal.description,
+                    goal.created_at,
+                ),
+            )
+        for memory in state.memories.values():
+            self.connection.execute(
+                """INSERT INTO personal_memories
+                   (id, vault_id, content, occurred_at, provenance, entity_ids, superseded_by)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)
+                   ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content,
+                     provenance = EXCLUDED.provenance, entity_ids = EXCLUDED.entity_ids,
+                     superseded_by = EXCLUDED.superseded_by""",
+                (
+                    str(memory.memory_id),
+                    self.vault_id,
+                    memory.content,
+                    memory.occurred_at,
+                    memory.provenance.value,
+                    json.dumps([str(entity_id) for entity_id in memory.entity_ids]),
+                    None,
+                ),
+            )
+        for memory in state.memories.values():
+            if memory.superseded_by is not None:
+                self.connection.execute(
+                    "UPDATE personal_memories SET superseded_by = %s "
+                    "WHERE id = %s AND vault_id = %s",
+                    (str(memory.superseded_by), str(memory.memory_id), self.vault_id),
+                )
+        self.connection.commit()
+
+    def load(self) -> PersonalState:
+        entities: dict[UUID, Entity] = {}
+        rows = self.connection.execute(
+            "SELECT id, canonical_name, aliases FROM personal_entities WHERE vault_id = %s",
+            (self.vault_id,),
+        ).fetchall()
+        for row in rows:
+            aliases = row[2] if isinstance(row[2], list) else json.loads(str(row[2]))
+            entity_id = UUID(str(row[0]))
+            entities[entity_id] = Entity(entity_id, str(row[1]), tuple(str(a) for a in aliases))
+        projects: dict[UUID, Project] = {}
+        rows = self.connection.execute(
+            "SELECT id, name, created_at FROM personal_projects WHERE vault_id = %s",
+            (self.vault_id,),
+        ).fetchall()
+        for row in rows:
+            project_id = UUID(str(row[0]))
+            projects[project_id] = Project(project_id, str(row[1]), cast(datetime, row[2]))
+        goals: dict[UUID, Goal] = {}
+        rows = self.connection.execute(
+            "SELECT id, project_id, description, created_at "
+            "FROM personal_goals WHERE vault_id = %s",
+            (self.vault_id,),
+        ).fetchall()
+        for row in rows:
+            goal_id = UUID(str(row[0]))
+            goals[goal_id] = Goal(
+                goal_id,
+                UUID(str(row[1])) if row[1] else None,
+                str(row[2]),
+                cast(datetime, row[3]),
+            )
+        memories: dict[UUID, MemoryRecord] = {}
+        rows = self.connection.execute(
+            """SELECT id, content, occurred_at, provenance, entity_ids, superseded_by
+               FROM personal_memories WHERE vault_id = %s""",
+            (self.vault_id,),
+        ).fetchall()
+        for row in rows:
+            entity_ids = row[4] if isinstance(row[4], list) else json.loads(str(row[4]))
+            memory_id = UUID(str(row[0]))
+            memories[memory_id] = MemoryRecord(
+                memory_id,
+                str(row[1]),
+                cast(datetime, row[2]),
+                Provenance(str(row[3])),
+                tuple(UUID(str(entity_id)) for entity_id in entity_ids),
+                UUID(str(row[5])) if row[5] else None,
+            )
+        state = PersonalState(entities, memories, projects, goals)
+        if any(
+            goal.project_id is not None and goal.project_id not in projects
+            for goal in goals.values()
+        ):
+            raise ValueError("stored goal references a missing project")
+        if any(
+            entity_id not in entities
+            for memory in memories.values()
+            for entity_id in memory.entity_ids
+        ):
+            raise ValueError("stored memory references a missing entity")
+        return state
 
 
 @dataclass
