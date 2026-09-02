@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "85e3153bd3566cd4155d04ec96f42d3ee524f624",
-  "deterministic_green_sha": "85e3153bd3566cd4155d04ec96f42d3ee524f624",
-  "last_pushed_sha": "85e3153bd3566cd4155d04ec96f42d3ee524f624",
-  "hosted_ci_green_sha": "85e3153bd3566cd4155d04ec96f42d3ee524f624",
+  "repository_head_sha": "08fb368ddd4a9ee04196023d202da1fec24766a2",
+  "deterministic_green_sha": "08fb368ddd4a9ee04196023d202da1fec24766a2",
+  "last_pushed_sha": "08fb368ddd4a9ee04196023d202da1fec24766a2",
+  "hosted_ci_green_sha": "08fb368ddd4a9ee04196023d202da1fec24766a2",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33677495973",
-    "commit_sha": "85e3153bd3566cd4155d04ec96f42d3ee524f624",
+    "run_id": "33677720490",
+    "commit_sha": "08fb368ddd4a9ee04196023d202da1fec24766a2",
     "conclusion": "success",
     "observed_at": "2026-09-02T19:25:00Z"
   },
@@ -1080,5 +1080,6 @@
     "runtime_provider_failure_checkpoint": "green safety/recovery evidence on installed release ac2507b: when a natural grocery write reached the configured but unavailable OpenClaw provider, Core returned HTTP 200 with a persisted retryable FAILED result and clear owner message rather than a generic 503 or fabricated success (correlation f540614d-fe96-4f85-a66a-882d3196d22b). A subsequent canonical grocery read correlation 37d120ff-5303-4330-9530-da863cd7677d remained 'rice (x6)', proving no grocery mutation occurred. Runtime health stayed healthy/ready; OpenClaw remains optional and unconfigured.",
     "personal_recall_checkpoint": "green deterministic, hosted, and installed owner evidence at 4a9a030: the broad natural request 'what do you remember about me?' no longer competes with task cards; the existing PersonalMemoryFastPath returns a bounded list of current provenance-bearing memories, while mutation-shaped remember requests remain excluded. Full validation passed at 390 tests; hosted run 33676822760 passed; authenticated owner correlation 7def6f2c-a039-4b9c-afc1-b2f36ada66b8 returned nine personal memories with no canonical task misroute or mutation.",
     "personal_temporal_truth_checkpoint": "green safety evidence on installed release 85e3153: 'what did I work on last night?' and 'what did I work on yesterday?' returned no memories because the persisted records matching those labels were outside the requested local-time windows; AEGIS did not trust stale wording over canonical occurred_at timestamps. A timestamp-controlled deterministic regression proves broad activity queries return matching records when they are inside the requested window.",
+    "personal_backup_followup_checkpoint": "green installed owner evidence on release 85e3153: natural follow-up 'what about the backup?' returned five provenance-bearing personal memories, including observed and explicit backup records, without task misrouting, private cross-user disclosure, or mutation (correlation fd65b31e-b6b8-480e-b810-951d1235656f).",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; classify the next demonstrated defect before considering bounded planning."
 }
