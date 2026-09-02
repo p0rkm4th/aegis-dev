@@ -893,9 +893,37 @@ def run_reference_plan(
 
 
 def rewrite_reference_decision(
-    intent: IntentFrame, decision: Decision, cards: tuple[ActionCard, ...]
+    intent: IntentFrame,
+    decision: Decision,
+    cards: tuple[ActionCard, ...],
+    context: Context | None = None,
 ) -> Decision | Result | None:
     """Correct a reference-Pack event proposal when the user named a task destination."""
+
+    if decision.kind is DecisionKind.CLARIFY and context is not None:
+        referent = resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks")
+        task_card = next(
+            (card for card in cards if card.action.action_id == "tasks.complete"), None
+        )
+        if (
+            task_card is not None
+            and "complete" in intent.utterance.casefold()
+            and isinstance(referent, dict)
+            and isinstance(referent.get("title"), str)
+            and isinstance(referent.get("task_id"), str)
+        ):
+            return Decision(
+                kind=DecisionKind.ACTION,
+                action=task_card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "title": referent["title"],
+                            "task_id": referent["task_id"],
+                        }
+                    }
+                ),
+                semantic_mode="ACTION",
+            )
 
     action = decision.action
     if action is None or action.action_id != "tasks.events.create":
