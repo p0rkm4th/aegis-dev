@@ -4233,6 +4233,32 @@ def test_release_truth_rejects_inconsistent_runtime_pointers():
     assert "running_release_sha requires installed_release_sha" in errors
 
 
+def test_release_truth_rejects_owner_runtime_pointer_drift():
+    from aegis.release_truth import validate_state_pointers
+
+    errors = validate_state_pointers(
+        {
+            "repository_head_sha": "abcdef1",
+            "deterministic_green_sha": "abcdef1",
+            "last_pushed_sha": "abcdef1",
+            "hosted_ci_green_sha": "abcdef1",
+            "installed_release_sha": "1234567",
+            "running_release_sha": "1234567",
+            "live_green_sha": "abcdef1",
+            "owner_dogfood_runtime": {
+                "repository_head_sha": "abcdef1",
+                "deterministic_green_sha": "abcdef1",
+                "installed_release_sha": "7654321",
+                "running_release_sha": "1234567",
+                "live_green_sha": "abcdef1",
+            },
+        }
+    )
+    assert (
+        "installed_release_sha disagrees with owner_dogfood_runtime.installed_release_sha" in errors
+    )
+
+
 def test_runtime_identity_does_not_expose_configuration_secrets(monkeypatch):
     from aegis import cli
 
