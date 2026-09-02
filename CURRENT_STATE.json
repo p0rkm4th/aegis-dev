@@ -65,6 +65,7 @@
       ,"bounded owner-feedback defect harvest at e8052a8: --feedback --harvest now emits owner-scoped objective/incorrect/unclear defect candidates with correlation-linked trace IDs, explicit reproduction-required guidance, and no consequential replay; full deterministic validation passed at 340 tests and hosted validation run 33595254846 passed"
       ,"first-party Pack runtime parity guard at 9d6b5ac: deterministic coverage now asserts the shared default registry exposes exactly every ActionCard declared by the reference Pack bundles, preventing first-party bindings from bypassing the generic register_pack contract; full deterministic validation passed at 340 tests and hosted validation run 33595511526 passed"
       ,"owner feedback harvest live at 9d6b5ac: authenticated installed-runtime --feedback --harvest --json returned three owner-scoped defect candidates with event/objective trace IDs and reproduction-required/no-replay flags; output omitted transcripts and private canonical payloads, and the command exited successfully without mutation"
+      ,"hosted release-truth pointer validation at 6ca495d: hosted_ci_green_sha is now a required validated state pointer and repository validation checks it is an ancestor of the checked-out source; full deterministic validation passed at 340 tests and hosted validation run 33595771560 passed. Installed/running owner release remains 9d6b5ac"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -146,10 +147,10 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9d6b5ac",
-  "deterministic_green_sha": "9d6b5ac",
-  "last_pushed_sha": "9d6b5ac",
-  "hosted_ci_green_sha": "9d6b5ac",
+  "repository_head_sha": "6ca495d",
+  "deterministic_green_sha": "6ca495d",
+  "last_pushed_sha": "6ca495d",
+  "hosted_ci_green_sha": "6ca495d",
   "installed_release_sha": "9d6b5ac",
   "running_release_sha": "9d6b5ac",
   "live_green_sha": "f5add80",
@@ -172,8 +173,8 @@
     "running_sha": "23d6441",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/23d6441",
-    "repository_head_sha": "9d6b5ac",
-    "deterministic_green_sha": "9d6b5ac",
+    "repository_head_sha": "6ca495d",
+    "deterministic_green_sha": "6ca495d",
     "installed_release_sha": "9d6b5ac",
     "running_release_sha": "9d6b5ac",
     "live_green_sha": "f5add80",
