@@ -34,6 +34,7 @@
       ,"registry runtime cleanup correction at 6527187: InteractionBoundary now retains Pack-provided ActionRuntime cleanup hooks for registry-resolved actions, closing the OpenClaw/channel lifecycle leak; exact source validation passed at 6527187"
       ,"provider semantic-mode contract at 5630e09: Ollama provider schemas now require semantic_mode for every model decision, while Core's in-process Decision contract remains ergonomic; full validation passed at 330 tests"
       ,"reference action-grounding composition seam at d0e9cb7: task/chore completion grounding and task deadline safety moved from InteractionBoundary into reference_interaction.py; production CLI injects the typed callback, focused/full validation passed at 332 tests, and the broader Core domain-coupling cleanup remains partial"
+      ,"reference finance/planning composition seam at ea4836e: pre-model affordability and cross-domain planning resolution moved behind a composition callback with audit preservation; full validation passed at 332 tests and owner readiness is green"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -115,13 +116,13 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d0e9cb7",
-  "deterministic_green_sha": "d0e9cb7",
-  "last_pushed_sha": "d0e9cb7",
-  "installed_release_sha": "d0e9cb7",
-  "running_release_sha": "d0e9cb7",
+  "repository_head_sha": "ea4836e",
+  "deterministic_green_sha": "ea4836e",
+  "last_pushed_sha": "ea4836e",
+  "installed_release_sha": "ea4836e",
+  "running_release_sha": "ea4836e",
   "live_green_sha": "f5add80",
-  "head_sha": "d0e9cb7",
+  "head_sha": "ea4836e",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -137,15 +138,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "d0e9cb7",
+    "running_sha": "ea4836e",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/d0e9cb7",
-    "repository_head_sha": "d0e9cb7",
-    "deterministic_green_sha": "d0e9cb7",
-    "installed_release_sha": "d0e9cb7",
-    "running_release_sha": "d0e9cb7",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/ea4836e",
+    "repository_head_sha": "ea4836e",
+    "deterministic_green_sha": "ea4836e",
+    "installed_release_sha": "ea4836e",
+    "running_release_sha": "ea4836e",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, exact deterministic validation, and the installed/running owner release are d0e9cb7. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, exact deterministic validation, and the installed/running owner release are ea4836e. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -884,5 +885,5 @@
   "owner_household_read_precedence_live": "green live routing and safety evidence on release a3bfc7d: duplicate 'Finish the task called the quarterly inspection.' correlation 1aca33f5-7fb1-44b5-8ddf-992c23e32927 reached task completion and clarified the canonical duplicate instead of reading events; unique inspection-named task 'Finish the task called rendered detail acceptance 91919191.' correlation 76126a51-156a-4303-ad08-61f92e18ba65 completed with canonical task readback",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
-    "next_action": "Continue extracting remaining first-party fast-path and planning semantics from InteractionBoundary into explicit reference-Pack composition contracts, with behavior-preserving architectural tests. Then resume held-out Qwen3:8B failure-family work without phrase patches. Keep capability-level evidence separate from exact canaries. OpenClaw external mutation, Home Assistant, mobile, and voice remain lane-limited."
+    "next_action": "Continue extracting remaining first-party fast-path and plan execution semantics from InteractionBoundary into the same generic Pack/runtime composition contracts, with behavior-preserving architectural tests. Then resume held-out Qwen3:8B failure-family work without phrase patches. Keep capability-level evidence separate from exact canaries. OpenClaw external mutation, Home Assistant, mobile, and voice remain lane-limited."
 }
