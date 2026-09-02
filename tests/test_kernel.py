@@ -3653,6 +3653,11 @@ def test_finance_fast_path_yields_compound_questions_to_bounded_cognition():
     assert FinanceReadFastPath.matches("Can I afford a $5 purchase?")
 
 
+def test_finance_fast_path_blocks_unsupported_general_balance_reads():
+    assert FinanceReadFastPath.unsupported_balance_read("What is my current balance?")
+    assert not FinanceReadFastPath.unsupported_balance_read("Can I afford a $5 purchase?")
+
+
 def test_household_projection_handles_multi_member_settlement_remainder():
     class Policy:
         def may_derive(self, requester, owner_id, space_id):
