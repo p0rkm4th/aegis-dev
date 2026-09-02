@@ -989,7 +989,11 @@ def resolve_reference_pre_model(
         if finance_result is not None:
             finance = finance_result.evidence
 
-    if CrossDomainPlanningFastPath.matches(utterance):
+    explicit_compound_mutation = (
+        MultiActionFastPath.task_chore_titles(utterance) is not None
+        or MultiActionFastPath.task_event_details(utterance) is not None
+    )
+    if not explicit_compound_mutation and CrossDomainPlanningFastPath.matches(utterance):
         planning_result = CrossDomainPlanningFastPath(
             personal_state,
             household_snapshot,
