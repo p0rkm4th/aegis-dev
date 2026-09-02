@@ -52,6 +52,8 @@
       ,"semantic-mode aggregate reporting at 53352a6: evaluation summaries now include semantic_mode_accuracy globally and per family; full validation passed at 338 tests and hosted validation is green"
       ,"expanded Qwen3:8B semantic baseline at 2b22c96: real provider evaluation over 16 development and 16 held-out cases recorded semantic-mode accuracy 0.80 on both splits; executable route accuracy was 0.40 development and 0.333 held-out, with one unsafe mutation/completion proposal in development and none held-out. No canonical mutation was executed; capability green remains unclaimed"
       ,"expanded semantic baseline count correction: the committed 2b22c96 evaluation files contain 15 development and 15 held-out cases (the earlier 16/16 history wording was inaccurate); the recorded live metrics remain development route 0.40, held-out route 0.333, semantic-mode accuracy 0.80 on both, with capability green unclaimed"
+      ,"owner semantic development-corpus harvest at c1c0694: three new read-only Qwen3:8B owner cases were added to development data after fresh runtime probing—backup-preparation ambiguity clarified safely at 2fb9c1df-34a6-4fe5-8993-ff13b38377c1, informal temporal prioritization grounded authorized tasks at d8481b00-cea3-4cbd-a827-90025c2a63c6, and hosting/weekend loose-ends wording returned authorized canonical task context at 0fdca7fb-33e3-4e8f-9ef1-5361d1a182e3; no mutation, privacy, or authority failure observed, but cross-domain capability remains unclaimed"
+      ,"semantic corpus count update at c1c0694: development corpus now contains 18 cases and held-out corpus remains 15; new owner-harvest cases are development-only and were not used to alter production routing"
       ,"unknown-target grounding containment at 0a10ada: Pack-owned task grounding deterministically blocks a completion proposal whose title matches no authorized canonical task, before executor dispatch; full validation passed at 339 tests and hosted validation is green"
       ,"owner auth probe limitation at 0a10ada: a fresh nonexistent-target owner dogfood probe could not obtain a Keycloak token from the configured service credentials, so no AEGIS request was sent and no canonical state changed; owner-authenticated runtime readiness remains previously proven on c5177ca"
       ,"browser result-code contract at 23d6441: authenticated/client-neutral browser message envelopes now expose a stable code alongside state/detail, derived from canonical Result evidence or lifecycle state; full validation passed at 339 tests, hosted validation is green, and owner readiness is green on the promoted release"
@@ -147,10 +149,10 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "6ca495d",
-  "deterministic_green_sha": "6ca495d",
-  "last_pushed_sha": "6ca495d",
-  "hosted_ci_green_sha": "6ca495d",
+  "repository_head_sha": "c1c0694",
+  "deterministic_green_sha": "c1c0694",
+  "last_pushed_sha": "c1c0694",
+  "hosted_ci_green_sha": "c1c0694",
   "installed_release_sha": "9d6b5ac",
   "running_release_sha": "9d6b5ac",
   "live_green_sha": "f5add80",
@@ -173,8 +175,8 @@
     "running_sha": "23d6441",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/23d6441",
-    "repository_head_sha": "6ca495d",
-    "deterministic_green_sha": "6ca495d",
+    "repository_head_sha": "c1c0694",
+    "deterministic_green_sha": "c1c0694",
     "installed_release_sha": "9d6b5ac",
     "running_release_sha": "9d6b5ac",
     "live_green_sha": "f5add80",
