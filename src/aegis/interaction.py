@@ -23,18 +23,20 @@ from .contracts import (
     WorkingSet,
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
+from .dispatch import (
+    ActionExecutorDispatch as _ActionExecutorDispatch,  # noqa: F401
+)
+from .dispatch import (
+    ActionVerifierDispatch as _ActionVerifierDispatch,  # noqa: F401
+)
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
     GroceryReadFastPath,
     HouseholdReadFastPath,
-    PostgresChoreExecutor,
-    PostgresChoreVerifier,
-    PostgresEventExecutor,
-    PostgresEventVerifier,
     PostgresHouseholdStore,
 )
-from .identity import PostgresSpacePolicy, Role
+from .identity import PostgresSpacePolicy
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -54,9 +56,7 @@ from .reference_runtime import legacy_runtime
 from .store import PostgresObjectiveStore
 from .tasks import (
     ContextualTaskPriorityFastPath,
-    PostgresTaskExecutor,
     PostgresTaskStore,
-    PostgresTaskVerifier,
     TaskIntentClarificationFastPath,
     TaskPriorityFastPath,
     TaskReadFastPath,
@@ -97,6 +97,7 @@ class InteractionDependencies:
         action_grounder: Callable[..., Any] | None = None,
         pre_model_resolver: Callable[..., Result | None] | None = None,
         fallback_card_selector: Callable[[PackManager, str], tuple[ActionCard, ...]] | None = None,
+        plan_runner: Callable[..., Result | None] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -113,6 +114,7 @@ class InteractionDependencies:
         self.action_grounder = action_grounder
         self.pre_model_resolver = pre_model_resolver
         self.fallback_card_selector = fallback_card_selector
+        self.plan_runner = plan_runner
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -375,34 +377,6 @@ class _NoApproval:
 
     def approved(self, request: Any) -> bool:
         return True
-
-
-class _ActionExecutorDispatch:
-    """Dispatch plan steps to their existing Pack executor adapters."""
-
-    def __init__(self, delegates: dict[str, Any]) -> None:
-        self.delegates = delegates
-
-    def execute(self, request: Any) -> Any:
-        try:
-            delegate = self.delegates[request.action.action_id]
-        except KeyError as exc:
-            raise ValueError("plan contains an unsupported action") from exc
-        observation = delegate.execute(request)
-        return observation.model_copy(update={"action_id": request.action.action_id})
-
-
-class _ActionVerifierDispatch:
-    """Dispatch plan verification to the matching canonical verifier."""
-
-    def __init__(self, delegates: dict[str, Any]) -> None:
-        self.delegates = delegates
-
-    def verify(self, observation: Any, contract: Any) -> Any:
-        action_id = observation.action_id
-        if not isinstance(action_id, str) or action_id not in self.delegates:
-            raise ValueError("plan verifier is unavailable")
-        return self.delegates[action_id].verify(observation, contract)
 
 
 class InteractionBoundary:
@@ -969,87 +943,20 @@ class InteractionBoundary:
                     except KeyError:
                         manager.discover(bundle)
                 manager.reconcile(tuple(reference_bundles()), frozenset(("tasks", "kitchen")))
-            plan_titles = MultiActionFastPath.task_chore_titles(utterance)
-            if recovered_plan_actions is not None:
-                plan_actions = recovered_plan_actions
-            elif plan_titles is not None:
-                task_card = next(
-                    card
-                    for card in manager.retrieve("tasks")
-                    if card.action.action_id == "tasks.create"
-                )
-                chore_card = next(
-                    card
-                    for card in manager.retrieve("tasks")
-                    if card.action.action_id == "tasks.chores.create"
-                )
-                task_action = task_card.action.model_copy(
-                    update={"arguments": {"title": plan_titles[0]}}
-                )
-                chore_action = chore_card.action.model_copy(
-                    update={"arguments": {"title": plan_titles[1]}}
-                )
-                plan_actions = (task_action, chore_action)
-            elif (event_details := MultiActionFastPath.task_event_details(utterance)) is not None:
-                task_card = next(
-                    card
-                    for card in manager.retrieve("tasks")
-                    if card.action.action_id == "tasks.create"
-                )
-                event_card = next(
-                    card
-                    for card in manager.retrieve("tasks")
-                    if card.action.action_id == "tasks.events.create"
-                )
-                task_action = task_card.action.model_copy(
-                    update={"arguments": {"title": event_details[0]}}
-                )
-                event_action = event_card.action.model_copy(
-                    update={
-                        "arguments": {
-                            "title": event_details[1],
-                            "starts_at": event_details[2],
-                        }
-                    }
-                )
-                plan_actions = (task_action, event_action)
-            else:
-                plan_actions = None
-            if plan_actions is not None:
-                principal_store = PostgresHouseholdStore(connection)
-                kernel = Kernel(
+            if self.dependencies.plan_runner is not None:
+                plan_result = self.dependencies.plan_runner(
+                    intent,
+                    connection,
+                    principal,
+                    manager,
+                    task_store,
+                    household_store,
+                    recovered_plan_actions,
+                    context,
                     self._model(),
-                    StrictDecisionDecoder(),
-                    PostgresSpacePolicy(
-                        connection,
-                        {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-                    ),
-                    _ActionExecutorDispatch(
-                        {
-                            "tasks.create": PostgresTaskExecutor(task_store, principal),
-                            "tasks.chores.create": PostgresChoreExecutor(
-                                principal_store, principal
-                            ),
-                            "tasks.events.create": PostgresEventExecutor(
-                                principal_store, principal
-                            ),
-                        }
-                    ),
-                    _ActionVerifierDispatch(
-                        {
-                            "tasks.create": PostgresTaskVerifier(task_store, principal),
-                            "tasks.chores.create": PostgresChoreVerifier(
-                                principal_store, principal
-                            ),
-                            "tasks.events.create": PostgresEventVerifier(
-                                principal_store, principal
-                            ),
-                        }
-                    ),
-                    store=PostgresObjectiveStore(connection),
-                    audit=PostgresAuditLog(connection),
                 )
-                return kernel.run_sequence(intent, plan_actions, context=context)
+                if plan_result is not None:
+                    return plan_result
             try:
                 if self.dependencies.model_provider is not None:
                     raise InteractionInputError("semantic action resolution required")
