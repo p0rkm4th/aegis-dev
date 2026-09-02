@@ -2738,7 +2738,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
 
     assert 'id="theme-toggle"' in _INDEX_HTML
     assert "themeStorageKey = 'aegis.theme'" in _INDEX_HTML
-    assert 'color-scheme:dark' in _INDEX_HTML
+    assert "color-scheme:dark" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
     assert 'class="secondary" aria-label="Canonical state"' in _INDEX_HTML
     assert 'placeholder="What can I help with?"' in _INDEX_HTML
