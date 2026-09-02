@@ -15,7 +15,11 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.household import PostgresHouseholdStore
-from aegis.interaction_context import compact_context_evidence, resolve_obvious_ordinal
+from aegis.interaction_context import (
+    compact_context_evidence,
+    resolve_obvious_ordinal,
+    resolve_obvious_ordinal_item,
+)
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
 from aegis.reference_interaction import (
     ground_reference_action,
@@ -65,6 +69,27 @@ def test_contextual_ordinal_read_stays_in_authorized_task_domain():
     assert result.state is ObjectiveState.COMPLETED
     assert result.message == "Task: second task (open); due 2026-09-03"
     assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
+
+
+def test_contextual_ordinal_read_stays_in_authorized_grocery_domain():
+    context = Context(
+        values={
+            "referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice", "beans"]}}
+        },
+        sources=("authorized_canonical_result",),
+    )
+    assert resolve_obvious_ordinal_item("What about the second one?", context) == "beans"
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the second one?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.message == "Grocery item: beans"
+    assert result.evidence["authorized_ordinal_item"] == "beans"
 
 
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:

@@ -98,6 +98,31 @@ def resolve_obvious_ordinal(
     return candidate if isinstance(candidate, dict) else None
 
 
+def resolve_obvious_ordinal_item(utterance: str, context: Context) -> str | None:
+    """Resolve one grocery ordinal from the immediately authorized item list."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    match = re.search(r"\b(?:the\s+)?(first|second|third|fourth|last)\b", utterance.casefold())
+    if match is None:
+        return None
+    referents = context.values.get("referents")
+    if not isinstance(referents, dict):
+        return None
+    those = referents.get("those")
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+        return None
+    candidates = those.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        return None
+    index = _ORDINALS[match.group(1)]
+    try:
+        candidate = candidates[index]
+    except IndexError:
+        return None
+    return candidate if isinstance(candidate, str) and candidate.strip() else None
+
+
 def grounded_context_answer(context: Context, raw: dict[str, Any]) -> Decision | None:
     """Recover an answer from one model-selected, authorized structured focus."""
 
