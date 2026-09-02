@@ -390,6 +390,7 @@ class CrossDomainPlanningFastPath:
         "obligations",
         "chore",
         "chores",
+        "inspection",
         "utility",
         "utilities",
     )
@@ -416,7 +417,8 @@ class CrossDomainPlanningFastPath:
             (
                 any(term in text for term in cls._PERSONAL_TERMS),
                 any(term in text for term in cls._SHARED_TERMS),
-                any(term in text for term in cls._TASK_TERMS),
+                any(term in text for term in cls._TASK_TERMS)
+                or any(term in text for term in ("need to", "take care of", "prepare")),
                 any(term in text for term in cls._FINANCE_TERMS),
             )
         )

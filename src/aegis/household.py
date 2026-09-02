@@ -419,6 +419,14 @@ class HouseholdReadFastPath:
             return False
         if any(term in text for term in ("task", "tasks", "todo", "to-do", "grocery")):
             return False
+        task_objective = any(
+            term in text for term in ("need to", "take care of", "prepare", "before")
+        )
+        explicit_event = any(
+            term in text for term in ("event", "events", "calendar", "scheduled", "appointment")
+        )
+        if task_objective and not explicit_event:
+            return False
         return any(trigger in text for trigger in cls._TRIGGERS) and (
             text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS
         )
