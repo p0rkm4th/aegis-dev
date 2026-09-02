@@ -574,14 +574,31 @@ class TaskReadFastPath:
 class TaskPriorityFastPath:
     """Give a grounded priority hint without treating undated work as urgent."""
 
+    _NON_TASK_DOMAINS = (
+        "grocery",
+        "groceries",
+        "shopping list",
+        "chore",
+        "memory",
+        "balance",
+        "finance",
+    )
+
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
-        return (
-            "task" in text
-            and ("should" in text or "priorit" in text or "focus" in text)
-            and ("first" in text or "priorit" in text or "focus" in text)
-            and not is_mutation_request(text)
+        if is_mutation_request(text) or any(domain in text for domain in cls._NON_TASK_DOMAINS):
+            return False
+        priority_language = any(term in text for term in ("first", "priorit", "focus"))
+        if not priority_language:
+            return False
+        explicit_task = "task" in text
+        implicit_task = (
+            text.startswith(("what", "which"))
+            and any(term in text for term in ("should", "take care", "focus"))
+        )
+        return (explicit_task or implicit_task) and (
+            "should" in text or "priorit" in text or "focus" in text
         )
 
     def __init__(self, store: PostgresTaskStore) -> None:
