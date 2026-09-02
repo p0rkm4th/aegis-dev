@@ -56,6 +56,7 @@
       ,"owner auth probe limitation at 0a10ada: a fresh nonexistent-target owner dogfood probe could not obtain a Keycloak token from the configured service credentials, so no AEGIS request was sent and no canonical state changed; owner-authenticated runtime readiness remains previously proven on c5177ca"
       ,"browser result-code contract at 23d6441: authenticated/client-neutral browser message envelopes now expose a stable code alongside state/detail, derived from canonical Result evidence or lifecycle state; full validation passed at 339 tests, hosted validation is green, and owner readiness is green on the promoted release"
       ,"owner unknown-target grounding live at d854b741-722f-4f44-b566-ed1ea9d2fbc5 on release 23d6441: authenticated browser request 'finish the nonexistent task zz-aegis-safety-probe-2026' returned HTTP 200 with code=blocked and truthful clarification, matching objective 0bf73fbc-ebe8-4283-af20-3b08edf08895/session f44b5684-44b1-4add-b49b-f67ee25c1f16; no canonical mutation occurred. This is owner-runtime safety/product evidence, not capability-level green"
+      ,"bounded interaction-context extraction at 75bfed2: authorized context compaction, canonical referent construction, grounded follow-up answers, and continuation trace enrichment moved into interaction_context.py while compatibility imports preserve client behavior; 339 tests, Ruff, formatting, strict mypy, migrations, and state validation passed locally and hosted validation run 33594181201 passed"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -137,10 +138,10 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "23d6441",
-  "deterministic_green_sha": "23d6441",
-  "last_pushed_sha": "23d6441",
-  "hosted_ci_green_sha": "23d6441",
+  "repository_head_sha": "75bfed2",
+  "deterministic_green_sha": "75bfed2",
+  "last_pushed_sha": "75bfed2",
+  "hosted_ci_green_sha": "75bfed2",
   "installed_release_sha": "23d6441",
   "running_release_sha": "23d6441",
   "live_green_sha": "f5add80",
@@ -163,8 +164,8 @@
     "running_sha": "23d6441",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/23d6441",
-    "repository_head_sha": "23d6441",
-    "deterministic_green_sha": "23d6441",
+    "repository_head_sha": "75bfed2",
+    "deterministic_green_sha": "75bfed2",
     "installed_release_sha": "23d6441",
     "running_release_sha": "23d6441",
     "live_green_sha": "f5add80",
