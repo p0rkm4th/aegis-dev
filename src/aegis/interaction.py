@@ -29,6 +29,7 @@ from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
     Chore,
     ChoreCompletionFastPath,
+    GroceryReadFastPath,
     HouseholdObligation,
     HouseholdReadFastPath,
     PostgresChoreExecutor,
@@ -930,6 +931,9 @@ class InteractionBoundary:
                 if household_result is not None:
                     return persist_fast_result(household_result)
             if recovered_plan_actions is None and composed_title is None:
+                grocery_result = GroceryReadFastPath(household_store).resolve(intent)
+                if grocery_result is not None:
+                    return persist_fast_result(grocery_result)
                 if self.dependencies.model_provider is None:
                     task_clarification = TaskIntentClarificationFastPath.resolve(intent)
                     if task_clarification is not None:

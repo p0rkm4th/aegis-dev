@@ -454,6 +454,46 @@ class HouseholdReadFastPath:
         )
 
 
+class GroceryReadFastPath:
+    """Handle an unambiguous grocery-list read from canonical household state."""
+
+    _READ_PREFIXES = (
+        "what",
+        "show",
+        "list",
+        "which",
+        "see",
+        "display",
+        "is",
+        "are",
+    )
+
+    def __init__(self, store: PostgresHouseholdStore) -> None:
+        self.store = store
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold().strip()
+        if is_mutation_request(text):
+            return False
+        grocery_noun = any(term in text.split() for term in ("grocery", "groceries"))
+        return grocery_noun and text.startswith(cls._READ_PREFIXES)
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        if not self.matches(intent.utterance):
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Canonical grocery list read",
+            evidence={
+                "collection": "groceries",
+                "canonical_items": list(self.store.list_groceries(intent.principal)),
+            },
+            correlation_id=intent.correlation_id,
+        )
+
+
 class PostgresChoreExecutor:
     """Adapt replay-safe shared chore creation to the Core Executor port."""
 
