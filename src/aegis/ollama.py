@@ -111,6 +111,18 @@ class OllamaProvider:
         return json.dumps(
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
+                "routing_rule": (
+                    "This is an action-routing pass. Decide whether the current request "
+                    "clearly proposes a supplied write-capable action. Do not answer a "
+                    "read question from context during this pass; return ANSWER only for "
+                    "benign conversation that does not request a change, or CLARIFY when "
+                    "the requested change is ambiguous."
+                    if request.routing_only
+                    else (
+                        "This is the final bounded cognition pass; answer only from the "
+                        "supplied context."
+                    )
+                ),
                 "action_rule": (
                     "For ACTION, set action_ref to exactly one action_id from the supplied "
                     "ActionCards and put only declared argument values in action_arguments. "
@@ -203,6 +215,7 @@ class OllamaProvider:
                 ),
                 "utterance": request.working_set.intent.utterance,
                 "bounded_context": request.working_set.context.model_dump(mode="json"),
+                "routing_only": request.routing_only,
                 "action_cards": cards,
             },
             sort_keys=True,

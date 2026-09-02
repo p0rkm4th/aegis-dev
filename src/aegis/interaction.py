@@ -360,10 +360,27 @@ class InteractionBoundary:
             return None
         try:
             provider = self.dependencies.model_provider()
+            routing_only = any(
+                permission.endswith(".write")
+                for card in cards
+                for permission in card.action.required_permissions
+            )
+            routing_context = context
+            if routing_only:
+                routing_context = context.model_copy(
+                    update={
+                        "values": {
+                            key: value
+                            for key, value in context.values.items()
+                            if key != "canonical_facts"
+                        }
+                    }
+                )
             request = ModelRequest(
-                working_set=WorkingSet(intent=intent, context=context),
+                working_set=WorkingSet(intent=intent, context=routing_context),
                 action_cards=cards,
                 allow_argument_proposals=True,
+                routing_only=routing_only,
             )
             decoder = StrictDecisionDecoder()
             decision: Decision | None = None
@@ -389,6 +406,16 @@ class InteractionBoundary:
                     request = request.model_copy(update={"action_cards": ()})
             if decision is None:
                 raise InvalidDecision("model answer repair did not produce a decision")
+            if routing_only and decision.kind is DecisionKind.ANSWER:
+                request = request.model_copy(
+                    update={
+                        "working_set": WorkingSet(intent=intent, context=context),
+                        "routing_only": False,
+                    }
+                )
+                decision = decoder.decode(
+                    provider.decide(request), request.action_cards, allow_argument_proposals=True
+                )
             if decision.kind is DecisionKind.ACTION and decision.action is not None:
                 card = next(
                     (card for card in cards if card.action.action_id == decision.action.action_id),

@@ -69,6 +69,66 @@ def test_bounded_model_fallback_accepts_non_authoritative_answer():
     assert decision.answer == "A fish story"
 
 
+def test_write_capable_fallback_routes_without_canonical_read_context():
+    from aegis.interaction import InteractionBoundary
+
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "tasks.complete"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    context = Context(
+        values={"canonical_facts": {"canonical_items": ["rice"]}},
+        sources=("authorized_canonical_result",),
+    )
+
+    class Provider:
+        def __init__(self):
+            self.requests = []
+
+        def decide(self, request):
+            self.requests.append(request)
+            return type(
+                "Response",
+                (),
+                {
+                    "raw": {
+                        "kind": "ACTION",
+                        "action_ref": card.action.action_id,
+                        "action_arguments": {"title": "frontier routing task"},
+                    }
+                },
+            )()
+
+    provider = Provider()
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("tasks", card),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            model_provider=lambda: provider,
+        )
+    )
+
+    decision = boundary._fallback_decision(
+        IntentFrame(principal=principal, utterance="I finished frontier routing task"),
+        (card,),
+        context,
+    )
+
+    assert isinstance(decision, Decision)
+    assert decision.kind is DecisionKind.ACTION
+    assert len(provider.requests) == 1
+    assert provider.requests[0].routing_only is True
+    assert "canonical_facts" not in provider.requests[0].working_set.context.values
+
+
 def test_task_read_fast_path_requires_high_confidence_read_shape():
     assert TaskReadFastPath.matches("Show my tasks")
     assert not TaskReadFastPath.matches("set task status get gud scrub complete")
