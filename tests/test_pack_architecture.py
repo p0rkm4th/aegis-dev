@@ -1,5 +1,6 @@
 """Architectural guardrails for generic Pack/Core modules."""
 
+import ast
 from pathlib import Path
 
 GENERIC_CORE = (
@@ -59,6 +60,26 @@ def test_generic_interaction_does_not_embed_first_party_pack_knowledge() -> None
     forbidden = (*PACK_ACTION_IDS, *DOMAIN_IMPORTS, "reference_bundles")
     violations = [marker for marker in forbidden if marker in source]
     assert not violations, "first-party Pack knowledge leaked into interaction: " + ", ".join(
+        violations
+    )
+
+
+def test_generic_modules_have_no_syntax_level_first_party_imports_or_action_literals() -> None:
+    """Keep the neutrality guard independent of comments and formatting."""
+
+    violations: list[str] = []
+    modules = (*GENERIC_CORE, Path("src/aegis/interaction.py"))
+    for path in modules:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                if node.level and module in {"tasks", "household", "personal", "finance"}:
+                    violations.append(f"{path}: import .{module}")
+            elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+                if any(node.value.startswith(prefix) for prefix in PACK_ACTION_IDS):
+                    violations.append(f"{path}: action literal {node.value}")
+    assert not violations, "first-party syntax leaked into generic modules: " + ", ".join(
         violations
     )
 
