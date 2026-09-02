@@ -2045,7 +2045,7 @@ def test_browser_app_session_gate_rejects_unauthenticated_api_requests():
     }
 
     status, _, payload = app.dispatch(
-        "GET", "/api/constellation", headers={"x-aegis-session": "session-secret"}
+        "GET", "/api/constellation", headers={"X-Aegis-Session": "session-secret"}
     )
     assert status == 200
     assert json.loads(payload) == {"nodes": [], "edges": [], "details": {}}
