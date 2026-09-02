@@ -35,6 +35,7 @@
       "M08.05 fresh owner action-family probe at bbe65d3 remained capability-non-green: create variants clarified, completion variants failed to resolve absent canonical titles, and one informal completion was harmlessly misrouted to a grocery read (78556d24-7d2a-45da-bb28-de96e5865558; 97c15e24-b0af-46ef-a591-e299208e3e16; 5395064c-e5bc-4df1-9297-2d828797cc58; 04f48c7e-d0f8-43fe-9306-af06afb146bf)",
       "M08.05 bounded routing checkpoint ba2618b live owner proof: divergent semantic decisions now clarify or reach the correct task-completion path; unknown task names fail closed (bea6bbfc-cab0-4636-b4d6-afab319e0646) and existing task completion completed (1865bd64-763a-4f20-a1d6-b70b832b4434)",
       "M08.05 namespace-scoped routing at a341035 live owner proof: unseen informal completion completed existing task Review backup architecture (c0d13c85-1875-478d-83ee-56a267b15baa), while unknown target clarified safely (727d8e8f-7eab-4e6e-b730-a5c516887e47); capability green remains unclaimed pending varied family",
+      "M08.05 canonical-title grounding at 3376df7 live owner proof: informal unique article omission completed canonical task the annual inspection (f7ad4655-5721-4684-a97d-075e52103f68), while duplicate-title completion clarified safely (39595126-2e20-449c-81be-24331ecb2cf6)",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -71,9 +72,9 @@
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "a341035",
-  "last_green_sha": "a341035",
-  "last_pushed_sha": "a341035",
+  "head_sha": "3376df7",
+  "last_green_sha": "3376df7",
+  "last_pushed_sha": "3376df7",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -88,9 +89,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "a341035",
-    "last_known_green_sha": "a341035",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/a341035",
+    "running_sha": "3376df7",
+    "last_known_green_sha": "3376df7",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/3376df7",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
