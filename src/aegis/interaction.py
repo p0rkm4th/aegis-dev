@@ -79,6 +79,7 @@ from .tasks import (
 )
 from .utterance import (
     has_multiple_question_clauses,
+    is_mutation_request,
     is_question_request,
     is_task_destination_request,
 )
@@ -678,6 +679,22 @@ class InteractionBoundary:
                     )
             return decision
         except InvalidDecision as exc:
+            if is_question_request(intent.utterance) and not is_mutation_request(intent.utterance):
+                try:
+                    recovery_request = ModelRequest(
+                        working_set=WorkingSet(intent=intent, context=context),
+                        action_cards=(),
+                    )
+                    recovered = StrictDecisionDecoder().decode(
+                        provider.decide(recovery_request), (), allow_argument_proposals=False
+                    )
+                    if recovered.kind is DecisionKind.ANSWER:
+                        return recovered
+                except Exception:
+                    # Recovery is deliberately best-effort and answer-only;
+                    # retain the original bounded failure if it cannot produce
+                    # a valid non-authoritative answer.
+                    pass
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
