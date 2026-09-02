@@ -276,9 +276,6 @@ class InteractionBoundary:
                         intent,
                         fallback_context,
                         self._fallback_cards(manager, utterance, fallback_context),
-                        lambda query, selected_context: self._fallback_cards(
-                            manager, query, selected_context
-                        ),
                     )
                     if isinstance(resolution, Result):
                         return persist_fast_result(resolution)
