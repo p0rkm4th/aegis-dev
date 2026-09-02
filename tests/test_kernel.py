@@ -113,6 +113,7 @@ from aegis.personal import (
     Provenance,
 )
 from aegis.planning import (
+    ContextualCrossDomainPriorityFastPath,
     ContextualMutationGuard,
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
@@ -2777,6 +2778,43 @@ def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
     assert len(planning["goals"]) <= 5
     assert len(planning["open_obligations"]) <= 5
     assert len(planning["open_tasks"]) <= 5
+
+
+def test_contextual_cross_domain_priority_uses_authorized_task_deadline():
+    context = Context(
+        values={
+            "canonical_facts": {
+                "planning": {
+                    "open_tasks": [
+                        {
+                            "task_id": "later",
+                            "title": "later task",
+                            "due_at": "2026-09-05T12:00:00+00:00",
+                        },
+                        {
+                            "task_id": "first",
+                            "title": "first task",
+                            "due_at": "2026-09-03T12:00:00+00:00",
+                        },
+                    ],
+                    "open_chores": [{"chore_id": "chore", "title": "clean kitchen"}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualCrossDomainPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="which of these is the best place to begin?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message.endswith("first task")
+    assert result.evidence["priority_basis"] == "authorized_prior_result_earliest_task_deadline"
 
 
 def test_cross_domain_planning_recognizes_plural_utilities_context():
