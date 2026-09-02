@@ -677,12 +677,17 @@ class InteractionBoundary:
                         provider.decide(focused), (card,), allow_argument_proposals=True
                     )
             return decision
-        except InvalidDecision:
+        except InvalidDecision as exc:
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
                 message="I could not safely interpret that request. Please rephrase it.",
-                evidence={"provenance": "model_boundary", "authoritative": False},
+                evidence={
+                    "provenance": "model_boundary",
+                    "authoritative": False,
+                    "failure_class": "invalid_model_decision",
+                    "failure_reason": str(exc),
+                },
                 correlation_id=intent.correlation_id,
                 retryable=True,
             )
