@@ -223,6 +223,44 @@ class FinanceReadFastPath:
     """Deterministic affordability read using private state only below Core."""
 
     _AMOUNT = re.compile(r"(?:\$\s*|usd\s*)(\d+(?:\.\d{1,2})?)", re.IGNORECASE)
+    _SPOKEN_AMOUNT = re.compile(
+        r"\b(?P<amount>(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
+        r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
+        r"nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)"
+        r"(?:\s+(?:one|two|three|four|five|six|seven|eight|nine))?)\s+"
+        r"(?:dollars?|bucks?)\b",
+        re.IGNORECASE,
+    )
+    _NUMBER_WORDS = {
+        "zero": 0,
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+        "thirteen": 13,
+        "fourteen": 14,
+        "fifteen": 15,
+        "sixteen": 16,
+        "seventeen": 17,
+        "eighteen": 18,
+        "nineteen": 19,
+        "twenty": 20,
+        "thirty": 30,
+        "forty": 40,
+        "fifty": 50,
+        "sixty": 60,
+        "seventy": 70,
+        "eighty": 80,
+        "ninety": 90,
+    }
     _SAFE_PURCHASE = re.compile(
         r"\b(?:purchase|expense|spend(?:ing)?)\b.{0,40}\b(?:safe|okay|ok|manageable)\b",
         re.IGNORECASE,
@@ -238,7 +276,7 @@ class FinanceReadFastPath:
             # One affordability Result cannot complete a compound objective;
             # bounded cognition must clarify or compose it instead.
             return False
-        has_amount = bool(cls._AMOUNT.search(text))
+        has_amount = cls.amount_cents(text) is not None
         return has_amount and (
             "can i afford" in text
             or "can we afford" in text
@@ -256,12 +294,25 @@ class FinanceReadFastPath:
         """Identify affordability questions that cannot be answered without an amount."""
 
         text = utterance.casefold()
-        return not bool(cls._AMOUNT.search(text)) and (
+        return cls.amount_cents(text) is None and (
             "can i afford" in text
             or "can we afford" in text
             or "affordable" in text
             or "safe to spend" in text
         )
+
+    @classmethod
+    def amount_cents(cls, utterance: str) -> int | None:
+        """Parse bounded numeric or spoken dollar amounts without model routing."""
+
+        numeric = cls._AMOUNT.search(utterance)
+        if numeric is not None:
+            return round(float(numeric.group(1)) * 100)
+        spoken = cls._SPOKEN_AMOUNT.search(utterance)
+        if spoken is None:
+            return None
+        amount = sum(cls._NUMBER_WORDS[word] for word in spoken.group("amount").casefold().split())
+        return amount * 100
 
     def resolve(
         self,
@@ -270,10 +321,9 @@ class FinanceReadFastPath:
     ) -> Result | None:
         if not self.matches(intent.utterance):
             return None
-        match = self._AMOUNT.search(intent.utterance)
-        if match is None:
+        purchase_cents = self.amount_cents(intent.utterance)
+        if purchase_cents is None:
             return None
-        purchase_cents = round(float(match.group(1)) * 100)
         projection = self.ledger.assess_affordability(
             intent.principal,
             intent.principal.id,
