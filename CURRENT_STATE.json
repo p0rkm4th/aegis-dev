@@ -153,7 +153,7 @@
     "installed_release_sha": "721dc58",
     "running_release_sha": "721dc58",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev and exact deterministic validation are 721dc58; hosted validation remains confirmed through cf3db23 pending this source run. The installed/running owner release is 721dc58 with green PostgreSQL and Qwen3:8B readiness. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and exact deterministic validation are 721dc58; hosted validation remains confirmed through cf3db23 pending this source run. The installed/running owner release is 721dc58 with green PostgreSQL and Qwen3:8B readiness. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
