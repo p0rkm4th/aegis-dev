@@ -17,9 +17,7 @@ def test_model_fallback_reuses_one_bounded_retrieval_working_set(monkeypatch):
 
     class Provider:
         def decide(self, _request):
-            return SimpleNamespace(
-                raw={"kind": "ACTION", "action_ref": card.action.action_id}
-            )
+            return SimpleNamespace(raw={"kind": "ACTION", "action_ref": card.action.action_id})
 
     class Store:
         def get_objective_by_correlation(self, _correlation_id, _principal):
