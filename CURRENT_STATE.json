@@ -81,6 +81,7 @@
       ,"hosted validation checkpoint at e320266: GitHub Actions run 33600004143 completed successfully with the built-artifact smoke gate and full deterministic validation; the owner release remains independently promoted at 1ec1e2e."
       ,"semantic corpus contract checkpoint at f98dfac: corpus auditing now requires explicit family, kind, and semantic-mode labels and rejects unsupported values before evaluation; 346 deterministic tests and hosted run 33600207038 passed."
       ,"owner-feedback trace checkpoint at a43426c: owner feedback persistence and safe triage projections retain the originating request correlation_id alongside event/objective IDs without transcripts or replay; full deterministic validation passed and hosted run 33600371916 passed."
+      ,"owner feedback degraded-path checkpoint at d3ec44f: missing AEGIS_DATABASE_URL during --feedback --harvest now returns a structured feedback_unavailable result instead of a traceback; 347 deterministic tests passed, hosted run 33600578932 passed, and the authenticated owner service is healthy on the promoted release."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -162,12 +163,12 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a43426c",
-  "deterministic_green_sha": "a43426c",
-  "last_pushed_sha": "a43426c",
-  "hosted_ci_green_sha": "a43426c",
-  "installed_release_sha": "a43426c",
-  "running_release_sha": "a43426c",
+  "repository_head_sha": "d3ec44f",
+  "deterministic_green_sha": "d3ec44f",
+  "last_pushed_sha": "d3ec44f",
+  "hosted_ci_green_sha": "d3ec44f",
+  "installed_release_sha": "d3ec44f",
+  "running_release_sha": "d3ec44f",
   "live_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -183,15 +184,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "a43426c",
+    "running_sha": "d3ec44f",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/a43426c",
-    "repository_head_sha": "a43426c",
-    "deterministic_green_sha": "a43426c",
-    "installed_release_sha": "a43426c",
-    "running_release_sha": "a43426c",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/d3ec44f",
+    "repository_head_sha": "d3ec44f",
+    "deterministic_green_sha": "d3ec44f",
+    "installed_release_sha": "d3ec44f",
+    "running_release_sha": "d3ec44f",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint a43426c (hosted run 33600371916); installed/running owner release a43426c is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint d3ec44f (hosted run 33600578932); installed/running owner release d3ec44f is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
