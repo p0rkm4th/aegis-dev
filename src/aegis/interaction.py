@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
-from datetime import datetime, timezone
 from typing import Any, Literal, cast
 from uuid import UUID, uuid4
 
@@ -86,6 +85,7 @@ class InteractionDependencies:
         plan_runner: Callable[..., Result | None] | None = None,
         decision_rewriter: Callable[..., Decision | Result | None] | None = None,
         fast_path_resolver: Callable[..., Result | None] | None = None,
+        fallback_context_builder: Callable[..., Context] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -105,6 +105,7 @@ class InteractionDependencies:
         self.plan_runner = plan_runner
         self.decision_rewriter = decision_rewriter
         self.fast_path_resolver = fast_path_resolver
+        self.fallback_context_builder = fallback_context_builder
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -262,97 +263,6 @@ def _context_from_prior_result(
             "canonical_facts": evidence,
         },
         sources=("authorized_canonical_result",),
-    )
-
-
-def _fallback_working_context(
-    context: Context,
-    task_store: PostgresTaskStore,
-    household_store: PostgresHouseholdStore,
-    principal: Principal,
-    utterance: str,
-) -> Context:
-    """Add a small authorized candidate set for bounded intent resolution."""
-
-    values = dict(context.values)
-    values.setdefault("as_of_date", datetime.now(timezone.utc).date().isoformat())
-    facts = dict(values.get("canonical_facts", {}))
-    if "canonical_items" in facts or "canonical_tasks" in facts:
-        return Context(
-            values=values,
-            sources=tuple(dict.fromkeys((*context.sources, "authorized_canonical_context"))),
-        )
-    facts["canonical_items"] = list(
-        dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
-    )[:20]
-    read_snapshot = getattr(household_store, "read_snapshot", None)
-    household_snapshot = read_snapshot(principal) if callable(read_snapshot) else {}
-    if isinstance(household_snapshot, dict):
-        chores = household_snapshot.get("chores", ())
-        if isinstance(chores, (list, tuple)):
-            facts["canonical_chores"] = [
-                {
-                    "title": str(chore.title),
-                    "completed": bool(chore.completed),
-                }
-                for chore in chores
-                if hasattr(chore, "title") and hasattr(chore, "completed")
-            ][:20]
-        obligations = household_snapshot.get("obligations", ())
-        if isinstance(obligations, (list, tuple)):
-            facts["canonical_obligations"] = [
-                {
-                    "title": str(obligation.title),
-                    "settled": bool(obligation.settled),
-                    "responsible_id": str(obligation.responsible_id),
-                }
-                for obligation in obligations
-                if hasattr(obligation, "title")
-                and hasattr(obligation, "settled")
-                and hasattr(obligation, "responsible_id")
-            ][:20]
-    tasks = list(task_store.list(principal))
-    priority_request = ("which" in utterance.casefold() and "first" in utterance.casefold()) or any(
-        term in utterance.casefold() for term in ("prioritize", "priority", "focus")
-    )
-    if priority_request:
-        tasks = [task for task in tasks if task.status.value == "open"]
-        tasks.sort(
-            key=lambda task: (
-                task.due_at is None,
-                task.due_at.isoformat() if task.due_at is not None else "",
-            )
-        )
-    query_terms = {
-        term
-        for term in utterance.casefold().split()
-        if len(term) >= 3 and term not in {"the", "task", "tasks", "please", "complete"}
-    }
-    ranked = sorted(
-        enumerate(tasks),
-        key=lambda item: (
-            len(query_terms.intersection(set(item[1].title.casefold().split()))),
-            -item[0],
-        ),
-        reverse=True,
-    )
-    selected = [
-        task for _, task in ranked if query_terms.intersection(task.title.casefold().split())
-    ]
-    if not selected:
-        selected = tasks
-    facts["canonical_tasks"] = [
-        {
-            "title": task.title,
-            "status": task.status.value,
-            **({"due_at": task.due_at.isoformat()} if task.due_at is not None else {}),
-        }
-        for task in selected[:20]
-    ]
-    values["canonical_facts"] = facts
-    return Context(
-        values=values,
-        sources=tuple(dict.fromkeys((*context.sources, "authorized_task_candidates"))),
     )
 
 
@@ -851,8 +761,12 @@ class InteractionBoundary:
                     raise InteractionInputError("semantic action resolution required")
                 _domain, card = self.dependencies.select_action(utterance, manager)
             except InteractionInputError as exc:
-                fallback_context = _fallback_working_context(
-                    context, task_store, household_store, principal, utterance
+                fallback_context = (
+                    self.dependencies.fallback_context_builder(
+                        context, task_store, household_store, principal, utterance
+                    )
+                    if self.dependencies.fallback_context_builder is not None
+                    else context
                 )
                 fallback = self._fallback_decision(
                     intent,
