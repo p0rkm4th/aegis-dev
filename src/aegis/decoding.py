@@ -29,6 +29,8 @@ class StrictDecisionDecoder:
         except ValidationError as exc:
             raise InvalidDecision("model response failed the decision schema") from exc
         if decision.kind is DecisionKind.ACTION:
+            if decision.semantic_mode not in {None, "ACTION"}:
+                raise InvalidDecision("ACTION decision must use semantic_mode ACTION")
             proposed = decision.action
             action_ref = decision.action_ref
             if proposed is None:
@@ -78,9 +80,13 @@ class StrictDecisionDecoder:
                     return decision.model_copy(update={"action": card.action})
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
         elif decision.kind is DecisionKind.ANSWER:
+            if decision.semantic_mode not in {None, "READ", "GENERATION"}:
+                raise InvalidDecision("ANSWER decision must use semantic_mode READ or GENERATION")
             if not decision.answer or not decision.answer.strip():
                 raise InvalidDecision("ANSWER requires non-empty answer content")
         elif decision.kind is DecisionKind.CLARIFY:
+            if decision.semantic_mode not in {None, "CLARIFY"}:
+                raise InvalidDecision("CLARIFY decision must use semantic_mode CLARIFY")
             if not decision.clarification or not decision.clarification.strip():
                 raise InvalidDecision("CLARIFY requires a clarification question")
         elif (

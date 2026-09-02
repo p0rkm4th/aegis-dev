@@ -928,6 +928,32 @@ def test_decoder_requires_text_for_clarification():
         raise AssertionError("empty clarification was accepted")
 
 
+def test_decoder_rejects_semantic_mode_that_contradicts_decision_kind():
+    action = {
+        "kind": "ACTION",
+        "semantic_mode": "READ",
+        "action_ref": "safe",
+        "action_arguments": {},
+    }
+    answer = {"kind": "ANSWER", "semantic_mode": "ACTION", "answer": "ok"}
+    clarify = {"kind": "CLARIFY", "semantic_mode": "GENERATION", "clarification": "Which?"}
+    card = ActionCard(
+        action=ActionSpec(action_id="safe", capability="test.safe"),
+        summary="safe",
+        relevance=1,
+    )
+    for raw in (action, answer, clarify):
+        try:
+            StrictDecisionDecoder().decode(
+                type("Response", (), {"raw": raw})(),
+                (card,),
+                allow_argument_proposals=True,
+            )
+        except InvalidDecision:
+            continue
+        raise AssertionError("contradictory semantic mode was accepted")
+
+
 def test_decoder_accepts_bounded_answer_context_focus_but_not_action_focus():
     answer = StrictDecisionDecoder().decode(
         type(
