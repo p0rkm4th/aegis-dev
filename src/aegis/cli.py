@@ -531,7 +531,10 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
                 f"{len(network.devices)} devices · {len(network.scopes)} authorized scopes",
             ),
         )
+        pack_ids = set(available)
         for domain_id, label, detail in domain_summaries:
+            if domain_id in pack_ids:
+                continue
             node_id = f"domain-{domain_id}"
             nodes.append(
                 {
@@ -575,11 +578,11 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
                 ],
             },
             "domain-finance": {"snapshot_available": finance is not None},
-            "domain-homelab": {
+            "pack-homelab": {
                 "hosts": [{"hostname": host.hostname} for host in homelab.hosts.values()],
                 "services": [{"name": service.name} for service in homelab.services.values()],
             },
-            "domain-network": {
+            "pack-network": {
                 "devices": [
                     {
                         "name": device.hostname or device.address,
