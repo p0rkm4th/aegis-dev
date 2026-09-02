@@ -96,6 +96,8 @@
       ,"AEGIS P0 baseline race reproduction: temporary checkout of pre-fix 31592d008b69bd374df4a29b97f2e55dfa312b52 synchronized two independent PostgreSQL callers after both get_action() reads and before inserts; executor_calls=2, canonical Action rows=1, authoritative Observation rows=2, and both callers returned completed. This directly demonstrates the lost insert-ownership decision fixed by 8313955."
       ,"Retrieval observability checkpoint at da3d1c8: generic semantic retrieval now exposes non-authoritative cosine scores through CapabilityMatch while preserving the card-only cognition contract; development evaluation records ranked candidate scores, metadata relevance, top-score margin, expected-candidate availability, and candidate-bound decisions. Duplicate fallback retrieval was removed at d0358b7 and covered by a one-call working-set regression. Full deterministic validation passed 373 tests with one PostgreSQL-gated skip; hosted validation run 33649579542 passed for da3d1c8. A real Qwen3:8B development evaluation was attempted against the configured endpoint but interrupted after a stalled chat request at approximately seven minutes; no report was produced and no held-out evaluation was run."
       ,"PostgreSQL acceptance timing hardening at 70d71bc: contention-test synchronization bounds increased from 10-15 seconds to 30 seconds without weakening ownership assertions; deterministic validation remained green at 373 tests and hosted validation run 33650750734 passed for the pushed implementation."
+      ,"Evaluation reliability checkpoint at 6425a32: scripts/evaluate_boundary.py now emits case-start/completion progress, writes atomic per-case checkpoints, resumes only when dataset/source/model/digest/prompt/decoder/context/ActionCard/retrieval/provider fingerprints match, classifies provider timeout/transport failures as truthful RESULT records, and aggregates per-case counters across resumed runs. A real Qwen3:8B development dogfood reached 64/160 cases before the 300-second watchdog and preserved a valid checkpoint; resume skipped those 64, completed case 65, and preserved 65 records under an 8-second watchdog. No final report or cognition claim was manufactured. Full deterministic validation passed 375 tests with one PostgreSQL-gated skip; hosted run 33658904758 exposed a PostgreSQL timing flake in the separate acceptance lane."
+      ,"Hosted PostgreSQL contention timing follow-up at 679258d: increased only test synchronization bounds from 30 to 60 seconds after run 33658904758 failed in the focused acceptance step while local acceptance remained green; ownership assertions and all execution invariants are unchanged. Full deterministic validation passed 375 tests with one PostgreSQL-gated skip; hosted validation run 33659116660 passed."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -178,17 +180,17 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
-  "deterministic_green_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
-  "last_pushed_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
-  "hosted_ci_green_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
+  "repository_head_sha": "679258df2595a9aa89e850d87b4088321c1107a1",
+  "deterministic_green_sha": "679258df2595a9aa89e850d87b4088321c1107a1",
+  "last_pushed_sha": "679258df2595a9aa89e850d87b4088321c1107a1",
+  "hosted_ci_green_sha": "679258df2595a9aa89e850d87b4088321c1107a1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33650921246",
-    "commit_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
+    "run_id": "33659116660",
+    "commit_sha": "679258df2595a9aa89e850d87b4088321c1107a1",
     "conclusion": "success",
-    "observed_at": "2026-09-02T13:34:25Z"
+    "observed_at": "2026-09-02T14:07:00Z"
   },
   "installed_release_sha": "f4c26c3",
   "running_release_sha": "f4c26c3",
@@ -1066,5 +1068,5 @@
     "owner_release_f4c26c3_promotion_checkpoint": "green installed/runtime promotion evidence: immutable release /home/scootz/.local/share/aegis-owner/releases/f4c26c3 was built from hosted-green source f4c26c3 with source and migration resources, systemd was reloaded/restarted, and authenticated loopback /api/health reported healthy/ready with execution_mode=installed-release, release_sha=f4c26c3, PostgreSQL healthy, Qwen3:8B available at the pinned endpoint/digest, and identity validation green. Canonical PostgreSQL state and logs were preserved. This health/promotion proof does not replace objective-level live capability evidence; live_green_sha remains f5add80 until re-proven.",
     "semantic_capacity_ladder_checkpoint": "non-green live evaluation through the identical frozen AEGIS contract at source ffa1d82: Qwen2.5:3B Q4_K_M digest 357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b achieved 5.1% held-out route accuracy, 24 false mutations (151.9/1000), 2 false completions, and 109 decoder failures; Qwen3:8B Q4_K_M digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41 achieved 58.9% held-out route accuracy, 8 false mutations (50.6/1000), 6 false completions, and 19 decoder failures. Both used the 160/158 frozen corpora, identical prompt/context/decoder/ActionCard/retrieval fingerprints, and real Ollama provider. Full-request P50/P95 and model-call latency are recorded in evaluation/reports/qwen*-semantic-318-*.json. Interpretation is MODEL-LIMITED with a secondary shared harness frontier; neither model is capability-green and no production cognition change was made. Only these two local models were available; larger controls remain unrun.",
     "completion_cross_domain_autopsy_checkpoint": "structured report-only autopsy generated from the frozen held-out capacity reports at source ffa1d82: completion failures are dominated by action-selection/argument/decoder outcomes for both models, while cross-domain failures are decoder-dominated at 3B and split across decoder, clarification, and semantic/action selection at 8B. Candidate order is retained; retrieval scores and grounding are explicitly marked not separately observable, and the single-decision contract cannot represent multi-step plan decomposition. Durable report: evaluation/reports/qwen-capacity-ladder-318.json. No held-out tuning or phrase patch was performed.",
-    "next_action": "Keep production cognition frozen. Duplicate fallback retrieval is fixed and semantic retrieval diagnostics are instrumented without changing the model-visible ActionCard working set. A full Qwen3:8B development evaluation stalled at the configured endpoint and produced no report, so do not claim a new baseline or tune against it; preserve the existing canonical baseline artifacts. Next justified frontier is a bounded development-only cognition/harness experiment only after a reliable development run is available, followed by untouched held-out evaluation. Do not add phrase rules or new domains."
+    "next_action": "Resume the preserved Qwen3:8B development checkpoint to complete the 160-case development corpus and produce the first complete report under the reliable evaluator. Inspect development-only failure categories and retrieval grounding before selecting one bounded cognition experiment; do not inspect or tune against held-out data until a development winner is frozen. Keep production cognition frozen and do not add phrase rules or new domains."
 }
