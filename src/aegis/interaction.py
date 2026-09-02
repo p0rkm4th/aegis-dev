@@ -412,7 +412,12 @@ class InteractionBoundary:
                         intent=intent,
                         context=context.model_copy(update={"values": classification_values}),
                     ),
-                    action_cards=(),
+                    # Classification may choose only a semantic mode, but it
+                    # needs the bounded candidate vocabulary to distinguish a
+                    # list destination from a request to create or complete.
+                    # Core still decodes the later action proposal against the
+                    # same cards and retains all authority gates.
+                    action_cards=cards,
                     classification_only=True,
                 )
                 classification_response = provider.decide(classification_request)
