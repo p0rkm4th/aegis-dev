@@ -3385,6 +3385,13 @@ def test_finance_read_fast_path_recognizes_purchase_safety_language():
     assert not FinanceReadFastPath.matches("Is the backup purchase safe?")
 
 
+def test_finance_fast_path_yields_compound_questions_to_bounded_cognition():
+    assert not FinanceReadFastPath.matches(
+        "What do I still need to handle, and can I afford a $5 purchase?"
+    )
+    assert FinanceReadFastPath.matches("Can I afford a $5 purchase?")
+
+
 def test_household_projection_handles_multi_member_settlement_remainder():
     class Policy:
         def may_derive(self, requester, owner_id, space_id):

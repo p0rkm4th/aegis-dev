@@ -11,6 +11,7 @@ from uuid import uuid4
 
 from .contracts import IntentFrame, ObjectiveState, Principal, Result
 from .projections import PrivateContribution, SharedObligation
+from .utterance import has_multiple_question_clauses
 
 
 @dataclass(frozen=True)
@@ -233,6 +234,10 @@ class FinanceReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
+        if has_multiple_question_clauses(text):
+            # One affordability Result cannot complete a compound objective;
+            # bounded cognition must clarify or compose it instead.
+            return False
         has_amount = bool(cls._AMOUNT.search(text))
         return has_amount and (
             "can i afford" in text
