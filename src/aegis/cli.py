@@ -667,6 +667,11 @@ def _browser_interaction(
             )
     response: dict[str, Any] = {
         "message": _format(result),
+        "code": (
+            str(result.evidence["code"])
+            if isinstance(result.evidence.get("code"), str)
+            else result.state.value
+        ),
         "state": result.state.value,
         "detail": result.message,
         "objective_id": str(result.objective_id),

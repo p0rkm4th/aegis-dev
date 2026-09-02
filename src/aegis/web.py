@@ -53,6 +53,7 @@ class BrowserMessage(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     message: str
+    code: str | None = None
     session_id: UUID
     state: ObjectiveState | None = None
     detail: str | None = None
