@@ -43,6 +43,6 @@ jobs:
       - name: Run PostgreSQL atomic ownership acceptance
         env:
           AEGIS_TEST_DATABASE_URL: postgresql://aegis:aegis@127.0.0.1:5432/aegis_test
-        run: python -m pytest tests/test_action_claim.py -q
+        run: python -m pytest tests/test_action_claim.py tests/test_audit_postgres.py -q
       - name: Validate built artifacts in clean targets
         run: bash scripts/smoke_install.sh
