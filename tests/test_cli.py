@@ -996,6 +996,14 @@ def test_cli_retrieves_read_cards() -> None:
     assert tasks.action.action_id == "tasks.list"
 
 
+def test_cli_routes_shopping_list_read_to_canonical_grocery_action() -> None:
+    _, groceries = _domain_and_action(
+        "What is on my shopping list?", manager_with_reference_cards()
+    )
+
+    assert groceries.action.action_id == "kitchen.groceries.list"
+
+
 def test_local_identity_bootstrap_does_not_reactivate_revoked_membership():
     class Connection:
         def __init__(self) -> None:

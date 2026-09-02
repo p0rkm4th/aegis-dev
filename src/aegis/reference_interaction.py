@@ -117,7 +117,7 @@ def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[s
     elif "event" in text or "inspection" in text:
         domain = "tasks"
         action_id = "tasks.events.create"
-    elif any(word in text for word in ("grocery", "groceries", "rice", "food")):
+    elif any(word in text for word in ("grocery", "groceries", "shopping list", "rice", "food")):
         domain = "kitchen"
         action_id = (
             "kitchen.groceries.list"
@@ -705,6 +705,7 @@ def reference_fallback_cards(
                 ("event", "tasks"),
                 ("grocery", "kitchen"),
                 ("grocerie", "kitchen"),
+                ("shopping list", "kitchen"),
                 ("homelab", "homelab"),
                 ("service", "homelab"),
                 ("network", "network"),
