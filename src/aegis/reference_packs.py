@@ -31,7 +31,7 @@ from .pack_lifecycle import PackBundle, PackManifest, PackUI
 
 
 @dataclass(frozen=True)
-class Pack:
+class _ReferencePackSpec:
     pack_id: str
     version: str
     cards: tuple[ActionCard, ...]
@@ -68,9 +68,9 @@ def _unknown_gateway_observation(request: ExecutionRequest) -> Observation:
     )
 
 
-def reference_packs() -> tuple[Pack, ...]:
+def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
     return (
-        Pack(
+        _ReferencePackSpec(
             "tasks",
             "0.1.0",
             (
@@ -162,7 +162,7 @@ def reference_packs() -> tuple[Pack, ...]:
                 ),
             ),
         ),
-        Pack(
+        _ReferencePackSpec(
             "kitchen",
             "0.1.0",
             (
@@ -192,7 +192,7 @@ def reference_packs() -> tuple[Pack, ...]:
                 ),
             ),
         ),
-        Pack(
+        _ReferencePackSpec(
             "homelab",
             "0.1.0",
             (
@@ -209,7 +209,7 @@ def reference_packs() -> tuple[Pack, ...]:
                 ),
             ),
         ),
-        Pack(
+        _ReferencePackSpec(
             "network",
             "0.1.0",
             (
@@ -229,8 +229,8 @@ def reference_packs() -> tuple[Pack, ...]:
     )
 
 
-def reference_bundles() -> tuple[PackBundle, ...]:
-    """Manifest-backed versions of the three reference capabilities."""
+def reference_packs() -> tuple[PackBundle, ...]:
+    """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
@@ -251,8 +251,14 @@ def reference_bundles() -> tuple[PackBundle, ...]:
             ),
             cards=pack.cards,
         )
-        for pack in reference_packs()
+        for pack in _reference_pack_specs()
     )
+
+
+def reference_bundles() -> tuple[PackBundle, ...]:
+    """Compatibility alias for the generic first-party Pack bundles."""
+
+    return reference_packs()
 
 
 @dataclass

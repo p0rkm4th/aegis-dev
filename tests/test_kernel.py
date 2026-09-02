@@ -1240,9 +1240,9 @@ def test_three_reference_packs_use_one_generic_execution_pipeline():
         action = card.action.model_copy(
             update={
                 "arguments": {"title": "Call landlord"}
-                if pack.pack_id == "tasks"
+                if pack.manifest.pack_id == "tasks"
                 else {"item": "rice"}
-                if pack.pack_id == "kitchen"
+                if pack.manifest.pack_id == "kitchen"
                 else {"service": "test-service"}
             }
         )
@@ -1255,7 +1255,7 @@ def test_three_reference_packs_use_one_generic_execution_pipeline():
             verifier,
         )
         result = kernel.run(
-            IntentFrame(principal=principal, utterance=pack.pack_id),
+            IntentFrame(principal=principal, utterance=pack.manifest.pack_id),
             (ActionCard(action=action, summary=card.summary, relevance=card.relevance),),
         )
         assert result.state.value == "completed"
