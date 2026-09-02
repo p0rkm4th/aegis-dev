@@ -43,7 +43,6 @@ from .planning import (
     MultiActionFastPath,
 )
 from .reference_packs import reference_bundles
-from .reference_runtime import legacy_runtime
 from .store import PostgresObjectiveStore
 from .tasks import (
     PostgresTaskStore,
@@ -86,6 +85,7 @@ class InteractionDependencies:
         decision_rewriter: Callable[..., Decision | Result | None] | None = None,
         fast_path_resolver: Callable[..., Result | None] | None = None,
         fallback_context_builder: Callable[..., Context] | None = None,
+        runtime_resolver: Callable[..., Any] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -106,6 +106,7 @@ class InteractionDependencies:
         self.decision_rewriter = decision_rewriter
         self.fast_path_resolver = fast_path_resolver
         self.fallback_context_builder = fallback_context_builder
+        self.runtime_resolver = runtime_resolver
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -264,19 +265,6 @@ def _context_from_prior_result(
         },
         sources=("authorized_canonical_result",),
     )
-
-
-class _RuntimePolicy:
-    def allows(self, request: Any) -> bool:
-        return bool(request.action.action_id == "kitchen.groceries.add")
-
-
-class _NoApproval:
-    def required(self, request: Any) -> bool:
-        return False
-
-    def approved(self, request: Any) -> bool:
-        return True
 
 
 class InteractionBoundary:
@@ -891,11 +879,10 @@ class InteractionBoundary:
                 permissions = runtime.permissions
                 runtime_cleanup = runtime.cleanup
             else:
-                runtime = legacy_runtime(
-                    card.action.action_id,
-                    connection,
-                    principal,
-                    self.dependencies.openclaw_channel,
+                if self.dependencies.runtime_resolver is None:
+                    raise LookupError("no Pack runtime resolver configured")
+                runtime = self.dependencies.runtime_resolver(
+                    card.action.action_id, connection, principal, self.dependencies.openclaw_channel
                 )
                 executor = runtime.executor
                 verifier = runtime.verifier

@@ -64,6 +64,7 @@ from .reference_packs import (
     PostgresGroceryListVerifier,
     reference_bundles,
 )
+from .reference_runtime import legacy_runtime
 from .release_truth import runtime_release_sha
 from .store import PostgresObjectiveStore
 from .tasks import (
@@ -1242,6 +1243,7 @@ def run_interaction(
             decision_rewriter=rewrite_reference_decision,
             fast_path_resolver=resolve_reference_fast_paths,
             fallback_context_builder=build_reference_fallback_context,
+            runtime_resolver=legacy_runtime,
         )
     )
     return boundary.run(
