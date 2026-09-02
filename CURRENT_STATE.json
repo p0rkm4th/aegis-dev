@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "39eede8c1328e992bdde1ba63fa58ea982c8a50b",
-  "deterministic_green_sha": "39eede8c1328e992bdde1ba63fa58ea982c8a50b",
-  "last_pushed_sha": "39eede8c1328e992bdde1ba63fa58ea982c8a50b",
-  "hosted_ci_green_sha": "39eede8c1328e992bdde1ba63fa58ea982c8a50b",
+  "repository_head_sha": "62af2f4457fd35336b7d613b8f91624ae8dfeaf5",
+  "deterministic_green_sha": "62af2f4457fd35336b7d613b8f91624ae8dfeaf5",
+  "last_pushed_sha": "62af2f4457fd35336b7d613b8f91624ae8dfeaf5",
+  "hosted_ci_green_sha": "62af2f4457fd35336b7d613b8f91624ae8dfeaf5",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33678922528",
-    "commit_sha": "39eede8c1328e992bdde1ba63fa58ea982c8a50b",
+    "run_id": "33679394223",
+    "commit_sha": "62af2f4457fd35336b7d613b8f91624ae8dfeaf5",
     "conclusion": "success",
     "observed_at": "2026-09-02T19:25:00Z"
   },
@@ -1084,5 +1084,6 @@
     "household_priority_safety_checkpoint": "green safety evidence on installed release 85e3153: natural household read 'what chores still need doing around the apartment?' returned canonical chores, while follow-up 'which one is due first?' blocked because the authorized result contained no due-date authority (correlation 8aab607e-4be1-4919-9f42-2802a142c1b0). No fabricated prioritization or chore mutation occurred.",
     "owner_task_retry_checkpoint": "partial daily-driver evidence on installed release 85e3153: natural 'remind me to check the mailbox tomorrow' clarified safely and repeated with the same correlation without mutation, exposing a model/intent coverage gap; explicit 'add a task to check the mailbox tomorrow' then created one verified task and an identical retry returned the same objective/result (correlation 2f21f82a-8b8f-43b3-b0a7-8d7a15478f13).",
     "owner_compound_provider_boundary_checkpoint": "partial safety evidence on installed release 85e3153: fresh compound objective 'sort out the backup checklist and put oat milk on my shopping list' returned a retryable provider-unavailable result before any external execution or canonical mutation (correlation c390c330-a2cb-4010-9c58-2c45b0296387). This is not ProposedPlan proof because the unconfigured external grocery provider confounds the semantic/representation outcome.",
+    "m11_07_defect_harvest_checkpoint": "green deterministic and hosted evidence at 62af2f4: bounded owner-feedback harvesting now emits deterministic duplicate signatures, collapses repeated same-correlation failure reports, labels candidates owner-scoped metadata-only, and marks regression eligibility as human-review-required. It retains reproduction-required and no-consequential-replay controls; it does not promote model output or private data into evaluation truth. Full validation passed at 392 tests; hosted run 33679394223 passed.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize broad intent gaps such as reminder language only if repeated across fresh families, and classify the next demonstrated defect before considering bounded planning."
 }
