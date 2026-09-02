@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "27265e24bff41d17d5274fb9f7471a8144f5131c",
-  "deterministic_green_sha": "27265e24bff41d17d5274fb9f7471a8144f5131c",
-  "last_pushed_sha": "27265e24bff41d17d5274fb9f7471a8144f5131c",
-  "hosted_ci_green_sha": "27265e24bff41d17d5274fb9f7471a8144f5131c",
+  "repository_head_sha": "7b9e304d064065f9f22d70704f0181e0b3780cc4",
+  "deterministic_green_sha": "7b9e304d064065f9f22d70704f0181e0b3780cc4",
+  "last_pushed_sha": "7b9e304d064065f9f22d70704f0181e0b3780cc4",
+  "hosted_ci_green_sha": "7b9e304d064065f9f22d70704f0181e0b3780cc4",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33691383362",
-    "commit_sha": "27265e24bff41d17d5274fb9f7471a8144f5131c",
+    "run_id": "33691747194",
+    "commit_sha": "7b9e304d064065f9f22d70704f0181e0b3780cc4",
     "conclusion": "success",
     "observed_at": "2026-09-02T20:20:00Z"
   },
@@ -1116,5 +1116,6 @@
     "owner_grocery_ordinal_continuation_checkpoint": "partial installed owner evidence on release 27265e2: after canonical shopping-list correlation 6060a662-2959-443e-908f-fa819ef68f35, the attached 'what about the second one?' stayed in the authorized grocery domain and returned the grocery item rice without personal-memory misrouting or mutation (correlation 8bd7effa-2397-40ad-9b68-634cf5f99a41). The persistent fixture currently contains repeated rice entries, so broader distinct-item capability remains unclaimed.",
     "owner_cross_domain_priority_context_checkpoint": "partial installed owner evidence on release 27265e2: fresh non-mutating requests about balancing chores and tasks returned bounded canonical planning summaries containing open tasks, open chores, obligations, and relevant memories. The result is useful context but not a general recommendation; ProposedPlan remains deferred (correlations 4c785dd0-037e-4f7c-aae6-92ac0000ea95 and 8642719f-edb2-457e-9e40-a8e97a4c9010).",
     "owner_task_event_compound_checkpoint": "green installed owner evidence on release 27265e2: fresh 'add a task to inspect the attic filter and an event to inspect the attic filter tomorrow' completed both typed steps with independent canonical readback verification; identical correlation retry returned the same completed step results without duplication (correlation 142f5625-cff0-4af7-a23a-79cbb4a73a33).",
+    "owner_context_recency_checkpoint": "green installed owner evidence on release 27265e2: a fresh grocery read correlation badadd0c-cc47-483f-b3f0-c906e6a758b6 was followed by a task read correlation 8301bd66-0788-4975-bf9b-3e1edc206996, then attached 'what about the second one?' correlation fe2b999f-f166-4db1-b6ad-3522cab21b56 resolved to the second current task and did not resurrect grocery context.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
 }
