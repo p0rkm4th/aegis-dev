@@ -259,6 +259,17 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
                 "failure_class": failure_class,
                 "expected_kind": expected_kind.value,
                 "expected_action": expected_action,
+                "candidate_action_ids": [card.action.action_id for card in cards],
+                "candidate_count": len(cards),
+                "write_candidate_count": sum(
+                    int(
+                        any(
+                            permission.endswith(".write")
+                            for permission in card.action.required_permissions
+                        )
+                    )
+                    for card in cards
+                ),
                 "argument_exact": argument_exact,
                 "correct_route": (correct and argument_exact) or grounded_read_answer,
                 "grounded_read_answer": grounded_read_answer,
@@ -334,6 +345,12 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
             "incorrect_blocking_rate": sum(
                 int(item["predicted_kind"] == "RESULT" and item["expected_kind"] != "CLARIFY")
                 for item in items
+            )
+            / max(count, 1),
+            "average_candidate_count": sum(int(item["candidate_count"]) for item in items)
+            / max(count, 1),
+            "average_write_candidate_count": sum(
+                int(item["write_candidate_count"]) for item in items
             )
             / max(count, 1),
         }
