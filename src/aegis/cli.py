@@ -39,6 +39,7 @@ from .interaction import InteractionBoundary, InteractionDependencies, Interacti
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
+from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_packs import reference_bundles
 from .release_truth import runtime_release_sha
@@ -1040,8 +1041,9 @@ def run_interaction(
     principal: Principal,
     correlation_id: UUID | None = None,
     context_correlation_id: UUID | None = None,
+    runtime_registry: PackRuntimeRegistry | None = None,
 ) -> Result:
-    """Compatibility composition root for CLI and browser clients."""
+    """Compose the shared boundary, optionally with Pack runtime bindings."""
 
     boundary = InteractionBoundary(
         InteractionDependencies(
@@ -1063,6 +1065,7 @@ def run_interaction(
                     _required("AEGIS_OLLAMA_URL"),
                 ),
             ),
+            runtime_registry=runtime_registry,
         )
     )
     return boundary.run(
