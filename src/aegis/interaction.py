@@ -76,7 +76,11 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
-from .utterance import is_question_request, is_task_destination_request
+from .utterance import (
+    has_multiple_question_clauses,
+    is_question_request,
+    is_task_destination_request,
+)
 
 _MAX_CONTEXT_TURN_CHARS = 500
 _MAX_CONTEXT_CANDIDATES = 10
@@ -1039,11 +1043,22 @@ class InteractionBoundary:
                             )
                         )
                     if fallback.kind is DecisionKind.CLARIFY:
+                        clarification = fallback.clarification or "Please clarify your request."
+                        if has_multiple_question_clauses(utterance):
+                            # A model clarification must not import a domain
+                            # from the authorized working set when the user
+                            # asked multiple independent questions. Keep the
+                            # safety result while making the next step useful.
+                            clarification = (
+                                "That request contains multiple independent questions. "
+                                "Please ask one at a time so I can answer each from "
+                                "authorized information."
+                            )
                         return persist_fast_result(
                             Result(
                                 objective_id=uuid4(),
                                 state=ObjectiveState.BLOCKED,
-                                message=fallback.clarification or "Please clarify your request.",
+                                message=clarification,
                                 correlation_id=intent.correlation_id,
                             )
                         )
