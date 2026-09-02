@@ -86,6 +86,17 @@ def test_post_guard_live_report_preserves_family_findings() -> None:
     assert report["capability_green"] is False
 
 
+def test_current_live_report_preserves_candidate_breadth_and_hard_failures() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-153-current.json").read_text(encoding="utf-8")
+    )
+    assert report["development"]["cases"] == 77
+    assert report["held_out"]["cases"] == 76
+    assert report["held_out"]["average_write_candidate_count"] > 3
+    assert report["held_out"]["false_mutations"] == 3
+    assert report["capability_green"] is False
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
