@@ -433,6 +433,7 @@ class HouseholdReadFastPath:
                 status_filter = "open"
             evidence["chores"] = [
                 {
+                    "chore_id": chore.chore_id,
                     "title": chore.title,
                     "assignee_id": chore.assignee_id,
                     "completed": chore.completed,
@@ -524,12 +525,20 @@ class PostgresChoreExecutor:
                 )
             else:
                 snapshot = self.store.read_snapshot(self.principal)
+                chore_id = request.action.arguments.get("chore_id")
                 normalized = title.casefold().strip().rstrip(".!?")
-                matches = tuple(
-                    chore
-                    for chore in cast(tuple[Chore, ...], snapshot["chores"])
-                    if chore.title.casefold().strip().rstrip(".!?") == normalized
-                )
+                if isinstance(chore_id, str) and chore_id.strip():
+                    matches = tuple(
+                        chore
+                        for chore in cast(tuple[Chore, ...], snapshot["chores"])
+                        if chore.chore_id == chore_id
+                    )
+                else:
+                    matches = tuple(
+                        chore
+                        for chore in cast(tuple[Chore, ...], snapshot["chores"])
+                        if chore.title.casefold().strip().rstrip(".!?") == normalized
+                    )
                 if len(matches) != 1:
                     return Observation(
                         execution_id=request.action_id,
