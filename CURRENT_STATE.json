@@ -347,6 +347,15 @@
     "shortcut_enabled_baseline": {"development_model_calls": 79, "held_out_model_calls": 81, "development_average_latency_ms": 4718.94375, "held_out_average_latency_ms": 5238.3488889},
     "decision": "Retain the classification action-reference shortcut for now: disabling it did not reduce false mutations or held-out decoder failures, lowered semantic-mode and completion quality, and increased model calls, latency, and token cost. Revisit only after contract/context changes or a new representative corpus. This is an architecture ablation, not capability-green evidence."
   },
+  "semantic_evaluation_scoring_correction": {
+    "source_sha": "b6fea5d",
+    "raw_evaluation_source_sha": "3a96c817ce31c3b099f227583429fbd5a878909c",
+    "decision": "Grounded READ answers are scored as successful read-capability outcomes even when the corpus names the underlying read ActionCard; mutation action precision/recall remains separate. This corrects measurement interpretation without new model calls or production behavior changes.",
+    "development": {"route_accuracy": 0.75, "action_selection_precision": 0.6153846154, "action_selection_recall": 0.6153846154, "grounded_read_answer_rate": 1.0, "correct_completion_or_answer_rate": 0.8125},
+    "held_out": {"route_accuracy": 0.6222222222, "action_selection_precision": 0.8, "action_selection_recall": 0.5333333333, "grounded_read_answer_rate": 0.7142857143, "correct_completion_or_answer_rate": 0.6285714286},
+    "capability_green": false,
+    "held_out_outputs_not_used_for_tuning": true
+  },
   "artifact_alpha_gate": {
     "status": "green",
     "validated_at_sha": "9a392c1",
