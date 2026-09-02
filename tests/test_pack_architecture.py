@@ -94,6 +94,15 @@ def test_cli_does_not_own_reference_pack_language_router() -> None:
     assert "reference_domain_and_action" in source
 
 
+def test_cli_does_not_embed_reference_runtime_policy() -> None:
+    """Runtime policy belongs to Pack composition, never the client adapter."""
+
+    source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
+    assert "kitchen.groceries.add" not in source
+    assert "class _RuntimePolicy" not in source
+    assert "class _NoApproval" not in source
+
+
 def test_generic_modules_load_without_first_party_domain_modules() -> None:
     """Importability is part of the deletion proof, not only a source heuristic."""
 
