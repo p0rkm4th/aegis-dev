@@ -257,6 +257,8 @@
   "semantic_evaluation_expanded_run": {
     "source_sha": "c1c0694",
     "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "model_digest_source": "ollama_api_tags",
     "development_cases": 18,
     "held_out_cases": 15,
     "development_dataset_sha256": "4bb9ea181f755bd49e04fc6c6449ed3090d5a8c70ba60bdcccb46cc94c31d017",
@@ -268,6 +270,16 @@
     "capability_green": false,
     "held_out_outputs_not_used_for_tuning": true,
     "results": {"development": "/tmp/aegis-semantic-dev-c1c0694.json", "held_out": "/tmp/aegis-semantic-heldout-c1c0694.json"}
+  },
+  "semantic_evaluation_provenance_checkpoint": {
+    "source_sha": "2f61362",
+    "development_dataset": "evaluation/semantic_dev.json",
+    "development_cases": 18,
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "model_digest_source": "ollama_api_tags",
+    "report": "/tmp/aegis-semantic-dev-efafc40.json",
+    "interpretation": "Metadata provenance is frozen from Ollama /api/tags. The run remains evaluation-only and is not capability-green: the development corpus recorded one false mutation/false completion proposal, so no live capability promotion is warranted."
   },
   "artifact_alpha_gate": {
     "status": "green",
