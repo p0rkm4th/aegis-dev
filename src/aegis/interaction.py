@@ -128,6 +128,17 @@ def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         if isinstance(value, (list, tuple)):
             if key == "canonical_items":
                 compact[key] = list(dict.fromkeys(str(item) for item in value))[:20]
+            elif key == "canonical_tasks":
+                tasks = list(value)
+                dated_open = [
+                    item
+                    for item in tasks
+                    if isinstance(item, dict)
+                    and item.get("status") == "open"
+                    and isinstance(item.get("due_at"), str)
+                ]
+                remaining = [item for item in tasks if item not in dated_open]
+                compact[key] = (dated_open + remaining)[:20]
             else:
                 compact[key] = list(value[:20])
         elif isinstance(value, str):
