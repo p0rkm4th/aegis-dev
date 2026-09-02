@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -19,6 +20,11 @@ def main() -> int:
     state = json.loads(path.read_text(encoding="utf-8"))
     errors = validate_state_pointers(state)
     branch = git("branch", "--show-current")
+    if not branch:
+        # actions/checkout intentionally uses a detached commit.  Verify the
+        # workflow's target ref rather than treating that normal CI state as a
+        # branch mismatch.  For pull requests, the base branch is authoritative.
+        branch = os.environ.get("GITHUB_BASE_REF") or os.environ.get("GITHUB_REF_NAME", "")
     head = git("rev-parse", "HEAD")
     recorded = state.get("repository_head_sha")
     if branch != state.get("active_branch"):
