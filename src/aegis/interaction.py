@@ -334,7 +334,11 @@ class InteractionBoundary:
                 # authorized projection; do not offer a mutation card that
                 # could turn an unresolved reference into a write.
                 return ()
-            if isinstance(facts.get("canonical_tasks"), list):
+            if (
+                isinstance(facts.get("canonical_tasks"), list)
+                and context is not None
+                and "authorized_canonical_context" in context.sources
+            ):
                 return tuple(manager.retrieve("tasks"))[:10]
         if self.dependencies.capability_retriever is not None:
             try:
