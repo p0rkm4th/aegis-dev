@@ -1,0 +1,64 @@
+{
+  "development_corpus": "evaluation/semantic_dev.json",
+  "development_cases": 160,
+  "experiments": [
+    {
+      "name": "canonical_shortcut_on",
+      "report": "evaluation/reports/qwen3-8b-semantic-318-current-dev.json",
+      "source_revision": "04af6797776763da02ce5b8a87b02d03b5140631",
+      "classification_action_reference_shortcut": true,
+      "evaluation_contract": {
+        "prompt_template_sha256": "17724d0935bf2977973c1a90e8c484be09dfd0bfc82ff765ee698bb4944b9c2f",
+        "context_builder_sha256": "a811c2813d74b03d18ac63bf02a554a3115c56f1231ded842bb78b4dddebb98e",
+        "decoder_contract_sha256": "f845dd24bf3104232a765e2415b7e64021e8a1ddebddcede789bb019301031ff",
+        "action_cards_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+        "semantic_retrieval_limit": 10
+      },
+      "metrics": {
+        "route_accuracy": 0.6125,
+        "semantic_mode_accuracy": 0.725,
+        "false_mutations": 11,
+        "false_completions": 7,
+        "decoder_failures": 16,
+        "model_calls": 266,
+        "prompt_tokens": 564316,
+        "output_tokens": 15326,
+        "average_latency_ms": 4999.8029375,
+        "full_request_latency_p95_ms": 9314.0155
+      }
+    },
+    {
+      "name": "shortcut_off_candidate",
+      "report": "evaluation/reports/qwen3-8b-semantic-318-shortcut-off-dev.json",
+      "source_revision": "479a0d803a13c471497e9572a35894ac8f60c753",
+      "classification_action_reference_shortcut": false,
+      "evaluation_contract": {
+        "prompt_template_sha256": "17724d0935bf2977973c1a90e8c484be09dfd0bfc82ff765ee698bb4944b9c2f",
+        "context_builder_sha256": "a811c2813d74b03d18ac63bf02a554a3115c56f1231ded842bb78b4dddebb98e",
+        "decoder_contract_sha256": "f845dd24bf3104232a765e2415b7e64021e8a1ddebddcede789bb019301031ff",
+        "action_cards_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+        "semantic_retrieval_limit": 10
+      },
+      "metrics": {
+        "route_accuracy": 0.63125,
+        "semantic_mode_accuracy": 0.7,
+        "false_mutations": 8,
+        "false_completions": 6,
+        "decoder_failures": 17,
+        "model_calls": 322,
+        "prompt_tokens": 691857,
+        "output_tokens": 19129,
+        "average_latency_ms": 6137.6135625,
+        "full_request_latency_p95_ms": 10149.551
+      },
+      "development_interpretation": {
+        "safety_delta": "false_mutations -3; false_completions -1",
+        "correctness_delta": "route_accuracy +0.01875; semantic_mode_accuracy -0.025",
+        "reliability_delta": "decoder_failures +1",
+        "cost_delta": "model_calls +56; prompt_tokens +127541; output_tokens +3803; average_latency_ms +1137.810625",
+        "family_effect": "safety improvement concentrated in ambiguity (-2 false mutations) and compound (-1); completion route accuracy worsened",
+        "decision": "freeze for untouched held-out validation; do not promote or claim capability green"
+      }
+    }
+  ]
+}
