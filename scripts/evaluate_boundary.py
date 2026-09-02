@@ -118,6 +118,7 @@ def _boundary(
     embedder: OllamaEmbeddingProvider,
     *,
     reuse_classification_action_reference: bool = True,
+    retrieval_limit: int = 10,
 ) -> InteractionBoundary:
     return InteractionBoundary(
         InteractionDependencies(
@@ -130,7 +131,7 @@ def _boundary(
             local_identity=lambda: False,
             model_provider=lambda: provider,
             capability_retriever=lambda query, manager: manager.retrieve_semantic(
-                query, embedder, limit=10
+                query, embedder, limit=retrieval_limit
             ),
             fallback_card_selector=reference_fallback_cards,
             reuse_classification_action_reference=reuse_classification_action_reference,
@@ -172,7 +173,12 @@ def _decision_fields(
     return ("RESULT", None, {}, str(failure) if failure is not None else None, None)
 
 
-def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True) -> dict[str, Any]:
+def evaluate(
+    corpus: Path,
+    *,
+    reuse_classification_action_reference: bool = True,
+    retrieval_limit: int = 10,
+) -> dict[str, Any]:
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
     model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
@@ -186,6 +192,7 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
         provider,
         embedder,
         reuse_classification_action_reference=reuse_classification_action_reference,
+        retrieval_limit=retrieval_limit,
     )
     principal = Principal(id="evaluation", vault_id="evaluation")
     prompt_template_sha = _sha256(
@@ -379,6 +386,7 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
         "prompt_template_sha256": prompt_template_sha,
         "action_cards_sha256": cards_sha,
         "classification_action_reference_shortcut": reuse_classification_action_reference,
+        "semantic_retrieval_limit": retrieval_limit,
         "cases": total,
         **overall,
         "family_metrics": {family: summarize(items) for family, items in sorted(grouped.items())},
@@ -406,10 +414,19 @@ def main() -> int:
         action="store_true",
         help="ablation: require the normal decision pass after classification",
     )
+    parser.add_argument(
+        "--retrieval-limit",
+        type=int,
+        default=10,
+        choices=range(1, 11),
+        metavar="1-10",
+        help="evaluation ablation: bound the semantic ActionCard shortlist",
+    )
     args = parser.parse_args()
     report = evaluate(
         args.corpus,
         reuse_classification_action_reference=not args.disable_classification_action_shortcut,
+        retrieval_limit=args.retrieval_limit,
     )
     serialized = json.dumps(report, indent=2, sort_keys=True)
     if args.output is not None:
