@@ -76,6 +76,7 @@
       ,"Pack neutrality guard extension at 968e556: the same syntax-level first-party import/action-literal checks now cover interaction_cognition.py and interaction_recovery.py, preventing extracted generic seams from regaining privileged domain knowledge. Full deterministic validation passed at 345 tests and hosted validation run 33598454161 passed."
       ,"semantic family corpus expansion at c6cdc70: development and held-out evaluation data now contain 26 and 23 genuinely varied cases respectively across indirect reads, polarity, ambiguity, unsupported requests, injection-like context, and generation; corpus audit reports zero normalized overlap. No production routing vocabulary or capability-green claim was added. Full deterministic validation passed at 345 tests and hosted validation run 33598824425 passed."
       ,"expanded Qwen baseline checkpoint at 762ba90: the 26/23 corpus was evaluated through the real Qwen3:8B cognition boundary with frozen model, prompt, ActionCard, and dataset provenance; both splits recorded one false mutation/false completion proposal, so capability green remains false. Evaluation was execution-free. Full deterministic validation passed at 345 tests and hosted validation run 33599336284 passed."
+      ,"owner release pointer consistency at cc31eda: release validation now rejects contradictory top-level and nested owner repository/deterministic/installed/running/live pointers, preventing stale promotion metadata from appearing coherent. Full deterministic validation passed at 346 tests and hosted validation run 33599554613 passed."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -157,10 +158,10 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "762ba90",
-  "deterministic_green_sha": "762ba90",
-  "last_pushed_sha": "762ba90",
-  "hosted_ci_green_sha": "762ba90",
+  "repository_head_sha": "cc31eda",
+  "deterministic_green_sha": "cc31eda",
+  "last_pushed_sha": "cc31eda",
+  "hosted_ci_green_sha": "cc31eda",
   "installed_release_sha": "6b1a605",
   "running_release_sha": "6b1a605",
   "live_green_sha": "f5add80",
@@ -183,12 +184,12 @@
     "running_sha": "6b1a605",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/6b1a605",
-    "repository_head_sha": "762ba90",
-    "deterministic_green_sha": "762ba90",
+    "repository_head_sha": "cc31eda",
+    "deterministic_green_sha": "cc31eda",
     "installed_release_sha": "6b1a605",
     "running_release_sha": "6b1a605",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic/hosted validation are green through source checkpoint 762ba90 (hosted run 33599336284); installed/running owner release 6b1a605 is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. Authenticated browser read correlation 3a8551b9-cae0-476e-a658-8431749d9461 returned canonical Groceries: rice (x6); installed --feedback --harvest --json also completed without mutation. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic/hosted validation are green through source checkpoint cc31eda (hosted run 33599554613); installed/running owner release 6b1a605 is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. Authenticated browser read correlation 3a8551b9-cae0-476e-a658-8431749d9461 returned canonical Groceries: rice (x6); installed --feedback --harvest --json also completed without mutation. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
