@@ -34,11 +34,6 @@ from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
-from .planning import (
-    ContextualMutationGuard,
-    DomainClarificationFastPath,
-    MultiActionFastPath,
-)
 from .store import PostgresObjectiveStore
 from .utterance import (
     has_multiple_question_clauses,
@@ -79,6 +74,7 @@ class InteractionDependencies:
         fast_path_resolver: Callable[..., Result | None] | None = None,
         fallback_context_builder: Callable[..., Context] | None = None,
         runtime_resolver: Callable[..., Any] | None = None,
+        safety_fast_path_resolver: Callable[..., Result | None] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -100,6 +96,7 @@ class InteractionDependencies:
         self.fast_path_resolver = fast_path_resolver
         self.fallback_context_builder = fallback_context_builder
         self.runtime_resolver = runtime_resolver
+        self.safety_fast_path_resolver = safety_fast_path_resolver
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -653,17 +650,14 @@ class InteractionBoundary:
                 if recovered_plan is not None and recovered_plan.steps
                 else None
             )
-            if recovered_plan_actions is None:
-                multi_action_result = MultiActionFastPath.resolve(intent)
-                if multi_action_result is not None:
-                    return persist_fast_result(multi_action_result)
-            if self.dependencies.model_provider is None:
-                domain_clarification = DomainClarificationFastPath.resolve(intent)
-                if domain_clarification is not None:
-                    return persist_fast_result(domain_clarification)
-            contextual_mutation = ContextualMutationGuard.resolve(intent)
-            if contextual_mutation is not None:
-                return persist_fast_result(contextual_mutation)
+            if self.dependencies.safety_fast_path_resolver is not None:
+                safety_result = self.dependencies.safety_fast_path_resolver(
+                    intent,
+                    recovered_plan_actions,
+                    self.dependencies.model_provider is not None,
+                )
+                if safety_result is not None:
+                    return persist_fast_result(safety_result)
             if self.dependencies.pre_model_resolver is not None and recovered_plan_actions is None:
                 pre_model_result = self.dependencies.pre_model_resolver(
                     intent, connection, principal
@@ -682,6 +676,20 @@ class InteractionBoundary:
                 )
                 if fast_result is not None:
                     return persist_fast_result(fast_result)
+            if (
+                self.dependencies.model_provider is None
+                and self.dependencies.plan_runner is None
+                and self.dependencies.pre_model_resolver is None
+                and self.dependencies.safety_fast_path_resolver is None
+            ):
+                return persist_fast_result(
+                    Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message="No interaction runtime is configured for this request.",
+                        correlation_id=intent.correlation_id,
+                    )
+                )
             manager = PackManager(store=PostgresPackStore(connection))
             if self.dependencies.pack_bundles is not None:
                 manager.reconcile(
@@ -813,9 +821,6 @@ class InteractionBoundary:
                             )
                         )
                 else:
-                    domain_clarification = DomainClarificationFastPath.resolve(intent)
-                    if domain_clarification is not None:
-                        return persist_fast_result(domain_clarification)
                     return persist_fast_result(
                         Result(
                             objective_id=uuid4(),

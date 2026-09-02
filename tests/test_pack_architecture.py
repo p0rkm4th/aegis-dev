@@ -51,6 +51,7 @@ def test_generic_core_does_not_import_first_party_domain_implementations() -> No
 def test_pack_manager_exposes_metadata_without_private_state_access() -> None:
     source = Path("src/aegis/interaction.py").read_text(encoding="utf-8")
     assert "manager._bundles" not in source
+    assert "from .planning" not in source
 
 
 def test_generic_interaction_does_not_embed_first_party_pack_knowledge() -> None:

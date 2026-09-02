@@ -54,6 +54,7 @@ from .reference_interaction import (
     reference_fallback_cards,
     resolve_reference_fast_paths,
     resolve_reference_pre_model,
+    resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
     run_reference_plan,
 )
@@ -1244,6 +1245,7 @@ def run_interaction(
             fast_path_resolver=resolve_reference_fast_paths,
             fallback_context_builder=build_reference_fallback_context_runtime,
             runtime_resolver=legacy_runtime,
+            safety_fast_path_resolver=resolve_reference_safety_fast_paths,
         )
     )
     return boundary.run(

@@ -745,7 +745,6 @@ def test_interaction_boundary_does_not_short_circuit_blocked_plan_retry(monkeypa
             return fallback
 
     monkeypatch.setattr(interaction, "PostgresObjectiveStore", lambda _connection: store)
-    monkeypatch.setattr(interaction, "DomainClarificationFastPath", Clarification)
     boundary = InteractionBoundary(
         InteractionDependencies(
             connect=lambda _url: Connection(),
@@ -755,6 +754,7 @@ def test_interaction_boundary_does_not_short_circuit_blocked_plan_retry(monkeypa
             select_action=lambda _utterance, _manager: ("tasks", None),
             openclaw_channel=lambda: None,
             local_identity=lambda: False,
+            safety_fast_path_resolver=lambda _intent, _recovered, _model_enabled: fallback,
         )
     )
 

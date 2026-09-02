@@ -45,7 +45,9 @@ from .pack_lifecycle import PackManager
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PersonalState, PostgresPersonalStateStore
 from .planning import (
+    ContextualMutationGuard,
     CrossDomainPlanningFastPath,
+    DomainClarificationFastPath,
     MultiActionFastPath,
     PersonalChoreComposer,
     PersonalMemoryChoreComposer,
@@ -65,6 +67,24 @@ from .tasks import (
     requested_task_due_at,
 )
 from .utterance import is_task_destination_request
+
+
+def resolve_reference_safety_fast_paths(
+    intent: IntentFrame,
+    recovered_plan_actions: tuple[ActionSpec, ...] | None,
+    model_enabled: bool,
+) -> Result | None:
+    """Apply reference-Pack safety guards before generic cognition."""
+
+    if recovered_plan_actions is None:
+        result = MultiActionFastPath.resolve(intent)
+        if result is not None:
+            return result
+    if not model_enabled:
+        result = DomainClarificationFastPath.resolve(intent)
+        if result is not None:
+            return result
+    return ContextualMutationGuard.resolve(intent)
 
 
 def build_reference_fallback_context(
