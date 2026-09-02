@@ -21,6 +21,7 @@ python -m json.tool evaluation/reports/qwen3-8b-semantic-153-semantic-mode-guard
 python -m json.tool evaluation/reports/qwen3-8b-semantic-153-post-guard.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-153-current.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-153-retrieval-limit-3.json >/dev/null
+python -m json.tool evaluation/reports/qwen3-8b-semantic-191.json >/dev/null
 python scripts/audit_semantic_corpus.py evaluation/semantic_dev.json evaluation/semantic_heldout.json >/dev/null
 python scripts/evaluate_boundary.py --help >/dev/null
 python scripts/validate_state.py

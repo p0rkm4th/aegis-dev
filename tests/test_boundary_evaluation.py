@@ -109,6 +109,17 @@ def test_retrieval_limit_ablation_records_negative_result() -> None:
     assert report["safety_hard_failure"] is True
 
 
+def test_expanded_qwen_report_records_heldout_family_hard_failures() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-191.json").read_text(encoding="utf-8")
+    )
+    assert report["development"]["cases"] == 96
+    assert report["held_out"]["cases"] == 95
+    assert report["held_out"]["false_mutations"] == 4
+    assert report["family_metrics"]["held_out"]["ambiguity"]["false_mutations"] == 3
+    assert report["capability_green"] is False
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
