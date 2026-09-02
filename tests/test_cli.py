@@ -47,6 +47,7 @@ def test_bounded_model_fallback_accepts_non_authoritative_answer():
 
     class Provider:
         def decide(self, request):
+            assert request.classification_only is False
             assert request.action_cards == ()
             assert request.working_set.context == Context()
             return type("Response", (), {"raw": {"kind": "ANSWER", "answer": "A fish story"}})()
@@ -133,7 +134,7 @@ def test_write_capable_fallback_routes_without_canonical_read_context():
     assert decision.kind is DecisionKind.ACTION
     assert len(provider.requests) == 2
     assert provider.requests[0].classification_only is True
-    assert provider.requests[0].action_cards == ()
+    assert provider.requests[0].action_cards == (card,)
     assert provider.requests[1].routing_only is True
     assert "canonical_facts" not in provider.requests[1].working_set.context.values
 
