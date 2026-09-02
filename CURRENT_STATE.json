@@ -163,7 +163,7 @@
   "routing_architecture_benchmark": {
     "corpus": "scripts/benchmark_routing.py evaluation-only unseen semantic family",
     "cases": 8,
-    "measured_at_sha": "6e4b1a2",
+    "measured_at_sha": "9dbfe48",
     "results": {
       "A_embedding_qwen8": {
         "route_accuracy": 0.625,
@@ -173,7 +173,7 @@
         "false_completion": 0,
         "security_errors": 1,
         "hard_failure": true,
-        "average_latency_ms": 2381.6,
+        "average_latency_ms": 2202.1,
         "prompt_tokens": 16453,
         "output_tokens": 538
       },
@@ -190,7 +190,7 @@
         "false_completion": 0,
         "security_errors": 1,
         "hard_failure": true,
-        "average_latency_ms": 2494.5,
+        "average_latency_ms": 2334.5,
         "prompt_tokens": 16453,
         "output_tokens": 538
       }
