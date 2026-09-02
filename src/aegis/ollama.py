@@ -174,6 +174,14 @@ class OllamaProvider:
                     "done, or otherwise change an existing item to completed. Never turn a "
                     "request to add a new item into completion of a nearby existing item."
                 ),
+                "read_polarity_rule": (
+                    "Distinguish information-seeking questions from mutations. A question "
+                    "asking what is on a list, what should be picked up, or what remains "
+                    "to do is a read request even when it contains words associated with "
+                    "an action. Select the supplied read card and answer from authorized "
+                    "canonical facts; do not add, complete, or change state unless the "
+                    "user clearly asks for that state change."
+                ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "
