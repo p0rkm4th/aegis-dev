@@ -85,6 +85,7 @@
       ,"semantic evaluation corpus checkpoint at 9894f05: development and held-out corpora expanded to 37 and 34 cases with varied polarity, shorthand, typos, ambiguity, generation, injection-like context, and unsupported requests; audit reports zero overlap, full deterministic validation passed, and hosted run 33600890059 passed. This is evidence expansion only; Qwen capability green remains unclaimed."
       ,"evaluation provenance guard at 7726649: real-provider evaluation reports now expose each utterance and reject zero-call or missing-digest runs as invalid evidence; the verified Qwen run recorded 61/59 calls and the expected model digest. Full deterministic validation passed at 347 tests and hosted run 33601630495 passed."
       ,"Pack-owned completion grounding checkpoint at f301737: task completion now refuses to import a canonical target with no grounding in the user's utterance before executor dispatch, addressing the measured unrelated-target false-completion family; 348 deterministic tests and hosted run 33602014273 passed. Owner release f301737 is healthy with authenticated PostgreSQL/Qwen3:8B readiness; capability-green remains unclaimed pending broader unseen-family evaluation."
+      ,"completion grounding boundary regression at 34109e8: deterministic composition coverage proves an unrelated canonical completion target is blocked while a directly named target remains eligible; 349 tests and hosted run 33602403729 passed. Owner release 34109e8 is healthy with Qwen3:8B digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -167,12 +168,12 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f301737",
-  "deterministic_green_sha": "f301737",
-  "last_pushed_sha": "f301737",
-  "hosted_ci_green_sha": "f301737",
-  "installed_release_sha": "f301737",
-  "running_release_sha": "f301737",
+  "repository_head_sha": "34109e8",
+  "deterministic_green_sha": "34109e8",
+  "last_pushed_sha": "34109e8",
+  "hosted_ci_green_sha": "34109e8",
+  "installed_release_sha": "34109e8",
+  "running_release_sha": "34109e8",
   "live_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -188,15 +189,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "f301737",
+    "running_sha": "34109e8",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/f301737",
-    "repository_head_sha": "f301737",
-    "deterministic_green_sha": "f301737",
-    "installed_release_sha": "f301737",
-    "running_release_sha": "f301737",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/34109e8",
+    "repository_head_sha": "34109e8",
+    "deterministic_green_sha": "34109e8",
+    "installed_release_sha": "34109e8",
+    "running_release_sha": "34109e8",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint f301737 (hosted run 33602014273); installed/running owner release f301737 is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint 34109e8 (hosted run 33602403729); installed/running owner release 34109e8 is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
