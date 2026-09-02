@@ -3168,6 +3168,42 @@ def test_task_read_fast_path_filters_relative_due_window():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
+def test_task_read_fast_path_accepts_implicit_temporal_task_language():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    tomorrow = Task(
+        uuid4(),
+        "apartment",
+        "tomorrow task",
+        "alice",
+        due_at=now + timedelta(days=1),
+    )
+    later = Task(
+        uuid4(),
+        "apartment",
+        "later task",
+        "alice",
+        due_at=now + timedelta(days=30),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (tomorrow, later)
+
+    for utterance in ("what's due tomorrow?", "what do I need to get done tomorrow?"):
+        assert TaskReadFastPath.matches(utterance)
+        result = TaskReadFastPath(Store()).resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance=utterance,
+            )
+        )
+        assert result is not None
+        assert result.evidence["due_filter"] == "tomorrow"
+        assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
+
+
 def test_task_read_fast_path_filters_explicit_status_language():
     completed = Task(uuid4(), "apartment", "done task", "alice", status=TaskStatus.COMPLETED)
     open_task = Task(uuid4(), "apartment", "open task", "alice", status=TaskStatus.OPEN)
