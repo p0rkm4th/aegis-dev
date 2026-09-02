@@ -5,10 +5,18 @@ from __future__ import annotations
 import json
 import sqlite3
 from datetime import datetime
-from typing import Protocol, cast
+from typing import Any, Protocol, cast
 from uuid import UUID
 
-from .contracts import ExecutionRequest, Objective, ObjectiveState, Observation, Principal, Result
+from .contracts import (
+    ActionClaim,
+    ExecutionRequest,
+    Objective,
+    ObjectiveState,
+    Observation,
+    Principal,
+    Result,
+)
 
 
 class ObjectiveStore(Protocol):
@@ -23,7 +31,9 @@ class ObjectiveStore(Protocol):
     def get_result_for_correlation(
         self, correlation_id: UUID, principal: Principal
     ) -> Result | None: ...
-    def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None: ...
+    def claim_action(
+        self, request: ExecutionRequest, state: ObjectiveState = ObjectiveState.EXECUTING
+    ) -> ActionClaim: ...
     def get_action(self, key: str) -> ExecutionRequest | None: ...
     def update_action_state(self, key: str, state: ObjectiveState) -> None: ...
     def save_observation(self, key: str, observation: Observation) -> None: ...
@@ -31,11 +41,13 @@ class ObjectiveStore(Protocol):
 
 
 class PostgresCursor(Protocol):
+    rowcount: int
+
     def fetchone(self) -> tuple[object, ...] | None: ...
 
 
 class PostgresConnection(Protocol):
-    def execute(self, query: str, params: tuple[object, ...] = ()) -> PostgresCursor: ...
+    def execute(self, query: Any, params: Any = ()) -> PostgresCursor: ...
 
     def commit(self) -> None: ...
 
@@ -93,8 +105,11 @@ class InMemoryObjectiveStore:
             None,
         )
 
-    def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
-        self.actions.setdefault(request.idempotency_key, (request, state))
+    def claim_action(
+        self, request: ExecutionRequest, state: ObjectiveState = ObjectiveState.EXECUTING
+    ) -> ActionClaim:
+        canonical = self.actions.setdefault(request.idempotency_key, (request, state))
+        return ActionClaim(request=canonical[0], acquired=canonical[0] is request)
 
     def get_action(self, key: str) -> ExecutionRequest | None:
         row = self.actions.get(key)
@@ -192,8 +207,10 @@ class SqliteObjectiveStore:
         results = [Result.model_validate_json(row[0]) for row in rows]
         return next((result for result in results if result.objective_id == objective.id), None)
 
-    def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
-        self.connection.execute(
+    def claim_action(
+        self, request: ExecutionRequest, state: ObjectiveState = ObjectiveState.EXECUTING
+    ) -> ActionClaim:
+        cursor = self.connection.execute(
             "INSERT OR IGNORE INTO actions "
             "(id, idempotency_key, state, payload) VALUES (?, ?, ?, ?)",
             (
@@ -204,6 +221,10 @@ class SqliteObjectiveStore:
             ),
         )
         self.connection.commit()
+        canonical = self.get_action(request.idempotency_key)
+        if canonical is None:
+            raise RuntimeError("action claim was committed but canonical action is missing")
+        return ActionClaim(request=canonical, acquired=cursor.rowcount == 1)
 
     def get_action(self, key: str) -> ExecutionRequest | None:
         row = self.connection.execute(
@@ -237,7 +258,7 @@ class SqliteObjectiveStore:
 class PostgresObjectiveStore:
     """PostgreSQL implementation of the canonical ObjectiveStore port."""
 
-    def __init__(self, connection: PostgresConnection) -> None:
+    def __init__(self, connection: Any) -> None:
         self.connection = connection
 
     def save_objective(self, objective: Objective) -> None:
@@ -410,12 +431,15 @@ class PostgresObjectiveStore:
             bool(row[3]),
         )
 
-    def save_action(self, request: ExecutionRequest, state: ObjectiveState) -> None:
-        self.connection.execute(
+    def claim_action(
+        self, request: ExecutionRequest, state: ObjectiveState = ObjectiveState.EXECUTING
+    ) -> ActionClaim:
+        cursor = self.connection.execute(
             """INSERT INTO actions
                (id, objective_id, idempotency_key, capability, state, payload)
                VALUES (%s, %s, %s, %s, %s, %s)
-               ON CONFLICT (idempotency_key) DO NOTHING""",
+               ON CONFLICT (idempotency_key) DO NOTHING
+               RETURNING payload""",
             (
                 str(request.action_id),
                 str(request.objective_id),
@@ -426,6 +450,19 @@ class PostgresObjectiveStore:
             ),
         )
         self.connection.commit()
+        row = cursor.fetchone()
+        if row is not None:
+            payload = row[0]
+            canonical = (
+                ExecutionRequest.model_validate(payload)
+                if isinstance(payload, dict)
+                else ExecutionRequest.model_validate_json(str(payload))
+            )
+            return ActionClaim(request=canonical, acquired=True)
+        canonical_request = self.get_action(request.idempotency_key)
+        if canonical_request is None:
+            raise RuntimeError("action claim was committed but canonical action is missing")
+        return ActionClaim(request=canonical_request, acquired=False)
 
     def get_action(self, key: str) -> ExecutionRequest | None:
         cursor = self.connection.execute(

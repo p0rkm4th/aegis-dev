@@ -62,7 +62,6 @@ class Kernel:
         self.store: ObjectiveStore = store or InMemoryObjectiveStore()
         self.audit = audit or AuditLog()
         self.objectives: dict[UUID, Objective] = {}
-        self._executed: set[str] = set()
         self._results: dict[str, Result] = {}
 
     def run(
@@ -219,30 +218,41 @@ class Kernel:
                 and prior_observation.command_succeeded
             ):
                 self._results[key] = prior
-                self._executed.add(key)
                 return prior
-        if key in self._executed:
-            self.audit.append(
-                "action.replay_suppressed",
-                intent.principal.id,
-                {"capability": decision.action.capability},
-                objective_id=objective.id,
-            )
-            return Result(
-                objective_id=objective.id,
-                state=ObjectiveState.OBSERVED,
-                message="Execution already recorded; verification is required",
-                correlation_id=intent.correlation_id,
-            )
-        existing_action = self.store.get_action(key)
-        execution_request = existing_action or ExecutionRequest(
+        proposed_request = ExecutionRequest(
             objective_id=objective.id,
             action_id=uuid4(),
             action=decision.action,
             idempotency_key=key,
         )
-        self.store.save_action(execution_request, ObjectiveState.EXECUTING)
-        self._executed.add(key)
+        claim = self.store.claim_action(proposed_request)
+        execution_request = claim.request
+        canonical_objective = self.store.get_objective(execution_request.objective_id)
+        if canonical_objective is not None:
+            objective = canonical_objective
+            self.objectives[objective.id] = objective
+        action = execution_request.action
+        if not claim.acquired:
+            canonical_result = self._results.get(key) or self.store.get_result(key)
+            canonical_observation = self.store.get_observation(key)
+            if canonical_result is not None and not (
+                canonical_result.state is ObjectiveState.FAILED
+                and canonical_observation is not None
+                and canonical_observation.command_succeeded
+            ):
+                self._results[key] = canonical_result
+                return canonical_result
+            if canonical_observation is None:
+                return Result(
+                    objective_id=execution_request.objective_id,
+                    state=ObjectiveState.EXECUTING,
+                    message=(
+                        "Execution has been claimed; canonical observation is not yet available"
+                    ),
+                    evidence={"execution_claimed": True, "observation": "pending"},
+                    correlation_id=intent.correlation_id,
+                    retryable=False,
+                )
         observation = self.store.get_observation(key)
         if observation is None:
             try:
@@ -272,13 +282,13 @@ class Kernel:
             "action.observed",
             intent.principal.id,
             {
-                "capability": decision.action.capability,
+                "capability": action.capability,
                 "command_succeeded": observation.command_succeeded,
             },
             objective_id=objective.id,
             action_id=execution_id,
         )
-        if decision.action.verification is None:
+        if action.verification is None:
             result = Result(
                 objective_id=objective.id,
                 state=ObjectiveState.FAILED,
@@ -310,7 +320,7 @@ class Kernel:
             )
         else:
             try:
-                verified = self.verifier.verify(observation, decision.action.verification)
+                verified = self.verifier.verify(observation, action.verification)
             except Exception as exc:
                 verified = VerificationResult(
                     verified=False,
