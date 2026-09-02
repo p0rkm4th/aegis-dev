@@ -15,6 +15,13 @@ PACK_ACTION_IDS = (
     "homelab.",
     "network.",
 )
+DOMAIN_IMPORTS = (
+    "from .tasks",
+    "from .household",
+    "from .personal",
+    "from .finance",
+    "from .reference_packs",
+)
 
 
 def test_generic_core_does_not_embed_first_party_action_names() -> None:
@@ -25,6 +32,18 @@ def test_generic_core_does_not_embed_first_party_action_names() -> None:
             if marker in source:
                 violations.append(f"{path}: {marker}")
     assert not violations, "domain-specific action IDs leaked into generic Core: " + ", ".join(
+        violations
+    )
+
+
+def test_generic_core_does_not_import_first_party_domain_implementations() -> None:
+    violations: list[str] = []
+    for path in GENERIC_CORE:
+        source = path.read_text(encoding="utf-8")
+        for marker in DOMAIN_IMPORTS:
+            if marker in source:
+                violations.append(f"{path}: {marker}")
+    assert not violations, "domain implementations leaked into generic Core: " + ", ".join(
         violations
     )
 
