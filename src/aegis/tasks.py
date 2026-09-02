@@ -70,6 +70,21 @@ def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | 
     return None
 
 
+def ground_task_due_at(
+    utterance: str,
+    proposed_due_at: str | None,
+    now: datetime | None = None,
+) -> tuple[bool, str | None]:
+    """Accept a deadline only when the request supplies grounded date intent."""
+
+    requested = requested_task_due_at(utterance, now)
+    if proposed_due_at is None:
+        return True, requested
+    if requested is None:
+        return False, None
+    return True, requested
+
+
 class TaskConnection(Protocol):
     def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
 
