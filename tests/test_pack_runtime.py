@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from uuid import uuid4
+
 import pytest
 
 from aegis.contracts import (
@@ -20,6 +23,7 @@ from aegis.decoding import StrictDecisionDecoder
 from aegis.interaction import _ActionExecutorDispatch, _ActionVerifierDispatch
 from aegis.kernel import Kernel
 from aegis.pack_runtime import ActionRuntime, PackRuntimeRegistry
+from aegis.web import BrowserApp
 
 
 def test_third_party_pack_runtime_is_registered_by_action_contract_not_domain_branch():
@@ -194,3 +198,118 @@ def test_third_party_pack_read_and_verified_write_use_core_dispatch():
     ).run(IntentFrame(principal=principal, utterance="read the weather note"), (read,))
     assert read_result.state.value == "completed"
     assert read_result.evidence["state"]["note"] == "bring a coat"
+
+
+def test_third_party_pack_read_and_verified_write_cross_browser_boundary():
+    """A browser client can use a Pack runtime without client-owned semantics."""
+
+    state: dict[str, str] = {}
+    principal = Principal(id="alice", vault_id="alice-vault")
+    read = ActionCard(
+        action=ActionSpec(
+            action_id="weather.note.read",
+            capability="weather.read",
+            required_permissions=("weather.read",),
+            verification=VerificationContract(kind="custom"),
+        ),
+        summary="Read a weather note",
+        relevance=1,
+    )
+    write = ActionCard(
+        action=ActionSpec(
+            action_id="weather.note.write",
+            capability="weather.write",
+            arguments={"note": "bring a coat"},
+            required_permissions=("weather.write",),
+            verification=VerificationContract(kind="custom"),
+        ),
+        summary="Record a weather note",
+        relevance=1,
+        argument_keys=("note",),
+    )
+
+    class Executor:
+        def execute(self, request: ExecutionRequest) -> Observation:
+            if request.action.action_id == write.action.action_id:
+                state["note"] = str(request.action.arguments["note"])
+            return Observation(
+                execution_id=uuid4(),
+                action_id=request.action.action_id,
+                evidence={"note": state.get("note", "")},
+                command_succeeded=True,
+            )
+
+    class Verifier:
+        def verify(
+            self, observation: Observation, _contract: VerificationContract
+        ) -> VerificationResult:
+            return VerificationResult(
+                verified=observation.command_succeeded,
+                evidence=observation.evidence,
+                reason="verified browser Pack state",
+            )
+
+    class Policy:
+        def authorize(self, _request: AuthorizationRequest) -> PolicyDecision:
+            return PolicyDecision(allowed=True, reason="toy Pack policy allowed")
+
+    class Model:
+        def __init__(self, action: ActionSpec):
+            self.action = action
+
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            return ModelResponse(
+                raw={"kind": "ACTION", "action": self.action.model_dump(mode="json")}
+            )
+
+    registry = PackRuntimeRegistry()
+    for card in (read, write):
+        permission = card.action.required_permissions[0]
+        registry.register(
+            card.action.action_id,
+            lambda _connection, _principal, permission=permission: ActionRuntime(
+                Executor(), Verifier(), {permission: frozenset()}
+            ),
+        )
+
+    def interaction(utterance: str, caller: Principal, correlation_id):
+        card = write if utterance.startswith("write") else read
+        runtime = registry.resolve(card, object(), caller)
+        result = Kernel(
+            Model(card.action),
+            StrictDecisionDecoder(),
+            Policy(),
+            _ActionExecutorDispatch({card.action.action_id: runtime.executor}),
+            _ActionVerifierDispatch({card.action.action_id: runtime.verifier}),
+        ).run(
+            IntentFrame(
+                principal=caller,
+                utterance=utterance,
+                correlation_id=correlation_id,
+            ),
+            (card,),
+        )
+        return {
+            "message": result.message,
+            "state": result.state.value,
+            "detail": result.message,
+            "objective_id": str(result.objective_id),
+        }
+
+    app = BrowserApp(principal, interaction, lambda _caller: {"nodes": []})
+    write_status, _, write_body = app.dispatch(
+        "POST",
+        "/api/message",
+        json.dumps({"utterance": "write bring a coat", "correlation_id": str(uuid4())}).encode(),
+    )
+    read_status, _, read_body = app.dispatch(
+        "POST",
+        "/api/message",
+        json.dumps({"utterance": "read the note", "correlation_id": str(uuid4())}).encode(),
+    )
+
+    assert write_status == 200
+    assert read_status == 200
+    assert json.loads(write_body)["state"] == "completed"
+    assert json.loads(read_body)["state"] == "completed"
+    assert state["note"] == "bring a coat"
