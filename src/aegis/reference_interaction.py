@@ -50,6 +50,7 @@ from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PersonalState, PostgresPersonalStateStore
 from .planning import (
+    ContextualCrossDomainPriorityFastPath,
     ContextualMutationGuard,
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
@@ -795,6 +796,9 @@ def resolve_reference_fast_paths(
         if result is not None:
             return result
         result = ContextualTaskPriorityFastPath().resolve(intent, context)
+        if result is not None:
+            return result
+        result = ContextualCrossDomainPriorityFastPath().resolve(intent, context)
         if result is not None:
             return result
         result = resolve_contextual_ordinal_read(intent, context)

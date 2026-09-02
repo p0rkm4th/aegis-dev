@@ -540,3 +540,59 @@ class CrossDomainPlanningFastPath:
             evidence={"planning": planning},
             correlation_id=intent.correlation_id,
         )
+
+
+class ContextualCrossDomainPriorityFastPath:
+    """Ground a simple cross-domain starting point in an authorized projection."""
+
+    _START_TERMS = ("first", "priority", "prioritize", "focus", "start", "begin")
+
+    def resolve(self, intent: IntentFrame, context: Any) -> Result | None:
+        text = intent.utterance.casefold()
+        if is_mutation_request(text) or not any(term in text for term in self._START_TERMS):
+            return None
+        if getattr(context, "sources", ()) != ("authorized_canonical_result",):
+            return None
+        facts = context.values.get("canonical_facts")
+        planning = facts.get("planning") if isinstance(facts, dict) else None
+        if not isinstance(planning, dict):
+            return None
+        tasks = planning.get("open_tasks", ())
+        chores = planning.get("open_chores", ())
+        if not isinstance(tasks, list) or not isinstance(chores, list):
+            return None
+        candidates = [item for item in (*tasks, *chores) if isinstance(item, dict)]
+        if not candidates:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="I could not find an open task or chore to prioritize.",
+                correlation_id=intent.correlation_id,
+            )
+        dated_tasks = [
+            item for item in tasks if isinstance(item, dict) and isinstance(item.get("due_at"), str)
+        ]
+        if dated_tasks:
+            selected = min(dated_tasks, key=lambda item: str(item["due_at"]))
+            title = selected.get("title")
+            if isinstance(title, str) and title:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.COMPLETED,
+                    message=f"Based on the earliest recorded task deadline, start with: {title}",
+                    evidence={
+                        "collection": "planning",
+                        "priority_basis": "authorized_prior_result_earliest_task_deadline",
+                        "task": selected,
+                    },
+                    correlation_id=intent.correlation_id,
+                )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I can show the open tasks and chores, but I cannot safely rank them "
+                "because no authorized task deadline distinguishes them."
+            ),
+            correlation_id=intent.correlation_id,
+        )
