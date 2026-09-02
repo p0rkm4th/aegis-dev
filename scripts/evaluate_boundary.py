@@ -26,6 +26,7 @@ from aegis.embeddings import OllamaEmbeddingProvider
 from aegis.interaction import InteractionBoundary, InteractionDependencies
 from aegis.ollama import OllamaHttpTransport, OllamaProvider
 from aegis.pack_lifecycle import PackManager
+from aegis.reference_interaction import reference_fallback_cards
 from aegis.reference_packs import reference_bundles
 
 
@@ -111,6 +112,7 @@ def _boundary(provider: OllamaProvider, embedder: OllamaEmbeddingProvider) -> In
             capability_retriever=lambda query, manager: manager.retrieve_semantic(
                 query, embedder, limit=10
             ),
+            fallback_card_selector=reference_fallback_cards,
         )
     )
 
