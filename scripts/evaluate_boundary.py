@@ -262,12 +262,13 @@ def evaluate(
     retrieval_limit: int = 10,
     checkpoint_path: Path | None = None,
     resume_path: Path | None = None,
+    compact_action_cards: bool = False,
 ) -> dict[str, Any]:
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
     model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
     transport = MeasuringTransport(base_url)
-    provider = OllamaProvider(model, transport)
+    provider = OllamaProvider(model, transport, compact_action_cards=compact_action_cards)
     embedder = OllamaEmbeddingProvider(
         os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"), base_url
     )
@@ -331,6 +332,7 @@ def evaluate(
         "action_cards_sha256": cards_sha,
         "semantic_retrieval_limit": retrieval_limit,
         "classification_action_reference_shortcut": reuse_classification_action_reference,
+        "compact_action_cards": compact_action_cards,
         "provider_settings": {
             "temperature": 0,
             "stream": False,
@@ -648,6 +650,7 @@ def evaluate(
         },
         "action_cards_sha256": cards_sha,
         "classification_action_reference_shortcut": reuse_classification_action_reference,
+        "compact_action_cards": compact_action_cards,
         "semantic_retrieval_limit": retrieval_limit,
         "cases": total,
         **overall,
@@ -717,6 +720,11 @@ def main() -> int:
         type=Path,
         help="resume from a compatible per-case checkpoint",
     )
+    parser.add_argument(
+        "--compact-action-cards",
+        action="store_true",
+        help="evaluation experiment: omit policy/verification internals from model-visible cards",
+    )
     args = parser.parse_args()
     report = evaluate(
         args.corpus,
@@ -724,6 +732,7 @@ def main() -> int:
         retrieval_limit=args.retrieval_limit,
         checkpoint_path=args.checkpoint,
         resume_path=args.resume,
+        compact_action_cards=args.compact_action_cards,
     )
     serialized = json.dumps(report, indent=2, sort_keys=True)
     if args.output is not None:

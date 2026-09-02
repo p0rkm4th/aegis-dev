@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 from threading import Event
 from uuid import uuid4
@@ -2224,6 +2225,36 @@ def test_ollama_provider_does_not_retry_beyond_bound():
     else:
         raise AssertionError("malformed Ollama output was accepted")
     assert transport.calls == 2
+
+
+def test_ollama_compact_card_view_omits_policy_internals():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.write",
+            required_permissions=("tasks.write",),
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Create a task",
+        relevance=0.9,
+        argument_keys=("title",),
+        argument_descriptions={"title": "task title"},
+    )
+    request = ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=(card,))
+    prompt = OllamaProvider("qwen3:8b", object(), compact_action_cards=True)._prompt(request)
+    payload = json.loads(prompt)
+    visible = payload["action_cards"][0]
+    assert visible == {
+        "action_id": "tasks.create",
+        "capability": "tasks.write",
+        "operation": "write",
+        "summary": "Create a task",
+        "relevance": 0.9,
+        "argument_keys": ["title"],
+        "argument_descriptions": {"title": "task title"},
+    }
+    assert "required_permissions" not in visible
+    assert "verification" not in visible
 
 
 def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
