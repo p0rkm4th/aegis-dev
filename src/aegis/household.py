@@ -477,7 +477,8 @@ class GroceryReadFastPath:
         if is_mutation_request(text):
             return False
         grocery_noun = any(term in text.split() for term in ("grocery", "groceries"))
-        return grocery_noun and text.startswith(cls._READ_PREFIXES)
+        shopping_list = "shopping list" in text
+        return (grocery_noun or shopping_list) and text.startswith(cls._READ_PREFIXES)
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):
