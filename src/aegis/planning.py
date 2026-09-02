@@ -439,9 +439,24 @@ class CrossDomainPlanningFastPath:
         open_obligations = tuple(item for item in obligations if not item.settled)[
             : self._MAX_CONTEXT_ITEMS
         ]
-        open_tasks = tuple(task for task in self.tasks if task.status.value == "open")[
-            : self._MAX_CONTEXT_ITEMS
-        ]
+        open_tasks = tuple(task for task in self.tasks if task.status.value == "open")
+        open_tasks = tuple(
+            sorted(
+                open_tasks,
+                key=lambda task: (
+                    task.due_at is None,
+                    (
+                        task.due_at.replace(tzinfo=timezone.utc)
+                        if task.due_at is not None and task.due_at.tzinfo is None
+                        else (
+                            task.due_at.astimezone(timezone.utc)
+                            if task.due_at is not None
+                            else datetime.max.replace(tzinfo=timezone.utc)
+                        )
+                    ).isoformat(),
+                ),
+            )[: self._MAX_CONTEXT_ITEMS]
+        )
         chores = cast(tuple[Any, ...], self.household_snapshot.get("chores", ()))
         open_chores = tuple(item for item in chores if not item.completed)[
             : self._MAX_CONTEXT_ITEMS
