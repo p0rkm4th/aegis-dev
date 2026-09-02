@@ -186,10 +186,21 @@ def context_from_prior_result(
         if fact_key == "canonical_chores" and not isinstance(candidates, list):
             candidates = raw_evidence.get("chores")
         if isinstance(candidates, list) and candidates:
+            selected = candidates[:_MAX_CONTEXT_CANDIDATES]
+            if fact_key == "canonical_tasks":
+                compact_tasks = evidence.get("canonical_tasks")
+                if isinstance(compact_tasks, list):
+                    selected.extend(
+                        item
+                        for item in compact_tasks
+                        if isinstance(item, dict)
+                        and isinstance(item.get("due_at"), str)
+                        and item not in selected
+                    )
             referents["those"] = {
                 "source": "canonical_facts",
                 "fact_key": fact_key,
-                "candidates": candidates[:_MAX_CONTEXT_CANDIDATES],
+                "candidates": selected,
             }
             break
     return Context(
