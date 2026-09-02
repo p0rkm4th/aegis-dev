@@ -2,7 +2,23 @@ from __future__ import annotations
 
 import pytest
 
-from aegis.contracts import ActionCard, ActionSpec, Principal, VerificationContract
+from aegis.contracts import (
+    ActionCard,
+    ActionSpec,
+    AuthorizationRequest,
+    ExecutionRequest,
+    IntentFrame,
+    ModelRequest,
+    ModelResponse,
+    Observation,
+    PolicyDecision,
+    Principal,
+    VerificationContract,
+    VerificationResult,
+)
+from aegis.decoding import StrictDecisionDecoder
+from aegis.interaction import _ActionExecutorDispatch, _ActionVerifierDispatch
+from aegis.kernel import Kernel
 from aegis.pack_runtime import ActionRuntime, PackRuntimeRegistry
 
 
@@ -54,3 +70,98 @@ def test_third_party_runtime_cannot_omit_action_permissions():
 
     with pytest.raises(PermissionError, match="does not cover"):
         registry.resolve(card, object(), Principal(id="alice", vault_id="alice-vault"))
+
+
+def test_third_party_pack_read_and_verified_write_use_core_dispatch():
+    state: dict[str, str] = {}
+
+    class Executor:
+        def execute(self, request: ExecutionRequest) -> Observation:
+            if request.action.action_id == "weather.note.write":
+                state["note"] = str(request.action.arguments["note"])
+            return Observation(
+                execution_id=request.action_id,
+                action_id=request.action.action_id,
+                evidence={"state": dict(state)},
+                command_succeeded=True,
+            )
+
+    class Verifier:
+        def verify(
+            self, observation: Observation, _contract: VerificationContract
+        ) -> VerificationResult:
+            return VerificationResult(
+                verified=observation.command_succeeded,
+                evidence=observation.evidence,
+                reason="verified toy Pack state",
+            )
+
+    class Policy:
+        def authorize(self, request: AuthorizationRequest) -> PolicyDecision:
+            return PolicyDecision(allowed=True, reason=f"allowed {request.action.capability}")
+
+    class Model:
+        def __init__(self, action: ActionSpec):
+            self.action = action
+
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            return ModelResponse(
+                raw={"kind": "ACTION", "action": self.action.model_dump(mode="json")}
+            )
+
+    principal = Principal(id="alice", vault_id="alice-vault")
+    write = ActionCard(
+        action=ActionSpec(
+            action_id="weather.note.write",
+            capability="weather.write",
+            arguments={"note": "bring a coat"},
+            required_permissions=("weather.write",),
+            verification=VerificationContract(kind="custom"),
+        ),
+        summary="Record a weather note",
+        relevance=1,
+        argument_keys=("note",),
+    )
+    read = write.model_copy(
+        update={
+            "action": write.action.model_copy(
+                update={
+                    "action_id": "weather.note.read",
+                    "capability": "weather.read",
+                    "arguments": {},
+                }
+            ),
+            "summary": "Read the weather note",
+        }
+    )
+    registry = PackRuntimeRegistry()
+    for card in (read, write):
+        permission = card.action.required_permissions[0]
+        registry.register(
+            card.action.action_id,
+            lambda _connection, _principal, permission=permission: ActionRuntime(
+                Executor(), Verifier(), {permission: frozenset()}
+            ),
+        )
+
+    write_runtime = registry.resolve(write, object(), principal)
+    write_result = Kernel(
+        Model(write.action),
+        StrictDecisionDecoder(),
+        Policy(),
+        _ActionExecutorDispatch({write.action.action_id: write_runtime.executor}),
+        _ActionVerifierDispatch({write.action.action_id: write_runtime.verifier}),
+    ).run(IntentFrame(principal=principal, utterance="save a weather note"), (write,))
+    assert write_result.state.value == "completed"
+    assert state["note"] == "bring a coat"
+
+    read_runtime = registry.resolve(read, object(), principal)
+    read_result = Kernel(
+        Model(read.action),
+        StrictDecisionDecoder(),
+        Policy(),
+        _ActionExecutorDispatch({read.action.action_id: read_runtime.executor}),
+        _ActionVerifierDispatch({read.action.action_id: read_runtime.verifier}),
+    ).run(IntentFrame(principal=principal, utterance="read the weather note"), (read,))
+    assert read_result.state.value == "completed"
+    assert read_result.evidence["state"]["note"] == "bring a coat"
