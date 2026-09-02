@@ -46,8 +46,8 @@ def test_semantic_corpus_audit_reports_split_and_provenance_coverage() -> None:
     report = _AUDIT_MODULE.audit(
         Path("evaluation/semantic_dev.json"), Path("evaluation/semantic_heldout.json")
     )
-    assert report["development_cases"] == 129
-    assert report["held_out_cases"] == 127
+    assert report["development_cases"] == 149
+    assert report["held_out_cases"] == 147
     assert report["held_out_utterance_overlap"] == 0
     assert report["provenance"]["manual"] > 0
 
