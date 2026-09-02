@@ -175,6 +175,30 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
     assert context.values["as_of_date"] == datetime.now(timezone.utc).date().isoformat()
 
 
+def test_model_working_context_prioritization_uses_bounded_open_tasks():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    completed = Task(
+        uuid4(), "apartment", "old completed task", "alice", status=TaskStatus.COMPLETED
+    )
+    open_task = Task(uuid4(), "apartment", "open task", "alice")
+
+    class Tasks:
+        def list(self, _principal):
+            return [completed, open_task]
+
+    class Household:
+        def list_groceries(self, _principal):
+            return []
+
+    context = _fallback_working_context(
+        Context(), Tasks(), Household(), principal, "which task should i do first"
+    )
+
+    assert context.values["canonical_facts"]["canonical_tasks"] == [
+        {"title": "open task", "status": "open"}
+    ]
+
+
 def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
