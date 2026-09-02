@@ -190,6 +190,12 @@ class OllamaProvider:
                     "verified independently. A completed single action is not completion "
                     "of an objective that also requested another action."
                 ),
+                "prioritization_rule": (
+                    "When asked which task to do first or what to prioritize, do not dump "
+                    "the entire task list. Recommend only from the supplied canonical open "
+                    "tasks, using an explicit due_at when present; if the authorized facts "
+                    "do not support a grounded choice, explain the limitation or clarify."
+                ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "

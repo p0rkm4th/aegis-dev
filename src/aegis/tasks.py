@@ -483,6 +483,12 @@ class TaskReadFastPath:
         text = utterance.casefold()
         if is_mutation_request(text):
             return False
+        if "should" in text and any(
+            term in text for term in ("first", "prioritize", "priority", "focus")
+        ):
+            # Recommendation needs bounded cognition over canonical tasks;
+            # returning the raw list would not answer the user's objective.
+            return False
         if not any(trigger in text for trigger in cls._TRIGGERS):
             return False
         # A domain noun alone is not evidence of a read. Keep this fast path

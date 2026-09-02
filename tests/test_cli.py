@@ -2433,6 +2433,7 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     )
     assert not TaskReadFastPath.matches("I'd like to put a task on my list to verify the drill")
     assert not TaskReadFastPath.matches("Mark the task Verify backup retention as done")
+    assert not TaskReadFastPath.matches("Which task should I do first?")
 
 
 def test_task_read_fast_path_exposes_canonical_due_at():
