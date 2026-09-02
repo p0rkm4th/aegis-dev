@@ -3032,6 +3032,26 @@ def test_domain_clarification_fast_path_gives_reminder_guidance():
     assert "Create a task to review the backup" in result.message
 
 
+def test_domain_clarification_fast_path_intercepts_bare_reminder_before_cognition():
+    bare = DomainClarificationFastPath.resolve_underspecified_reminder(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Can you remind me to check the mail tomorrow?",
+        )
+    )
+    assert bare is not None
+    assert bare.state is ObjectiveState.BLOCKED
+    assert "reminder as a task" in bare.message
+
+    explicit = DomainClarificationFastPath.resolve_underspecified_reminder(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Put a reminder on my list to inspect the backup",
+        )
+    )
+    assert explicit is None
+
+
 def test_personal_task_composer_grounds_task_in_unique_canonical_goal():
     from datetime import datetime, timezone
 
