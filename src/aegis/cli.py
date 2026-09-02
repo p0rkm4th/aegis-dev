@@ -687,6 +687,7 @@ def _browser_feedback(
             "owner.feedback",
             principal.id,
             {
+                "correlation_id": str(correlation_id),
                 "outcome": outcome,
                 "reason": reason,
                 "result_state": result.state.value,
@@ -719,6 +720,7 @@ def _owner_feedback_report(principal: Principal, limit: int = 20) -> list[dict[s
                 {
                     "event_id": str(event_id),
                     "objective_id": str(objective_id) if objective_id else None,
+                    "correlation_id": values.get("correlation_id"),
                     "created_at": (
                         created_at.isoformat()
                         if hasattr(created_at, "isoformat")

@@ -2125,6 +2125,7 @@ def test_feedback_harvest_creates_non_replaying_defect_candidates():
             {
                 "event_id": "event-1",
                 "objective_id": "objective-1",
+                "correlation_id": "correlation-1",
                 "created_at": "now",
                 "outcome": "not_helpful",
                 "reason": "objective_failed",
@@ -2136,6 +2137,7 @@ def test_feedback_harvest_creates_non_replaying_defect_candidates():
     )
 
     assert candidates[0]["classification"] == "objective_failure"
+    assert candidates[0]["correlation_id"] == "correlation-1"
     assert candidates[0]["reproduction_required"] is True
     assert candidates[0]["replay_consequential_action"] is False
 
