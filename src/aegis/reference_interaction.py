@@ -153,6 +153,20 @@ def build_reference_fallback_context(
     )
 
 
+def build_reference_fallback_context_runtime(
+    context: Context, connection: Any, principal: Principal, utterance: str
+) -> Context:
+    """Construct fallback context from reference stores in the composition layer."""
+
+    return build_reference_fallback_context(
+        context,
+        PostgresTaskStore(connection),
+        PostgresHouseholdStore(connection),
+        principal,
+        utterance,
+    )
+
+
 def reference_fallback_cards(manager: PackManager, utterance: str) -> tuple[ActionCard, ...]:
     """Reduce legacy no-provider candidates for the reference Packs."""
 
@@ -273,8 +287,6 @@ def run_reference_plan(
     connection: Any,
     principal: Principal,
     manager: PackManager,
-    task_store: PostgresTaskStore,
-    household_store: PostgresHouseholdStore,
     recovered_plan_actions: tuple[ActionSpec, ...] | None,
     context: Context,
     model: Any,
@@ -389,11 +401,11 @@ def resolve_reference_pre_model(
     intent: IntentFrame,
     connection: Any,
     principal: Principal,
-    household_store: PostgresHouseholdStore,
 ) -> Result | None:
     """Resolve reference-Pack finance/planning fast paths before cognition."""
 
     utterance = intent.utterance
+    household_store = PostgresHouseholdStore(connection)
     if FinanceReadFastPath.needs_purchase_amount(utterance):
         return Result(
             objective_id=uuid4(),
