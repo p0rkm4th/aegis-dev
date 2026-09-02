@@ -182,6 +182,14 @@ class OllamaProvider:
                     "canonical facts; do not add, complete, or change state unless the "
                     "user clearly asks for that state change."
                 ),
+                "compound_request_rule": (
+                    "Do not silently complete only one part of a compound request. If the "
+                    "current utterance asks for multiple independent actions or goals and "
+                    "no supplied multi-step plan represents all of them, return CLARIFY "
+                    "and ask the user to separate them so each part can be authorized and "
+                    "verified independently. A completed single action is not completion "
+                    "of an objective that also requested another action."
+                ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "

@@ -240,6 +240,18 @@ class FinanceReadFastPath:
             or bool(cls._SAFE_PURCHASE.search(text))
         )
 
+    @classmethod
+    def needs_purchase_amount(cls, utterance: str) -> bool:
+        """Identify affordability questions that cannot be answered without an amount."""
+
+        text = utterance.casefold()
+        return not bool(cls._AMOUNT.search(text)) and (
+            "can i afford" in text
+            or "can we afford" in text
+            or "affordable" in text
+            or "safe to spend" in text
+        )
+
     def resolve(
         self,
         intent: IntentFrame,
