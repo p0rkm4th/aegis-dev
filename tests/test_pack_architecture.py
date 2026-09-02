@@ -1,6 +1,9 @@
 """Architectural guardrails for generic Pack/Core modules."""
 
 import ast
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 GENERIC_CORE = (
@@ -72,6 +75,45 @@ def test_cli_does_not_own_reference_pack_language_router() -> None:
     source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
     assert "def _domain_and_action" not in source
     assert "reference_domain_and_action" in source
+
+
+def test_generic_modules_load_without_first_party_domain_modules() -> None:
+    """Importability is part of the deletion proof, not only a source heuristic."""
+
+    script = """
+import builtins
+
+blocked = {
+    'aegis.finance', 'aegis.household', 'aegis.homelab', 'aegis.network',
+    'aegis.personal', 'aegis.reference_packs', 'aegis.reference_runtime',
+    'aegis.tasks',
+}
+original = builtins.__import__
+
+def guarded(name, *args, **kwargs):
+    if name in blocked:
+        raise AssertionError(f'generic import reached first-party module: {name}')
+    return original(name, *args, **kwargs)
+
+builtins.__import__ = guarded
+import aegis.interaction
+import aegis.interaction_cognition
+import aegis.interaction_recovery
+import aegis.kernel
+import aegis.pack_lifecycle
+import aegis.pack_runtime
+import aegis.web
+"""
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(Path("src").resolve())
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
 
 
 def test_generic_modules_have_no_syntax_level_first_party_imports_or_action_literals() -> None:
