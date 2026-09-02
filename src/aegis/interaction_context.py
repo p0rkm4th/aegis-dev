@@ -21,6 +21,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         "canonical_items",
         "canonical_tasks",
         "canonical_chores",
+        "chores",
         "canonical_obligations",
         "memories",
         "title",
@@ -41,6 +42,8 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
                 ]
                 remaining = [item for item in tasks if item not in dated_open]
                 compact[key] = (dated_open + remaining)[:20]
+            elif key == "chores":
+                compact["canonical_chores"] = list(value[:20])
             else:
                 compact[key] = list(value[:20])
         elif isinstance(value, str):
@@ -180,6 +183,8 @@ def context_from_prior_result(
         # separate from compacted model evidence, which may use a priority
         # ordering for cognition.
         candidates = raw_evidence.get(fact_key)
+        if fact_key == "canonical_chores" and not isinstance(candidates, list):
+            candidates = raw_evidence.get("chores")
         if isinstance(candidates, list) and candidates:
             referents["those"] = {
                 "source": "canonical_facts",
