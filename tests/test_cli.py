@@ -2960,6 +2960,21 @@ def test_cli_does_not_replace_model_answer_with_authorized_working_set():
     assert cli._format(result) == "No due-today deadline is recorded."
 
 
+def test_cli_formats_repeated_canonical_groceries_as_counts_without_changing_truth():
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Canonical grocery list read",
+        correlation_id=uuid4(),
+        evidence={"canonical_items": ["rice", "beans", "rice", "rice"]},
+    )
+
+    assert cli._format(result) == "Groceries: rice (x3), beans"
+    assert result.evidence["canonical_items"] == ["rice", "beans", "rice", "rice"]
+
+
 def test_cli_formats_cross_domain_memory_and_obligation_summary():
     from aegis import cli
 

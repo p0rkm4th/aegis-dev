@@ -965,7 +965,18 @@ def _format(result: Any) -> str:
         return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
-        return "Groceries: " + (", ".join(items) if items else "(empty)")
+        counts: dict[str, int] = {}
+        order: list[str] = []
+        for item in items:
+            value = str(item)
+            if value not in counts:
+                order.append(value)
+                counts[value] = 0
+            counts[value] += 1
+        listing = ", ".join(
+            f"{item} (x{counts[item]})" if counts[item] > 1 else item for item in order
+        )
+        return "Groceries: " + (listing if listing else "(empty)")
     if evidence.get("canonical_tasks") is not None:
         tasks = evidence["canonical_tasks"]
         listing = "; ".join(
