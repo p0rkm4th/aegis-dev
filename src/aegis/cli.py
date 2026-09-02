@@ -1337,7 +1337,7 @@ def main() -> int:
     if args.feedback:
         try:
             return _print_owner_feedback(_owner_feedback_report(principal), args.json, args.harvest)
-        except psycopg.Error:
+        except (RuntimeError, psycopg.Error):
             if args.json:
                 _print_json_error("feedback_unavailable", "feedback unavailable")
             else:
