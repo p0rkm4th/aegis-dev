@@ -22,6 +22,7 @@
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
       "M08.10 owner routing defect fix live on a1e62a1: fresh correlation bf7ec216-9ee0-4e95-8141-7a5c76748503 for an imperative reminder request no longer returned the task list; it produced an actionable persisted deadline clarification and dispatched no mutation",
+      "M08.10 positive companion live on a1e62a1: fresh correlation 085b6955-0766-4300-b46b-204162a359e8 for the same imperative reminder intent without an explicit deadline created exactly 'inspect the backup' with canonical readback verification and no unrelated mutation",
       "M08.10 novel compound owner probe on b820515: correlation 6c145ed3-9e82-47fb-b2bc-2f476271468e for 'get the restore drill ready and add anything missing to groceries' returned a persisted clarification before dispatch; no task or grocery mutation occurred",
       "M10.10 novel cross-domain owner probe on b820515: correlation 5b8f3745-06e6-43b8-8516-e3bd7bc8ee5e completed a grounded attention-before-restore-drill plan using authorized tasks, household Utilities obligation, and relevant backup memory; no mutation occurred and duplicate canonical task titles were preserved as observed data rather than normalized",
       "M08.03 domain-free grocery requests semantically shortlisted to the authorized kitchen read capability",
@@ -93,9 +94,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a1e62a1",
+  "repository_head_sha": "06f9bd8",
   "deterministic_green_sha": "a1e62a1",
-  "last_pushed_sha": "a1e62a1",
+  "last_pushed_sha": "06f9bd8",
   "installed_release_sha": "a1e62a1",
   "running_release_sha": "a1e62a1",
   "live_green_sha": "f5add80",
@@ -118,7 +119,7 @@
     "running_sha": "a1e62a1",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/a1e62a1",
-    "repository_head_sha": "a1e62a1",
+    "repository_head_sha": "06f9bd8",
     "deterministic_green_sha": "a1e62a1",
     "installed_release_sha": "a1e62a1",
     "running_release_sha": "a1e62a1",
