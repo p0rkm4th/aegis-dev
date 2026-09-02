@@ -324,6 +324,11 @@ class InteractionBoundary:
 
         text = utterance.casefold()
         facts = (context.values if context is not None else {}).get("canonical_facts", {})
+        if is_task_destination_request(utterance):
+            # An explicit task-list destination is a bounded capability hint;
+            # do not offer calendar actions for a request the user directed to
+            # their to-do collection.
+            return tuple(manager.retrieve("tasks"))[:10]
         if isinstance(facts, dict):
             if (
                 isinstance(facts.get("canonical_items"), list)
