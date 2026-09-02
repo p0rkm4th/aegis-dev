@@ -13,7 +13,6 @@ from .contracts import (
     ActionCard,
     Context,
     Decision,
-    DecisionKind,
     IntentFrame,
     Objective,
     ObjectiveState,
@@ -30,19 +29,25 @@ from .dispatch import (
 from .gateway_rpc import OpenClawWebSocketChannel
 from .identity import PostgresSpacePolicy
 from .interaction_cognition import decide_fallback
-from .interaction_context import authorized_context_evidence as _authorized_context_evidence
+from .interaction_context import authorized_context_evidence
 from .interaction_context import context_from_prior_result as _context_from_prior_result
 from .interaction_context import with_continuation_context as _with_continuation_context
+from .interaction_decisions import resolve_fallback_decision
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .store import PostgresObjectiveStore
-from .utterance import has_multiple_question_clauses
 
 
 class InteractionInputError(ValueError):
     """A safe, actionable request-shape error from a client-facing selector."""
+
+
+def _authorized_context_evidence(context: Context) -> dict[str, Any]:
+    """Compatibility export for clients/tests; implementation lives in context ownership."""
+
+    return authorized_context_evidence(context)
 
 
 class InteractionDependencies:
@@ -266,97 +271,18 @@ class InteractionBoundary:
                 if isinstance(fallback, Result):
                     return persist_fast_result(fallback)
                 if isinstance(fallback, Decision):
-                    if fallback.kind is DecisionKind.ANSWER:
-                        answer_evidence: dict[str, Any] = {
-                            "provenance": "model_generated",
-                            "authoritative": False,
-                            "answer_mode": fallback.semantic_mode,
-                        }
-                        authorized_facts = _authorized_context_evidence(fallback_context)
-                        if fallback.context_focus is not None:
-                            focused = authorized_facts.get(fallback.context_focus)
-                            authorized_facts = (
-                                {fallback.context_focus: focused} if focused is not None else {}
-                            )
-                        if authorized_facts:
-                            answer_evidence.update(authorized_facts)
-                            answer_evidence["context_provenance"] = "authorized_working_set"
-                        return persist_fast_result(
-                            Result(
-                                objective_id=uuid4(),
-                                state=ObjectiveState.COMPLETED,
-                                message=fallback.answer or "",
-                                evidence=answer_evidence,
-                                correlation_id=intent.correlation_id,
-                            )
-                        )
-                    if fallback.kind is DecisionKind.CLARIFY:
-                        clarification = fallback.clarification or "Please clarify your request."
-                        if has_multiple_question_clauses(utterance):
-                            # A model clarification must not import a domain
-                            # from the authorized working set when the user
-                            # asked multiple independent questions. Keep the
-                            # safety result while making the next step useful.
-                            clarification = (
-                                "That request contains multiple independent questions. "
-                                "Please ask one at a time so I can answer each from "
-                                "authorized information."
-                            )
-                        return persist_fast_result(
-                            Result(
-                                objective_id=uuid4(),
-                                state=ObjectiveState.BLOCKED,
-                                message=clarification,
-                                correlation_id=intent.correlation_id,
-                            )
-                        )
-                    if fallback.kind is DecisionKind.NEED_CONTEXT:
-                        return persist_fast_result(
-                            Result(
-                                objective_id=uuid4(),
-                                state=ObjectiveState.BLOCKED,
-                                message="I need more context to safely interpret that request.",
-                                correlation_id=intent.correlation_id,
-                            )
-                        )
-                    if fallback.kind is DecisionKind.ACTION and fallback.action is not None:
-                        fallback_card = next(
-                            (
-                                candidate
-                                for candidate in self._fallback_cards(
-                                    manager,
-                                    utterance,
-                                    fallback_context,
-                                )
-                                if candidate.action.action_id == fallback.action.action_id
-                            ),
-                            None,
-                        )
-                        if fallback_card is None:
-                            return persist_fast_result(
-                                Result(
-                                    objective_id=uuid4(),
-                                    state=ObjectiveState.BLOCKED,
-                                    message=(
-                                        "I could not safely match that request to an "
-                                        "available capability."
-                                    ),
-                                    correlation_id=intent.correlation_id,
-                                    retryable=True,
-                                )
-                            )
-                        # Keep the model's bounded arguments while restoring the
-                        # canonical card metadata that the decoder validated.
-                        card = fallback_card.model_copy(update={"action": fallback.action})
-                    else:
-                        return persist_fast_result(
-                            Result(
-                                objective_id=uuid4(),
-                                state=ObjectiveState.BLOCKED,
-                                message=fallback.reason or str(fallback.kind),
-                                correlation_id=intent.correlation_id,
-                            )
-                        )
+                    resolution = resolve_fallback_decision(
+                        fallback,
+                        intent,
+                        fallback_context,
+                        self._fallback_cards(manager, utterance, fallback_context),
+                        lambda query, selected_context: self._fallback_cards(
+                            manager, query, selected_context
+                        ),
+                    )
+                    if isinstance(resolution, Result):
+                        return persist_fast_result(resolution)
+                    card = resolution
                 else:
                     return persist_fast_result(
                         Result(
