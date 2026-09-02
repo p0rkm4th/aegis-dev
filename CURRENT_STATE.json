@@ -79,6 +79,7 @@
       ,"owner release pointer consistency at cc31eda: release validation now rejects contradictory top-level and nested owner repository/deterministic/installed/running/live pointers, preventing stale promotion metadata from appearing coherent. Full deterministic validation passed at 346 tests and hosted validation run 33599554613 passed."
       ,"focused OSS harvest at e320266: inspected Hermes Agent, OpenClaw, Cytoscape.js, xyflow, simple-evals, lm-evaluation-harness, and DSPy at pinned upstream revisions; evaluation/UI material is design/test harvest, OpenClaw is rejected pending license/provenance clarification, and no runtime dependency was added. Full deterministic validation passed at 346 tests; hosted validation for the follow-up source checkpoint is pending."
       ,"hosted validation checkpoint at e320266: GitHub Actions run 33600004143 completed successfully with the built-artifact smoke gate and full deterministic validation; the owner release remains independently promoted at 1ec1e2e."
+      ,"semantic corpus contract checkpoint at f98dfac: corpus auditing now requires explicit family, kind, and semantic-mode labels and rejects unsupported values before evaluation; 346 deterministic tests and hosted run 33600207038 passed."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -160,10 +161,10 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e320266",
-  "deterministic_green_sha": "e320266",
-  "last_pushed_sha": "e320266",
-  "hosted_ci_green_sha": "e320266",
+  "repository_head_sha": "f98dfac",
+  "deterministic_green_sha": "f98dfac",
+  "last_pushed_sha": "f98dfac",
+  "hosted_ci_green_sha": "f98dfac",
   "installed_release_sha": "1ec1e2e",
   "running_release_sha": "1ec1e2e",
   "live_green_sha": "f5add80",
@@ -184,8 +185,8 @@
     "running_sha": "1ec1e2e",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/1ec1e2e",
-    "repository_head_sha": "e320266",
-    "deterministic_green_sha": "e320266",
+    "repository_head_sha": "f98dfac",
+    "deterministic_green_sha": "f98dfac",
     "installed_release_sha": "1ec1e2e",
     "running_release_sha": "1ec1e2e",
     "live_green_sha": "f5add80",
