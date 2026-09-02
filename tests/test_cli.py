@@ -3091,6 +3091,38 @@ def test_task_priority_fast_path_uses_earliest_open_deadline():
     assert result.evidence["task"]["title"] == "renew insurance"
 
 
+def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
+    soon = Task(
+        uuid4(),
+        "apartment",
+        "call the dentist",
+        "alice",
+        due_at=datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (soon,)
+
+    for utterance in (
+        "what should I take care of first today?",
+        "which task should I focus on first?",
+        "what should I prioritize today?",
+    ):
+        assert TaskPriorityFastPath.matches(utterance)
+        result = TaskPriorityFastPath(Store()).resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance=utterance,
+            )
+        )
+        assert result is not None
+        assert result.state is ObjectiveState.COMPLETED
+        assert result.evidence["task"]["title"] == "call the dentist"
+
+    assert not TaskPriorityFastPath.matches("which groceries should I buy first?")
+
+
 def test_task_read_fast_path_exposes_canonical_due_at():
     from datetime import datetime, timezone
 
