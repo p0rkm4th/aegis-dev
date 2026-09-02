@@ -72,6 +72,35 @@ def test_third_party_runtime_cannot_omit_action_permissions():
         registry.resolve(card, object(), Principal(id="alice", vault_id="alice-vault"))
 
 
+def test_pack_registration_is_atomic_and_covers_every_declared_card():
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(action_id=action_id, capability=action_id),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("weather.read", "weather.write")
+    )
+    registry = PackRuntimeRegistry()
+
+    with pytest.raises(ValueError, match="match its ActionCards"):
+        registry.register_pack(
+            cards,
+            {"weather.read": lambda _c, _p: ActionRuntime(None, None, {})},
+        )
+
+    registry.register_pack(
+        cards,
+        {
+            card.action.action_id: lambda _connection, _principal: ActionRuntime(
+                object(), object(), {}
+            )
+            for card in cards
+        },
+    )
+    assert registry.resolve(cards[0], object(), Principal(id="alice", vault_id="v"))
+
+
 def test_third_party_pack_read_and_verified_write_use_core_dispatch():
     state: dict[str, str] = {}
 

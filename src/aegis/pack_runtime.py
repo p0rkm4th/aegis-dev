@@ -35,6 +35,22 @@ class PackRuntimeRegistry:
             raise ValueError("runtime action ID must be non-empty and unique")
         self._factories[action_id] = factory
 
+    def register_pack(
+        self,
+        cards: tuple[ActionCard, ...],
+        factories: dict[str, RuntimeFactory],
+    ) -> None:
+        """Atomically register all runtimes declared by one Pack."""
+
+        action_ids = tuple(card.action.action_id for card in cards)
+        if len(set(action_ids)) != len(action_ids):
+            raise ValueError("Pack ActionCard IDs must be unique")
+        if set(factories) != set(action_ids):
+            raise ValueError("Pack runtime bindings must match its ActionCards")
+        if set(action_ids) & self._factories.keys():
+            raise ValueError("Pack runtime action IDs must be unique")
+        self._factories.update(factories)
+
     def resolve(self, card: ActionCard, connection: Any, principal: Principal) -> ActionRuntime:
         try:
             runtime = self._factories[card.action.action_id](connection, principal)
