@@ -403,20 +403,24 @@ class InteractionBoundary:
                     classification_only=True,
                 )
                 classification_response = provider.decide(classification_request)
-                raw_kind = (
-                    classification_response.raw.get("kind")
-                    if isinstance(classification_response.raw, dict)
-                    else None
-                )
                 semantic_mode = (
                     classification_response.raw.get("semantic_mode")
                     if isinstance(classification_response.raw, dict)
                     else None
                 )
-                if raw_kind == DecisionKind.ANSWER.value and semantic_mode in {
-                    "GENERATION",
-                    "READ",
-                }:
+                if semantic_mode in {"GENERATION", "READ"}:
+                    if semantic_mode == "GENERATION":
+                        generated_answer = (
+                            classification_response.raw.get("answer")
+                            if isinstance(classification_response.raw, dict)
+                            else None
+                        )
+                        if isinstance(generated_answer, str) and generated_answer.strip():
+                            return Decision(
+                                kind=DecisionKind.ANSWER,
+                                answer=generated_answer,
+                                semantic_mode="GENERATION",
+                            )
                     answer_context = context
                     if semantic_mode == "GENERATION":
                         answer_context = context.model_copy(
