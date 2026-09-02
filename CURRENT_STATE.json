@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
-  "deterministic_green_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
-  "last_pushed_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
-  "hosted_ci_green_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
+  "repository_head_sha": "72217c33e80c608f7e6aacb475f6b06e1506ed68",
+  "deterministic_green_sha": "72217c33e80c608f7e6aacb475f6b06e1506ed68",
+  "last_pushed_sha": "72217c33e80c608f7e6aacb475f6b06e1506ed68",
+  "hosted_ci_green_sha": "72217c33e80c608f7e6aacb475f6b06e1506ed68",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33678088206",
-    "commit_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
+    "run_id": "33678226511",
+    "commit_sha": "72217c33e80c608f7e6aacb475f6b06e1506ed68",
     "conclusion": "success",
     "observed_at": "2026-09-02T19:25:00Z"
   },
@@ -1082,5 +1082,6 @@
     "personal_temporal_truth_checkpoint": "green safety evidence on installed release 85e3153: 'what did I work on last night?' and 'what did I work on yesterday?' returned no memories because the persisted records matching those labels were outside the requested local-time windows; AEGIS did not trust stale wording over canonical occurred_at timestamps. A timestamp-controlled deterministic regression proves broad activity queries return matching records when they are inside the requested window.",
     "personal_backup_followup_checkpoint": "green installed owner evidence on release 85e3153: natural follow-up 'what about the backup?' returned five provenance-bearing personal memories, including observed and explicit backup records, without task misrouting, private cross-user disclosure, or mutation (correlation fd65b31e-b6b8-480e-b810-951d1235656f).",
     "household_priority_safety_checkpoint": "green safety evidence on installed release 85e3153: natural household read 'what chores still need doing around the apartment?' returned canonical chores, while follow-up 'which one is due first?' blocked because the authorized result contained no due-date authority (correlation 8aab607e-4be1-4919-9f42-2802a142c1b0). No fabricated prioritization or chore mutation occurred.",
-    "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; classify the next demonstrated defect before considering bounded planning."
+    "owner_task_retry_checkpoint": "partial daily-driver evidence on installed release 85e3153: natural 'remind me to check the mailbox tomorrow' clarified safely and repeated with the same correlation without mutation, exposing a model/intent coverage gap; explicit 'add a task to check the mailbox tomorrow' then created one verified task and an identical retry returned the same objective/result (correlation 2f21f82a-8b8f-43b3-b0a7-8d7a15478f13).",
+    "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize broad intent gaps such as reminder language only if repeated across fresh families, and classify the next demonstrated defect before considering bounded planning."
 }
