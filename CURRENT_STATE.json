@@ -27,6 +27,7 @@
       ,"production Pack runtime registry at 9f3dbfd: CLI composition supplies typed PostgreSQL Task/Household/Kitchen read/write runtimes by ActionCard ID, moving supported production execution off InteractionBoundary fallback branches; full validation passed at 327 tests"
       ,"explicit grocery read fast path at aa96420: high-confidence grocery-list reads bypass model answer decoding while remaining canonical/membership-checked; full validation passed at 327 tests"
       ,"Constellation duplicate-hub fix at 6be7a02: Pack-backed Homelab and Network domains are represented once by their Pack hubs; live authenticated projection showed no legacy duplicate nodes"
+      ,"production default registry live proof at 6be7a02: authenticated browser correlation cbfdec6a-045b-41e9-927c-1663be051300 completed a canonical Task read through the default PackRuntimeRegistry with deadlines preserved"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
