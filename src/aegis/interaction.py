@@ -75,7 +75,7 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
-from .utterance import is_question_request
+from .utterance import is_question_request, is_task_destination_request
 
 _MAX_CONTEXT_TURN_CHARS = 500
 _MAX_CONTEXT_CANDIDATES = 10
@@ -519,6 +519,29 @@ class InteractionBoundary:
                     None,
                 )
                 if (
+                    selected_card is not None
+                    and selected_card.action.action_id == "tasks.events.create"
+                    and is_task_destination_request(intent.utterance)
+                ):
+                    task_cards = tuple(
+                        card for card in cards if card.action.action_id == "tasks.create"
+                    )
+                    if task_cards:
+                        task_request = ModelRequest(
+                            working_set=WorkingSet(intent=intent, context=context),
+                            action_cards=task_cards,
+                            allow_argument_proposals=True,
+                        )
+                        task_decision = decoder.decode(
+                            provider.decide(task_request),
+                            task_cards,
+                            allow_argument_proposals=True,
+                        )
+                        if task_decision.kind is not DecisionKind.ACTION:
+                            return task_decision
+                        decision = task_decision
+                        selected_card = task_cards[0]
+                if (
                     is_question_request(intent.utterance)
                     and selected_card is not None
                     and any(
@@ -549,11 +572,14 @@ class InteractionBoundary:
                             or read_decision.action is not None
                         ):
                             return read_decision
+                action = decision.action
+                if action is None:
+                    return decision
                 card = next(
-                    (card for card in cards if card.action.action_id == decision.action.action_id),
+                    (card for card in cards if card.action.action_id == action.action_id),
                     None,
                 )
-                if card is not None and card.argument_keys and not decision.action.arguments:
+                if card is not None and card.argument_keys and not action.arguments:
                     # A small model can identify the capability but omit its
                     # object argument. Re-ask with the already-selected card;
                     # this remains bounded cognition, not phrase extraction.
