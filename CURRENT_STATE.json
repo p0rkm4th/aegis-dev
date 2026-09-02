@@ -32,6 +32,7 @@
       ,"Kitchen mutation registry at 319a3c1: production default PackRuntimeRegistry now binds kitchen.groceries.add with explicit OpenClaw cleanup; owner readiness is green, but external mutation acceptance remains lane-limited because OpenClaw is not configured"
       ,"semantic evaluator context-contract correction at 184d7c4: evaluation supplies bounded authorized canonical fixtures and scores contextual reads as grounded ANSWER when no single ActionCard is eligible; Qwen3:8B held-out route accuracy is 0.125 with zero false mutations/completions, so capability green remains unclaimed"
       ,"registry runtime cleanup correction at 6527187: InteractionBoundary now retains Pack-provided ActionRuntime cleanup hooks for registry-resolved actions, closing the OpenClaw/channel lifecycle leak; exact source validation passed at 6527187"
+      ,"provider semantic-mode contract at 5630e09: Ollama provider schemas now require semantic_mode for every model decision, while Core's in-process Decision contract remains ergonomic; full validation passed at 330 tests"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -113,13 +114,13 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d8f2dda",
-  "deterministic_green_sha": "d8f2dda",
-  "last_pushed_sha": "d8f2dda",
-  "installed_release_sha": "d8f2dda",
-  "running_release_sha": "d8f2dda",
+  "repository_head_sha": "5630e09",
+  "deterministic_green_sha": "5630e09",
+  "last_pushed_sha": "5630e09",
+  "installed_release_sha": "5630e09",
+  "running_release_sha": "5630e09",
   "live_green_sha": "f5add80",
-  "head_sha": "d8f2dda",
+  "head_sha": "5630e09",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -135,15 +136,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "d8f2dda",
+    "running_sha": "5630e09",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/d8f2dda",
-    "repository_head_sha": "d8f2dda",
-    "deterministic_green_sha": "d8f2dda",
-    "installed_release_sha": "d8f2dda",
-    "running_release_sha": "d8f2dda",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/5630e09",
+    "repository_head_sha": "5630e09",
+    "deterministic_green_sha": "5630e09",
+    "installed_release_sha": "5630e09",
+    "running_release_sha": "5630e09",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, exact deterministic validation, and the installed/running owner release are d8f2dda. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, exact deterministic validation, and the installed/running owner release are 5630e09. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -207,14 +208,14 @@
     "model": "qwen3:8b",
     "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
     "endpoint": "http://172.18.0.1:11434",
-    "source_sha": "6527187c024a09c140637c419f61446da21a61a0",
+    "source_sha": "5630e09eaf0d6b7d6743230fed285b42844805c3",
     "development_dataset_sha256": "90a28ae8dd206b750a81eed577b107d18714df94183ac45b07209806a6331b24",
     "held_out_dataset_sha256": "61d4d5b33e51b5817dda3fe28ba8188813756120d14dbe8b88490cabb635a731",
-    "prompt_and_decision_schema_sha256": "0e21e25d3afa97f6b67d1e7e046fe0634496827bf42c0dc4ceea697d9bab4b7a",
+    "prompt_and_decision_schema_sha256": "17724d0935bf2977973c1a90e8c484be09dfd0bfc82ff765ee698bb4944b9c2f",
     "action_card_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
-    "development_result": "/tmp/aegis-semantic-dev-live.json",
-    "held_out_result": "/tmp/aegis-semantic-heldout-live.json",
-    "interpretation": "The evaluator invokes the real Qwen3:8B provider through the production bounded cognition decoder without executing mutations. At 6527187, development route accuracy is 0.625 and held-out route accuracy is 0.125; action precision is 1.0, action recall is 0.5, argument exactness is 0.875, false mutations/completions are zero, and security hard failure is false. Semantic capability is not green. Use development failure families to improve generic contracts and rerun the untouched held-out corpus."
+    "development_result": "/tmp/aegis-semantic-dev-5630e09.json",
+    "held_out_result": "/tmp/aegis-semantic-heldout-5630e09.json",
+    "interpretation": "The evaluator invokes the real Qwen3:8B provider through the production bounded cognition decoder without executing mutations. At 5630e09, development and held-out route accuracy are both 0.25; action precision is 1.0, action recall is 0.5, held-out argument exactness is 0.875, false mutations/completions are zero, and security hard failure is false. Semantic capability is not green. The provider contract hardening is retained as an experiment; use development failure families to improve generic contracts and rerun the untouched held-out corpus."
   },
   "artifact_alpha_gate": {
     "status": "green",
