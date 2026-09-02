@@ -110,13 +110,13 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "c64de12",
+    "running_sha": "6e4b1a2",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/c64de12",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/6e4b1a2",
     "repository_head_sha": "fcb2d65",
     "deterministic_green_sha": "fcb2d65",
-    "installed_release_sha": "c64de12",
-    "running_release_sha": "c64de12",
+    "installed_release_sha": "6e4b1a2",
+    "running_release_sha": "6e4b1a2",
     "live_green_sha": "f5add80",
     "source_install_runtime_note": "GitHub/local source and deterministic checkpoint are fcb2d65; owner service is still running installed c64de12; live capability evidence is through f5add80. Promote only after the new checkpoint passes artifact and owner-runtime validation.",
     "service": "aegis-owner.service",
@@ -153,6 +153,43 @@
         "capability_green": false
       }
     }
+  },
+  "routing_architecture_benchmark": {
+    "corpus": "scripts/benchmark_routing.py evaluation-only unseen semantic family",
+    "cases": 8,
+    "measured_at_sha": "6e4b1a2",
+    "results": {
+      "A_embedding_qwen8": {
+        "route_accuracy": 0.625,
+        "model_calls": 8,
+        "model_calls_avoided": 0,
+        "false_mutation_routing": 0,
+        "false_completion": 0,
+        "security_errors": 1,
+        "hard_failure": true,
+        "average_latency_ms": 2381.6,
+        "prompt_tokens": 16453,
+        "output_tokens": 538
+      },
+      "B_embedding_2b4b_router_qwen8": {
+        "status": "not_run",
+        "reason": "no 2B-4B router model installed or configured"
+      },
+      "C_embedding_confidence_reranker_qwen8": {
+        "route_accuracy": 0.625,
+        "model_calls": 8,
+        "model_calls_avoided": 0,
+        "lightweight_predictions": 0,
+        "false_mutation_routing": 0,
+        "false_completion": 0,
+        "security_errors": 1,
+        "hard_failure": true,
+        "average_latency_ms": 2494.5,
+        "prompt_tokens": 16453,
+        "output_tokens": 538
+      }
+    },
+    "decision": "Do not add an inference hop or promote the lightweight bypass. The direct baseline and conservative reranker are equivalent on this corpus, and both expose a task-create strict-decoder failure requiring semantic-contract investigation rather than phrase handling."
   },
   "completed_functionality": [
     "greenfield scaffold",
