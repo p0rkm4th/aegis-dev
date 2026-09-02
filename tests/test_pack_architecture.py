@@ -11,7 +11,10 @@ GENERIC_CORE = (
     Path("src/aegis/pack_lifecycle.py"),
     Path("src/aegis/pack_runtime.py"),
     Path("src/aegis/registry.py"),
+    Path("src/aegis/capability_retrieval.py"),
+    Path("src/aegis/interaction_context.py"),
     Path("src/aegis/interaction_cognition.py"),
+    Path("src/aegis/interaction_decisions.py"),
     Path("src/aegis/interaction_recovery.py"),
 )
 GENERIC_CLIENTS = (Path("src/aegis/web.py"),)
@@ -111,7 +114,10 @@ def guarded(name, *args, **kwargs):
 
 builtins.__import__ = guarded
 import aegis.interaction
+import aegis.capability_retrieval
+import aegis.interaction_context
 import aegis.interaction_cognition
+import aegis.interaction_decisions
 import aegis.interaction_recovery
 import aegis.kernel
 import aegis.pack_lifecycle
