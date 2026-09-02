@@ -1,0 +1,49 @@
+"""Typed runtime bindings for Pack-provided actions.
+
+Pack metadata describes what may be proposed. A runtime binding supplies the
+separate executor, verifier, and policy relation used after Core validation.
+The model and Pack metadata never manufacture this binding.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
+from .contracts import ActionCard, Principal
+
+
+@dataclass(frozen=True)
+class ActionRuntime:
+    executor: Any
+    verifier: Any
+    permissions: dict[str, frozenset[Any]]
+
+
+RuntimeFactory = Callable[[Any, Principal], ActionRuntime]
+
+
+class PackRuntimeRegistry:
+    """Resolve installed Pack action IDs without central domain knowledge."""
+
+    def __init__(self) -> None:
+        self._factories: dict[str, RuntimeFactory] = {}
+
+    def register(self, action_id: str, factory: RuntimeFactory) -> None:
+        if not action_id or action_id in self._factories:
+            raise ValueError("runtime action ID must be non-empty and unique")
+        self._factories[action_id] = factory
+
+    def resolve(self, card: ActionCard, connection: Any, principal: Principal) -> ActionRuntime:
+        try:
+            runtime = self._factories[card.action.action_id](connection, principal)
+        except KeyError as exc:
+            raise LookupError(f"no runtime binding for {card.action.action_id}") from exc
+        required = frozenset(card.action.required_permissions)
+        provided = frozenset(runtime.permissions)
+        if not required.issubset(provided):
+            raise PermissionError(
+                f"runtime binding does not cover {card.action.action_id} permissions"
+            )
+        return runtime
