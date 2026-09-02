@@ -527,19 +527,23 @@ class InteractionBoundary:
                         card for card in cards if card.action.action_id == "tasks.create"
                     )
                     if task_cards:
-                        task_request = ModelRequest(
-                            working_set=WorkingSet(intent=intent, context=context),
-                            action_cards=task_cards,
-                            allow_argument_proposals=True,
+                        title = decision.action.arguments.get("title")
+                        if not isinstance(title, str) or not title.strip():
+                            return Decision(
+                                kind=DecisionKind.CLARIFY,
+                                clarification="What should I add to your task list?",
+                            )
+                        task_arguments: dict[str, Any] = {"title": title}
+                        due_at = requested_task_due_at(intent.utterance)
+                        if due_at is not None:
+                            task_arguments["due_at"] = due_at
+                        decision = Decision(
+                            kind=DecisionKind.ACTION,
+                            action=task_cards[0].action.model_copy(
+                                update={"arguments": task_arguments}
+                            ),
+                            semantic_mode="ACTION",
                         )
-                        task_decision = decoder.decode(
-                            provider.decide(task_request),
-                            task_cards,
-                            allow_argument_proposals=True,
-                        )
-                        if task_decision.kind is not DecisionKind.ACTION:
-                            return task_decision
-                        decision = task_decision
                         selected_card = task_cards[0]
                 if (
                     is_question_request(intent.utterance)
