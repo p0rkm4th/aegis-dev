@@ -11,7 +11,6 @@ import sqlite3
 import urllib.error
 import urllib.request
 from collections.abc import Callable
-from datetime import datetime, timedelta, timezone
 from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
 from pathlib import Path
@@ -22,7 +21,7 @@ from uuid import UUID
 import psycopg
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, Principal, RequestStatus, Result
+from .contracts import Principal, RequestStatus, Result
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
 from .finance import PostgresFinanceSnapshotStore
@@ -37,7 +36,7 @@ from .identity import (
     KeycloakOIDCClient,
     PostgresExternalPrincipalResolver,
 )
-from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
+from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -46,6 +45,7 @@ from .personal import PostgresPersonalStateStore
 from .reference_interaction import (
     build_reference_fallback_context_runtime,
     ground_reference_action_runtime,
+    reference_domain_and_action,
     reference_fallback_cards,
     resolve_reference_fast_paths,
     resolve_reference_pre_model,
@@ -59,11 +59,13 @@ from .reference_packs import (
 from .reference_runtime import default_runtime_registry, legacy_runtime
 from .release_truth import runtime_release_sha
 from .store import PostgresObjectiveStore
-from .tasks import (
-    PostgresTaskStore,
-    requested_task_due_at,
-)
+from .tasks import PostgresTaskStore
 from .web import serve
+
+# Backward-compatible import for callers of the alpha's legacy helper.  The
+# implementation belongs to the reference-Pack composition module; CLI is only
+# a transport/composition adapter.
+_domain_and_action = reference_domain_and_action
 
 
 class _RuntimePolicy:
@@ -877,154 +879,6 @@ def _openclaw_channel() -> OpenClawWebSocketChannel:
     )
 
 
-def _domain_and_action(utterance: str, manager: PackManager) -> tuple[str, ActionCard]:
-    text = utterance.lower()
-    if "task" in text:
-        domain = "tasks"
-        if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
-            "mark" in text and "done" in text
-        ):
-            action_id = "tasks.complete"
-        elif "event" in text:
-            action_id = "tasks.events.create"
-        elif "chore" in text:
-            action_id = (
-                "tasks.chores.list"
-                if text.startswith(("what", "show", "list"))
-                else "tasks.chores.create"
-            )
-        else:
-            action_id = (
-                "tasks.list" if text.startswith(("what", "show", "list")) else "tasks.create"
-            )
-    elif "chore" in text:
-        domain = "tasks"
-        if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
-            "mark" in text and "done" in text
-        ):
-            action_id = "tasks.chores.complete"
-        else:
-            action_id = (
-                "tasks.chores.list"
-                if text.startswith(("what", "show", "list"))
-                else "tasks.chores.create"
-            )
-    elif "event" in text or "inspection" in text:
-        domain = "tasks"
-        action_id = "tasks.events.create"
-    elif any(word in text for word in ("grocery", "groceries", "rice", "food")):
-        domain = "kitchen"
-        action_id = (
-            "kitchen.groceries.list"
-            if text.startswith(("what", "show", "list"))
-            else "kitchen.groceries.add"
-        )
-    else:
-        raise InteractionInputError(
-            "alpha supports groceries and tasks; try one of the four demo requests"
-        )
-    cards = manager.retrieve(domain)
-    card = next((item for item in cards if item.action.action_id == action_id), None)
-    if card is None:
-        card = manager.action_card(domain, action_id)
-    if card is None:
-        raise RuntimeError(f"enabled Pack did not provide ActionCard {action_id}")
-    action = card.action
-    if action_id == "kitchen.groceries.add":
-        match = re.search(r"add\s+(.+?)\s+to\s+(?:the\s+)?grocer(?:y|ies)\b", text)
-        if match is None:
-            raise InteractionInputError(
-                "tell AEGIS what to add, for example: Add rice to groceries."
-            )
-        action = action.model_copy(update={"arguments": {"item": match.group(1).strip()}})
-    elif action_id == "tasks.create":
-        match = re.search(
-            r"(?:(?:(?:could|would|can)\s+you|(?:i\s+want|i\s+would\s+like|i'd\s+like))\s+to\s+)?"
-            r"(?:put|place)\s+(?:a\s+)?task\s+on\s+(?:my|the)\s+"
-            r"(?:task\s+)?list\s+(?:to\s+)?(.+)$",
-            text,
-        )
-        if match is None:
-            match = re.search(r"(?:create\s+)?(?:a\s+)?task\s+(?:to\s+)?(.+)$", text)
-        if match is None:
-            if not any(source in text for source in ("goal", "memory")) or not any(
-                phrase in text for phrase in ("turn", "make", "add", "create")
-            ):
-                raise InteractionInputError(
-                    "tell AEGIS the task, for example: Create a task to buy cat food."
-                )
-            action = action.model_copy(update={"arguments": {}})
-        else:
-            title = match.group(1).strip()
-            due_at = requested_task_due_at(title)
-            if due_at is not None:
-                title = re.sub(r"\s+(?:tomorrow|next\s+week)[.!?]?$", "", title).rstrip()
-            arguments: dict[str, Any] = {"title": title}
-            if due_at is not None:
-                arguments["due_at"] = due_at
-            action = action.model_copy(update={"arguments": arguments})
-    elif action_id == "tasks.complete":
-        match = re.search(
-            r"(?:complete|completed|finish|finished)\s+(?:the\s+)?task\s+"
-            r"(?:called\s+|named\s+)?(.+)$",
-            text,
-        )
-        if match is None:
-            match = re.search(
-                r"mark\s+(?:the\s+)?task\s+(.+?)\s+as\s+(?:done|complete|completed)[.!?]?$",
-                text,
-            )
-        if match is None:
-            raise InteractionInputError(
-                "name the task to complete, for example: Complete the task buy cat food."
-            )
-        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
-    elif action_id == "tasks.chores.create":
-        match = re.search(r"(?:create|add)\s+(?:a\s+)?chore\s+(?:to\s+)?(.+)$", text)
-        if match is None:
-            if not any(source in text for source in ("goal", "memory")) or not any(
-                phrase in text for phrase in ("turn", "make", "add", "create")
-            ):
-                raise InteractionInputError(
-                    "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
-                )
-            action = action.model_copy(update={"arguments": {}})
-        else:
-            action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
-    elif action_id == "tasks.chores.complete":
-        match = re.search(
-            r"(?:complete|completed|finish|finished)\s+(?:the\s+)?chore\s+"
-            r"(?:called\s+|named\s+)?(.+)$",
-            text,
-        )
-        if match is None:
-            match = re.search(
-                r"mark\s+(?:the\s+)?chore\s+(.+?)\s+as\s+(?:done|complete|completed)[.!?]?$",
-                text,
-            )
-        if match is None:
-            raise InteractionInputError(
-                "name the chore to complete, for example: Complete the chore clean the kitchen."
-            )
-        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
-    elif action_id == "tasks.events.create":
-        match = re.search(r"(?:create|add)\s+(?:an?\s+)?event\s+(?:for\s+)?(.+)$", text)
-        if match is None:
-            raise InteractionInputError(
-                "tell AEGIS the event, for example: Create an event for apartment inspection."
-            )
-        title = match.group(1).strip()
-        if title.endswith(" tomorrow"):
-            title = title.removesuffix(" tomorrow").strip()
-            starts_at = datetime.now(timezone.utc) + timedelta(days=1)
-        else:
-            starts_at = datetime.now(timezone.utc)
-        action = action.model_copy(
-            update={"arguments": {"title": title, "starts_at": starts_at.isoformat()}}
-        )
-    return domain, ActionCard(action=action, summary=card.summary, relevance=card.relevance)
-
-
 def _format(result: Any) -> str:
     if result.state.value != "completed":
         return f"Not completed — {result.message}"
@@ -1179,7 +1033,7 @@ def run_interaction(
             required=_required,
             apply_migrations=_apply_migrations,
             ensure_local_identity=_ensure_local_identity,
-            select_action=_domain_and_action,
+            select_action=reference_domain_and_action,
             openclaw_channel=_openclaw_channel,
             local_identity=lambda: not bool(os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")),
             model_provider=lambda: OllamaProvider(

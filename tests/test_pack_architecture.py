@@ -66,6 +66,14 @@ def test_generic_interaction_does_not_embed_first_party_pack_knowledge() -> None
     )
 
 
+def test_cli_does_not_own_reference_pack_language_router() -> None:
+    """The CLI may adapt the callback, but reference semantics stay composition-owned."""
+
+    source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
+    assert "def _domain_and_action" not in source
+    assert "reference_domain_and_action" in source
+
+
 def test_generic_modules_have_no_syntax_level_first_party_imports_or_action_literals() -> None:
     """Keep the neutrality guard independent of comments and formatting."""
 
