@@ -246,6 +246,12 @@ class FinanceReadFastPath:
         )
 
     @classmethod
+    def unsupported_balance_read(cls, utterance: str) -> bool:
+        """Reject unsupported balance reads before cognition can misroute them."""
+        text = utterance.casefold()
+        return "balance" in text and not cls.matches(text) and not cls.needs_purchase_amount(text)
+
+    @classmethod
     def needs_purchase_amount(cls, utterance: str) -> bool:
         """Identify affordability questions that cannot be answered without an amount."""
 

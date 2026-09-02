@@ -742,6 +742,16 @@ def resolve_reference_fast_paths(
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
+    if FinanceReadFastPath.unsupported_balance_read(utterance):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I can assess a purchase amount against your available snapshot, "
+                "but a general balance read is not available in this alpha."
+            ),
+            correlation_id=intent.correlation_id,
+        )
     composer_results = (
         PersonalTaskComposer.resolve(utterance, personal_state),
         PersonalChoreComposer.resolve(utterance, personal_state),
