@@ -355,11 +355,12 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
 
     assert context.values["canonical_facts"]["canonical_tasks"] == [
         {
+            "task_id": str(dated.task_id),
             "title": "review the restore drill",
             "status": "open",
             "due_at": "2026-09-04T12:00:00",
         },
-        {"title": "check the pantry", "status": "open"},
+        {"task_id": str(undated.task_id), "title": "check the pantry", "status": "open"},
     ]
     assert context.values["as_of_date"] == datetime.now(timezone.utc).date().isoformat()
 
@@ -416,7 +417,7 @@ def test_model_working_context_prioritization_uses_bounded_open_tasks():
     )
 
     assert context.values["canonical_facts"]["canonical_tasks"] == [
-        {"title": "open task", "status": "open"}
+        {"task_id": str(open_task.task_id), "title": "open task", "status": "open"}
     ]
 
 

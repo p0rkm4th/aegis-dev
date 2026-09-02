@@ -14,7 +14,7 @@ import re
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from typing import Any, cast
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
 from .contracts import (
@@ -646,6 +646,7 @@ def build_reference_fallback_context(
     ] or tasks
     facts["canonical_tasks"] = [
         {
+            "task_id": str(task.task_id),
             "title": task.title,
             "status": task.status.value,
             **({"due_at": task.due_at.isoformat()} if task.due_at is not None else {}),
@@ -1014,6 +1015,7 @@ def ground_reference_action(
             else None
         )
         referent_title = referent.get("title") if referent is not None else None
+        referent_task_id = referent.get("task_id") if referent is not None else None
         if isinstance(referent_title, str) and referent_title.strip():
             title = referent_title
         if not isinstance(title, str) or not title.strip():
@@ -1036,19 +1038,37 @@ def ground_reference_action(
                 correlation_id=intent.correlation_id,
             )
         tasks = task_store.list(principal)
+        grounded_task = None
+        if isinstance(referent_task_id, str):
+            try:
+                parsed_task_id = UUID(referent_task_id)
+            except ValueError:
+                parsed_task_id = None
+            if parsed_task_id is not None:
+                grounded_task = next(
+                    (task for task in tasks if task.task_id == parsed_task_id), None
+                )
+            if grounded_task is None:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="That task is no longer available in the current task list.",
+                    correlation_id=intent.correlation_id,
+                )
+            title = grounded_task.title
         canonical_title = TaskCompletionFastPath.canonical_title(title, tasks)
-        if canonical_title is not None and card.action.arguments.get("title") != canonical_title:
+        grounded_arguments: dict[str, object] = {"title": canonical_title or title}
+        if isinstance(referent_task_id, str) and referent_task_id.strip():
+            grounded_arguments["task_id"] = referent_task_id
+        if card.action.arguments != grounded_arguments:
             card = card.model_copy(
-                update={
-                    "action": card.action.model_copy(
-                        update={"arguments": {"title": canonical_title}}
-                    )
-                }
+                update={"action": card.action.model_copy(update={"arguments": grounded_arguments})}
             )
-            title = canonical_title
-        completion_result = TaskCompletionFastPath.resolve(intent, title, tasks)
-        if completion_result is not None:
-            return completion_result
+            title = str(grounded_arguments["title"])
+        if referent_task_id is None:
+            completion_result = TaskCompletionFastPath.resolve(intent, title, tasks)
+            if completion_result is not None:
+                return completion_result
 
     if card.action.action_id == "tasks.chores.complete":
         title = card.action.arguments.get("title")
