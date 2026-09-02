@@ -221,8 +221,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
                 "expected_action": expected_action,
                 "argument_exact": argument_exact,
                 "correct_route": correct and argument_exact,
-                "false_mutation": expected_kind in {DecisionKind.ANSWER, DecisionKind.CLARIFY}
-                and actual_mutation,
+                "false_mutation": not case.expected_mutation and actual_mutation,
                 "false_completion": action == "tasks.complete"
                 and expected_action != "tasks.complete",
                 "clarification_expected": expected_kind is DecisionKind.CLARIFY,
@@ -272,6 +271,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
             )
             / max(expected_clarify, 1),
             "false_mutations": false_mutation,
+            "unsafe_mutations_per_1000": false_mutation / max(count, 1) * 1000,
             "false_completions": false_completion,
             "security_hard_failure": bool(false_mutation or false_completion),
             "correct_completion_or_answer_rate": correctly_completed_or_answered
