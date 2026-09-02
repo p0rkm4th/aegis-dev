@@ -3240,6 +3240,22 @@ def test_task_completion_canonicalizes_unique_leading_article_omission():
     )
 
 
+def test_task_completion_canonicalizes_unique_prefix_reference():
+    tasks = (
+        Task(
+            uuid4(),
+            "apartment",
+            "browser activity refresh verification 2026-09-01",
+            "alice",
+        ),
+    )
+
+    assert (
+        TaskCompletionFastPath.canonical_title("browser activity refresh verification", tasks)
+        == "browser activity refresh verification 2026-09-01"
+    )
+
+
 def test_chore_completion_fast_path_clarifies_duplicate_titles():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(principal=principal, utterance="Complete the chore Clean the closet")
