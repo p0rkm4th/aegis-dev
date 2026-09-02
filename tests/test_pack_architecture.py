@@ -8,6 +8,8 @@ GENERIC_CORE = (
     Path("src/aegis/pack_lifecycle.py"),
     Path("src/aegis/pack_runtime.py"),
     Path("src/aegis/registry.py"),
+    Path("src/aegis/interaction_cognition.py"),
+    Path("src/aegis/interaction_recovery.py"),
 )
 PACK_ACTION_IDS = (
     "tasks.",
