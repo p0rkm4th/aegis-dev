@@ -183,6 +183,16 @@ def evaluate(corpus: Path) -> dict[str, Any]:
             sort_keys=True,
         ).encode()
     )
+    configured_digest = os.environ.get("AEGIS_OLLAMA_MODEL_DIGEST")
+    model_digest = configured_digest
+    if model_digest is None:
+        try:
+            model_digest = transport.model_digest(model)
+        except Exception:
+            # Evaluation can still report its other measurements when an
+            # inventory endpoint is unavailable, but the missing provenance
+            # remains visible in the report and must not be called frozen.
+            model_digest = None
     results: list[dict[str, Any]] = []
     for case in cases:
         started = monotonic()
@@ -304,7 +314,8 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         "model": model,
         "provider": provider.provider_id,
         "endpoint": base_url,
-        "model_digest": os.environ.get("AEGIS_OLLAMA_MODEL_DIGEST"),
+        "model_digest": model_digest,
+        "model_digest_source": "environment" if configured_digest else "ollama_api_tags",
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "prompt_template_sha256": prompt_template_sha,
         "action_cards_sha256": cards_sha,
