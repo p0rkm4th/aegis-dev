@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 from uuid import uuid4
 
@@ -24,7 +23,6 @@ def resolve_fallback_decision(
     intent: IntentFrame,
     context: Context,
     cards: tuple[ActionCard, ...],
-    retrieve_cards: Callable[[str, Context], tuple[ActionCard, ...]],
 ) -> ActionCard | Result:
     """Resolve a bounded proposal without granting it authority.
 
@@ -81,7 +79,7 @@ def resolve_fallback_decision(
         fallback_card = next(
             (
                 candidate
-                for candidate in retrieve_cards(intent.utterance, context)
+                for candidate in cards
                 if candidate.action.action_id == decision.action.action_id
             ),
             None,
