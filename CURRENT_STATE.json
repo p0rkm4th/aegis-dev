@@ -4,10 +4,10 @@
   "campaign": "AEGIS MASTER AUTONOMOUS BUILD CAMPAIGN",
   "current_phase": 12,
   "roadmap_version": 1,
-  "active_milestone": "M05",
-  "active_checkpoint": "M05.10",
+  "active_milestone": "M08",
+  "active_checkpoint": "M08.10",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "M05.10-pack-runtime-registration",
+  "current_checkpoint": "M08.10-semantic-family-frontier",
   "checkpoint_evidence": {
     "deterministic": [
       "M08.01 confidence-gated deterministic reads and writes",
@@ -79,7 +79,7 @@
     "M02": "M02.01-M02.07 complete from replaceable provider, strict decoder, runtime, OpenClaw, and provider evidence",
     "M03": "M03.01-M03.08 complete from migrations, PostgreSQL truth, audit, recovery, backup, and readiness evidence",
     "M04": "M04.01-M04.08 complete from identity, Vault/Space, policy, revocation, propagation, and multi-user evidence",
-    "M05": "M05.01-M05.09 complete; M05.10 runtime binding seam is implemented/contract-tested, while full third-party read/write execution proof remains unmet",
+    "M05": "M05.01-M05.10 complete: generic Pack runtime registration and toy third-party safe-read/verified-write Core dispatch proof",
     "M06": "M06.01-M06.07 complete from read/write/shared/private/external/finance/restart vertical evidence",
     "M07": "M07.01-M07.09 complete from canonical memory, retrieval, provenance, compaction, and privacy evidence",
     "M08": "M08.01-M08.04 and M08.06-M08.09 materially implemented/proven; M08.03 semantic retrieval is live-proven, M08.05 action-family capability and M08.10 phrase-overfit cleanup remain active",
@@ -89,8 +89,8 @@
     "M12": "M12.01-M12.10 materially proven; M12.11 is lane-limited"
   },
   "next_candidates": [
-    "M05.10",
     "M08.10",
+    "M09.09",
     "M11.07"
   ],
   "active_branch": "aegis-dev",
@@ -852,5 +852,5 @@
   "owner_household_read_precedence_live": "green live routing and safety evidence on release a3bfc7d: duplicate 'Finish the task called the quarterly inspection.' correlation 1aca33f5-7fb1-44b5-8ddf-992c23e32927 reached task completion and clarified the canonical duplicate instead of reading events; unique inspection-named task 'Finish the task called rendered detail acceptance 91919191.' correlation 76126a51-156a-4303-ad08-61f92e18ba65 completed with canonical task readback",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
-  "next_action": "Complete M05.10 by proving a third-party Pack safe read and verified write through the shared InteractionBoundary/runtime path without central domain-specific routing edits. Then resume novel objective-level Qwen3:8B dogfood; keep capability-level evidence separate from exact canaries. Owner dogfood bootstrap is established; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed owner runtime using unseen semantic families, especially ambiguity, contextual continuation, stale state, and cross-Pack composition. Keep capability-level evidence separate from exact canaries; add deterministic regressions only for durable defects. Home Assistant/mobile/voice remain lane-limited."
 }
