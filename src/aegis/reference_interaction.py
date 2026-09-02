@@ -43,7 +43,7 @@ from .household import (
 )
 from .identity import PostgresSpacePolicy, Role
 from .interaction import InteractionInputError
-from .interaction_context import resolve_obvious_ordinal
+from .interaction_context import resolve_obvious_ordinal, resolve_obvious_ordinal_item
 from .kernel import Kernel
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -843,6 +843,15 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         marker in text for marker in ("what about", "tell me about", "which one", "what is")
     ):
         return None
+    item = resolve_obvious_ordinal_item(text, context)
+    if item is not None:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Grocery item: {item}",
+            evidence={"collection": "groceries", "authorized_ordinal_item": item},
+            correlation_id=intent.correlation_id,
+        )
     for fact_key, label in (("canonical_tasks", "Task"), ("canonical_chores", "Chore")):
         referent = resolve_obvious_ordinal(text, context, fact_key)
         if referent is None:
