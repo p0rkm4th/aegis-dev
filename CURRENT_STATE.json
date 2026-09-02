@@ -101,9 +101,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "817d1ee",
-  "deterministic_green_sha": "817d1ee",
-  "last_pushed_sha": "817d1ee",
+  "repository_head_sha": "012513e",
+  "deterministic_green_sha": "012513e",
+  "last_pushed_sha": "012513e",
   "installed_release_sha": "817d1ee",
   "running_release_sha": "817d1ee",
   "live_green_sha": "f5add80",
@@ -126,12 +126,12 @@
     "running_sha": "1bd5d7a",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/1bd5d7a",
-    "repository_head_sha": "817d1ee",
-    "deterministic_green_sha": "817d1ee",
+    "repository_head_sha": "012513e",
+    "deterministic_green_sha": "012513e",
     "installed_release_sha": "817d1ee",
     "running_release_sha": "817d1ee",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, installed owner release, and running owner service are all 817d1ee at this checkpoint. Live capability evidence remains separately tracked through f5add80 and newer frontier probes; the semantic boundary evaluation below is a measured baseline, not capability-green evidence.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic validation are 012513e. The installed/running owner release remains the previously validated 817d1ee because this Pack-boundary hardening checkpoint has not yet been promoted; live capability evidence remains separately tracked through f5add80 and newer frontier probes. The semantic boundary evaluation below is a measured baseline, not capability-green evidence.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -870,5 +870,5 @@
   "owner_household_read_precedence_live": "green live routing and safety evidence on release a3bfc7d: duplicate 'Finish the task called the quarterly inspection.' correlation 1aca33f5-7fb1-44b5-8ddf-992c23e32927 reached task completion and clarified the canonical duplicate instead of reading events; unique inspection-named task 'Finish the task called rendered detail acceptance 91919191.' correlation 76126a51-156a-4303-ad08-61f92e18ba65 completed with canonical task readback",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
-  "next_action": "Repair generic Pack/Core ownership and prove a zero-Core-change unfamiliar Pack before adding domain breadth. Then expand the measured semantic evaluation harness from its Qwen3:8B baseline, using development failures for diagnosis and the untouched held-out corpus for acceptance. Keep capability-level evidence separate from exact canaries; Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Promote 012513e only after the installed owner smoke/readiness path is green, then continue the Pack/Core audit toward a zero-Core-change unfamiliar Pack. Expand the measured semantic harness from its Qwen3:8B baseline using development failures for diagnosis and the untouched held-out corpus for acceptance. Keep capability-level evidence separate from exact canaries; Home Assistant/mobile/voice remain lane-limited."
 }
