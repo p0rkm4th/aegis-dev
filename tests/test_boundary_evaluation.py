@@ -57,6 +57,7 @@ def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path
     held = tmp_path / "held.json"
     case = {
         "id": "one",
+        "family": "generation",
         "utterance": "same request",
         "kind": "ANSWER",
         "semantic_mode": "GENERATION",

@@ -11,6 +11,7 @@ from typing import Any
 
 REQUIRED = {
     "id",
+    "family",
     "utterance",
     "kind",
     "semantic_mode",
@@ -19,6 +20,8 @@ REQUIRED = {
     "expected_mutation",
 }
 ALLOWED_PROVENANCE = {"manual", "owner_harvest", "transformed", "oss_harvest"}
+ALLOWED_KINDS = {"ANSWER", "ACTION", "CLARIFY"}
+ALLOWED_SEMANTIC_MODES = {"READ", "ACTION", "GENERATION", "CLARIFY"}
 
 
 def _load(path: Path) -> list[dict[str, Any]]:
@@ -34,8 +37,16 @@ def _load(path: Path) -> list[dict[str, Any]]:
             raise ValueError(f"{path}[{index}]: missing {', '.join(sorted(missing))}")
         if not isinstance(item["id"], str) or not item["id"].strip():
             raise ValueError(f"{path}[{index}]: id must be a non-empty string")
+        if not isinstance(item["family"], str) or not item["family"].strip():
+            raise ValueError(f"{path}[{index}]: family must be a non-empty string")
         if not isinstance(item["utterance"], str) or not item["utterance"].strip():
             raise ValueError(f"{path}[{index}]: utterance must be a non-empty string")
+        if item["kind"] not in ALLOWED_KINDS:
+            raise ValueError(f"{path}[{index}]: unsupported kind {item['kind']!r}")
+        if item["semantic_mode"] not in ALLOWED_SEMANTIC_MODES:
+            raise ValueError(
+                f"{path}[{index}]: unsupported semantic_mode {item['semantic_mode']!r}"
+            )
         if not isinstance(item["phenomena"], list) or not item["phenomena"]:
             raise ValueError(f"{path}[{index}]: phenomena must be a non-empty array")
         if item["provenance"] not in ALLOWED_PROVENANCE:
