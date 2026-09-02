@@ -263,11 +263,8 @@ class InteractionBoundary:
                     if self.dependencies.fallback_context_builder is not None
                     else context
                 )
-                fallback = self._fallback_decision(
-                    intent,
-                    self._fallback_cards(manager, utterance, fallback_context),
-                    fallback_context,
-                )
+                fallback_cards = self._fallback_cards(manager, utterance, fallback_context)
+                fallback = self._fallback_decision(intent, fallback_cards, fallback_context)
                 if isinstance(fallback, Result):
                     return persist_fast_result(fallback)
                 if isinstance(fallback, Decision):
@@ -275,7 +272,7 @@ class InteractionBoundary:
                         fallback,
                         intent,
                         fallback_context,
-                        self._fallback_cards(manager, utterance, fallback_context),
+                        fallback_cards,
                     )
                     if isinstance(resolution, Result):
                         return persist_fast_result(resolution)
