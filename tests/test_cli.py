@@ -908,6 +908,36 @@ def test_run_interaction_threads_pack_runtime_registry_to_shared_boundary(monkey
     assert captured["dependencies"].runtime_registry is registry
 
 
+def test_browser_interaction_threads_pack_runtime_registry_to_shared_boundary(monkeypatch):
+    from aegis import cli
+    from aegis.pack_runtime import PackRuntimeRegistry
+
+    registry = PackRuntimeRegistry()
+    captured = {}
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="verified third-party Pack result",
+        correlation_id=uuid4(),
+    )
+
+    def interaction(*args, **kwargs):
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return result
+
+    monkeypatch.setattr(cli, "run_interaction", interaction)
+
+    response = cli._browser_interaction(
+        "read the weather note",
+        Principal(id="alice", vault_id="alice-vault"),
+        runtime_registry=registry,
+    )
+
+    assert response["state"] == "completed"
+    assert captured["kwargs"]["runtime_registry"] is registry
+
+
 def test_cli_init_refuses_symlink_target(monkeypatch, capsys, tmp_path):
     from aegis import cli
 

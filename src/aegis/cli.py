@@ -530,13 +530,28 @@ def _browser_interaction(
     principal: Principal,
     correlation_id: UUID | None = None,
     context_correlation_id: UUID | None = None,
+    runtime_registry: PackRuntimeRegistry | None = None,
 ) -> dict[str, Any]:
     if context_correlation_id is None:
-        result = run_interaction(utterance, principal, correlation_id)
+        if runtime_registry is None:
+            result = run_interaction(utterance, principal, correlation_id)
+        else:
+            result = run_interaction(
+                utterance, principal, correlation_id, runtime_registry=runtime_registry
+            )
     else:
-        result = run_interaction(
-            utterance, principal, correlation_id, context_correlation_id=context_correlation_id
-        )
+        if runtime_registry is None:
+            result = run_interaction(
+                utterance, principal, correlation_id, context_correlation_id=context_correlation_id
+            )
+        else:
+            result = run_interaction(
+                utterance,
+                principal,
+                correlation_id,
+                context_correlation_id=context_correlation_id,
+                runtime_registry=runtime_registry,
+            )
     response: dict[str, Any] = {
         "message": _format(result),
         "state": result.state.value,
