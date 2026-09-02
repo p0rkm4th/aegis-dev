@@ -133,8 +133,10 @@ class OllamaProvider:
                 "argument_proposal_rule": (
                     "This bounded request may fill only argument keys explicitly declared "
                     "by the selected ActionCard. Copy action_id, capability, required_permissions, "
-                    "and verification exactly from that card. Never invent argument keys, "
-                    "permissions, tools, or canonical facts; if the target is ambiguous, "
+                    "and verification exactly from that card. Use each ActionCard argument "
+                    "description to understand what belongs in a declared field. Never "
+                    "invent argument keys, permissions, tools, or canonical facts; if the "
+                    "target is ambiguous, "
                     "return CLARIFY. For a create action, extract the smallest complete "
                     "description of the thing the user wants recorded, excluding politeness "
                     "and destination phrases such as 'on my list' or 'as a task'."
