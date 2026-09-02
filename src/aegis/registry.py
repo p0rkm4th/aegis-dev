@@ -24,8 +24,8 @@ class CapabilityRegistry:
         self._cards[card.action.action_id] = card
 
     def retrieve(self, domain: str, limit: int = 5) -> tuple[ActionCard, ...]:
-        if not 1 <= limit <= 5:
-            raise ValueError("capability retrieval limit must be between one and five")
+        if not 1 <= limit <= 10:
+            raise ValueError("capability retrieval limit must be between one and ten")
         ranked = sorted(
             (card for card in self._cards.values() if domain in card.action.capability),
             key=lambda card: card.relevance,
@@ -40,13 +40,15 @@ class CapabilityRegistry:
 
         if not query.strip():
             raise ValueError("capability query must be non-empty")
-        if not 1 <= limit <= 5:
-            raise ValueError("capability retrieval limit must be between one and five")
+        if not 1 <= limit <= 10:
+            raise ValueError("capability retrieval limit must be between one and ten")
         cards = tuple(self._cards.values())
         if not cards:
             return ()
         descriptions = tuple(
-            f"{card.action.action_id}: {card.action.capability}. {card.summary}" for card in cards
+            f"{card.action.action_id}: {card.action.capability}. {card.summary}. "
+            f"Arguments: {'; '.join(card.argument_descriptions.values())}"
+            for card in cards
         )
         vectors = embedder.embed((query, *descriptions))
         if len(vectors) != len(descriptions) + 1:

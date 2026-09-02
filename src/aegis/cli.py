@@ -1068,6 +1068,7 @@ def run_interaction(
                     os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
                     _required("AEGIS_OLLAMA_URL"),
                 ),
+                limit=10,
             ),
             runtime_registry=runtime_registry,
         )

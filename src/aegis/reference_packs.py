@@ -81,7 +81,10 @@ def reference_packs() -> tuple[Pack, ...]:
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
-                    summary="Create a task or reminder for something the user needs to do",
+                    summary=(
+                        "Personal task creation: add work to the user's own to-do list or "
+                        "reminders; this is a task, not a shared household chore"
+                    ),
                     relevance=1,
                     argument_keys=("title", "due_at"),
                     argument_descriptions={
