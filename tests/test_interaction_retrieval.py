@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from uuid import uuid4
 
-from aegis.contracts import ActionCard, ActionSpec, IntentFrame, ObjectiveState, Principal, Result
+from aegis.contracts import ActionCard, ActionSpec, ObjectiveState, Principal, Result
 from aegis.interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 
 
