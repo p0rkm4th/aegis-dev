@@ -299,22 +299,41 @@ class InteractionBoundary:
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
                 card = grounded
-            if self.dependencies.runtime_registry is not None:
-                runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
-                executor = runtime.executor
-                verifier = runtime.verifier
-                permissions = runtime.permissions
-                runtime_cleanup = runtime.cleanup
-            else:
-                if self.dependencies.runtime_resolver is None:
-                    raise LookupError("no Pack runtime resolver configured")
-                runtime = self.dependencies.runtime_resolver(
-                    card.action.action_id, connection, principal, self.dependencies.openclaw_channel
+            try:
+                if self.dependencies.runtime_registry is not None:
+                    runtime = self.dependencies.runtime_registry.resolve(
+                        card, connection, principal
+                    )
+                    executor = runtime.executor
+                    verifier = runtime.verifier
+                    permissions = runtime.permissions
+                    runtime_cleanup = runtime.cleanup
+                else:
+                    if self.dependencies.runtime_resolver is None:
+                        raise LookupError("no Pack runtime resolver configured")
+                    runtime = self.dependencies.runtime_resolver(
+                        card.action.action_id,
+                        connection,
+                        principal,
+                        self.dependencies.openclaw_channel,
+                    )
+                    executor = runtime.executor
+                    verifier = runtime.verifier
+                    permissions = runtime.permissions
+                    runtime_cleanup = runtime.cleanup
+            except (LookupError, RuntimeError):
+                return persist_fast_result(
+                    Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.FAILED,
+                        message=(
+                            "This action is temporarily unavailable because its execution "
+                            "provider is not configured. You can retry it later."
+                        ),
+                        correlation_id=intent.correlation_id,
+                        retryable=True,
+                    )
                 )
-                executor = runtime.executor
-                verifier = runtime.verifier
-                permissions = runtime.permissions
-                runtime_cleanup = runtime.cleanup
             kernel = Kernel(
                 # The bounded model proposal was already decoded and
                 # canonicalized above. Reuse it as a fixed proposal rather
