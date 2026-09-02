@@ -49,6 +49,11 @@ Open the printed local URL. For a scriptable request, use
 machine-readable Result envelope. Use `--env-file PATH` when configuration is
 stored outside the repository.
 
+To inspect owner feedback without exposing transcripts, run
+`./scripts/aegis --feedback --json`. Add `--harvest` to emit only bounded
+defect candidates; every candidate requires fresh reproduction and consequential
+actions are never replayed automatically.
+
 If a required service is unavailable, `--web` can still open a loopback
 diagnostics shell. It will show the same readiness remediation as `--check`,
 while protected state and interaction remain fail-closed until the service is

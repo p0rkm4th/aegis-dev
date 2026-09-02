@@ -65,3 +65,17 @@ Retire solved exact canaries to cheap deterministic regressions and move
 routine model dogfood to novel language, combinations, and failure boundaries.
 Capture enough correlation and bounded evidence for Luna to inspect manual
 feedback without treating owner feedback as canonical domain truth.
+
+For operator triage, the installed CLI exposes the same bounded feedback
+metadata:
+
+```bash
+./scripts/aegis --feedback --json
+./scripts/aegis --feedback --harvest --json
+```
+
+The harvest view contains only owner-scoped trace identifiers, result state,
+feedback classification, and reproduction guidance. It never includes the
+transcript or private canonical payload, and it never replays a consequential
+action. Reproduce a candidate with a fresh correlation before adding a
+regression or changing production behavior.
