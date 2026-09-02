@@ -41,7 +41,6 @@ from .household import (
 from .identity import PostgresSpacePolicy, Role
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
-from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
@@ -56,19 +55,12 @@ from .planning import (
     PersonalTaskComposer,
 )
 from .projections import SharedObligation
-from .reference_packs import (
-    OpenClawGroceryExecutor,
-    OpenClawGroceryVerifier,
-    PostgresGroceryListExecutor,
-    PostgresGroceryListVerifier,
-    reference_bundles,
-)
+from .reference_packs import reference_bundles
+from .reference_runtime import legacy_runtime
 from .store import PostgresObjectiveStore
 from .tasks import (
     ContextualTaskPriorityFastPath,
     PostgresTaskExecutor,
-    PostgresTaskListExecutor,
-    PostgresTaskListVerifier,
     PostgresTaskStore,
     PostgresTaskVerifier,
     TaskCompletionFastPath,
@@ -744,6 +736,7 @@ class InteractionBoundary:
     ) -> Result:
         connection = self.dependencies.connect(self.dependencies.required("AEGIS_DATABASE_URL"))
         channel: OpenClawWebSocketChannel | None = None
+        runtime_cleanup: Callable[[], None] | None = None
         try:
             self.dependencies.apply_migrations(connection)
             if self.dependencies.local_identity():
@@ -1321,44 +1314,17 @@ class InteractionBoundary:
                 executor = runtime.executor
                 verifier = runtime.verifier
                 permissions = runtime.permissions
-            elif card.action.action_id == "kitchen.groceries.add":
-                channel = self.dependencies.openclaw_channel()
-                executor = OpenClawExecutor(
-                    OpenClawGroceryExecutor(
-                        channel,
-                        os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
-                        principal_store,
-                        principal,
-                    ),
-                    _RuntimePolicy(),
-                    _NoApproval(),
-                )
-                verifier = OpenClawGroceryVerifier(principal_store, principal)
-                permissions = {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})}
-            elif card.action.action_id == "kitchen.groceries.list":
-                executor = PostgresGroceryListExecutor(principal_store, principal)
-                verifier = PostgresGroceryListVerifier(principal_store, principal)
-                permissions = {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})}
-            elif card.action.action_id in {"tasks.create", "tasks.complete"}:
-                executor = PostgresTaskExecutor(task_store, principal)
-                verifier = PostgresTaskVerifier(task_store, principal)
-                permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
-            elif card.action.action_id == "tasks.chores.create":
-                executor = PostgresChoreExecutor(principal_store, principal)
-                verifier = PostgresChoreVerifier(principal_store, principal)
-                permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
-            elif card.action.action_id == "tasks.chores.complete":
-                executor = PostgresChoreExecutor(principal_store, principal)
-                verifier = PostgresChoreVerifier(principal_store, principal)
-                permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
-            elif card.action.action_id == "tasks.events.create":
-                executor = PostgresEventExecutor(principal_store, principal)
-                verifier = PostgresEventVerifier(principal_store, principal)
-                permissions = {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})}
             else:
-                executor = PostgresTaskListExecutor(task_store, principal)
-                verifier = PostgresTaskListVerifier(task_store, principal)
-                permissions = {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})}
+                runtime = legacy_runtime(
+                    card.action.action_id,
+                    connection,
+                    principal,
+                    self.dependencies.openclaw_channel,
+                )
+                executor = runtime.executor
+                verifier = runtime.verifier
+                permissions = runtime.permissions
+                runtime_cleanup = runtime.cleanup
             kernel = Kernel(
                 # The bounded model proposal was already decoded and
                 # canonicalized above. Reuse it as a fixed proposal rather
@@ -1374,6 +1340,8 @@ class InteractionBoundary:
             )
             return kernel.run(intent, (card,), context=context)
         finally:
+            if runtime_cleanup is not None:
+                runtime_cleanup()
             if channel is not None:
                 channel.close()
             connection.close()
