@@ -18,7 +18,8 @@
       "M08.07 ambiguity clarifies instead of guessing",
       "M08.09 near-miss read/write safety guards"
       ,"M05.10 toy third-party Pack runtime proof at 0219aa4: an unmodified weather Pack ActionCard registered separate safe-read and verified-write executor/verifier bindings through PackRuntimeRegistry; Core dispatch completed both and enforced declared permission coverage",
-      "M05.10 client-neutral browser injection regression at 3d54ab3: the Browser adapter forwards an optional PackRuntimeRegistry to the shared InteractionBoundary callback while preserving the legacy callback shape when no registry is supplied; no browser-owned semantics or authorization were added"
+      "M05.10 client-neutral browser injection regression at 3d54ab3: the Browser adapter forwards an optional PackRuntimeRegistry to the shared InteractionBoundary callback while preserving the legacy callback shape when no registry is supplied; no browser-owned semantics or authorization were added",
+      "M05.10 third-party Pack browser boundary proof at 9f3768e: a toy Pack read and verified write crossed BrowserApp, the PackRuntimeRegistry, Core policy/execution/observation/verification, and canonical result envelopes without browser-owned semantics"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -68,7 +69,6 @@
     "unmet_or_partial": [
       "M08.05 model action selection uses bounded ActionCard references; broader action-family capability proof remains in progress",
       "M08.10 phrase-overfit production cleanup remains partial pending broader capability evaluation",
-      "M05.10 generic Pack runtime registration is implemented and contract-tested; full third-party browser/runtime read-write proof remains unmet",
       "M09.09 small-model context compaction has deterministic budget proof; varied objective-continuation capability proof remains partial",
       "M11.07 automatic defect harvesting is partially implemented as a bounded owner-feedback inspection report; automatic defect-to-regression/live-re-evaluation orchestration remains unmet",
       "M12.11 mobile/chat remains lane-limited"
@@ -95,13 +95,13 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f2b9559",
-  "deterministic_green_sha": "f2b9559",
-  "last_pushed_sha": "f2b9559",
+  "repository_head_sha": "9f3768e",
+  "deterministic_green_sha": "9f3768e",
+  "last_pushed_sha": "9f3768e",
   "installed_release_sha": "f2b9559",
   "running_release_sha": "f2b9559",
   "live_green_sha": "f5add80",
-  "head_sha": "f2b9559",
+  "head_sha": "9f3768e",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -120,12 +120,12 @@
     "running_sha": "f2b9559",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/f2b9559",
-    "repository_head_sha": "f2b9559",
-    "deterministic_green_sha": "f2b9559",
+    "repository_head_sha": "9f3768e",
+    "deterministic_green_sha": "9f3768e",
     "installed_release_sha": "f2b9559",
     "running_release_sha": "f2b9559",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub/local source and deterministic/installed/running code checkpoint are f2b9559; live capability evidence remains separately tracked through f5add80 and newer frontier probes.",
+    "source_install_runtime_note": "GitHub/local source and deterministic checkpoint are 9f3768e; installed/running owner code remains f2b9559 because the latest Pack browser proof is test-only. Live capability evidence remains separately tracked through f5add80 and newer frontier probes.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
