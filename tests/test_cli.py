@@ -2142,6 +2142,25 @@ def test_feedback_harvest_creates_non_replaying_defect_candidates():
     assert candidates[0]["replay_consequential_action"] is False
 
 
+def test_cli_feedback_without_database_reports_actionable_error(monkeypatch, capsys):
+    from aegis import cli
+
+    monkeypatch.delenv("AEGIS_DATABASE_URL", raising=False)
+    monkeypatch.setattr("sys.argv", ["aegis", "--feedback", "--harvest", "--json"])
+    monkeypatch.setattr(
+        cli,
+        "_principal",
+        lambda: Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+
+    assert cli.main() == 1
+    assert json.loads(capsys.readouterr().out) == {
+        "code": "feedback_unavailable",
+        "error": "feedback unavailable",
+        "state": "failed",
+    }
+
+
 def test_browser_app_rejects_undocumented_feedback_without_recording():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     called = False
