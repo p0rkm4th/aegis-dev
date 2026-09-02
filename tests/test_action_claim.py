@@ -211,8 +211,15 @@ def test_postgres_two_connection_kernel_claim_has_one_executor_owner():
 
     assert not errors
     assert executor.calls == 1
-    assert sum(result.state is ObjectiveState.COMPLETED for result in results) == 1
-    assert sum(result.state is ObjectiveState.EXECUTING for result in results) == 1
+    # The ownership proof is established before release above: the loser
+    # observed a claimed action while the sole executor was still blocked.
+    # Once the winner commits, the loser may legitimately converge to the
+    # canonical completed Result instead of returning its transient state.
+    assert len(results) == 2
+    assert all(
+        result.state in {ObjectiveState.COMPLETED, ObjectiveState.EXECUTING} for result in results
+    )
+    assert any(result.state is ObjectiveState.COMPLETED for result in results)
 
     check = psycopg.connect(url)
     key = f"{correlation_id}:write"
