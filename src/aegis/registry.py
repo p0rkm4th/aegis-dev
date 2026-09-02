@@ -46,7 +46,8 @@ class CapabilityRegistry:
         if not cards:
             return ()
         descriptions = tuple(
-            f"{card.action.action_id}: {card.action.capability}. {card.summary}. "
+            f"{card.action.action_id}: operation={card.action.operation}; "
+            f"{card.action.capability}. {card.summary}. "
             f"Arguments: {'; '.join(card.argument_descriptions.values())}"
             for card in cards
         )
