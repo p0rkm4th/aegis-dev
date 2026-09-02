@@ -3788,6 +3788,7 @@ def test_finance_fast_path_yields_compound_questions_to_bounded_cognition():
     assert FinanceReadFastPath.matches("Would spending twenty dollars be okay for me?")
     assert FinanceReadFastPath.amount_cents("Would spending twenty five dollars be okay?") == 2500
     assert FinanceReadFastPath.amount_cents("spend thirty-five bucks") == 3500
+    assert FinanceReadFastPath.matches("Is it okay to spend thirty-five bucks?")
 
 
 def test_finance_fast_path_blocks_unsupported_general_balance_reads():
