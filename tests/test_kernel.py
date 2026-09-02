@@ -2683,7 +2683,12 @@ def test_household_read_fast_path_filters_explicit_chore_status():
     assert result is not None
     assert result.evidence["status_filter"] == "completed"
     assert result.evidence["chores"] == [
-        {"title": "Wash dishes", "assignee_id": "alice", "completed": True}
+        {
+            "chore_id": "done",
+            "title": "Wash dishes",
+            "assignee_id": "alice",
+            "completed": True,
+        }
     ]
 
 

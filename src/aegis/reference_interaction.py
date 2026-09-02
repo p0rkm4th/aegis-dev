@@ -567,7 +567,10 @@ def resolve_reference_safety_fast_paths(
     if (
         context is not None
         and "complete" in intent.utterance.casefold()
-        and resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks") is not None
+        and (
+            resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks") is not None
+            or resolve_obvious_ordinal(intent.utterance, context, "canonical_chores") is not None
+        )
     ):
         return None
     return ContextualMutationGuard.resolve(intent)
@@ -1105,6 +1108,15 @@ def ground_reference_action(
 
     if card.action.action_id == "tasks.chores.complete":
         title = card.action.arguments.get("title")
+        referent = (
+            resolve_obvious_ordinal(intent.utterance, context, "canonical_chores")
+            if context is not None
+            else None
+        )
+        referent_title = referent.get("title") if referent is not None else None
+        referent_chore_id = referent.get("chore_id") if referent is not None else None
+        if isinstance(referent_title, str) and referent_title.strip():
+            title = referent_title
         if not isinstance(title, str) or not title.strip():
             return Result(
                 objective_id=uuid4(),
@@ -1122,6 +1134,14 @@ def ground_reference_action(
         )
         if completion_result is not None:
             return completion_result
+        if isinstance(referent_chore_id, str) and referent_chore_id.strip():
+            card = card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={"arguments": {"title": title, "chore_id": referent_chore_id}}
+                    )
+                }
+            )
 
     if goal_task_title is not None and card.action.action_id == "tasks.create":
         card = card.model_copy(

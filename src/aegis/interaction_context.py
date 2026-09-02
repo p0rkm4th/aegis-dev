@@ -170,7 +170,12 @@ def context_from_prior_result(
     if not evidence:
         return Context()
     referents: dict[str, Any] = {}
-    for fact_key in ("canonical_items", "canonical_tasks", "canonical_obligations"):
+    for fact_key in (
+        "canonical_items",
+        "canonical_tasks",
+        "canonical_chores",
+        "canonical_obligations",
+    ):
         # Ordinals refer to the list the owner just received.  Keep this
         # separate from compacted model evidence, which may use a priority
         # ordering for cognition.
