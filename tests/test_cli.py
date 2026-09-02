@@ -2028,6 +2028,33 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     assert seen == [("Show my tasks.", "alice")]
 
 
+def test_browser_app_session_gate_rejects_unauthenticated_api_requests():
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    app = BrowserApp(
+        principal,
+        lambda *_args: "answer",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+
+    status, _, payload = app.dispatch("GET", "/api/constellation")
+    assert status == 401
+    assert json.loads(payload) == {
+        "code": "identity_unavailable",
+        "error": "identity unavailable",
+    }
+
+    status, _, payload = app.dispatch(
+        "GET", "/api/constellation", headers={"x-aegis-session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload) == {"nodes": [], "edges": [], "details": {}}
+
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    assert "session-secret" in payload.decode()
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []

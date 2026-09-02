@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+import secrets
+from collections.abc import Callable, Mapping
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
@@ -96,7 +97,7 @@ class ConstellationProjection(BaseModel):
 
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>AEGIS Constellation</title>
+<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><title>AEGIS Constellation</title>
 <style>
 :root{color-scheme:dark;--bg:#0e1117;--panel:#171c25;--panel-raised:#1d2430;--border:#2b3442;--text:#edf2f7;--muted:#9aa8b8;--accent:#8dc7ff;--shadow:0 1rem 3rem #0005}
 :root[data-theme="light"]{color-scheme:light;--bg:#f4f6f8;--panel:#fff;--panel-raised:#f8fafc;--border:#d7dee7;--text:#18212b;--muted:#536273;--accent:#155ea8;--shadow:0 .75rem 2rem #18212b18}
@@ -257,7 +258,7 @@ async function recoverPendingRequest() {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), recoveryRequestTimeoutMs);
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `/api/request-status?correlation_id=${pendingCorrelationId}`, {signal: controller.signal});
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
@@ -401,11 +402,17 @@ function applyNodeFilter() {
     : `${renderedNodeCards.size} authorized nodes.`;
 }
 nodeFilter.addEventListener('input', applyNodeFilter);
+function apiFetch(resource, options = {}) {
+  const token = document.querySelector('meta[name="aegis-session-token"]')?.content;
+  const headers = new Headers(options.headers || {});
+  if (token) headers.set('x-aegis-session', token);
+  return fetch(resource, {...options, headers});
+}
 async function fetchWithTimeout(resource, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), refreshRequestTimeoutMs);
   try {
-    return await fetch(resource, {...options, signal: controller.signal});
+    return await apiFetch(resource, {...options, signal: controller.signal});
   } finally {
     clearTimeout(timeout);
   }
@@ -615,6 +622,7 @@ class BrowserApp:
         request_status: RequestStatusProvider | None = None,
         contextual_interaction: ContextualInteraction | None = None,
         feedback: FeedbackRecorder | None = None,
+        session_token: str | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -623,11 +631,19 @@ class BrowserApp:
         self.request_status = request_status
         self.contextual_interaction = contextual_interaction
         self.feedback = feedback
+        self.session_token = session_token
 
-    def dispatch(self, method: str, path: str, body: bytes = b"") -> tuple[int, str, bytes]:
+    def dispatch(
+        self,
+        method: str,
+        path: str,
+        body: bytes = b"",
+        headers: Mapping[str, str] | None = None,
+    ) -> tuple[int, str, bytes]:
         route = urlparse(path).path
         if method == "GET" and route == "/":
-            return HTTPStatus.OK, "text/html; charset=utf-8", _INDEX_HTML.encode()
+            html = _INDEX_HTML.replace("__AEGIS_SESSION_TOKEN__", self.session_token or "")
+            return HTTPStatus.OK, "text/html; charset=utf-8", html.encode()
         if method == "GET" and route in {"/api/health", "/api/ready"}:
             if self.health is None:
                 payload: dict[str, Any] = {"healthy": True, "ready": True, "components": []}
@@ -652,6 +668,12 @@ class BrowserApp:
                 return self._json(HTTPStatus.SERVICE_UNAVAILABLE, payload)
             return self._json(HTTPStatus.OK, payload)
         if route.startswith("/api/"):
+            if self.session_token is not None and (
+                headers is None or headers.get("x-aegis-session") != self.session_token
+            ):
+                return self._error(
+                    HTTPStatus.UNAUTHORIZED, "identity_unavailable", "identity unavailable"
+                )
             try:
                 principal = self.principal_provider()
             except Exception:
@@ -864,12 +886,19 @@ def serve(
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
     app = BrowserApp(
-        principal, interaction, state, health, request_status, contextual_interaction, feedback
+        principal,
+        interaction,
+        state,
+        health,
+        request_status,
+        contextual_interaction,
+        feedback,
+        session_token=secrets.token_urlsafe(32),
     )
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
-            self._respond(app.dispatch("GET", self.path))
+            self._respond(app.dispatch("GET", self.path, headers=self.headers))
 
         def do_POST(self) -> None:  # noqa: N802
             try:
@@ -897,7 +926,9 @@ def serve(
                     )
                 )
                 return
-            self._respond(app.dispatch("POST", self.path, self.rfile.read(length)))
+            self._respond(
+                app.dispatch("POST", self.path, self.rfile.read(length), headers=self.headers)
+            )
 
         def _respond(self, response: tuple[int, str, bytes]) -> None:
             status, content_type, payload = response
