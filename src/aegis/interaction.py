@@ -407,6 +407,12 @@ class InteractionBoundary:
             if decision is None:
                 raise InvalidDecision("model answer repair did not produce a decision")
             if routing_only and decision.kind is DecisionKind.ANSWER:
+                reconsidered = decoder.decode(
+                    provider.decide(request), request.action_cards, allow_argument_proposals=True
+                )
+                if reconsidered.kind is not DecisionKind.ANSWER:
+                    decision = reconsidered
+            if routing_only and decision.kind is DecisionKind.ANSWER:
                 request = request.model_copy(
                     update={
                         "working_set": WorkingSet(intent=intent, context=context),
