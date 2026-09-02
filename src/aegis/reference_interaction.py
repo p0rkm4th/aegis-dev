@@ -752,6 +752,9 @@ def resolve_reference_fast_paths(
             ),
             correlation_id=intent.correlation_id,
         )
+    reminder_result = DomainClarificationFastPath.resolve_underspecified_reminder(intent)
+    if reminder_result is not None:
+        return reminder_result
     composer_results = (
         PersonalTaskComposer.resolve(utterance, personal_state),
         PersonalChoreComposer.resolve(utterance, personal_state),

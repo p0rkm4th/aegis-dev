@@ -239,6 +239,19 @@ class DomainClarificationFastPath:
             correlation_id=intent.correlation_id,
         )
 
+    @classmethod
+    def resolve_underspecified_reminder(cls, intent: IntentFrame) -> Result | None:
+        """Keep bare reminders out of model action selection until scoped."""
+
+        text = intent.utterance.casefold()
+        if not any(term in text for term in cls._REMINDER_TERMS):
+            return None
+        if "on my list" in text or any(
+            term in text for term in ("task", "todo", "to-do", "grocery", "groceries")
+        ):
+            return None
+        return cls.resolve(intent)
+
 
 class PersonalTaskComposer:
     """Resolve an explicit personal-goal-to-task request from Vault state."""
