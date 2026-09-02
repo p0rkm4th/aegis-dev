@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9f50a85eee3e3f4d45acfcfc4b9335516318b32",
-  "deterministic_green_sha": "9f50a85eee3e3f4d45acfcfc4b9335516318b32",
-  "last_pushed_sha": "9f50a85eee3e3f4d45acfcfc4b9335516318b32",
-  "hosted_ci_green_sha": "9f50a85eee3e3f4d45acfcfc4b9335516318b32",
+  "repository_head_sha": "61743faedd6a4f0787e5440846f1a50256a67db0",
+  "deterministic_green_sha": "61743faedd6a4f0787e5440846f1a50256a67db0",
+  "last_pushed_sha": "61743faedd6a4f0787e5440846f1a50256a67db0",
+  "hosted_ci_green_sha": "61743faedd6a4f0787e5440846f1a50256a67db0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33689754452",
-    "commit_sha": "9f50a85eee3e3f4d45acfcfc4b9335516318b32",
+    "run_id": "33689967009",
+    "commit_sha": "61743faedd6a4f0787e5440846f1a50256a67db0",
     "conclusion": "success",
     "observed_at": "2026-09-02T20:20:00Z"
   },
@@ -1109,5 +1109,6 @@
     "owner_reminder_boundary_checkpoint": "green safety evidence on release a77dfaf: fresh reminder requests 'can you remind me to check the mail tomorrow?' and 'remind me tomorrow about the dentist' both returned truthful task-guidance clarification before model action selection, avoiding the prior false completed task-list result and avoiding inferred deadlines (correlations 5a4d3e6e-338e-4c42-9830-daaa9c8906f0 and 06873fcf-5b67-4866-8e27-9dad0899e2e6). Explicit task/list reminder requests remain on the normal action path.",
     "owner_explicit_reminder_regression_checkpoint": "partial installed owner evidence on release a77dfaf: explicit 'put a reminder on my task list to check the smoke alarm tomorrow' completed with canonical task readback verification, and a natural 'which chores are still open in the apartment?' completed through shared household state (correlations c18e18f6-2311-49f6-a0b3-afcc76f2dfb2 and 94e0c458-9f16-49e4-a868-cd534167fa41). The persistent owner runtime remains healthy; this is regression evidence, not broad capability green.",
     "owner_contextual_ordinal_read_checkpoint": "green installed owner evidence on release 9f50a85: after authorized list correlation 92ac1ab1-1ea4-4a02-87e4-4f84b77a9e10, the attached follow-up 'what about the second one?' returned the second canonical task, schedule the optometrist appointment, with its stored deadline instead of misrouting to personal memories (correlation d9342068-a06d-4b5f-bc49-113744026370). No mutation occurred.",
+    "owner_household_ordinal_continuation_checkpoint": "green installed owner evidence on release 9f50a85: after open-chore list correlation 80c68198-cb55-44d5-a029-6e4f002fc850, the attached 'what about the first one?' returned the first canonical chore, clean the kitchen (correlation 2bbdc758-eb1a-4974-9d70-596d05b973b8). A fresh correction 'no, the other one' clarified safely with no mutation (correlations 99b744e7-a58a-4139-8f7b-730f2e05de5c and 727b7a94-e1e8-47e9-8c4d-2d0d31cc833b).",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
 }
