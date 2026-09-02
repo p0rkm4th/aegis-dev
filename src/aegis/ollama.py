@@ -247,6 +247,11 @@ class OllamaProvider:
                     " When canonical_facts contains canonical_items, that authorized "
                     "list is sufficient context for a grocery question: mention the "
                     "supplied items and do not claim that grocery context is missing."
+                    " For a grounded READ answer, set context_focus to exactly one "
+                    "authorized collection when the current request clearly targets "
+                    "one (canonical_items, canonical_tasks, canonical_obligations, "
+                    "or planning); omit it for general answers. This is a context "
+                    "hint only, never a permission or fact claim."
                 ),
                 "context_rule": (
                     "Use only the bounded canonical context supplied below to resolve "

@@ -1036,6 +1036,11 @@ class InteractionBoundary:
                             "answer_mode": fallback.semantic_mode,
                         }
                         authorized_facts = _authorized_context_evidence(fallback_context)
+                        if fallback.context_focus is not None:
+                            focused = authorized_facts.get(fallback.context_focus)
+                            authorized_facts = (
+                                {fallback.context_focus: focused} if focused is not None else {}
+                            )
                         if authorized_facts:
                             answer_evidence.update(authorized_facts)
                             answer_evidence["context_provenance"] = "authorized_working_set"
