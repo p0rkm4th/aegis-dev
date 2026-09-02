@@ -120,6 +120,17 @@ def test_expanded_qwen_report_records_heldout_family_hard_failures() -> None:
     assert report["capability_green"] is False
 
 
+def test_296_case_qwen_report_records_non_green_safety_baseline() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-296.json").read_text(encoding="utf-8")
+    )
+    assert report["development"]["cases"] == 149
+    assert report["held_out"]["cases"] == 147
+    assert report["held_out"]["false_mutations"] == 7
+    assert report["family_metrics"]["held_out"]["cross_domain"]["missed_clarification_rate"] > 0.8
+    assert report["capability_green"] is False
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
