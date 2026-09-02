@@ -95,6 +95,7 @@
       ,"AEGIS P0 hosted workflow correction at 1541494: the isolated PostgreSQL service uses pgvector/pgvector:pg16 so the complete migration set, including the existing vector extension migration, can be applied before the focused ownership test. Hosted validation run 33648131141 passed the full validation job and focused PostgreSQL acceptance."
       ,"AEGIS P0 baseline race reproduction: temporary checkout of pre-fix 31592d008b69bd374df4a29b97f2e55dfa312b52 synchronized two independent PostgreSQL callers after both get_action() reads and before inserts; executor_calls=2, canonical Action rows=1, authoritative Observation rows=2, and both callers returned completed. This directly demonstrates the lost insert-ownership decision fixed by 8313955."
       ,"Retrieval observability checkpoint at da3d1c8: generic semantic retrieval now exposes non-authoritative cosine scores through CapabilityMatch while preserving the card-only cognition contract; development evaluation records ranked candidate scores, metadata relevance, top-score margin, expected-candidate availability, and candidate-bound decisions. Duplicate fallback retrieval was removed at d0358b7 and covered by a one-call working-set regression. Full deterministic validation passed 373 tests with one PostgreSQL-gated skip; hosted validation run 33649579542 passed for da3d1c8. A real Qwen3:8B development evaluation was attempted against the configured endpoint but interrupted after a stalled chat request at approximately seven minutes; no report was produced and no held-out evaluation was run."
+      ,"PostgreSQL acceptance timing hardening at 70d71bc: contention-test synchronization bounds increased from 10-15 seconds to 30 seconds without weakening ownership assertions; deterministic validation remained green at 373 tests and hosted validation run 33650750734 passed for the pushed implementation."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -177,15 +178,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "da3d1c8",
-  "deterministic_green_sha": "da3d1c8",
-  "last_pushed_sha": "da3d1c8",
-  "hosted_ci_green_sha": "da3d1c8",
+  "repository_head_sha": "70d71bc",
+  "deterministic_green_sha": "70d71bc",
+  "last_pushed_sha": "70d71bc",
+  "hosted_ci_green_sha": "70d71bc",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33649579542",
-    "commit_sha": "da3d1c8a253033008a1ad827f3dd45ee3a60b56d",
+    "run_id": "33650750734",
+    "commit_sha": "70d71bc2954c66cf7677623e2c27a6008bc7e0d6",
     "conclusion": "success",
     "observed_at": "2026-09-02T13:34:25Z"
   },
