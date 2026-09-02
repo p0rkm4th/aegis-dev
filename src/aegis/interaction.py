@@ -1382,6 +1382,7 @@ class InteractionBoundary:
                 executor = runtime.executor
                 verifier = runtime.verifier
                 permissions = runtime.permissions
+                runtime_cleanup = runtime.cleanup
             else:
                 runtime = legacy_runtime(
                     card.action.action_id,
