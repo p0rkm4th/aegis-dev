@@ -1,5 +1,15 @@
+import importlib.util
 import json
 from pathlib import Path
+
+import pytest
+
+_AUDIT_SPEC = importlib.util.spec_from_file_location(
+    "audit_semantic_corpus", Path("scripts/audit_semantic_corpus.py")
+)
+assert _AUDIT_SPEC is not None and _AUDIT_SPEC.loader is not None
+_AUDIT_MODULE = importlib.util.module_from_spec(_AUDIT_SPEC)
+_AUDIT_SPEC.loader.exec_module(_AUDIT_MODULE)
 
 
 def test_frozen_semantic_corpora_assign_every_case_to_a_family() -> None:
@@ -9,7 +19,8 @@ def test_frozen_semantic_corpora_assign_every_case_to_a_family() -> None:
         assert all(isinstance(case.get("family"), str) and case["family"] for case in cases)
         assert all(isinstance(case.get("phenomena"), list) and case["phenomena"] for case in cases)
         assert all(
-            case.get("provenance") in {"manual", "owner_harvest", "transformed"} for case in cases
+            case.get("provenance") in {"manual", "owner_harvest", "transformed", "oss_harvest"}
+            for case in cases
         )
         assert all(isinstance(case.get("expected_mutation"), bool) for case in cases)
         assert all(
@@ -29,6 +40,34 @@ def test_development_and_heldout_corpora_keep_distinct_case_ids() -> None:
     }
 
     assert development.isdisjoint(heldout)
+
+
+def test_semantic_corpus_audit_reports_split_and_provenance_coverage() -> None:
+    report = _AUDIT_MODULE.audit(
+        Path("evaluation/semantic_dev.json"), Path("evaluation/semantic_heldout.json")
+    )
+    assert report["development_cases"] == 18
+    assert report["held_out_cases"] == 15
+    assert report["held_out_utterance_overlap"] == 0
+    assert report["provenance"]["manual"] > 0
+
+
+def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
+    dev = tmp_path / "dev.json"
+    held = tmp_path / "held.json"
+    case = {
+        "id": "one",
+        "utterance": "same request",
+        "kind": "ANSWER",
+        "semantic_mode": "GENERATION",
+        "phenomena": ["test"],
+        "provenance": "manual",
+        "expected_mutation": False,
+    }
+    dev.write_text(json.dumps([case]), encoding="utf-8")
+    held.write_text(json.dumps([{**case, "id": "two"}]), encoding="utf-8")
+    with pytest.raises(ValueError, match="utterances must be unique"):
+        _AUDIT_MODULE.audit(dev, held)
 
 
 def test_evaluation_boundary_uses_pack_composition_for_fallback_selection() -> None:
