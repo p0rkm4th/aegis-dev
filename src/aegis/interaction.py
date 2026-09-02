@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import os
 from collections.abc import Callable
 from typing import Any
@@ -193,11 +194,18 @@ class InteractionBoundary:
                 else None
             )
             if self.dependencies.safety_fast_path_resolver is not None:
-                safety_result = self.dependencies.safety_fast_path_resolver(
+                safety = self.dependencies.safety_fast_path_resolver
+                arguments = (
                     intent,
                     recovered_plan_actions,
                     self.dependencies.model_provider is not None,
                 )
+                try:
+                    inspect.signature(safety).bind(*arguments, context)
+                except (TypeError, ValueError):
+                    safety_result = safety(*arguments)
+                else:
+                    safety_result = safety(*arguments, context)
                 if safety_result is not None:
                     return persist_fast_result(safety_result)
             if self.dependencies.pre_model_resolver is not None and recovered_plan_actions is None:
@@ -287,7 +295,7 @@ class InteractionBoundary:
                         )
                     )
             if self.dependencies.action_grounder is not None:
-                grounded = self.dependencies.action_grounder(intent, card, connection)
+                grounded = self.dependencies.action_grounder(intent, card, connection, context)
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
                 card = grounded
