@@ -495,6 +495,7 @@ class InteractionBoundary:
         if self.dependencies.model_provider is None:
             return None
         last_raw: dict[str, Any] | None = None
+        focused_raw: dict[str, Any] | None = None
         try:
             provider = self.dependencies.model_provider()
             if cards:
@@ -515,6 +516,13 @@ class InteractionBoundary:
                     classification_only=True,
                 )
                 classification_response = provider.decide(classification_request)
+                last_raw = (
+                    classification_response.raw
+                    if isinstance(classification_response.raw, dict)
+                    else None
+                )
+                if last_raw is not None and last_raw.get("context_focus") is not None:
+                    focused_raw = last_raw
                 semantic_mode = (
                     classification_response.raw.get("semantic_mode")
                     if isinstance(classification_response.raw, dict)
@@ -571,8 +579,14 @@ class InteractionBoundary:
                         working_set=WorkingSet(intent=intent, context=answer_context),
                         action_cards=(),
                     )
+                    answer_response = provider.decide(answer_request)
+                    last_raw = (
+                        answer_response.raw if isinstance(answer_response.raw, dict) else None
+                    )
+                    if last_raw is not None and last_raw.get("context_focus") is not None:
+                        focused_raw = last_raw
                     answer = StrictDecisionDecoder().decode(
-                        provider.decide(answer_request), (), allow_argument_proposals=False
+                        answer_response, (), allow_argument_proposals=False
                     )
                     if answer.kind is DecisionKind.ANSWER:
                         return answer.model_copy(update={"semantic_mode": semantic_mode})
@@ -598,6 +612,8 @@ class InteractionBoundary:
             for attempt in range(2):
                 response = provider.decide(request)
                 last_raw = response.raw if isinstance(response.raw, dict) else None
+                if last_raw is not None and last_raw.get("context_focus") is not None:
+                    focused_raw = last_raw
                 try:
                     decision = decoder.decode(
                         response, request.action_cards, allow_argument_proposals=True
@@ -724,8 +740,8 @@ class InteractionBoundary:
                     )
             return decision
         except InvalidDecision as exc:
-            if last_raw is not None:
-                grounded = _grounded_context_answer(context, last_raw)
+            if focused_raw is not None:
+                grounded = _grounded_context_answer(context, focused_raw)
                 if grounded is not None:
                     return grounded
             if is_question_request(intent.utterance) and not is_mutation_request(intent.utterance):
