@@ -193,7 +193,11 @@ class OllamaProvider:
                     "to do is a read request even when it contains words associated with "
                     "an action. Select the supplied read card and answer from authorized "
                     "canonical facts; do not add, complete, or change state unless the "
-                    "user clearly asks for that state change."
+                    "user clearly asks for that state change. For an informational request "
+                    "that spans more than one authorized collection, return ANSWER with "
+                    "semantic_mode READ and summarize the relevant supplied collections; "
+                    "do not force the request into one ActionCard merely because one card "
+                    "has a related word."
                 ),
                 "compound_request_rule": (
                     "Do not silently complete only one part of a compound request. If the "
@@ -244,6 +248,10 @@ class OllamaProvider:
                     " Never describe an open task as due today, urgent, or otherwise "
                     "time-bound unless its supplied canonical task object contains a "
                     "matching due_at; open status alone is not a deadline or priority. "
+                    "For a broad informational request about what needs attention, use "
+                    "the supplied authorized tasks, chores, and obligations together "
+                    "when present; ask for clarification only when the authorized working "
+                    "set truly cannot support a useful grounded answer. "
                     " When canonical_facts contains canonical_items, that authorized "
                     "list is sufficient context for a grocery question: mention the "
                     "supplied items and do not claim that grocery context is missing."
