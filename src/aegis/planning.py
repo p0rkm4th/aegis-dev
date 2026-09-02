@@ -149,10 +149,24 @@ class ContextualMutationGuard:
     _REFERENCE = re.compile(
         r"\b(?:those|these|it|that|first|second|third|fourth|last|next|previous)\b"
     )
+    _IMPLICIT_ACTION_REFERENCE = re.compile(
+        r"^(?:go ahead and )?(?:do|handle|take care of) "
+        r"(?:it|that|this|those)(?: too)?[.!?]?$"
+    )
 
     @classmethod
     def resolve(cls, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
+        if cls._IMPLICIT_ACTION_REFERENCE.fullmatch(text.strip()):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I need the specific task, chore, or other action to change. "
+                    "I will not guess or infer an action from a prior recommendation."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         if is_mutation_request(text) and cls._REFERENCE.search(text) is not None:
             return Result(
                 objective_id=uuid4(),

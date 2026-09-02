@@ -2965,7 +2965,13 @@ def test_contextual_event_mutation_blocks_unsupported_memory_date_resolution():
 
 @pytest.mark.parametrize(
     "utterance",
-    ["add the first two", "complete those", "remove it from my list"],
+    [
+        "add the first two",
+        "complete those",
+        "remove it from my list",
+        "go ahead and do it",
+        "handle that",
+    ],
 )
 def test_contextual_reference_mutation_fails_closed_instead_of_becoming_a_literal_title(
     utterance,
