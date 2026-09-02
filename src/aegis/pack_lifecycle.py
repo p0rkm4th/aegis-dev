@@ -196,7 +196,7 @@ class PackManager:
         return CapabilityRegistry(self.enabled_cards()).retrieve(domain, limit)
 
     def retrieve_semantic(
-        self, query: str, embedder: CapabilityEmbedder, limit: int = 5
+        self, query: str, embedder: CapabilityEmbedder, limit: int = 10
     ) -> tuple[ActionCard, ...]:
         """Retrieve a bounded semantic shortlist from enabled Pack metadata."""
         return CapabilityRegistry(self.enabled_cards()).retrieve_semantic(query, embedder, limit)
