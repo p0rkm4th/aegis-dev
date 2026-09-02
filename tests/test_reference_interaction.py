@@ -181,6 +181,27 @@ def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     assert result.evidence["memories"][0]["content"] == memory.content
 
 
+def test_memory_activity_query_returns_timestamped_memories_without_literal_match() -> None:
+    memory = MemoryRecord(
+        uuid4(),
+        "Investigated the server backup failure.",
+        datetime(2026, 9, 1, 20, 0, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+    state = PersonalState(memories={memory.memory_id: memory})
+    result = PersonalMemoryFastPath(
+        state, now=datetime(2026, 9, 2, 14, 0, tzinfo=timezone.utc)
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="what did I work on yesterday?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["memories"][0]["content"] == memory.content
+
+
 def test_grounding_uses_current_canonical_task_for_authorized_ordinal() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
