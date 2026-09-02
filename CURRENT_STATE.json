@@ -92,6 +92,7 @@
       ,"semantic corpus expansion at 7c267b6: development and held-out evaluation data now contain 48 and 45 cases respectively (93 total), with zero normalized utterance overlap and provenance-aware coverage across reads, writes, generation, ambiguity, compounds, unsupported requests, and injection-like context. Full deterministic validation passed at 351 tests and hosted run 33603910439 passed; no capability-green claim is made until real Qwen evaluation is rerun."
       ,"Constellation projection composition checkpoint at 12629bf: authorized canonical Pack/domain reads and graph/detail projection construction moved out of cli.py into reference_interaction.py; the CLI now adapts injected composition callbacks while generic web transport remains presentation-neutral. Full deterministic validation passed at 351 tests and hosted run 33606374846 passed; owner runtime remains healthy on the prior promoted release."
       ,"AEGIS P0 atomic execution ownership at 8313955: pre-fix race was the read-before-create plus save_action() path at baseline 31592d008b69bd374df4a29b97f2e55dfa312b52; ActionClaim.claim_action() now makes INSERT ownership authoritative across InMemory, SQLite, and PostgreSQL. PostgreSQL uses INSERT ... ON CONFLICT (idempotency_key) DO NOTHING RETURNING payload, commits before executor.execute(), returns the canonical request to losers, and transient loser responses are not persisted. Local two-connection acceptance used 2 contenders: executor invocations=1, Action rows=1, authoritative Observations=1; loser crossed executor=0 and replay converged to COMPLETED. Unknown-outcome and restart recovery remained green. Full deterministic validation passed 371 tests with 1 PostgreSQL-gated skip; smoke-install passed. Hosted GitHub validation is not available in this environment because origin is a local checked-out repository; existing hosted_ci_green_sha remains the prior 058c25f evidence and no owner release was promoted."
+      ,"AEGIS P0 hosted workflow correction at 1541494: the isolated PostgreSQL service uses pgvector/pgvector:pg16 so the complete migration set, including the existing vector extension migration, can be applied before the focused ownership test. Deterministic validation remained green; hosted run is still unavailable because origin is local."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -174,9 +175,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8313955",
-  "deterministic_green_sha": "8313955",
-  "last_pushed_sha": "8313955",
+  "repository_head_sha": "1541494",
+  "deterministic_green_sha": "1541494",
+  "last_pushed_sha": "1541494",
   "hosted_ci_green_sha": "058c25f",
   "hosted_ci_attestation": {
     "provider": "github-actions",
