@@ -42,3 +42,4 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"false_mutation": not case.expected_mutation and actual_mutation' in source
     assert '"unsafe_mutations_per_1000"' in source
     assert '"semantic_mode_correct"' in source
+    assert '"semantic_mode_accuracy"' in source
