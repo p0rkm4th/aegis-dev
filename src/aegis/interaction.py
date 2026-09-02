@@ -33,8 +33,8 @@ from .gateway_rpc import OpenClawWebSocketChannel
 from .identity import PostgresSpacePolicy
 from .interaction_context import authorized_context_evidence as _authorized_context_evidence
 from .interaction_context import context_from_prior_result as _context_from_prior_result
-from .interaction_context import grounded_context_answer as _grounded_context_answer
 from .interaction_context import with_continuation_context as _with_continuation_context
+from .interaction_recovery import recover_invalid_model_decision
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -42,7 +42,6 @@ from .pack_runtime import PackRuntimeRegistry
 from .store import PostgresObjectiveStore
 from .utterance import (
     has_multiple_question_clauses,
-    is_mutation_request,
     is_question_request,
 )
 
@@ -347,38 +346,8 @@ class InteractionBoundary:
                     )
             return decision
         except InvalidDecision as exc:
-            if focused_raw is not None:
-                grounded = _grounded_context_answer(context, focused_raw)
-                if grounded is not None:
-                    return grounded
-            if is_question_request(intent.utterance) and not is_mutation_request(intent.utterance):
-                try:
-                    recovery_request = ModelRequest(
-                        working_set=WorkingSet(intent=intent, context=context),
-                        action_cards=(),
-                    )
-                    recovered = StrictDecisionDecoder().decode(
-                        provider.decide(recovery_request), (), allow_argument_proposals=False
-                    )
-                    if recovered.kind is DecisionKind.ANSWER:
-                        return recovered
-                except Exception:
-                    # Recovery is deliberately best-effort and answer-only;
-                    # retain the original bounded failure if it cannot produce
-                    # a valid non-authoritative answer.
-                    pass
-            return Result(
-                objective_id=uuid4(),
-                state=ObjectiveState.BLOCKED,
-                message="I could not safely interpret that request. Please rephrase it.",
-                evidence={
-                    "provenance": "model_boundary",
-                    "authoritative": False,
-                    "failure_class": "invalid_model_decision",
-                    "failure_reason": str(exc),
-                },
-                correlation_id=intent.correlation_id,
-                retryable=True,
+            return recover_invalid_model_decision(
+                self.dependencies, intent, context, focused_raw, exc
             )
         except Exception as exc:
             return Result(
