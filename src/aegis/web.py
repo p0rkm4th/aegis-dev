@@ -898,7 +898,7 @@ def serve(
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
-            self._respond(app.dispatch("GET", self.path, headers=self.headers))
+            self._respond(app.dispatch("GET", self.path, headers=dict(self.headers.items())))
 
         def do_POST(self) -> None:  # noqa: N802
             try:
@@ -927,7 +927,12 @@ def serve(
                 )
                 return
             self._respond(
-                app.dispatch("POST", self.path, self.rfile.read(length), headers=self.headers)
+                app.dispatch(
+                    "POST",
+                    self.path,
+                    self.rfile.read(length),
+                    headers=dict(self.headers.items()),
+                )
             )
 
         def _respond(self, response: tuple[int, str, bytes]) -> None:
