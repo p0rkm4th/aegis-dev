@@ -155,7 +155,10 @@ class OllamaProvider:
                     "semantically rather than requiring a fixed verb. Words describing "
                     "status are part of the request, not a request to invent a different "
                     "capability. Preserve informal wording and minor spelling errors "
-                    "when extracting the named item."
+                    "when extracting the named item. When canonical_tasks are supplied, "
+                    "copy the exact matching candidate title, including leading articles "
+                    "and punctuation; never shorten or paraphrase it. If no one exact "
+                    "candidate is clear, return CLARIFY."
                 ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
