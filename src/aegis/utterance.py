@@ -22,3 +22,12 @@ def is_mutation_request(utterance: str) -> bool:
     return (
         _MUTATION_PREFIX.match(normalized) is not None or _MARK_DONE.match(normalized) is not None
     )
+
+
+def is_question_request(utterance: str) -> bool:
+    """Recognize question shape for the read/write safety boundary."""
+
+    normalized = " ".join(utterance.casefold().split())
+    return normalized.endswith("?") or normalized.startswith(
+        ("what ", "which ", "who ", "when ", "where ", "how ", "anything ", "can i ", "can we ")
+    )
