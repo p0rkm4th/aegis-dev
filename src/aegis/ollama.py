@@ -162,7 +162,9 @@ class OllamaProvider:
                     "when extracting the named item. When canonical_tasks are supplied, "
                     "copy the exact matching candidate title, including leading articles "
                     "and punctuation; never shorten or paraphrase it. If no one exact "
-                    "candidate is clear, return CLARIFY."
+                    "candidate is clear, return CLARIFY. If the utterance describes "
+                    "finishing an untyped item and authorized_task_candidates contains "
+                    "one matching task, prefer tasks.complete over a chore action."
                 ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
