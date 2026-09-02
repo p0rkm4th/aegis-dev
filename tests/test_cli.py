@@ -29,6 +29,7 @@ from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import (
     Task,
     TaskIntentClarificationFastPath,
+    TaskPriorityFastPath,
     TaskReadFastPath,
     TaskStatus,
     ground_task_due_at,
@@ -2458,6 +2459,39 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     assert not TaskReadFastPath.matches("I'd like to put a task on my list to verify the drill")
     assert not TaskReadFastPath.matches("Mark the task Verify backup retention as done")
     assert not TaskReadFastPath.matches("Which task should I do first?")
+
+
+def test_task_priority_fast_path_uses_earliest_open_deadline():
+    soon = Task(
+        uuid4(),
+        "apartment",
+        "renew insurance",
+        "alice",
+        due_at=datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc),
+    )
+    later = Task(
+        uuid4(),
+        "apartment",
+        "schedule inspection",
+        "alice",
+        due_at=datetime(2026, 9, 4, 12, 0, tzinfo=timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (later, soon)
+
+    result = TaskPriorityFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="which task should i do first",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["priority_basis"] == "earliest_due_at"
+    assert result.evidence["task"]["title"] == "renew insurance"
 
 
 def test_task_read_fast_path_exposes_canonical_due_at():
