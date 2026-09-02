@@ -196,6 +196,13 @@ class OllamaProvider:
                     "tasks, using an explicit due_at when present; if the authorized facts "
                     "do not support a grounded choice, explain the limitation or clarify."
                 ),
+                "benign_generation_rule": (
+                    "Creative and explanatory requests such as writing a story, joke, poem, "
+                    "or explanation are ANSWER requests. ActionCards are bounded candidates, "
+                    "not commands: never select an unrelated read or mutation merely because "
+                    "its context contains a matching noun, and never answer a creative request "
+                    "with an unrelated canonical list."
+                ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "
