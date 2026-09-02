@@ -227,6 +227,14 @@ def test_compact_planning_context_preserves_open_chores() -> None:
     }
 
 
+def test_compact_planning_context_preserves_priority_candidates() -> None:
+    candidates = ["task: review the backup", "chore: clean the kitchen"]
+
+    assert compact_context_evidence({"planning": {"priority_candidates": candidates}})[
+        "planning"
+    ] == {"priority_candidates": candidates}
+
+
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     memory = MemoryRecord(
         uuid4(),
