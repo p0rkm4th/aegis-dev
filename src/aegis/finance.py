@@ -265,6 +265,10 @@ class FinanceReadFastPath:
         r"\b(?:purchase|expense|spend(?:ing)?)\b.{0,40}\b(?:safe|okay|ok|manageable)\b",
         re.IGNORECASE,
     )
+    _SAFE_SPEND = re.compile(
+        r"\b(?:safe|okay|ok|manageable)\b.{0,40}\bspend(?:ing)?\b",
+        re.IGNORECASE,
+    )
 
     def __init__(self, ledger: FinanceLedger) -> None:
         self.ledger = ledger
@@ -281,6 +285,7 @@ class FinanceReadFastPath:
             "can i afford" in text
             or "can we afford" in text
             or bool(cls._SAFE_PURCHASE.search(text))
+            or bool(cls._SAFE_SPEND.search(text))
         )
 
     @classmethod
