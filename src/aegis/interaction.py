@@ -29,11 +29,8 @@ from .dispatch import (
 from .dispatch import (
     ActionVerifierDispatch as _ActionVerifierDispatch,  # noqa: F401
 )
-from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
-    GroceryReadFastPath,
-    HouseholdReadFastPath,
     PostgresHouseholdStore,
 )
 from .identity import PostgresSpacePolicy
@@ -41,25 +38,16 @@ from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
-from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
 from .planning import (
     ContextualMutationGuard,
     DomainClarificationFastPath,
     MultiActionFastPath,
-    PersonalChoreComposer,
-    PersonalMemoryChoreComposer,
-    PersonalMemoryTaskComposer,
-    PersonalTaskComposer,
 )
 from .reference_packs import reference_bundles
 from .reference_runtime import legacy_runtime
 from .store import PostgresObjectiveStore
 from .tasks import (
-    ContextualTaskPriorityFastPath,
     PostgresTaskStore,
-    TaskIntentClarificationFastPath,
-    TaskPriorityFastPath,
-    TaskReadFastPath,
 )
 from .utterance import (
     has_multiple_question_clauses,
@@ -97,6 +85,7 @@ class InteractionDependencies:
         fallback_card_selector: Callable[[PackManager, str], tuple[ActionCard, ...]] | None = None,
         plan_runner: Callable[..., Result | None] | None = None,
         decision_rewriter: Callable[..., Decision | Result | None] | None = None,
+        fast_path_resolver: Callable[..., Result | None] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -115,6 +104,7 @@ class InteractionDependencies:
         self.fallback_card_selector = fallback_card_selector
         self.plan_runner = plan_runner
         self.decision_rewriter = decision_rewriter
+        self.fast_path_resolver = fast_path_resolver
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -807,103 +797,19 @@ class InteractionBoundary:
                 )
                 if pre_model_result is not None:
                     return persist_fast_result(pre_model_result)
+            if self.dependencies.fast_path_resolver is not None:
+                fast_result = self.dependencies.fast_path_resolver(
+                    intent,
+                    connection,
+                    principal,
+                    context,
+                    recovered_plan_actions,
+                    self.dependencies.required,
+                    self.dependencies.model_provider is not None,
+                )
+                if fast_result is not None:
+                    return persist_fast_result(fast_result)
             task_store = PostgresTaskStore(connection)
-            personal_state = PostgresPersonalStateStore(
-                connection, principal.vault_id
-            ).load_for_principal(principal)
-            goal_task_title, goal_task_error = PersonalTaskComposer.resolve(
-                utterance, personal_state
-            )
-            goal_chore_title, goal_chore_error = PersonalChoreComposer.resolve(
-                utterance, personal_state
-            )
-            memory_task_title, memory_task_error = PersonalMemoryTaskComposer.resolve(
-                utterance, personal_state
-            )
-            memory_chore_title, memory_chore_error = PersonalMemoryChoreComposer.resolve(
-                utterance, personal_state
-            )
-            composer_errors = tuple(
-                error
-                for error in (
-                    goal_task_error,
-                    goal_chore_error,
-                    memory_task_error,
-                    memory_chore_error,
-                )
-                if error is not None
-            )
-            if composer_errors:
-                return persist_fast_result(
-                    Result(
-                        objective_id=uuid4(),
-                        state=ObjectiveState.BLOCKED,
-                        message=composer_errors[0],
-                        correlation_id=intent.correlation_id,
-                    )
-                )
-            composed_title = (
-                goal_task_title or goal_chore_title or memory_task_title or memory_chore_title
-            )
-            household_snapshot = household_store.read_snapshot(principal)
-            if (
-                recovered_plan_actions is None
-                and composed_title is None
-                and HouseholdReadFastPath.matches(utterance)
-            ):
-                household_result = HouseholdReadFastPath(household_snapshot).resolve(intent)
-                if household_result is not None:
-                    return persist_fast_result(household_result)
-            if recovered_plan_actions is None and composed_title is None:
-                grocery_result = GroceryReadFastPath(household_store).resolve(intent)
-                if grocery_result is not None:
-                    return persist_fast_result(grocery_result)
-                if self.dependencies.model_provider is None:
-                    task_clarification = TaskIntentClarificationFastPath.resolve(intent)
-                    if task_clarification is not None:
-                        return persist_fast_result(task_clarification)
-                task_result = TaskReadFastPath(task_store).resolve(intent)
-                if task_result is not None:
-                    return persist_fast_result(task_result)
-                contextual_priority_result = ContextualTaskPriorityFastPath().resolve(
-                    intent, context
-                )
-                if contextual_priority_result is not None:
-                    return persist_fast_result(contextual_priority_result)
-                priority_result = TaskPriorityFastPath(task_store).resolve(intent)
-                if priority_result is not None:
-                    return persist_fast_result(priority_result)
-            semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
-                "1",
-                "true",
-                "yes",
-            }
-            if semantic_enabled:
-                embedding_provider = OllamaEmbeddingProvider(
-                    os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
-                    self.dependencies.required("AEGIS_OLLAMA_URL"),
-                )
-                vector_index = PostgresMemoryVectorIndex(connection)
-                embeddings = embedding_provider.embed(
-                    tuple(memory.content for memory in personal_state.memories.values())
-                )
-                for memory, embedding in zip(personal_state.memories.values(), embeddings):
-                    vector_index.upsert(
-                        principal.vault_id, memory.memory_id, embedding, embedding_provider.model
-                    )
-                connection.commit()
-                memory_fast_path = PersonalMemoryFastPath(
-                    personal_state,
-                    embedding_provider=embedding_provider,
-                    vector_index=vector_index,
-                    vault_id=principal.vault_id,
-                )
-            else:
-                memory_fast_path = PersonalMemoryFastPath(personal_state)
-            if recovered_plan_actions is None and composed_title is None:
-                memory_result = memory_fast_path.resolve(intent)
-                if memory_result is not None:
-                    return persist_fast_result(memory_result)
             manager = PackManager(store=PostgresPackStore(connection))
             if self.dependencies.pack_bundles is not None:
                 manager.reconcile(
@@ -1059,19 +965,8 @@ class InteractionBoundary:
                             correlation_id=intent.correlation_id,
                         )
                     )
-            principal_store = PostgresHouseholdStore(connection)
             if self.dependencies.action_grounder is not None:
-                grounded = self.dependencies.action_grounder(
-                    intent,
-                    card,
-                    task_store,
-                    principal_store,
-                    personal_state,
-                    goal_task_title,
-                    goal_chore_title,
-                    memory_task_title,
-                    memory_chore_title,
-                )
+                grounded = self.dependencies.action_grounder(intent, card, connection)
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
                 card = grounded
