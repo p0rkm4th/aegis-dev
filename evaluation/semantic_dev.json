@@ -1,0 +1,10 @@
+[
+  {"id": "dev-read-groceries", "utterance": "What should I pick up at the store?", "kind": "ACTION", "action": "kitchen.groceries.list"},
+  {"id": "dev-read-tasks", "utterance": "What is still on my plate this week?", "kind": "ACTION", "action": "tasks.list"},
+  {"id": "dev-create-task", "utterance": "Please put replace the air filter on my things-to-do list", "kind": "ACTION", "action": "tasks.create", "arguments": {"title": "replace the air filter"}},
+  {"id": "dev-complete-task", "utterance": "I wrapped up get gud scrub", "kind": "ACTION", "action": "tasks.complete", "arguments": {"title": "get gud scrub"}},
+  {"id": "dev-generation", "utterance": "Tell me a short story about a fish", "kind": "ANSWER"},
+  {"id": "dev-ambiguous", "utterance": "Deal with the backup", "kind": "CLARIFY"},
+  {"id": "dev-compound", "utterance": "Add rice and remind me to call the dentist", "kind": "CLARIFY"},
+  {"id": "dev-unsupported", "utterance": "Book me a flight to Montreal", "kind": "CLARIFY"}
+]
