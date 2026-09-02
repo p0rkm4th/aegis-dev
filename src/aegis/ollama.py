@@ -77,7 +77,13 @@ class OllamaProvider:
     provider_id: str
     local = True
 
-    def __init__(self, model: str, transport: OllamaTransport, max_repairs: int = 1) -> None:
+    def __init__(
+        self,
+        model: str,
+        transport: OllamaTransport,
+        max_repairs: int = 1,
+        compact_action_cards: bool = False,
+    ) -> None:
         if not model:
             raise ValueError("Ollama model is required")
         if max_repairs < 0 or max_repairs > 1:
@@ -86,6 +92,7 @@ class OllamaProvider:
         self.model = model
         self.transport = transport
         self.max_repairs = max_repairs
+        self.compact_action_cards = compact_action_cards
 
     def available(self) -> bool:
         return True
@@ -142,9 +149,11 @@ class OllamaProvider:
             required.append("semantic_mode")
         return schema
 
-    @staticmethod
-    def _prompt(request: ModelRequest) -> str:
-        cards = [card.model_dump(mode="json") for card in request.action_cards]
+    def _prompt(self, request: ModelRequest) -> str:
+        cards = [
+            self._compact_card(card) if self.compact_action_cards else card.model_dump(mode="json")
+            for card in request.action_cards
+        ]
         return json.dumps(
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
@@ -338,3 +347,22 @@ class OllamaProvider:
             },
             sort_keys=True,
         )
+
+    @staticmethod
+    def _compact_card(card: Any) -> dict[str, Any]:
+        """Expose cognition-relevant card semantics without policy internals."""
+        return {
+            "action_id": card.action.action_id,
+            "capability": card.action.capability,
+            "operation": (
+                "write"
+                if any(
+                    permission.endswith(".write") for permission in card.action.required_permissions
+                )
+                else "read"
+            ),
+            "summary": card.summary,
+            "relevance": card.relevance,
+            "argument_keys": card.argument_keys,
+            "argument_descriptions": card.argument_descriptions,
+        }
