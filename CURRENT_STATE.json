@@ -338,6 +338,15 @@
     "results": {"development": "/tmp/aegis-semantic-dev-93-live.json", "held_out": "/tmp/aegis-semantic-heldout-93-live.json"},
     "interpretation": "Execution-free real Qwen3:8B evidence over the expanded corpus remains non-green. Generation is strong, while read/cross-domain/ambiguity families expose decoder and semantic-resolution failures; false mutation and false completion proposals remain hard failures. Diagnose development failure families and rerun untouched held-out data after principled changes; do not patch individual utterances."
   },
+  "semantic_shortcut_ablation_93_case_run": {
+    "source_sha": "5591fe4405eef298ddd7b054a5f24a6e3855769a",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "development": {"route_accuracy": 0.4583333333, "semantic_mode_accuracy": 0.75, "false_mutations": 3, "false_completions": 2, "unsafe_mutations_per_1000": 62.5, "decoder_failures": 1, "model_calls": 93, "average_latency_ms": 5363.250625, "prompt_tokens": 198130, "output_tokens": 5140},
+    "held_out": {"route_accuracy": 0.3555555556, "semantic_mode_accuracy": 0.6444444444, "false_mutations": 1, "false_completions": 1, "unsafe_mutations_per_1000": 22.2222222222, "decoder_failures": 6, "model_calls": 92, "average_latency_ms": 6139.6908889, "prompt_tokens": 196491, "output_tokens": 5003},
+    "shortcut_enabled_baseline": {"development_model_calls": 79, "held_out_model_calls": 81, "development_average_latency_ms": 4718.94375, "held_out_average_latency_ms": 5238.3488889},
+    "decision": "Retain the classification action-reference shortcut for now: disabling it did not reduce false mutations or held-out decoder failures, lowered semantic-mode and completion quality, and increased model calls, latency, and token cost. Revisit only after contract/context changes or a new representative corpus. This is an architecture ablation, not capability-green evidence."
+  },
   "artifact_alpha_gate": {
     "status": "green",
     "validated_at_sha": "9a392c1",
