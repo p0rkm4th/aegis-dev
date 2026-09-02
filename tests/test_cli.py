@@ -1105,6 +1105,7 @@ def test_run_interaction_threads_pack_runtime_registry_to_shared_boundary(monkey
 
     assert result == "shared-result"
     assert captured["dependencies"].runtime_registry is registry
+    assert captured["dependencies"].action_grounder is cli.ground_reference_action
 
 
 def test_default_runtime_registry_covers_kitchen_mutation(monkeypatch):
