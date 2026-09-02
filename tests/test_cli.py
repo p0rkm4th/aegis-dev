@@ -302,6 +302,40 @@ def test_fresh_working_context_does_not_suppress_unrelated_mutation_cards():
     assert boundary._fallback_cards(manager, "add those", prior_grocery) == ()
 
 
+def test_semantic_write_candidates_are_scoped_to_their_top_write_pack():
+    from aegis.interaction import InteractionDependencies
+
+    manager = PackManager()
+    for bundle in reference_bundles():
+        manager.discover(bundle)
+        manager.install(bundle.manifest.pack_id, frozenset(bundle.manifest.permissions))
+        manager.enable(bundle.manifest.pack_id)
+    cards = tuple(manager.enabled_cards())
+    task_complete = next(card for card in cards if card.action.action_id == "tasks.complete")
+    grocery_list = next(card for card in cards if card.action.action_id == "kitchen.groceries.list")
+    network_probe = next(card for card in cards if card.action.action_id == "network.probe")
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("tasks", task_complete),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            capability_retriever=lambda _query, _manager: (
+                network_probe,
+                task_complete,
+                grocery_list,
+            ),
+        )
+    )
+
+    selected = boundary._fallback_cards(manager, "informal completion", Context())
+
+    assert [card.action.action_id for card in selected] == ["tasks.complete"]
+
+
 def test_interaction_boundary_reuses_completed_plan_before_fast_paths(monkeypatch):
     from aegis import interaction
 

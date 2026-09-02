@@ -330,6 +330,23 @@ class InteractionBoundary:
                 # bypass the bounded model/decoder or change authority.
                 semantic_cards = ()
             if semantic_cards:
+                write_cards = tuple(
+                    card
+                    for card in semantic_cards
+                    if any(
+                        permission.endswith(".write")
+                        for permission in card.action.required_permissions
+                    )
+                )
+                if write_cards:
+                    namespace = write_cards[0].action.action_id.split(".", 1)[0]
+                    scoped_cards = tuple(
+                        card
+                        for card in semantic_cards
+                        if card.action.action_id.split(".", 1)[0] == namespace
+                    )
+                    if scoped_cards:
+                        return scoped_cards[:10]
                 return tuple(semantic_cards)[:10]
         # Domain retrieval is only a candidate reduction. Action meaning and
         # arguments still come from the bounded model proposal and decoder.
