@@ -20,6 +20,14 @@ _EVALUATE_MODULE = importlib.util.module_from_spec(_EVALUATE_SPEC)
 sys.modules["evaluate_boundary"] = _EVALUATE_MODULE
 _EVALUATE_SPEC.loader.exec_module(_EVALUATE_MODULE)
 
+_AUTOPSY_SPEC = importlib.util.spec_from_file_location(
+    "autopsy_boundary", Path("scripts/autopsy_boundary.py")
+)
+assert _AUTOPSY_SPEC is not None and _AUTOPSY_SPEC.loader is not None
+_AUTOPSY_MODULE = importlib.util.module_from_spec(_AUTOPSY_SPEC)
+sys.modules["autopsy_boundary"] = _AUTOPSY_MODULE
+_AUTOPSY_SPEC.loader.exec_module(_AUTOPSY_MODULE)
+
 
 def test_frozen_semantic_corpora_assign_every_case_to_a_family() -> None:
     for filename in ("semantic_dev.json", "semantic_heldout.json"):
@@ -275,3 +283,47 @@ def test_evaluation_failure_class_preserves_timeout_and_transport_categories() -
     transport_error = OSError()
     transport_error.__cause__ = TimeoutError()
     assert _EVALUATE_MODULE._failure_class(transport_error) == "timeout"
+
+
+def test_development_autopsy_prioritizes_safety_and_keeps_case_categories() -> None:
+    result = _AUTOPSY_MODULE.autopsy(
+        {
+            "source_revision": "sha",
+            "dataset": "dev.json",
+            "dataset_sha256": "dataset",
+            "security_hard_failure": True,
+            "results": [
+                {
+                    "id": "unsafe",
+                    "family": "ambiguity",
+                    "failure_class": None,
+                    "false_mutation": True,
+                    "false_completion": False,
+                    "expected_action": None,
+                    "predicted_action": "tasks.complete",
+                    "candidate_action_ids": ["tasks.complete"],
+                    "expected_action_available": None,
+                    "expected_kind": "CLARIFY",
+                    "predicted_kind": "ACTION",
+                    "argument_exact": True,
+                },
+                {
+                    "id": "decoder",
+                    "family": "cross_domain",
+                    "failure_class": "invalid_model_decision",
+                    "false_mutation": False,
+                    "false_completion": False,
+                    "expected_action": None,
+                    "predicted_action": None,
+                    "candidate_action_ids": [],
+                    "expected_action_available": None,
+                    "expected_kind": "CLARIFY",
+                    "predicted_kind": "RESULT",
+                    "argument_exact": False,
+                },
+            ],
+        }
+    )
+    assert result["ranked_failure_classes"][0]["category"] == "false_mutation"
+    assert result["family_failure_counts"]["ambiguity"]["missed_clarification"] == 1
+    assert result["family_failure_counts"]["cross_domain"]["decoder_schema_failure"] == 1
