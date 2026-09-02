@@ -20,6 +20,10 @@ class PackStatus(StrEnum):
     DISABLED = "disabled"
 
 
+class PackUpgradeStatus(StrEnum):
+    PENDING_AUTHORIZATION = "pending_authorization"
+
+
 class PackUI(BaseModel):
     """Optional presentation hints; these fields never grant Pack authority."""
 
@@ -44,6 +48,14 @@ class PackBundle(BaseModel):
     cards: tuple[ActionCard, ...] = Field(max_length=100)
 
 
+class PendingPackUpgrade(BaseModel):
+    """A discovered replacement that has not acquired new authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    bundle: PackBundle
+    requested_permissions: frozenset[str] = frozenset()
+
+
 class PackStore(Protocol):
     def save(
         self,
@@ -55,6 +67,12 @@ class PackStore(Protocol):
     def load(self) -> tuple[tuple[PackBundle, PackStatus, frozenset[str]], ...]: ...
 
     def delete(self, pack_id: str) -> None: ...
+
+    def save_candidate(self, candidate: PendingPackUpgrade) -> None: ...
+
+    def load_candidates(self) -> tuple[PendingPackUpgrade, ...]: ...
+
+    def delete_candidate(self, pack_id: str) -> None: ...
 
 
 class PostgresPackStore:
@@ -111,12 +129,65 @@ class PostgresPackStore:
         self.connection.execute("DELETE FROM pack_installations WHERE pack_id = %s", (pack_id,))
         self.connection.commit()
 
+    def save_candidate(self, candidate: PendingPackUpgrade) -> None:
+        bundle = candidate.bundle
+        self.connection.execute(
+            """INSERT INTO pack_upgrade_candidates
+               (pack_id, version, manifest, cards, requested_permissions)
+               VALUES (%s, %s, %s, %s, %s)
+               ON CONFLICT (pack_id) DO UPDATE SET version = EXCLUDED.version,
+                 manifest = EXCLUDED.manifest, cards = EXCLUDED.cards,
+                 requested_permissions = EXCLUDED.requested_permissions,
+                 updated_at = now()""",
+            (
+                bundle.manifest.pack_id,
+                bundle.manifest.version,
+                json.dumps(bundle.manifest.model_dump(mode="json"), sort_keys=True),
+                json.dumps([card.model_dump(mode="json") for card in bundle.cards], sort_keys=True),
+                json.dumps(sorted(candidate.requested_permissions)),
+            ),
+        )
+        self.connection.commit()
+
+    def load_candidates(self) -> tuple[PendingPackUpgrade, ...]:
+        # Keep lightweight adapter doubles compatible with the original store
+        # contract; real PostgreSQL connections always expose execute().
+        if not hasattr(self.connection, "execute"):
+            return ()
+        rows = self.connection.execute(
+            "SELECT manifest, cards, requested_permissions "
+            "FROM pack_upgrade_candidates ORDER BY pack_id"
+        ).fetchall()
+        loaded: list[PendingPackUpgrade] = []
+        for manifest, cards, requested in rows:
+            manifest_data = manifest if isinstance(manifest, dict) else json.loads(str(manifest))
+            cards_data = cards if isinstance(cards, list) else json.loads(str(cards))
+            requested_data = (
+                requested if isinstance(requested, list) else json.loads(str(requested))
+            )
+            loaded.append(
+                PendingPackUpgrade(
+                    bundle=PackBundle.model_validate(
+                        {"manifest": manifest_data, "cards": cards_data}
+                    ),
+                    requested_permissions=frozenset(str(p) for p in requested_data),
+                )
+            )
+        return tuple(loaded)
+
+    def delete_candidate(self, pack_id: str) -> None:
+        self.connection.execute(
+            "DELETE FROM pack_upgrade_candidates WHERE pack_id = %s", (pack_id,)
+        )
+        self.connection.commit()
+
 
 class PackManager:
     def __init__(self, audit: AuditLog | None = None, store: PackStore | None = None) -> None:
         self._bundles: dict[str, PackBundle] = {}
         self._statuses: dict[str, PackStatus] = {}
         self._grants: dict[str, frozenset[str]] = {}
+        self._candidates: dict[str, PendingPackUpgrade] = {}
         self.audit = audit or AuditLog()
         self.store = store
         if self.store is not None:
@@ -124,6 +195,9 @@ class PackManager:
                 self._bundles[bundle.manifest.pack_id] = bundle
                 self._statuses[bundle.manifest.pack_id] = status
                 self._grants[bundle.manifest.pack_id] = grants
+            load_candidates = getattr(self.store, "load_candidates", lambda: ())
+            for candidate in load_candidates():
+                self._candidates[candidate.bundle.manifest.pack_id] = candidate
 
     def discover(self, bundle: PackBundle, actor_id: str = "system") -> None:
         self._validate(bundle)
@@ -177,6 +251,10 @@ class PackManager:
         self._grants.pop(pack_id, None)
         if self.store is not None:
             self.store.delete(pack_id)
+            delete_candidate = getattr(self.store, "delete_candidate", None)
+            if delete_candidate is not None:
+                delete_candidate(pack_id)
+        self._candidates.pop(pack_id, None)
         self.audit.append("pack.removed", actor_id, {"pack_id": pack_id})
 
     def status(self, pack_id: str) -> PackStatus:
@@ -230,8 +308,40 @@ class PackManager:
                 self.discover(bundle)
             else:
                 if installed.model_dump(mode="json") != bundle.model_dump(mode="json"):
-                    self.remove(pack_id)
-                    self.discover(bundle)
+                    self._validate(bundle)
+                    current_grants = self._grants.get(pack_id, frozenset())
+                    declared = frozenset(bundle.manifest.permissions)
+                    expansion = declared - current_grants
+                    candidate = PendingPackUpgrade(bundle=bundle, requested_permissions=expansion)
+                    if expansion:
+                        self._candidates[pack_id] = candidate
+                        if self.store is not None:
+                            save_candidate = getattr(self.store, "save_candidate", None)
+                            if save_candidate is not None:
+                                save_candidate(candidate)
+                        self.audit.append(
+                            "pack.upgrade.pending_authorization",
+                            "system",
+                            {
+                                "pack_id": pack_id,
+                                "version": bundle.manifest.version,
+                                "requested_permissions": sorted(expansion),
+                            },
+                        )
+                    else:
+                        self._bundles[pack_id] = bundle
+                        self._grants[pack_id] = current_grants & declared
+                        self._persist(bundle)
+                        self._candidates.pop(pack_id, None)
+                        if self.store is not None:
+                            delete_candidate = getattr(self.store, "delete_candidate", None)
+                            if delete_candidate is not None:
+                                delete_candidate(pack_id)
+                        self.audit.append(
+                            "pack.upgraded",
+                            "system",
+                            {"pack_id": pack_id, "version": bundle.manifest.version},
+                        )
             if pack_id in auto_enable:
                 status = self.status(pack_id)
                 if status is PackStatus.DISCOVERED:
@@ -272,6 +382,42 @@ class PackManager:
     def granted_permissions(self, pack_id: str) -> frozenset[str]:
         self._require(pack_id)
         return self._grants.get(pack_id, frozenset())
+
+    def pending_upgrade(self, pack_id: str) -> PendingPackUpgrade | None:
+        self._require(pack_id)
+        return self._candidates.get(pack_id)
+
+    def approve_upgrade(
+        self, pack_id: str, granted_permissions: frozenset[str], actor_id: str
+    ) -> None:
+        """Apply a candidate only after explicit non-model approval."""
+        candidate = self._candidates.get(pack_id)
+        if candidate is None:
+            raise ValueError("Pack has no pending upgrade")
+        required = frozenset(candidate.bundle.manifest.permissions)
+        if not required.issubset(granted_permissions):
+            raise PermissionError(
+                f"Pack upgrade permissions not approved: {sorted(required - granted_permissions)}"
+            )
+        status = self.status(pack_id)
+        self._bundles[pack_id] = candidate.bundle
+        self._grants[pack_id] = granted_permissions & required
+        self._statuses[pack_id] = status
+        self._persist(candidate.bundle)
+        self._candidates.pop(pack_id)
+        if self.store is not None:
+            delete_candidate = getattr(self.store, "delete_candidate", None)
+            if delete_candidate is not None:
+                delete_candidate(pack_id)
+        self.audit.append(
+            "pack.upgrade.approved",
+            actor_id,
+            {
+                "pack_id": pack_id,
+                "version": candidate.bundle.manifest.version,
+                "permissions": sorted(self._grants[pack_id]),
+            },
+        )
 
     def _require(self, pack_id: str) -> PackBundle:
         try:
