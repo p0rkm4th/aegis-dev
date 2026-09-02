@@ -114,6 +114,50 @@ def test_bounded_model_fallback_exposes_safe_invalid_decision_diagnostic():
     }
 
 
+def test_bounded_model_fallback_recovers_safe_answer_for_non_mutation_question():
+    class Provider:
+        def __init__(self):
+            self.calls = 0
+
+        def decide(self, _request):
+            self.calls += 1
+            if self.calls == 1:
+                return type("Response", (), {"raw": {"kind": "ACTION"}})()
+            return type(
+                "Response",
+                (),
+                {"raw": {"kind": "ANSWER", "answer": "The restore drill is open."}},
+            )()
+
+    provider = Provider()
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("unused", None),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            model_provider=lambda: provider,
+        )
+    )
+
+    result = boundary._fallback_decision(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="vault"),
+            utterance="what remains open?",
+        ),
+        (),
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.ANSWER
+    assert result.answer == "The restore drill is open."
+    assert provider.calls == 2
+
+
 def test_write_capable_fallback_routes_without_canonical_read_context():
     from aegis.interaction import InteractionBoundary
 
