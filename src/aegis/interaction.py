@@ -64,6 +64,7 @@ from .reference_packs import (
 )
 from .store import PostgresObjectiveStore
 from .tasks import (
+    ContextualTaskPriorityFastPath,
     PostgresTaskExecutor,
     PostgresTaskListExecutor,
     PostgresTaskListVerifier,
@@ -866,6 +867,11 @@ class InteractionBoundary:
                 task_result = TaskReadFastPath(task_store).resolve(intent)
                 if task_result is not None:
                     return persist_fast_result(task_result)
+                contextual_priority_result = ContextualTaskPriorityFastPath().resolve(
+                    intent, context
+                )
+                if contextual_priority_result is not None:
+                    return persist_fast_result(contextual_priority_result)
                 priority_result = TaskPriorityFastPath(task_store).resolve(intent)
                 if priority_result is not None:
                     return persist_fast_result(priority_result)

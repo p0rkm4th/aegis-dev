@@ -24,6 +24,7 @@ from aegis.contracts import (
     ActionCard,
     ActionSpec,
     AuthorizationRequest,
+    Context,
     Decision,
     DecisionKind,
     ExecutionRequest,
@@ -140,6 +141,7 @@ from aegis.registry import CapabilityRegistry
 from aegis.security_lab import PostgresSecurityLabStore, SecurityLab
 from aegis.store import PostgresObjectiveStore, SqliteObjectiveStore
 from aegis.tasks import (
+    ContextualTaskPriorityFastPath,
     PostgresTaskExecutor,
     PostgresTaskStore,
     PostgresTaskVerifier,
@@ -147,6 +149,35 @@ from aegis.tasks import (
     TaskCompletionFastPath,
     TaskStatus,
 )
+
+
+def test_contextual_task_priority_uses_only_authorized_prior_tasks():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "later task", "status": "open", "due_at": "2026-09-05"},
+                        {"title": "first task", "status": "open", "due_at": "2026-09-02"},
+                        {"title": "done task", "status": "completed", "due_at": "2026-09-01"},
+                    ],
+                }
+            }
+        }
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which of those should I do first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message.endswith("first task")
+    assert result.evidence["priority_basis"] == "authorized_prior_result_earliest_due_at"
 
 
 class Model:
