@@ -123,7 +123,14 @@ def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     """Keep only bounded canonical facts for a follow-up model working set."""
 
     compact: dict[str, Any] = {}
-    for key in ("canonical_items", "canonical_tasks", "title", "item"):
+    for key in (
+        "canonical_items",
+        "canonical_tasks",
+        "canonical_chores",
+        "canonical_obligations",
+        "title",
+        "item",
+    ):
         value = evidence.get(key)
         if isinstance(value, (list, tuple)):
             if key == "canonical_items":
@@ -244,6 +251,32 @@ def _fallback_working_context(
     facts["canonical_items"] = list(
         dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
     )[:20]
+    read_snapshot = getattr(household_store, "read_snapshot", None)
+    household_snapshot = read_snapshot(principal) if callable(read_snapshot) else {}
+    if isinstance(household_snapshot, dict):
+        chores = household_snapshot.get("chores", ())
+        if isinstance(chores, (list, tuple)):
+            facts["canonical_chores"] = [
+                {
+                    "title": str(chore.title),
+                    "completed": bool(chore.completed),
+                }
+                for chore in chores
+                if hasattr(chore, "title") and hasattr(chore, "completed")
+            ][:20]
+        obligations = household_snapshot.get("obligations", ())
+        if isinstance(obligations, (list, tuple)):
+            facts["canonical_obligations"] = [
+                {
+                    "title": str(obligation.title),
+                    "settled": bool(obligation.settled),
+                    "responsible_id": str(obligation.responsible_id),
+                }
+                for obligation in obligations
+                if hasattr(obligation, "title")
+                and hasattr(obligation, "settled")
+                and hasattr(obligation, "responsible_id")
+            ][:20]
     tasks = list(task_store.list(principal))
     priority_request = ("which" in utterance.casefold() and "first" in utterance.casefold()) or any(
         term in utterance.casefold() for term in ("prioritize", "priority", "focus")
