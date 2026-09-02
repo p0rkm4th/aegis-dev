@@ -22,6 +22,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         "canonical_tasks",
         "canonical_chores",
         "chores",
+        "events",
         "canonical_obligations",
         "memories",
         "title",
@@ -209,6 +210,7 @@ def context_from_prior_result(
         "canonical_items",
         "canonical_tasks",
         "canonical_chores",
+        "events",
         "canonical_obligations",
     ):
         # Ordinals refer to the list the owner just received.  Keep this

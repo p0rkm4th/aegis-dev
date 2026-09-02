@@ -780,6 +780,10 @@ def resolve_reference_fast_paths(
         )
     composed_title = next((title for title, _error in composer_results if title is not None), None)
     snapshot = household_store.read_snapshot(principal)
+    if composed_title is None:
+        result = resolve_contextual_ordinal_read(intent, context)
+        if result is not None:
+            return result
     if composed_title is None and HouseholdReadFastPath.matches(utterance):
         result = HouseholdReadFastPath(snapshot).resolve(intent)
         if result is not None:
@@ -843,8 +847,15 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     """Answer a read-only ordinal follow-up from the authorized prior list."""
 
     text = intent.utterance.casefold()
-    if is_mutation_request(text) or not any(
-        marker in text for marker in ("what about", "tell me about", "which one", "what is")
+    if (
+        is_mutation_request(text)
+        or not any(
+            marker in text for marker in ("what about", "tell me about", "which one", "what is")
+        )
+        and not (
+            "which" in text
+            and re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\b", text)
+        )
     ):
         return None
     item = resolve_obvious_ordinal_item(text, context)
@@ -856,7 +867,11 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             evidence={"collection": "groceries", "authorized_ordinal_item": item},
             correlation_id=intent.correlation_id,
         )
-    for fact_key, label in (("canonical_tasks", "Task"), ("canonical_chores", "Chore")):
+    for fact_key, label in (
+        ("canonical_tasks", "Task"),
+        ("canonical_chores", "Chore"),
+        ("events", "Event"),
+    ):
         referent = resolve_obvious_ordinal(text, context, fact_key)
         if referent is None:
             continue
@@ -872,6 +887,9 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         due_at = referent.get("due_at")
         if isinstance(due_at, str):
             detail += f"; due {due_at}"
+        starts_at = referent.get("starts_at")
+        if isinstance(starts_at, str):
+            detail += f"; starts {starts_at}"
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
