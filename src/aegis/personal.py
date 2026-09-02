@@ -443,6 +443,8 @@ class PersonalMemoryFastPath:
         "recall",
         "working on",
         "working with",
+        "what have i been",
+        "up to",
         "what did i",
         "what was i",
         "what do i know",
@@ -472,11 +474,17 @@ class PersonalMemoryFastPath:
             "the",
             "was",
             "what",
+            "have",
             "with",
             "you",
             "last",
             "night",
             "yesterday",
+            "been",
+            "up",
+            "to",
+            "recently",
+            "lately",
             "remember",
             "recall",
         }
@@ -519,7 +527,9 @@ class PersonalMemoryFastPath:
             if word.strip(".,!?;:") not in self._STOPWORDS and word.strip(".,!?;:")
         )
         start, end = self._temporal_window(text)
-        broad_activity_query = query.strip() in {"work", "worked"}
+        broad_activity_query = query.strip() in {"work", "worked"} or (
+            "what have i been" in text and query.strip() == ""
+        )
         prior_memories = None
         if context is not None and context.sources == ("authorized_canonical_result",):
             facts = context.values.get("canonical_facts")

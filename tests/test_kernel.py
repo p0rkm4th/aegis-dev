@@ -3052,6 +3052,25 @@ def test_domain_clarification_fast_path_intercepts_bare_reminder_before_cognitio
     assert explicit is None
 
 
+def test_personal_memory_fast_path_accepts_natural_recent_activity_language():
+    state = PersonalState()
+    state.add_memory(
+        "reviewed the restore drill",
+        datetime.now(timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What have I been up to recently?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["memories"][0]["content"] == "reviewed the restore drill"
+
+
 def test_personal_task_composer_grounds_task_in_unique_canonical_goal():
     from datetime import datetime, timezone
 
