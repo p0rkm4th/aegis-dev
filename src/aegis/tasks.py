@@ -593,9 +593,8 @@ class TaskPriorityFastPath:
         if not priority_language:
             return False
         explicit_task = "task" in text
-        implicit_task = (
-            text.startswith(("what", "which"))
-            and any(term in text for term in ("should", "take care", "focus"))
+        implicit_task = text.startswith(("what", "which")) and any(
+            term in text for term in ("should", "take care", "focus")
         )
         return (explicit_task or implicit_task) and (
             "should" in text or "priorit" in text or "focus" in text
