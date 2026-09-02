@@ -101,11 +101,11 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d2fa018",
-  "deterministic_green_sha": "1bd5d7a",
-  "last_pushed_sha": "d2fa018",
-  "installed_release_sha": "1bd5d7a",
-  "running_release_sha": "1bd5d7a",
+  "repository_head_sha": "817d1ee",
+  "deterministic_green_sha": "817d1ee",
+  "last_pushed_sha": "817d1ee",
+  "installed_release_sha": "817d1ee",
+  "running_release_sha": "817d1ee",
   "live_green_sha": "f5add80",
   "head_sha": "9f3768e",
   "last_green_sha": "f5add80",
@@ -126,12 +126,12 @@
     "running_sha": "1bd5d7a",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/1bd5d7a",
-    "repository_head_sha": "d2fa018",
-    "deterministic_green_sha": "1bd5d7a",
-    "installed_release_sha": "1bd5d7a",
-    "running_release_sha": "1bd5d7a",
+    "repository_head_sha": "817d1ee",
+    "deterministic_green_sha": "817d1ee",
+    "installed_release_sha": "817d1ee",
+    "running_release_sha": "817d1ee",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub repository head is 1bd5d7a before this state-only evidence update; deterministic and installed/running owner code are 1bd5d7a. Live capability evidence remains separately tracked through f5add80 and newer frontier probes; continuation and indirect-language probes remain partial, not broad capability green.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, installed owner release, and running owner service are all 817d1ee at this checkpoint. Live capability evidence remains separately tracked through f5add80 and newer frontier probes; the semantic boundary evaluation below is a measured baseline, not capability-green evidence.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -168,41 +168,41 @@
     }
   },
   "routing_architecture_benchmark": {
-    "corpus": "scripts/benchmark_routing.py evaluation-only unseen semantic family",
-    "cases": 8,
-    "measured_at_sha": "9dbfe48",
+    "corpus": "evaluation/semantic_dev.json and evaluation/semantic_heldout.json; evaluation-only production InteractionBoundary cognition path",
+    "cases": 16,
+    "measured_at_sha": "817d1ee",
     "results": {
       "A_embedding_qwen8": {
-        "route_accuracy": 0.625,
-        "model_calls": 8,
-        "model_calls_avoided": 0,
-        "false_mutation_routing": 0,
-        "false_completion": 0,
-        "security_errors": 1,
-        "hard_failure": true,
-        "average_latency_ms": 2202.1,
-        "prompt_tokens": 16453,
-        "output_tokens": 538
+        "development": {"route_accuracy": 0.625, "action_selection_precision": 1.0, "action_selection_recall": 0.25, "argument_exactness": 0.875, "inappropriate_clarification_rate": 0.2, "missed_clarification_rate": 0.0, "false_mutations": 0, "false_completions": 0, "security_hard_failure": false, "average_latency_ms": 3645.38, "model_calls": 16, "prompt_tokens": 30933, "output_tokens": 838},
+        "held_out": {"route_accuracy": 0.0, "action_selection_precision": 0.0, "action_selection_recall": 0.0, "argument_exactness": 0.75, "inappropriate_clarification_rate": 0.14285714285714285, "missed_clarification_rate": 1.0, "false_mutations": 0, "false_completions": 0, "security_hard_failure": false, "average_latency_ms": 3258.57375, "model_calls": 24, "prompt_tokens": 46252, "output_tokens": 662}
       },
       "B_embedding_2b4b_router_qwen8": {
         "status": "not_run",
-        "reason": "no 2B-4B router model installed or configured"
+        "reason": "no 2B-4B router model installed or configured; no additional inference hop adopted"
       },
       "C_embedding_confidence_reranker_qwen8": {
-        "route_accuracy": 0.625,
-        "model_calls": 8,
-        "model_calls_avoided": 0,
-        "lightweight_predictions": 0,
-        "false_mutation_routing": 0,
-        "false_completion": 0,
-        "security_errors": 1,
-        "hard_failure": true,
-        "average_latency_ms": 2334.5,
-        "prompt_tokens": 16453,
-        "output_tokens": 538
+        "development": {"route_accuracy": 0.625, "action_selection_precision": 1.0, "action_selection_recall": 0.25, "argument_exactness": 0.875, "inappropriate_clarification_rate": 0.2, "missed_clarification_rate": 0.0, "false_mutations": 0, "false_completions": 0, "security_hard_failure": false, "average_latency_ms": 3645.38, "model_calls": 16, "prompt_tokens": 30933, "output_tokens": 838},
+        "held_out": {"route_accuracy": 0.0, "action_selection_precision": 0.0, "action_selection_recall": 0.0, "argument_exactness": 0.75, "inappropriate_clarification_rate": 0.14285714285714285, "missed_clarification_rate": 1.0, "false_mutations": 0, "false_completions": 0, "security_hard_failure": false, "average_latency_ms": 3258.57375, "model_calls": 24, "prompt_tokens": 46252, "output_tokens": 662},
+        "memory_vram": "not observable from Ollama HTTP responses",
+        "loading_overhead": null
       }
     },
-    "decision": "Do not add an inference hop or promote the lightweight bypass. The direct baseline and conservative reranker are equivalent on this corpus, and both expose a task-create strict-decoder failure requiring semantic-contract investigation rather than phrase handling."
+    "decision": "Do not add an inference hop or promote the lightweight bypass. A and C are equivalent on this baseline, while the untouched held-out family exposes broad semantic failure despite zero false mutations/completions. Treat this as a hardening baseline; diagnose schema/context/candidate-contract causes, never patch held-out phrases. Memory/VRAM and model-loading overhead are not observable through the Ollama HTTP boundary."
+  },
+  "semantic_boundary_evaluation": {
+    "status": "baseline_only_capability_green_unclaimed",
+    "provider": "ollama",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "endpoint": "http://172.18.0.1:11434",
+    "source_sha": "817d1eed623f6a670795351f9dd4e8b8b91357a2",
+    "development_dataset_sha256": "90a28ae8dd206b750a81eed577b107d18714df94183ac45b07209806a6331b24",
+    "held_out_dataset_sha256": "61d4d5b33e51b5817dda3fe28ba8188813756120d14dbe8b88490cabb635a731",
+    "prompt_and_decision_schema_sha256": "0e21e25d3afa97f6b67d1e7e046fe0634496827bf42c0dc4ceea697d9bab4b7a",
+    "action_card_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+    "development_result": "/tmp/aegis_eval_dev_final.json",
+    "held_out_result": "/tmp/aegis_eval_heldout_final.json",
+    "interpretation": "The evaluator invokes the real provider through the production bounded cognition decoder without executing mutations. Held-out route accuracy is 0.0 and missed clarification is 1.0, so semantic capability is not green. False mutations and false completions are zero in this non-executing run; security hard failure is false. Use development failures to improve contracts and rerun the untouched held-out corpus."
   },
   "artifact_alpha_gate": {
     "status": "green",
@@ -870,5 +870,5 @@
   "owner_household_read_precedence_live": "green live routing and safety evidence on release a3bfc7d: duplicate 'Finish the task called the quarterly inspection.' correlation 1aca33f5-7fb1-44b5-8ddf-992c23e32927 reached task completion and clarified the canonical duplicate instead of reading events; unique inspection-named task 'Finish the task called rendered detail acceptance 91919191.' correlation 76126a51-156a-4303-ad08-61f92e18ba65 completed with canonical task readback",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
-  "next_action": "Continue novel objective-level Qwen3:8B dogfood through the installed owner runtime using unseen semantic families, especially ambiguity, contextual continuation, stale state, and cross-Pack composition. Keep capability-level evidence separate from exact canaries; add deterministic regressions only for durable defects. Home Assistant/mobile/voice remain lane-limited."
+  "next_action": "Repair generic Pack/Core ownership and prove a zero-Core-change unfamiliar Pack before adding domain breadth. Then expand the measured semantic evaluation harness from its Qwen3:8B baseline, using development failures for diagnosis and the untouched held-out corpus for acceptance. Keep capability-level evidence separate from exact canaries; Home Assistant/mobile/voice remain lane-limited."
 }
