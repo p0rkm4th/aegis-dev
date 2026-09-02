@@ -20,3 +20,5 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install -e '.[dev]'
       - name: Run reproducible validation
         run: bash scripts/validate.sh
+      - name: Validate built artifacts in clean targets
+        run: bash scripts/smoke_install.sh
