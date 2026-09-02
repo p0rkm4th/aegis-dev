@@ -5,9 +5,9 @@
   "current_phase": 12,
   "roadmap_version": 1,
   "active_milestone": "M08",
-  "active_checkpoint": "M08.05",
+  "active_checkpoint": "M08.10",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "M08.05-bounded-candidate-action-selection",
+  "current_checkpoint": "M08.10-remove-phrase-overfit",
   "checkpoint_evidence": {
     "deterministic": [
       "M08.01 confidence-gated deterministic reads and writes",
@@ -38,6 +38,7 @@
       "M08.05 canonical-title grounding at 3376df7 live owner proof: informal unique article omission completed canonical task the annual inspection (f7ad4655-5721-4684-a97d-075e52103f68), while duplicate-title completion clarified safely (39595126-2e20-449c-81be-24331ecb2cf6)",
       "M08.05 unique-prefix canonical grounding at 2300598 live owner proof: informal completion resolved to and completed exact task named browser activity refresh verification 2026-09-01. (1fb5110b-a93e-406f-95ca-7e909d1a677d); duplicate server-backup target remained safely clarified (536e27a2-4cfa-4c43-a4d4-702f66c7cec1)",
       "M08.10 typed Pack argument descriptions at 36726dd did not yet make unseen task creation green: create and follow-up completion requests clarified without mutation (fa7cbf6c-8f42-48e6-b922-7068c8739206; 9c8636e5-5270-43db-a893-ff57f74833c0)",
+      "M08.10 ordinary owner create probe at 36726dd completed canonical task buy printer paper (79c91fc0-a21e-4143-8198-86956bf3db7a); informal follow-up was safely blocked after chore/task ambiguity (b19ee046-3df6-40b6-897c-a5564c2ea3ae)",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
