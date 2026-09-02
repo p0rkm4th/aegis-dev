@@ -89,3 +89,5 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"decoder_failures"' in source
     assert '"model_calls_avoided"' in source
     assert '"--disable-classification-action-shortcut"' in source
+    assert '"grounded_read_answer"' in source
+    assert '"grounded_read_answer_rate"' in source
