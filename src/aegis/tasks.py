@@ -60,7 +60,7 @@ def _aware_datetime(value: datetime) -> datetime:
 
 
 def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | None:
-    """Translate only explicit bounded relative task dates into canonical time."""
+    """Translate only explicit bounded task dates into canonical time."""
 
     current = now or datetime.now(timezone.utc)
     text = utterance.casefold().strip()
@@ -68,6 +68,22 @@ def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | 
         return (current + timedelta(days=1)).isoformat()
     if re.search(r"\bnext\s+week[.!?]?$", text):
         return (current + timedelta(days=7)).isoformat()
+    weekday_match = re.search(
+        r"\b(?:for|on)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)[.!?]?$",
+        text,
+    )
+    if weekday_match is not None:
+        target = (
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ).index(weekday_match.group(1))
+        days_ahead = (target - current.weekday()) % 7 or 7
+        return (current + timedelta(days=days_ahead)).isoformat()
     return None
 
 

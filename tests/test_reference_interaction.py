@@ -26,7 +26,7 @@ from aegis.reference_interaction import (
     resolve_contextual_ordinal_read,
     rewrite_reference_decision,
 )
-from aegis.tasks import Task
+from aegis.tasks import Task, requested_task_due_at
 
 
 def _task_card(arguments: dict[str, object]) -> ActionCard:
@@ -494,3 +494,26 @@ def test_clarification_for_authorized_ordinal_becomes_bounded_completion_action(
     assert rewritten.kind is DecisionKind.ACTION
     assert rewritten.action is not None
     assert rewritten.action.arguments == {"title": "buy milk", "task_id": task_id}
+
+
+def test_clarification_for_explicit_task_destination_becomes_create_action() -> None:
+    rewritten = rewrite_reference_decision(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Could you jot down replace the porch bulb on my to-do list for Friday?",
+        ),
+        Decision(kind=DecisionKind.CLARIFY, clarification="What do you mean?"),
+        (_task_card({}),),
+    )
+
+    assert isinstance(rewritten, Decision)
+    assert rewritten.kind is DecisionKind.ACTION
+    assert rewritten.action is not None
+    assert rewritten.action.arguments["title"] == "replace the porch bulb"
+    assert (
+        requested_task_due_at(
+            "Could you jot down replace the porch bulb on my to-do list for Friday?",
+            datetime(2026, 9, 2, tzinfo=timezone.utc),
+        )
+        == "2026-09-04T00:00:00+00:00"
+    )
