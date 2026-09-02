@@ -589,15 +589,15 @@ class TaskPriorityFastPath:
         text = utterance.casefold()
         if is_mutation_request(text) or any(domain in text for domain in cls._NON_TASK_DOMAINS):
             return False
-        priority_language = any(term in text for term in ("first", "priorit", "focus"))
+        priority_language = any(term in text for term in ("first", "priorit", "focus", "next"))
         if not priority_language:
             return False
         explicit_task = "task" in text
         implicit_task = text.startswith(("what", "which")) and any(
-            term in text for term in ("should", "take care", "focus")
+            term in text for term in ("should", "take care", "focus", "work")
         )
         return (explicit_task or implicit_task) and (
-            "should" in text or "priorit" in text or "focus" in text
+            "should" in text or "priorit" in text or "focus" in text or "next" in text
         )
 
     def __init__(self, store: PostgresTaskStore) -> None:
