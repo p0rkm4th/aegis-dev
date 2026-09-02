@@ -2026,6 +2026,8 @@ def test_household_read_fast_path_does_not_capture_explicit_task_completion():
     from aegis.household import HouseholdReadFastPath
 
     assert HouseholdReadFastPath.matches("What chores are on the list?")
+    assert HouseholdReadFastPath.matches("What do I have scheduled tomorrow?")
+    assert not HouseholdReadFastPath.matches("What tasks are scheduled tomorrow?")
     assert not HouseholdReadFastPath.matches("Finish the task called the quarterly inspection.")
 
 
@@ -2689,6 +2691,30 @@ def test_household_read_fast_path_filters_explicit_chore_status():
             "assignee_id": "alice",
             "completed": True,
         }
+    ]
+
+
+def test_household_read_fast_path_filters_natural_event_date_requests():
+    from datetime import timedelta
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {alice.id})
+    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    space.add_event(alice, HouseholdEvent("tomorrow", "Apartment inspection", tomorrow))
+    space.add_event(
+        alice,
+        HouseholdEvent("later", "Dentist appointment", tomorrow + timedelta(days=2)),
+    )
+
+    assert HouseholdReadFastPath.matches("What do I have scheduled tomorrow?")
+    result = HouseholdReadFastPath(space.snapshot(alice)).resolve(
+        IntentFrame(principal=alice, utterance="What do I have scheduled tomorrow?")
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "tomorrow"
+    assert result.evidence["events"] == [
+        {"title": "Apartment inspection", "starts_at": tomorrow.isoformat()}
     ]
 
 
