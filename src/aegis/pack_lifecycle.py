@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .audit import AuditLog
 from .contracts import ActionCard
-from .registry import CapabilityEmbedder, CapabilityRegistry
+from .registry import CapabilityEmbedder, CapabilityMatch, CapabilityRegistry
 
 
 class PackStatus(StrEnum):
@@ -249,6 +249,14 @@ class PackManager:
     ) -> tuple[ActionCard, ...]:
         """Retrieve a bounded semantic shortlist from enabled Pack metadata."""
         return CapabilityRegistry(self.enabled_cards()).retrieve_semantic(query, embedder, limit)
+
+    def retrieve_semantic_with_scores(
+        self, query: str, embedder: CapabilityEmbedder, limit: int = 10
+    ) -> tuple[CapabilityMatch, ...]:
+        """Retrieve semantic candidates with non-authoritative diagnostic scores."""
+        return CapabilityRegistry(self.enabled_cards()).retrieve_semantic_with_scores(
+            query, embedder, limit
+        )
 
     def action_card(self, domain: str, action_id: str) -> ActionCard | None:
         """Find one exact enabled card without widening the model shortlist."""

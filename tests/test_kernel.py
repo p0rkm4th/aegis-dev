@@ -1995,6 +1995,32 @@ def test_capability_registry_semantic_retrieval_ranks_bounded_pack_cards():
     assert retrieved == (cards[0], cards[1])
 
 
+def test_capability_registry_semantic_retrieval_exposes_non_authoritative_scores():
+    cards = (
+        ActionCard(
+            action=ActionSpec(action_id="first", capability="test.read"),
+            summary="first",
+            relevance=0.1,
+        ),
+        ActionCard(
+            action=ActionSpec(action_id="second", capability="test.read"),
+            summary="second",
+            relevance=0.2,
+        ),
+    )
+
+    class Embedder:
+        def embed(self, texts):
+            return tuple(
+                (1.0, 0.0) if index in (0, 1) else (0.0, 1.0) for index, _ in enumerate(texts)
+            )
+
+    matches = CapabilityRegistry(cards).retrieve_semantic_with_scores("query", Embedder())
+
+    assert [match.card.action.action_id for match in matches] == ["first", "second"]
+    assert matches[0].score > matches[1].score
+
+
 def test_household_read_fast_path_does_not_capture_explicit_task_completion():
     from aegis.household import HouseholdReadFastPath
 
