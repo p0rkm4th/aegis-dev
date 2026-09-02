@@ -391,8 +391,14 @@ class InteractionBoundary:
         try:
             provider = self.dependencies.model_provider()
             if cards:
+                classification_values = {
+                    key: value for key, value in context.values.items() if key != "canonical_facts"
+                }
                 classification_request = ModelRequest(
-                    working_set=WorkingSet(intent=intent, context=context),
+                    working_set=WorkingSet(
+                        intent=intent,
+                        context=context.model_copy(update={"values": classification_values}),
+                    ),
                     action_cards=(),
                     classification_only=True,
                 )
@@ -412,10 +418,6 @@ class InteractionBoundary:
                     )
                     if answer.kind is DecisionKind.ANSWER:
                         return answer
-                elif raw_kind in {DecisionKind.CLARIFY.value, DecisionKind.BLOCKED.value}:
-                    return StrictDecisionDecoder().decode(
-                        classification_response, (), allow_argument_proposals=False
-                    )
             routing_only = any(
                 permission.endswith(".write")
                 for card in cards
