@@ -474,6 +474,7 @@ class PersonalMemoryFastPath:
             "you",
             "last",
             "night",
+            "yesterday",
             "remember",
             "recall",
         }
@@ -516,7 +517,8 @@ class PersonalMemoryFastPath:
             if word.strip(".,!?;:") not in self._STOPWORDS and word.strip(".,!?;:")
         )
         start, end = self._temporal_window(text)
-        if query.strip():
+        broad_activity_query = query.strip() in {"work", "worked"}
+        if query.strip() and not broad_activity_query:
             memories = self._search_memories(query, start, end)
         else:
             memories = tuple(
