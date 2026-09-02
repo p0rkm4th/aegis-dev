@@ -20,6 +20,7 @@ from aegis.contracts import (
     VerificationResult,
 )
 from aegis.decoding import StrictDecisionDecoder
+from aegis.dispatch import ActionExecutorDispatch, ActionVerifierDispatch
 from aegis.interaction import _ActionExecutorDispatch, _ActionVerifierDispatch
 from aegis.kernel import Kernel
 from aegis.pack_runtime import ActionRuntime, PackRuntimeRegistry
@@ -198,6 +199,41 @@ def test_third_party_pack_read_and_verified_write_use_core_dispatch():
     ).run(IntentFrame(principal=principal, utterance="read the weather note"), (read,))
     assert read_result.state.value == "completed"
     assert read_result.evidence["state"]["note"] == "bring a coat"
+
+
+def test_generic_dispatch_routes_by_declared_action_contract():
+    class Delegate:
+        def execute(self, request: ExecutionRequest) -> Observation:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"action": request.action.action_id},
+                command_succeeded=True,
+            )
+
+        def verify(
+            self, observation: Observation, _contract: VerificationContract
+        ) -> VerificationResult:
+            return VerificationResult(
+                verified=observation.command_succeeded,
+                evidence=observation.evidence,
+                reason="generic dispatch verification",
+            )
+
+    action = ActionSpec(action_id="weather.note.write", capability="weather.write")
+    delegate = Delegate()
+    observation = ActionExecutorDispatch({action.action_id: delegate}).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="weather-1",
+        )
+    )
+    assert observation.action_id == action.action_id
+    verified = ActionVerifierDispatch({action.action_id: delegate}).verify(
+        observation, VerificationContract(kind="custom")
+    )
+    assert verified.verified is True
 
 
 def test_third_party_pack_read_and_verified_write_cross_browser_boundary():

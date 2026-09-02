@@ -52,6 +52,7 @@ from .reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
     resolve_reference_pre_model,
+    run_reference_plan,
 )
 from .reference_packs import (
     OpenClawGroceryExecutor,
@@ -1234,6 +1235,7 @@ def run_interaction(
             action_grounder=ground_reference_action,
             pre_model_resolver=resolve_reference_pre_model,
             fallback_card_selector=reference_fallback_cards,
+            plan_runner=run_reference_plan,
         )
     )
     return boundary.run(

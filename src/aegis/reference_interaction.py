@@ -13,20 +13,39 @@ from typing import Any, cast
 from uuid import uuid4
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, IntentFrame, ObjectiveState, Principal, Result
+from .contracts import (
+    ActionCard,
+    ActionSpec,
+    Context,
+    IntentFrame,
+    ObjectiveState,
+    Principal,
+    Result,
+)
+from .decoding import StrictDecisionDecoder
+from .dispatch import ActionExecutorDispatch, ActionVerifierDispatch
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .household import (
     Chore,
     ChoreCompletionFastPath,
     HouseholdObligation,
+    PostgresChoreExecutor,
+    PostgresChoreVerifier,
+    PostgresEventExecutor,
+    PostgresEventVerifier,
     PostgresHouseholdStore,
 )
+from .identity import PostgresSpacePolicy, Role
+from .kernel import Kernel
 from .pack_lifecycle import PackManager
 from .personal import PersonalState, PostgresPersonalStateStore
-from .planning import CrossDomainPlanningFastPath
+from .planning import CrossDomainPlanningFastPath, MultiActionFastPath
 from .projections import SharedObligation
+from .store import PostgresObjectiveStore
 from .tasks import (
+    PostgresTaskExecutor,
     PostgresTaskStore,
+    PostgresTaskVerifier,
     TaskCompletionFastPath,
     ground_task_due_at,
     requested_task_due_at,
@@ -59,6 +78,87 @@ def reference_fallback_cards(manager: PackManager, utterance: str) -> tuple[Acti
         return tuple(manager.retrieve("tasks"))[:10]
     cards = manager.retrieve(domain) if domain is not None else manager.enabled_cards()
     return tuple(cards)[:10]
+
+
+def run_reference_plan(
+    intent: IntentFrame,
+    connection: Any,
+    principal: Principal,
+    manager: PackManager,
+    task_store: PostgresTaskStore,
+    household_store: PostgresHouseholdStore,
+    recovered_plan_actions: tuple[ActionSpec, ...] | None,
+    context: Context,
+    model: Any,
+) -> Result | None:
+    """Build and execute the reference Pack's bounded multi-action plans."""
+
+    plan_actions: tuple[ActionSpec, ...] | None
+    if recovered_plan_actions is not None:
+        plan_actions = recovered_plan_actions
+    elif (plan_titles := MultiActionFastPath.task_chore_titles(intent.utterance)) is not None:
+        task_card = next(
+            card for card in manager.retrieve("tasks") if card.action.action_id == "tasks.create"
+        )
+        chore_card = next(
+            card
+            for card in manager.retrieve("tasks")
+            if card.action.action_id == "tasks.chores.create"
+        )
+        plan_actions = (
+            task_card.action.model_copy(update={"arguments": {"title": plan_titles[0]}}),
+            chore_card.action.model_copy(update={"arguments": {"title": plan_titles[1]}}),
+        )
+    elif (event_details := MultiActionFastPath.task_event_details(intent.utterance)) is not None:
+        task_card = next(
+            card for card in manager.retrieve("tasks") if card.action.action_id == "tasks.create"
+        )
+        event_card = next(
+            card
+            for card in manager.retrieve("tasks")
+            if card.action.action_id == "tasks.events.create"
+        )
+        plan_actions = (
+            task_card.action.model_copy(update={"arguments": {"title": event_details[0]}}),
+            event_card.action.model_copy(
+                update={
+                    "arguments": {
+                        "title": event_details[1],
+                        "starts_at": event_details[2],
+                    }
+                }
+            ),
+        )
+    else:
+        plan_actions = None
+
+    if plan_actions is None:
+        return None
+    principal_store = household_store
+    return Kernel(
+        model,
+        StrictDecisionDecoder(),
+        PostgresSpacePolicy(
+            connection,
+            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+        ),
+        ActionExecutorDispatch(
+            {
+                "tasks.create": PostgresTaskExecutor(task_store, principal),
+                "tasks.chores.create": PostgresChoreExecutor(principal_store, principal),
+                "tasks.events.create": PostgresEventExecutor(principal_store, principal),
+            }
+        ),
+        ActionVerifierDispatch(
+            {
+                "tasks.create": PostgresTaskVerifier(task_store, principal),
+                "tasks.chores.create": PostgresChoreVerifier(principal_store, principal),
+                "tasks.events.create": PostgresEventVerifier(principal_store, principal),
+            }
+        ),
+        store=PostgresObjectiveStore(connection),
+        audit=PostgresAuditLog(connection),
+    ).run_sequence(intent, plan_actions, context=context)
 
 
 def resolve_reference_pre_model(
