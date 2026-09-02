@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "b3986608f5baf352fad7f20ebe46f1dadd0a1003",
-  "deterministic_green_sha": "b3986608f5baf352fad7f20ebe46f1dadd0a1003",
-  "last_pushed_sha": "b3986608f5baf352fad7f20ebe46f1dadd0a1003",
-  "hosted_ci_green_sha": "b3986608f5baf352fad7f20ebe46f1dadd0a1003",
+  "repository_head_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
+  "deterministic_green_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
+  "last_pushed_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
+  "hosted_ci_green_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33693534357",
-    "commit_sha": "b3986608f5baf352fad7f20ebe46f1dadd0a1003",
+    "run_id": "33693691440",
+    "commit_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
     "conclusion": "success",
     "observed_at": "2026-09-02T20:20:00Z"
   },
@@ -1123,5 +1123,6 @@
     "owner_next_week_event_read_checkpoint": "partial installed owner evidence on release 7d5141a: fresh authenticated request 'which appointments do I have next week?' returned the truthful canonical empty event set (correlation 0c49c527-83ae-429b-a01e-d6d4480f35a6) after promotion from hosted-green run 33693044854. The deterministic regression uses the bounded next-week window; capability-family breadth remains unclaimed.",
     "owner_inspection_preparation_routing_checkpoint": "partial installed owner evidence on release 1ff528f: fresh request 'what do I need to take care of before the apartment inspection?' initially exposed household event over-capture (correlation b1ebdb36-ed91-4ecb-9cbc-4ed9363b2ebf); after the bounded routing correction and hosted promotion from run 33693370483, the same objective returned canonical open tasks, chores, and obligations as read-only planning context (correlation 250f4dd7-0ec7-429b-88c6-8de54412db48). No mutation or general planner was introduced; broader objective-completion capability remains unclaimed.",
     "owner_cross_domain_priority_followup_checkpoint": "partial installed owner evidence on release 1ff528f: fresh cross-domain projection correlation b69f5c98-55ae-414d-aead-19a9ce33185d returned canonical open tasks, chores, obligations, and relevant memories; attached 'which one should I start with?' correlation 5fc85990-25cc-4725-9529-82140e0c6363 blocked safely rather than fabricating a cross-domain priority. This is evidence for a possible bounded planning/continuation gap, not ProposedPlan proof.",
+    "owner_calendar_today_checkpoint": "partial installed owner evidence on release 1ff528f: fresh authenticated request 'what's on my calendar today?' completed through the canonical shared event read path and returned the current event projection (correlation 98761b47-f6bb-4961-a229-1b88209842ef). No mutation occurred; broader event-language capability remains unclaimed.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
 }
