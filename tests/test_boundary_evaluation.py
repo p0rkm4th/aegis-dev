@@ -20,3 +20,9 @@ def test_development_and_heldout_corpora_keep_distinct_case_ids() -> None:
     }
 
     assert development.isdisjoint(heldout)
+
+
+def test_evaluation_boundary_uses_pack_composition_for_fallback_selection() -> None:
+    source = Path("scripts/evaluate_boundary.py").read_text(encoding="utf-8")
+    assert "fallback_card_selector=reference_fallback_cards" in source
+    assert "from aegis.reference_interaction import reference_fallback_cards" in source
