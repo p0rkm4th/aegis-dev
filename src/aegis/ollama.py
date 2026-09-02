@@ -70,7 +70,7 @@ class OllamaProvider:
                 "stream": False,
                 "think": False,
                 "options": {"temperature": 0},
-                "format": self._decision_schema(),
+                "format": self._decision_schema(request),
                 "messages": [{"role": "user", "content": prompt}],
             }
             response = self.transport.chat(payload)
@@ -87,7 +87,7 @@ class OllamaProvider:
         raise AssertionError("bounded repair loop unexpectedly continued")
 
     @staticmethod
-    def _decision_schema() -> dict[str, Any]:
+    def _decision_schema(request: ModelRequest | None = None) -> dict[str, Any]:
         """Require the fields needed for an exact ActionCard copy.
 
         Pydantic permits defaults for ergonomic in-process construction. The
@@ -104,6 +104,10 @@ class OllamaProvider:
                 "required_permissions",
                 "verification",
             ]
+        if request is not None and request.classification_only:
+            required = schema.setdefault("required", [])
+            if "semantic_mode" not in required:
+                required.append("semantic_mode")
         return schema
 
     @staticmethod
