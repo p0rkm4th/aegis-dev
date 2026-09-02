@@ -264,6 +264,8 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         return {
             "cases": count,
             "route_accuracy": sum(int(item["correct_route"]) for item in items) / max(count, 1),
+            "semantic_mode_accuracy": sum(int(item["semantic_mode_correct"]) for item in items)
+            / max(count, 1),
             "action_selection_precision": correct_actions / max(predicted_actions, 1),
             "action_selection_recall": correct_actions / max(expected_actions, 1),
             "argument_exactness": sum(int(item["argument_exact"]) for item in items)
