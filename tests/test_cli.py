@@ -1061,6 +1061,13 @@ def test_run_interaction_threads_pack_runtime_registry_to_shared_boundary(monkey
     assert captured["dependencies"].runtime_registry is registry
 
 
+def test_default_runtime_registry_covers_kitchen_mutation(monkeypatch):
+    from aegis import cli
+
+    registry = cli._default_runtime_registry(lambda: object())
+    assert "kitchen.groceries.add" in registry.action_ids()
+
+
 def test_browser_interaction_threads_pack_runtime_registry_to_shared_boundary(monkeypatch):
     from aegis import cli
     from aegis.pack_runtime import PackRuntimeRegistry
