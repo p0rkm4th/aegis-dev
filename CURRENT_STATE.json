@@ -53,6 +53,7 @@
       ,"expanded Qwen3:8B semantic baseline at 2b22c96: real provider evaluation over 16 development and 16 held-out cases recorded semantic-mode accuracy 0.80 on both splits; executable route accuracy was 0.40 development and 0.333 held-out, with one unsafe mutation/completion proposal in development and none held-out. No canonical mutation was executed; capability green remains unclaimed"
       ,"unknown-target grounding containment at 0a10ada: Pack-owned task grounding deterministically blocks a completion proposal whose title matches no authorized canonical task, before executor dispatch; full validation passed at 339 tests and hosted validation is green"
       ,"owner auth probe limitation at 0a10ada: a fresh nonexistent-target owner dogfood probe could not obtain a Keycloak token from the configured service credentials, so no AEGIS request was sent and no canonical state changed; owner-authenticated runtime readiness remains previously proven on c5177ca"
+      ,"browser result-code contract at 23d6441: authenticated/client-neutral browser message envelopes now expose a stable code alongside state/detail, derived from canonical Result evidence or lifecycle state; full validation passed at 339 tests, hosted validation is green, and owner readiness is green on the promoted release"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -134,14 +135,14 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "0a10ada",
-  "deterministic_green_sha": "0a10ada",
-  "last_pushed_sha": "0a10ada",
-  "hosted_ci_green_sha": "0a10ada",
-  "installed_release_sha": "c5177ca",
-  "running_release_sha": "c5177ca",
+  "repository_head_sha": "23d6441",
+  "deterministic_green_sha": "23d6441",
+  "last_pushed_sha": "23d6441",
+  "hosted_ci_green_sha": "23d6441",
+  "installed_release_sha": "23d6441",
+  "running_release_sha": "23d6441",
   "live_green_sha": "f5add80",
-  "head_sha": "0a10ada",
+  "head_sha": "23d6441",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -157,15 +158,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "c5177ca",
+    "running_sha": "23d6441",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/c5177ca",
-    "repository_head_sha": "c5177ca",
-    "deterministic_green_sha": "c5177ca",
-    "installed_release_sha": "c5177ca",
-    "running_release_sha": "c5177ca",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/23d6441",
+    "repository_head_sha": "23d6441",
+    "deterministic_green_sha": "23d6441",
+    "installed_release_sha": "23d6441",
+    "running_release_sha": "23d6441",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are 0a10ada. Installed/running owner release remains c5177ca because this checkpoint changes evaluation/conformance coverage only; PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, hosted validation, and installed/running owner release are 23d6441. PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
