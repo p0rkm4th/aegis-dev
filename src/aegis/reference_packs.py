@@ -78,7 +78,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="tasks.create",
                         capability="tasks.create",
-                        operation="create",
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -100,7 +99,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="tasks.complete",
                         capability="tasks.complete",
-                        operation="complete",
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -115,7 +113,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="tasks.chores.create",
                         capability="tasks.chores.create",
-                        operation="create",
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -128,7 +125,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="tasks.chores.complete",
                         capability="tasks.chores.complete",
-                        operation="complete",
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -143,7 +139,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="tasks.events.create",
                         capability="tasks.events.create",
-                        operation="create",
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -159,7 +154,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="tasks.list",
                         capability="tasks.read",
-                        operation="read",
                         required_permissions=("tasks.read",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -176,7 +170,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="kitchen.groceries.add",
                         capability="kitchen.groceries.write",
-                        operation="create",
                         required_permissions=("kitchen.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -188,7 +181,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="kitchen.groceries.list",
                         capability="kitchen.groceries.read",
-                        operation="read",
                         required_permissions=("kitchen.read",),
                         verification=VerificationContract(kind="readback"),
                     ),
@@ -208,7 +200,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="homelab.service.restart",
                         capability="homelab.service.restart",
-                        operation="execute",
                         required_permissions=("homelab.service.restart",),
                         verification=VerificationContract(kind="health"),
                     ),
@@ -226,7 +217,6 @@ def reference_packs() -> tuple[Pack, ...]:
                     action=ActionSpec(
                         action_id="network.probe",
                         capability="network.probe",
-                        operation="read",
                         required_permissions=("network.read",),
                         verification=VerificationContract(kind="health"),
                     ),
