@@ -42,6 +42,7 @@ def validate_state_pointers(state: dict[str, Any]) -> list[str]:
         "repository_head_sha",
         "deterministic_green_sha",
         "last_pushed_sha",
+        "hosted_ci_green_sha",
         "installed_release_sha",
         "running_release_sha",
         "live_green_sha",

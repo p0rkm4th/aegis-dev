@@ -34,6 +34,9 @@ def main() -> int:
     pushed = state.get("last_pushed_sha")
     if isinstance(pushed, str) and not _is_ancestor(pushed, head):
         errors.append("last_pushed_sha is not an ancestor of checked-out HEAD")
+    hosted = state.get("hosted_ci_green_sha")
+    if isinstance(hosted, str) and not _is_ancestor(hosted, head):
+        errors.append("hosted_ci_green_sha is not an ancestor of checked-out HEAD")
     if errors:
         for error in errors:
             print(f"CURRENT_STATE invalid: {error}")
