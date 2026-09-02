@@ -94,6 +94,7 @@
       ,"AEGIS P0 atomic execution ownership at 8313955: pre-fix race was the read-before-create plus save_action() path at baseline 31592d008b69bd374df4a29b97f2e55dfa312b52; ActionClaim.claim_action() now makes INSERT ownership authoritative across InMemory, SQLite, and PostgreSQL. PostgreSQL uses INSERT ... ON CONFLICT (idempotency_key) DO NOTHING RETURNING payload, commits before executor.execute(), returns the canonical request to losers, and transient loser responses are not persisted. Local two-connection acceptance used 2 contenders: executor invocations=1, Action rows=1, authoritative Observations=1; loser crossed executor=0 and replay converged to COMPLETED. Unknown-outcome and restart recovery remained green. Full deterministic validation passed 371 tests with 1 PostgreSQL-gated skip; smoke-install passed. Hosted GitHub validation run 33648131141 completed successfully for final pushed SHA 09bdabfbef283d0ead7a507f71a07ee4bf2bee60; no owner release was promoted."
       ,"AEGIS P0 hosted workflow correction at 1541494: the isolated PostgreSQL service uses pgvector/pgvector:pg16 so the complete migration set, including the existing vector extension migration, can be applied before the focused ownership test. Hosted validation run 33648131141 passed the full validation job and focused PostgreSQL acceptance."
       ,"AEGIS P0 baseline race reproduction: temporary checkout of pre-fix 31592d008b69bd374df4a29b97f2e55dfa312b52 synchronized two independent PostgreSQL callers after both get_action() reads and before inserts; executor_calls=2, canonical Action rows=1, authoritative Observation rows=2, and both callers returned completed. This directly demonstrates the lost insert-ownership decision fixed by 8313955."
+      ,"Retrieval observability checkpoint at da3d1c8: generic semantic retrieval now exposes non-authoritative cosine scores through CapabilityMatch while preserving the card-only cognition contract; development evaluation records ranked candidate scores, metadata relevance, top-score margin, expected-candidate availability, and candidate-bound decisions. Duplicate fallback retrieval was removed at d0358b7 and covered by a one-call working-set regression. Full deterministic validation passed 373 tests with one PostgreSQL-gated skip; hosted validation run 33649579542 passed for da3d1c8. A real Qwen3:8B development evaluation was attempted against the configured endpoint but interrupted after a stalled chat request at approximately seven minutes; no report was produced and no held-out evaluation was run."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -176,15 +177,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "09bdabf",
-  "deterministic_green_sha": "09bdabf",
-  "last_pushed_sha": "09bdabf",
-  "hosted_ci_green_sha": "09bdabf",
+  "repository_head_sha": "da3d1c8",
+  "deterministic_green_sha": "da3d1c8",
+  "last_pushed_sha": "da3d1c8",
+  "hosted_ci_green_sha": "da3d1c8",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33648131141",
-    "commit_sha": "09bdabfbef283d0ead7a507f71a07ee4bf2bee60",
+    "run_id": "33649579542",
+    "commit_sha": "da3d1c8a253033008a1ad827f3dd45ee3a60b56d",
     "conclusion": "success",
     "observed_at": "2026-09-02T13:34:25Z"
   },
