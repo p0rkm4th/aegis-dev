@@ -181,6 +181,35 @@ def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     assert result.evidence["memories"][0]["content"] == memory.content
 
 
+def test_memory_followup_reuses_only_authorized_prior_memory_projection() -> None:
+    context = Context(
+        values={
+            "canonical_facts": {
+                "memories": [
+                    {
+                        "content": "The owner prefers a quiet dark interface.",
+                        "provenance": "explicit_user",
+                    }
+                ]
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = PersonalMemoryFastPath(PersonalState()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="tell me more about that",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["memories"][0]["content"] == (
+        "The owner prefers a quiet dark interface."
+    )
+
+
 def test_memory_activity_query_returns_timestamped_memories_without_literal_match() -> None:
     memory = MemoryRecord(
         uuid4(),

@@ -9,7 +9,7 @@ from enum import StrEnum
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
-from .contracts import IntentFrame, ObjectiveState, Principal, Result
+from .contracts import Context, IntentFrame, ObjectiveState, Principal, Result
 from .embeddings import EmbeddingProvider, MemoryVectorIndex
 from .utterance import is_mutation_request
 
@@ -447,6 +447,7 @@ class PersonalMemoryFastPath:
         "what was i",
         "what do i know",
         "tell me about",
+        "tell me more",
         "what about",
     )
     _PROJECT_TRIGGERS = ("project", "projects")
@@ -463,6 +464,7 @@ class PersonalMemoryFastPath:
             "from",
             "i",
             "me",
+            "more",
             "my",
             "know",
             "on",
@@ -501,7 +503,7 @@ class PersonalMemoryFastPath:
         self.vector_index = vector_index
         self.vault_id = vault_id
 
-    def resolve(self, intent: IntentFrame) -> Result | None:
+    def resolve(self, intent: IntentFrame, context: Context | None = None) -> Result | None:
         text = intent.utterance.casefold()
         if is_mutation_request(text):
             return None
@@ -518,8 +520,21 @@ class PersonalMemoryFastPath:
         )
         start, end = self._temporal_window(text)
         broad_activity_query = query.strip() in {"work", "worked"}
+        prior_memories = None
+        if context is not None and context.sources == ("authorized_canonical_result",):
+            facts = context.values.get("canonical_facts")
+            if isinstance(facts, dict) and isinstance(facts.get("memories"), list):
+                prior_memories = tuple(item for item in facts["memories"] if isinstance(item, dict))
         if query.strip() and not broad_activity_query:
             memories = self._search_memories(query, start, end)
+        elif prior_memories is not None and query.strip() == "":
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message="More detail from the authorized prior memory result",
+                evidence={"memories": list(prior_memories)},
+                correlation_id=intent.correlation_id,
+            )
         else:
             memories = tuple(
                 memory
