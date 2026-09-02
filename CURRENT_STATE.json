@@ -20,6 +20,7 @@
       ,"M05.10 toy third-party Pack runtime proof at 0219aa4: an unmodified weather Pack ActionCard registered separate safe-read and verified-write executor/verifier bindings through PackRuntimeRegistry; Core dispatch completed both and enforced declared permission coverage",
       "M05.10 client-neutral browser injection regression at 3d54ab3: the Browser adapter forwards an optional PackRuntimeRegistry to the shared InteractionBoundary callback while preserving the legacy callback shape when no registry is supplied; no browser-owned semantics or authorization were added",
       "M05.10 third-party Pack browser boundary proof at 9f3768e: a toy Pack read and verified write crossed BrowserApp, the PackRuntimeRegistry, Core policy/execution/observation/verification, and canonical result envelopes without browser-owned semantics"
+      ,"security threat-model hardening at bb63f23: SECURITY_MODEL.md now records trust boundaries, attacker capabilities, abuse paths, mitigations, residual risks, and testable invariants for model/retrieval injection, Pack abuse, privacy, replay, SSRF, browser, revocation, and recovery threats"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
