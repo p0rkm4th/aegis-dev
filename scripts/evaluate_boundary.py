@@ -263,12 +263,18 @@ def evaluate(
     checkpoint_path: Path | None = None,
     resume_path: Path | None = None,
     compact_action_cards: bool = False,
+    action_ref_only: bool = False,
 ) -> dict[str, Any]:
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
     model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
     transport = MeasuringTransport(base_url)
-    provider = OllamaProvider(model, transport, compact_action_cards=compact_action_cards)
+    provider = OllamaProvider(
+        model,
+        transport,
+        compact_action_cards=compact_action_cards,
+        action_ref_only=action_ref_only,
+    )
     embedder = OllamaEmbeddingProvider(
         os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"), base_url
     )
@@ -333,6 +339,7 @@ def evaluate(
         "semantic_retrieval_limit": retrieval_limit,
         "classification_action_reference_shortcut": reuse_classification_action_reference,
         "compact_action_cards": compact_action_cards,
+        "action_ref_only": action_ref_only,
         "provider_settings": {
             "temperature": 0,
             "stream": False,
@@ -651,6 +658,7 @@ def evaluate(
         "action_cards_sha256": cards_sha,
         "classification_action_reference_shortcut": reuse_classification_action_reference,
         "compact_action_cards": compact_action_cards,
+        "action_ref_only": action_ref_only,
         "semantic_retrieval_limit": retrieval_limit,
         "cases": total,
         **overall,
@@ -725,6 +733,11 @@ def main() -> int:
         action="store_true",
         help="evaluation experiment: omit policy/verification internals from model-visible cards",
     )
+    parser.add_argument(
+        "--action-ref-only",
+        action="store_true",
+        help="evaluation experiment: require the concise action_ref/action_arguments form",
+    )
     args = parser.parse_args()
     report = evaluate(
         args.corpus,
@@ -733,6 +746,7 @@ def main() -> int:
         checkpoint_path=args.checkpoint,
         resume_path=args.resume,
         compact_action_cards=args.compact_action_cards,
+        action_ref_only=args.action_ref_only,
     )
     serialized = json.dumps(report, indent=2, sort_keys=True)
     if args.output is not None:

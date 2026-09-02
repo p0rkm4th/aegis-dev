@@ -83,6 +83,7 @@ class OllamaProvider:
         transport: OllamaTransport,
         max_repairs: int = 1,
         compact_action_cards: bool = False,
+        action_ref_only: bool = False,
     ) -> None:
         if not model:
             raise ValueError("Ollama model is required")
@@ -93,6 +94,7 @@ class OllamaProvider:
         self.transport = transport
         self.max_repairs = max_repairs
         self.compact_action_cards = compact_action_cards
+        self.action_ref_only = action_ref_only
 
     def available(self) -> bool:
         return True
@@ -105,7 +107,7 @@ class OllamaProvider:
                 "stream": False,
                 "think": False,
                 "options": {"temperature": 0},
-                "format": self._decision_schema(request),
+                "format": self._decision_schema(request, action_ref_only=self.action_ref_only),
                 "messages": [{"role": "user", "content": prompt}],
             }
             response = self.transport.chat(payload)
@@ -122,7 +124,9 @@ class OllamaProvider:
         raise AssertionError("bounded repair loop unexpectedly continued")
 
     @staticmethod
-    def _decision_schema(request: ModelRequest | None = None) -> dict[str, Any]:
+    def _decision_schema(
+        request: ModelRequest | None = None, *, action_ref_only: bool = False
+    ) -> dict[str, Any]:
         """Require the fields needed for an exact ActionCard copy.
 
         Pydantic permits defaults for ergonomic in-process construction. The
@@ -147,6 +151,10 @@ class OllamaProvider:
         required = schema.setdefault("required", [])
         if "semantic_mode" not in required:
             required.append("semantic_mode")
+        if action_ref_only:
+            properties = schema.get("properties")
+            if isinstance(properties, dict):
+                properties.pop("action", None)
         return schema
 
     def _prompt(self, request: ModelRequest) -> str:
@@ -187,8 +195,15 @@ class OllamaProvider:
                     "For ACTION, set action_ref to exactly one action_id from the supplied "
                     "ActionCards and put only declared argument values in action_arguments. "
                     "Core will expand the reference into the canonical action fields; never "
-                    "invent or alter capabilities, permissions, or verification. A legacy "
-                    "full action object is accepted only when it exactly matches a card."
+                    "invent or alter capabilities, permissions, or verification."
+                    if self.action_ref_only
+                    else (
+                        "For ACTION, set action_ref to exactly one action_id from the supplied "
+                        "ActionCards and put only declared argument values in action_arguments. "
+                        "Core will expand the reference into the canonical action fields; never "
+                        "invent or alter capabilities, permissions, or verification. A legacy "
+                        "full action object is accepted only when it exactly matches a card."
+                    )
                 ),
                 "argument_proposal_rule": (
                     "This bounded request may fill only argument keys explicitly declared "
