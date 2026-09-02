@@ -39,6 +39,7 @@
       "M08.05 unique-prefix canonical grounding at 2300598 live owner proof: informal completion resolved to and completed exact task named browser activity refresh verification 2026-09-01. (1fb5110b-a93e-406f-95ca-7e909d1a677d); duplicate server-backup target remained safely clarified (536e27a2-4cfa-4c43-a4d4-702f66c7cec1)",
       "M08.10 typed Pack argument descriptions at 36726dd did not yet make unseen task creation green: create and follow-up completion requests clarified without mutation (fa7cbf6c-8f42-48e6-b922-7068c8739206; 9c8636e5-5270-43db-a893-ff57f74833c0)",
       "M08.10 ordinary owner create probe at 36726dd completed canonical task buy printer paper (79c91fc0-a21e-4143-8198-86956bf3db7a); informal follow-up was safely blocked after chore/task ambiguity (b19ee046-3df6-40b6-897c-a5564c2ea3ae)",
+      "M08.10 typed task candidates during routing at e5dcc03 live owner proof: ordinary create phrasing 'put dog food on my task list' completed canonical task creation (097abd2e-502a-475d-bd05-0c6ba6908791), and informal task completion 'take care of buy printer paper' completed canonical task verification (40af532d-416a-4329-8fee-bef06258dbb5)",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -75,9 +76,9 @@
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "36726dd",
-  "last_green_sha": "36726dd",
-  "last_pushed_sha": "36726dd",
+  "head_sha": "e5dcc03",
+  "last_green_sha": "e5dcc03",
+  "last_pushed_sha": "e5dcc03",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -92,9 +93,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "36726dd",
-    "last_known_green_sha": "36726dd",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/36726dd",
+    "running_sha": "e5dcc03",
+    "last_known_green_sha": "e5dcc03",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/e5dcc03",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
