@@ -178,15 +178,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "70d71bc",
-  "deterministic_green_sha": "70d71bc",
-  "last_pushed_sha": "70d71bc",
-  "hosted_ci_green_sha": "70d71bc",
+  "repository_head_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
+  "deterministic_green_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
+  "last_pushed_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
+  "hosted_ci_green_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33650750734",
-    "commit_sha": "70d71bc2954c66cf7677623e2c27a6008bc7e0d6",
+    "run_id": "33650921246",
+    "commit_sha": "042847c22ea16cc5f9cb04273e37420943b1b852",
     "conclusion": "success",
     "observed_at": "2026-09-02T13:34:25Z"
   },
@@ -1066,5 +1066,5 @@
     "owner_release_f4c26c3_promotion_checkpoint": "green installed/runtime promotion evidence: immutable release /home/scootz/.local/share/aegis-owner/releases/f4c26c3 was built from hosted-green source f4c26c3 with source and migration resources, systemd was reloaded/restarted, and authenticated loopback /api/health reported healthy/ready with execution_mode=installed-release, release_sha=f4c26c3, PostgreSQL healthy, Qwen3:8B available at the pinned endpoint/digest, and identity validation green. Canonical PostgreSQL state and logs were preserved. This health/promotion proof does not replace objective-level live capability evidence; live_green_sha remains f5add80 until re-proven.",
     "semantic_capacity_ladder_checkpoint": "non-green live evaluation through the identical frozen AEGIS contract at source ffa1d82: Qwen2.5:3B Q4_K_M digest 357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b achieved 5.1% held-out route accuracy, 24 false mutations (151.9/1000), 2 false completions, and 109 decoder failures; Qwen3:8B Q4_K_M digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41 achieved 58.9% held-out route accuracy, 8 false mutations (50.6/1000), 6 false completions, and 19 decoder failures. Both used the 160/158 frozen corpora, identical prompt/context/decoder/ActionCard/retrieval fingerprints, and real Ollama provider. Full-request P50/P95 and model-call latency are recorded in evaluation/reports/qwen*-semantic-318-*.json. Interpretation is MODEL-LIMITED with a secondary shared harness frontier; neither model is capability-green and no production cognition change was made. Only these two local models were available; larger controls remain unrun.",
     "completion_cross_domain_autopsy_checkpoint": "structured report-only autopsy generated from the frozen held-out capacity reports at source ffa1d82: completion failures are dominated by action-selection/argument/decoder outcomes for both models, while cross-domain failures are decoder-dominated at 3B and split across decoder, clarification, and semantic/action selection at 8B. Candidate order is retained; retrieval scores and grounding are explicitly marked not separately observable, and the single-decision contract cannot represent multi-step plan decomposition. Durable report: evaluation/reports/qwen-capacity-ladder-318.json. No held-out tuning or phrase patch was performed.",
-    "next_action": "Keep production cognition frozen while using the measured MODEL-LIMITED result to plan the smallest harness experiment: instrument retrieval scores/grounding and evaluate a contract-preserving simplification or bounded planning representation on development only, then re-run untouched held-out. Do not add phrase rules or new domains. A larger model control is optional only if safely available; HA, OpenClaw external mutation, mobile, and voice remain lane-limited."
+    "next_action": "Keep production cognition frozen. Duplicate fallback retrieval is fixed and semantic retrieval diagnostics are instrumented without changing the model-visible ActionCard working set. A full Qwen3:8B development evaluation stalled at the configured endpoint and produced no report, so do not claim a new baseline or tune against it; preserve the existing canonical baseline artifacts. Next justified frontier is a bounded development-only cognition/harness experiment only after a reliable development run is available, followed by untouched held-out evaluation. Do not add phrase rules or new domains."
 }
