@@ -1018,6 +1018,31 @@ def rewrite_reference_decision(
                 semantic_mode="ACTION",
             )
 
+    if decision.kind is DecisionKind.CLARIFY and is_task_destination_request(intent.utterance):
+        task_card = next((card for card in cards if card.action.action_id == "tasks.create"), None)
+        title_match = re.search(
+            r"^(?:.*?\b(?:add|create|put|place|jot\s+down)\s+)"
+            r"(.+?)\s+(?:on|to|into)\s+my\s+(?:to[- ]?do|task)\s+list\b",
+            intent.utterance.casefold().strip().rstrip(".!?"),
+        )
+        if task_card is not None and title_match is not None:
+            title = re.sub(
+                r"\s+(?:for|on)\s+(?:tomorrow|next\s+week|"
+                r"monday|tuesday|wednesday|thursday|friday|saturday|sunday)$",
+                "",
+                title_match.group(1).strip(),
+            ).strip()
+            if title:
+                arguments: dict[str, Any] = {"title": title}
+                due_at = requested_task_due_at(intent.utterance)
+                if due_at is not None:
+                    arguments["due_at"] = due_at
+                return Decision(
+                    kind=DecisionKind.ACTION,
+                    action=task_card.action.model_copy(update={"arguments": arguments}),
+                    semantic_mode="ACTION",
+                )
+
     action = decision.action
     if action is None or action.action_id != "tasks.events.create":
         return None
@@ -1026,19 +1051,19 @@ def rewrite_reference_decision(
     task_card = next((card for card in cards if card.action.action_id == "tasks.create"), None)
     if task_card is None:
         return None
-    title = action.arguments.get("title")
-    if not isinstance(title, str) or not title.strip():
+    event_title = action.arguments.get("title")
+    if not isinstance(event_title, str) or not event_title.strip():
         return Decision(
             kind=DecisionKind.CLARIFY,
             clarification="What should I add to your task list?",
         )
-    arguments: dict[str, Any] = {"title": title}
+    event_arguments: dict[str, Any] = {"title": event_title}
     due_at = requested_task_due_at(intent.utterance)
     if due_at is not None:
-        arguments["due_at"] = due_at
+        event_arguments["due_at"] = due_at
     return Decision(
         kind=DecisionKind.ACTION,
-        action=task_card.action.model_copy(update={"arguments": arguments}),
+        action=task_card.action.model_copy(update={"arguments": event_arguments}),
         semantic_mode="ACTION",
     )
 
