@@ -96,6 +96,7 @@ class InteractionDependencies:
         auto_enable_pack_ids: frozenset[str] = frozenset(),
         action_grounder: Callable[..., Any] | None = None,
         pre_model_resolver: Callable[..., Result | None] | None = None,
+        fallback_card_selector: Callable[[PackManager, str], tuple[ActionCard, ...]] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -111,6 +112,7 @@ class InteractionDependencies:
         self.auto_enable_pack_ids = auto_enable_pack_ids
         self.action_grounder = action_grounder
         self.pre_model_resolver = pre_model_resolver
+        self.fallback_card_selector = fallback_card_selector
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -414,13 +416,7 @@ class InteractionBoundary:
     ) -> tuple[ActionCard, ...]:
         """Offer a bounded capability vocabulary; metadata remains Core-owned."""
 
-        text = utterance.casefold()
         facts = (context.values if context is not None else {}).get("canonical_facts", {})
-        if is_task_destination_request(utterance):
-            # An explicit task-list destination is a bounded capability hint;
-            # do not offer calendar actions for a request the user directed to
-            # their to-do collection.
-            return tuple(manager.retrieve("tasks"))[:10]
         if isinstance(facts, dict):
             if (
                 isinstance(facts.get("canonical_items"), list)
@@ -463,27 +459,9 @@ class InteractionBoundary:
                     if scoped_cards:
                         return scoped_cards[:10]
                 return tuple(semantic_cards)[:10]
-        # Domain retrieval is only a candidate reduction. Action meaning and
-        # arguments still come from the bounded model proposal and decoder.
-        domain = next(
-            (
-                pack_id
-                for marker, pack_id in (
-                    ("task", "tasks"),
-                    ("chore", "tasks"),
-                    ("event", "tasks"),
-                    ("grocery", "kitchen"),
-                    ("grocerie", "kitchen"),
-                    ("homelab", "homelab"),
-                    ("service", "homelab"),
-                    ("network", "network"),
-                )
-                if marker in text
-            ),
-            None,
-        )
-        cards = manager.retrieve(domain) if domain is not None else manager.enabled_cards()
-        return tuple(cards)[:10]
+        if self.dependencies.fallback_card_selector is not None:
+            return self.dependencies.fallback_card_selector(manager, utterance)
+        return tuple(manager.enabled_cards())[:10]
 
     def _fallback_decision(
         self, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context

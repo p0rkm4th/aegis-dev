@@ -21,6 +21,7 @@ from .household import (
     HouseholdObligation,
     PostgresHouseholdStore,
 )
+from .pack_lifecycle import PackManager
 from .personal import PersonalState, PostgresPersonalStateStore
 from .planning import CrossDomainPlanningFastPath
 from .projections import SharedObligation
@@ -30,6 +31,34 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
+from .utterance import is_task_destination_request
+
+
+def reference_fallback_cards(manager: PackManager, utterance: str) -> tuple[ActionCard, ...]:
+    """Reduce legacy no-provider candidates for the reference Packs."""
+
+    text = utterance.casefold()
+    domain = next(
+        (
+            pack_id
+            for marker, pack_id in (
+                ("task", "tasks"),
+                ("chore", "tasks"),
+                ("event", "tasks"),
+                ("grocery", "kitchen"),
+                ("grocerie", "kitchen"),
+                ("homelab", "homelab"),
+                ("service", "homelab"),
+                ("network", "network"),
+            )
+            if marker in text
+        ),
+        None,
+    )
+    if is_task_destination_request(utterance):
+        return tuple(manager.retrieve("tasks"))[:10]
+    cards = manager.retrieve(domain) if domain is not None else manager.enabled_cards()
+    return tuple(cards)[:10]
 
 
 def resolve_reference_pre_model(
