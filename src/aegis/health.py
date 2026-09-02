@@ -20,6 +20,7 @@ class RuntimeIdentity(StrictModel):
     """Non-secret identity of the process answering an operator health check."""
 
     package_version: str = Field(min_length=1)
+    execution_mode: str = Field(min_length=1)
     release_sha: str | None = None
     provider: str = Field(min_length=1)
     model: str = Field(min_length=1)

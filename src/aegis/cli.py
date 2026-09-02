@@ -190,13 +190,15 @@ def _runtime_report() -> HealthReport:
             name="identity", healthy=identity_healthy, required=True, detail=identity_detail
         )
     )
+    release_sha = runtime_release_sha(__file__)
     return HealthReport(
         healthy=all(component.healthy for component in components),
         ready=all(component.healthy for component in components if component.required),
         components=tuple(components),
         runtime=RuntimeIdentity(
             package_version=_distribution_version(),
-            release_sha=runtime_release_sha(__file__),
+            execution_mode=("installed-release" if release_sha else "source-checkout"),
+            release_sha=release_sha,
             provider="ollama",
             model=ollama_model,
             model_digest=_ollama_model_digest(ollama_url, ollama_model),

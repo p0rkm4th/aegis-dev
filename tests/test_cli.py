@@ -1916,6 +1916,7 @@ def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
         "openclaw",
         "identity",
     }
+    assert report["runtime"]["execution_mode"] == "source-checkout"
 
 
 def test_cli_check_rejects_missing_ollama_model(monkeypatch, capsys):
