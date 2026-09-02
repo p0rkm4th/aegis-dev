@@ -4204,6 +4204,7 @@ def test_release_truth_rejects_inconsistent_runtime_pointers():
             "repository_head_sha": "abcdef1",
             "deterministic_green_sha": "abcdef1",
             "last_pushed_sha": "abcdef1",
+            "hosted_ci_green_sha": "abcdef1",
             "installed_release_sha": None,
             "running_release_sha": "abcdef1",
             "live_green_sha": "abcdef1",
