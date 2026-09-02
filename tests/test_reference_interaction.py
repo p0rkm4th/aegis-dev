@@ -219,6 +219,14 @@ def test_compact_task_context_prioritizes_deadlines_for_model_working_set() -> N
     ]
 
 
+def test_compact_planning_context_preserves_open_chores() -> None:
+    chores = [{"chore_id": "chore-1", "title": "clean the kitchen"}]
+
+    assert compact_context_evidence({"planning": {"open_chores": chores}})["planning"] == {
+        "open_chores": chores
+    }
+
+
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     memory = MemoryRecord(
         uuid4(),

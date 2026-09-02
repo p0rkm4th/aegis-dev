@@ -51,7 +51,13 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     planning = evidence.get("planning")
     if isinstance(planning, dict):
         compact_planning: dict[str, Any] = {}
-        for key in ("open_tasks", "open_obligations", "memories", "affordability"):
+        for key in (
+            "open_tasks",
+            "open_chores",
+            "open_obligations",
+            "memories",
+            "affordability",
+        ):
             value = planning.get(key)
             if isinstance(value, (list, tuple)):
                 compact_planning[key] = list(value[:10])
