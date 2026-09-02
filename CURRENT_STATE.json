@@ -183,9 +183,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "20e0da5f80df0bfd25b205d087f8d476711a1748",
-  "deterministic_green_sha": "20e0da5f80df0bfd25b205d087f8d476711a1748",
-  "last_pushed_sha": "20e0da5f80df0bfd25b205d087f8d476711a1748",
+  "repository_head_sha": "7b772a3b5bc85249a8b0d85fdca65165e2dfc487",
+  "deterministic_green_sha": "7b772a3b5bc85249a8b0d85fdca65165e2dfc487",
+  "last_pushed_sha": "7b772a3b5bc85249a8b0d85fdca65165e2dfc487",
   "hosted_ci_green_sha": "20e0da5f80df0bfd25b205d087f8d476711a1748",
   "hosted_ci_attestation": {
     "provider": "github-actions",
@@ -1089,5 +1089,6 @@
     "owner_grocery_read_checkpoint": "green installed owner evidence on release 89c2b5b: the fresh natural request 'What is on my shopping list?' completed through the canonical grocery read path with 'Groceries: rice (x6)' (correlation 869f8ab3-baab-4dc2-98c3-149e3a445128). This closes the demonstrated shopping-list vocabulary gap without changing authorization or execution semantics.",
     "owner_memory_continuation_checkpoint": "green installed owner evidence on release fd9e25f: after the authorized memory result correlation 4f5afaf2-0936-438c-a218-789206ec1817, the fresh follow-up 'tell me more about that' completed from the bounded prior memory projection (correlation 7ee5f835-6610-4c3b-a642-08bff65ff2ad). No new authority or mutation was introduced.",
     "owner_wandering_safety_checkpoint": "partial installed owner evidence on release fd9e25f: duplicate-name mutation 'complete the task called review the backup' blocked with an ambiguity explanation, 'actually, never mind' blocked without mutation, and typo-heavy 'shwo my shoping list' completed the canonical grocery read (correlations df94835b-a969-4d67-8e2a-894383fb31db, dfe4f9f8-ed5a-466a-bd62-4b577ae2e87f, 48ea6198-f917-4e15-9acb-493819fb099c). Daily-driver acceptance remains partial because provider-backed writes and clean compound execution are unavailable.",
+    "owner_chore_write_restart_checkpoint": "partial installed owner evidence on release fd9e25f: natural local chore creation completed and an identical correlation retry converged to the same result without duplication (f688dddd-259a-43c5-8cd9-6dd0642dd02f); after service restart, 'show open chores' returned the persisted clean-the-kitchen chore and readiness remained green. Existing adversarial-looking task-title text was displayed as canonical data only and was not executed.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize broad intent gaps such as reminder language only if repeated across fresh families, and classify the next demonstrated defect before considering bounded planning."
 }
