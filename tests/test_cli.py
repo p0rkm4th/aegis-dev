@@ -882,6 +882,32 @@ def test_cli_init_creates_private_non_overwriting_template(monkeypatch, capsys, 
     assert "configuration file already exists" in capsys.readouterr().out
 
 
+def test_run_interaction_threads_pack_runtime_registry_to_shared_boundary(monkeypatch):
+    from aegis import cli
+    from aegis.pack_runtime import PackRuntimeRegistry
+
+    registry = PackRuntimeRegistry()
+    captured = {}
+
+    class Boundary:
+        def __init__(self, dependencies):
+            captured["dependencies"] = dependencies
+
+        def run(self, *_args, **_kwargs):
+            return "shared-result"
+
+    monkeypatch.setattr(cli, "InteractionBoundary", Boundary)
+
+    result = cli.run_interaction(
+        "read the weather note",
+        Principal(id="alice", vault_id="alice-vault"),
+        runtime_registry=registry,
+    )
+
+    assert result == "shared-result"
+    assert captured["dependencies"].runtime_registry is registry
+
+
 def test_cli_init_refuses_symlink_target(monkeypatch, capsys, tmp_path):
     from aegis import cli
 
