@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol, cast
 from uuid import uuid4
 
@@ -380,7 +380,21 @@ class HouseholdSpace:
 class HouseholdReadFastPath:
     """Deterministic, allowlisted reads over shared household state."""
 
-    _TRIGGERS = ("household", "chore", "chores", "inspection", "utility", "utilities", "rent")
+    _TRIGGERS = (
+        "household",
+        "chore",
+        "chores",
+        "inspection",
+        "utility",
+        "utilities",
+        "rent",
+        "event",
+        "events",
+        "calendar",
+        "scheduled",
+        "appointment",
+        "appointments",
+    )
     _READ_PREFIXES = (
         "what",
         "show",
@@ -402,6 +416,8 @@ class HouseholdReadFastPath:
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
         if is_mutation_request(text):
+            return False
+        if any(term in text for term in ("task", "tasks", "todo", "to-do", "grocery")):
             return False
         return any(trigger in text for trigger in cls._TRIGGERS) and (
             text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS
@@ -441,6 +457,34 @@ class HouseholdReadFastPath:
                 for chore in chores
             ]
             evidence["status_filter"] = status_filter
+        elif any(
+            word in text for word in ("event", "events", "calendar", "scheduled", "appointment")
+        ):
+            events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
+            date_filter = "all"
+            target_date = None
+            now = datetime.now(timezone.utc)
+            if "tomorrow" in text:
+                target_date = (now + timedelta(days=1)).date()
+                date_filter = "tomorrow"
+            elif "today" in text:
+                target_date = now.date()
+                date_filter = "today"
+            if target_date is not None:
+                events = tuple(
+                    event
+                    for event in events
+                    if (
+                        event.starts_at.replace(tzinfo=timezone.utc)
+                        if event.starts_at.tzinfo is None
+                        else event.starts_at.astimezone(timezone.utc)
+                    ).date()
+                    == target_date
+                )
+            evidence["events"] = [
+                {"title": event.title, "starts_at": event.starts_at.isoformat()} for event in events
+            ]
+            evidence["date_filter"] = date_filter
         else:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             evidence["events"] = [
