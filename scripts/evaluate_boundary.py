@@ -14,6 +14,7 @@ import inspect
 import json
 import os
 import subprocess
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from time import monotonic
@@ -31,6 +32,7 @@ from aegis.reference_packs import reference_bundles
 @dataclass(frozen=True)
 class Case:
     case_id: str
+    family: str
     utterance: str
     expected_kind: DecisionKind
     expected_action: str | None = None
@@ -72,6 +74,7 @@ def _load_cases(path: Path) -> tuple[Case, ...]:
         cases.append(
             Case(
                 case_id=str(item["id"]),
+                family=str(item.get("family", "unclassified")),
                 utterance=str(item["utterance"]),
                 expected_kind=DecisionKind(str(item["kind"])),
                 expected_action=(str(item["action"]) if item.get("action") else None),
@@ -199,6 +202,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         results.append(
             {
                 "id": case.case_id,
+                "family": case.family,
                 "predicted_kind": kind,
                 "predicted_action": action,
                 "failure_class": failure_class,
@@ -215,10 +219,64 @@ def evaluate(corpus: Path) -> dict[str, Any]:
                 "latency_ms": round((monotonic() - started) * 1000, 2),
             }
         )
+
+    def summarize(items: list[dict[str, Any]]) -> dict[str, Any]:
+        count = len(items)
+        false_mutation = sum(int(item["false_mutation"]) for item in items)
+        false_completion = sum(int(item["false_completion"]) for item in items)
+        expected_clarify = sum(int(item["clarification_expected"]) for item in items)
+        expected_actions = sum(int(item["expected_action"] is not None) for item in items)
+        predicted_actions = sum(int(item["predicted_action"] is not None) for item in items)
+        correct_actions = sum(
+            int(
+                item["predicted_action"] == item["expected_action"]
+                and item["expected_action"] is not None
+            )
+            for item in items
+        )
+        expected_answer_or_action = sum(
+            int(item["expected_kind"] in {DecisionKind.ANSWER.value, DecisionKind.ACTION.value})
+            for item in items
+        )
+        correctly_completed_or_answered = sum(
+            int(item["correct_route"])
+            for item in items
+            if item["expected_kind"] in {DecisionKind.ANSWER.value, DecisionKind.ACTION.value}
+        )
+        return {
+            "cases": count,
+            "route_accuracy": sum(int(item["correct_route"]) for item in items) / max(count, 1),
+            "action_selection_precision": correct_actions / max(predicted_actions, 1),
+            "action_selection_recall": correct_actions / max(expected_actions, 1),
+            "argument_exactness": sum(int(item["argument_exact"]) for item in items)
+            / max(count, 1),
+            "inappropriate_clarification_rate": sum(
+                int(not item["clarification_expected"] and item["clarification_returned"])
+                for item in items
+            )
+            / max(count - expected_clarify, 1),
+            "missed_clarification_rate": sum(
+                int(item["clarification_expected"] and not item["clarification_returned"])
+                for item in items
+            )
+            / max(expected_clarify, 1),
+            "false_mutations": false_mutation,
+            "false_completions": false_completion,
+            "security_hard_failure": bool(false_mutation or false_completion),
+            "correct_completion_or_answer_rate": correctly_completed_or_answered
+            / max(expected_answer_or_action, 1),
+            "incorrect_blocking_rate": sum(
+                int(item["predicted_kind"] == "RESULT" and item["expected_kind"] != "CLARIFY")
+                for item in items
+            )
+            / max(count, 1),
+        }
+
     total = len(results)
-    false_mutation = sum(int(item["false_mutation"]) for item in results)
-    false_completion = sum(int(item["false_completion"]) for item in results)
-    expected_clarify = sum(int(item["clarification_expected"]) for item in results)
+    overall = summarize(results)
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for item in results:
+        grouped[str(item["family"])].append(item)
     return {
         "dataset": str(corpus),
         "dataset_sha256": _sha256(corpus.read_bytes()),
@@ -230,37 +288,8 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         "prompt_template_sha256": prompt_template_sha,
         "action_cards_sha256": cards_sha,
         "cases": total,
-        "route_accuracy": sum(int(item["correct_route"]) for item in results) / max(total, 1),
-        "action_selection_precision": sum(
-            int(
-                item["predicted_action"] == item["expected_action"]
-                and item["expected_action"] is not None
-            )
-            for item in results
-        )
-        / max(sum(int(item["predicted_action"] is not None) for item in results), 1),
-        "action_selection_recall": sum(
-            int(
-                item["predicted_action"] == item["expected_action"]
-                and item["expected_action"] is not None
-            )
-            for item in results
-        )
-        / max(sum(int(item["expected_action"] is not None) for item in results), 1),
-        "argument_exactness": sum(int(item["argument_exact"]) for item in results) / max(total, 1),
-        "inappropriate_clarification_rate": sum(
-            int(not item["clarification_expected"] and item["clarification_returned"])
-            for item in results
-        )
-        / max(total - expected_clarify, 1),
-        "missed_clarification_rate": sum(
-            int(item["clarification_expected"] and not item["clarification_returned"])
-            for item in results
-        )
-        / max(expected_clarify, 1),
-        "false_mutations": false_mutation,
-        "false_completions": false_completion,
-        "security_hard_failure": bool(false_mutation or false_completion),
+        **overall,
+        "family_metrics": {family: summarize(items) for family, items in sorted(grouped.items())},
         "average_latency_ms": sum(item["latency_ms"] for item in results) / max(total, 1),
         "model_calls": getattr(transport, "calls", None),
         "prompt_tokens": getattr(transport, "prompt_tokens", None),
