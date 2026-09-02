@@ -668,9 +668,19 @@ class BrowserApp:
                 return self._json(HTTPStatus.SERVICE_UNAVAILABLE, payload)
             return self._json(HTTPStatus.OK, payload)
         if route.startswith("/api/"):
-            if self.session_token is not None and (
-                headers is None or headers.get("x-aegis-session") != self.session_token
-            ):
+            session_header = (
+                next(
+                    (
+                        value
+                        for key, value in headers.items()
+                        if key.casefold() == "x-aegis-session"
+                    ),
+                    None,
+                )
+                if headers is not None
+                else None
+            )
+            if self.session_token is not None and (session_header != self.session_token):
                 return self._error(
                     HTTPStatus.UNAUTHORIZED, "identity_unavailable", "identity unavailable"
                 )
@@ -898,7 +908,13 @@ def serve(
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
-            self._respond(app.dispatch("GET", self.path, headers=dict(self.headers.items())))
+            self._respond(
+                app.dispatch(
+                    "GET",
+                    self.path,
+                    headers={key.lower(): value for key, value in self.headers.items()},
+                )
+            )
 
         def do_POST(self) -> None:  # noqa: N802
             try:
@@ -931,7 +947,7 @@ def serve(
                     "POST",
                     self.path,
                     self.rfile.read(length),
-                    headers=dict(self.headers.items()),
+                    headers={key.lower(): value for key, value in self.headers.items()},
                 )
             )
 
