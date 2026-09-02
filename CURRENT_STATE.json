@@ -38,6 +38,7 @@
       ,"semantic-family evaluation reporting at 6ae320a: frozen development/held-out cases now carry explicit family labels and reports include per-family safety/usability counters; full validation passed at 334 tests, while the corpus remains below capability-claim scale"
       ,"reference fallback candidate composition seam at 4c10139: legacy no-provider Pack candidate reduction moved behind the injected reference_fallback_cards callback; semantic retrieval and authorized-context safeguards remain in generic Core, full validation passed at 334 tests, and first-party parity remains partial"
       ,"reference plan composition seam at ad65e64: multi-action plan construction and reference Pack executor/verifier selection moved out of InteractionBoundary into the composition callback and generic action dispatch; compatibility dispatch tests and full validation passed at 335 tests, while first-party Pack parity remains partial"
+      ,"hosted validation provenance repair at 4646f4f: CI installs the live typing extra and fetches full Git history so strict mypy and ancestor-based CURRENT_STATE validation reproduce the local gate; GitHub Actions run 33589752131 passed"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -119,13 +120,14 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "ad65e64",
-  "deterministic_green_sha": "ad65e64",
-  "last_pushed_sha": "ad65e64",
-  "installed_release_sha": "ad65e64",
-  "running_release_sha": "ad65e64",
+  "repository_head_sha": "4646f4f",
+  "deterministic_green_sha": "4646f4f",
+  "last_pushed_sha": "4646f4f",
+  "hosted_ci_green_sha": "4646f4f",
+  "installed_release_sha": "4646f4f",
+  "running_release_sha": "4646f4f",
   "live_green_sha": "f5add80",
-  "head_sha": "ad65e64",
+  "head_sha": "4646f4f",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -141,15 +143,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "ad65e64",
+    "running_sha": "4646f4f",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/ad65e64",
-    "repository_head_sha": "ad65e64",
-    "deterministic_green_sha": "ad65e64",
+    "repository_head_sha": "4646f4f",
+    "deterministic_green_sha": "4646f4f",
     "installed_release_sha": "ad65e64",
     "running_release_sha": "ad65e64",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, exact deterministic validation, and the installed/running owner release are ad65e64. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, hosted and exact deterministic validation, and the installed/running owner release are 4646f4f. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
