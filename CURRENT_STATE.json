@@ -183,20 +183,20 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "77ff99cb26ccf357ab9bf17d606e33482f957293",
-  "deterministic_green_sha": "77ff99cb26ccf357ab9bf17d606e33482f957293",
-  "last_pushed_sha": "77ff99cb26ccf357ab9bf17d606e33482f957293",
-  "hosted_ci_green_sha": "77ff99cb26ccf357ab9bf17d606e33482f957293",
+  "repository_head_sha": "07232c5211b8d559f6f3228f8af8a97f06fd55e0",
+  "deterministic_green_sha": "07232c5211b8d559f6f3228f8af8a97f06fd55e0",
+  "last_pushed_sha": "07232c5211b8d559f6f3228f8af8a97f06fd55e0",
+  "hosted_ci_green_sha": "07232c5211b8d559f6f3228f8af8a97f06fd55e0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33687419763",
-    "commit_sha": "77ff99cb26ccf357ab9bf17d606e33482f957293",
+    "run_id": "33687669613",
+    "commit_sha": "07232c5211b8d559f6f3228f8af8a97f06fd55e0",
     "conclusion": "success",
     "observed_at": "2026-09-02T20:20:00Z"
   },
-  "installed_release_sha": "e1a1c52",
-  "running_release_sha": "e1a1c52",
+  "installed_release_sha": "07232c5",
+  "running_release_sha": "07232c5",
   "live_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -217,8 +217,8 @@
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/e1a1c52",
     "repository_head_sha": "e1a1c52",
     "deterministic_green_sha": "e1a1c52",
-    "installed_release_sha": "e1a1c52",
-    "running_release_sha": "e1a1c52",
+    "installed_release_sha": "07232c5",
+    "running_release_sha": "07232c5",
     "live_green_sha": "f5add80",
     "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint e1a1c52 (hosted run 33685234993); installed/running owner release e1a1c52 is separately promoted and verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
@@ -1104,5 +1104,6 @@
     "owner_chore_second_ordinal_checkpoint": "green installed owner evidence on release e1a1c52: after the first chore was removed and the canonical order changed, fresh list correlation 78f71d32-3e80-4736-b548-cc0ebc125de1 followed by 'complete the second one' selected the literal visible second chore inspect the fire extinguisher; the identical retry converged without duplication (correlation 891593fd-8bdc-444a-b299-f96fc8109a32).",
     "owner_implicit_task_priority_checkpoint": "partial installed owner evidence on release c14f8ad: fresh natural reads 'what should I take care of first today?', 'what should I focus on today?', and 'which task should I prioritize first?' all completed from canonical open-task deadlines and selected schedule the dentist appointment (correlations 45d16cbc-fd4a-4181-929f-aad5acb624f4, 5c20a490-4eef-4f5c-a0e7-ccf2dbc29a58, bcf184d5-0124-474b-fde7-0b743f694ad8). The bounded fast path excludes explicit grocery, chore, memory, finance, and mutation language; capability-family green remains unclaimed.",
     "owner_ambiguous_daily_read_checkpoint": "green safety evidence on release c14f8ad: fresh 'what is on my plate today?' clarified whether the owner meant groceries, tasks, or something else rather than guessing across domains or mutating state (correlation b18dc3ba-f1d8-470b-ab95-9e1a96427c5e).",
-    "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize broad intent gaps such as reminder language only if repeated across fresh families, and classify the next demonstrated defect before considering bounded planning."
+    "owner_next_task_priority_checkpoint": "partial installed owner evidence on release 07232c5: fresh 'what should I work on next?' completed from canonical open-task deadlines and selected schedule the dentist appointment (correlation 643f5c8b-df93-4bbc-bfe6-8565a02e83fb). This extends the same bounded recommendation family without introducing planning or mutation authority.",
+    "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
 }
