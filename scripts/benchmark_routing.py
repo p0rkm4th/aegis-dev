@@ -159,9 +159,14 @@ def evaluate(
         "hard_failure": bool(security or false_completion),
         "model_calls": getattr(transport, "calls", 0),
         "model_calls_avoided": len(CASES) - getattr(transport, "calls", 0),
-        "latency_ms": (getattr(transport, "elapsed_ms", 0.0) or (monotonic() - started) * 1000),
+        "total_latency_ms": getattr(transport, "elapsed_ms", 0.0) or (monotonic() - started) * 1000,
+        "average_latency_ms": (
+            getattr(transport, "elapsed_ms", 0.0) / max(getattr(transport, "calls", 1), 1)
+        ),
         "prompt_tokens": getattr(transport, "prompt_tokens", 0),
         "output_tokens": getattr(transport, "output_tokens", 0),
+        "memory_vram_cost": "not observable from the Ollama HTTP response",
+        "model_loading_overhead_ms": None,
         "errors": errors,
     }
 
