@@ -167,6 +167,7 @@ def evaluate(
         "output_tokens": getattr(transport, "output_tokens", 0),
         "memory_vram_cost": "not observable from the Ollama HTTP response",
         "model_loading_overhead_ms": None,
+        "model_digest": os.environ.get("AEGIS_OLLAMA_MODEL_DIGEST"),
         "errors": errors,
     }
 

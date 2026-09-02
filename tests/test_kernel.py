@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import pytest
 
+import aegis.ollama as ollama_module
 from aegis.ambient import (
     AmbientService,
     BackgroundTask,
@@ -2132,6 +2133,25 @@ def test_ollama_http_transport_rejects_non_http_urls():
         pass
     else:
         raise AssertionError("non-HTTP Ollama transport URL was accepted")
+
+
+def test_ollama_http_transport_resolves_model_digest_from_inventory(monkeypatch):
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return b'{"models":[{"name":"qwen3:8b","digest":"sha256:abc"}]}'
+
+    monkeypatch.setattr(ollama_module, "urlopen", lambda request, timeout: Response())
+
+    transport = OllamaHttpTransport("http://ollama.example:11434")
+
+    assert transport.model_digest("qwen3:8b") == "sha256:abc"
+    assert transport.model_digest("missing:latest") is None
 
 
 def test_ollama_provider_does_not_retry_beyond_bound():

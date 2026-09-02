@@ -40,6 +40,34 @@ class OllamaHttpTransport:
             raise OllamaResponseError("Ollama returned a non-object response")
         return value
 
+    def tags(self) -> dict[str, Any]:
+        """Return Ollama's local model inventory for runtime provenance.
+
+        This is metadata-only: it never loads or invokes a model.  Keeping it
+        on the transport lets evaluation and diagnostics identify the exact
+        model digest without making Core depend on Ollama's inventory API.
+        """
+        request = Request(f"{self.base_url}/api/tags", method="GET")
+        try:
+            with urlopen(request, timeout=self.timeout) as response:
+                value = json.load(response)
+        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise OllamaResponseError("Ollama model inventory request failed") from exc
+        if not isinstance(value, dict):
+            raise OllamaResponseError("Ollama returned a non-object model inventory")
+        return value
+
+    def model_digest(self, model: str) -> str | None:
+        """Resolve a model's immutable digest when Ollama exposes one."""
+        models = self.tags().get("models")
+        if not isinstance(models, list):
+            raise OllamaResponseError("Ollama model inventory has no models list")
+        for item in models:
+            if isinstance(item, dict) and item.get("name") == model:
+                digest = item.get("digest")
+                return digest if isinstance(digest, str) and digest else None
+        return None
+
 
 class OllamaResponseError(ValueError):
     """Ollama returned no usable structured message after bounded repair."""
