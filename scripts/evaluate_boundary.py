@@ -106,7 +106,12 @@ def _manager() -> PackManager:
     return manager
 
 
-def _boundary(provider: OllamaProvider, embedder: OllamaEmbeddingProvider) -> InteractionBoundary:
+def _boundary(
+    provider: OllamaProvider,
+    embedder: OllamaEmbeddingProvider,
+    *,
+    reuse_classification_action_reference: bool = True,
+) -> InteractionBoundary:
     return InteractionBoundary(
         InteractionDependencies(
             connect=lambda _url: None,
@@ -121,6 +126,7 @@ def _boundary(provider: OllamaProvider, embedder: OllamaEmbeddingProvider) -> In
                 query, embedder, limit=10
             ),
             fallback_card_selector=reference_fallback_cards,
+            reuse_classification_action_reference=reuse_classification_action_reference,
         )
     )
 
@@ -159,7 +165,7 @@ def _decision_fields(
     return ("RESULT", None, {}, str(failure) if failure is not None else None, None)
 
 
-def evaluate(corpus: Path) -> dict[str, Any]:
+def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True) -> dict[str, Any]:
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
     model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
@@ -169,7 +175,11 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"), base_url
     )
     manager = _manager()
-    boundary = _boundary(provider, embedder)
+    boundary = _boundary(
+        provider,
+        embedder,
+        reuse_classification_action_reference=reuse_classification_action_reference,
+    )
     principal = Principal(id="evaluation", vault_id="evaluation")
     prompt_template_sha = _sha256(
         (
@@ -335,6 +345,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "prompt_template_sha256": prompt_template_sha,
         "action_cards_sha256": cards_sha,
+        "classification_action_reference_shortcut": reuse_classification_action_reference,
         "cases": total,
         **overall,
         "family_metrics": {family: summarize(items) for family, items in sorted(grouped.items())},
@@ -357,8 +368,16 @@ def main() -> int:
         type=Path,
         help="also write the complete evaluation report to this path",
     )
+    parser.add_argument(
+        "--disable-classification-action-shortcut",
+        action="store_true",
+        help="ablation: require the normal decision pass after classification",
+    )
     args = parser.parse_args()
-    report = evaluate(args.corpus)
+    report = evaluate(
+        args.corpus,
+        reuse_classification_action_reference=not args.disable_classification_action_shortcut,
+    )
     serialized = json.dumps(report, indent=2, sort_keys=True)
     if args.output is not None:
         args.output.write_text(serialized + "\n", encoding="utf-8")

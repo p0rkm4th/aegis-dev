@@ -71,6 +71,7 @@ class InteractionDependencies:
         fallback_context_builder: Callable[..., Context] | None = None,
         runtime_resolver: Callable[..., Any] | None = None,
         safety_fast_path_resolver: Callable[..., Result | None] | None = None,
+        reuse_classification_action_reference: bool = True,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -93,6 +94,7 @@ class InteractionDependencies:
         self.fallback_context_builder = fallback_context_builder
         self.runtime_resolver = runtime_resolver
         self.safety_fast_path_resolver = safety_fast_path_resolver
+        self.reuse_classification_action_reference = reuse_classification_action_reference
 
 
 class InteractionBoundary:

@@ -60,7 +60,11 @@ def decide_fallback(
                 if isinstance(classification_response.raw, dict)
                 else None
             )
-            if semantic_mode == "ACTION" and isinstance(classification_response.raw, dict):
+            if (
+                dependencies.reuse_classification_action_reference
+                and semantic_mode == "ACTION"
+                and isinstance(classification_response.raw, dict)
+            ):
                 # Some providers return a bounded action reference even
                 # during the mode pass. Reuse it only when it exactly
                 # names a supplied ActionCard and its arguments are a

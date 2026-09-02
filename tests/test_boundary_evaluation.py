@@ -88,3 +88,4 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"model_digest_source"' in source
     assert '"decoder_failures"' in source
     assert '"model_calls_avoided"' in source
+    assert '"--disable-classification-action-shortcut"' in source
