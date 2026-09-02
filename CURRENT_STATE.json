@@ -70,6 +70,7 @@
       "M08.05 model action selection uses bounded ActionCard references; broader action-family capability proof remains in progress",
       "M08.10 phrase-overfit production cleanup remains partial pending broader capability evaluation",
       "M09.09 small-model context compaction has deterministic budget proof; varied objective-continuation capability proof remains partial",
+      "M09.09 installed owner proof at 8786394: fresh read 05e98038-4f0d-4cce-bf45-082ac6464300 followed by 'Which of those should I do first?' correlation 1a1ca07f-31cd-4275-a7ee-9c9d4652b00a retained an authorized bounded task projection, selected the earliest recorded deadline ('send the rent receipt'), and performed no mutation; this is novel continuation evidence, not capability-green proof",
       "M11.07 automatic defect harvesting is partially implemented as a bounded owner-feedback inspection report; automatic defect-to-regression/live-re-evaluation orchestration remains unmet",
       "M12.11 mobile/chat remains lane-limited"
     ]
@@ -95,11 +96,11 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9f3768e",
-  "deterministic_green_sha": "9f3768e",
-  "last_pushed_sha": "9f3768e",
-  "installed_release_sha": "f2b9559",
-  "running_release_sha": "f2b9559",
+  "repository_head_sha": "8786394",
+  "deterministic_green_sha": "8786394",
+  "last_pushed_sha": "8786394",
+  "installed_release_sha": "8786394",
+  "running_release_sha": "8786394",
   "live_green_sha": "f5add80",
   "head_sha": "9f3768e",
   "last_green_sha": "f5add80",
@@ -117,15 +118,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "f2b9559",
+    "running_sha": "8786394",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/f2b9559",
-    "repository_head_sha": "9f3768e",
-    "deterministic_green_sha": "9f3768e",
-    "installed_release_sha": "f2b9559",
-    "running_release_sha": "f2b9559",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/8786394",
+    "repository_head_sha": "8786394",
+    "deterministic_green_sha": "8786394",
+    "installed_release_sha": "8786394",
+    "running_release_sha": "8786394",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub/local source and deterministic checkpoint are 9f3768e; installed/running owner code remains f2b9559 because the latest Pack browser proof is test-only. Live capability evidence remains separately tracked through f5add80 and newer frontier probes.",
+    "source_install_runtime_note": "GitHub/local source, deterministic checkpoint, and installed/running owner code are 8786394. Live capability evidence remains separately tracked through f5add80 and newer frontier probes; the latest continuation probe is partial evidence, not broad capability green.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -154,9 +155,9 @@
         "notes": "Owner release 65f07cb used Qwen3:8B, authorized PostgreSQL task candidates, strict bounded ActionCards, and canonical readback. The family is partial evidence, not capability-green: one shorthand variant failed title resolution and one duplicate title correctly clarified."
       },
       "multi_turn_context_live": {
-        "read_correlation": "eae1b919-a592-45b3-a72b-61f528199891",
-        "follow_up_correlation": "e3d9ba6e-59d7-4a43-af45-d00f726dc78f",
-        "result": "authorized canonical grocery context reached the cards-free model answer path; Qwen3:8B safely clarified because the list contained no ordering signal beyond one distinct item",
+        "read_correlation": "05e98038-4f0d-4cce-bf45-082ac6464300",
+        "follow_up_correlation": "1a1ca07f-31cd-4275-a7ee-9c9d4652b00a",
+        "result": "authorized canonical task context retained a deadline-bearing candidate within the bounded working set; the follow-up completed with the grounded earliest-deadline recommendation send the rent receipt and performed no mutation",
         "capability_green": false
       }
     }
