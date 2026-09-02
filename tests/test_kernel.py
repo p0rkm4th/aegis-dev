@@ -2718,6 +2718,7 @@ def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
     assert planning["goals"][0]["description"] == "Finish the restore drill"
     assert planning["open_obligations"] == [{"title": "Utilities", "responsible_id": "alice"}]
     assert planning["open_tasks"][0]["title"] == "Review backup runbook"
+    assert planning["open_chores"] == []
     assert planning["priority_candidates"] == [
         "household obligation: Utilities",
         "personal goal: Finish the restore drill",
