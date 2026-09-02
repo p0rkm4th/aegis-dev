@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c0e5c8847c472936863fe5d28301747bd6571525",
-  "deterministic_green_sha": "c0e5c8847c472936863fe5d28301747bd6571525",
-  "last_pushed_sha": "c0e5c8847c472936863fe5d28301747bd6571525",
-  "hosted_ci_green_sha": "c0e5c8847c472936863fe5d28301747bd6571525",
+  "repository_head_sha": "8382e56d87066ba7897b1d8be3bb838aeeb32332",
+  "deterministic_green_sha": "8382e56d87066ba7897b1d8be3bb838aeeb32332",
+  "last_pushed_sha": "8382e56d87066ba7897b1d8be3bb838aeeb32332",
+  "hosted_ci_green_sha": "8382e56d87066ba7897b1d8be3bb838aeeb32332",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33686007220",
-    "commit_sha": "c0e5c8847c472936863fe5d28301747bd6571525",
+    "run_id": "33686239753",
+    "commit_sha": "8382e56d87066ba7897b1d8be3bb838aeeb32332",
     "conclusion": "success",
     "observed_at": "2026-09-02T19:25:00Z"
   },
