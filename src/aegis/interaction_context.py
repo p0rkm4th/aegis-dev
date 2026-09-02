@@ -55,6 +55,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
             "open_tasks",
             "open_chores",
             "open_obligations",
+            "priority_candidates",
             "memories",
             "affordability",
         ):

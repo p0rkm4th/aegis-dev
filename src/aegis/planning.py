@@ -495,7 +495,12 @@ class CrossDomainPlanningFastPath:
                 for item in open_obligations
             ],
             "open_tasks": [
-                {"task_id": str(task.task_id), "title": task.title} for task in open_tasks
+                {
+                    "task_id": str(task.task_id),
+                    "title": task.title,
+                    "due_at": task.due_at.isoformat() if task.due_at is not None else None,
+                }
+                for task in open_tasks
             ],
             "open_chores": [
                 {"chore_id": str(chore.chore_id), "title": chore.title} for chore in open_chores
