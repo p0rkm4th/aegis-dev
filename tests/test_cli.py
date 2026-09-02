@@ -237,6 +237,38 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
     assert context.values["as_of_date"] == datetime.now(timezone.utc).date().isoformat()
 
 
+def test_model_working_context_includes_bounded_authorized_household_attention():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    chore = type("Chore", (), {"title": "clean the utility closet", "completed": False})()
+    obligation = type(
+        "Obligation",
+        (),
+        {"title": "Utilities", "settled": False, "responsible_id": "alice"},
+    )()
+
+    class Tasks:
+        def list(self, _principal):
+            return []
+
+    class Household:
+        def list_groceries(self, _principal):
+            return []
+
+        def read_snapshot(self, _principal):
+            return {"chores": (chore,), "obligations": (obligation,)}
+
+    context = _fallback_working_context(
+        Context(), Tasks(), Household(), principal, "what needs attention?"
+    )
+
+    assert context.values["canonical_facts"]["canonical_chores"] == [
+        {"title": "clean the utility closet", "completed": False}
+    ]
+    assert context.values["canonical_facts"]["canonical_obligations"] == [
+        {"title": "Utilities", "settled": False, "responsible_id": "alice"}
+    ]
+
+
 def test_model_working_context_prioritization_uses_bounded_open_tasks():
     principal = Principal(id="alice", vault_id="alice-vault")
     completed = Task(
