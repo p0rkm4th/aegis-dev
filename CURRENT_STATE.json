@@ -44,6 +44,7 @@
       ,"reference fallback-context composition seam at bc7d205: authorized canonical fallback context construction moved out of InteractionBoundary into the reference composition callback; full validation passed at 335 tests and owner readiness is green, with semantic capability evidence still separate"
       ,"legacy runtime composition seam at 99e936f: InteractionBoundary no longer imports or selects the legacy first-party runtime; a composition-injected resolver supplies compatibility bindings, with full validation and owner readiness green"
       ,"Pack store lifecycle composition seam at ad63dbc: pre-model, plan, and fallback-context callbacks now construct reference stores in composition, leaving InteractionBoundary free of first-party store imports; full validation passed at 335 tests and owner readiness is green"
+      ,"reference fallback evaluator alignment at 9a97aef: real-provider boundary evaluation now supplies the same Pack-owned fallback selector as production after contextual selection moved out of generic interaction; full validation passed at 337 tests and hosted validation is green"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -125,14 +126,14 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c5177ca",
-  "deterministic_green_sha": "c5177ca",
-  "last_pushed_sha": "c5177ca",
-  "hosted_ci_green_sha": "c5177ca",
+  "repository_head_sha": "9a97aef",
+  "deterministic_green_sha": "9a97aef",
+  "last_pushed_sha": "9a97aef",
+  "hosted_ci_green_sha": "9a97aef",
   "installed_release_sha": "c5177ca",
   "running_release_sha": "c5177ca",
   "live_green_sha": "f5add80",
-  "head_sha": "c5177ca",
+  "head_sha": "9a97aef",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -156,7 +157,7 @@
     "installed_release_sha": "c5177ca",
     "running_release_sha": "c5177ca",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, hosted validation, and installed/running owner release are c5177ca. PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are 9a97aef. Installed/running owner release remains c5177ca because this checkpoint changes evaluation tooling only; PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
