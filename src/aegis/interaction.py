@@ -410,7 +410,17 @@ class InteractionBoundary:
                 reconsidered = decoder.decode(
                     provider.decide(request), request.action_cards, allow_argument_proposals=True
                 )
-                if reconsidered.kind is not DecisionKind.ANSWER:
+                if reconsidered.kind is not decision.kind:
+                    return Decision(
+                        kind=DecisionKind.CLARIFY,
+                        clarification=(
+                            "I am not confident whether you want to change something or "
+                            "ask about it. Please clarify the intended action."
+                        ),
+                    )
+                if reconsidered.kind is DecisionKind.ANSWER:
+                    decision = reconsidered
+                else:
                     decision = reconsidered
             if routing_only and decision.kind is DecisionKind.ANSWER:
                 request = request.model_copy(
