@@ -41,6 +41,7 @@ class Case:
     phenomena: tuple[str, ...] = ()
     provenance: str = ""
     expected_mutation: bool = False
+    expected_mode: str = ""
 
 
 class MeasuringTransport(OllamaHttpTransport):
@@ -90,6 +91,7 @@ def _load_cases(path: Path) -> tuple[Case, ...]:
                 phenomena=tuple(str(value) for value in item["phenomena"]),
                 provenance=str(item["provenance"]),
                 expected_mutation=bool(item["expected_mutation"]),
+                expected_mode=str(item["semantic_mode"]),
             )
         )
     return tuple(cases)
@@ -141,17 +143,20 @@ def _evaluation_context() -> Context:
     )
 
 
-def _decision_fields(value: object) -> tuple[str, str | None, dict[str, str], str | None]:
+def _decision_fields(
+    value: object,
+) -> tuple[str, str | None, dict[str, str], str | None, str | None]:
     if isinstance(value, Decision):
         return (
             value.kind.value,
             value.action.action_id if value.action is not None else None,
             {str(k): str(v) for k, v in (value.action.arguments if value.action else {}).items()},
             None,
+            value.semantic_mode,
         )
     evidence = getattr(value, "evidence", {})
     failure = evidence.get("failure_class") if isinstance(evidence, dict) else None
-    return ("RESULT", None, {}, str(failure) if failure is not None else None)
+    return ("RESULT", None, {}, str(failure) if failure is not None else None, None)
 
 
 def evaluate(corpus: Path) -> dict[str, Any]:
@@ -185,7 +190,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         context = _evaluation_context()
         cards = boundary._fallback_cards(manager, case.utterance, context)
         decision = boundary._fallback_decision(intent, cards, context)
-        kind, action, arguments, failure_class = _decision_fields(decision)
+        kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         expected_kind = case.expected_kind
         expected_action = case.expected_action
         if not cards and expected_action in {
@@ -214,6 +219,9 @@ def evaluate(corpus: Path) -> dict[str, Any]:
                 "phenomena": case.phenomena,
                 "provenance": case.provenance,
                 "expected_mutation": case.expected_mutation,
+                "predicted_semantic_mode": semantic_mode,
+                "expected_semantic_mode": case.expected_mode,
+                "semantic_mode_correct": semantic_mode == case.expected_mode,
                 "predicted_kind": kind,
                 "predicted_action": action,
                 "failure_class": failure_class,
