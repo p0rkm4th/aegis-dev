@@ -163,6 +163,7 @@ class ModelRequest(StrictModel):
     action_cards: tuple[ActionCard, ...] = Field(max_length=10)
     allow_argument_proposals: bool = False
     routing_only: bool = False
+    classification_only: bool = False
 
 
 class ModelResponse(StrictModel):

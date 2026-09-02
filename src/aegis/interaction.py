@@ -390,6 +390,32 @@ class InteractionBoundary:
             return None
         try:
             provider = self.dependencies.model_provider()
+            if cards:
+                classification_request = ModelRequest(
+                    working_set=WorkingSet(intent=intent, context=context),
+                    action_cards=(),
+                    classification_only=True,
+                )
+                classification_response = provider.decide(classification_request)
+                raw_kind = (
+                    classification_response.raw.get("kind")
+                    if isinstance(classification_response.raw, dict)
+                    else None
+                )
+                if raw_kind == DecisionKind.ANSWER.value:
+                    answer_request = ModelRequest(
+                        working_set=WorkingSet(intent=intent, context=context),
+                        action_cards=(),
+                    )
+                    answer = StrictDecisionDecoder().decode(
+                        provider.decide(answer_request), (), allow_argument_proposals=False
+                    )
+                    if answer.kind is DecisionKind.ANSWER:
+                        return answer
+                elif raw_kind in {DecisionKind.CLARIFY.value, DecisionKind.BLOCKED.value}:
+                    return StrictDecisionDecoder().decode(
+                        classification_response, (), allow_argument_proposals=False
+                    )
             routing_only = any(
                 permission.endswith(".write")
                 for card in cards
