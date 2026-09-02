@@ -70,6 +70,7 @@ from .tasks import (
     PostgresTaskVerifier,
     TaskCompletionFastPath,
     TaskIntentClarificationFastPath,
+    TaskPriorityFastPath,
     TaskReadFastPath,
     ground_task_due_at,
     requested_task_due_at,
@@ -704,6 +705,9 @@ class InteractionBoundary:
                 task_result = TaskReadFastPath(task_store).resolve(intent)
                 if task_result is not None:
                     return persist_fast_result(task_result)
+                priority_result = TaskPriorityFastPath(task_store).resolve(intent)
+                if priority_result is not None:
+                    return persist_fast_result(priority_result)
             semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
                 "1",
                 "true",

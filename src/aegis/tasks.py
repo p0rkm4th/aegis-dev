@@ -543,6 +543,58 @@ class TaskReadFastPath:
         )
 
 
+class TaskPriorityFastPath:
+    """Give a grounded priority hint without treating undated work as urgent."""
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        text = utterance.casefold()
+        return (
+            "task" in text
+            and ("should" in text or "priorit" in text or "focus" in text)
+            and ("first" in text or "priorit" in text or "focus" in text)
+            and not is_mutation_request(text)
+        )
+
+    def __init__(self, store: PostgresTaskStore) -> None:
+        self.store = store
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        if not self.matches(intent.utterance):
+            return None
+        open_tasks = tuple(
+            task for task in self.store.list(intent.principal) if task.status is TaskStatus.OPEN
+        )
+        dated = tuple(task for task in open_tasks if task.due_at is not None)
+        if not dated:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I cannot ground a first priority because none of your open tasks "
+                    "has a deadline."
+                ),
+                correlation_id=intent.correlation_id,
+            )
+
+        def due_key(task: Task) -> datetime:
+            assert task.due_at is not None
+            return _aware_datetime(task.due_at)
+
+        selected = min(dated, key=due_key)
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Based on the earliest recorded deadline, start with: {selected.title}",
+            evidence={
+                "collection": "tasks",
+                "priority_basis": "earliest_due_at",
+                "task": _task_projection(selected),
+            },
+            correlation_id=intent.correlation_id,
+        )
+
+
 class TaskIntentClarificationFastPath:
     """Clarify vague task verbs before a read path can hide the ambiguity."""
 
