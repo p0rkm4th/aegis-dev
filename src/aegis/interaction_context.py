@@ -164,12 +164,16 @@ def context_from_prior_result(
     result = getter(correlation_id, principal)
     if result is None:
         return Context()
-    evidence = compact_context_evidence(result.evidence)
+    raw_evidence = result.evidence
+    evidence = compact_context_evidence(raw_evidence)
     if not evidence:
         return Context()
     referents: dict[str, Any] = {}
     for fact_key in ("canonical_items", "canonical_tasks", "canonical_obligations"):
-        candidates = evidence.get(fact_key)
+        # Ordinals refer to the list the owner just received.  Keep this
+        # separate from compacted model evidence, which may use a priority
+        # ordering for cognition.
+        candidates = raw_evidence.get(fact_key)
         if isinstance(candidates, list) and candidates:
             referents["those"] = {
                 "source": "canonical_facts",
