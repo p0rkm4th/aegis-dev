@@ -97,6 +97,18 @@ def test_current_live_report_preserves_candidate_breadth_and_hard_failures() -> 
     assert report["capability_green"] is False
 
 
+def test_retrieval_limit_ablation_records_negative_result() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-153-retrieval-limit-3.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert report["semantic_retrieval_limit"] == 3
+    assert report["held_out"]["false_mutations"] == 5
+    assert report["capability_green"] is False
+    assert report["safety_hard_failure"] is True
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
