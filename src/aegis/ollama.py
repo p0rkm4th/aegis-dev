@@ -201,7 +201,11 @@ class OllamaProvider:
                     "no supplied multi-step plan represents all of them, return CLARIFY "
                     "and ask the user to separate them so each part can be authorized and "
                     "verified independently. A completed single action is not completion "
-                    "of an objective that also requested another action."
+                    "of an objective that also requested another action. In that CLARIFY, "
+                    "describe the request neutrally as multiple independent questions or "
+                    "goals, do not fill in an unspecified noun from canonical context, and "
+                    "do not claim that either part concerns groceries, tasks, or another "
+                    "domain unless the current utterance explicitly says so."
                 ),
                 "prioritization_rule": (
                     "When asked which task to do first or what to prioritize, do not dump "
