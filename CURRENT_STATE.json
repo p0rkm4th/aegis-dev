@@ -165,8 +165,6 @@
   "installed_release_sha": "1ec1e2e",
   "running_release_sha": "1ec1e2e",
   "live_green_sha": "f5add80",
-  "head_sha": "23d6441",
-  "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
