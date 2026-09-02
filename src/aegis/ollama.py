@@ -104,10 +104,14 @@ class OllamaProvider:
                 "required_permissions",
                 "verification",
             ]
-        if request is not None and request.classification_only:
-            required = schema.setdefault("required", [])
-            if "semantic_mode" not in required:
-                required.append("semantic_mode")
+        # The provider-facing contract requires the model to declare the
+        # semantic mode for every decision.  In-process providers may still
+        # use the ergonomic optional field from the Core contract, but a
+        # provider response without a mode is ambiguous at the boundary and
+        # cannot safely support grounded recovery or action routing.
+        required = schema.setdefault("required", [])
+        if "semantic_mode" not in required:
+            required.append("semantic_mode")
         return schema
 
     @staticmethod
@@ -116,6 +120,11 @@ class OllamaProvider:
         return json.dumps(
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
+                "semantic_mode_rule": (
+                    "Always provide semantic_mode: ACTION for a state change, READ for "
+                    "authorized information, GENERATION for benign creative/explanatory "
+                    "content, or CLARIFY when the request is ambiguous."
+                ),
                 "routing_rule": (
                     "This is a classification-only pass. Return ACTION when the user "
                     "requests any state change, ANSWER with semantic_mode READ when the "

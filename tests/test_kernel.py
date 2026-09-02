@@ -2117,6 +2117,14 @@ def test_ollama_classification_schema_requires_semantic_mode():
     assert response.raw["semantic_mode"] == "READ"
 
 
+def test_ollama_schema_requires_semantic_mode_for_all_provider_decisions():
+    schema = OllamaProvider._decision_schema(
+        ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=())
+    )
+
+    assert "semantic_mode" in schema["required"]
+
+
 def test_ollama_http_transport_rejects_non_http_urls():
     try:
         OllamaHttpTransport("unix:///run/ollama.sock")
