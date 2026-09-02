@@ -31,3 +31,10 @@ def is_question_request(utterance: str) -> bool:
     return normalized.endswith("?") or normalized.startswith(
         ("what ", "which ", "who ", "when ", "where ", "how ", "anything ", "can i ", "can we ")
     )
+
+
+def is_task_destination_request(utterance: str) -> bool:
+    """Recognize an explicit task-list destination for action conflict checks."""
+
+    normalized = " ".join(utterance.casefold().split())
+    return any(term in normalized for term in ("todo", "to-do", "task list", "things to do"))
