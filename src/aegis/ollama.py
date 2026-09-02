@@ -69,6 +69,7 @@ class OllamaProvider:
                 "model": self.model,
                 "stream": False,
                 "think": False,
+                "options": {"temperature": 0},
                 "format": self._decision_schema(),
                 "messages": [{"role": "user", "content": prompt}],
             }
