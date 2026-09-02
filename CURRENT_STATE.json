@@ -45,6 +45,7 @@
       "M08.10 novel owner family at 4d1b655: polite paraphrase 'would you mind adding replace the air purifier filter to my list of things to do' created the intended task (5a6e8bf6-7213-4d02-8a9b-60ed8f854c93), informal completion 'i wrapped up send the library book back' completed the intended task (c1874436-7652-4e3c-970c-c8576b0d546e), and indirect grocery read 'what should i grab for dinner?' returned authorized canonical groceries (b6f0ea3f-cdf6-4c0d-9d9b-19e06a077994); capability green remains unclaimed pending the full varied family",
       "M08.10 live owner defect at 4d1b655: 'would you add schedule the dentist appointment to my things to do tomorrow' was misclassified as completion of nearby task call the dentist (edbf91ef-db07-4190-bbff-1e7f97a0e0e3); this was a product failure despite a technically completed Result",
       "M08.10 fix proof at 695b8c2: the same unseen create/completion-conflict request created schedule the dentist appointment with canonical due_at 2026-09-03 and left the unrelated call the dentist task unchanged (7c580f83-820c-4857-ad7d-b3751427afa2); write-routing now excludes canonical candidates so final cognition grounds the selected action",
+      "M11.07 bounded owner-feedback triage proof at 363e3aa: installed authenticated CLI --feedback and --feedback --json report only owner-scoped outcome/reason/result-state/retryability plus objective/event trace IDs; no transcript or private canonical payload was exposed",
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
@@ -56,7 +57,7 @@
       "M08.05 model action selection uses bounded ActionCard references; broader action-family capability proof remains in progress",
       "M08.10 phrase-overfit production cleanup remains partial pending broader capability evaluation",
       "M09.09 small-model context compaction has deterministic budget proof; varied objective-continuation capability proof remains partial",
-      "M11.07 automatic defect harvesting is not yet an automated defect-to-regression loop",
+      "M11.07 automatic defect harvesting is partially implemented as a bounded owner-feedback inspection report; automatic defect-to-regression/live-re-evaluation orchestration remains unmet",
       "M12.11 mobile/chat remains lane-limited"
     ]
   },
@@ -81,9 +82,9 @@
     "M16.08"
   ],
   "active_branch": "aegis-dev",
-  "head_sha": "695b8c2",
-  "last_green_sha": "695b8c2",
-  "last_pushed_sha": "695b8c2",
+  "head_sha": "363e3aa",
+  "last_green_sha": "363e3aa",
+  "last_pushed_sha": "363e3aa",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -98,9 +99,9 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "695b8c2",
-    "last_known_green_sha": "695b8c2",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/695b8c2",
+    "running_sha": "363e3aa",
+    "last_known_green_sha": "363e3aa",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/363e3aa",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
