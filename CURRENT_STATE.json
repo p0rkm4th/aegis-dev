@@ -71,6 +71,7 @@
       ,"runtime model provenance diagnostics at c26936b: --check and /api/health now expose the configured Ollama model digest from the metadata-only /api/tags inventory when available; missing inventory degrades to an absent digest without affecting authorization or canonical state. Full deterministic validation passed at 343 tests and hosted validation run 33597309487 passed."
       ,"bounded interaction recovery extraction at 17e27f8: malformed cognition recovery now lives in a client-neutral module that can only return a grounded answer or the existing retryable blocked Result; no action-capable recovery path was added. Full deterministic validation passed at 343 tests and hosted validation run 33597490005 passed."
       ,"owner diagnostics promotion at 1ade9ab: the persistent authenticated owner service was promoted to release 6b1a605 without resetting PostgreSQL; /api/health reports PostgreSQL, Qwen3:8B, identity, and model digest readiness. Hosted validation run 33597733634 passed; this is operational evidence, not live semantic capability proof."
+      ,"semantic corpus integrity audit at d2955c5: validate.sh now audits development/held-out schema, provenance, unique IDs, and normalized utterance disjointness without model inference; the current corpus is 18 development plus 15 held-out cases and remains below capability-claim scale. Full deterministic validation passed at 345 tests and hosted validation run 33597986821 passed."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -152,10 +153,10 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1ade9ab",
-  "deterministic_green_sha": "1ade9ab",
-  "last_pushed_sha": "1ade9ab",
-  "hosted_ci_green_sha": "1ade9ab",
+  "repository_head_sha": "d2955c5",
+  "deterministic_green_sha": "d2955c5",
+  "last_pushed_sha": "d2955c5",
+  "hosted_ci_green_sha": "d2955c5",
   "installed_release_sha": "9d6b5ac",
   "running_release_sha": "9d6b5ac",
   "live_green_sha": "f5add80",
@@ -178,12 +179,12 @@
     "running_sha": "6b1a605",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/6b1a605",
-    "repository_head_sha": "1ade9ab",
-    "deterministic_green_sha": "1ade9ab",
+    "repository_head_sha": "d2955c5",
+    "deterministic_green_sha": "d2955c5",
     "installed_release_sha": "6b1a605",
     "running_release_sha": "6b1a605",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic/hosted validation are green through source checkpoint 1ade9ab (hosted run 33597733634); installed/running owner release 6b1a605 is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. Authenticated browser read correlation 3a8551b9-cae0-476e-a658-8431749d9461 returned canonical Groceries: rice (x6); installed --feedback --harvest --json also completed without mutation. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic/hosted validation are green through source checkpoint d2955c5 (hosted run 33597986821); installed/running owner release 6b1a605 is promoted from the versioned release/src package root and is separately verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. Authenticated browser read correlation 3a8551b9-cae0-476e-a658-8431749d9461 returned canonical Groceries: rice (x6); installed --feedback --harvest --json also completed without mutation. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
