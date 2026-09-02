@@ -92,6 +92,34 @@ def test_contextual_ordinal_read_stays_in_authorized_grocery_domain():
     assert result.evidence["authorized_ordinal_item"] == "beans"
 
 
+def test_contextual_ordinal_read_stays_in_authorized_event_domain():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "events",
+                    "candidates": [
+                        {"title": "Apartment inspection", "starts_at": "2026-09-03T10:00:00+00:00"},
+                        {"title": "Dentist appointment", "starts_at": "2026-09-04T15:00:00+00:00"},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which appointment is first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.message == "Event: Apartment inspection (open); starts 2026-09-03T10:00:00+00:00"
+
+
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
