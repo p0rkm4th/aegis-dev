@@ -564,6 +564,18 @@ class InteractionBoundary:
             contextual_mutation = ContextualMutationGuard.resolve(intent)
             if contextual_mutation is not None:
                 return persist_fast_result(contextual_mutation)
+            if FinanceReadFastPath.needs_purchase_amount(utterance):
+                return persist_fast_result(
+                    Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message=(
+                            "What purchase amount should I compare with your available "
+                            "balance and obligations?"
+                        ),
+                        correlation_id=intent.correlation_id,
+                    )
+                )
             household_store = PostgresHouseholdStore(connection)
             if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
                 task_store = PostgresTaskStore(connection)
