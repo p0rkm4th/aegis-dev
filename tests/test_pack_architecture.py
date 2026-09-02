@@ -53,6 +53,15 @@ def test_pack_manager_exposes_metadata_without_private_state_access() -> None:
     assert "manager._bundles" not in source
 
 
+def test_generic_interaction_does_not_embed_first_party_pack_knowledge() -> None:
+    source = Path("src/aegis/interaction.py").read_text(encoding="utf-8")
+    forbidden = (*PACK_ACTION_IDS, *DOMAIN_IMPORTS, "reference_bundles")
+    violations = [marker for marker in forbidden if marker in source]
+    assert not violations, "first-party Pack knowledge leaked into interaction: " + ", ".join(
+        violations
+    )
+
+
 def test_pack_lifecycle_snapshot_is_the_projection_contract() -> None:
     source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
     assert ".lifecycle_snapshot()" in source

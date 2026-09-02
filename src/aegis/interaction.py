@@ -39,7 +39,6 @@ from .planning import (
     DomainClarificationFastPath,
     MultiActionFastPath,
 )
-from .reference_packs import reference_bundles
 from .store import PostgresObjectiveStore
 from .utterance import (
     has_multiple_question_clauses,
@@ -706,21 +705,6 @@ class InteractionBoundary:
                     tuple(self.dependencies.pack_bundles()),
                     self.dependencies.auto_enable_pack_ids,
                 )
-            else:
-                # Compatibility path for older embedders; production clients
-                # supply Pack bundles through the composition callback above.
-                for bundle in reference_bundles():
-                    try:
-                        manager.status(bundle.manifest.pack_id)
-                        installed_bundle = manager.bundle(bundle.manifest.pack_id)
-                        if installed_bundle.model_dump(mode="json") != bundle.model_dump(
-                            mode="json"
-                        ):
-                            manager.remove(bundle.manifest.pack_id)
-                            manager.discover(bundle)
-                    except KeyError:
-                        manager.discover(bundle)
-                manager.reconcile(tuple(reference_bundles()), frozenset(("tasks", "kitchen")))
             if self.dependencies.plan_runner is not None:
                 plan_result = self.dependencies.plan_runner(
                     intent,
