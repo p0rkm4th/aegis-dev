@@ -305,38 +305,38 @@ class TaskCompletionFastPath:
     """Resolve completion titles before model/executor dispatch can guess."""
 
     @staticmethod
-    def canonical_title(title: str, tasks: tuple[Task, ...]) -> str | None:
-        """Return a unique stored title, allowing only a leading article omission."""
-
+    def _matching_tasks(title: str, tasks: tuple[Task, ...]) -> tuple[Task, ...]:
         normalized = title.casefold().strip().rstrip(".!?")
         exact = tuple(
             task for task in tasks if task.title.casefold().strip().rstrip(".!?") == normalized
         )
         if exact:
-            return exact[0].title if len(exact) == 1 else None
+            return exact
         relaxed = re.sub(r"^(?:the|a|an)\s+", "", normalized)
-        matches = tuple(
+        relaxed_matches = tuple(
             task
             for task in tasks
             if re.sub(r"^(?:the|a|an)\s+", "", task.title.casefold().strip().rstrip(".!?"))
             == relaxed
         )
+        if relaxed_matches:
+            return relaxed_matches
+        return tuple(
+            task
+            for task in tasks
+            if task.title.casefold().strip().rstrip(".!?").startswith(normalized + " ")
+        )
+
+    @staticmethod
+    def canonical_title(title: str, tasks: tuple[Task, ...]) -> str | None:
+        """Return a unique stored title, allowing only a leading article omission."""
+
+        matches = TaskCompletionFastPath._matching_tasks(title, tasks)
         return matches[0].title if len(matches) == 1 else None
 
     @staticmethod
     def resolve(intent: IntentFrame, title: str, tasks: tuple[Task, ...]) -> Result | None:
-        normalized = title.casefold().strip().rstrip(".!?")
-        matches = tuple(
-            task for task in tasks if task.title.casefold().strip().rstrip(".!?") == normalized
-        )
-        if not matches:
-            relaxed = re.sub(r"^(?:the|a|an)\s+", "", normalized)
-            matches = tuple(
-                task
-                for task in tasks
-                if re.sub(r"^(?:the|a|an)\s+", "", task.title.casefold().strip().rstrip(".!?"))
-                == relaxed
-            )
+        matches = TaskCompletionFastPath._matching_tasks(title, tasks)
         if len(matches) == 1:
             return None
         if len(matches) == 0:
