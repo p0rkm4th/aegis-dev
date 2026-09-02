@@ -29,23 +29,39 @@ from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .homelab import PostgresHomelabStore
 from .household import (
+    PostgresChoreExecutor,
+    PostgresChoreVerifier,
+    PostgresEventExecutor,
+    PostgresEventVerifier,
     PostgresHouseholdStore,
 )
 from .identity import (
     KeycloakIdentityProvider,
     KeycloakOIDCClient,
     PostgresExternalPrincipalResolver,
+    Role,
 )
 from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
-from .pack_runtime import PackRuntimeRegistry
+from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
-from .reference_packs import reference_bundles
+from .reference_packs import (
+    PostgresGroceryListExecutor,
+    PostgresGroceryListVerifier,
+    reference_bundles,
+)
 from .release_truth import runtime_release_sha
 from .store import PostgresObjectiveStore
-from .tasks import PostgresTaskStore, requested_task_due_at
+from .tasks import (
+    PostgresTaskExecutor,
+    PostgresTaskListExecutor,
+    PostgresTaskListVerifier,
+    PostgresTaskStore,
+    PostgresTaskVerifier,
+    requested_task_due_at,
+)
 from .web import serve
 
 
@@ -125,6 +141,61 @@ def _initialize_env_file(path: str) -> None:
     finally:
         if descriptor != -1:
             os.close(descriptor)
+
+
+def _default_runtime_registry() -> PackRuntimeRegistry:
+    """Compose first-party PostgreSQL runtimes behind the generic Pack seam."""
+
+    registry = PackRuntimeRegistry()
+
+    def task_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresTaskStore(connection)
+        return ActionRuntime(
+            PostgresTaskExecutor(store, principal),
+            PostgresTaskVerifier(store, principal),
+            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def task_list_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresTaskStore(connection)
+        return ActionRuntime(
+            PostgresTaskListExecutor(store, principal),
+            PostgresTaskListVerifier(store, principal),
+            {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def household_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresHouseholdStore(connection)
+        return ActionRuntime(
+            PostgresChoreExecutor(store, principal),
+            PostgresChoreVerifier(store, principal),
+            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def event_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresHouseholdStore(connection)
+        return ActionRuntime(
+            PostgresEventExecutor(store, principal),
+            PostgresEventVerifier(store, principal),
+            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def grocery_list_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresHouseholdStore(connection)
+        return ActionRuntime(
+            PostgresGroceryListExecutor(store, principal),
+            PostgresGroceryListVerifier(store, principal),
+            {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    registry.register("tasks.create", task_runtime)
+    registry.register("tasks.complete", task_runtime)
+    registry.register("tasks.list", task_list_runtime)
+    registry.register("tasks.chores.create", household_runtime)
+    registry.register("tasks.chores.complete", household_runtime)
+    registry.register("tasks.events.create", event_runtime)
+    registry.register("kitchen.groceries.list", grocery_list_runtime)
+    return registry
 
 
 def _runtime_report() -> HealthReport:
@@ -1099,6 +1170,9 @@ def run_interaction(
     runtime_registry: PackRuntimeRegistry | None = None,
 ) -> Result:
     """Compose the shared boundary, optionally with Pack runtime bindings."""
+
+    if runtime_registry is None:
+        runtime_registry = _default_runtime_registry()
 
     boundary = InteractionBoundary(
         InteractionDependencies(
