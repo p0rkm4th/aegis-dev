@@ -3416,6 +3416,51 @@ def test_task_completion_executor_blocks_ambiguous_title():
     assert observation.evidence["ambiguous_task_title"] is True
 
 
+def test_task_completion_executor_accepts_grounded_task_id_for_duplicate_titles():
+    first = Task(uuid4(), "apartment", "Check the drill", "alice")
+    second = Task(uuid4(), "apartment", "Check the drill", "alice")
+
+    class Store:
+        def list(self, _principal):
+            return (first, second)
+
+        def get(self, _principal, task_id):
+            return next((task for task in (first, second) if task.task_id == task_id), None)
+
+        def complete(self, _principal, task_id):
+            assert task_id == first.task_id
+            return first.__class__(
+                first.task_id,
+                first.space_id,
+                first.title,
+                first.created_by,
+                first.assignee_id,
+                first.due_at,
+                TaskStatus.COMPLETED,
+                first.idempotency_key,
+            )
+
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            arguments={"title": "Check the drill", "task_id": str(first.task_id)},
+            verification=VerificationContract(kind="readback"),
+        ),
+        idempotency_key="correlation:tasks.complete.grounded-id",
+    )
+
+    observation = PostgresTaskExecutor(
+        Store(), Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    ).execute(request)
+
+    assert observation.command_succeeded
+    assert observation.evidence["task_id"] == str(first.task_id)
+    assert observation.evidence["status"] == TaskStatus.COMPLETED.value
+
+
 def test_task_completion_fast_path_clarifies_missing_or_duplicate_titles():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(principal=principal, utterance="Complete the task Check the drill")

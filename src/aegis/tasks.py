@@ -279,12 +279,22 @@ class PostgresTaskExecutor:
                     idempotency_key=request.idempotency_key,
                 )
         else:
-            matches = tuple(
-                task
-                for task in self.store.list(self.principal)
-                if task.title.casefold().strip().rstrip(".!?")
-                == title.casefold().strip().rstrip(".!?")
-            )
+            task_id_value = request.action.arguments.get("task_id")
+            matches: tuple[Task, ...]
+            if task_id_value is not None:
+                try:
+                    task_id = UUID(task_id_value) if isinstance(task_id_value, str) else None
+                except ValueError:
+                    task_id = None
+                selected = self.store.get(self.principal, task_id) if task_id is not None else None
+                matches = (selected,) if selected is not None else ()
+            else:
+                matches = tuple(
+                    task
+                    for task in self.store.list(self.principal)
+                    if task.title.casefold().strip().rstrip(".!?")
+                    == title.casefold().strip().rstrip(".!?")
+                )
             if len(matches) != 1:
                 return Observation(
                     execution_id=request.action_id,

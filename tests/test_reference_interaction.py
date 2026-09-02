@@ -117,13 +117,14 @@ def test_reference_action_grounding_blocks_unknown_completion_target() -> None:
 
 
 def test_obvious_ordinal_resolves_only_authorized_prior_canonical_tasks() -> None:
+    first_id = str(uuid4())
     context = Context(
         values={
             "referents": {
                 "those": {
                     "fact_key": "canonical_tasks",
                     "candidates": [
-                        {"title": "buy milk", "status": "open"},
+                        {"task_id": first_id, "title": "buy milk", "status": "open"},
                         {"title": "send invoice", "status": "open"},
                     ],
                 }
@@ -133,6 +134,7 @@ def test_obvious_ordinal_resolves_only_authorized_prior_canonical_tasks() -> Non
     )
 
     assert resolve_obvious_ordinal("complete the first one", context, "canonical_tasks") == {
+        "task_id": first_id,
         "title": "buy milk",
         "status": "open",
     }
@@ -186,3 +188,71 @@ def test_grounding_uses_current_canonical_task_for_authorized_ordinal() -> None:
 
     assert isinstance(grounded, ActionCard)
     assert grounded.action.arguments["title"] == "buy milk"
+
+
+def test_grounding_uses_authorized_task_id_when_titles_are_duplicated() -> None:
+    first_id = uuid4()
+    second_id = uuid4()
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="complete the first one",
+    )
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.write",
+            arguments={"title": "model guessed the wrong task"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Complete a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {
+                            "task_id": str(first_id),
+                            "title": "review restore drill",
+                            "status": "open",
+                        },
+                        {
+                            "task_id": str(second_id),
+                            "title": "review restore drill",
+                            "status": "open",
+                        },
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    class TaskStore:
+        def list(self, _principal: Principal) -> tuple[Task, ...]:
+            return (
+                Task(first_id, "apartment", "review restore drill", "alice"),
+                Task(second_id, "apartment", "review restore drill", "alice"),
+            )
+
+    grounded = ground_reference_action(
+        intent,
+        card,
+        task_store=TaskStore(),
+        household_store=cast(PostgresHouseholdStore, object()),
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+        context=context,
+    )
+
+    assert isinstance(grounded, ActionCard)
+    assert grounded.action.arguments == {
+        "title": "review restore drill",
+        "task_id": str(first_id),
+    }
