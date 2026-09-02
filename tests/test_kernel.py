@@ -4396,6 +4396,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "013_homelab_inventory.sql",
         "014_security_lab_findings.sql",
         "015_pack_upgrade_candidates.sql",
+        "016_audit_chain_head.sql",
     )
 
 

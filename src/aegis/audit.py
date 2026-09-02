@@ -180,30 +180,16 @@ class AuditConnection(Protocol):
 
 
 class PostgresAuditLog(AuditLog):
-    """PostgreSQL-backed tamper-evident audit chain."""
+    """PostgreSQL-backed tamper-evident audit chain.
+
+    PostgreSQL owns the chain head.  The process-local ``events`` list is only
+    a convenience for events appended by this instance and is never used to
+    choose a predecessor.
+    """
 
     def __init__(self, connection: AuditConnection) -> None:
         super().__init__()
         self.connection = connection
-        rows = self.connection.execute(
-            """SELECT id, event_type, principal_id, objective_id, action_id,
-                      payload, previous_hash, event_hash
-               FROM audit_events ORDER BY created_at, id"""
-        ).fetchall()
-        self.events.extend(
-            AuditEvent(
-                event_id=UUID(str(row[0])),
-                event_type=str(row[1]),
-                principal_id=str(row[2]),
-                objective_id=UUID(str(row[3])) if row[3] else None,
-                action_id=UUID(str(row[4])) if row[4] else None,
-                payload=cast(dict[str, Any], row[5]),
-                previous_hash=str(row[6]),
-                event_hash=str(row[7]),
-            )
-            for row in rows
-            if row[6] is not None and row[7] is not None
-        )
 
     def append(
         self,
@@ -213,7 +199,37 @@ class PostgresAuditLog(AuditLog):
         objective_id: UUID | None = None,
         action_id: UUID | None = None,
     ) -> AuditEvent:
-        event = super().append(event_type, principal_id, payload, objective_id, action_id)
+        if not event_type or not principal_id:
+            raise AuditError("audit identity and event type are required")
+        _reject_sensitive(payload)
+        head = self.connection.execute(
+            "SELECT head_hash FROM audit_chain_heads WHERE chain_name = %s FOR UPDATE",
+            ("default",),
+        ).fetchone()
+        if head is None:
+            raise AuditError("audit chain head is not initialized")
+        previous = str(head[0])
+        event_id = uuid4()
+        body = {
+            "event_id": str(event_id),
+            "event_type": event_type,
+            "principal_id": principal_id,
+            "objective_id": str(objective_id) if objective_id else None,
+            "action_id": str(action_id) if action_id else None,
+            "payload": payload,
+            "previous_hash": previous,
+        }
+        encoded = json.dumps(body, sort_keys=True, separators=(",", ":"), default=str).encode()
+        event = AuditEvent(
+            event_id=event_id,
+            event_type=event_type,
+            principal_id=principal_id,
+            objective_id=objective_id,
+            action_id=action_id,
+            payload=payload,
+            previous_hash=previous,
+            event_hash=hashlib.sha256(encoded).hexdigest(),
+        )
         self.connection.execute(
             """INSERT INTO audit_events
                (id, principal_id, objective_id, action_id, event_type, payload,
@@ -230,8 +246,59 @@ class PostgresAuditLog(AuditLog):
                 event.event_hash,
             ),
         )
+        self.connection.execute(
+            "UPDATE audit_chain_heads SET head_hash = %s, updated_at = now() WHERE chain_name = %s",
+            (event.event_hash, "default"),
+        )
         self.connection.commit()
+        self.events.append(event)
         return event
+
+    def verify(self) -> bool:
+        """Verify the complete persisted chain without relying on local state."""
+        rows = self.connection.execute(
+            """SELECT id, event_type, principal_id, objective_id, action_id,
+                      payload, previous_hash, event_hash
+               FROM audit_events
+               WHERE previous_hash IS NOT NULL AND event_hash IS NOT NULL"""
+        ).fetchall()
+        events: dict[str, AuditEvent] = {}
+        for row in rows:
+            previous_hash = str(row[6])
+            if previous_hash in events:
+                return False
+            events[previous_hash] = AuditEvent(
+                event_id=UUID(str(row[0])),
+                event_type=str(row[1]),
+                principal_id=str(row[2]),
+                objective_id=UUID(str(row[3])) if row[3] else None,
+                action_id=UUID(str(row[4])) if row[4] else None,
+                payload=cast(dict[str, Any], row[5]),
+                previous_hash=previous_hash,
+                event_hash=str(row[7]),
+            )
+        previous = "GENESIS"
+        visited: set[str] = set()
+        while True:
+            event = events.get(previous)
+            if event is None:
+                return len(visited) == len(events)
+            if event.event_hash in visited:
+                return False
+            body = {
+                "event_id": str(event.event_id),
+                "event_type": event.event_type,
+                "principal_id": event.principal_id,
+                "objective_id": str(event.objective_id) if event.objective_id else None,
+                "action_id": str(event.action_id) if event.action_id else None,
+                "payload": event.payload,
+                "previous_hash": event.previous_hash,
+            }
+            encoded = json.dumps(body, sort_keys=True, separators=(",", ":"), default=str).encode()
+            if hashlib.sha256(encoded).hexdigest() != event.event_hash:
+                return False
+            visited.add(event.event_hash)
+            previous = event.event_hash
 
     def close(self) -> None:
         self.connection.close()

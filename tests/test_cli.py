@@ -1039,7 +1039,7 @@ def test_cli_migration_source_fallback_executes_sql(monkeypatch):
 
     cli._apply_migrations(connection)
 
-    assert len(connection.statements) == 15
+    assert len(connection.statements) == 16
     assert connection.statements[0].startswith("-- PostgreSQL canonical schema")
     assert connection.committed is True
 
