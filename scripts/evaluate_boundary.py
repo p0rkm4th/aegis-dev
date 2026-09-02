@@ -343,9 +343,17 @@ def evaluate(corpus: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("corpus", type=Path)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="also write the complete evaluation report to this path",
+    )
     args = parser.parse_args()
     report = evaluate(args.corpus)
-    print(json.dumps(report, indent=2, sort_keys=True))
+    serialized = json.dumps(report, indent=2, sort_keys=True)
+    if args.output is not None:
+        args.output.write_text(serialized + "\n", encoding="utf-8")
+    print(serialized)
     return 2 if report["security_hard_failure"] or not report["provider_evidence_valid"] else 0
 
 

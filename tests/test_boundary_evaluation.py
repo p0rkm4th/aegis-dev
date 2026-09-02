@@ -75,6 +75,7 @@ def test_evaluation_boundary_uses_pack_composition_for_fallback_selection() -> N
     source = Path("scripts/evaluate_boundary.py").read_text(encoding="utf-8")
     assert "fallback_card_selector=reference_fallback_cards" in source
     assert "from aegis.reference_interaction import reference_fallback_cards" in source
+    assert '"--output"' in source
 
 
 def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
