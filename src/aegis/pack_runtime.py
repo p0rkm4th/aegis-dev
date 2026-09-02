@@ -19,6 +19,7 @@ class ActionRuntime:
     executor: Any
     verifier: Any
     permissions: dict[str, frozenset[Any]]
+    cleanup: Callable[[], None] | None = None
 
 
 RuntimeFactory = Callable[[Any, Principal], ActionRuntime]
