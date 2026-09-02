@@ -61,12 +61,15 @@ class MeasuringTransport(OllamaHttpTransport):
         self.elapsed_ms = 0.0
         self.prompt_tokens = 0
         self.output_tokens = 0
+        self.call_latencies_ms: list[float] = []
 
     def chat(self, payload: dict[str, Any]) -> dict[str, Any]:
         started = monotonic()
         response = super().chat(payload)
         self.calls += 1
-        self.elapsed_ms += (monotonic() - started) * 1000
+        elapsed_ms = (monotonic() - started) * 1000
+        self.elapsed_ms += elapsed_ms
+        self.call_latencies_ms.append(elapsed_ms)
         self.prompt_tokens += int(response.get("prompt_eval_count", 0) or 0)
         self.output_tokens += int(response.get("eval_count", 0) or 0)
         return response
@@ -74,6 +77,18 @@ class MeasuringTransport(OllamaHttpTransport):
 
 def _sha256(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _percentile(values: list[float], percentile: float) -> float | None:
+    """Return an interpolated percentile without adding a statistics dependency."""
+    if not values:
+        return None
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * percentile
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    fraction = position - lower
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * fraction
 
 
 def _load_cases(path: Path) -> tuple[Case, ...]:
@@ -220,6 +235,14 @@ def evaluate(
             # inventory endpoint is unavailable, but the missing provenance
             # remains visible in the report and must not be called frozen.
             model_digest = None
+    model_inventory: dict[str, Any] | None = None
+    try:
+        for item in transport.tags().get("models", []):
+            if isinstance(item, dict) and item.get("name") == model:
+                model_inventory = item
+                break
+    except Exception:
+        model_inventory = None
     results: list[dict[str, Any]] = []
     for case in cases:
         started = monotonic()
@@ -266,6 +289,7 @@ def evaluate(
                 "semantic_mode_correct": semantic_mode == case.expected_mode,
                 "predicted_kind": kind,
                 "predicted_action": action,
+                "predicted_arguments": arguments,
                 "failure_class": failure_class,
                 "expected_kind": expected_kind.value,
                 "expected_action": expected_action,
@@ -403,12 +427,32 @@ def evaluate(
         **overall,
         "family_metrics": {family: summarize(items) for family, items in sorted(grouped.items())},
         "average_latency_ms": sum(item["latency_ms"] for item in results) / max(total, 1),
+        "full_request_latency_p50_ms": _percentile(
+            [float(item["latency_ms"]) for item in results], 0.50
+        ),
+        "full_request_latency_p95_ms": _percentile(
+            [float(item["latency_ms"]) for item in results], 0.95
+        ),
+        "average_model_call_latency_ms": (
+            sum(transport.call_latencies_ms) / len(transport.call_latencies_ms)
+            if transport.call_latencies_ms
+            else None
+        ),
+        "model_calls_per_request": transport.calls / max(total, 1),
         "model_calls": getattr(transport, "calls", None),
         "model_calls_avoided": sum(int(item["model_calls"] == 0) for item in results),
         "prompt_tokens": getattr(transport, "prompt_tokens", None),
         "output_tokens": getattr(transport, "output_tokens", None),
         "memory_vram_cost": "not observable from Ollama HTTP responses",
         "model_loading_overhead_ms": None,
+        "model_inventory": model_inventory,
+        "provider_settings": {
+            "temperature": 0,
+            "stream": False,
+            "think": False,
+            "timeout_seconds": 120,
+            "embedding_model": os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
+        },
         "results": results,
     }
 

@@ -26,6 +26,12 @@ python -m json.tool evaluation/reports/qwen3-8b-semantic-296.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-296-retrieval-limit-5.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-318-dev.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-318-heldout.json >/dev/null
+python -m json.tool evaluation/reports/qwen2.5-3b-semantic-318-dev.json >/dev/null
+python -m json.tool evaluation/reports/qwen2.5-3b-semantic-318-heldout.json >/dev/null
+python -m json.tool evaluation/reports/qwen3-8b-semantic-318-current-dev.json >/dev/null
+python -m json.tool evaluation/reports/qwen3-8b-semantic-318-current-heldout.json >/dev/null
+python -m json.tool evaluation/reports/qwen-capacity-ladder-318.json >/dev/null
 python scripts/audit_semantic_corpus.py evaluation/semantic_dev.json evaluation/semantic_heldout.json >/dev/null
 python scripts/evaluate_boundary.py --help >/dev/null
+python scripts/analyze_capacity_failures.py --help >/dev/null
 python scripts/validate_state.py
