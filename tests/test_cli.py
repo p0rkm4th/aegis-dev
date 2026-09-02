@@ -24,7 +24,7 @@ from aegis.interaction import (
     _with_continuation_context,
 )
 from aegis.pack_lifecycle import PackManager
-from aegis.reference_interaction import build_reference_fallback_context
+from aegis.reference_interaction import build_reference_fallback_context, reference_fallback_cards
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import (
     Task,
@@ -581,6 +581,7 @@ def test_fresh_working_context_does_not_suppress_unrelated_mutation_cards():
             select_action=lambda _utterance, _manager: ("tasks", card),
             openclaw_channel=lambda: None,
             local_identity=lambda: False,
+            fallback_card_selector=reference_fallback_cards,
         )
     )
     fresh = Context(

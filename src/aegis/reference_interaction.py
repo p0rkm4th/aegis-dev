@@ -167,8 +167,26 @@ def build_reference_fallback_context_runtime(
     )
 
 
-def reference_fallback_cards(manager: PackManager, utterance: str) -> tuple[ActionCard, ...]:
+def reference_fallback_cards(
+    manager: PackManager, utterance: str, context: Context | None = None
+) -> tuple[ActionCard, ...]:
     """Reduce legacy no-provider candidates for the reference Packs."""
+
+    facts = (context.values if context is not None else {}).get("canonical_facts", {})
+    if isinstance(facts, dict) and context is not None:
+        if (
+            isinstance(facts.get("canonical_items"), list)
+            and "authorized_canonical_context" in context.sources
+        ):
+            # A contextual grocery question is answered from the authorized
+            # projection; do not offer a mutation card that could turn an
+            # unresolved reference into a write.
+            return ()
+        if (
+            isinstance(facts.get("canonical_tasks"), list)
+            and "authorized_canonical_context" in context.sources
+        ):
+            return tuple(manager.retrieve("tasks"))[:10]
 
     text = utterance.casefold()
     domain = next(

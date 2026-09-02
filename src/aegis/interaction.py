@@ -73,7 +73,7 @@ class InteractionDependencies:
         auto_enable_pack_ids: frozenset[str] = frozenset(),
         action_grounder: Callable[..., Any] | None = None,
         pre_model_resolver: Callable[..., Result | None] | None = None,
-        fallback_card_selector: Callable[[PackManager, str], tuple[ActionCard, ...]] | None = None,
+        fallback_card_selector: Callable[..., tuple[ActionCard, ...]] | None = None,
         plan_runner: Callable[..., Result | None] | None = None,
         decision_rewriter: Callable[..., Decision | Result | None] | None = None,
         fast_path_resolver: Callable[..., Result | None] | None = None,
@@ -271,23 +271,6 @@ class InteractionBoundary:
     ) -> tuple[ActionCard, ...]:
         """Offer a bounded capability vocabulary; metadata remains Core-owned."""
 
-        facts = (context.values if context is not None else {}).get("canonical_facts", {})
-        if isinstance(facts, dict):
-            if (
-                isinstance(facts.get("canonical_items"), list)
-                and context is not None
-                and "authorized_canonical_context" in context.sources
-            ):
-                # A contextual grocery question is answered from the
-                # authorized projection; do not offer a mutation card that
-                # could turn an unresolved reference into a write.
-                return ()
-            if (
-                isinstance(facts.get("canonical_tasks"), list)
-                and context is not None
-                and "authorized_canonical_context" in context.sources
-            ):
-                return tuple(manager.retrieve("tasks"))[:10]
         if self.dependencies.capability_retriever is not None:
             try:
                 semantic_cards = self.dependencies.capability_retriever(utterance, manager)
@@ -315,7 +298,7 @@ class InteractionBoundary:
                         return scoped_cards[:10]
                 return tuple(semantic_cards)[:10]
         if self.dependencies.fallback_card_selector is not None:
-            return self.dependencies.fallback_card_selector(manager, utterance)
+            return self.dependencies.fallback_card_selector(manager, utterance, context)
         return tuple(manager.enabled_cards())[:10]
 
     def _fallback_decision(
