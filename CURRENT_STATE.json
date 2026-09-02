@@ -58,6 +58,8 @@
       ,"owner unknown-target grounding live at d854b741-722f-4f44-b566-ed1ea9d2fbc5 on release 23d6441: authenticated browser request 'finish the nonexistent task zz-aegis-safety-probe-2026' returned HTTP 200 with code=blocked and truthful clarification, matching objective 0bf73fbc-ebe8-4283-af20-3b08edf08895/session f44b5684-44b1-4add-b49b-f67ee25c1f16; no canonical mutation occurred. This is owner-runtime safety/product evidence, not capability-level green"
       ,"bounded interaction-context extraction at 75bfed2: authorized context compaction, canonical referent construction, grounded follow-up answers, and continuation trace enrichment moved into interaction_context.py while compatibility imports preserve client behavior; 339 tests, Ruff, formatting, strict mypy, migrations, and state validation passed locally and hosted validation run 33594181201 passed"
       ,"first-party runtime composition extraction at 28ec24f: reference Pack-owned executor/verifier factories and Pack-to-runtime registration moved out of the CLI adapter; the CLI now requests a generic PackRuntimeRegistry while Core continues to resolve typed bindings and enforce declared permissions. Full deterministic validation passed at 339 tests and hosted validation run 33594470826 passed; owner installation remains on 23d6441 pending promotion"
+      ,"owner release promotion correction at 28ec24f: initial restart exposed a deployment-path defect because the versioned release stores the package under release/src while the service pointed at release; corrected PYTHONPATH to the release/src package root, restarted without database reset, and authenticated health/readiness reported release_sha=28ec24f with PostgreSQL and Qwen3:8B green"
+      ,"owner promoted read live at 3a8551b9-cae0-476e-a658-8431749d9461 on release 28ec24f: authenticated browser request 'show my grocery list' returned HTTP 200 code=completed, objective 39356a1c-6c9e-4ec5-8f58-1f3ea08877ac, and canonical 'Groceries: rice (x6)'; this is installed-runtime boundary evidence, not a new semantic capability claim"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -143,8 +145,8 @@
   "deterministic_green_sha": "28ec24f",
   "last_pushed_sha": "28ec24f",
   "hosted_ci_green_sha": "28ec24f",
-  "installed_release_sha": "23d6441",
-  "running_release_sha": "23d6441",
+  "installed_release_sha": "28ec24f",
+  "running_release_sha": "28ec24f",
   "live_green_sha": "f5add80",
   "head_sha": "23d6441",
   "last_green_sha": "f5add80",
@@ -167,10 +169,10 @@
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/23d6441",
     "repository_head_sha": "28ec24f",
     "deterministic_green_sha": "28ec24f",
-    "installed_release_sha": "23d6441",
-    "running_release_sha": "23d6441",
+    "installed_release_sha": "28ec24f",
+    "running_release_sha": "28ec24f",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, hosted validation, and installed/running owner release are 23d6441. PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic/hosted validation are green through source checkpoint 28ec24f; installed/running owner release 28ec24f is promoted from the versioned release/src package root. PostgreSQL and Qwen3:8B readiness are green. Authenticated browser read correlation 3a8551b9-cae0-476e-a658-8431749d9461 returned canonical Groceries: rice (x6). OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
