@@ -3,6 +3,7 @@
 from .contracts import ActionSpec, Decision, IntentFrame, Result
 from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 from .kernel import Kernel
+from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 
 __all__ = [
     "ActionSpec",
@@ -12,5 +13,7 @@ __all__ = [
     "InteractionDependencies",
     "InteractionInputError",
     "Kernel",
+    "ActionRuntime",
+    "PackRuntimeRegistry",
     "Result",
 ]

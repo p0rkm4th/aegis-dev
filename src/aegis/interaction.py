@@ -42,6 +42,7 @@ from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
+from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
 from .planning import (
     ContextualMutationGuard,
@@ -99,6 +100,7 @@ class InteractionDependencies:
         local_identity: Callable[[], bool],
         model_provider: Callable[[], Any] | None = None,
         capability_retriever: Callable[[str, PackManager], tuple[ActionCard, ...]] | None = None,
+        runtime_registry: PackRuntimeRegistry | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -109,6 +111,7 @@ class InteractionDependencies:
         self.local_identity = local_identity
         self.model_provider = model_provider
         self.capability_retriever = capability_retriever
+        self.runtime_registry = runtime_registry
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -1190,9 +1193,14 @@ class InteractionBoundary:
                 card = card.model_copy(
                     update={"action": card.action.model_copy(update={"arguments": arguments})}
                 )
-            if card.action.action_id == "kitchen.groceries.add":
+            if self.dependencies.runtime_registry is not None:
+                runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
+                executor = runtime.executor
+                verifier = runtime.verifier
+                permissions = runtime.permissions
+            elif card.action.action_id == "kitchen.groceries.add":
                 channel = self.dependencies.openclaw_channel()
-                executor: Any = OpenClawExecutor(
+                executor = OpenClawExecutor(
                     OpenClawGroceryExecutor(
                         channel,
                         os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
@@ -1202,7 +1210,7 @@ class InteractionBoundary:
                     _RuntimePolicy(),
                     _NoApproval(),
                 )
-                verifier: Any = OpenClawGroceryVerifier(principal_store, principal)
+                verifier = OpenClawGroceryVerifier(principal_store, principal)
                 permissions = {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})}
             elif card.action.action_id == "kitchen.groceries.list":
                 executor = PostgresGroceryListExecutor(principal_store, principal)
