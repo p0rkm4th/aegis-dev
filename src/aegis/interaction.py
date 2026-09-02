@@ -388,13 +388,6 @@ class InteractionBoundary:
                 routing_values = {
                     key: value for key, value in context.values.items() if key != "canonical_facts"
                 }
-                canonical_facts = context.values.get("canonical_facts")
-                if isinstance(canonical_facts, dict) and isinstance(
-                    canonical_facts.get("canonical_tasks"), list
-                ):
-                    routing_values["authorized_task_candidates"] = canonical_facts[
-                        "canonical_tasks"
-                    ][:10]
                 routing_context = context.model_copy(update={"values": routing_values})
             request = ModelRequest(
                 working_set=WorkingSet(intent=intent, context=routing_context),
