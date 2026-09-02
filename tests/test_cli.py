@@ -2146,6 +2146,35 @@ def test_feedback_harvest_creates_non_replaying_defect_candidates():
     assert candidates[0]["correlation_id"] == "correlation-1"
     assert candidates[0]["reproduction_required"] is True
     assert candidates[0]["replay_consequential_action"] is False
+    assert candidates[0]["privacy_classification"] == "owner_scoped_metadata_only"
+    assert candidates[0]["regression_eligibility"] == "human_review_required"
+    assert candidates[0]["duplicate_signature"]
+
+
+def test_feedback_harvest_deduplicates_same_owner_correlation_and_failure():
+    from aegis.feedback_triage import harvest_defect_candidates
+
+    feedback = [
+        {
+            "event_id": "event-new",
+            "correlation_id": "same-correlation",
+            "outcome": "not_helpful",
+            "reason": "incorrect",
+            "result_state": "completed",
+        },
+        {
+            "event_id": "event-old",
+            "correlation_id": "same-correlation",
+            "outcome": "not_helpful",
+            "reason": "incorrect",
+            "result_state": "completed",
+        },
+    ]
+
+    candidates = harvest_defect_candidates(feedback)
+
+    assert len(candidates) == 1
+    assert candidates[0]["event_id"] == "event-new"
 
 
 def test_reference_completion_grounding_blocks_unrelated_canonical_target():
