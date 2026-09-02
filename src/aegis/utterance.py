@@ -33,6 +33,39 @@ def is_question_request(utterance: str) -> bool:
     )
 
 
+def has_multiple_question_clauses(utterance: str) -> bool:
+    """Detect compound questions before a single-result fast path.
+
+    This is a structural safety boundary, not a natural-language vocabulary
+    parser. A deterministic read must not claim completion when the user asks
+    for two independent interrogative objectives joined by ``and``.
+    """
+
+    normalized = " ".join(utterance.casefold().split())
+    clauses = re.split(r"\s+and\s+", normalized)
+    question_starts = (
+        "what ",
+        "which ",
+        "who ",
+        "when ",
+        "where ",
+        "how ",
+        "can ",
+        "could ",
+        "should ",
+        "would ",
+        "is ",
+        "are ",
+        "do ",
+        "does ",
+    )
+    question_clause_count = 0
+    for clause in clauses:
+        if clause.startswith(question_starts):
+            question_clause_count += 1
+    return question_clause_count >= 2
+
+
 def is_task_destination_request(utterance: str) -> bool:
     """Recognize an explicit task-list destination for action conflict checks."""
 
