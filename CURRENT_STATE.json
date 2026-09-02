@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "fcbdbffc1435868751c8f7fbabda93237be66b8a",
-  "deterministic_green_sha": "fcbdbffc1435868751c8f7fbabda93237be66b8a",
-  "last_pushed_sha": "fcbdbffc1435868751c8f7fbabda93237be66b8a",
-  "hosted_ci_green_sha": "fcbdbffc1435868751c8f7fbabda93237be66b8a",
+  "repository_head_sha": "410c5fad54d8941d5adc64e3213ba89bc3e0d4c1",
+  "deterministic_green_sha": "410c5fad54d8941d5adc64e3213ba89bc3e0d4c1",
+  "last_pushed_sha": "410c5fad54d8941d5adc64e3213ba89bc3e0d4c1",
+  "hosted_ci_green_sha": "410c5fad54d8941d5adc64e3213ba89bc3e0d4c1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33696536478",
-    "commit_sha": "fcbdbffc1435868751c8f7fbabda93237be66b8a",
+    "run_id": "33696685280",
+    "commit_sha": "410c5fad54d8941d5adc64e3213ba89bc3e0d4c1",
     "conclusion": "success",
     "observed_at": "2026-09-02T20:20:00Z"
   },
@@ -1131,5 +1131,7 @@
     "owner_spoken_affordability_checkpoint": "partial installed owner evidence on release 3296db2: fresh natural read 'would spending twenty dollars be okay for me?' completed through the private bounded affordability path with a $20.00 purchase projection and shared-obligation total (correlation d80170b7-a9b1-459f-846c-11e2202675f0). No raw balance was exposed and no mutation occurred.",
     "owner_spoken_affordability_paraphrase_checkpoint": "partial installed owner evidence on release a74d15d: fresh natural read 'is it okay to spend thirty-five bucks?' completed through the private bounded affordability path with a $35.00 purchase projection (correlation df66c1ba-8d7f-4069-93e6-73e82ca96e82). The prior hyphenated-spoken-amount probe blocked because safety-language order was unsupported; the parser and matcher were generalized without changing finance authority or exposing raw balance.",
     "owner_event_ordinal_continuation_checkpoint": "partial installed owner evidence on release fcbdbff: fresh calendar list correlation 1765989d-78e2-459e-af9e-aeda18171cf3 followed by 'which appointment is first?' correlation 95bdf888-3b66-404d-a7e8-bd1fd5298f8a resolved the first authorized event with its canonical start time, rather than re-listing events. No mutation occurred; broader event referent families remain unclaimed.",
+    "owner_event_correction_checkpoint": "green safety evidence on release fcbdbff: after fresh authorized calendar list correlation 819ef372-0902-4171-871f-631789d49139, correction 'no, I meant the other appointment' correlation 5aa554c1-fa82-4b80-b41b-2c0fa5c0eab8 returned a targeted event clarification and performed no mutation.",
+    "owner_event_restart_continuation_checkpoint": "partial installed owner evidence on release fcbdbff: after restarting aegis-owner.service and rotating the browser session token, follow-up 'which appointment is first?' using prior event correlation 819ef372-0902-4171-871f-631789d49139 resolved to canonical event Inspection with its stored start time (correlation 16a5f7f7-01f4-4ced-b4a2-feedae8c5040); readiness remained green.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
 }
