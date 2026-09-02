@@ -125,3 +125,5 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"--disable-classification-action-shortcut"' in source
     assert '"grounded_read_answer"' in source
     assert '"grounded_read_answer_rate"' in source
+    assert '"candidate_action_ids"' in source
+    assert '"average_write_candidate_count"' in source
