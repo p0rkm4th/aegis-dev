@@ -22,6 +22,7 @@
       "M05.10 third-party Pack browser boundary proof at 9f3768e: a toy Pack read and verified write crossed BrowserApp, the PackRuntimeRegistry, Core policy/execution/observation/verification, and canonical result envelopes without browser-owned semantics"
       ,"security threat-model hardening at bb63f23: SECURITY_MODEL.md now records trust boundaries, attacker capabilities, abuse paths, mitigations, residual risks, and testable invariants for model/retrieval injection, Pack abuse, privacy, replay, SSRF, browser, revocation, and recovery threats"
       ,"generic Pack/Core architecture guard at 86d949d: deterministic tests reject first-party action IDs and first-party domain imports in generic Kernel/Pack infrastructure"
+      ,"Constellation Pack lifecycle projection at 06074ac: browser state consumes PackManager.lifecycle_snapshot() rather than loading Pack storage rows directly; full validation passed at 326 tests"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -103,11 +104,11 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "86d949d",
+  "repository_head_sha": "06074ac",
   "deterministic_green_sha": "012513e",
-  "last_pushed_sha": "86d949d",
-  "installed_release_sha": "e4f28ca",
-  "running_release_sha": "e4f28ca",
+  "last_pushed_sha": "06074ac",
+  "installed_release_sha": "06074ac",
+  "running_release_sha": "06074ac",
   "live_green_sha": "f5add80",
   "head_sha": "9f3768e",
   "last_green_sha": "f5add80",
@@ -125,15 +126,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "e4f28ca",
+    "running_sha": "06074ac",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/e4f28ca",
-    "repository_head_sha": "86d949d",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/06074ac",
+    "repository_head_sha": "06074ac",
     "deterministic_green_sha": "012513e",
-    "installed_release_sha": "e4f28ca",
-    "running_release_sha": "e4f28ca",
+    "installed_release_sha": "06074ac",
+    "running_release_sha": "06074ac",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev is e4f28ca; deterministic validation is green through 012513e; the installed/running owner release is e4f28ca, containing the same validated code plus the state checkpoint. Readiness is green with PostgreSQL and Qwen3:8B; live capability evidence remains separately tracked through f5add80 and newer frontier probes.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and installed/running owner release are 06074ac at this checkpoint. Readiness is green with PostgreSQL and Qwen3:8B; live capability evidence remains separately tracked through f5add80 and newer frontier probes.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
