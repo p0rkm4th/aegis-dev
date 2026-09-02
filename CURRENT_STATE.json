@@ -31,6 +31,7 @@
       ,"runtime composition extraction at 51c19f6: InteractionBoundary no longer contains the legacy first-party executor/verifier decision tree; compatibility adapters live in reference_runtime.py and OpenClaw cleanup is explicit in ActionRuntime"
       ,"Kitchen mutation registry at 319a3c1: production default PackRuntimeRegistry now binds kitchen.groceries.add with explicit OpenClaw cleanup; owner readiness is green, but external mutation acceptance remains lane-limited because OpenClaw is not configured"
       ,"semantic evaluator context-contract correction at 184d7c4: evaluation supplies bounded authorized canonical fixtures and scores contextual reads as grounded ANSWER when no single ActionCard is eligible; Qwen3:8B held-out route accuracy is 0.125 with zero false mutations/completions, so capability green remains unclaimed"
+      ,"registry runtime cleanup correction at 6527187: InteractionBoundary now retains Pack-provided ActionRuntime cleanup hooks for registry-resolved actions, closing the OpenClaw/channel lifecycle leak; exact source validation passed at 6527187"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -112,13 +113,13 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "184d7c4",
-  "deterministic_green_sha": "184d7c4",
-  "last_pushed_sha": "184d7c4",
-  "installed_release_sha": "319a3c1",
-  "running_release_sha": "319a3c1",
+  "repository_head_sha": "6527187",
+  "deterministic_green_sha": "6527187",
+  "last_pushed_sha": "6527187",
+  "installed_release_sha": "6527187",
+  "running_release_sha": "6527187",
   "live_green_sha": "f5add80",
-  "head_sha": "9f3768e",
+  "head_sha": "6527187",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -134,15 +135,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "319a3c1",
+    "running_sha": "6527187",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/319a3c1",
-    "repository_head_sha": "184d7c4",
-    "deterministic_green_sha": "184d7c4",
-    "installed_release_sha": "319a3c1",
-    "running_release_sha": "319a3c1",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/6527187",
+    "repository_head_sha": "6527187",
+    "deterministic_green_sha": "6527187",
+    "installed_release_sha": "6527187",
+    "running_release_sha": "6527187",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic validation are 184d7c4. The installed/running owner release remains 319a3c1 because the evaluator-only correction has not been promoted; readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, exact deterministic validation, and the installed/running owner release are 6527187. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -206,14 +207,14 @@
     "model": "qwen3:8b",
     "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
     "endpoint": "http://172.18.0.1:11434",
-    "source_sha": "817d1eed623f6a670795351f9dd4e8b8b91357a2",
+    "source_sha": "6527187c024a09c140637c419f61446da21a61a0",
     "development_dataset_sha256": "90a28ae8dd206b750a81eed577b107d18714df94183ac45b07209806a6331b24",
     "held_out_dataset_sha256": "61d4d5b33e51b5817dda3fe28ba8188813756120d14dbe8b88490cabb635a731",
     "prompt_and_decision_schema_sha256": "0e21e25d3afa97f6b67d1e7e046fe0634496827bf42c0dc4ceea697d9bab4b7a",
     "action_card_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
-    "development_result": "/tmp/aegis_eval_dev_final.json",
-    "held_out_result": "/tmp/aegis_eval_heldout_final.json",
-    "interpretation": "The evaluator invokes the real provider through the production bounded cognition decoder without executing mutations. Held-out route accuracy is 0.0 and missed clarification is 1.0, so semantic capability is not green. False mutations and false completions are zero in this non-executing run; security hard failure is false. Use development failures to improve contracts and rerun the untouched held-out corpus."
+    "development_result": "/tmp/aegis-semantic-dev-live.json",
+    "held_out_result": "/tmp/aegis-semantic-heldout-live.json",
+    "interpretation": "The evaluator invokes the real Qwen3:8B provider through the production bounded cognition decoder without executing mutations. At 6527187, development route accuracy is 0.625 and held-out route accuracy is 0.125; action precision is 1.0, action recall is 0.5, argument exactness is 0.875, false mutations/completions are zero, and security hard failure is false. Semantic capability is not green. Use development failure families to improve generic contracts and rerun the untouched held-out corpus."
   },
   "artifact_alpha_gate": {
     "status": "green",
@@ -881,5 +882,5 @@
   "owner_household_read_precedence_live": "green live routing and safety evidence on release a3bfc7d: duplicate 'Finish the task called the quarterly inspection.' correlation 1aca33f5-7fb1-44b5-8ddf-992c23e32927 reached task completion and clarified the canonical duplicate instead of reading events; unique inspection-named task 'Finish the task called rendered detail acceptance 91919191.' correlation 76126a51-156a-4303-ad08-61f92e18ba65 completed with canonical task readback",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
-    "next_action": "Continue removing the remaining legacy domain-dispatch fallbacks behind explicit Pack runtime composition, then diagnose the held-out Qwen3:8B semantic baseline using development failures without phrase patches. Keep capability-level evidence separate from exact canaries; Home Assistant/mobile/voice remain lane-limited."
+    "next_action": "Diagnose the held-out Qwen3:8B semantic baseline using development failure families and generic capability/schema causes, without phrase patches; then select the smallest measured cognition-boundary improvement. Keep capability-level evidence separate from exact canaries. OpenClaw external mutation, Home Assistant, mobile, and voice remain lane-limited."
 }
