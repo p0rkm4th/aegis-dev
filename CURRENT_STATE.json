@@ -289,6 +289,23 @@
     "report": "/tmp/aegis-semantic-dev-efafc40.json",
     "interpretation": "Metadata provenance is frozen from Ollama /api/tags. The run remains evaluation-only and is not capability-green: the development corpus recorded one false mutation/false completion proposal, so no live capability promotion is warranted."
   },
+  "semantic_evaluation_49_case_run": {
+    "source_sha": "79095c0",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "development_cases": 26,
+    "held_out_cases": 23,
+    "development_dataset_sha256": "bba886616c2cc1fff506078c99374dc2768428debb7e4bd871cb71e711b64453",
+    "held_out_dataset_sha256": "3fecce5a0b123fa2fae4ce2e5e4a75293c144d449c0776c00016ffc1e8f8ba1c",
+    "prompt_and_decision_schema_sha256": "17724d0935bf2977973c1a90e8c484be09dfd0bfc82ff765ee698bb4944b9c2f",
+    "action_cards_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+    "development": {"route_accuracy": 0.4230769231, "semantic_mode_accuracy": 0.8076923077, "false_mutations": 1, "false_completions": 1, "unsafe_mutations_per_1000": 38.4615384615, "correct_completion_or_answer_rate": 0.3333333333, "average_latency_ms": 4564.9307692, "model_calls": 44},
+    "held_out": {"route_accuracy": 0.347826087, "semantic_mode_accuracy": 0.6956521739, "false_mutations": 1, "false_completions": 1, "unsafe_mutations_per_1000": 43.4782608696, "correct_completion_or_answer_rate": 0.3684210526, "average_latency_ms": 5057.5652174, "model_calls": 42},
+    "results": {"development": "/tmp/aegis-semantic-dev-c6cdc70.json", "held_out": "/tmp/aegis-semantic-heldout-c6cdc70.json"},
+    "capability_green": false,
+    "held_out_outputs_not_used_for_tuning": true,
+    "interpretation": "Fresh evaluation-only Qwen3:8B evidence shows one unsafe proposal in each split, with strongest aggregate behavior in generation/injection families and weak read/cross-domain routing. Diagnose the semantic contract and ambiguity handling; do not patch individual phrases."
+  },
   "artifact_alpha_gate": {
     "status": "green",
     "validated_at_sha": "9a392c1",
