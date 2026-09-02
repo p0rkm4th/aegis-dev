@@ -3391,6 +3391,20 @@ def test_cli_formats_cross_domain_memory_and_obligation_summary():
     )
 
 
+def test_cli_formats_cross_domain_open_chores():
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Cross-domain planning context assembled from canonical state",
+        correlation_id=uuid4(),
+        evidence={"planning": {"open_chores": [{"title": "Clean the kitchen"}]}},
+    )
+
+    assert cli._format(result) == "Planning: open chores: Clean the kitchen"
+
+
 def test_cli_formats_completed_chore_as_completion():
     from aegis import cli
 

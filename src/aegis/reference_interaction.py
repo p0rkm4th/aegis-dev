@@ -507,6 +507,14 @@ def reference_format_result(result: Any) -> str:
                 if isinstance(item, dict) and isinstance(item.get("title"), str)
             ]
             summaries.append("open tasks: " + ("; ".join(titles) if titles else "(none)"))
+        open_chores = planning.get("open_chores")
+        if isinstance(open_chores, list):
+            titles = [
+                str(item["title"])
+                for item in open_chores
+                if isinstance(item, dict) and isinstance(item.get("title"), str)
+            ]
+            summaries.append("open chores: " + ("; ".join(titles) if titles else "(none)"))
         obligations = planning.get("open_obligations")
         if isinstance(obligations, list):
             titles = [

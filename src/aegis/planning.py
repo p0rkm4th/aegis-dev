@@ -440,6 +440,10 @@ class CrossDomainPlanningFastPath:
         open_tasks = tuple(task for task in self.tasks if task.status.value == "open")[
             : self._MAX_CONTEXT_ITEMS
         ]
+        chores = cast(tuple[Any, ...], self.household_snapshot.get("chores", ()))
+        open_chores = tuple(item for item in chores if not item.completed)[
+            : self._MAX_CONTEXT_ITEMS
+        ]
         query_terms = {
             term.strip(".,!?;:")
             for term in intent.utterance.casefold().split()
@@ -472,6 +476,7 @@ class CrossDomainPlanningFastPath:
         priorities = [f"household obligation: {item.title}" for item in open_obligations]
         priorities.extend(f"personal goal: {goal.description}" for goal in goals)
         priorities.extend(f"task: {task.title}" for task in open_tasks)
+        priorities.extend(f"chore: {chore.title}" for chore in open_chores)
         priorities.extend(f"personal memory: {memory.content}" for memory in memory_matches)
         planning: dict[str, object] = {
             "goals": [
@@ -489,6 +494,9 @@ class CrossDomainPlanningFastPath:
             ],
             "open_tasks": [
                 {"task_id": str(task.task_id), "title": task.title} for task in open_tasks
+            ],
+            "open_chores": [
+                {"chore_id": str(chore.chore_id), "title": chore.title} for chore in open_chores
             ],
             "memories": [
                 {
