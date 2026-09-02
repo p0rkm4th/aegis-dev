@@ -356,6 +356,46 @@ def test_prior_context_turn_and_referents_are_bounded():
     assert len(context.values["referents"]["those"]["candidates"]) == 10
 
 
+def test_prior_task_context_retains_deadline_candidates_within_bound():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="Which responsibilities are still open?",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="grounded task list",
+        evidence={
+            "canonical_tasks": [{"title": f"undated-{i}", "status": "open"} for i in range(10)]
+            + [{"title": "deadline task", "status": "open", "due_at": "2026-09-03"}],
+        },
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+    candidates = context.values["referents"]["those"]["candidates"]
+
+    assert len(candidates) == 10
+    assert candidates[0] == {
+        "title": "deadline task",
+        "status": "open",
+        "due_at": "2026-09-03",
+    }
+
+
 def test_model_answer_can_carry_authorized_working_facts_without_becoming_truth():
     context = Context(
         values={"canonical_facts": {"canonical_items": ["rice", "beans"]}},
