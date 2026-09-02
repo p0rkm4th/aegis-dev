@@ -29,24 +29,18 @@ from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .homelab import PostgresHomelabStore
 from .household import (
-    PostgresChoreExecutor,
-    PostgresChoreVerifier,
-    PostgresEventExecutor,
-    PostgresEventVerifier,
     PostgresHouseholdStore,
 )
 from .identity import (
     KeycloakIdentityProvider,
     KeycloakOIDCClient,
     PostgresExternalPrincipalResolver,
-    Role,
 )
 from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
-from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PostgresPackStore
-from .pack_runtime import ActionRuntime, PackRuntimeRegistry
+from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_interaction import (
     build_reference_fallback_context_runtime,
@@ -59,21 +53,13 @@ from .reference_interaction import (
     run_reference_plan,
 )
 from .reference_packs import (
-    OpenClawGroceryExecutor,
-    OpenClawGroceryVerifier,
-    PostgresGroceryListExecutor,
-    PostgresGroceryListVerifier,
     reference_bundles,
 )
-from .reference_runtime import legacy_runtime
+from .reference_runtime import default_runtime_registry, legacy_runtime
 from .release_truth import runtime_release_sha
 from .store import PostgresObjectiveStore
 from .tasks import (
-    PostgresTaskExecutor,
-    PostgresTaskListExecutor,
-    PostgresTaskListVerifier,
     PostgresTaskStore,
-    PostgresTaskVerifier,
     requested_task_due_at,
 )
 from .web import serve
@@ -160,78 +146,7 @@ def _initialize_env_file(path: str) -> None:
 def _default_runtime_registry(
     openclaw_channel: Callable[[], OpenClawWebSocketChannel],
 ) -> PackRuntimeRegistry:
-    """Compose first-party PostgreSQL runtimes behind the generic Pack seam."""
-
-    registry = PackRuntimeRegistry()
-
-    def task_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        store = PostgresTaskStore(connection)
-        return ActionRuntime(
-            PostgresTaskExecutor(store, principal),
-            PostgresTaskVerifier(store, principal),
-            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-
-    def task_list_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        store = PostgresTaskStore(connection)
-        return ActionRuntime(
-            PostgresTaskListExecutor(store, principal),
-            PostgresTaskListVerifier(store, principal),
-            {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-
-    def household_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            PostgresChoreExecutor(store, principal),
-            PostgresChoreVerifier(store, principal),
-            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-
-    def event_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            PostgresEventExecutor(store, principal),
-            PostgresEventVerifier(store, principal),
-            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-
-    def grocery_list_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            PostgresGroceryListExecutor(store, principal),
-            PostgresGroceryListVerifier(store, principal),
-            {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-
-    def grocery_add_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        channel = openclaw_channel()
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            OpenClawExecutor(
-                OpenClawGroceryExecutor(
-                    channel,
-                    os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
-                    store,
-                    principal,
-                ),
-                _RuntimePolicy(),
-                _NoApproval(),
-            ),
-            OpenClawGroceryVerifier(store, principal),
-            {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
-            cleanup=channel.close,
-        )
-
-    registry.register("tasks.create", task_runtime)
-    registry.register("tasks.complete", task_runtime)
-    registry.register("tasks.list", task_list_runtime)
-    registry.register("tasks.chores.create", household_runtime)
-    registry.register("tasks.chores.complete", household_runtime)
-    registry.register("tasks.events.create", event_runtime)
-    registry.register("kitchen.groceries.list", grocery_list_runtime)
-    registry.register("kitchen.groceries.add", grocery_add_runtime)
-    return registry
+    return default_runtime_registry(openclaw_channel)
 
 
 def _runtime_report() -> HealthReport:
