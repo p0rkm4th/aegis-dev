@@ -2718,6 +2718,27 @@ def test_household_read_fast_path_filters_natural_event_date_requests():
     ]
 
 
+def test_household_read_fast_path_filters_events_in_next_week_window():
+    from datetime import timedelta
+
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {alice.id})
+    next_week = datetime.now(timezone.utc) + timedelta(days=8)
+    space.add_event(alice, HouseholdEvent("next-week", "Team sync", next_week))
+    space.add_event(
+        alice,
+        HouseholdEvent("later", "Quarterly review", next_week + timedelta(days=7)),
+    )
+
+    result = HouseholdReadFastPath(space.snapshot(alice)).resolve(
+        IntentFrame(principal=alice, utterance="Which appointments do I have next week?")
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "next_week"
+    assert result.evidence["events"] == [{"title": "Team sync", "starts_at": next_week.isoformat()}]
+
+
 def test_cross_domain_planning_fast_path_keeps_personal_and_shared_context():
     from datetime import datetime, timezone
 
