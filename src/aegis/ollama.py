@@ -177,8 +177,6 @@ class OllamaProvider:
                 "action_rule": (
                     "For ACTION, set action_ref to exactly one action_id from the supplied "
                     "ActionCards and put only declared argument values in action_arguments. "
-                    "Use the ActionCard operation metadata to distinguish reads, creates, "
-                    "completions, and other bounded operations. "
                     "Core will expand the reference into the canonical action fields; never "
                     "invent or alter capabilities, permissions, or verification. A legacy "
                     "full action object is accepted only when it exactly matches a card."
