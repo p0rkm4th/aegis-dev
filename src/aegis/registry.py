@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from typing import Protocol
+from typing import NamedTuple, Protocol
 
 from .contracts import ActionCard
 
@@ -12,6 +12,11 @@ class CapabilityEmbedder(Protocol):
     """Minimal embedding seam; vectors are retrieval hints, never canonical state."""
 
     def embed(self, texts: tuple[str, ...]) -> tuple[tuple[float, ...], ...]: ...
+
+
+class CapabilityMatch(NamedTuple):
+    card: ActionCard
+    score: float
 
 
 class CapabilityRegistry:
@@ -33,10 +38,10 @@ class CapabilityRegistry:
         )
         return tuple(ranked[:limit])
 
-    def retrieve_semantic(
+    def retrieve_semantic_with_scores(
         self, query: str, embedder: CapabilityEmbedder, limit: int = 5
-    ) -> tuple[ActionCard, ...]:
-        """Rank enabled cards by semantic description without widening authority."""
+    ) -> tuple[CapabilityMatch, ...]:
+        """Rank enabled cards and expose retrieval scores for diagnostics."""
 
         if not query.strip():
             raise ValueError("capability query must be non-empty")
@@ -71,4 +76,15 @@ class CapabilityRegistry:
             key=lambda item: (cosine(item[1]), item[0].relevance),
             reverse=True,
         )
-        return tuple(card for card, _ in ranked[:limit])
+        return tuple(
+            CapabilityMatch(card=card, score=cosine(vector)) for card, vector in ranked[:limit]
+        )
+
+    def retrieve_semantic(
+        self, query: str, embedder: CapabilityEmbedder, limit: int = 5
+    ) -> tuple[ActionCard, ...]:
+        """Rank enabled cards by semantic description without widening authority."""
+
+        return tuple(
+            match.card for match in self.retrieve_semantic_with_scores(query, embedder, limit)
+        )

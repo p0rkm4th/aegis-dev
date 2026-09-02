@@ -21,7 +21,7 @@ from time import monotonic
 from typing import Any
 from uuid import uuid4
 
-from aegis.contracts import Context, Decision, DecisionKind, IntentFrame, Principal
+from aegis.contracts import ActionCard, Context, Decision, DecisionKind, IntentFrame, Principal
 from aegis.decoding import StrictDecisionDecoder
 from aegis.embeddings import OllamaEmbeddingProvider
 from aegis.interaction import InteractionBoundary, InteractionDependencies
@@ -135,7 +135,29 @@ def _boundary(
     *,
     reuse_classification_action_reference: bool = True,
     retrieval_limit: int = 10,
+    retrieval_traces: list[dict[str, Any]] | None = None,
 ) -> InteractionBoundary:
+    def retrieve(query: str, manager: PackManager) -> tuple[ActionCard, ...]:
+        matches = manager.retrieve_semantic_with_scores(query, embedder, limit=retrieval_limit)
+        if retrieval_traces is not None:
+            retrieval_traces.append(
+                {
+                    "candidates": [
+                        {
+                            "action_id": match.card.action.action_id,
+                            "score": round(match.score, 6),
+                            "metadata_relevance": match.card.relevance,
+                        }
+                        for match in matches
+                    ],
+                    "top_score": round(matches[0].score, 6) if matches else None,
+                    "score_margin": round(matches[0].score - matches[1].score, 6)
+                    if len(matches) > 1
+                    else None,
+                }
+            )
+        return tuple(match.card for match in matches)
+
     return InteractionBoundary(
         InteractionDependencies(
             connect=lambda _url: None,
@@ -146,9 +168,7 @@ def _boundary(
             openclaw_channel=lambda: None,
             local_identity=lambda: False,
             model_provider=lambda: provider,
-            capability_retriever=lambda query, manager: manager.retrieve_semantic(
-                query, embedder, limit=retrieval_limit
-            ),
+            capability_retriever=retrieve,
             fallback_card_selector=reference_fallback_cards,
             reuse_classification_action_reference=reuse_classification_action_reference,
         )
@@ -204,11 +224,13 @@ def evaluate(
         os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"), base_url
     )
     manager = _manager()
+    retrieval_traces: list[dict[str, Any]] = []
     boundary = _boundary(
         provider,
         embedder,
         reuse_classification_action_reference=reuse_classification_action_reference,
         retrieval_limit=retrieval_limit,
+        retrieval_traces=retrieval_traces,
     )
     principal = Principal(id="evaluation", vault_id="evaluation")
     prompt_template_sha = _sha256(
@@ -249,8 +271,10 @@ def evaluate(
         calls_before = transport.calls
         intent = IntentFrame(principal=principal, utterance=case.utterance, correlation_id=uuid4())
         context = _evaluation_context()
+        retrieval_traces.clear()
         cards = boundary._fallback_cards(manager, case.utterance, context)
         decision = boundary._fallback_decision(intent, cards, context)
+        retrieval = retrieval_traces[-1] if retrieval_traces else {"candidates": []}
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         expected_kind = case.expected_kind
         expected_action = case.expected_action
@@ -270,6 +294,16 @@ def evaluate(
         actual_mutation = action is not None and action not in {
             *READ_ACTIONS,
         }
+        candidate_ids = [str(candidate["action_id"]) for candidate in retrieval["candidates"]]
+        candidate_grounding = (
+            "candidate_bound"
+            if action is not None and action in candidate_ids
+            else "action_outside_candidates"
+            if action is not None
+            else "non_action_decision"
+            if isinstance(decision, Decision)
+            else "boundary_result"
+        )
         grounded_read_answer = (
             kind == DecisionKind.ANSWER.value
             and semantic_mode == "READ"
@@ -295,6 +329,13 @@ def evaluate(
                 "expected_action": expected_action,
                 "candidate_action_ids": [card.action.action_id for card in cards],
                 "candidate_count": len(cards),
+                "candidate_scores": retrieval["candidates"],
+                "retrieval_top_score": retrieval.get("top_score"),
+                "retrieval_score_margin": retrieval.get("score_margin"),
+                "expected_action_available": (
+                    expected_action in candidate_ids if expected_action is not None else None
+                ),
+                "candidate_grounding": candidate_grounding,
                 "write_candidate_count": sum(
                     int(
                         any(
@@ -387,6 +428,22 @@ def evaluate(
                 int(item["write_candidate_count"]) for item in items
             )
             / max(count, 1),
+            "average_retrieval_top_score": sum(
+                float(item["retrieval_top_score"] or 0) for item in items
+            )
+            / max(count, 1),
+            "average_retrieval_score_margin": sum(
+                float(item["retrieval_score_margin"] or 0) for item in items
+            )
+            / max(count, 1),
+            "expected_action_candidate_availability": sum(
+                int(item["expected_action_available"] is True) for item in items
+            )
+            / max(sum(int(item["expected_action"] is not None) for item in items), 1),
+            "candidate_bound_decision_rate": sum(
+                int(item["candidate_grounding"] == "candidate_bound") for item in items
+            )
+            / max(sum(int(item["predicted_action"] is not None) for item in items), 1),
         }
 
     total = len(results)
