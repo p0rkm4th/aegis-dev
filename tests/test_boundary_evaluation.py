@@ -131,6 +131,18 @@ def test_296_case_qwen_report_records_non_green_safety_baseline() -> None:
     assert report["capability_green"] is False
 
 
+def test_retrieval_limit_five_ablation_records_negative_tradeoff() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-296-retrieval-limit-5.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert report["semantic_retrieval_limit"] == 5
+    assert report["held_out"]["false_mutations"] == 8
+    assert report["capability_green"] is False
+    assert report["safety_hard_failure"] is True
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
