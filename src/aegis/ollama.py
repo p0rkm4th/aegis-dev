@@ -135,7 +135,9 @@ class OllamaProvider:
                     "by the selected ActionCard. Copy action_id, capability, required_permissions, "
                     "and verification exactly from that card. Never invent argument keys, "
                     "permissions, tools, or canonical facts; if the target is ambiguous, "
-                    "return CLARIFY."
+                    "return CLARIFY. For a create action, extract the smallest complete "
+                    "description of the thing the user wants recorded, excluding politeness "
+                    "and destination phrases such as 'on my list' or 'as a task'."
                     if request.allow_argument_proposals
                     else "Argument proposals are disabled; copy ActionCard actions verbatim."
                 ),
