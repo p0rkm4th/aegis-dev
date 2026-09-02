@@ -24,6 +24,7 @@ import psycopg
 from .audit import PostgresAuditLog
 from .contracts import ActionCard, Principal, RequestStatus, Result
 from .embeddings import OllamaEmbeddingProvider
+from .feedback_triage import harvest_defect_candidates
 from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
@@ -714,7 +715,24 @@ def _owner_feedback_report(principal: Principal, limit: int = 20) -> list[dict[s
         connection.close()
 
 
-def _print_owner_feedback(report: list[dict[str, Any]], as_json: bool) -> int:
+def _print_owner_feedback(
+    report: list[dict[str, Any]], as_json: bool, harvest: bool = False
+) -> int:
+    if harvest:
+        defects = harvest_defect_candidates(report)
+        if as_json:
+            print(json.dumps({"defects": defects}, sort_keys=True))
+            return 0
+        if not defects:
+            print("No owner feedback defect candidates recorded.")
+            return 0
+        print(f"Owner feedback defect candidates ({len(defects)}):")
+        for item in defects:
+            print(
+                f"- {item['classification']}: objective={item['objective_id']} "
+                f"event={item['event_id']} (reproduction required; no replay)"
+            )
+        return 0
     if as_json:
         print(json.dumps({"feedback": report}, sort_keys=True))
         return 0
@@ -1219,6 +1237,11 @@ def main() -> int:
         help="show recent owner feedback metadata for defect triage, then exit",
     )
     parser.add_argument(
+        "--harvest",
+        action="store_true",
+        help="with --feedback, emit safe defect candidates requiring reproduction",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="emit machine-readable JSON (valid with --check or --once)",
@@ -1247,6 +1270,8 @@ def main() -> int:
         parser.error("--web cannot be combined with --check or --once")
     if args.feedback and (args.check or args.once is not None or args.web or args.init):
         parser.error("--feedback cannot be combined with --check, --once, --web, or --init")
+    if args.harvest and not args.feedback:
+        parser.error("--harvest requires --feedback")
     if args.init and (args.check or args.once is not None or args.web):
         parser.error("--init cannot be combined with --check, --once, or --web")
     if args.init:
@@ -1289,7 +1314,7 @@ def main() -> int:
         return 1
     if args.feedback:
         try:
-            return _print_owner_feedback(_owner_feedback_report(principal), args.json)
+            return _print_owner_feedback(_owner_feedback_report(principal), args.json, args.harvest)
         except psycopg.Error:
             if args.json:
                 _print_json_error("feedback_unavailable", "feedback unavailable")

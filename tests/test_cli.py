@@ -2093,6 +2093,29 @@ def test_browser_app_records_bounded_feedback_for_a_response_correlation():
     assert seen == [(str(correlation), "not_helpful")]
 
 
+def test_feedback_harvest_creates_non_replaying_defect_candidates():
+    from aegis.feedback_triage import harvest_defect_candidates
+
+    candidates = harvest_defect_candidates(
+        [
+            {
+                "event_id": "event-1",
+                "objective_id": "objective-1",
+                "created_at": "now",
+                "outcome": "not_helpful",
+                "reason": "objective_failed",
+                "result_state": "completed",
+                "retryable": False,
+            },
+            {"outcome": "helpful", "reason": None},
+        ]
+    )
+
+    assert candidates[0]["classification"] == "objective_failure"
+    assert candidates[0]["reproduction_required"] is True
+    assert candidates[0]["replay_consequential_action"] is False
+
+
 def test_browser_app_rejects_undocumented_feedback_without_recording():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     called = False
