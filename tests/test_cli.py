@@ -3102,6 +3102,11 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     assert state["nodes"][0]["detail_view"] == "overview"
     assert state["nodes"][1]["category"] == "domain"
     assert state["nodes"][1]["detail_view"] == "list"
+    node_ids = [node["id"] for node in state["nodes"]]
+    assert node_ids.count("pack-homelab") == 1
+    assert node_ids.count("domain-homelab") == 0
+    assert node_ids.count("pack-network") == 1
+    assert node_ids.count("domain-network") == 0
 
 
 def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):
