@@ -14,6 +14,8 @@ import inspect
 import json
 import os
 import subprocess
+import sys
+import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,9 +25,9 @@ from uuid import uuid4
 
 from aegis.contracts import ActionCard, Context, Decision, DecisionKind, IntentFrame, Principal
 from aegis.decoding import StrictDecisionDecoder
-from aegis.embeddings import OllamaEmbeddingProvider
+from aegis.embeddings import EmbeddingResponseError, OllamaEmbeddingProvider
 from aegis.interaction import InteractionBoundary, InteractionDependencies
-from aegis.ollama import OllamaHttpTransport, OllamaProvider
+from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseError
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_interaction import reference_fallback_cards
 from aegis.reference_packs import reference_bundles
@@ -77,6 +79,50 @@ class MeasuringTransport(OllamaHttpTransport):
 
 def _sha256(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _write_json_atomically(path: Path, value: object) -> None:
+    """Persist evaluation state without leaving a truncated JSON artifact."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
+    )
+    temporary = Path(handle.name)
+    try:
+        with handle:
+            json.dump(value, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _failure_class(exc: Exception) -> str:
+    cause = exc.__cause__
+    if isinstance(exc, (TimeoutError,)) or isinstance(cause, TimeoutError):
+        return "timeout"
+    if cause is not None and cause.__class__.__name__ in {"HTTPError", "URLError"}:
+        return "transport_error"
+    if isinstance(exc, (ConnectionError,)):
+        return "transport_error"
+    return "provider_error"
+
+
+def _load_checkpoint(path: Path, compatibility: dict[str, Any]) -> list[dict[str, Any]]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict) or value.get("format") != "aegis-boundary-checkpoint-v1":
+        raise ValueError("unsupported evaluation checkpoint format")
+    if value.get("compatibility") != compatibility:
+        raise ValueError("evaluation checkpoint is incompatible with this run")
+    results = value.get("results")
+    if not isinstance(results, list) or not all(isinstance(item, dict) for item in results):
+        raise ValueError("evaluation checkpoint has invalid results")
+    ids = [item.get("id") for item in results]
+    if any(not isinstance(case_id, str) for case_id in ids) or len(ids) != len(set(ids)):
+        raise ValueError("evaluation checkpoint contains duplicate or invalid case IDs")
+    return results
 
 
 def _percentile(values: list[float], percentile: float) -> float | None:
@@ -214,6 +260,8 @@ def evaluate(
     *,
     reuse_classification_action_reference: bool = True,
     retrieval_limit: int = 10,
+    checkpoint_path: Path | None = None,
+    resume_path: Path | None = None,
 ) -> dict[str, Any]:
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
@@ -265,15 +313,120 @@ def evaluate(
                 break
     except Exception:
         model_inventory = None
-    results: list[dict[str, Any]] = []
+    embedding_digest = None
+    try:
+        embedding_digest = transport.model_digest(embedder.model)
+    except Exception:
+        pass
+    compatibility = {
+        "dataset_sha256": _sha256(corpus.read_bytes()),
+        "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
+        "model": model,
+        "model_digest": model_digest,
+        "embedding_model": embedder.model,
+        "embedding_digest": embedding_digest,
+        "prompt_template_sha256": prompt_template_sha,
+        "decoder_contract_sha256": decoder_contract_sha,
+        "context_builder_sha256": context_builder_sha,
+        "action_cards_sha256": cards_sha,
+        "semantic_retrieval_limit": retrieval_limit,
+        "classification_action_reference_shortcut": reuse_classification_action_reference,
+        "provider_settings": {
+            "temperature": 0,
+            "stream": False,
+            "think": False,
+            "timeout_seconds": 120,
+        },
+    }
+    results = _load_checkpoint(resume_path, compatibility) if resume_path is not None else []
+    completed = {str(item["id"]) for item in results}
+    if completed - {case.case_id for case in cases}:
+        raise ValueError("evaluation checkpoint contains a case outside this corpus")
+    if checkpoint_path is not None and resume_path is not None and checkpoint_path != resume_path:
+        raise ValueError("checkpoint and resume paths must match when both are supplied")
+    checkpoint = checkpoint_path or resume_path
     for case in cases:
+        if case.case_id in completed:
+            print(f"resume: skipping {case.case_id}", file=sys.stderr, flush=True)
+            continue
+        print(
+            f"case start {len(results) + 1}/{len(cases)} {case.case_id}",
+            file=sys.stderr,
+            flush=True,
+        )
         started = monotonic()
         calls_before = transport.calls
+        prompt_tokens_before = transport.prompt_tokens
+        output_tokens_before = transport.output_tokens
+        model_latency_before = transport.elapsed_ms
         intent = IntentFrame(principal=principal, utterance=case.utterance, correlation_id=uuid4())
         context = _evaluation_context()
         retrieval_traces.clear()
-        cards = boundary._fallback_cards(manager, case.utterance, context)
-        decision = boundary._fallback_decision(intent, cards, context)
+        try:
+            cards = boundary._fallback_cards(manager, case.utterance, context)
+            decision = boundary._fallback_decision(intent, cards, context)
+        except (
+            EmbeddingResponseError,
+            OllamaResponseError,
+            TimeoutError,
+            ConnectionError,
+        ) as exc:
+            elapsed_ms = round((monotonic() - started) * 1000, 2)
+            results.append(
+                {
+                    "id": case.case_id,
+                    "utterance": case.utterance,
+                    "family": case.family,
+                    "phenomena": case.phenomena,
+                    "provenance": case.provenance,
+                    "expected_mutation": case.expected_mutation,
+                    "predicted_semantic_mode": None,
+                    "expected_semantic_mode": case.expected_mode,
+                    "semantic_mode_correct": False,
+                    "predicted_kind": "RESULT",
+                    "predicted_action": None,
+                    "predicted_arguments": {},
+                    "failure_class": _failure_class(exc),
+                    "error_type": type(exc).__name__,
+                    "expected_kind": case.expected_kind.value,
+                    "expected_action": case.expected_action,
+                    "candidate_action_ids": [],
+                    "candidate_count": 0,
+                    "candidate_scores": [],
+                    "retrieval_top_score": None,
+                    "retrieval_score_margin": None,
+                    "expected_action_available": None,
+                    "candidate_grounding": "boundary_result",
+                    "write_candidate_count": 0,
+                    "argument_exact": False,
+                    "correct_route": False,
+                    "grounded_read_answer": False,
+                    "false_mutation": False,
+                    "false_completion": False,
+                    "clarification_expected": case.expected_kind is DecisionKind.CLARIFY,
+                    "clarification_returned": False,
+                    "model_calls": transport.calls - calls_before,
+                    "prompt_tokens": transport.prompt_tokens - prompt_tokens_before,
+                    "output_tokens": transport.output_tokens - output_tokens_before,
+                    "model_call_latency_ms": round(transport.elapsed_ms - model_latency_before, 2),
+                    "latency_ms": elapsed_ms,
+                }
+            )
+            print(
+                f"case {len(results)}/{len(cases)} {case.case_id} failure={_failure_class(exc)}",
+                file=sys.stderr,
+                flush=True,
+            )
+            if checkpoint is not None:
+                _write_json_atomically(
+                    checkpoint,
+                    {
+                        "format": "aegis-boundary-checkpoint-v1",
+                        "compatibility": compatibility,
+                        "results": results,
+                    },
+                )
+            continue
         retrieval = retrieval_traces[-1] if retrieval_traces else {"candidates": []}
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         expected_kind = case.expected_kind
@@ -354,9 +507,23 @@ def evaluate(
                 "clarification_expected": expected_kind is DecisionKind.CLARIFY,
                 "clarification_returned": kind == DecisionKind.CLARIFY.value,
                 "model_calls": transport.calls - calls_before,
+                "prompt_tokens": transport.prompt_tokens - prompt_tokens_before,
+                "output_tokens": transport.output_tokens - output_tokens_before,
+                "model_call_latency_ms": round(transport.elapsed_ms - model_latency_before, 2),
                 "latency_ms": round((monotonic() - started) * 1000, 2),
             }
         )
+        completed.add(case.case_id)
+        print(f"case {len(results)}/{len(cases)} {case.case_id}", file=sys.stderr, flush=True)
+        if checkpoint is not None:
+            _write_json_atomically(
+                checkpoint,
+                {
+                    "format": "aegis-boundary-checkpoint-v1",
+                    "compatibility": compatibility,
+                    "results": results,
+                },
+            )
 
     def summarize(items: list[dict[str, Any]]) -> dict[str, Any]:
         count = len(items)
@@ -465,7 +632,9 @@ def evaluate(
             if model_digest
             else "unavailable"
         ),
-        "provider_evidence_valid": bool(transport.calls and model_digest),
+        "provider_evidence_valid": bool(
+            sum(int(item["model_calls"]) for item in results) and model_digest
+        ),
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "prompt_template_sha256": prompt_template_sha,
         "context_builder_sha256": context_builder_sha,
@@ -491,18 +660,21 @@ def evaluate(
             [float(item["latency_ms"]) for item in results], 0.95
         ),
         "average_model_call_latency_ms": (
-            sum(transport.call_latencies_ms) / len(transport.call_latencies_ms)
-            if transport.call_latencies_ms
+            sum(float(item["model_call_latency_ms"]) for item in results)
+            / max(sum(int(item["model_calls"]) for item in results), 1)
+            if sum(int(item["model_calls"]) for item in results)
             else None
         ),
-        "model_calls_per_request": transport.calls / max(total, 1),
-        "model_calls": getattr(transport, "calls", None),
+        "model_calls_per_request": sum(int(item["model_calls"]) for item in results)
+        / max(total, 1),
+        "model_calls": sum(int(item["model_calls"]) for item in results),
         "model_calls_avoided": sum(int(item["model_calls"] == 0) for item in results),
-        "prompt_tokens": getattr(transport, "prompt_tokens", None),
-        "output_tokens": getattr(transport, "output_tokens", None),
+        "prompt_tokens": sum(int(item["prompt_tokens"]) for item in results),
+        "output_tokens": sum(int(item["output_tokens"]) for item in results),
         "memory_vram_cost": "not observable from Ollama HTTP responses",
         "model_loading_overhead_ms": None,
         "model_inventory": model_inventory,
+        "embedding_model_digest": embedding_digest,
         "provider_settings": {
             "temperature": 0,
             "stream": False,
@@ -535,15 +707,27 @@ def main() -> int:
         metavar="1-10",
         help="evaluation ablation: bound the semantic ActionCard shortlist",
     )
+    parser.add_argument(
+        "--checkpoint",
+        type=Path,
+        help="write an atomic per-case checkpoint while evaluating",
+    )
+    parser.add_argument(
+        "--resume",
+        type=Path,
+        help="resume from a compatible per-case checkpoint",
+    )
     args = parser.parse_args()
     report = evaluate(
         args.corpus,
         reuse_classification_action_reference=not args.disable_classification_action_shortcut,
         retrieval_limit=args.retrieval_limit,
+        checkpoint_path=args.checkpoint,
+        resume_path=args.resume,
     )
     serialized = json.dumps(report, indent=2, sort_keys=True)
     if args.output is not None:
-        args.output.write_text(serialized + "\n", encoding="utf-8")
+        _write_json_atomically(args.output, report)
     print(serialized)
     return 2 if report["security_hard_failure"] or not report["provider_evidence_valid"] else 0
 
