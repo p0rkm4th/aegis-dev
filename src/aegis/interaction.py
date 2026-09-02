@@ -940,9 +940,18 @@ class InteractionBoundary:
                             correlation_id=intent.correlation_id,
                         )
                     )
-                completion_result = TaskCompletionFastPath.resolve(
-                    intent, title, task_store.list(principal)
-                )
+                tasks = task_store.list(principal)
+                canonical_title = TaskCompletionFastPath.canonical_title(title, tasks)
+                if canonical_title is not None and canonical_title != title:
+                    card = card.model_copy(
+                        update={
+                            "action": card.action.model_copy(
+                                update={"arguments": {"title": canonical_title}}
+                            )
+                        }
+                    )
+                    title = canonical_title
+                completion_result = TaskCompletionFastPath.resolve(intent, title, tasks)
                 if completion_result is not None:
                     return persist_fast_result(completion_result)
             if card.action.action_id == "tasks.chores.complete":
