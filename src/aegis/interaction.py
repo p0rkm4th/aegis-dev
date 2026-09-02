@@ -27,8 +27,6 @@ from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
-    Chore,
-    ChoreCompletionFastPath,
     GroceryReadFastPath,
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -63,11 +61,9 @@ from .tasks import (
     PostgresTaskExecutor,
     PostgresTaskStore,
     PostgresTaskVerifier,
-    TaskCompletionFastPath,
     TaskIntentClarificationFastPath,
     TaskPriorityFastPath,
     TaskReadFastPath,
-    ground_task_due_at,
     requested_task_due_at,
 )
 from .utterance import (
@@ -102,6 +98,7 @@ class InteractionDependencies:
         runtime_registry: PackRuntimeRegistry | None = None,
         pack_bundles: Callable[[], tuple[Any, ...]] | None = None,
         auto_enable_pack_ids: frozenset[str] = frozenset(),
+        action_grounder: Callable[..., Any] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -115,6 +112,7 @@ class InteractionDependencies:
         self.runtime_registry = runtime_registry
         self.pack_bundles = pack_bundles
         self.auto_enable_pack_ids = auto_enable_pack_ids
+        self.action_grounder = action_grounder
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -1263,120 +1261,21 @@ class InteractionBoundary:
                         )
                     )
             principal_store = PostgresHouseholdStore(connection)
-            if card.action.action_id == "tasks.complete":
-                title = card.action.arguments.get("title")
-                if not isinstance(title, str) or not title.strip():
-                    return persist_fast_result(
-                        Result(
-                            objective_id=uuid4(),
-                            state=ObjectiveState.BLOCKED,
-                            message=(
-                                "Name the task to complete, for example: "
-                                "Complete the task buy cat food."
-                            ),
-                            correlation_id=intent.correlation_id,
-                        )
-                    )
-                tasks = task_store.list(principal)
-                canonical_title = TaskCompletionFastPath.canonical_title(title, tasks)
-                if canonical_title is not None and canonical_title != title:
-                    card = card.model_copy(
-                        update={
-                            "action": card.action.model_copy(
-                                update={"arguments": {"title": canonical_title}}
-                            )
-                        }
-                    )
-                    title = canonical_title
-                completion_result = TaskCompletionFastPath.resolve(intent, title, tasks)
-                if completion_result is not None:
-                    return persist_fast_result(completion_result)
-            if card.action.action_id == "tasks.chores.complete":
-                title = card.action.arguments.get("title")
-                if not isinstance(title, str) or not title.strip():
-                    return persist_fast_result(
-                        Result(
-                            objective_id=uuid4(),
-                            state=ObjectiveState.BLOCKED,
-                            message=(
-                                "Name the chore to complete, for example: "
-                                "Complete the chore clean the kitchen."
-                            ),
-                            correlation_id=intent.correlation_id,
-                        )
-                    )
-                household_snapshot = principal_store.read_snapshot(principal)
-                completion_result = ChoreCompletionFastPath.resolve(
+            if self.dependencies.action_grounder is not None:
+                grounded = self.dependencies.action_grounder(
                     intent,
-                    title,
-                    cast(tuple[Chore, ...], household_snapshot["chores"]),
+                    card,
+                    task_store,
+                    principal_store,
+                    personal_state,
+                    goal_task_title,
+                    goal_chore_title,
+                    memory_task_title,
+                    memory_chore_title,
                 )
-                if completion_result is not None:
-                    return persist_fast_result(completion_result)
-            if goal_task_title is not None and card.action.action_id == "tasks.create":
-                card = card.model_copy(
-                    update={
-                        "action": card.action.model_copy(
-                            update={"arguments": {"title": goal_task_title}}
-                        )
-                    }
-                )
-            elif goal_chore_title is not None and card.action.action_id == "tasks.chores.create":
-                card = card.model_copy(
-                    update={
-                        "action": card.action.model_copy(
-                            update={"arguments": {"title": goal_chore_title}}
-                        )
-                    }
-                )
-            elif memory_task_title is not None and card.action.action_id == "tasks.create":
-                arguments: dict[str, Any] = {"title": memory_task_title}
-                due_at = requested_task_due_at(utterance)
-                if due_at is not None:
-                    arguments["due_at"] = due_at
-                card = card.model_copy(
-                    update={"action": card.action.model_copy(update={"arguments": arguments})}
-                )
-            elif memory_chore_title is not None and card.action.action_id == "tasks.chores.create":
-                card = card.model_copy(
-                    update={
-                        "action": card.action.model_copy(
-                            update={"arguments": {"title": memory_chore_title}}
-                        )
-                    }
-                )
-            if card.action.action_id == "tasks.create":
-                proposed_due_at = card.action.arguments.get("due_at")
-                if proposed_due_at is not None and not isinstance(proposed_due_at, str):
-                    return persist_fast_result(
-                        Result(
-                            objective_id=uuid4(),
-                            state=ObjectiveState.BLOCKED,
-                            message="I need a clear deadline before adding that task.",
-                            correlation_id=intent.correlation_id,
-                        )
-                    )
-                grounded, due_at = ground_task_due_at(utterance, proposed_due_at)
-                if not grounded:
-                    return persist_fast_result(
-                        Result(
-                            objective_id=uuid4(),
-                            state=ObjectiveState.BLOCKED,
-                            message=(
-                                "What deadline should I use for that task? "
-                                "I won't infer one from context."
-                            ),
-                            correlation_id=intent.correlation_id,
-                        )
-                    )
-                arguments = dict(card.action.arguments)
-                if due_at is None:
-                    arguments.pop("due_at", None)
-                else:
-                    arguments["due_at"] = due_at
-                card = card.model_copy(
-                    update={"action": card.action.model_copy(update={"arguments": arguments})}
-                )
+                if isinstance(grounded, Result):
+                    return persist_fast_result(grounded)
+                card = grounded
             if self.dependencies.runtime_registry is not None:
                 runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
                 executor = runtime.executor
