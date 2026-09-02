@@ -16,10 +16,21 @@ class ComponentHealth(StrictModel):
     detail: str = Field(min_length=1)
 
 
+class RuntimeIdentity(StrictModel):
+    """Non-secret identity of the process answering an operator health check."""
+
+    package_version: str = Field(min_length=1)
+    release_sha: str | None = None
+    provider: str = Field(min_length=1)
+    model: str = Field(min_length=1)
+    endpoint: str = Field(min_length=1)
+
+
 class HealthReport(StrictModel):
     healthy: bool
     ready: bool
     components: tuple[ComponentHealth, ...]
+    runtime: RuntimeIdentity | None = None
 
 
 class HealthService:
