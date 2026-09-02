@@ -48,7 +48,7 @@ from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
-from .reference_interaction import ground_reference_action
+from .reference_interaction import ground_reference_action, resolve_reference_pre_model
 from .reference_packs import (
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
@@ -1228,6 +1228,7 @@ def run_interaction(
             pack_bundles=reference_bundles,
             auto_enable_pack_ids=frozenset(("tasks", "kitchen")),
             action_grounder=ground_reference_action,
+            pre_model_resolver=resolve_reference_pre_model,
         )
     )
     return boundary.run(

@@ -24,11 +24,9 @@ from .contracts import (
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
-from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
     GroceryReadFastPath,
-    HouseholdObligation,
     HouseholdReadFastPath,
     PostgresChoreExecutor,
     PostgresChoreVerifier,
@@ -44,7 +42,6 @@ from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
 from .planning import (
     ContextualMutationGuard,
-    CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
     MultiActionFastPath,
     PersonalChoreComposer,
@@ -52,7 +49,6 @@ from .planning import (
     PersonalMemoryTaskComposer,
     PersonalTaskComposer,
 )
-from .projections import SharedObligation
 from .reference_packs import reference_bundles
 from .reference_runtime import legacy_runtime
 from .store import PostgresObjectiveStore
@@ -99,6 +95,7 @@ class InteractionDependencies:
         pack_bundles: Callable[[], tuple[Any, ...]] | None = None,
         auto_enable_pack_ids: frozenset[str] = frozenset(),
         action_grounder: Callable[..., Any] | None = None,
+        pre_model_resolver: Callable[..., Result | None] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -113,6 +110,7 @@ class InteractionDependencies:
         self.pack_bundles = pack_bundles
         self.auto_enable_pack_ids = auto_enable_pack_ids
         self.action_grounder = action_grounder
+        self.pre_model_resolver = pre_model_resolver
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -868,74 +866,13 @@ class InteractionBoundary:
             contextual_mutation = ContextualMutationGuard.resolve(intent)
             if contextual_mutation is not None:
                 return persist_fast_result(contextual_mutation)
-            if FinanceReadFastPath.needs_purchase_amount(utterance):
-                return persist_fast_result(
-                    Result(
-                        objective_id=uuid4(),
-                        state=ObjectiveState.BLOCKED,
-                        message=(
-                            "What purchase amount should I compare with your available "
-                            "balance and obligations?"
-                        ),
-                        correlation_id=intent.correlation_id,
-                    )
-                )
             household_store = PostgresHouseholdStore(connection)
-            if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
-                task_store = PostgresTaskStore(connection)
-                personal_state = PostgresPersonalStateStore(
-                    connection, principal.vault_id
-                ).load_for_principal(principal)
-                household_snapshot = household_store.read_snapshot(principal)
-                obligations = tuple(
-                    SharedObligation(item.title, item.amount)
-                    for item in cast(
-                        tuple[HouseholdObligation, ...],
-                        household_snapshot.get("obligations", ()),
-                    )
-                    if not item.settled
+            if self.dependencies.pre_model_resolver is not None and recovered_plan_actions is None:
+                pre_model_result = self.dependencies.pre_model_resolver(
+                    intent, connection, principal, household_store
                 )
-                finance: dict[str, Any] | None = None
-                if FinanceReadFastPath.matches(utterance):
-                    finance_result = FinanceReadFastPath(
-                        FinanceLedger(PostgresFinanceSnapshotStore(connection))
-                    ).resolve(intent, obligations)
-                    if finance_result is not None:
-                        finance = finance_result.evidence
-                planning_result = CrossDomainPlanningFastPath(
-                    personal_state,
-                    household_snapshot,
-                    task_store.list(principal),
-                    finance,
-                ).resolve(intent)
-                if planning_result is not None:
-                    return persist_fast_result(planning_result)
-            if recovered_plan_actions is None and FinanceReadFastPath.matches(utterance):
-                snapshot = household_store.read_snapshot(principal)
-                household_obligations = cast(
-                    tuple[HouseholdObligation, ...], snapshot.get("obligations", ())
-                )
-                obligations = tuple(
-                    SharedObligation(item.title, item.amount)
-                    for item in household_obligations
-                    if not item.settled
-                )
-                finance_result = FinanceReadFastPath(
-                    FinanceLedger(PostgresFinanceSnapshotStore(connection))
-                ).resolve(intent, obligations)
-                if finance_result is not None:
-                    PostgresAuditLog(connection).append(
-                        "finance.affordability.read",
-                        principal.id,
-                        {
-                            "purchase_cents": finance_result.evidence["purchase_cents"],
-                            "shared_obligations_cents": finance_result.evidence[
-                                "shared_obligations_cents"
-                            ],
-                            "affordable": finance_result.evidence["affordable"],
-                        },
-                    )
-                    return persist_fast_result(finance_result)
+                if pre_model_result is not None:
+                    return persist_fast_result(pre_model_result)
             task_store = PostgresTaskStore(connection)
             personal_state = PostgresPersonalStateStore(
                 connection, principal.vault_id
@@ -975,12 +912,6 @@ class InteractionBoundary:
                 goal_task_title or goal_chore_title or memory_task_title or memory_chore_title
             )
             household_snapshot = household_store.read_snapshot(principal)
-            if recovered_plan_actions is None and CrossDomainPlanningFastPath.matches(utterance):
-                planning_result = CrossDomainPlanningFastPath(
-                    personal_state, household_snapshot, task_store.list(principal)
-                ).resolve(intent)
-                if planning_result is not None:
-                    return persist_fast_result(planning_result)
             if (
                 recovered_plan_actions is None
                 and composed_title is None
