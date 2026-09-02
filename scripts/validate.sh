@@ -31,6 +31,7 @@ python -m json.tool evaluation/reports/qwen2.5-3b-semantic-318-heldout.json >/de
 python -m json.tool evaluation/reports/qwen3-8b-semantic-318-current-dev.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-318-current-dev-autopsy.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-318-experiment-ledger.json >/dev/null
+python -m json.tool evaluation/reports/qwen3-8b-semantic-318-shortcut-off-heldout.json >/dev/null
 python -m json.tool evaluation/reports/qwen3-8b-semantic-318-current-heldout.json >/dev/null
 python -m json.tool evaluation/reports/qwen-capacity-ladder-318.json >/dev/null
 python scripts/audit_semantic_corpus.py evaluation/semantic_dev.json evaluation/semantic_heldout.json >/dev/null
