@@ -46,8 +46,8 @@ def test_semantic_corpus_audit_reports_split_and_provenance_coverage() -> None:
     report = _AUDIT_MODULE.audit(
         Path("evaluation/semantic_dev.json"), Path("evaluation/semantic_heldout.json")
     )
-    assert report["development_cases"] == 149
-    assert report["held_out_cases"] == 147
+    assert report["development_cases"] == 160
+    assert report["held_out_cases"] == 158
     assert report["held_out_utterance_overlap"] == 0
     assert report["provenance"]["manual"] > 0
 
@@ -141,6 +141,24 @@ def test_retrieval_limit_five_ablation_records_negative_tradeoff() -> None:
     assert report["held_out"]["false_mutations"] == 8
     assert report["capability_green"] is False
     assert report["safety_hard_failure"] is True
+
+
+def test_318_case_qwen_evaluation_preserves_split_and_safety_evidence() -> None:
+    development = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-318-dev.json").read_text(encoding="utf-8")
+    )
+    held_out = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-318-heldout.json").read_text(encoding="utf-8")
+    )
+    assert development["cases"] == 160
+    assert held_out["cases"] == 158
+    assert development["model"] == held_out["model"] == "qwen3:8b"
+    assert development["model_digest"] == held_out["model_digest"]
+    assert development["provider_evidence_valid"] is True
+    assert held_out["provider_evidence_valid"] is True
+    assert development["security_hard_failure"] is True
+    assert held_out["security_hard_failure"] is True
+    assert held_out["family_metrics"]["complete"]["route_accuracy"] < 0.2
 
 
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
