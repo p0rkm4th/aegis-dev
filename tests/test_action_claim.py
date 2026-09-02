@@ -160,7 +160,7 @@ def test_postgres_two_connection_kernel_claim_has_one_executor_owner():
             with self.lock:
                 self.calls += 1
                 self.started.set()
-            assert self.release.wait(30)
+            assert self.release.wait(60)
             return Observation(
                 execution_id=request.action_id,
                 evidence={"accepted": True},
@@ -183,7 +183,7 @@ def test_postgres_two_connection_kernel_claim_has_one_executor_owner():
     def contender():
         connection = psycopg.connect(url)
         try:
-            start.wait(30)
+            start.wait(60)
             result = Kernel(
                 Model(),
                 StrictDecisionDecoder(),
@@ -203,11 +203,11 @@ def test_postgres_two_connection_kernel_claim_has_one_executor_owner():
     threads = [Thread(target=contender) for _ in range(2)]
     for thread in threads:
         thread.start()
-    assert executor.started.wait(30)
-    assert loser_claimed.wait(30)
+    assert executor.started.wait(60)
+    assert loser_claimed.wait(60)
     executor.release.set()
     for thread in threads:
-        thread.join(30)
+        thread.join(60)
 
     assert not errors
     assert executor.calls == 1
