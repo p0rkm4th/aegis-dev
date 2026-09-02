@@ -31,6 +31,7 @@ def harvest_defect_candidates(feedback: list[dict[str, Any]]) -> list[dict[str, 
             {
                 "event_id": item.get("event_id"),
                 "objective_id": item.get("objective_id"),
+                "correlation_id": item.get("correlation_id"),
                 "created_at": item.get("created_at"),
                 "classification": classification,
                 "result_state": item.get("result_state"),
