@@ -60,5 +60,41 @@
         "decision": "freeze for untouched held-out validation; do not promote or claim capability green"
       }
     }
-  ]
+  ],
+  "heldout_validation": {
+    "report": "evaluation/reports/qwen3-8b-semantic-318-shortcut-off-heldout.json",
+    "cases": 158,
+    "source_revision": "26ad6d3bb97d1eeb4f8b47d0e59912f2c7fd9a37",
+    "metrics": {
+      "route_accuracy": 0.5822784810126582,
+      "semantic_mode_accuracy": 0.6645569620253164,
+      "action_selection_precision": 0.6785714285714286,
+      "action_selection_recall": 0.36538461538461536,
+      "argument_exactness": 0.7468354430379747,
+      "grounded_read_answer_rate": 0.6829268292682927,
+      "inappropriate_clarification_rate": 0.22935779816513763,
+      "missed_clarification_rate": 0.2653061224489796,
+      "false_mutations": 3,
+      "false_completions": 2,
+      "decoder_failures": 21,
+      "average_latency_ms": 6152.740759493671,
+      "full_request_latency_p95_ms": 9502.505,
+      "model_calls": 323,
+      "prompt_tokens": 692547,
+      "output_tokens": 18357
+    },
+    "comparison_to_shortcut_on": {
+      "route_accuracy_delta": -0.0063291139240507,
+      "semantic_mode_accuracy_delta": -0.0253164556962025,
+      "false_mutations_delta": -5,
+      "false_completions_delta": -4,
+      "decoder_failures_delta": 2,
+      "average_latency_ms_delta": 1005.5015822784809,
+      "model_calls_delta": 46,
+      "prompt_tokens_delta": 103055,
+      "output_tokens_delta": 2821
+    },
+    "decision": "reject_candidate_keep_production_cognition_frozen",
+    "reason": "Safety improved, but held-out route and semantic-mode correctness regressed while decoder failures, latency, model calls, and token cost increased; no generalization win was established."
+  }
 }
