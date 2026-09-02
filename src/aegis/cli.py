@@ -44,10 +44,13 @@ from .identity import (
 from .interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
+from .openclaw import OpenClawExecutor
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_packs import (
+    OpenClawGroceryExecutor,
+    OpenClawGroceryVerifier,
     PostgresGroceryListExecutor,
     PostgresGroceryListVerifier,
     reference_bundles,
@@ -143,7 +146,9 @@ def _initialize_env_file(path: str) -> None:
             os.close(descriptor)
 
 
-def _default_runtime_registry() -> PackRuntimeRegistry:
+def _default_runtime_registry(
+    openclaw_channel: Callable[[], OpenClawWebSocketChannel],
+) -> PackRuntimeRegistry:
     """Compose first-party PostgreSQL runtimes behind the generic Pack seam."""
 
     registry = PackRuntimeRegistry()
@@ -188,6 +193,25 @@ def _default_runtime_registry() -> PackRuntimeRegistry:
             {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def grocery_add_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        channel = openclaw_channel()
+        store = PostgresHouseholdStore(connection)
+        return ActionRuntime(
+            OpenClawExecutor(
+                OpenClawGroceryExecutor(
+                    channel,
+                    os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
+                    store,
+                    principal,
+                ),
+                _RuntimePolicy(),
+                _NoApproval(),
+            ),
+            OpenClawGroceryVerifier(store, principal),
+            {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
+            cleanup=channel.close,
+        )
+
     registry.register("tasks.create", task_runtime)
     registry.register("tasks.complete", task_runtime)
     registry.register("tasks.list", task_list_runtime)
@@ -195,6 +219,7 @@ def _default_runtime_registry() -> PackRuntimeRegistry:
     registry.register("tasks.chores.complete", household_runtime)
     registry.register("tasks.events.create", event_runtime)
     registry.register("kitchen.groceries.list", grocery_list_runtime)
+    registry.register("kitchen.groceries.add", grocery_add_runtime)
     return registry
 
 
@@ -1175,7 +1200,7 @@ def run_interaction(
     """Compose the shared boundary, optionally with Pack runtime bindings."""
 
     if runtime_registry is None:
-        runtime_registry = _default_runtime_registry()
+        runtime_registry = _default_runtime_registry(_openclaw_channel)
 
     boundary = InteractionBoundary(
         InteractionDependencies(

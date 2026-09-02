@@ -36,6 +36,11 @@ class PackRuntimeRegistry:
             raise ValueError("runtime action ID must be non-empty and unique")
         self._factories[action_id] = factory
 
+    def action_ids(self) -> tuple[str, ...]:
+        """Expose registered bindings for diagnostics without leaking registry state."""
+
+        return tuple(sorted(self._factories))
+
     def register_pack(
         self,
         cards: tuple[ActionCard, ...],
