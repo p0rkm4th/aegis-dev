@@ -131,9 +131,11 @@ def test_write_capable_fallback_routes_without_canonical_read_context():
 
     assert isinstance(decision, Decision)
     assert decision.kind is DecisionKind.ACTION
-    assert len(provider.requests) == 1
-    assert provider.requests[0].routing_only is True
-    assert "canonical_facts" not in provider.requests[0].working_set.context.values
+    assert len(provider.requests) == 2
+    assert provider.requests[0].classification_only is True
+    assert provider.requests[0].action_cards == ()
+    assert provider.requests[1].routing_only is True
+    assert "canonical_facts" not in provider.requests[1].working_set.context.values
 
 
 def test_task_read_fast_path_requires_high_confidence_read_shape():

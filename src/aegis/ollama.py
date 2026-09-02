@@ -112,15 +112,22 @@ class OllamaProvider:
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
                 "routing_rule": (
-                    "This is an action-routing pass. Decide whether the current request "
-                    "clearly proposes a supplied write-capable action. Do not answer a "
-                    "read question from context during this pass; return ANSWER only for "
-                    "benign conversation that does not request a change, or CLARIFY when "
-                    "the requested change is ambiguous."
-                    if request.routing_only
+                    "This is a classification-only pass. Return ACTION when the user "
+                    "requests any state change, ANSWER when the request only seeks "
+                    "information or benign generation, and CLARIFY when the intent is "
+                    "ambiguous. Do not provide an action_ref or arguments."
+                    if request.classification_only
                     else (
-                        "This is the final bounded cognition pass; answer only from the "
-                        "supplied context."
+                        "This is an action-routing pass. Decide whether the current request "
+                        "clearly proposes a supplied write-capable action. Do not answer a "
+                        "read question from context during this pass; return ANSWER only for "
+                        "benign conversation that does not request a change, or CLARIFY when "
+                        "the requested change is ambiguous."
+                        if request.routing_only
+                        else (
+                            "This is the final bounded cognition pass; answer only from the "
+                            "supplied context."
+                        )
                     )
                 ),
                 "action_rule": (
@@ -262,6 +269,7 @@ class OllamaProvider:
                 "utterance": request.working_set.intent.utterance,
                 "bounded_context": request.working_set.context.model_dump(mode="json"),
                 "routing_only": request.routing_only,
+                "classification_only": request.classification_only,
                 "action_cards": cards,
             },
             sort_keys=True,
