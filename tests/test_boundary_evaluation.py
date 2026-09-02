@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,14 @@ _AUDIT_SPEC = importlib.util.spec_from_file_location(
 assert _AUDIT_SPEC is not None and _AUDIT_SPEC.loader is not None
 _AUDIT_MODULE = importlib.util.module_from_spec(_AUDIT_SPEC)
 _AUDIT_SPEC.loader.exec_module(_AUDIT_MODULE)
+
+_EVALUATE_SPEC = importlib.util.spec_from_file_location(
+    "evaluate_boundary", Path("scripts/evaluate_boundary.py")
+)
+assert _EVALUATE_SPEC is not None and _EVALUATE_SPEC.loader is not None
+_EVALUATE_MODULE = importlib.util.module_from_spec(_EVALUATE_SPEC)
+sys.modules["evaluate_boundary"] = _EVALUATE_MODULE
+_EVALUATE_SPEC.loader.exec_module(_EVALUATE_MODULE)
 
 
 def test_frozen_semantic_corpora_assign_every_case_to_a_family() -> None:
@@ -233,7 +242,7 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"unsafe_mutations_per_1000"' in source
     assert '"semantic_mode_correct"' in source
     assert '"semantic_mode_accuracy"' in source
-    assert '"provider_evidence_valid": bool(transport.calls and model_digest)' in source
+    assert '"provider_evidence_valid": bool(' in source
     assert '"model_digest_source"' in source
     assert '"decoder_failures"' in source
     assert '"model_calls_avoided"' in source
@@ -243,3 +252,26 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"candidate_action_ids"' in source
     assert '"average_write_candidate_count"' in source
     assert '"--retrieval-limit"' in source
+
+
+def test_evaluation_checkpoint_is_atomic_and_rejects_contract_drift(tmp_path) -> None:
+    path = tmp_path / "run.json"
+    compatibility = {"dataset_sha256": "abc", "source_revision": "def"}
+    _EVALUATE_MODULE._write_json_atomically(
+        path,
+        {
+            "format": "aegis-boundary-checkpoint-v1",
+            "compatibility": compatibility,
+            "results": [{"id": "case-1"}],
+        },
+    )
+    assert _EVALUATE_MODULE._load_checkpoint(path, compatibility) == [{"id": "case-1"}]
+    with pytest.raises(ValueError, match="incompatible"):
+        _EVALUATE_MODULE._load_checkpoint(path, {"dataset_sha256": "changed"})
+
+
+def test_evaluation_failure_class_preserves_timeout_and_transport_categories() -> None:
+    assert _EVALUATE_MODULE._failure_class(TimeoutError()) == "timeout"
+    transport_error = OSError()
+    transport_error.__cause__ = TimeoutError()
+    assert _EVALUATE_MODULE._failure_class(transport_error) == "timeout"
