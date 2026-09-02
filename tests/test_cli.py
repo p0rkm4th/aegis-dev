@@ -26,7 +26,13 @@ from aegis.interaction import (
 )
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_packs import reference_bundles, reference_packs
-from aegis.tasks import Task, TaskIntentClarificationFastPath, TaskReadFastPath, TaskStatus
+from aegis.tasks import (
+    Task,
+    TaskIntentClarificationFastPath,
+    TaskReadFastPath,
+    TaskStatus,
+    ground_task_due_at,
+)
 from aegis.web import BrowserApp
 
 
@@ -618,6 +624,22 @@ def test_cli_carries_unambiguous_next_week_task_due_date():
         < due_at - datetime.now(timezone.utc)
         < timedelta(days=7, hours=1)
     )
+
+
+def test_model_task_deadline_must_be_grounded_in_request():
+    now = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+
+    assert ground_task_due_at(
+        "please add send the rent receipt to my todos", "2026-09-02T00:00:00", now
+    ) == (
+        False,
+        None,
+    )
+    assert ground_task_due_at(
+        "please add send the rent receipt to my todos tomorrow",
+        "2099-01-01T00:00:00+00:00",
+        now,
+    ) == (True, "2026-09-02T12:00:00+00:00")
 
 
 def test_cli_routes_task_completion_to_complete_action() -> None:

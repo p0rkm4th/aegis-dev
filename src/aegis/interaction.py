@@ -71,6 +71,7 @@ from .tasks import (
     TaskCompletionFastPath,
     TaskIntentClarificationFastPath,
     TaskReadFastPath,
+    ground_task_due_at,
     requested_task_due_at,
 )
 
@@ -1009,6 +1010,38 @@ class InteractionBoundary:
                             update={"arguments": {"title": memory_chore_title}}
                         )
                     }
+                )
+            if card.action.action_id == "tasks.create":
+                proposed_due_at = card.action.arguments.get("due_at")
+                if proposed_due_at is not None and not isinstance(proposed_due_at, str):
+                    return persist_fast_result(
+                        Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message="I need a clear deadline before adding that task.",
+                            correlation_id=intent.correlation_id,
+                        )
+                    )
+                grounded, due_at = ground_task_due_at(utterance, proposed_due_at)
+                if not grounded:
+                    return persist_fast_result(
+                        Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=(
+                                "What deadline should I use for that task? "
+                                "I won't infer one from context."
+                            ),
+                            correlation_id=intent.correlation_id,
+                        )
+                    )
+                arguments = dict(card.action.arguments)
+                if due_at is None:
+                    arguments.pop("due_at", None)
+                else:
+                    arguments["due_at"] = due_at
+                card = card.model_copy(
+                    update={"action": card.action.model_copy(update={"arguments": arguments})}
                 )
             if card.action.action_id == "kitchen.groceries.add":
                 channel = self.dependencies.openclaw_channel()
