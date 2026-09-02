@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from typing import Any
 from uuid import uuid4
 
@@ -194,13 +195,20 @@ def decide_fallback(
             decision = decoder.decode(
                 provider.decide(request), request.action_cards, allow_argument_proposals=True
             )
-        if decision.kind is DecisionKind.ACTION and decision.action is not None:
-            if dependencies.decision_rewriter is not None:
+        if dependencies.decision_rewriter is not None:
+            try:
+                inspect.signature(dependencies.decision_rewriter).bind(
+                    intent, decision, cards, context
+                )
+            except (TypeError, ValueError):
                 rewritten = dependencies.decision_rewriter(intent, decision, cards)
-                if isinstance(rewritten, Result):
-                    return rewritten
-                if rewritten is not None:
-                    decision = rewritten
+            else:
+                rewritten = dependencies.decision_rewriter(intent, decision, cards, context)
+            if isinstance(rewritten, Result):
+                return rewritten
+            if rewritten is not None:
+                decision = rewritten
+        if decision.kind is DecisionKind.ACTION and decision.action is not None:
             action = decision.action
             if decision.kind is not DecisionKind.ACTION or action is None:
                 return decision

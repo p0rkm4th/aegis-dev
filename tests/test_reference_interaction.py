@@ -6,6 +6,8 @@ from aegis.contracts import (
     ActionCard,
     ActionSpec,
     Context,
+    Decision,
+    DecisionKind,
     IntentFrame,
     Principal,
     Result,
@@ -14,7 +16,7 @@ from aegis.contracts import (
 from aegis.household import PostgresHouseholdStore
 from aegis.interaction_context import resolve_obvious_ordinal
 from aegis.personal import PersonalState
-from aegis.reference_interaction import ground_reference_action
+from aegis.reference_interaction import ground_reference_action, rewrite_reference_decision
 from aegis.tasks import Task
 
 
@@ -256,3 +258,49 @@ def test_grounding_uses_authorized_task_id_when_titles_are_duplicated() -> None:
         "title": "review restore drill",
         "task_id": str(first_id),
     }
+
+
+def test_clarification_for_authorized_ordinal_becomes_bounded_completion_action() -> None:
+    task_id = str(uuid4())
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.write",
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Complete a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"task_id": str(uuid4()), "title": "buy eggs", "status": "open"},
+                        {"task_id": task_id, "title": "buy milk", "status": "open"},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    rewritten = rewrite_reference_decision(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="complete the second one",
+        ),
+        Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification="Which task do you mean?",
+        ),
+        (card,),
+        context,
+    )
+
+    assert isinstance(rewritten, Decision)
+    assert rewritten.kind is DecisionKind.ACTION
+    assert rewritten.action is not None
+    assert rewritten.action.arguments == {"title": "buy milk", "task_id": task_id}
