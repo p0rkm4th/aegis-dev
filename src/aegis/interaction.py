@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Any, cast
+from typing import Any, Literal, cast
 from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
@@ -169,6 +169,52 @@ def _authorized_context_evidence(context: Context) -> dict[str, Any]:
     if not isinstance(raw, dict):
         return {}
     return _compact_context_evidence(raw)
+
+
+def _grounded_context_answer(context: Context, raw: dict[str, Any]) -> Decision | None:
+    """Recover an answer from one model-selected, authorized structured focus."""
+
+    if raw.get("kind") != DecisionKind.ANSWER.value or raw.get("semantic_mode") != "READ":
+        return None
+    focus = raw.get("context_focus")
+    facts = context.values.get("canonical_facts")
+    if not isinstance(focus, str) or not isinstance(facts, dict):
+        return None
+    if focus not in {"canonical_items", "canonical_tasks", "canonical_obligations"}:
+        return None
+    value = facts.get(focus)
+    if not isinstance(value, list) or not value:
+        return None
+    if focus == "canonical_items":
+        answer = "Authorized groceries: " + ", ".join(str(item) for item in value)
+    elif focus == "canonical_tasks":
+        titles = [
+            str(item.get("title"))
+            for item in value
+            if isinstance(item, dict) and isinstance(item.get("title"), str)
+        ]
+        if not titles:
+            return None
+        answer = "Authorized tasks: " + "; ".join(titles)
+    elif focus == "canonical_obligations":
+        titles = [
+            str(item.get("title"))
+            for item in value
+            if isinstance(item, dict) and isinstance(item.get("title"), str)
+        ]
+        if not titles:
+            return None
+        answer = "Authorized obligations: " + "; ".join(titles)
+    else:
+        return None
+    return Decision(
+        kind=DecisionKind.ANSWER,
+        answer=answer,
+        semantic_mode="READ",
+        context_focus=cast(
+            Literal["canonical_items", "canonical_tasks", "canonical_obligations"], focus
+        ),
+    )
 
 
 def _with_continuation_context(result: Result, context: Context) -> Result:
@@ -448,6 +494,7 @@ class InteractionBoundary:
     ) -> Decision | Result | None:
         if self.dependencies.model_provider is None:
             return None
+        last_raw: dict[str, Any] | None = None
         try:
             provider = self.dependencies.model_provider()
             if cards:
@@ -550,6 +597,7 @@ class InteractionBoundary:
             decision: Decision | None = None
             for attempt in range(2):
                 response = provider.decide(request)
+                last_raw = response.raw if isinstance(response.raw, dict) else None
                 try:
                     decision = decoder.decode(
                         response, request.action_cards, allow_argument_proposals=True
@@ -676,6 +724,10 @@ class InteractionBoundary:
                     )
             return decision
         except InvalidDecision as exc:
+            if last_raw is not None:
+                grounded = _grounded_context_answer(context, last_raw)
+                if grounded is not None:
+                    return grounded
             if is_question_request(intent.utterance) and not is_mutation_request(intent.utterance):
                 try:
                     recovery_request = ModelRequest(

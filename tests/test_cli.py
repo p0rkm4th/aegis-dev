@@ -158,6 +158,52 @@ def test_bounded_model_fallback_recovers_safe_answer_for_non_mutation_question()
     assert provider.calls == 2
 
 
+def test_bounded_model_fallback_recovers_one_focused_authorized_read():
+    class Provider:
+        def decide(self, _request):
+            return type(
+                "Response",
+                (),
+                {
+                    "raw": {
+                        "kind": "ANSWER",
+                        "semantic_mode": "READ",
+                        "context_focus": "canonical_items",
+                    }
+                },
+            )()
+
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("unused", None),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            model_provider=lambda: Provider(),
+        )
+    )
+    context = Context(
+        values={"canonical_facts": {"canonical_items": ["rice", "milk"]}},
+        sources=("authorized_canonical_context",),
+    )
+
+    decision = boundary._fallback_decision(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="vault"),
+            utterance="what should I pick up?",
+        ),
+        (),
+        context,
+    )
+
+    assert isinstance(decision, Decision)
+    assert decision.answer == "Authorized groceries: rice, milk"
+    assert decision.context_focus == "canonical_items"
+
+
 def test_write_capable_fallback_routes_without_canonical_read_context():
     from aegis.interaction import InteractionBoundary
 
