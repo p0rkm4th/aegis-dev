@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Literal, cast
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from .contracts import Context, Decision, DecisionKind, Principal, Result
 
 _MAX_CONTEXT_TURN_CHARS = 500
 _MAX_CONTEXT_CANDIDATES = 10
+_ORDINALS = {"first": 0, "second": 1, "third": 2, "fourth": 3, "last": -1}
 
 
 def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -63,6 +65,33 @@ def authorized_context_evidence(context: Context) -> dict[str, Any]:
     if not isinstance(raw, dict):
         return {}
     return compact_context_evidence(raw)
+
+
+def resolve_obvious_ordinal(
+    utterance: str, context: Context, fact_key: str
+) -> dict[str, Any] | None:
+    """Resolve one ordinal only from the immediately authorized canonical list."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    match = re.search(r"\b(?:the\s+)?(first|second|third|fourth|last)\b", utterance.casefold())
+    if match is None:
+        return None
+    referents = context.values.get("referents")
+    if not isinstance(referents, dict):
+        return None
+    those = referents.get("those")
+    if not isinstance(those, dict) or those.get("fact_key") != fact_key:
+        return None
+    candidates = those.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        return None
+    index = _ORDINALS[match.group(1)]
+    try:
+        candidate = candidates[index]
+    except IndexError:
+        return None
+    return candidate if isinstance(candidate, dict) else None
 
 
 def grounded_context_answer(context: Context, raw: dict[str, Any]) -> Decision | None:

@@ -43,6 +43,7 @@ from .household import (
 )
 from .identity import PostgresSpacePolicy, Role
 from .interaction import InteractionInputError
+from .interaction_context import resolve_obvious_ordinal
 from .kernel import Kernel
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -551,6 +552,7 @@ def resolve_reference_safety_fast_paths(
     intent: IntentFrame,
     recovered_plan_actions: tuple[ActionSpec, ...] | None,
     model_enabled: bool,
+    context: Context | None = None,
 ) -> Result | None:
     """Apply reference-Pack safety guards before generic cognition."""
 
@@ -562,6 +564,12 @@ def resolve_reference_safety_fast_paths(
         result = DomainClarificationFastPath.resolve(intent)
         if result is not None:
             return result
+    if (
+        context is not None
+        and "complete" in intent.utterance.casefold()
+        and resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks") is not None
+    ):
+        return None
     return ContextualMutationGuard.resolve(intent)
 
 
@@ -989,6 +997,7 @@ def ground_reference_action(
     goal_chore_title: str | None,
     memory_task_title: str | None,
     memory_chore_title: str | None,
+    context: Context | None = None,
 ) -> ActionCard | Result:
     """Apply reference-Pack grounding before generic Core execution.
 
@@ -999,6 +1008,14 @@ def ground_reference_action(
     principal = intent.principal
     if card.action.action_id == "tasks.complete":
         title = card.action.arguments.get("title")
+        referent = (
+            resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks")
+            if context is not None
+            else None
+        )
+        referent_title = referent.get("title") if referent is not None else None
+        if isinstance(referent_title, str) and referent_title.strip():
+            title = referent_title
         if not isinstance(title, str) or not title.strip():
             return Result(
                 objective_id=uuid4(),
@@ -1006,7 +1023,9 @@ def ground_reference_action(
                 message=("Name the task to complete, for example: Complete the task buy cat food."),
                 correlation_id=intent.correlation_id,
             )
-        if not TaskCompletionFastPath.target_is_grounded(intent.utterance, title):
+        if referent_title is None and not TaskCompletionFastPath.target_is_grounded(
+            intent.utterance, title
+        ):
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
@@ -1018,7 +1037,7 @@ def ground_reference_action(
             )
         tasks = task_store.list(principal)
         canonical_title = TaskCompletionFastPath.canonical_title(title, tasks)
-        if canonical_title is not None and canonical_title != title:
+        if canonical_title is not None and card.action.arguments.get("title") != canonical_title:
             card = card.model_copy(
                 update={
                     "action": card.action.model_copy(
@@ -1112,7 +1131,7 @@ def ground_reference_action(
 
 
 def ground_reference_action_runtime(
-    intent: IntentFrame, card: ActionCard, connection: Any
+    intent: IntentFrame, card: ActionCard, connection: Any, context: Context | None = None
 ) -> ActionCard | Result:
     """Load reference Pack state before applying its canonical grounding rules."""
 
@@ -1139,4 +1158,5 @@ def ground_reference_action_runtime(
         titles[1],
         titles[2],
         titles[3],
+        context,
     )
