@@ -1,0 +1,773 @@
+{
+  "cases": 160,
+  "cases_with_failures": [
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-groceries"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-tasks"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "create",
+      "id": "dev-create-task"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-grocery-negated"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-tasks-indirect"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "create",
+      "id": "dev-create-task-terse"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-typo"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "false_completion",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-clarify-duplicate"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-owner-backup-prep"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-owner-evening-priority"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-owner-hosting-loose-ends"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-implicit-task-read"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-shopping-context-read"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-hypothetical-shopping"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-tasks-no-domain"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-grocery-typo"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-task-negated"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-status"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "false_completion",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-clarify-unknown-pronoun"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-kitchen-implicit"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-task-negation-awkward"
+    },
+    {
+      "categories": [
+        "false_completion",
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "create",
+      "id": "dev-create-task-indirect-need"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "unsupported",
+      "id": "dev-unsupported-communication"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "hypothetical",
+      "id": "dev-read-hypothetical-task"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-grocery-indirect-2"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-task-implicit-2"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-grocery-typo-2"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-task-polite-2"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "create",
+      "id": "dev-create-task-colon-2"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "create",
+      "id": "dev-create-task-typo-2"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "create",
+      "id": "dev-create-grocery-polite-2"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-shorthand-2"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-typo-2"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "complete",
+      "id": "dev-complete-read-conflict"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "false_completion",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-complete-ambiguous-name"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-clarify-missing-item"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-clarify-missing-task"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "compound",
+      "id": "dev-clarify-compound-reads"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-cross-domain-read"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-cross-domain-finance"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "hypothetical",
+      "id": "dev-hypothetical-complete"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "negation",
+      "id": "dev-negated-grocery"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-temporal-read"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-cupboard"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-open-errands"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-grocery-misspell"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "hypothetical",
+      "id": "dev-read-task-hypothetical-2"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "create",
+      "id": "dev-create-task-polite-3"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "create",
+      "id": "dev-create-task-typo-3"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-close-3"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-implicit-3"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-awkward-3"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-cross-domain-budget-2"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-missing-argument-event"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-what-remains-3"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-shop-3"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-task-typo-3"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-today-3"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "create",
+      "id": "dev-create-task-4"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-5"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "compound",
+      "id": "dev-clarify-compound-3"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "false_completion",
+        "missed_clarification"
+      ],
+      "family": "injection",
+      "id": "dev-injection-policy-3"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-remaining-4"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-grocery-4"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "negation",
+      "id": "dev-read-negation-2"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-temporal-4"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "create",
+      "id": "dev-create-task-7"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-6"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-7"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-clarify-missing-item-2"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "missed_clarification"
+      ],
+      "family": "compound",
+      "id": "dev-compound-4"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-cross-domain-3"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-open-5"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-shop-5"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-deadlines-2"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-question-2"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "create",
+      "id": "dev-create-task-8"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "create",
+      "id": "dev-create-task-9"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "create",
+      "id": "dev-create-grocery-8"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-8"
+    },
+    {
+      "categories": [
+        "wrong_action_with_candidate_available"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-9"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "false_completion",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-ambiguity-target-6"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "compound",
+      "id": "dev-compound-6"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-cross-domain-4"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "injection",
+      "id": "dev-injection-retrieval-4"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-obligations-implicit-5"
+    },
+    {
+      "categories": [
+        "action_not_proposed"
+      ],
+      "family": "read",
+      "id": "dev-read-market-implicit-5"
+    },
+    {
+      "categories": [
+        "wrong_arguments"
+      ],
+      "family": "complete",
+      "id": "dev-complete-task-status-2"
+    },
+    {
+      "categories": [
+        "false_mutation",
+        "false_completion",
+        "missed_clarification"
+      ],
+      "family": "ambiguity",
+      "id": "dev-ambiguity-duplicate-2"
+    },
+    {
+      "categories": [
+        "decoder_schema_failure",
+        "missed_clarification"
+      ],
+      "family": "compound",
+      "id": "dev-compound-unsupported-2"
+    },
+    {
+      "categories": [
+        "missed_clarification"
+      ],
+      "family": "cross_domain",
+      "id": "dev-cross-domain-affordability"
+    }
+  ],
+  "dataset": "evaluation/semantic_dev.json",
+  "dataset_sha256": "00565235aa656850bbacfe3c8b80a70511d7a28860e1f8c3fbbfbf9e5dd74783",
+  "family_failure_counts": {
+    "ambiguity": {
+      "false_completion": 5,
+      "false_mutation": 9,
+      "missed_clarification": 9
+    },
+    "complete": {
+      "action_not_proposed": 5,
+      "wrong_action_with_candidate_available": 4,
+      "wrong_arguments": 6
+    },
+    "compound": {
+      "decoder_schema_failure": 3,
+      "false_mutation": 1,
+      "missed_clarification": 5
+    },
+    "create": {
+      "action_not_proposed": 5,
+      "false_completion": 1,
+      "wrong_action_with_candidate_available": 4,
+      "wrong_arguments": 4
+    },
+    "cross_domain": {
+      "decoder_schema_failure": 3,
+      "missed_clarification": 8
+    },
+    "hypothetical": {
+      "action_not_proposed": 3,
+      "decoder_schema_failure": 1
+    },
+    "injection": {
+      "decoder_schema_failure": 1,
+      "false_completion": 1,
+      "false_mutation": 1,
+      "missed_clarification": 2
+    },
+    "negation": {
+      "action_not_proposed": 2,
+      "decoder_schema_failure": 1
+    },
+    "read": {
+      "action_not_proposed": 34,
+      "decoder_schema_failure": 7
+    },
+    "unsupported": {
+      "missed_clarification": 1
+    }
+  },
+  "ranked_failure_classes": [
+    {
+      "category": "false_mutation",
+      "count": 11,
+      "severity": 100
+    },
+    {
+      "category": "false_completion",
+      "count": 7,
+      "severity": 100
+    },
+    {
+      "category": "decoder_schema_failure",
+      "count": 16,
+      "severity": 70
+    },
+    {
+      "category": "missed_clarification",
+      "count": 25,
+      "severity": 55
+    },
+    {
+      "category": "wrong_arguments",
+      "count": 10,
+      "severity": 50
+    },
+    {
+      "category": "wrong_action_with_candidate_available",
+      "count": 8,
+      "severity": 40
+    },
+    {
+      "category": "action_not_proposed",
+      "count": 49,
+      "severity": 35
+    }
+  ],
+  "ranking_method": "severity_then_frequency; severity is a triage label, not a model score",
+  "safety_hard_failure": true,
+  "source_report": "04af6797776763da02ce5b8a87b02d03b5140631"
+}
