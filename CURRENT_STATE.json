@@ -25,6 +25,7 @@
       ,"Constellation Pack lifecycle projection at 06074ac: browser state consumes PackManager.lifecycle_snapshot() rather than loading Pack storage rows directly; full validation passed at 326 tests"
       ,"Pack lifecycle composition injection at b4fc5f5: production CLI supplies Pack bundles and safe auto-enable policy to InteractionBoundary; generic reconciliation owns discovery/install/enable transitions; full validation passed at 327 tests"
       ,"production Pack runtime registry at 9f3dbfd: CLI composition supplies typed PostgreSQL Task/Household/Kitchen read/write runtimes by ActionCard ID, moving supported production execution off InteractionBoundary fallback branches; full validation passed at 327 tests"
+      ,"explicit grocery read fast path at aa96420: high-confidence grocery-list reads bypass model answer decoding while remaining canonical/membership-checked; full validation passed at 327 tests"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -106,11 +107,11 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9f3dbfd",
+  "repository_head_sha": "aa96420",
   "deterministic_green_sha": "012513e",
-  "last_pushed_sha": "9f3dbfd",
-  "installed_release_sha": "9f3dbfd",
-  "running_release_sha": "9f3dbfd",
+  "last_pushed_sha": "aa96420",
+  "installed_release_sha": "aa96420",
+  "running_release_sha": "aa96420",
   "live_green_sha": "f5add80",
   "head_sha": "9f3768e",
   "last_green_sha": "f5add80",
@@ -128,15 +129,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "9f3dbfd",
+    "running_sha": "aa96420",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/9f3dbfd",
-    "repository_head_sha": "9f3dbfd",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/aa96420",
+    "repository_head_sha": "aa96420",
     "deterministic_green_sha": "012513e",
-    "installed_release_sha": "9f3dbfd",
-    "running_release_sha": "9f3dbfd",
+    "installed_release_sha": "aa96420",
+    "running_release_sha": "aa96420",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and installed/running owner release are 9f3dbfd at this checkpoint. Readiness is green with PostgreSQL and Qwen3:8B; live capability evidence remains separately tracked through f5add80 and newer frontier probes.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and installed/running owner release are aa96420 at this checkpoint. Readiness is green with PostgreSQL and Qwen3:8B; live capability evidence remains separately tracked through f5add80 and newer frontier probes. Exact grocery-read regression evidence is recorded separately from semantic capability claims.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -875,5 +876,5 @@
   "owner_household_read_precedence_live": "green live routing and safety evidence on release a3bfc7d: duplicate 'Finish the task called the quarterly inspection.' correlation 1aca33f5-7fb1-44b5-8ddf-992c23e32927 reached task completion and clarified the canonical duplicate instead of reading events; unique inspection-named task 'Finish the task called rendered detail acceptance 91919191.' correlation 76126a51-156a-4303-ad08-61f92e18ba65 completed with canonical task readback",
   "owner_empty_answer_defect_live": "historical live product failure on release d6eb054: Qwen3:8B ANSWER proposals with only a reason became HTTP-200 completed responses with blank user messages; strict ANSWER validation and bounded no-card repair fixed the empty-result contract",
   "owner_typo_grocery_grounding_live": "partial live evidence on release d41d06a: authenticated 'what grocerieus should i get?' correlation e4fe0bc6-ee0b-4707-a25e-533484010e19 reached bounded cognition and returned non-empty non-authoritative clarification, but did not name the authorized canonical grocery item; capability remains unproven",
-  "next_action": "Promote 012513e only after the installed owner smoke/readiness path is green, then continue the Pack/Core audit toward a zero-Core-change unfamiliar Pack. Expand the measured semantic harness from its Qwen3:8B baseline using development failures for diagnosis and the untouched held-out corpus for acceptance. Keep capability-level evidence separate from exact canaries; Home Assistant/mobile/voice remain lane-limited."
+    "next_action": "Continue removing the remaining legacy domain-dispatch fallbacks behind explicit Pack runtime composition, then diagnose the held-out Qwen3:8B semantic baseline using development failures without phrase patches. Keep capability-level evidence separate from exact canaries; Home Assistant/mobile/voice remain lane-limited."
 }
