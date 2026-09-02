@@ -9,6 +9,8 @@ the generic client/Core contract.
 
 from __future__ import annotations
 
+import os
+from collections.abc import Callable
 from typing import Any, cast
 from uuid import uuid4
 
@@ -26,24 +28,38 @@ from .contracts import (
 )
 from .decoding import StrictDecisionDecoder
 from .dispatch import ActionExecutorDispatch, ActionVerifierDispatch
+from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .household import (
     Chore,
     ChoreCompletionFastPath,
+    GroceryReadFastPath,
     HouseholdObligation,
+    HouseholdReadFastPath,
     PostgresHouseholdStore,
 )
 from .identity import PostgresSpacePolicy, Role
 from .kernel import Kernel
 from .pack_lifecycle import PackManager
 from .pack_runtime import PackRuntimeRegistry
-from .personal import PersonalState, PostgresPersonalStateStore
-from .planning import CrossDomainPlanningFastPath, MultiActionFastPath
+from .personal import PersonalMemoryFastPath, PersonalState, PostgresPersonalStateStore
+from .planning import (
+    CrossDomainPlanningFastPath,
+    MultiActionFastPath,
+    PersonalChoreComposer,
+    PersonalMemoryChoreComposer,
+    PersonalMemoryTaskComposer,
+    PersonalTaskComposer,
+)
 from .projections import SharedObligation
 from .store import PostgresObjectiveStore
 from .tasks import (
+    ContextualTaskPriorityFastPath,
     PostgresTaskStore,
     TaskCompletionFastPath,
+    TaskIntentClarificationFastPath,
+    TaskPriorityFastPath,
+    TaskReadFastPath,
     ground_task_due_at,
     requested_task_due_at,
 )
@@ -75,6 +91,94 @@ def reference_fallback_cards(manager: PackManager, utterance: str) -> tuple[Acti
         return tuple(manager.retrieve("tasks"))[:10]
     cards = manager.retrieve(domain) if domain is not None else manager.enabled_cards()
     return tuple(cards)[:10]
+
+
+def resolve_reference_fast_paths(
+    intent: IntentFrame,
+    connection: Any,
+    principal: Principal,
+    context: Context,
+    recovered_plan_actions: tuple[ActionSpec, ...] | None,
+    required: Callable[[str], str],
+    model_enabled: bool,
+) -> Result | None:
+    """Resolve reference-Pack reads and personal grounding before cognition."""
+
+    if recovered_plan_actions is not None:
+        return None
+    utterance = intent.utterance
+    task_store = PostgresTaskStore(connection)
+    household_store = PostgresHouseholdStore(connection)
+    personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
+        principal
+    )
+    composer_results = (
+        PersonalTaskComposer.resolve(utterance, personal_state),
+        PersonalChoreComposer.resolve(utterance, personal_state),
+        PersonalMemoryTaskComposer.resolve(utterance, personal_state),
+        PersonalMemoryChoreComposer.resolve(utterance, personal_state),
+    )
+    errors = tuple(error for _title, error in composer_results if error is not None)
+    if errors:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=errors[0],
+            correlation_id=intent.correlation_id,
+        )
+    composed_title = next((title for title, _error in composer_results if title is not None), None)
+    snapshot = household_store.read_snapshot(principal)
+    if composed_title is None and HouseholdReadFastPath.matches(utterance):
+        result = HouseholdReadFastPath(snapshot).resolve(intent)
+        if result is not None:
+            return result
+    if composed_title is None:
+        result = GroceryReadFastPath(household_store).resolve(intent)
+        if result is not None:
+            return result
+        if not model_enabled:
+            result = TaskIntentClarificationFastPath.resolve(intent)
+            if result is not None:
+                return result
+        result = TaskReadFastPath(task_store).resolve(intent)
+        if result is not None:
+            return result
+        result = ContextualTaskPriorityFastPath().resolve(intent, context)
+        if result is not None:
+            return result
+        result = TaskPriorityFastPath(task_store).resolve(intent)
+        if result is not None:
+            return result
+    semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if semantic_enabled:
+        embedding_provider = OllamaEmbeddingProvider(
+            os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
+            required("AEGIS_OLLAMA_URL"),
+        )
+        vector_index = PostgresMemoryVectorIndex(connection)
+        embeddings = embedding_provider.embed(
+            tuple(memory.content for memory in personal_state.memories.values())
+        )
+        for memory, embedding in zip(personal_state.memories.values(), embeddings):
+            vector_index.upsert(
+                principal.vault_id, memory.memory_id, embedding, embedding_provider.model
+            )
+        connection.commit()
+        memory_fast_path = PersonalMemoryFastPath(
+            personal_state,
+            embedding_provider=embedding_provider,
+            vector_index=vector_index,
+            vault_id=principal.vault_id,
+        )
+    else:
+        memory_fast_path = PersonalMemoryFastPath(personal_state)
+    if composed_title is None:
+        return memory_fast_path.resolve(intent)
+    return None
 
 
 def run_reference_plan(
@@ -380,3 +484,34 @@ def ground_reference_action(
         )
 
     return card
+
+
+def ground_reference_action_runtime(
+    intent: IntentFrame, card: ActionCard, connection: Any
+) -> ActionCard | Result:
+    """Load reference Pack state before applying its canonical grounding rules."""
+
+    principal = intent.principal
+    task_store = PostgresTaskStore(connection)
+    household_store = PostgresHouseholdStore(connection)
+    personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
+        principal
+    )
+    composer_results = (
+        PersonalTaskComposer.resolve(intent.utterance, personal_state),
+        PersonalChoreComposer.resolve(intent.utterance, personal_state),
+        PersonalMemoryTaskComposer.resolve(intent.utterance, personal_state),
+        PersonalMemoryChoreComposer.resolve(intent.utterance, personal_state),
+    )
+    titles = tuple(title for title, _error in composer_results)
+    return ground_reference_action(
+        intent,
+        card,
+        task_store,
+        household_store,
+        personal_state,
+        titles[0],
+        titles[1],
+        titles[2],
+        titles[3],
+    )

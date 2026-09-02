@@ -49,8 +49,9 @@ from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_interaction import (
-    ground_reference_action,
+    ground_reference_action_runtime,
     reference_fallback_cards,
+    resolve_reference_fast_paths,
     resolve_reference_pre_model,
     rewrite_reference_decision,
     run_reference_plan,
@@ -1233,11 +1234,12 @@ def run_interaction(
             runtime_registry=runtime_registry,
             pack_bundles=reference_bundles,
             auto_enable_pack_ids=frozenset(("tasks", "kitchen")),
-            action_grounder=ground_reference_action,
+            action_grounder=ground_reference_action_runtime,
             pre_model_resolver=resolve_reference_pre_model,
             fallback_card_selector=reference_fallback_cards,
             plan_runner=run_reference_plan,
             decision_rewriter=rewrite_reference_decision,
+            fast_path_resolver=resolve_reference_fast_paths,
         )
     )
     return boundary.run(
