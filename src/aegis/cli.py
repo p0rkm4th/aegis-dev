@@ -598,6 +598,60 @@ def _browser_feedback(
         connection.close()
 
 
+def _owner_feedback_report(principal: Principal, limit: int = 20) -> list[dict[str, Any]]:
+    """Return bounded owner feedback metadata for defect triage."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        rows = connection.execute(
+            """SELECT id, objective_id, payload, created_at
+               FROM audit_events
+               WHERE principal_id = %s AND event_type = 'owner.feedback'
+               ORDER BY created_at DESC, id DESC
+               LIMIT %s""",
+            (principal.id, min(max(limit, 1), 100)),
+        ).fetchall()
+        report: list[dict[str, Any]] = []
+        for event_id, objective_id, payload, created_at in rows:
+            values = payload if isinstance(payload, dict) else {}
+            report.append(
+                {
+                    "event_id": str(event_id),
+                    "objective_id": str(objective_id) if objective_id else None,
+                    "created_at": (
+                        created_at.isoformat()
+                        if hasattr(created_at, "isoformat")
+                        else str(created_at)
+                    ),
+                    "outcome": values.get("outcome"),
+                    "reason": values.get("reason"),
+                    "result_state": values.get("result_state"),
+                    "retryable": values.get("retryable"),
+                }
+            )
+        return report
+    finally:
+        connection.close()
+
+
+def _print_owner_feedback(report: list[dict[str, Any]], as_json: bool) -> int:
+    if as_json:
+        print(json.dumps({"feedback": report}, sort_keys=True))
+        return 0
+    if not report:
+        print("No owner feedback recorded.")
+        return 0
+    print(f"Recent owner feedback ({len(report)}):")
+    for item in report:
+        reason = f"/{item['reason']}" if item["reason"] else ""
+        print(
+            f"- {item['outcome']}{reason}: result={item['result_state']} "
+            f"objective={item['objective_id']} event={item['event_id']}"
+        )
+    return 0
+
+
 def _principal() -> Principal:
     token = os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN")
     issuer = os.environ.get("AEGIS_KEYCLOAK_ISSUER")
@@ -1047,6 +1101,11 @@ def main() -> int:
         help="check configuration and runtime readiness, then exit",
     )
     parser.add_argument(
+        "--feedback",
+        action="store_true",
+        help="show recent owner feedback metadata for defect triage, then exit",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="emit machine-readable JSON (valid with --check or --once)",
@@ -1069,10 +1128,12 @@ def main() -> int:
     parser.add_argument("--host", default="127.0.0.1", help=argparse.SUPPRESS)
     parser.add_argument("--port", type=_port_value, default=8080, help="browser client port")
     args = parser.parse_args()
-    if args.json and not (args.check or args.once is not None):
-        parser.error("--json requires --check or --once")
+    if args.json and not (args.check or args.once is not None or args.feedback):
+        parser.error("--json requires --check, --once, or --feedback")
     if args.web and (args.check or args.once is not None):
         parser.error("--web cannot be combined with --check or --once")
+    if args.feedback and (args.check or args.once is not None or args.web or args.init):
+        parser.error("--feedback cannot be combined with --check, --once, --web, or --init")
     if args.init and (args.check or args.once is not None or args.web):
         parser.error("--init cannot be combined with --check, --once, or --web")
     if args.init:
@@ -1113,6 +1174,18 @@ def main() -> int:
             "verify identity configuration"
         )
         return 1
+    if args.feedback:
+        try:
+            return _print_owner_feedback(_owner_feedback_report(principal), args.json)
+        except psycopg.Error:
+            if args.json:
+                _print_json_error("feedback_unavailable", "feedback unavailable")
+            else:
+                print(
+                    "Not completed — feedback unavailable; run "
+                    "'./scripts/aegis --check' and verify AEGIS_DATABASE_URL"
+                )
+            return 1
     if args.web:
         try:
             if not os.environ.get("AEGIS_KEYCLOAK_ACCESS_TOKEN"):
