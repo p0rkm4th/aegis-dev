@@ -39,12 +39,13 @@ from .identity import (
 from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
-from .pack_lifecycle import PackManager, PostgresPackStore
+from .pack_lifecycle import PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_interaction import (
     build_reference_fallback_context_runtime,
     ground_reference_action_runtime,
+    reference_constellation_state,
     reference_domain_and_action,
     reference_fallback_cards,
     resolve_reference_fast_paths,
@@ -79,14 +80,6 @@ class _NoApproval:
 
     def approved(self, request: Any) -> bool:
         return True
-
-
-class _ReadOnlyHomelabRuntime:
-    def restart(self, service: Any) -> bool:
-        return False
-
-    def health(self, service: Any) -> bool:
-        return False
 
 
 def _required(name: str) -> str:
@@ -421,159 +414,21 @@ def _print_json_error(code: str, message: str) -> None:
 
 
 def _constellation_state(principal: Principal) -> dict[str, Any]:
-    """Build a small authorized view from canonical stores for the browser adapter."""
+    """Adapt the reference-Pack projection to the browser callback contract."""
 
-    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
-    try:
-        _apply_migrations(connection)
-        household = PostgresHouseholdStore(connection).read_snapshot(principal)
-        tasks = PostgresTaskStore(connection).list(principal)
-        groceries = cast(tuple[str, ...], household.get("groceries", ()))
-        personal = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
-            principal
-        )
-        finance = PostgresFinanceSnapshotStore(connection).load(principal.id)
-        network = PostgresNetworkStore(connection).load(principal)
-        homelab = PostgresHomelabStore(connection).load(principal, _ReadOnlyHomelabRuntime())
-        persisted = {
-            bundle.manifest.pack_id: (bundle, status)
-            for bundle, status, _grants in PackManager(
-                store=PostgresPackStore(connection)
-            ).lifecycle_snapshot()
-        }
-        nodes: list[dict[str, Any]] = [
-            {
-                "id": "aegis",
-                "label": "AEGIS",
-                "detail": "central hub",
-                "category": "core",
-                "detail_view": "overview",
-            },
-        ]
-        edges: list[dict[str, str]] = []
-        available = {bundle.manifest.pack_id: bundle for bundle in reference_bundles()}
-        available.update(
-            {pack_id: item[0] for pack_id, item in persisted.items() if pack_id not in available}
-        )
-        for pack_id, bundle in sorted(available.items()):
-            ui = bundle.manifest.ui
-            label = ui.label if ui is not None else pack_id.replace("-", " ").title()
-            status = persisted.get(pack_id, (None, "available"))[1]
-            status_text = status.value if hasattr(status, "value") else str(status)
-            node_id = f"pack-{pack_id}"
-            detail = f"{ui.category if ui else 'domain'} · {status_text}"
-            if pack_id == "tasks":
-                detail += f" · {len(tasks)} tasks"
-            elif pack_id == "kitchen":
-                detail += f" · {len(groceries)} groceries"
-            nodes.append(
-                {
-                    "id": node_id,
-                    "label": label,
-                    "detail": detail,
-                    "category": ui.category if ui else "domain",
-                    "detail_view": ui.detail_view if ui else None,
-                }
-            )
-            edges.append({"source": "aegis", "target": node_id})
-        domain_summaries = (
-            (
-                "personal",
-                "Personal",
-                f"{len(personal.projects)} projects · {len(personal.goals)} goals · "
-                f"{len(personal.memories)} memories",
-            ),
-            (
-                "household",
-                "Household",
-                f"{len(cast(tuple[object, ...], household.get('chores', ())))} chores · "
-                f"{len(cast(tuple[object, ...], household.get('events', ())))} events",
-            ),
-            (
-                "finance",
-                "Finance",
-                "private snapshot available" if finance is not None else "no private snapshot",
-            ),
-            (
-                "homelab",
-                "Infrastructure",
-                f"{len(homelab.hosts)} hosts · {len(homelab.services)} services",
-            ),
-            (
-                "network",
-                "Network",
-                f"{len(network.devices)} devices · {len(network.scopes)} authorized scopes",
-            ),
-        )
-        pack_ids = set(available)
-        for domain_id, label, detail in domain_summaries:
-            if domain_id in pack_ids:
-                continue
-            node_id = f"domain-{domain_id}"
-            nodes.append(
-                {
-                    "id": node_id,
-                    "label": label,
-                    "detail": detail,
-                    "category": "domain",
-                    "detail_view": "list",
-                }
-            )
-            edges.append({"source": "aegis", "target": node_id})
-        # Record lists stay in authorized detail views. The graph is intentionally
-        # bounded to hubs and semantic context rather than growing with rows.
-        details: dict[str, Any] = {
-            "domain-personal": {
-                "projects": [
-                    {"name": project.name, "created_at": project.created_at.isoformat()}
-                    for project in personal.projects.values()
-                ],
-                "goals": [
-                    {
-                        "description": goal.description,
-                        "project_id": str(goal.project_id) if goal.project_id else None,
-                    }
-                    for goal in personal.goals.values()
-                ],
-            },
-            "domain-household": {
-                "groceries": list(groceries),
-                "chores": [
-                    {
-                        "title": chore.title,
-                        "assignee_id": chore.assignee_id,
-                        "completed": chore.completed,
-                    }
-                    for chore in cast(tuple[Any, ...], household.get("chores", ()))
-                ],
-                "events": [
-                    {"title": event.title, "starts_at": event.starts_at.isoformat()}
-                    for event in cast(tuple[Any, ...], household.get("events", ()))
-                ],
-            },
-            "domain-finance": {"snapshot_available": finance is not None},
-            "pack-homelab": {
-                "hosts": [{"hostname": host.hostname} for host in homelab.hosts.values()],
-                "services": [{"name": service.name} for service in homelab.services.values()],
-            },
-            "pack-network": {
-                "devices": [
-                    {
-                        "name": device.hostname or device.address,
-                        "address": device.address,
-                    }
-                    for device in network.devices.values()
-                ],
-                "authorized_scopes": [scope.scope_id for scope in network.scopes.values()],
-            },
-            "pack-tasks": {
-                "tasks": [{"title": task.title, "status": task.status.value} for task in tasks]
-            },
-            "pack-kitchen": {"groceries": list(groceries)},
-        }
-        return {"nodes": nodes, "edges": edges, "details": details}
-    finally:
-        connection.close()
+    return reference_constellation_state(
+        principal,
+        psycopg.connect,
+        _required,
+        _apply_migrations,
+        household_store_factory=PostgresHouseholdStore,
+        task_store_factory=PostgresTaskStore,
+        personal_store_factory=PostgresPersonalStateStore,
+        finance_store_factory=PostgresFinanceSnapshotStore,
+        network_store_factory=PostgresNetworkStore,
+        homelab_store_factory=PostgresHomelabStore,
+        pack_store_factory=PostgresPackStore,
+    )
 
 
 def _browser_interaction(

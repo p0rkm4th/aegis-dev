@@ -32,6 +32,7 @@ from .decoding import StrictDecisionDecoder
 from .dispatch import ActionExecutorDispatch, ActionVerifierDispatch
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
+from .homelab import PostgresHomelabStore
 from .household import (
     Chore,
     ChoreCompletionFastPath,
@@ -43,7 +44,8 @@ from .household import (
 from .identity import PostgresSpacePolicy, Role
 from .interaction import InteractionInputError
 from .kernel import Kernel
-from .pack_lifecycle import PackManager
+from .network import PostgresNetworkStore
+from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PersonalState, PostgresPersonalStateStore
 from .planning import (
@@ -57,6 +59,7 @@ from .planning import (
     PersonalTaskComposer,
 )
 from .projections import SharedObligation
+from .reference_packs import reference_bundles
 from .store import PostgresObjectiveStore
 from .tasks import (
     ContextualTaskPriorityFastPath,
@@ -224,6 +227,190 @@ def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[s
             update={"arguments": {"title": title, "starts_at": starts_at.isoformat()}}
         )
     return domain, ActionCard(action=action, summary=card.summary, relevance=card.relevance)
+
+
+class _ReadOnlyHomelabRuntime:
+    def restart(self, _service: Any) -> bool:
+        return False
+
+    def health(self, _service: Any) -> bool:
+        return False
+
+
+def reference_constellation_state(
+    principal: Principal,
+    connect: Callable[[str], Any],
+    required: Callable[[str], str],
+    apply_migrations: Callable[[Any], None],
+    *,
+    household_store_factory: Callable[[Any], PostgresHouseholdStore] = PostgresHouseholdStore,
+    task_store_factory: Callable[[Any], PostgresTaskStore] = PostgresTaskStore,
+    personal_store_factory: Callable[
+        [Any, str], PostgresPersonalStateStore
+    ] = PostgresPersonalStateStore,
+    finance_store_factory: Callable[
+        [Any], PostgresFinanceSnapshotStore
+    ] = PostgresFinanceSnapshotStore,
+    network_store_factory: Callable[[Any], PostgresNetworkStore] = PostgresNetworkStore,
+    homelab_store_factory: Callable[[Any], PostgresHomelabStore] = PostgresHomelabStore,
+    pack_store_factory: Callable[[Any], PostgresPackStore] = PostgresPackStore,
+) -> dict[str, Any]:
+    """Build the authorized reference-Pack projection for a client adapter.
+
+    The browser receives this projection through a callback, but domain
+    knowledge and canonical store reads remain in reference-Pack composition.
+    Generic web transport only validates and presents the projection.
+    """
+
+    connection = connect(required("AEGIS_DATABASE_URL"))
+    try:
+        apply_migrations(connection)
+        household = household_store_factory(connection).read_snapshot(principal)
+        tasks = task_store_factory(connection).list(principal)
+        groceries = cast(tuple[str, ...], household.get("groceries", ()))
+        personal = personal_store_factory(connection, principal.vault_id).load_for_principal(
+            principal
+        )
+        finance = finance_store_factory(connection).load(principal.id)
+        network = network_store_factory(connection).load(principal)
+        homelab = homelab_store_factory(connection).load(principal, _ReadOnlyHomelabRuntime())
+        persisted = {
+            bundle.manifest.pack_id: (bundle, status)
+            for bundle, status, _grants in PackManager(
+                store=pack_store_factory(connection)
+            ).lifecycle_snapshot()
+        }
+        nodes: list[dict[str, Any]] = [
+            {
+                "id": "aegis",
+                "label": "AEGIS",
+                "detail": "central hub",
+                "category": "core",
+                "detail_view": "overview",
+            },
+        ]
+        edges: list[dict[str, str]] = []
+        available = {bundle.manifest.pack_id: bundle for bundle in reference_bundles()}
+        available.update(
+            {pack_id: item[0] for pack_id, item in persisted.items() if pack_id not in available}
+        )
+        for pack_id, bundle in sorted(available.items()):
+            ui = bundle.manifest.ui
+            label = ui.label if ui is not None else pack_id.replace("-", " ").title()
+            status = persisted.get(pack_id, (None, "available"))[1]
+            status_text = status.value if hasattr(status, "value") else str(status)
+            node_id = f"pack-{pack_id}"
+            detail = f"{ui.category if ui else 'domain'} · {status_text}"
+            if pack_id == "tasks":
+                detail += f" · {len(tasks)} tasks"
+            elif pack_id == "kitchen":
+                detail += f" · {len(groceries)} groceries"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": label,
+                    "detail": detail,
+                    "category": ui.category if ui else "domain",
+                    "detail_view": ui.detail_view if ui else None,
+                }
+            )
+            edges.append({"source": "aegis", "target": node_id})
+        domain_summaries = (
+            (
+                "personal",
+                "Personal",
+                f"{len(personal.projects)} projects · {len(personal.goals)} goals · "
+                f"{len(personal.memories)} memories",
+            ),
+            (
+                "household",
+                "Household",
+                f"{len(cast(tuple[object, ...], household.get('chores', ())))} chores · "
+                f"{len(cast(tuple[object, ...], household.get('events', ())))} events",
+            ),
+            (
+                "finance",
+                "Finance",
+                "private snapshot available" if finance is not None else "no private snapshot",
+            ),
+            (
+                "homelab",
+                "Infrastructure",
+                f"{len(homelab.hosts)} hosts · {len(homelab.services)} services",
+            ),
+            (
+                "network",
+                "Network",
+                f"{len(network.devices)} devices · {len(network.scopes)} authorized scopes",
+            ),
+        )
+        pack_ids = set(available)
+        for domain_id, label, detail in domain_summaries:
+            if domain_id in pack_ids:
+                continue
+            node_id = f"domain-{domain_id}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": label,
+                    "detail": detail,
+                    "category": "domain",
+                    "detail_view": "list",
+                }
+            )
+            edges.append({"source": "aegis", "target": node_id})
+        details: dict[str, Any] = {
+            "domain-personal": {
+                "projects": [
+                    {"name": project.name, "created_at": project.created_at.isoformat()}
+                    for project in personal.projects.values()
+                ],
+                "goals": [
+                    {
+                        "description": goal.description,
+                        "project_id": str(goal.project_id) if goal.project_id else None,
+                    }
+                    for goal in personal.goals.values()
+                ],
+            },
+            "domain-household": {
+                "groceries": list(groceries),
+                "chores": [
+                    {
+                        "title": chore.title,
+                        "assignee_id": chore.assignee_id,
+                        "completed": chore.completed,
+                    }
+                    for chore in cast(tuple[Any, ...], household.get("chores", ()))
+                ],
+                "events": [
+                    {"title": event.title, "starts_at": event.starts_at.isoformat()}
+                    for event in cast(tuple[Any, ...], household.get("events", ()))
+                ],
+            },
+            "domain-finance": {"snapshot_available": finance is not None},
+            "pack-homelab": {
+                "hosts": [{"hostname": host.hostname} for host in homelab.hosts.values()],
+                "services": [{"name": service.name} for service in homelab.services.values()],
+            },
+            "pack-network": {
+                "devices": [
+                    {
+                        "name": device.hostname or device.address,
+                        "address": device.address,
+                    }
+                    for device in network.devices.values()
+                ],
+                "authorized_scopes": [scope.scope_id for scope in network.scopes.values()],
+            },
+            "pack-tasks": {
+                "tasks": [{"title": task.title, "status": task.status.value} for task in tasks]
+            },
+            "pack-kitchen": {"groceries": list(groceries)},
+        }
+        return {"nodes": nodes, "edges": edges, "details": details}
+    finally:
+        connection.close()
 
 
 def resolve_reference_safety_fast_paths(
