@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "b4ba033aface806bead6891c0eacf38a4d6b2712",
-  "deterministic_green_sha": "b4ba033aface806bead6891c0eacf38a4d6b2712",
-  "last_pushed_sha": "b4ba033aface806bead6891c0eacf38a4d6b2712",
-  "hosted_ci_green_sha": "b4ba033aface806bead6891c0eacf38a4d6b2712",
+  "repository_head_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
+  "deterministic_green_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
+  "last_pushed_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
+  "hosted_ci_green_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33677911412",
-    "commit_sha": "b4ba033aface806bead6891c0eacf38a4d6b2712",
+    "run_id": "33678088206",
+    "commit_sha": "cab0189afc0647a63820d80e1f9e1ddbaa219d5f",
     "conclusion": "success",
     "observed_at": "2026-09-02T19:25:00Z"
   },
@@ -1081,5 +1081,6 @@
     "personal_recall_checkpoint": "green deterministic, hosted, and installed owner evidence at 4a9a030: the broad natural request 'what do you remember about me?' no longer competes with task cards; the existing PersonalMemoryFastPath returns a bounded list of current provenance-bearing memories, while mutation-shaped remember requests remain excluded. Full validation passed at 390 tests; hosted run 33676822760 passed; authenticated owner correlation 7def6f2c-a039-4b9c-afc1-b2f36ada66b8 returned nine personal memories with no canonical task misroute or mutation.",
     "personal_temporal_truth_checkpoint": "green safety evidence on installed release 85e3153: 'what did I work on last night?' and 'what did I work on yesterday?' returned no memories because the persisted records matching those labels were outside the requested local-time windows; AEGIS did not trust stale wording over canonical occurred_at timestamps. A timestamp-controlled deterministic regression proves broad activity queries return matching records when they are inside the requested window.",
     "personal_backup_followup_checkpoint": "green installed owner evidence on release 85e3153: natural follow-up 'what about the backup?' returned five provenance-bearing personal memories, including observed and explicit backup records, without task misrouting, private cross-user disclosure, or mutation (correlation fd65b31e-b6b8-480e-b810-951d1235656f).",
+    "household_priority_safety_checkpoint": "green safety evidence on installed release 85e3153: natural household read 'what chores still need doing around the apartment?' returned canonical chores, while follow-up 'which one is due first?' blocked because the authorized result contained no due-date authority (correlation 8aab607e-4be1-4919-9f42-2802a142c1b0). No fabricated prioritization or chore mutation occurred.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; classify the next demonstrated defect before considering bounded planning."
 }
