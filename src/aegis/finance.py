@@ -227,7 +227,7 @@ class FinanceReadFastPath:
         r"\b(?P<amount>(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
         r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
         r"nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)"
-        r"(?:\s+(?:one|two|three|four|five|six|seven|eight|nine))?)\s+"
+        r"(?:(?:\s+|-)(?:one|two|three|four|five|six|seven|eight|nine))?)\s+"
         r"(?:dollars?|bucks?)\b",
         re.IGNORECASE,
     )
@@ -311,7 +311,10 @@ class FinanceReadFastPath:
         spoken = cls._SPOKEN_AMOUNT.search(utterance)
         if spoken is None:
             return None
-        amount = sum(cls._NUMBER_WORDS[word] for word in spoken.group("amount").casefold().split())
+        amount = sum(
+            cls._NUMBER_WORDS[word]
+            for word in spoken.group("amount").casefold().replace("-", " ").split()
+        )
         return amount * 100
 
     def resolve(
