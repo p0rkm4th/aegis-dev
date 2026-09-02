@@ -29,6 +29,10 @@ def main() -> int:
     recorded = state.get("repository_head_sha")
     if branch != state.get("active_branch"):
         errors.append(f"active_branch={state.get('active_branch')!r} does not match {branch!r}")
+    # CURRENT_STATE is committed alongside the implementation, so its source
+    # checkpoint necessarily names this commit or an ancestor (the containing
+    # commit cannot name its own hash).  Git remains authoritative for HEAD;
+    # this check rejects pointers from a divergent history.
     if not isinstance(recorded, str) or not _is_ancestor(recorded, head):
         errors.append(f"repository_head_sha={recorded!r} is not an ancestor of checked-out HEAD")
     pushed = state.get("last_pushed_sha")
