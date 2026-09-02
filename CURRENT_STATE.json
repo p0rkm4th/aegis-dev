@@ -197,6 +197,12 @@
     },
     "decision": "Do not add an inference hop or promote the lightweight bypass. The direct baseline and conservative reranker are equivalent on this corpus, and both expose a task-create strict-decoder failure requiring semantic-contract investigation rather than phrase handling."
   },
+  "artifact_alpha_gate": {
+    "status": "green",
+    "validated_at_sha": "9a392c1",
+    "evidence": "scripts/smoke_install.sh built wheel and sdist, installed each into clean environments, verified packaged migrations/resources, and passed installed CLI/help/check smoke paths",
+    "live_inference_required": false
+  },
   "completed_functionality": [
     "greenfield scaffold",
     "typed semantic contracts",
