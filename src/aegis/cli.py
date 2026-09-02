@@ -911,6 +911,8 @@ def _format(result: Any) -> str:
         return f"Not completed — {result.message}"
     evidence = result.evidence
     if evidence.get("canonical_items") is not None:
+        if evidence.get("answer_mode") == "GENERATION":
+            return str(result.message)
         items = evidence["canonical_items"]
         return "Groceries: " + (", ".join(items) if items else "(empty)")
     if evidence.get("canonical_tasks") is not None:
