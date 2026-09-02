@@ -1859,6 +1859,27 @@ def test_ollama_health_contains_unexpected_client_failure(monkeypatch):
     assert "private-secret" not in component.detail
 
 
+def test_ollama_model_digest_is_metadata_only_and_missing_is_safe(monkeypatch):
+    from aegis import cli
+
+    class Response:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"models":[{"name":"qwen3:8b","digest":"sha256:abc"}]}'
+
+    monkeypatch.setattr(cli.urllib.request, "urlopen", lambda *_args, **_kwargs: Response())
+
+    assert cli._ollama_model_digest("http://ollama.example:11434", "qwen3:8b") == "sha256:abc"
+    assert cli._ollama_model_digest("http://ollama.example:11434", "missing") is None
+
+
 def test_postgres_health_rejects_malformed_connection_configuration():
     from aegis import cli
 

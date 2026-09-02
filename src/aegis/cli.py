@@ -202,6 +202,7 @@ def _runtime_report() -> HealthReport:
             release_sha=runtime_release_sha(__file__),
             provider="ollama",
             model=ollama_model,
+            model_digest=_ollama_model_digest(ollama_url, ollama_model),
             endpoint=_safe_endpoint(ollama_url),
         ),
     )
@@ -380,6 +381,25 @@ def _ollama_health(url: str, model: str) -> ComponentHealth:
                 "start Ollama, or set AEGIS_OLLAMA_URL to its reachable address"
             ),
         )
+
+
+def _ollama_model_digest(url: str, model: str) -> str | None:
+    """Read the configured model digest without loading or invoking it."""
+    try:
+        with urllib.request.urlopen(f"{url}/api/tags", timeout=2) as response:
+            if response.status != 200:
+                return None
+            payload = json.loads(response.read())
+        models = payload.get("models") if isinstance(payload, dict) else None
+        if not isinstance(models, list):
+            return None
+        for item in models:
+            if isinstance(item, dict) and item.get("name") == model:
+                digest = item.get("digest")
+                return digest if isinstance(digest, str) and digest else None
+    except Exception:
+        return None
+    return None
 
 
 def _print_runtime_report(report: HealthReport, as_json: bool) -> int:

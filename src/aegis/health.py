@@ -23,6 +23,7 @@ class RuntimeIdentity(StrictModel):
     release_sha: str | None = None
     provider: str = Field(min_length=1)
     model: str = Field(min_length=1)
+    model_digest: str | None = None
     endpoint: str = Field(min_length=1)
 
 
