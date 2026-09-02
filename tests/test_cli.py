@@ -21,10 +21,10 @@ from aegis.contracts import (
 from aegis.interaction import (
     _authorized_context_evidence,
     _context_from_prior_result,
-    _fallback_working_context,
     _with_continuation_context,
 )
 from aegis.pack_lifecycle import PackManager
+from aegis.reference_interaction import build_reference_fallback_context
 from aegis.reference_packs import reference_bundles, reference_packs
 from aegis.tasks import (
     Task,
@@ -349,7 +349,7 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
         def list_groceries(self, _principal):
             return []
 
-    context = _fallback_working_context(
+    context = build_reference_fallback_context(
         Context(), Tasks(), Household(), principal, "what deserves my attention?"
     )
 
@@ -384,7 +384,7 @@ def test_model_working_context_includes_bounded_authorized_household_attention()
         def read_snapshot(self, _principal):
             return {"chores": (chore,), "obligations": (obligation,)}
 
-    context = _fallback_working_context(
+    context = build_reference_fallback_context(
         Context(), Tasks(), Household(), principal, "what needs attention?"
     )
 
@@ -411,7 +411,7 @@ def test_model_working_context_prioritization_uses_bounded_open_tasks():
         def list_groceries(self, _principal):
             return []
 
-    context = _fallback_working_context(
+    context = build_reference_fallback_context(
         Context(), Tasks(), Household(), principal, "which task should i do first"
     )
 

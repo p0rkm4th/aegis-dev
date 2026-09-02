@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from datetime import datetime, timezone
 from typing import Any, cast
 from uuid import uuid4
 
@@ -64,6 +65,92 @@ from .tasks import (
     requested_task_due_at,
 )
 from .utterance import is_task_destination_request
+
+
+def build_reference_fallback_context(
+    context: Context,
+    task_store: PostgresTaskStore,
+    household_store: PostgresHouseholdStore,
+    principal: Principal,
+    utterance: str,
+) -> Context:
+    """Build the bounded authorized context used by reference-Pack fallback cognition."""
+
+    values = dict(context.values)
+    values.setdefault("as_of_date", datetime.now(timezone.utc).date().isoformat())
+    facts = dict(values.get("canonical_facts", {}))
+    if "canonical_items" in facts or "canonical_tasks" in facts:
+        return Context(
+            values=values,
+            sources=tuple(dict.fromkeys((*context.sources, "authorized_canonical_context"))),
+        )
+    facts["canonical_items"] = list(
+        dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
+    )[:20]
+    read_snapshot = getattr(household_store, "read_snapshot", None)
+    snapshot = read_snapshot(principal) if callable(read_snapshot) else {}
+    if isinstance(snapshot, dict):
+        chores = snapshot.get("chores", ())
+        if isinstance(chores, (list, tuple)):
+            facts["canonical_chores"] = [
+                {"title": str(chore.title), "completed": bool(chore.completed)}
+                for chore in chores
+                if hasattr(chore, "title") and hasattr(chore, "completed")
+            ][:20]
+        obligations = snapshot.get("obligations", ())
+        if isinstance(obligations, (list, tuple)):
+            facts["canonical_obligations"] = [
+                {
+                    "title": str(obligation.title),
+                    "settled": bool(obligation.settled),
+                    "responsible_id": str(obligation.responsible_id),
+                }
+                for obligation in obligations
+                if hasattr(obligation, "title")
+                and hasattr(obligation, "settled")
+                and hasattr(obligation, "responsible_id")
+            ][:20]
+    tasks = list(task_store.list(principal))
+    lowered = utterance.casefold()
+    if ("which" in lowered and "first" in lowered) or any(
+        term in lowered for term in ("prioritize", "priority", "focus")
+    ):
+        tasks = [task for task in tasks if task.status.value == "open"]
+        tasks.sort(
+            key=lambda task: (
+                task.due_at is None,
+                task.due_at.isoformat() if task.due_at is not None else "",
+            )
+        )
+    query_terms = {
+        term
+        for term in lowered.split()
+        if len(term) >= 3 and term not in {"the", "task", "tasks", "please", "complete"}
+    }
+    ranked = sorted(
+        enumerate(tasks),
+        key=lambda item: (
+            len(query_terms.intersection(set(item[1].title.casefold().split()))),
+            -item[0],
+        ),
+        reverse=True,
+    )
+    selected = [
+        task for _, task in ranked if query_terms.intersection(task.title.casefold().split())
+    ] or tasks
+    facts["canonical_tasks"] = [
+        {
+            "title": task.title,
+            "status": task.status.value,
+            **({"due_at": task.due_at.isoformat()} if task.due_at is not None else {}),
+        }
+        for task in selected[:20]
+    ]
+    values["canonical_facts"] = facts
+    return Context(
+        values=values,
+        sources=tuple(dict.fromkeys((*context.sources, "authorized_task_candidates"))),
+    )
 
 
 def reference_fallback_cards(manager: PackManager, utterance: str) -> tuple[ActionCard, ...]:
