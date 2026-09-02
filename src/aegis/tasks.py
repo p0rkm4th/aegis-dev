@@ -321,6 +321,23 @@ class TaskCompletionFastPath:
     """Resolve completion titles before model/executor dispatch can guess."""
 
     @staticmethod
+    def target_is_grounded(utterance: str, title: str) -> bool:
+        """Require a proposed target to be present in the user's language.
+
+        Intent selection remains semantic. This later Pack-owned boundary may
+        normalize a canonical title, but it must not import an unrelated task
+        from authorized context when the user did not identify one.
+        """
+
+        utterance_tokens = set(re.findall(r"[a-z0-9]+", utterance.casefold()))
+        title_tokens = set(re.findall(r"[a-z0-9]+", title.casefold()))
+        if not title_tokens:
+            return False
+        return title.casefold().strip() in utterance.casefold() or bool(
+            utterance_tokens.intersection(title_tokens)
+        )
+
+    @staticmethod
     def _matching_tasks(title: str, tasks: tuple[Task, ...]) -> tuple[Task, ...]:
         normalized = title.casefold().strip().rstrip(".!?")
         exact = tuple(

@@ -3351,6 +3351,15 @@ def test_task_completion_fast_path_clarifies_missing_or_duplicate_titles():
     assert "couldn't find" in missing.message
 
 
+def test_task_completion_grounding_does_not_import_unmentioned_canonical_title():
+    from aegis.tasks import TaskCompletionFastPath
+
+    assert TaskCompletionFastPath.target_is_grounded(
+        "The library card errand is done", "renew the library card"
+    )
+    assert not TaskCompletionFastPath.target_is_grounded("Finish the backup", "restore drill")
+
+
 def test_task_completion_canonicalizes_unique_leading_article_omission():
     tasks = (Task(uuid4(), "apartment", "the annual inspection", "alice"),)
 

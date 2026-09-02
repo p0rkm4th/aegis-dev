@@ -528,6 +528,16 @@ def ground_reference_action(
                 message=("Name the task to complete, for example: Complete the task buy cat food."),
                 correlation_id=intent.correlation_id,
             )
+        if not TaskCompletionFastPath.target_is_grounded(intent.utterance, title):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "Please name the task to complete; I will not infer a target "
+                    "from unrelated canonical context."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         tasks = task_store.list(principal)
         canonical_title = TaskCompletionFastPath.canonical_title(title, tasks)
         if canonical_title is not None and canonical_title != title:
