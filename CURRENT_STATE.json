@@ -30,6 +30,7 @@
       ,"production default registry live proof at 6be7a02: authenticated browser correlation cbfdec6a-045b-41e9-927c-1663be051300 completed a canonical Task read through the default PackRuntimeRegistry with deadlines preserved"
       ,"runtime composition extraction at 51c19f6: InteractionBoundary no longer contains the legacy first-party executor/verifier decision tree; compatibility adapters live in reference_runtime.py and OpenClaw cleanup is explicit in ActionRuntime"
       ,"Kitchen mutation registry at 319a3c1: production default PackRuntimeRegistry now binds kitchen.groceries.add with explicit OpenClaw cleanup; owner readiness is green, but external mutation acceptance remains lane-limited because OpenClaw is not configured"
+      ,"semantic evaluator context-contract correction at 184d7c4: evaluation supplies bounded authorized canonical fixtures and scores contextual reads as grounded ANSWER when no single ActionCard is eligible; Qwen3:8B held-out route accuracy is 0.125 with zero false mutations/completions, so capability green remains unclaimed"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -111,9 +112,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "319a3c1",
-  "deterministic_green_sha": "012513e",
-  "last_pushed_sha": "319a3c1",
+  "repository_head_sha": "184d7c4",
+  "deterministic_green_sha": "184d7c4",
+  "last_pushed_sha": "184d7c4",
   "installed_release_sha": "319a3c1",
   "running_release_sha": "319a3c1",
   "live_green_sha": "f5add80",
@@ -136,12 +137,12 @@
     "running_sha": "319a3c1",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/319a3c1",
-    "repository_head_sha": "319a3c1",
-    "deterministic_green_sha": "012513e",
+    "repository_head_sha": "184d7c4",
+    "deterministic_green_sha": "184d7c4",
     "installed_release_sha": "319a3c1",
     "running_release_sha": "319a3c1",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and installed/running owner release are 319a3c1 at this checkpoint. Readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured, so external mutation acceptance remains lane-limited; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and deterministic validation are 184d7c4. The installed/running owner release remains 319a3c1 because the evaluator-only correction has not been promoted; readiness is green with PostgreSQL and Qwen3:8B. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
