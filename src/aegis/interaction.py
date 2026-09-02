@@ -224,6 +224,17 @@ def _fallback_working_context(
         dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
     )[:20]
     tasks = list(task_store.list(principal))
+    priority_request = ("which" in utterance.casefold() and "first" in utterance.casefold()) or any(
+        term in utterance.casefold() for term in ("prioritize", "priority", "focus")
+    )
+    if priority_request:
+        tasks = [task for task in tasks if task.status.value == "open"]
+        tasks.sort(
+            key=lambda task: (
+                task.due_at is None,
+                task.due_at.isoformat() if task.due_at is not None else "",
+            )
+        )
     query_terms = {
         term
         for term in utterance.casefold().split()
