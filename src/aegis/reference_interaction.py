@@ -10,8 +10,9 @@ the generic client/Core contract.
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 from uuid import uuid4
 
@@ -40,6 +41,7 @@ from .household import (
     PostgresHouseholdStore,
 )
 from .identity import PostgresSpacePolicy, Role
+from .interaction import InteractionInputError
 from .kernel import Kernel
 from .pack_lifecycle import PackManager
 from .pack_runtime import PackRuntimeRegistry
@@ -67,6 +69,161 @@ from .tasks import (
     requested_task_due_at,
 )
 from .utterance import is_task_destination_request
+
+
+def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[str, ActionCard]:
+    """Compatibility router for reference Packs when cognition is disabled.
+
+    This legacy path is composition-owned. The generic CLI only supplies this
+    callback to InteractionBoundary; it does not know reference action IDs or
+    argument grammar.
+    """
+
+    text = utterance.lower()
+    if "task" in text:
+        domain = "tasks"
+        if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
+            "mark" in text and "done" in text
+        ):
+            action_id = "tasks.complete"
+        elif "event" in text:
+            action_id = "tasks.events.create"
+        elif "chore" in text:
+            action_id = (
+                "tasks.chores.list"
+                if text.startswith(("what", "show", "list"))
+                else "tasks.chores.create"
+            )
+        else:
+            action_id = (
+                "tasks.list" if text.startswith(("what", "show", "list")) else "tasks.create"
+            )
+    elif "chore" in text:
+        domain = "tasks"
+        if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
+            "mark" in text and "done" in text
+        ):
+            action_id = "tasks.chores.complete"
+        else:
+            action_id = (
+                "tasks.chores.list"
+                if text.startswith(("what", "show", "list"))
+                else "tasks.chores.create"
+            )
+    elif "event" in text or "inspection" in text:
+        domain = "tasks"
+        action_id = "tasks.events.create"
+    elif any(word in text for word in ("grocery", "groceries", "rice", "food")):
+        domain = "kitchen"
+        action_id = (
+            "kitchen.groceries.list"
+            if text.startswith(("what", "show", "list"))
+            else "kitchen.groceries.add"
+        )
+    else:
+        raise InteractionInputError(
+            "alpha supports groceries and tasks; try one of the four demo requests"
+        )
+    cards = manager.retrieve(domain)
+    card = next((item for item in cards if item.action.action_id == action_id), None)
+    if card is None:
+        card = manager.action_card(domain, action_id)
+    if card is None:
+        raise RuntimeError(f"enabled Pack did not provide ActionCard {action_id}")
+    action = card.action
+    if action_id == "kitchen.groceries.add":
+        match = re.search(r"add\s+(.+?)\s+to\s+(?:the\s+)?grocer(?:y|ies)\b", text)
+        if match is None:
+            raise InteractionInputError(
+                "tell AEGIS what to add, for example: Add rice to groceries."
+            )
+        action = action.model_copy(update={"arguments": {"item": match.group(1).strip()}})
+    elif action_id == "tasks.create":
+        match = re.search(
+            r"(?:(?:(?:could|would|can)\s+you|(?:i\s+want|i\s+would\s+like|i'd\s+like))\s+to\s+)?"
+            r"(?:put|place)\s+(?:a\s+)?task\s+on\s+(?:my|the)\s+"
+            r"(?:task\s+)?list\s+(?:to\s+)?(.+)$",
+            text,
+        )
+        if match is None:
+            match = re.search(r"(?:create\s+)?(?:a\s+)?task\s+(?:to\s+)?(.+)$", text)
+        if match is None:
+            if not any(source in text for source in ("goal", "memory")) or not any(
+                phrase in text for phrase in ("turn", "make", "add", "create")
+            ):
+                raise InteractionInputError(
+                    "tell AEGIS the task, for example: Create a task to buy cat food."
+                )
+            action = action.model_copy(update={"arguments": {}})
+        else:
+            title = match.group(1).strip()
+            due_at = requested_task_due_at(title)
+            if due_at is not None:
+                title = re.sub(r"\s+(?:tomorrow|next\s+week)[.!?]?$", "", title).rstrip()
+            arguments: dict[str, Any] = {"title": title}
+            if due_at is not None:
+                arguments["due_at"] = due_at
+            action = action.model_copy(update={"arguments": arguments})
+    elif action_id == "tasks.complete":
+        match = re.search(
+            r"(?:complete|completed|finish|finished)\s+(?:the\s+)?task\s+"
+            r"(?:called\s+|named\s+)?(.+)$",
+            text,
+        )
+        if match is None:
+            match = re.search(
+                r"mark\s+(?:the\s+)?task\s+(.+?)\s+as\s+(?:done|complete|completed)[.!?]?$",
+                text,
+            )
+        if match is None:
+            raise InteractionInputError(
+                "name the task to complete, for example: Complete the task buy cat food."
+            )
+        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.chores.create":
+        match = re.search(r"(?:create|add)\s+(?:a\s+)?chore\s+(?:to\s+)?(.+)$", text)
+        if match is None:
+            if not any(source in text for source in ("goal", "memory")) or not any(
+                phrase in text for phrase in ("turn", "make", "add", "create")
+            ):
+                raise InteractionInputError(
+                    "tell AEGIS the chore, for example: Create a chore to clean the kitchen."
+                )
+            action = action.model_copy(update={"arguments": {}})
+        else:
+            action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.chores.complete":
+        match = re.search(
+            r"(?:complete|completed|finish|finished)\s+(?:the\s+)?chore\s+"
+            r"(?:called\s+|named\s+)?(.+)$",
+            text,
+        )
+        if match is None:
+            match = re.search(
+                r"mark\s+(?:the\s+)?chore\s+(.+?)\s+as\s+(?:done|complete|completed)[.!?]?$",
+                text,
+            )
+        if match is None:
+            raise InteractionInputError(
+                "name the chore to complete, for example: Complete the chore clean the kitchen."
+            )
+        action = action.model_copy(update={"arguments": {"title": match.group(1).strip()}})
+    elif action_id == "tasks.events.create":
+        match = re.search(r"(?:create|add)\s+(?:an?\s+)?event\s+(?:for\s+)?(.+)$", text)
+        if match is None:
+            raise InteractionInputError(
+                "tell AEGIS the event, for example: Create an event for apartment inspection."
+            )
+        title = match.group(1).strip()
+        if title.endswith(" tomorrow"):
+            title = title.removesuffix(" tomorrow").strip()
+            starts_at = datetime.now(timezone.utc) + timedelta(days=1)
+        else:
+            starts_at = datetime.now(timezone.utc)
+        action = action.model_copy(
+            update={"arguments": {"title": title, "starts_at": starts_at.isoformat()}}
+        )
+    return domain, ActionCard(action=action, summary=card.summary, relevance=card.relevance)
 
 
 def resolve_reference_safety_fast_paths(
