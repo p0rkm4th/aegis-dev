@@ -954,6 +954,7 @@ class InteractionBoundary:
                     recovered_plan_actions,
                     context,
                     self._model(),
+                    self.dependencies.runtime_registry,
                 )
                 if plan_result is not None:
                     return plan_result

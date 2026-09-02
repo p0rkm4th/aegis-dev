@@ -29,23 +29,18 @@ from .household import (
     Chore,
     ChoreCompletionFastPath,
     HouseholdObligation,
-    PostgresChoreExecutor,
-    PostgresChoreVerifier,
-    PostgresEventExecutor,
-    PostgresEventVerifier,
     PostgresHouseholdStore,
 )
 from .identity import PostgresSpacePolicy, Role
 from .kernel import Kernel
 from .pack_lifecycle import PackManager
+from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalState, PostgresPersonalStateStore
 from .planning import CrossDomainPlanningFastPath, MultiActionFastPath
 from .projections import SharedObligation
 from .store import PostgresObjectiveStore
 from .tasks import (
-    PostgresTaskExecutor,
     PostgresTaskStore,
-    PostgresTaskVerifier,
     TaskCompletionFastPath,
     ground_task_due_at,
     requested_task_due_at,
@@ -90,6 +85,7 @@ def run_reference_plan(
     recovered_plan_actions: tuple[ActionSpec, ...] | None,
     context: Context,
     model: Any,
+    runtime_registry: PackRuntimeRegistry | None,
 ) -> Result | None:
     """Build and execute the reference Pack's bounded multi-action plans."""
 
@@ -134,7 +130,20 @@ def run_reference_plan(
 
     if plan_actions is None:
         return None
-    principal_store = household_store
+    if runtime_registry is None:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.FAILED,
+            message="Pack runtime is unavailable; request can be retried",
+            correlation_id=intent.correlation_id,
+            retryable=True,
+        )
+    runtimes = {}
+    for action in plan_actions:
+        card = next(
+            card for card in manager.retrieve("tasks") if card.action.action_id == action.action_id
+        )
+        runtimes[action.action_id] = runtime_registry.resolve(card, connection, principal)
     return Kernel(
         model,
         StrictDecisionDecoder(),
@@ -143,18 +152,10 @@ def run_reference_plan(
             {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
         ),
         ActionExecutorDispatch(
-            {
-                "tasks.create": PostgresTaskExecutor(task_store, principal),
-                "tasks.chores.create": PostgresChoreExecutor(principal_store, principal),
-                "tasks.events.create": PostgresEventExecutor(principal_store, principal),
-            }
+            {action_id: runtime.executor for action_id, runtime in runtimes.items()}
         ),
         ActionVerifierDispatch(
-            {
-                "tasks.create": PostgresTaskVerifier(task_store, principal),
-                "tasks.chores.create": PostgresChoreVerifier(principal_store, principal),
-                "tasks.events.create": PostgresEventVerifier(principal_store, principal),
-            }
+            {action_id: runtime.verifier for action_id, runtime in runtimes.items()}
         ),
         store=PostgresObjectiveStore(connection),
         audit=PostgresAuditLog(connection),
