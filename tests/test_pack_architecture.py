@@ -14,6 +14,7 @@ GENERIC_CORE = (
     Path("src/aegis/interaction_cognition.py"),
     Path("src/aegis/interaction_recovery.py"),
 )
+GENERIC_CLIENTS = (Path("src/aegis/web.py"),)
 PACK_ACTION_IDS = (
     "tasks.",
     "kitchen.",
@@ -69,6 +70,19 @@ def test_generic_interaction_does_not_embed_first_party_pack_knowledge() -> None
     )
 
 
+def test_generic_clients_do_not_embed_first_party_pack_knowledge() -> None:
+    """Presentation adapters must consume canonical results, never Pack semantics."""
+
+    violations: list[str] = []
+    for path in GENERIC_CLIENTS:
+        source = path.read_text(encoding="utf-8")
+        forbidden = (*PACK_ACTION_IDS, *DOMAIN_IMPORTS, "reference_bundles")
+        violations.extend(f"{path}: {marker}" for marker in forbidden if marker in source)
+    assert not violations, "first-party Pack knowledge leaked into clients: " + ", ".join(
+        violations
+    )
+
+
 def test_cli_does_not_own_reference_pack_language_router() -> None:
     """The CLI may adapt the callback, but reference semantics stay composition-owned."""
 
@@ -120,7 +134,7 @@ def test_generic_modules_have_no_syntax_level_first_party_imports_or_action_lite
     """Keep the neutrality guard independent of comments and formatting."""
 
     violations: list[str] = []
-    modules = (*GENERIC_CORE, Path("src/aegis/interaction.py"))
+    modules = (*GENERIC_CORE, Path("src/aegis/interaction.py"), *GENERIC_CLIENTS)
     for path in modules:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
