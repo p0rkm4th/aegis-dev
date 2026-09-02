@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "fd9e25f0e4c0401d848f42679c3cd9ea19a6d000",
-  "deterministic_green_sha": "fd9e25f0e4c0401d848f42679c3cd9ea19a6d000",
-  "last_pushed_sha": "fd9e25f0e4c0401d848f42679c3cd9ea19a6d000",
-  "hosted_ci_green_sha": "fd9e25f0e4c0401d848f42679c3cd9ea19a6d000",
+  "repository_head_sha": "b8de6fa3fcbba36a8776b0b4555860ac62a18a71",
+  "deterministic_green_sha": "b8de6fa3fcbba36a8776b0b4555860ac62a18a71",
+  "last_pushed_sha": "b8de6fa3fcbba36a8776b0b4555860ac62a18a71",
+  "hosted_ci_green_sha": "b8de6fa3fcbba36a8776b0b4555860ac62a18a71",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33680613438",
-    "commit_sha": "fd9e25f0e4c0401d848f42679c3cd9ea19a6d000",
+    "run_id": "33680818063",
+    "commit_sha": "b8de6fa3fcbba36a8776b0b4555860ac62a18a71",
     "conclusion": "success",
     "observed_at": "2026-09-02T19:25:00Z"
   },
@@ -220,7 +220,7 @@
     "installed_release_sha": "fd9e25f",
     "running_release_sha": "fd9e25f",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint fd9e25f (hosted run 33680613438); installed/running owner release fd9e25f is the separately promoted release and is verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are green through source checkpoint b8de6fa (hosted run 33680818063); installed/running owner release fd9e25f remains the separately promoted release and is verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
@@ -1088,5 +1088,6 @@
     "m11_07_owner_harvest_live_checkpoint": "green installed owner evidence on release 1f57d26: authenticated --feedback --harvest --json returned bounded metadata-only defect candidates with duplicate signatures, owner-scoped privacy classification, human-review-required regression eligibility, reproduction-required guidance, and no replay; owner health/readiness remained green.",
     "owner_grocery_read_checkpoint": "green installed owner evidence on release 89c2b5b: the fresh natural request 'What is on my shopping list?' completed through the canonical grocery read path with 'Groceries: rice (x6)' (correlation 869f8ab3-baab-4dc2-98c3-149e3a445128). This closes the demonstrated shopping-list vocabulary gap without changing authorization or execution semantics.",
     "owner_memory_continuation_checkpoint": "green installed owner evidence on release fd9e25f: after the authorized memory result correlation 4f5afaf2-0936-438c-a218-789206ec1817, the fresh follow-up 'tell me more about that' completed from the bounded prior memory projection (correlation 7ee5f835-6610-4c3b-a642-08bff65ff2ad). No new authority or mutation was introduced.",
+    "owner_wandering_safety_checkpoint": "partial installed owner evidence on release fd9e25f: duplicate-name mutation 'complete the task called review the backup' blocked with an ambiguity explanation, 'actually, never mind' blocked without mutation, and typo-heavy 'shwo my shoping list' completed the canonical grocery read (correlations df94835b-a969-4d67-8e2a-894383fb31db, dfe4f9f8-ed5a-466a-bd62-4b577ae2e87f, 48ea6198-f917-4e15-9acb-493819fb099c). Daily-driver acceptance remains partial because provider-backed writes and clean compound execution are unavailable.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize broad intent gaps such as reminder language only if repeated across fresh families, and classify the next demonstrated defect before considering bounded planning."
 }
