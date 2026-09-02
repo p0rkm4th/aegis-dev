@@ -29,6 +29,13 @@ from aegis.pack_lifecycle import PackManager
 from aegis.reference_interaction import reference_fallback_cards
 from aegis.reference_packs import reference_bundles
 
+READ_ACTIONS = {
+    "kitchen.groceries.list",
+    "tasks.list",
+    "personal.memory.list",
+    "finance.affordability.read",
+}
+
 
 @dataclass(frozen=True)
 class Case:
@@ -228,11 +235,14 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
         correct = kind == expected_kind.value and action == expected_action
         argument_exact = case.expected_arguments is None or arguments == case.expected_arguments
         actual_mutation = action is not None and action not in {
-            "kitchen.groceries.list",
-            "tasks.list",
-            "personal.memory.list",
-            "finance.affordability.read",
+            *READ_ACTIONS,
         }
+        grounded_read_answer = (
+            kind == DecisionKind.ANSWER.value
+            and semantic_mode == "READ"
+            and expected_action in READ_ACTIONS
+            and not case.expected_mutation
+        )
         results.append(
             {
                 "id": case.case_id,
@@ -250,7 +260,8 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
                 "expected_kind": expected_kind.value,
                 "expected_action": expected_action,
                 "argument_exact": argument_exact,
-                "correct_route": correct and argument_exact,
+                "correct_route": (correct and argument_exact) or grounded_read_answer,
+                "grounded_read_answer": grounded_read_answer,
                 "false_mutation": not case.expected_mutation and actual_mutation,
                 "false_completion": action == "tasks.complete"
                 and expected_action != "tasks.complete",
@@ -266,7 +277,10 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
         false_mutation = sum(int(item["false_mutation"]) for item in items)
         false_completion = sum(int(item["false_completion"]) for item in items)
         expected_clarify = sum(int(item["clarification_expected"]) for item in items)
-        expected_actions = sum(int(item["expected_action"] is not None) for item in items)
+        expected_actions = sum(
+            int(item["expected_action"] is not None and item["expected_action"] not in READ_ACTIONS)
+            for item in items
+        )
         predicted_actions = sum(int(item["predicted_action"] is not None) for item in items)
         correct_actions = sum(
             int(
@@ -293,6 +307,8 @@ def evaluate(corpus: Path, *, reuse_classification_action_reference: bool = True
             "action_selection_recall": correct_actions / max(expected_actions, 1),
             "argument_exactness": sum(int(item["argument_exact"]) for item in items)
             / max(count, 1),
+            "grounded_read_answer_rate": sum(int(item["grounded_read_answer"]) for item in items)
+            / max(sum(int(item["expected_action"] in READ_ACTIONS) for item in items), 1),
             "inappropriate_clarification_rate": sum(
                 int(not item["clarification_expected"] and item["clarification_returned"])
                 for item in items
