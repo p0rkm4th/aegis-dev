@@ -22,6 +22,7 @@ from typing import Any
 from uuid import uuid4
 
 from aegis.contracts import Context, Decision, DecisionKind, IntentFrame, Principal
+from aegis.decoding import StrictDecisionDecoder
 from aegis.embeddings import OllamaEmbeddingProvider
 from aegis.interaction import InteractionBoundary, InteractionDependencies
 from aegis.ollama import OllamaHttpTransport, OllamaProvider
@@ -201,6 +202,8 @@ def evaluate(
             + inspect.getsource(OllamaProvider._decision_schema)
         ).encode()
     )
+    context_builder_sha = _sha256(inspect.getsource(_evaluation_context).encode())
+    decoder_contract_sha = _sha256(inspect.getsource(StrictDecisionDecoder).encode())
     cards_sha = _sha256(
         json.dumps(
             [card.model_dump(mode="json") for card in manager.enabled_cards()],
@@ -384,6 +387,15 @@ def evaluate(
         "provider_evidence_valid": bool(transport.calls and model_digest),
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "prompt_template_sha256": prompt_template_sha,
+        "context_builder_sha256": context_builder_sha,
+        "decoder_contract_sha256": decoder_contract_sha,
+        "evaluation_contract": {
+            "prompt_template_sha256": prompt_template_sha,
+            "context_builder_sha256": context_builder_sha,
+            "decoder_contract_sha256": decoder_contract_sha,
+            "action_cards_sha256": cards_sha,
+            "semantic_retrieval_limit": retrieval_limit,
+        },
         "action_cards_sha256": cards_sha,
         "classification_action_reference_shortcut": reuse_classification_action_reference,
         "semantic_retrieval_limit": retrieval_limit,

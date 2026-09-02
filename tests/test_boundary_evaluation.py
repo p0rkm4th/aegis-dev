@@ -135,6 +135,14 @@ def test_evaluation_boundary_uses_pack_composition_for_fallback_selection() -> N
     assert '"--output"' in source
 
 
+def test_evaluation_reports_freeze_prompt_context_and_decoder_contracts() -> None:
+    source = Path("scripts/evaluate_boundary.py").read_text(encoding="utf-8")
+    assert '"prompt_template_sha256"' in source
+    assert '"context_builder_sha256"' in source
+    assert '"decoder_contract_sha256"' in source
+    assert '"evaluation_contract"' in source
+
+
 def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     source = Path("scripts/evaluate_boundary.py").read_text(encoding="utf-8")
     assert '"false_mutation": not case.expected_mutation and actual_mutation' in source
