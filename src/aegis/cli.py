@@ -10,6 +10,7 @@ import re
 import sqlite3
 import urllib.error
 import urllib.request
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
@@ -576,6 +577,28 @@ def _browser_interaction(
     if result.retryable:
         response["retryable"] = True
     return response
+
+
+def browser_interaction(
+    runtime_registry: PackRuntimeRegistry | None = None,
+) -> Callable[[str, Principal, UUID, UUID | None], dict[str, Any]]:
+    """Bind a client-neutral browser handler to optional Pack runtimes."""
+
+    def handler(
+        utterance: str,
+        principal: Principal,
+        correlation_id: UUID,
+        context_correlation_id: UUID | None = None,
+    ) -> dict[str, Any]:
+        return _browser_interaction(
+            utterance,
+            principal,
+            correlation_id,
+            context_correlation_id,
+            runtime_registry,
+        )
+
+    return handler
 
 
 def _browser_request_status(principal: Principal, correlation_id: UUID) -> RequestStatus:
@@ -1233,15 +1256,19 @@ def main() -> int:
                         "Run './scripts/aegis --check' to see remediation."
                     )
             print(f"Starting AEGIS Constellation at http://{args.host}:{args.port}")
+            browser_handler = cast(
+                Callable[[str, Principal, UUID], dict[str, Any]], browser_interaction()
+            )
+            contextual_browser_handler = browser_interaction()
             serve(
                 args.host,
                 args.port,
                 _principal,
-                _browser_interaction,
+                browser_handler,
                 _constellation_state,
                 _runtime_report,
                 _browser_request_status,
-                _browser_interaction,
+                contextual_browser_handler,
                 _browser_feedback,
             )
         except OSError as exc:
