@@ -64,6 +64,18 @@ def test_frozen_qwen_report_preserves_non_green_safety_and_provenance() -> None:
     assert report["safety_hard_failure"] is True
 
 
+def test_semantic_mode_guard_ablation_is_recorded_as_non_improvement() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-153-semantic-mode-guard.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert report["change_under_test"]
+    assert report["held_out"]["false_mutations"] == 3
+    assert report["capability_green"] is False
+    assert report["safety_hard_failure"] is True
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
