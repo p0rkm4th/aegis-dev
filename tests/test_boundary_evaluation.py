@@ -7,6 +7,11 @@ def test_frozen_semantic_corpora_assign_every_case_to_a_family() -> None:
         cases = json.loads((Path("evaluation") / filename).read_text(encoding="utf-8"))
         assert cases
         assert all(isinstance(case.get("family"), str) and case["family"] for case in cases)
+        assert all(isinstance(case.get("phenomena"), list) and case["phenomena"] for case in cases)
+        assert all(
+            case.get("provenance") in {"manual", "owner_harvest", "transformed"} for case in cases
+        )
+        assert all(isinstance(case.get("expected_mutation"), bool) for case in cases)
 
 
 def test_development_and_heldout_corpora_keep_distinct_case_ids() -> None:

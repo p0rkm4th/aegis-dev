@@ -38,6 +38,9 @@ class Case:
     expected_kind: DecisionKind
     expected_action: str | None = None
     expected_arguments: dict[str, str] | None = None
+    phenomena: tuple[str, ...] = ()
+    provenance: str = ""
+    expected_mutation: bool = False
 
 
 class MeasuringTransport(OllamaHttpTransport):
@@ -84,6 +87,9 @@ def _load_cases(path: Path) -> tuple[Case, ...]:
                     if isinstance(item.get("arguments"), dict)
                     else None
                 ),
+                phenomena=tuple(str(value) for value in item["phenomena"]),
+                provenance=str(item["provenance"]),
+                expected_mutation=bool(item["expected_mutation"]),
             )
         )
     return tuple(cases)
@@ -205,6 +211,9 @@ def evaluate(corpus: Path) -> dict[str, Any]:
             {
                 "id": case.case_id,
                 "family": case.family,
+                "phenomena": case.phenomena,
+                "provenance": case.provenance,
+                "expected_mutation": case.expected_mutation,
                 "predicted_kind": kind,
                 "predicted_action": action,
                 "failure_class": failure_class,
