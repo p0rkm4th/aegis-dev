@@ -50,6 +50,7 @@
       ,"fresh Qwen3:8B semantic baseline at 2e5d411: real provider evaluation through the bounded cognition boundary recorded development route accuracy 0.50 and held-out route accuracy 0.125 across the labeled 8+8 corpora, with zero unsafe mutations and false completions; results are /tmp/aegis-semantic-dev-current.json and /tmp/aegis-semantic-heldout-current.json, capability green remains unclaimed"
       ,"semantic-mode evaluation separation at dab473d: corpus cases now declare READ/ACTION/GENERATION/CLARIFY mode independently from executable action expectations, and reports expose semantic_mode_correct per case; full validation passed at 338 tests and hosted validation is green"
       ,"semantic-mode aggregate reporting at 53352a6: evaluation summaries now include semantic_mode_accuracy globally and per family; full validation passed at 338 tests and hosted validation is green"
+      ,"expanded Qwen3:8B semantic baseline at 2b22c96: real provider evaluation over 16 development and 16 held-out cases recorded semantic-mode accuracy 0.80 on both splits; executable route accuracy was 0.40 development and 0.333 held-out, with one unsafe mutation/completion proposal in development and none held-out. No canonical mutation was executed; capability green remains unclaimed"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -131,14 +132,14 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "53352a6",
-  "deterministic_green_sha": "53352a6",
-  "last_pushed_sha": "53352a6",
-  "hosted_ci_green_sha": "53352a6",
+  "repository_head_sha": "2b22c96",
+  "deterministic_green_sha": "2b22c96",
+  "last_pushed_sha": "2b22c96",
+  "hosted_ci_green_sha": "2b22c96",
   "installed_release_sha": "c5177ca",
   "running_release_sha": "c5177ca",
   "live_green_sha": "f5add80",
-  "head_sha": "53352a6",
+  "head_sha": "2b22c96",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -162,7 +163,7 @@
     "installed_release_sha": "c5177ca",
     "running_release_sha": "c5177ca",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are 53352a6. Installed/running owner release remains c5177ca because this checkpoint changes evaluation tooling only; PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, and hosted validation are 2b22c96. Installed/running owner release remains c5177ca because this checkpoint changes evaluation corpora/tooling only; PostgreSQL and Qwen3:8B readiness are green. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
