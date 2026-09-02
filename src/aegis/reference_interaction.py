@@ -12,10 +12,90 @@ from __future__ import annotations
 from typing import Any, cast
 from uuid import uuid4
 
-from .contracts import ActionCard, IntentFrame, ObjectiveState, Result
-from .household import Chore, ChoreCompletionFastPath, PostgresHouseholdStore
-from .personal import PersonalState
-from .tasks import TaskCompletionFastPath, ground_task_due_at, requested_task_due_at
+from .audit import PostgresAuditLog
+from .contracts import ActionCard, IntentFrame, ObjectiveState, Principal, Result
+from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
+from .household import (
+    Chore,
+    ChoreCompletionFastPath,
+    HouseholdObligation,
+    PostgresHouseholdStore,
+)
+from .personal import PersonalState, PostgresPersonalStateStore
+from .planning import CrossDomainPlanningFastPath
+from .projections import SharedObligation
+from .tasks import (
+    PostgresTaskStore,
+    TaskCompletionFastPath,
+    ground_task_due_at,
+    requested_task_due_at,
+)
+
+
+def resolve_reference_pre_model(
+    intent: IntentFrame,
+    connection: Any,
+    principal: Principal,
+    household_store: PostgresHouseholdStore,
+) -> Result | None:
+    """Resolve reference-Pack finance/planning fast paths before cognition."""
+
+    utterance = intent.utterance
+    if FinanceReadFastPath.needs_purchase_amount(utterance):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "What purchase amount should I compare with your available balance and obligations?"
+            ),
+            correlation_id=intent.correlation_id,
+        )
+
+    task_store = PostgresTaskStore(connection)
+    personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
+        principal
+    )
+    household_snapshot = household_store.read_snapshot(principal)
+    raw_obligations = cast(
+        tuple[HouseholdObligation, ...], household_snapshot.get("obligations", ())
+    )
+    obligations = tuple(
+        SharedObligation(item.title, item.amount) for item in raw_obligations if not item.settled
+    )
+    finance: dict[str, Any] | None = None
+    if FinanceReadFastPath.matches(utterance):
+        finance_result = FinanceReadFastPath(
+            FinanceLedger(PostgresFinanceSnapshotStore(connection))
+        ).resolve(intent, obligations)
+        if finance_result is not None:
+            finance = finance_result.evidence
+
+    if CrossDomainPlanningFastPath.matches(utterance):
+        planning_result = CrossDomainPlanningFastPath(
+            personal_state,
+            household_snapshot,
+            task_store.list(principal),
+            finance,
+        ).resolve(intent)
+        if planning_result is not None:
+            return planning_result
+
+    if finance is not None:
+        finance_result = FinanceReadFastPath(
+            FinanceLedger(PostgresFinanceSnapshotStore(connection))
+        ).resolve(intent, obligations)
+        if finance_result is not None:
+            PostgresAuditLog(connection).append(
+                "finance.affordability.read",
+                principal.id,
+                {
+                    "purchase_cents": finance_result.evidence["purchase_cents"],
+                    "shared_obligations_cents": finance_result.evidence["shared_obligations_cents"],
+                    "affordable": finance_result.evidence["affordable"],
+                },
+            )
+        return finance_result
+    return None
 
 
 def ground_reference_action(
