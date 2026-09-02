@@ -804,7 +804,7 @@ def resolve_reference_fast_paths(
     else:
         memory_fast_path = PersonalMemoryFastPath(personal_state)
     if composed_title is None:
-        return memory_fast_path.resolve(intent)
+        return memory_fast_path.resolve(intent, context)
     return None
 
 
