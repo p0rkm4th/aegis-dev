@@ -75,6 +75,7 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
+from .utterance import is_question_request
 
 _MAX_CONTEXT_TURN_CHARS = 500
 _MAX_CONTEXT_CANDIDATES = 10
@@ -509,6 +510,41 @@ class InteractionBoundary:
                     provider.decide(request), request.action_cards, allow_argument_proposals=True
                 )
             if decision.kind is DecisionKind.ACTION and decision.action is not None:
+                selected_card = next(
+                    (card for card in cards if card.action.action_id == decision.action.action_id),
+                    None,
+                )
+                if (
+                    is_question_request(intent.utterance)
+                    and selected_card is not None
+                    and any(
+                        permission.endswith(".write")
+                        for permission in selected_card.action.required_permissions
+                    )
+                ):
+                    read_cards = tuple(
+                        card
+                        for card in cards
+                        if not any(
+                            permission.endswith(".write")
+                            for permission in card.action.required_permissions
+                        )
+                    )
+                    if read_cards:
+                        read_request = ModelRequest(
+                            working_set=WorkingSet(intent=intent, context=context),
+                            action_cards=read_cards,
+                        )
+                        read_decision = decoder.decode(
+                            provider.decide(read_request),
+                            read_cards,
+                            allow_argument_proposals=False,
+                        )
+                        if (
+                            read_decision.kind is not DecisionKind.ACTION
+                            or read_decision.action is not None
+                        ):
+                            return read_decision
                 card = next(
                     (card for card in cards if card.action.action_id == decision.action.action_id),
                     None,

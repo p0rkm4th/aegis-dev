@@ -182,7 +182,10 @@ class OllamaProvider:
                     "select a create card even if an existing candidate has a similar name. "
                     "Select a complete card only when the user asks to finish, close, mark "
                     "done, or otherwise change an existing item to completed. Never turn a "
-                    "request to add a new item into completion of a nearby existing item."
+                    "request to add a new item into completion of a nearby existing item. "
+                    "A destination such as a to-do list, task list, or things-to-do list "
+                    "means tasks.create; create an event only when the user explicitly asks "
+                    "for a calendar/event record, regardless of appointment-like wording."
                 ),
                 "read_polarity_rule": (
                     "Distinguish information-seeking questions from mutations. A question "
