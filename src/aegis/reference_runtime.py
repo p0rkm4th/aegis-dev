@@ -178,89 +178,19 @@ def legacy_runtime(
     principal: Principal,
     openclaw_channel: Callable[[], OpenClawWebSocketChannel],
 ) -> ActionRuntime:
-    """Resolve old first-party adapters outside the generic interaction service."""
+    """Compatibility resolver backed by the same Pack registry as production."""
 
-    if action_id == "kitchen.groceries.add":
-        channel = openclaw_channel()
-        executor = OpenClawExecutor(
-            OpenClawGroceryExecutor(
-                channel,
-                os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
-                PostgresHouseholdStore(connection),
-                principal,
-            ),
-            _RuntimePolicy(),
-            _NoApproval(),
-        )
-        return ActionRuntime(
-            executor,
-            OpenClawGroceryVerifier(PostgresHouseholdStore(connection), principal),
-            {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
-            cleanup=channel.close,
-        )
-    if action_id == "kitchen.groceries.list":
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            PostgresGroceryListExecutor(store, principal),
-            PostgresGroceryListVerifier(store, principal),
-            {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-    if action_id in {"tasks.create", "tasks.complete"}:
-        task_store = PostgresTaskStore(connection)
-        return ActionRuntime(
-            PostgresTaskExecutor(task_store, principal),
-            PostgresTaskVerifier(task_store, principal),
-            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-    if action_id == "tasks.list":
-        task_store = PostgresTaskStore(connection)
-        return ActionRuntime(
-            PostgresTaskListExecutor(task_store, principal),
-            PostgresTaskListVerifier(task_store, principal),
-            {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-    if action_id in {"tasks.chores.create", "tasks.chores.complete"}:
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            PostgresChoreExecutor(store, principal),
-            PostgresChoreVerifier(store, principal),
-            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-    if action_id == "tasks.events.create":
-        store = PostgresHouseholdStore(connection)
-        return ActionRuntime(
-            PostgresEventExecutor(store, principal),
-            PostgresEventVerifier(store, principal),
-            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
-        )
-    if action_id == "homelab.service.restart":
-        channel = openclaw_channel()
-        services = {
-            name.removeprefix("AEGIS_HOMELAB_SERVICE_").lower(): command
-            for name, command in os.environ.items()
-            if name.startswith("AEGIS_HOMELAB_SERVICE_") and command
-        }
-        endpoints = {
-            name.removeprefix("AEGIS_HOMELAB_HEALTH_").lower(): endpoint
-            for name, endpoint in os.environ.items()
-            if name.startswith("AEGIS_HOMELAB_HEALTH_") and endpoint
-        }
-        return ActionRuntime(
-            OpenClawExecutor(
-                OpenClawHomelabExecutor(channel, services), _RuntimePolicy(), _NoApproval()
-            ),
-            OpenClawHomelabVerifier(endpoints),
-            {"homelab.service.restart": frozenset({Role.OWNER})},
-            cleanup=channel.close,
-        )
-    if action_id == "network.probe":
-        channel = openclaw_channel()
-        return ActionRuntime(
-            OpenClawExecutor(
-                OpenClawNetworkProbeExecutor(channel), _RuntimePolicy(), _NoApproval()
-            ),
-            OpenClawNetworkProbeVerifier(),
-            {"network.read": frozenset({Role.OWNER, Role.MEMBER})},
-            cleanup=channel.close,
-        )
-    raise LookupError(f"no legacy runtime binding for {action_id}")
+    from .reference_packs import reference_bundles
+
+    card = next(
+        (
+            candidate
+            for bundle in reference_bundles()
+            for candidate in bundle.cards
+            if candidate.action.action_id == action_id
+        ),
+        None,
+    )
+    if card is None:
+        raise LookupError(f"no Pack action card for {action_id}")
+    return default_runtime_registry(openclaw_channel).resolve(card, connection, principal)
