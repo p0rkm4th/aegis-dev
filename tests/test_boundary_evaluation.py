@@ -83,3 +83,5 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"unsafe_mutations_per_1000"' in source
     assert '"semantic_mode_correct"' in source
     assert '"semantic_mode_accuracy"' in source
+    assert '"provider_evidence_valid": bool(transport.calls and model_digest)' in source
+    assert '"model_digest_source"' in source

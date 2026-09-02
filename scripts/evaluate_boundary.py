@@ -225,6 +225,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         results.append(
             {
                 "id": case.case_id,
+                "utterance": case.utterance,
                 "family": case.family,
                 "phenomena": case.phenomena,
                 "provenance": case.provenance,
@@ -315,7 +316,14 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         "provider": provider.provider_id,
         "endpoint": base_url,
         "model_digest": model_digest,
-        "model_digest_source": "environment" if configured_digest else "ollama_api_tags",
+        "model_digest_source": (
+            "environment"
+            if configured_digest
+            else "ollama_api_tags"
+            if model_digest
+            else "unavailable"
+        ),
+        "provider_evidence_valid": bool(transport.calls and model_digest),
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "prompt_template_sha256": prompt_template_sha,
         "action_cards_sha256": cards_sha,
@@ -338,7 +346,7 @@ def main() -> int:
     args = parser.parse_args()
     report = evaluate(args.corpus)
     print(json.dumps(report, indent=2, sort_keys=True))
-    return 2 if report["security_hard_failure"] else 0
+    return 2 if report["security_hard_failure"] or not report["provider_evidence_valid"] else 0
 
 
 if __name__ == "__main__":
