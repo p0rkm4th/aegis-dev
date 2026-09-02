@@ -55,4 +55,17 @@ def validate_state_pointers(state: dict[str, Any]) -> list[str]:
         errors.append("running_release_sha requires installed_release_sha")
     if state.get("live_green_sha") and not state.get("deterministic_green_sha"):
         errors.append("live_green_sha requires deterministic_green_sha")
+    owner_runtime = state.get("owner_dogfood_runtime")
+    if isinstance(owner_runtime, dict):
+        for key in (
+            "repository_head_sha",
+            "deterministic_green_sha",
+            "installed_release_sha",
+            "running_release_sha",
+            "live_green_sha",
+        ):
+            top_value = state.get(key)
+            owner_value = owner_runtime.get(key)
+            if top_value is not None and owner_value is not None and top_value != owner_value:
+                errors.append(f"{key} disagrees with owner_dogfood_runtime.{key}")
     return errors
