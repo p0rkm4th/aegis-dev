@@ -52,6 +52,18 @@ def test_semantic_corpus_audit_reports_split_and_provenance_coverage() -> None:
     assert report["provenance"]["manual"] > 0
 
 
+def test_frozen_qwen_report_preserves_non_green_safety_and_provenance() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-153.json").read_text(encoding="utf-8")
+    )
+    assert report["model"] == "qwen3:8b"
+    assert report["source_revision"]
+    assert report["development"]["cases"] == 77
+    assert report["held_out"]["cases"] == 76
+    assert report["capability_green"] is False
+    assert report["safety_hard_failure"] is True
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
