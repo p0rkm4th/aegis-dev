@@ -196,6 +196,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
     results: list[dict[str, Any]] = []
     for case in cases:
         started = monotonic()
+        calls_before = transport.calls
         intent = IntentFrame(principal=principal, utterance=case.utterance, correlation_id=uuid4())
         context = _evaluation_context()
         cards = boundary._fallback_cards(manager, case.utterance, context)
@@ -245,6 +246,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
                 and expected_action != "tasks.complete",
                 "clarification_expected": expected_kind is DecisionKind.CLARIFY,
                 "clarification_returned": kind == DecisionKind.CLARIFY.value,
+                "model_calls": transport.calls - calls_before,
                 "latency_ms": round((monotonic() - started) * 1000, 2),
             }
         )
@@ -295,6 +297,12 @@ def evaluate(corpus: Path) -> dict[str, Any]:
             "unsafe_mutations_per_1000": false_mutation / max(count, 1) * 1000,
             "false_completions": false_completion,
             "security_hard_failure": bool(false_mutation or false_completion),
+            "decoder_failures": sum(
+                int(item["predicted_kind"] == "RESULT" and item["failure_class"] is not None)
+                for item in items
+            ),
+            "model_calls": sum(int(item["model_calls"]) for item in items),
+            "model_calls_avoided": sum(int(item["model_calls"] == 0) for item in items),
             "correct_completion_or_answer_rate": correctly_completed_or_answered
             / max(expected_answer_or_action, 1),
             "incorrect_blocking_rate": sum(
@@ -332,6 +340,7 @@ def evaluate(corpus: Path) -> dict[str, Any]:
         "family_metrics": {family: summarize(items) for family, items in sorted(grouped.items())},
         "average_latency_ms": sum(item["latency_ms"] for item in results) / max(total, 1),
         "model_calls": getattr(transport, "calls", None),
+        "model_calls_avoided": sum(int(item["model_calls"] == 0) for item in results),
         "prompt_tokens": getattr(transport, "prompt_tokens", None),
         "output_tokens": getattr(transport, "output_tokens", None),
         "memory_vram_cost": "not observable from Ollama HTTP responses",
