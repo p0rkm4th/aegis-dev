@@ -2142,6 +2142,58 @@ def test_feedback_harvest_creates_non_replaying_defect_candidates():
     assert candidates[0]["replay_consequential_action"] is False
 
 
+def test_reference_completion_grounding_blocks_unrelated_canonical_target():
+    from aegis.contracts import ActionCard, ActionSpec, VerificationContract
+    from aegis.personal import PersonalState
+    from aegis.reference_interaction import ground_reference_action
+    from aegis.tasks import Task
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    intent = IntentFrame(principal=principal, utterance="Finish the backup")
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            arguments={"title": "restore drill"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Complete a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+
+    class Tasks:
+        def list(self, _principal):
+            return (Task(uuid4(), "apartment", "restore drill", "alice"),)
+
+    blocked = ground_reference_action(
+        intent,
+        card,
+        Tasks(),
+        object(),
+        PersonalState(),
+        None,
+        None,
+        None,
+        None,
+    )
+    assert isinstance(blocked, Result)
+    assert blocked.state is ObjectiveState.BLOCKED
+
+    grounded = ground_reference_action(
+        intent.model_copy(update={"utterance": "Finish the restore drill"}),
+        card,
+        Tasks(),
+        object(),
+        PersonalState(),
+        None,
+        None,
+        None,
+        None,
+    )
+    assert isinstance(grounded, ActionCard)
+
+
 def test_cli_feedback_without_database_reports_actionable_error(monkeypatch, capsys):
     from aegis import cli
 
