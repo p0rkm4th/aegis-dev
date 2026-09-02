@@ -392,7 +392,9 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         homelab = PostgresHomelabStore(connection).load(principal, _ReadOnlyHomelabRuntime())
         persisted = {
             bundle.manifest.pack_id: (bundle, status)
-            for bundle, status, _grants in PostgresPackStore(connection).load()
+            for bundle, status, _grants in PackManager(
+                store=PostgresPackStore(connection)
+            ).lifecycle_snapshot()
         }
         nodes: list[dict[str, Any]] = [
             {

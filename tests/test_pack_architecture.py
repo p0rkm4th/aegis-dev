@@ -51,3 +51,9 @@ def test_generic_core_does_not_import_first_party_domain_implementations() -> No
 def test_pack_manager_exposes_metadata_without_private_state_access() -> None:
     source = Path("src/aegis/interaction.py").read_text(encoding="utf-8")
     assert "manager._bundles" not in source
+
+
+def test_pack_lifecycle_snapshot_is_the_projection_contract() -> None:
+    source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
+    assert ".lifecycle_snapshot()" in source
+    assert "PostgresPackStore(connection).load()" not in source

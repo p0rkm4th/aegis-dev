@@ -201,6 +201,20 @@ class PackManager:
             for card in bundle.cards
         )
 
+    def lifecycle_snapshot(
+        self,
+    ) -> tuple[tuple[PackBundle, PackStatus, frozenset[str]], ...]:
+        """Expose typed lifecycle state for authorized projections and diagnostics."""
+
+        return tuple(
+            (
+                bundle,
+                self._statuses[pack_id],
+                self._grants.get(pack_id, frozenset()),
+            )
+            for pack_id, bundle in sorted(self._bundles.items())
+        )
+
     def retrieve(self, domain: str, limit: int = 5) -> tuple[ActionCard, ...]:
         """Retrieve only enabled Pack capabilities through Core's bounded registry."""
         return CapabilityRegistry(self.enabled_cards()).retrieve(domain, limit)
