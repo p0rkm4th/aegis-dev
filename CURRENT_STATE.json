@@ -77,6 +77,7 @@
       ,"semantic family corpus expansion at c6cdc70: development and held-out evaluation data now contain 26 and 23 genuinely varied cases respectively across indirect reads, polarity, ambiguity, unsupported requests, injection-like context, and generation; corpus audit reports zero normalized overlap. No production routing vocabulary or capability-green claim was added. Full deterministic validation passed at 345 tests and hosted validation run 33598824425 passed."
       ,"expanded Qwen baseline checkpoint at 762ba90: the 26/23 corpus was evaluated through the real Qwen3:8B cognition boundary with frozen model, prompt, ActionCard, and dataset provenance; both splits recorded one false mutation/false completion proposal, so capability green remains false. Evaluation was execution-free. Full deterministic validation passed at 345 tests and hosted validation run 33599336284 passed."
       ,"owner release pointer consistency at cc31eda: release validation now rejects contradictory top-level and nested owner repository/deterministic/installed/running/live pointers, preventing stale promotion metadata from appearing coherent. Full deterministic validation passed at 346 tests and hosted validation run 33599554613 passed."
+      ,"focused OSS harvest at e320266: inspected Hermes Agent, OpenClaw, Cytoscape.js, xyflow, simple-evals, lm-evaluation-harness, and DSPy at pinned upstream revisions; evaluation/UI material is design/test harvest, OpenClaw is rejected pending license/provenance clarification, and no runtime dependency was added. Full deterministic validation passed at 346 tests; hosted validation for the follow-up source checkpoint is pending."
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -158,9 +159,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1ec1e2e",
-  "deterministic_green_sha": "1ec1e2e",
-  "last_pushed_sha": "1ec1e2e",
+  "repository_head_sha": "e320266",
+  "deterministic_green_sha": "e320266",
+  "last_pushed_sha": "e320266",
   "hosted_ci_green_sha": "1ec1e2e",
   "installed_release_sha": "1ec1e2e",
   "running_release_sha": "1ec1e2e",
@@ -182,8 +183,8 @@
     "running_sha": "1ec1e2e",
     "last_known_green_sha": "f5add80",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/1ec1e2e",
-    "repository_head_sha": "1ec1e2e",
-    "deterministic_green_sha": "1ec1e2e",
+    "repository_head_sha": "e320266",
+    "deterministic_green_sha": "e320266",
     "installed_release_sha": "1ec1e2e",
     "running_release_sha": "1ec1e2e",
     "live_green_sha": "f5add80",
