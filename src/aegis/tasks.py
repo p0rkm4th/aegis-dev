@@ -10,6 +10,7 @@ from typing import Any, Protocol
 from uuid import UUID, uuid4
 
 from .contracts import (
+    Context,
     ExecutionRequest,
     IntentFrame,
     ObjectiveState,
@@ -590,6 +591,55 @@ class TaskPriorityFastPath:
                 "collection": "tasks",
                 "priority_basis": "earliest_due_at",
                 "task": _task_projection(selected),
+            },
+            correlation_id=intent.correlation_id,
+        )
+
+
+class ContextualTaskPriorityFastPath:
+    """Ground a priority follow-up in an authorized prior task projection."""
+
+    def resolve(self, intent: IntentFrame, context: Context) -> Result | None:
+        text = intent.utterance.casefold()
+        if not any(term in text for term in ("first", "priority", "prioritize", "focus")):
+            return None
+        referents = context.values.get("referents")
+        if not isinstance(referents, dict):
+            return None
+        those = referents.get("those")
+        if not isinstance(those, dict) or those.get("fact_key") != "canonical_tasks":
+            return None
+        candidates = those.get("candidates")
+        if not isinstance(candidates, list):
+            return None
+        open_tasks = [
+            item
+            for item in candidates
+            if isinstance(item, dict) and item.get("status") == TaskStatus.OPEN.value
+        ]
+        dated = [item for item in open_tasks if isinstance(item.get("due_at"), str)]
+        if not dated:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I cannot ground a first priority because none of the referenced "
+                    "open tasks has a deadline."
+                ),
+                correlation_id=intent.correlation_id,
+            )
+        selected = min(dated, key=lambda item: str(item["due_at"]))
+        title = selected.get("title")
+        if not isinstance(title, str) or not title:
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Based on the earliest recorded deadline, start with: {title}",
+            evidence={
+                "collection": "tasks",
+                "priority_basis": "authorized_prior_result_earliest_due_at",
+                "task": selected,
             },
             correlation_id=intent.correlation_id,
         )
