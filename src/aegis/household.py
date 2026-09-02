@@ -481,6 +481,21 @@ class HouseholdReadFastPath:
                     ).date()
                     == target_date
                 )
+            elif "next week" in text:
+                week_start = (now + timedelta(days=7)).date()
+                week_end = week_start + timedelta(days=7)
+                date_filter = "next_week"
+                events = tuple(
+                    event
+                    for event in events
+                    if week_start
+                    <= (
+                        event.starts_at.replace(tzinfo=timezone.utc)
+                        if event.starts_at.tzinfo is None
+                        else event.starts_at.astimezone(timezone.utc)
+                    ).date()
+                    < week_end
+                )
             evidence["events"] = [
                 {"title": event.title, "starts_at": event.starts_at.isoformat()} for event in events
             ]
