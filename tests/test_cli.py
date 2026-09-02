@@ -139,6 +139,64 @@ def test_write_capable_fallback_routes_without_canonical_read_context():
     assert "canonical_facts" not in provider.requests[1].working_set.context.values
 
 
+def test_semantic_action_reference_prevents_second_pass_read_drift():
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "tasks.create"
+    )
+
+    class Provider:
+        def __init__(self):
+            self.calls = 0
+
+        def decide(self, _request):
+            self.calls += 1
+            return type(
+                "Response",
+                (),
+                {
+                    "raw": {
+                        "kind": "ACTION",
+                        "semantic_mode": "ACTION",
+                        "action_ref": "tasks.create",
+                        "action_arguments": {"title": "inspect the backup"},
+                    }
+                },
+            )()
+
+    provider = Provider()
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: None,
+            required=lambda _name: "unused",
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: ("tasks", card),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            model_provider=lambda: provider,
+        )
+    )
+
+    decision = boundary._fallback_decision(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="put a reminder on my list to inspect the backup",
+        ),
+        (card,),
+        Context(),
+    )
+
+    assert isinstance(decision, Decision)
+    assert decision.kind is DecisionKind.ACTION
+    assert decision.action is not None
+    assert decision.action.action_id == "tasks.create"
+    assert decision.action.arguments == {"title": "inspect the backup"}
+    assert provider.calls == 1
+
+
 def test_task_read_fast_path_requires_high_confidence_read_shape():
     assert TaskReadFastPath.matches("Show my tasks")
     assert not TaskReadFastPath.matches("set task status get gud scrub complete")

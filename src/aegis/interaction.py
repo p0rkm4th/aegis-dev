@@ -426,6 +426,29 @@ class InteractionBoundary:
                     if isinstance(classification_response.raw, dict)
                     else None
                 )
+                if semantic_mode == "ACTION" and isinstance(classification_response.raw, dict):
+                    # Some providers return a bounded action reference even
+                    # during the mode pass. Reuse it only when it exactly
+                    # names a supplied ActionCard and its arguments are a
+                    # declared subset. This prevents a second cognition pass
+                    # from drifting a clear mutation into a nearby read;
+                    # grounding, policy, execution, and verification remain
+                    # below this proposal boundary.
+                    action_ref = classification_response.raw.get("action_ref")
+                    action_arguments = classification_response.raw.get("action_arguments", {})
+                    selected_card = next(
+                        (card for card in cards if card.action.action_id == action_ref), None
+                    )
+                    if selected_card is not None and isinstance(action_arguments, dict):
+                        declared = set(selected_card.argument_keys)
+                        if set(action_arguments).issubset(declared):
+                            return Decision(
+                                kind=DecisionKind.ACTION,
+                                action=selected_card.action.model_copy(
+                                    update={"arguments": dict(action_arguments)}
+                                ),
+                                semantic_mode="ACTION",
+                            )
                 if semantic_mode in {"GENERATION", "READ"}:
                     if semantic_mode == "GENERATION":
                         generated_answer = (
