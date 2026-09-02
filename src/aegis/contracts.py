@@ -86,6 +86,7 @@ class ActionCard(StrictModel):
     summary: str = Field(min_length=1)
     relevance: float = Field(ge=0, le=1)
     argument_keys: tuple[str, ...] = ()
+    argument_descriptions: dict[str, str] = {}
 
 
 class Decision(StrictModel):

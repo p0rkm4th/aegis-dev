@@ -84,6 +84,13 @@ def reference_packs() -> tuple[Pack, ...]:
                     summary="Create a task or reminder for something the user needs to do",
                     relevance=1,
                     argument_keys=("title", "due_at"),
+                    argument_descriptions={
+                        "title": (
+                            "the complete user-described task or reminder, excluding list "
+                            "destination wording"
+                        ),
+                        "due_at": "a user-supplied deadline, if one was clearly stated",
+                    },
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -95,6 +102,9 @@ def reference_packs() -> tuple[Pack, ...]:
                     summary="Complete, finish, or close a named task",
                     relevance=1,
                     argument_keys=("title",),
+                    argument_descriptions={
+                        "title": "the exact or uniquely matching existing task title"
+                    },
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -106,6 +116,7 @@ def reference_packs() -> tuple[Pack, ...]:
                     summary="Create a shared household chore someone needs to do",
                     relevance=1,
                     argument_keys=("title",),
+                    argument_descriptions={"title": "the complete chore description"},
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -117,6 +128,9 @@ def reference_packs() -> tuple[Pack, ...]:
                     summary="Complete, finish, or close a shared household chore",
                     relevance=1,
                     argument_keys=("title",),
+                    argument_descriptions={
+                        "title": "the exact or uniquely matching existing chore title"
+                    },
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -128,6 +142,10 @@ def reference_packs() -> tuple[Pack, ...]:
                     summary="Create a shared household event with a title and time",
                     relevance=1,
                     argument_keys=("title", "starts_at"),
+                    argument_descriptions={
+                        "title": "the event description",
+                        "starts_at": "the user-supplied event start time",
+                    },
                 ),
                 ActionCard(
                     action=ActionSpec(
