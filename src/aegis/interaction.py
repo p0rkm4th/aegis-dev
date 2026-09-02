@@ -976,7 +976,7 @@ class InteractionBoundary:
             for bundle in reference_bundles():
                 try:
                     manager.status(bundle.manifest.pack_id)
-                    installed_bundle = manager._bundles[bundle.manifest.pack_id]
+                    installed_bundle = manager.bundle(bundle.manifest.pack_id)
                     installed_ids = {card.action.action_id for card in installed_bundle.cards}
                     required_ids = {card.action.action_id for card in bundle.cards}
                     if not required_ids.issubset(installed_ids) or tuple(
@@ -993,7 +993,7 @@ class InteractionBoundary:
                 if manager.status(pack_id) is PackStatus.DISCOVERED:
                     manager.install(
                         pack_id,
-                        frozenset(manager._bundles[pack_id].manifest.permissions),
+                        manager.declared_permissions(pack_id),
                     )
                     manager.enable(pack_id)
                 elif manager.status(pack_id) is PackStatus.INSTALLED:

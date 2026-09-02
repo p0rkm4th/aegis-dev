@@ -183,6 +183,16 @@ class PackManager:
         self._require(pack_id)
         return self._statuses[pack_id]
 
+    def bundle(self, pack_id: str) -> PackBundle:
+        """Return installed metadata through the public Pack contract."""
+
+        return self._require(pack_id)
+
+    def declared_permissions(self, pack_id: str) -> frozenset[str]:
+        """Return the Pack-declared permission set without exposing internals."""
+
+        return frozenset(self.bundle(pack_id).manifest.permissions)
+
     def enabled_cards(self) -> tuple[ActionCard, ...]:
         return tuple(
             card
