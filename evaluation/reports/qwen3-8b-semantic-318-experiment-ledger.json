@@ -3,6 +3,37 @@
   "development_cases": 160,
   "experiments": [
     {
+      "name": "qwen2.5-14b-capacity-control",
+      "report": "evaluation/reports/qwen2.5-14b-semantic-318-dev.json",
+      "source_revision": "25225e2f8a9bef61e4ad443cac3050b4e635ac8a",
+      "model": "qwen2.5:14b",
+      "model_digest": "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6",
+      "contract": "identical production prompt, context, decoder, ActionCard, retrieval, and shortcut contract as the Qwen3:8B baseline",
+      "metrics": {
+        "route_accuracy": 0.1875,
+        "semantic_mode_accuracy": 0.33125,
+        "false_mutations": 19,
+        "false_completions": 10,
+        "decoder_failures": 84,
+        "model_calls": 296,
+        "prompt_tokens": 613955,
+        "output_tokens": 15680,
+        "average_latency_ms": 9405.495375,
+        "full_request_latency_p50_ms": 7371.475,
+        "full_request_latency_p95_ms": 25046.535999999996
+      },
+      "comparison_to_qwen3_8b_dev": {
+        "route_accuracy_delta": -0.425,
+        "semantic_mode_accuracy_delta": -0.39375,
+        "false_mutations_delta": 8,
+        "false_completions_delta": 3,
+        "decoder_failures_delta": 68,
+        "average_latency_ms_delta": 4405.6924375
+      },
+      "decision": "reject_capacity_escalation",
+      "reason": "The stronger model materially regressed safety, correctness, decoder reliability, and latency under the unchanged contract. Keep Qwen3:8B as the production model and return to continuity/context/representation diagnosis."
+    },
+    {
       "name": "canonical_shortcut_on",
       "report": "evaluation/reports/qwen3-8b-semantic-318-current-dev.json",
       "source_revision": "04af6797776763da02ce5b8a87b02d03b5140631",
