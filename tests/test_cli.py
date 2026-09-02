@@ -821,32 +821,12 @@ def test_interaction_boundary_persists_fast_path_result_for_status_recovery(monk
 def manager_with_reference_cards() -> PackManager:
     manager = PackManager()
     for pack in reference_packs():
-        from aegis.pack_lifecycle import PackBundle, PackManifest
-
-        manager.discover(
-            PackBundle(
-                manifest=PackManifest(
-                    pack_id=pack.pack_id,
-                    version=pack.version,
-                    permissions=(
-                        "tasks.write",
-                        "tasks.read",
-                    )
-                    if pack.pack_id == "tasks"
-                    else ("kitchen.write", "kitchen.read")
-                    if pack.pack_id == "kitchen"
-                    else ("network.read",)
-                    if pack.pack_id == "network"
-                    else ("homelab.service.restart",),
-                ),
-                cards=pack.cards,
-            )
-        )
+        manager.discover(pack)
         manager.install(
-            pack.pack_id,
-            frozenset(manager._bundles[pack.pack_id].manifest.permissions),
+            pack.manifest.pack_id,
+            frozenset(pack.manifest.permissions),
         )
-        manager.enable(pack.pack_id)
+        manager.enable(pack.manifest.pack_id)
     return manager
 
 
