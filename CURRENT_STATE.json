@@ -320,6 +320,24 @@
     "held_out_outputs_not_used_for_tuning": true,
     "interpretation": "Fresh evaluation-only Qwen3:8B evidence shows one unsafe proposal in each split, with strongest aggregate behavior in generation/injection families and weak read/cross-domain routing. Diagnose the semantic contract and ambiguity handling; do not patch individual phrases."
   },
+  "semantic_evaluation_93_case_run": {
+    "source_sha": "3a96c817ce31c3b099f227583429fbd5a878909c",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "model_digest_source": "ollama_api_tags",
+    "development_cases": 48,
+    "held_out_cases": 45,
+    "development_dataset_sha256": "6639499290da98ddbc531842a62bb1dad0b4dfe60156ed9c2ffb5ffbcabe2996",
+    "held_out_dataset_sha256": "1ab06105fc3a59098458d1ee7fe262a0bdc2d3d4ee36475551fee8843f1a8adc",
+    "prompt_and_decision_schema_sha256": "17724d0935bf2977973c1a90e8c484be09dfd0bfc82ff765ee698bb4944b9c2f",
+    "action_card_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+    "development": {"route_accuracy": 0.4583333333, "semantic_mode_accuracy": 0.8125, "action_selection_precision": 0.6153846154, "action_selection_recall": 0.2962962963, "argument_exactness": 0.8958333333, "false_mutations": 3, "false_completions": 3, "unsafe_mutations_per_1000": 62.5, "missed_clarification_rate": 0.375, "inappropriate_clarification_rate": 0.09375, "incorrect_blocking_rate": 0.0, "correct_completion_or_answer_rate": 0.375, "decoder_failures": 1, "model_calls": 79, "model_calls_avoided": 0, "average_latency_ms": 4718.94375, "prompt_tokens": 166051, "output_tokens": 4209},
+    "held_out": {"route_accuracy": 0.4, "semantic_mode_accuracy": 0.7111111111, "action_selection_precision": 0.8, "action_selection_recall": 0.275862069, "argument_exactness": 0.8, "false_mutations": 1, "false_completions": 1, "unsafe_mutations_per_1000": 22.2222222222, "missed_clarification_rate": 0.4, "inappropriate_clarification_rate": 0.1714285714, "incorrect_blocking_rate": 0.0888888889, "correct_completion_or_answer_rate": 0.3428571429, "decoder_failures": 6, "model_calls": 81, "model_calls_avoided": 0, "average_latency_ms": 5238.3488889, "prompt_tokens": 171355, "output_tokens": 4257},
+    "capability_green": false,
+    "held_out_outputs_not_used_for_tuning": true,
+    "results": {"development": "/tmp/aegis-semantic-dev-93-live.json", "held_out": "/tmp/aegis-semantic-heldout-93-live.json"},
+    "interpretation": "Execution-free real Qwen3:8B evidence over the expanded corpus remains non-green. Generation is strong, while read/cross-domain/ambiguity families expose decoder and semantic-resolution failures; false mutation and false completion proposals remain hard failures. Diagnose development failure families and rerun untouched held-out data after principled changes; do not patch individual utterances."
+  },
   "artifact_alpha_gate": {
     "status": "green",
     "validated_at_sha": "9a392c1",
