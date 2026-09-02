@@ -97,22 +97,21 @@ class ConstellationProjection(BaseModel):
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>AEGIS Constellation</title>
-<style>body{font:16px system-ui;margin:2rem;max-width:70rem}
-main{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}
-.node{border:1px solid #bbb;border-radius:.6rem;padding:1rem}
-.node[aria-pressed="true"]{border-color:#2457a6;box-shadow:0 0 0 .15rem #c9dcff}
-.muted{color:#666}
-form{display:flex;gap:.5rem;margin:2rem 0}input{flex:1;padding:.6rem}button{padding:.6rem}
-#detail{border:1px solid #ddd;border-radius:.6rem;padding:1rem;min-height:2rem}
-#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}
-#detail dt{font-weight:600}#detail dd{margin:0}
-#detail ul{margin:.25rem 0;padding-left:1.25rem}</style>
-</head><body><h1>AEGIS Constellation</h1>
-<p class="muted">Canonical state and conversation from AEGIS Core.</p>
-<p id="health" aria-live="polite">Checking readiness…</p>
-<ul id="health-details" class="muted" aria-live="polite"></ul>
-<form id="chat"><input id="utterance" autocomplete="off"
-placeholder="Ask AEGIS..."><button>Send</button></form>
+<style>
+:root{color-scheme:dark;--bg:#0e1117;--panel:#171c25;--panel-raised:#1d2430;--border:#2b3442;--text:#edf2f7;--muted:#9aa8b8;--accent:#8dc7ff;--shadow:0 1rem 3rem #0005}
+:root[data-theme="light"]{color-scheme:light;--bg:#f4f6f8;--panel:#fff;--panel-raised:#f8fafc;--border:#d7dee7;--text:#18212b;--muted:#536273;--accent:#155ea8;--shadow:0 .75rem 2rem #18212b18}
+*{box-sizing:border-box}body{font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--text)}
+.app-shell{max-width:76rem;margin:auto;padding:1rem clamp(1rem,4vw,3rem) 4rem}.topbar{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0 2rem}.brand{display:flex;gap:.75rem;align-items:center}.brand-mark{display:grid;place-items:center;width:2.25rem;height:2.25rem;border:1px solid var(--border);border-radius:.75rem;color:var(--accent);background:var(--panel);font-weight:700}.brand h1{font-size:1.25rem;letter-spacing:.03em;margin:0}.eyebrow{font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}.workspace{max-width:54rem;margin:auto}.conversation-panel{background:var(--panel);border:1px solid var(--border);border-radius:1.25rem;padding:clamp(1rem,3vw,2rem);box-shadow:var(--shadow)}
+.muted{color:var(--muted)}.health-line{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1rem;color:var(--muted);font-size:.9rem}.health-line strong{color:var(--text);font-weight:600}.status-dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:#6fd18a;margin-right:.45rem}details summary{cursor:pointer;color:var(--muted);font-size:.85rem}#health-details{margin:.5rem 0 0;padding-left:1.2rem;font-size:.82rem}#health-details:empty{display:none}
+#chat{display:flex;gap:.7rem;margin:1rem 0 1.5rem}#utterance{flex:1;min-width:0;padding:.85rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--bg);color:var(--text);font:inherit}button{padding:.75rem 1rem;border:1px solid var(--border);border-radius:.7rem;background:var(--panel-raised);color:var(--text);font:inherit;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}button:disabled,input:disabled{cursor:wait;opacity:.65}
+#answer{font-size:1.08rem;white-space:pre-wrap;margin:0 0 .5rem}#activity,#step-status{font-size:.85rem;margin:.35rem 0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;padding:0;margin:1.5rem 0 0}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;background:var(--panel-raised);white-space:pre-wrap}#conversation li:nth-child(odd){align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}
+.secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
+@media(max-width:36rem){#chat{align-items:stretch;flex-direction:column}#chat button{width:100%}#conversation li{max-width:100%}}
+</style>
+</head><body><div class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><div class="eyebrow">Personal intelligence</div><h1>AEGIS</h1></div></div><button id="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button></header>
+<div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div>
+<form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><input id="utterance" autocomplete="off"
+placeholder="What can I help with?"><button>Send</button></form>
 <p id="answer" aria-live="polite"></p><p id="step-status" class="muted"
 aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
@@ -121,15 +120,15 @@ aria-live="polite" aria-label="Selected node details"></div>
 <button type="button" data-feedback="not_helpful">Not helpful</button>
 <span id="feedback-status" class="muted" aria-live="polite"></span></p>
 <p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
-<h2>Conversation</h2><ol id="conversation" aria-live="polite"></ol>
-<p><button id="refresh" type="button">Refresh state</button></p>
+<h2 class="sr-only">Conversation</h2><ol id="conversation" aria-live="polite"></ol></section>
+<section class="secondary" aria-label="Canonical state"><div class="state-tools"><h2>Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
 autocomplete="off" aria-describedby="node-filter-status"
 placeholder="Filter authorized nodes"></label>
 <p id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"></p>
 <main id="nodes"><p>Loading state…</p></main>
-<h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul>
+<h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul></section></div></div>
 <script>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
@@ -141,6 +140,7 @@ const refreshRequestTimeoutMs = 10000;
 const pendingStorageKey = 'aegis.pending-request';
 const sessionStorageKey = 'aegis.session-id';
 const contextStorageKey = 'aegis.context-correlation';
+const themeStorageKey = 'aegis.theme';
 const recoveryPollMs = 5000;
 const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
@@ -154,6 +154,22 @@ let renderedEdgeRows = [];
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
+const themeToggle = document.getElementById('theme-toggle');
+function applyTheme(theme) {
+  const selected = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = selected;
+  themeToggle.textContent = selected === 'dark' ? 'Light mode' : 'Dark mode';
+  themeToggle.setAttribute('aria-label', `Switch to ${selected === 'dark' ? 'light' : 'dark'} mode`);
+  try { localStorage.setItem(themeStorageKey, selected); } catch (_) { /* optional */ }
+}
+let initialTheme = 'dark';
+try {
+  const savedTheme = localStorage.getItem(themeStorageKey);
+  initialTheme = savedTheme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+} catch (_) { /* optional */ }
+applyTheme(initialTheme);
+themeToggle.addEventListener('click', () =>
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 try {
   const savedSession = sessionStorage.getItem(sessionStorageKey);
   if (savedSession &&
