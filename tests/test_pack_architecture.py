@@ -137,7 +137,7 @@ def test_generic_modules_have_no_syntax_level_first_party_imports_or_action_lite
 
 
 def test_pack_lifecycle_snapshot_is_the_projection_contract() -> None:
-    source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
+    source = Path("src/aegis/reference_interaction.py").read_text(encoding="utf-8")
     assert ".lifecycle_snapshot()" in source
     assert "PostgresPackStore(connection).load()" not in source
 
