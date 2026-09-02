@@ -122,6 +122,11 @@ class ExecutionRequest(StrictModel):
     idempotency_key: str = Field(min_length=1)
 
 
+class ActionClaim(StrictModel):
+    request: ExecutionRequest
+    acquired: bool
+
+
 class Observation(StrictModel):
     execution_id: UUID
     action_id: str | None = None
