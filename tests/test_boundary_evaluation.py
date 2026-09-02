@@ -12,6 +12,10 @@ def test_frozen_semantic_corpora_assign_every_case_to_a_family() -> None:
             case.get("provenance") in {"manual", "owner_harvest", "transformed"} for case in cases
         )
         assert all(isinstance(case.get("expected_mutation"), bool) for case in cases)
+        assert all(
+            case.get("semantic_mode") in {"READ", "ACTION", "GENERATION", "CLARIFY"}
+            for case in cases
+        )
 
 
 def test_development_and_heldout_corpora_keep_distinct_case_ids() -> None:
@@ -37,3 +41,4 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     source = Path("scripts/evaluate_boundary.py").read_text(encoding="utf-8")
     assert '"false_mutation": not case.expected_mutation and actual_mutation' in source
     assert '"unsafe_mutations_per_1000"' in source
+    assert '"semantic_mode_correct"' in source
