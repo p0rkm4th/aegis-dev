@@ -113,9 +113,11 @@ class OllamaProvider:
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
                 "routing_rule": (
                     "This is a classification-only pass. Return ACTION when the user "
-                    "requests any state change, ANSWER when the request only seeks "
-                    "information or benign generation, and CLARIFY when the intent is "
-                    "ambiguous. Do not provide an action_ref or arguments."
+                    "requests any state change, ANSWER with semantic_mode READ when the "
+                    "user seeks authorized information, ANSWER with semantic_mode "
+                    "GENERATION for benign creative or explanatory content, and CLARIFY "
+                    "with semantic_mode CLARIFY when the intent is ambiguous. Always "
+                    "provide semantic_mode and do not provide an action_ref or arguments."
                     if request.classification_only
                     else (
                         "This is an action-routing pass. Decide whether the current request "

@@ -97,6 +97,7 @@ class Decision(StrictModel):
     action_arguments: dict[str, Any] = {}
     clarification: str | None = None
     reason: str | None = None
+    semantic_mode: Literal["GENERATION", "READ", "ACTION", "CLARIFY"] | None = None
 
 
 class PolicyDecision(StrictModel):
