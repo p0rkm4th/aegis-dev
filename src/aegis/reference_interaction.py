@@ -17,6 +17,8 @@ from .contracts import (
     ActionCard,
     ActionSpec,
     Context,
+    Decision,
+    DecisionKind,
     IntentFrame,
     ObjectiveState,
     Principal,
@@ -160,6 +162,36 @@ def run_reference_plan(
         store=PostgresObjectiveStore(connection),
         audit=PostgresAuditLog(connection),
     ).run_sequence(intent, plan_actions, context=context)
+
+
+def rewrite_reference_decision(
+    intent: IntentFrame, decision: Decision, cards: tuple[ActionCard, ...]
+) -> Decision | Result | None:
+    """Correct a reference-Pack event proposal when the user named a task destination."""
+
+    action = decision.action
+    if action is None or action.action_id != "tasks.events.create":
+        return None
+    if not is_task_destination_request(intent.utterance):
+        return None
+    task_card = next((card for card in cards if card.action.action_id == "tasks.create"), None)
+    if task_card is None:
+        return None
+    title = action.arguments.get("title")
+    if not isinstance(title, str) or not title.strip():
+        return Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification="What should I add to your task list?",
+        )
+    arguments: dict[str, Any] = {"title": title}
+    due_at = requested_task_due_at(intent.utterance)
+    if due_at is not None:
+        arguments["due_at"] = due_at
+    return Decision(
+        kind=DecisionKind.ACTION,
+        action=task_card.action.model_copy(update={"arguments": arguments}),
+        semantic_mode="ACTION",
+    )
 
 
 def resolve_reference_pre_model(

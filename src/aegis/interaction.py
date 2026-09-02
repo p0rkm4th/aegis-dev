@@ -60,13 +60,11 @@ from .tasks import (
     TaskIntentClarificationFastPath,
     TaskPriorityFastPath,
     TaskReadFastPath,
-    requested_task_due_at,
 )
 from .utterance import (
     has_multiple_question_clauses,
     is_mutation_request,
     is_question_request,
-    is_task_destination_request,
 )
 
 _MAX_CONTEXT_TURN_CHARS = 500
@@ -98,6 +96,7 @@ class InteractionDependencies:
         pre_model_resolver: Callable[..., Result | None] | None = None,
         fallback_card_selector: Callable[[PackManager, str], tuple[ActionCard, ...]] | None = None,
         plan_runner: Callable[..., Result | None] | None = None,
+        decision_rewriter: Callable[..., Decision | Result | None] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -115,6 +114,7 @@ class InteractionDependencies:
         self.pre_model_resolver = pre_model_resolver
         self.fallback_card_selector = fallback_card_selector
         self.plan_runner = plan_runner
+        self.decision_rewriter = decision_rewriter
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -609,37 +609,19 @@ class InteractionBoundary:
                     provider.decide(request), request.action_cards, allow_argument_proposals=True
                 )
             if decision.kind is DecisionKind.ACTION and decision.action is not None:
+                if self.dependencies.decision_rewriter is not None:
+                    rewritten = self.dependencies.decision_rewriter(intent, decision, cards)
+                    if isinstance(rewritten, Result):
+                        return rewritten
+                    if rewritten is not None:
+                        decision = rewritten
+                action = decision.action
+                if decision.kind is not DecisionKind.ACTION or action is None:
+                    return decision
                 selected_card = next(
-                    (card for card in cards if card.action.action_id == decision.action.action_id),
+                    (card for card in cards if card.action.action_id == action.action_id),
                     None,
                 )
-                if (
-                    selected_card is not None
-                    and selected_card.action.action_id == "tasks.events.create"
-                    and is_task_destination_request(intent.utterance)
-                ):
-                    task_cards = tuple(
-                        card for card in cards if card.action.action_id == "tasks.create"
-                    )
-                    if task_cards:
-                        title = decision.action.arguments.get("title")
-                        if not isinstance(title, str) or not title.strip():
-                            return Decision(
-                                kind=DecisionKind.CLARIFY,
-                                clarification="What should I add to your task list?",
-                            )
-                        task_arguments: dict[str, Any] = {"title": title}
-                        due_at = requested_task_due_at(intent.utterance)
-                        if due_at is not None:
-                            task_arguments["due_at"] = due_at
-                        decision = Decision(
-                            kind=DecisionKind.ACTION,
-                            action=task_cards[0].action.model_copy(
-                                update={"arguments": task_arguments}
-                            ),
-                            semantic_mode="ACTION",
-                        )
-                        selected_card = task_cards[0]
                 if (
                     is_question_request(intent.utterance)
                     and selected_card is not None
