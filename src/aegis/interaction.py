@@ -41,7 +41,7 @@ from .identity import PostgresSpacePolicy, Role
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .openclaw import OpenClawExecutor
-from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
+from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PersonalMemoryFastPath, PostgresPersonalStateStore
 from .planning import (
@@ -107,6 +107,8 @@ class InteractionDependencies:
         model_provider: Callable[[], Any] | None = None,
         capability_retriever: Callable[[str, PackManager], tuple[ActionCard, ...]] | None = None,
         runtime_registry: PackRuntimeRegistry | None = None,
+        pack_bundles: Callable[[], tuple[Any, ...]] | None = None,
+        auto_enable_pack_ids: frozenset[str] = frozenset(),
     ) -> None:
         self.connect = connect
         self.required = required
@@ -118,6 +120,8 @@ class InteractionDependencies:
         self.model_provider = model_provider
         self.capability_retriever = capability_retriever
         self.runtime_registry = runtime_registry
+        self.pack_bundles = pack_bundles
+        self.auto_enable_pack_ids = auto_enable_pack_ids
 
 
 def _compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -973,31 +977,26 @@ class InteractionBoundary:
                 if memory_result is not None:
                     return persist_fast_result(memory_result)
             manager = PackManager(store=PostgresPackStore(connection))
-            for bundle in reference_bundles():
-                try:
-                    manager.status(bundle.manifest.pack_id)
-                    installed_bundle = manager.bundle(bundle.manifest.pack_id)
-                    installed_ids = {card.action.action_id for card in installed_bundle.cards}
-                    required_ids = {card.action.action_id for card in bundle.cards}
-                    if not required_ids.issubset(installed_ids) or tuple(
-                        installed_bundle.cards
-                    ) != tuple(bundle.cards):
-                        # Persisted Pack metadata is a contract, not merely an
-                        # ID cache. Refresh it when bounded argument/schema
-                        # details change so old runtimes cannot misroute safely.
-                        manager.remove(bundle.manifest.pack_id)
+            if self.dependencies.pack_bundles is not None:
+                manager.reconcile(
+                    tuple(self.dependencies.pack_bundles()),
+                    self.dependencies.auto_enable_pack_ids,
+                )
+            else:
+                # Compatibility path for older embedders; production clients
+                # supply Pack bundles through the composition callback above.
+                for bundle in reference_bundles():
+                    try:
+                        manager.status(bundle.manifest.pack_id)
+                        installed_bundle = manager.bundle(bundle.manifest.pack_id)
+                        if installed_bundle.model_dump(mode="json") != bundle.model_dump(
+                            mode="json"
+                        ):
+                            manager.remove(bundle.manifest.pack_id)
+                            manager.discover(bundle)
+                    except KeyError:
                         manager.discover(bundle)
-                except KeyError:
-                    manager.discover(bundle)
-            for pack_id in ("tasks", "kitchen"):
-                if manager.status(pack_id) is PackStatus.DISCOVERED:
-                    manager.install(
-                        pack_id,
-                        manager.declared_permissions(pack_id),
-                    )
-                    manager.enable(pack_id)
-                elif manager.status(pack_id) is PackStatus.INSTALLED:
-                    manager.enable(pack_id)
+                manager.reconcile(tuple(reference_bundles()), frozenset(("tasks", "kitchen")))
             plan_titles = MultiActionFastPath.task_chore_titles(utterance)
             if recovered_plan_actions is not None:
                 plan_actions = recovered_plan_actions

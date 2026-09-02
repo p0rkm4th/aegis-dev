@@ -57,3 +57,9 @@ def test_pack_lifecycle_snapshot_is_the_projection_contract() -> None:
     source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
     assert ".lifecycle_snapshot()" in source
     assert "PostgresPackStore(connection).load()" not in source
+
+
+def test_production_composition_supplies_pack_lifecycle_contract() -> None:
+    source = Path("src/aegis/cli.py").read_text(encoding="utf-8")
+    assert "pack_bundles=reference_bundles" in source
+    assert "auto_enable_pack_ids" in source

@@ -215,6 +215,31 @@ class PackManager:
             for pack_id, bundle in sorted(self._bundles.items())
         )
 
+    def reconcile(
+        self,
+        bundles: tuple[PackBundle, ...],
+        auto_enable: frozenset[str] = frozenset(),
+    ) -> None:
+        """Reconcile composed Pack metadata and optionally enable safe defaults."""
+
+        for bundle in bundles:
+            pack_id = bundle.manifest.pack_id
+            try:
+                installed = self.bundle(pack_id)
+            except KeyError:
+                self.discover(bundle)
+            else:
+                if installed.model_dump(mode="json") != bundle.model_dump(mode="json"):
+                    self.remove(pack_id)
+                    self.discover(bundle)
+            if pack_id in auto_enable:
+                status = self.status(pack_id)
+                if status is PackStatus.DISCOVERED:
+                    self.install(pack_id, self.declared_permissions(pack_id))
+                    self.enable(pack_id)
+                elif status is PackStatus.INSTALLED:
+                    self.enable(pack_id)
+
     def retrieve(self, domain: str, limit: int = 5) -> tuple[ActionCard, ...]:
         """Retrieve only enabled Pack capabilities through Core's bounded registry."""
         return CapabilityRegistry(self.enabled_cards()).retrieve(domain, limit)
