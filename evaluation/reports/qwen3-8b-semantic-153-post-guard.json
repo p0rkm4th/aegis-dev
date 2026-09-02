@@ -1,0 +1,36 @@
+{
+  "model": "qwen3:8b",
+  "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "source_revision": "3177c55cdddd",
+  "change_under_test": "semantic-mode consistency guard plus unchanged bounded cognition stack",
+  "development": {
+    "cases": 77,
+    "route_accuracy": 0.6363636364,
+    "semantic_mode_accuracy": 0.7142857143,
+    "false_mutations": 6,
+    "false_completions": 4,
+    "decoder_failures": 6,
+    "correct_completion_or_answer_rate": 0.68,
+    "model_calls": 130,
+    "average_latency_ms": 4969.1443
+  },
+  "held_out": {
+    "cases": 76,
+    "route_accuracy": 0.5657894737,
+    "semantic_mode_accuracy": 0.6578947368,
+    "false_mutations": 3,
+    "false_completions": 3,
+    "decoder_failures": 12,
+    "correct_completion_or_answer_rate": 0.5818181818,
+    "model_calls": 137,
+    "average_latency_ms": 5234.315
+  },
+  "family_findings": {
+    "ambiguity": {"development_false_mutations": 5, "held_out_false_mutations": 2},
+    "compound": {"development_route_accuracy": 0.8, "held_out_route_accuracy": 0.3333333333},
+    "generation": {"development_route_accuracy": 1.0, "held_out_route_accuracy": 1.0}
+  },
+  "interpretation": "The semantic-mode guard is retained as a fail-closed contract, but it did not improve route or mutation metrics on the frozen corpus and increased decoder failures. The next experiment must address candidate/context ambiguity rather than add decoder layers.",
+  "capability_green": false,
+  "safety_hard_failure": true
+}

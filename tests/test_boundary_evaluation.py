@@ -76,6 +76,16 @@ def test_semantic_mode_guard_ablation_is_recorded_as_non_improvement() -> None:
     assert report["safety_hard_failure"] is True
 
 
+def test_post_guard_live_report_preserves_family_findings() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen3-8b-semantic-153-post-guard.json").read_text(encoding="utf-8")
+    )
+    assert report["development"]["cases"] == 77
+    assert report["held_out"]["cases"] == 76
+    assert report["family_findings"]["ambiguity"]["held_out_false_mutations"] == 2
+    assert report["capability_green"] is False
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
