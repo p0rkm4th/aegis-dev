@@ -9,13 +9,14 @@ from aegis.contracts import (
     Decision,
     DecisionKind,
     IntentFrame,
+    ObjectiveState,
     Principal,
     Result,
     VerificationContract,
 )
 from aegis.household import PostgresHouseholdStore
 from aegis.interaction_context import compact_context_evidence, resolve_obvious_ordinal
-from aegis.personal import PersonalState
+from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
 from aegis.reference_interaction import ground_reference_action, rewrite_reference_decision
 from aegis.tasks import Task
 
@@ -158,6 +159,26 @@ def test_compact_task_context_prioritizes_deadlines_for_model_working_set() -> N
         tasks[1],
         tasks[0],
     ]
+
+
+def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
+    memory = MemoryRecord(
+        uuid4(),
+        "The owner prefers a quiet dark interface.",
+        datetime(2026, 9, 1, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    state = PersonalState(memories={memory.memory_id: memory})
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="what do you remember about me?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["memories"][0]["content"] == memory.content
 
 
 def test_grounding_uses_current_canonical_task_for_authorized_ordinal() -> None:

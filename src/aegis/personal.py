@@ -439,6 +439,8 @@ class PersonalMemoryFastPath:
 
     _TRIGGERS = (
         "memory",
+        "remember",
+        "recall",
         "working on",
         "working with",
         "what did i",
@@ -457,9 +459,11 @@ class PersonalMemoryFastPath:
             "about",
             "that",
             "did",
+            "do",
             "from",
             "i",
             "me",
+            "my",
             "know",
             "on",
             "tell",
@@ -470,6 +474,8 @@ class PersonalMemoryFastPath:
             "you",
             "last",
             "night",
+            "remember",
+            "recall",
         }
     )
     _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
@@ -510,7 +516,15 @@ class PersonalMemoryFastPath:
             if word.strip(".,!?;:") not in self._STOPWORDS and word.strip(".,!?;:")
         )
         start, end = self._temporal_window(text)
-        memories = self._search_memories(query, start, end)
+        if query.strip():
+            memories = self._search_memories(query, start, end)
+        else:
+            memories = tuple(
+                memory
+                for memory in self.state.memories.values()
+                if memory.superseded_by is None
+                and (start is None or end is None or start <= memory.occurred_at <= end)
+            )[:10]
         evidence = {
             "memories": [
                 {
