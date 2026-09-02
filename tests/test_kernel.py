@@ -4090,6 +4090,50 @@ def test_health_report_separates_required_readiness_from_optional_health():
     assert failed.ready is False
 
 
+def test_release_truth_rejects_inconsistent_runtime_pointers():
+    from aegis.release_truth import validate_state_pointers
+
+    errors = validate_state_pointers(
+        {
+            "repository_head_sha": "abcdef1",
+            "deterministic_green_sha": "abcdef1",
+            "last_pushed_sha": "abcdef1",
+            "installed_release_sha": None,
+            "running_release_sha": "abcdef1",
+            "live_green_sha": "abcdef1",
+        }
+    )
+    assert "running_release_sha requires installed_release_sha" in errors
+
+
+def test_runtime_identity_does_not_expose_configuration_secrets(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setenv("AEGIS_RELEASE_SHA", "abcdef1")
+    monkeypatch.setenv("AEGIS_OLLAMA_URL", "https://user:secret@example.test:11434/path")
+    monkeypatch.setenv("AEGIS_OLLAMA_MODEL", "qwen3:8b")
+    monkeypatch.setattr(
+        cli,
+        "_postgres_health",
+        lambda _url: cli.ComponentHealth(
+            name="postgres", healthy=True, required=True, detail="connected"
+        ),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_ollama_health",
+        lambda _url, _model: cli.ComponentHealth(
+            name="ollama", healthy=True, required=True, detail="available"
+        ),
+    )
+    monkeypatch.setattr(cli, "_identity_health", lambda: (True, "local development identity mode"))
+    identity = cli._runtime_report().runtime
+    assert identity is not None
+    assert identity.release_sha == "abcdef1"
+    assert "secret" not in identity.endpoint
+    assert identity.endpoint == "https://example.test:11434/path"
+
+
 def test_migration_manifest_is_contiguous_and_nonempty():
     assert validate_migrations() == (
         "001_initial.sql",

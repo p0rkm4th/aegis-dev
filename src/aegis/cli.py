@@ -25,7 +25,7 @@ from .contracts import ActionCard, Principal, RequestStatus, Result
 from .embeddings import OllamaEmbeddingProvider
 from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
-from .health import ComponentHealth, HealthReport
+from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .homelab import PostgresHomelabStore
 from .household import (
     PostgresHouseholdStore,
@@ -41,6 +41,7 @@ from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .personal import PostgresPersonalStateStore
 from .reference_packs import reference_bundles
+from .release_truth import runtime_release_sha
 from .store import PostgresObjectiveStore
 from .tasks import PostgresTaskStore, requested_task_due_at
 from .web import serve
@@ -171,6 +172,13 @@ def _runtime_report() -> HealthReport:
         healthy=all(component.healthy for component in components),
         ready=all(component.healthy for component in components if component.required),
         components=tuple(components),
+        runtime=RuntimeIdentity(
+            package_version=_distribution_version(),
+            release_sha=runtime_release_sha(__file__),
+            provider="ollama",
+            model=ollama_model,
+            endpoint=_safe_endpoint(ollama_url),
+        ),
     )
 
 
