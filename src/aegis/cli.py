@@ -48,6 +48,7 @@ from .reference_interaction import (
     reference_constellation_state,
     reference_domain_and_action,
     reference_fallback_cards,
+    reference_format_result,
     resolve_reference_fast_paths,
     resolve_reference_pre_model,
     resolve_reference_safety_fast_paths,
@@ -67,6 +68,7 @@ from .web import serve
 # implementation belongs to the reference-Pack composition module; CLI is only
 # a transport/composition adapter.
 _domain_and_action = reference_domain_and_action
+_format = reference_format_result
 
 
 class _RuntimePolicy:
@@ -732,142 +734,6 @@ def _openclaw_channel() -> OpenClawWebSocketChannel:
         private_key_pem=str(row[1]),
         public_key_pem=str(row[2]),
     )
-
-
-def _format(result: Any) -> str:
-    if result.state.value != "completed":
-        return f"Not completed — {result.message}"
-    evidence = result.evidence
-    # A bounded model answer may carry authorized working-set facts so a
-    # later turn can resolve references.  Those facts are context, not a
-    # presentation instruction: never let a contextual grocery/task
-    # projection replace the answer to the current objective.
-    if evidence.get("provenance") == "model_generated":
-        return str(result.message)
-    if evidence.get("canonical_items") is not None:
-        items = evidence["canonical_items"]
-        counts: dict[str, int] = {}
-        order: list[str] = []
-        for item in items:
-            value = str(item)
-            if value not in counts:
-                order.append(value)
-                counts[value] = 0
-            counts[value] += 1
-        listing = ", ".join(
-            f"{item} (x{counts[item]})" if counts[item] > 1 else item for item in order
-        )
-        return "Groceries: " + (listing if listing else "(empty)")
-    if evidence.get("canonical_tasks") is not None:
-        tasks = evidence["canonical_tasks"]
-        listing = "; ".join(
-            f"{item['title']} ({item['status']})"
-            + (f" due {item['due_at']}" if item.get("due_at") else "")
-            for item in tasks
-        )
-        return "Tasks: " + (listing if tasks else "(empty)")
-    if evidence.get("memories") is not None:
-        memories = evidence["memories"]
-        if not memories:
-            return "Memories: (none found)"
-        return "Memories: " + "; ".join(
-            f"{item['content']} [{item['provenance']}]" for item in memories
-        )
-    if evidence.get("projects") is not None:
-        projects = evidence["projects"]
-        return "Projects: " + (
-            "; ".join(item["name"] for item in projects) if projects else "(none)"
-        )
-    if evidence.get("goals") is not None:
-        goals = evidence["goals"]
-        return "Goals: " + (
-            "; ".join(
-                f"{item['description']}" + (f" [{item['project']}]" if item["project"] else "")
-                for item in goals
-            )
-            if goals
-            else "(none)"
-        )
-    if evidence.get("obligations") is not None:
-        obligations = evidence["obligations"]
-        outstanding = [item for item in obligations if not item["settled"]]
-        return "Outstanding obligations: " + (
-            "; ".join(f"{item['title']} ({item['responsible_id']})" for item in outstanding)
-            if outstanding
-            else "(none)"
-        )
-    if evidence.get("chores") is not None:
-        chores = evidence["chores"]
-        return "Chores: " + (
-            "; ".join(f"{item['title']} ({item['assignee_id']})" for item in chores)
-            if chores
-            else "(none)"
-        )
-    if evidence.get("events") is not None:
-        events = evidence["events"]
-        return "Events: " + ("; ".join(item["title"] for item in events) if events else "(none)")
-    if isinstance(evidence.get("planning"), dict):
-        planning = evidence["planning"]
-        summaries: list[str] = []
-        affordability = planning.get("affordability")
-        if isinstance(affordability, dict) and affordability.get("affordable") is not None:
-            status = "yes" if affordability["affordable"] else "no"
-            purchase = affordability.get("purchase_cents")
-            obligations = affordability.get("shared_obligations_cents")
-            if isinstance(purchase, int) and isinstance(obligations, int):
-                summaries.append(
-                    f"affordable: {status} (purchase ${purchase / 100:.2f}; "
-                    f"shared obligations ${obligations / 100:.2f})"
-                )
-            else:
-                summaries.append(f"affordable: {status}")
-        open_tasks = planning.get("open_tasks")
-        if isinstance(open_tasks, list):
-            titles = [
-                str(item["title"])
-                for item in open_tasks
-                if isinstance(item, dict) and isinstance(item.get("title"), str)
-            ]
-            summaries.append("open tasks: " + ("; ".join(titles) if titles else "(none)"))
-        obligations = planning.get("open_obligations")
-        if isinstance(obligations, list):
-            titles = [
-                str(item["title"])
-                for item in obligations
-                if isinstance(item, dict) and isinstance(item.get("title"), str)
-            ]
-            summaries.append("open obligations: " + ("; ".join(titles) if titles else "(none)"))
-        memories = planning.get("memories")
-        if isinstance(memories, list):
-            contents = [
-                str(item["content"])
-                for item in memories
-                if isinstance(item, dict) and isinstance(item.get("content"), str)
-            ]
-            summaries.append(
-                "relevant memories: " + ("; ".join(contents) if contents else "(none)")
-            )
-        if summaries:
-            return "Planning: " + "; ".join(summaries)
-    if evidence.get("affordable") is not None:
-        status = "yes" if evidence["affordable"] else "no"
-        return (
-            f"Affordable: {status} (purchase ${evidence['purchase_cents'] / 100:.2f}; "
-            f"shared obligations ${evidence['shared_obligations_cents'] / 100:.2f})"
-        )
-    if evidence.get("collection") == "chores" and evidence.get("title"):
-        if evidence.get("completed") is True:
-            return f"Done — completed chore: {evidence['title']}"
-        return f"Done — created chore: {evidence['title']}"
-    if evidence.get("collection") == "events" and evidence.get("title"):
-        return f"Done — created event: {evidence['title']}"
-    if evidence.get("title"):
-        if evidence.get("status") == "completed":
-            return f"Done — completed task: {evidence['title']}"
-        return f"Done — created task: {evidence['title']}"
-    if evidence.get("item"):
-        return f"Done — added {evidence['item']} to groceries"
-    return f"Done — {result.message}"
 
 
 def run_interaction(
