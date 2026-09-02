@@ -408,9 +408,28 @@ class InteractionBoundary:
                     if isinstance(classification_response.raw, dict)
                     else None
                 )
-                if raw_kind == DecisionKind.ANSWER.value:
+                semantic_mode = (
+                    classification_response.raw.get("semantic_mode")
+                    if isinstance(classification_response.raw, dict)
+                    else None
+                )
+                if raw_kind == DecisionKind.ANSWER.value and semantic_mode in {
+                    "GENERATION",
+                    "READ",
+                }:
+                    answer_context = context
+                    if semantic_mode == "GENERATION":
+                        answer_context = context.model_copy(
+                            update={
+                                "values": {
+                                    key: value
+                                    for key, value in context.values.items()
+                                    if key != "canonical_facts"
+                                }
+                            }
+                        )
                     answer_request = ModelRequest(
-                        working_set=WorkingSet(intent=intent, context=context),
+                        working_set=WorkingSet(intent=intent, context=answer_context),
                         action_cards=(),
                     )
                     answer = StrictDecisionDecoder().decode(
