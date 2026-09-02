@@ -440,7 +440,7 @@ class InteractionBoundary:
                         provider.decide(answer_request), (), allow_argument_proposals=False
                     )
                     if answer.kind is DecisionKind.ANSWER:
-                        return answer
+                        return answer.model_copy(update={"semantic_mode": semantic_mode})
             routing_only = any(
                 permission.endswith(".write")
                 for card in cards
@@ -917,6 +917,7 @@ class InteractionBoundary:
                         answer_evidence: dict[str, Any] = {
                             "provenance": "model_generated",
                             "authoritative": False,
+                            "answer_mode": fallback.semantic_mode,
                         }
                         authorized_facts = _authorized_context_evidence(fallback_context)
                         if authorized_facts:
