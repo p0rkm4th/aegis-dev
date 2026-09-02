@@ -3232,6 +3232,14 @@ def test_task_completion_fast_path_clarifies_missing_or_duplicate_titles():
     assert "couldn't find" in missing.message
 
 
+def test_task_completion_canonicalizes_unique_leading_article_omission():
+    tasks = (Task(uuid4(), "apartment", "the annual inspection", "alice"),)
+
+    assert TaskCompletionFastPath.canonical_title("annual inspection", tasks) == (
+        "the annual inspection"
+    )
+
+
 def test_chore_completion_fast_path_clarifies_duplicate_titles():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(principal=principal, utterance="Complete the chore Clean the closet")
