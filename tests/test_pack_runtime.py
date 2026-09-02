@@ -57,6 +57,21 @@ def test_third_party_pack_runtime_is_registered_by_action_contract_not_domain_br
     assert tuple(resolved.permissions) == ("weather.read",)
 
 
+def test_action_card_operation_metadata_is_pack_owned_and_model_visible():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="garden.plant.create",
+            capability="garden.plant.write",
+            operation="create",
+        ),
+        summary="Record a plant",
+        relevance=1,
+    )
+
+    assert card.action.operation == "create"
+    assert card.model_dump(mode="json")["action"]["operation"] == "create"
+
+
 def test_third_party_runtime_cannot_omit_action_permissions():
     card = ActionCard(
         action=ActionSpec(

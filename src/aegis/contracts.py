@@ -76,6 +76,7 @@ class VerificationContract(StrictModel):
 class ActionSpec(StrictModel):
     action_id: str = Field(min_length=1)
     capability: str = Field(min_length=1)
+    operation: Literal["read", "create", "update", "complete", "delete", "execute"] = "execute"
     arguments: dict[str, Any] = {}
     required_permissions: tuple[str, ...] = ()
     verification: VerificationContract | None = None
