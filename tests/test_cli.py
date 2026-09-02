@@ -2726,6 +2726,26 @@ def test_cli_formats_safe_cross_domain_planning_summary():
     assert "private-id" not in formatted
 
 
+def test_cli_does_not_replace_model_answer_with_authorized_working_set():
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="No due-today deadline is recorded.",
+        correlation_id=uuid4(),
+        evidence={
+            "provenance": "model_generated",
+            "authoritative": False,
+            "answer_mode": "READ",
+            "canonical_items": ["rice"],
+            "canonical_tasks": [{"title": "review restore drill", "status": "open"}],
+        },
+    )
+
+    assert cli._format(result) == "No due-today deadline is recorded."
+
+
 def test_cli_formats_cross_domain_memory_and_obligation_summary():
     from aegis import cli
 

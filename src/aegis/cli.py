@@ -919,9 +919,13 @@ def _format(result: Any) -> str:
     if result.state.value != "completed":
         return f"Not completed — {result.message}"
     evidence = result.evidence
+    # A bounded model answer may carry authorized working-set facts so a
+    # later turn can resolve references.  Those facts are context, not a
+    # presentation instruction: never let a contextual grocery/task
+    # projection replace the answer to the current objective.
+    if evidence.get("provenance") == "model_generated":
+        return str(result.message)
     if evidence.get("canonical_items") is not None:
-        if evidence.get("answer_mode") == "GENERATION":
-            return str(result.message)
         items = evidence["canonical_items"]
         return "Groceries: " + (", ".join(items) if items else "(empty)")
     if evidence.get("canonical_tasks") is not None:
