@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 import pytest
@@ -106,7 +106,7 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
         },
         {"title": "check the pantry", "status": "open"},
     ]
-    assert context.values["as_of_date"] == datetime.now().date().isoformat()
+    assert context.values["as_of_date"] == datetime.now(timezone.utc).date().isoformat()
 
 
 def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
