@@ -29,9 +29,6 @@ from .dispatch import (
     ActionVerifierDispatch as _ActionVerifierDispatch,  # noqa: F401
 )
 from .gateway_rpc import OpenClawWebSocketChannel
-from .household import (
-    PostgresHouseholdStore,
-)
 from .identity import PostgresSpacePolicy
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
@@ -44,9 +41,6 @@ from .planning import (
 )
 from .reference_packs import reference_bundles
 from .store import PostgresObjectiveStore
-from .tasks import (
-    PostgresTaskStore,
-)
 from .utterance import (
     has_multiple_question_clauses,
     is_mutation_request,
@@ -688,10 +682,9 @@ class InteractionBoundary:
             contextual_mutation = ContextualMutationGuard.resolve(intent)
             if contextual_mutation is not None:
                 return persist_fast_result(contextual_mutation)
-            household_store = PostgresHouseholdStore(connection)
             if self.dependencies.pre_model_resolver is not None and recovered_plan_actions is None:
                 pre_model_result = self.dependencies.pre_model_resolver(
-                    intent, connection, principal, household_store
+                    intent, connection, principal
                 )
                 if pre_model_result is not None:
                     return persist_fast_result(pre_model_result)
@@ -707,7 +700,6 @@ class InteractionBoundary:
                 )
                 if fast_result is not None:
                     return persist_fast_result(fast_result)
-            task_store = PostgresTaskStore(connection)
             manager = PackManager(store=PostgresPackStore(connection))
             if self.dependencies.pack_bundles is not None:
                 manager.reconcile(
@@ -735,8 +727,6 @@ class InteractionBoundary:
                     connection,
                     principal,
                     manager,
-                    task_store,
-                    household_store,
                     recovered_plan_actions,
                     context,
                     self._model(),
@@ -751,7 +741,7 @@ class InteractionBoundary:
             except InteractionInputError as exc:
                 fallback_context = (
                     self.dependencies.fallback_context_builder(
-                        context, task_store, household_store, principal, utterance
+                        context, connection, principal, utterance
                     )
                     if self.dependencies.fallback_context_builder is not None
                     else context
