@@ -1122,6 +1122,8 @@ def run_interaction(
                 limit=10,
             ),
             runtime_registry=runtime_registry,
+            pack_bundles=reference_bundles,
+            auto_enable_pack_ids=frozenset(("tasks", "kitchen")),
         )
     )
     return boundary.run(
