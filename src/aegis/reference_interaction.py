@@ -72,7 +72,7 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
-from .utterance import is_task_destination_request
+from .utterance import is_mutation_request, is_task_destination_request
 
 
 def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[str, ActionCard]:
@@ -789,6 +789,9 @@ def resolve_reference_fast_paths(
         result = ContextualTaskPriorityFastPath().resolve(intent, context)
         if result is not None:
             return result
+        result = resolve_contextual_ordinal_read(intent, context)
+        if result is not None:
+            return result
         result = TaskPriorityFastPath(task_store).resolve(intent)
         if result is not None:
             return result
@@ -821,6 +824,40 @@ def resolve_reference_fast_paths(
         memory_fast_path = PersonalMemoryFastPath(personal_state)
     if composed_title is None:
         return memory_fast_path.resolve(intent, context)
+    return None
+
+
+def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Result | None:
+    """Answer a read-only ordinal follow-up from the authorized prior list."""
+
+    text = intent.utterance.casefold()
+    if is_mutation_request(text) or not any(
+        marker in text for marker in ("what about", "tell me about", "which one", "what is")
+    ):
+        return None
+    for fact_key, label in (("canonical_tasks", "Task"), ("canonical_chores", "Chore")):
+        referent = resolve_obvious_ordinal(text, context, fact_key)
+        if referent is None:
+            continue
+        title = referent.get("title")
+        if not isinstance(title, str) or not title.strip():
+            continue
+        status = referent.get("status") or (
+            "completed" if referent.get("completed") is True else "open"
+        )
+        detail = f"{label}: {title}"
+        if isinstance(status, str):
+            detail += f" ({status})"
+        due_at = referent.get("due_at")
+        if isinstance(due_at, str):
+            detail += f"; due {due_at}"
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=detail,
+            evidence={"collection": fact_key, "authorized_ordinal_referent": referent},
+            correlation_id=intent.correlation_id,
+        )
     return None
 
 
