@@ -161,6 +161,38 @@ def test_318_case_qwen_evaluation_preserves_split_and_safety_evidence() -> None:
     assert held_out["family_metrics"]["complete"]["route_accuracy"] < 0.2
 
 
+def test_capacity_reports_are_comparable_and_measure_tail_latency() -> None:
+    reports = [
+        json.loads((Path("evaluation/reports") / name).read_text(encoding="utf-8"))
+        for name in (
+            "qwen2.5-3b-semantic-318-dev.json",
+            "qwen2.5-3b-semantic-318-heldout.json",
+            "qwen3-8b-semantic-318-current-dev.json",
+            "qwen3-8b-semantic-318-current-heldout.json",
+        )
+    ]
+    assert {report["cases"] for report in reports} == {158, 160}
+    assert {report["dataset_sha256"] for report in reports} == {
+        "00565235aa656850bbacfe3c8b80a70511d7a28860e1f8c3fbbfbf9e5dd74783",
+        "3a801252255941b45fb7ffe2fa2c16879e23f39d8291b5db7102a7599d4a2452",
+    }
+    contracts = {json.dumps(report["evaluation_contract"], sort_keys=True) for report in reports}
+    assert len(contracts) == 1
+    assert all(report["full_request_latency_p50_ms"] is not None for report in reports)
+    assert all(report["full_request_latency_p95_ms"] is not None for report in reports)
+    assert all(report["average_model_call_latency_ms"] is not None for report in reports)
+
+
+def test_capacity_autopsy_preserves_model_limited_non_green_interpretation() -> None:
+    report = json.loads(
+        Path("evaluation/reports/qwen-capacity-ladder-318.json").read_text(encoding="utf-8")
+    )
+    assert report["interpretation"]["classification"] == "MODEL-LIMITED"
+    assert report["interpretation"]["larger_model_control"]
+    assert report["completion_autopsy"]["models"]["qwen3:8b"]["cases"]
+    assert report["cross_domain_autopsy"]["models"]["qwen3:8b"]["cases"]
+
+
 def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path) -> None:
     dev = tmp_path / "dev.json"
     held = tmp_path / "held.json"
