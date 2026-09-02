@@ -166,6 +166,14 @@ class OllamaProvider:
                     "finishing an untyped item and authorized_task_candidates contains "
                     "one matching task, prefer tasks.complete over a chore action."
                 ),
+                "mutation_polarity_rule": (
+                    "Distinguish the requested state transition, not just the named item. "
+                    "When the user asks to add, create, record, put, or make a new item, "
+                    "select a create card even if an existing candidate has a similar name. "
+                    "Select a complete card only when the user asks to finish, close, mark "
+                    "done, or otherwise change an existing item to completed. Never turn a "
+                    "request to add a new item into completion of a nearby existing item."
+                ),
                 "answer_rule": (
                     "For a benign request that does not require a supplied ActionCard, "
                     "return ANSWER with useful conversational content. Do not present "
