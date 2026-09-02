@@ -927,6 +927,47 @@ def test_decoder_requires_text_for_clarification():
         raise AssertionError("empty clarification was accepted")
 
 
+def test_decoder_accepts_bounded_answer_context_focus_but_not_action_focus():
+    answer = StrictDecisionDecoder().decode(
+        type(
+            "Response",
+            (),
+            {
+                "raw": {
+                    "kind": "ANSWER",
+                    "semantic_mode": "READ",
+                    "answer": "The open tasks are listed above.",
+                    "context_focus": "canonical_tasks",
+                }
+            },
+        )(),
+        (),
+    )
+    assert answer.context_focus == "canonical_tasks"
+
+    try:
+        StrictDecisionDecoder().decode(
+            type(
+                "Response",
+                (),
+                {
+                    "raw": {
+                        "kind": "ACTION",
+                        "action_ref": "tasks.complete",
+                        "action_arguments": {"title": "review backups"},
+                        "context_focus": "canonical_tasks",
+                    }
+                },
+            )(),
+            (),
+            allow_argument_proposals=True,
+        )
+    except InvalidDecision:
+        pass
+    else:
+        raise AssertionError("action proposal accepted conversational context metadata")
+
+
 def test_decoder_rejects_empty_answer_content():
     response = {"kind": "ANSWER", "reason": "model explanation without an answer"}
     try:

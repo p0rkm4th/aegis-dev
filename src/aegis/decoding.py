@@ -87,6 +87,7 @@ class StrictDecisionDecoder:
             decision.action is not None
             or decision.action_ref is not None
             or decision.action_arguments
+            or decision.context_focus is not None
         ):
             raise InvalidDecision("only ACTION decisions may contain an action proposal")
         return decision
