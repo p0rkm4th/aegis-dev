@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
-  "deterministic_green_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
-  "last_pushed_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
-  "hosted_ci_green_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
+  "repository_head_sha": "30924edc9b7dde835dd6c6279c54800f5caeb4ab",
+  "deterministic_green_sha": "30924edc9b7dde835dd6c6279c54800f5caeb4ab",
+  "last_pushed_sha": "30924edc9b7dde835dd6c6279c54800f5caeb4ab",
+  "hosted_ci_green_sha": "30924edc9b7dde835dd6c6279c54800f5caeb4ab",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33693691440",
-    "commit_sha": "6fe507e4ca63809e8aa95ff0c539de7880dfea5e",
+    "run_id": "33693949926",
+    "commit_sha": "30924edc9b7dde835dd6c6279c54800f5caeb4ab",
     "conclusion": "success",
     "observed_at": "2026-09-02T20:20:00Z"
   },
@@ -1125,5 +1125,6 @@
     "owner_cross_domain_priority_followup_checkpoint": "partial installed owner evidence on release 1ff528f: fresh cross-domain projection correlation b69f5c98-55ae-414d-aead-19a9ce33185d returned canonical open tasks, chores, obligations, and relevant memories; attached 'which one should I start with?' correlation 5fc85990-25cc-4725-9529-82140e0c6363 blocked safely rather than fabricating a cross-domain priority. This is evidence for a possible bounded planning/continuation gap, not ProposedPlan proof.",
     "owner_calendar_today_checkpoint": "partial installed owner evidence on release 1ff528f: fresh authenticated request 'what's on my calendar today?' completed through the canonical shared event read path and returned the current event projection (correlation 98761b47-f6bb-4961-a229-1b88209842ef). No mutation occurred; broader event-language capability remains unclaimed.",
     "owner_ambiguous_do_that_too_checkpoint": "green safety evidence on release 1ff528f: after fresh canonical open-task list correlation ecd665ea-4624-4c25-801b-5917f2940cfc, underspecified follow-up 'do that too' correlation 8ac665ce-c965-4824-a4ba-c2859f80d49a returned a task-or-chore clarification and performed no mutation.",
+    "owner_natural_task_write_due_read_checkpoint": "partial installed owner evidence on release 1ff528f: fresh natural write 'put watering the plants on my to-do list for tomorrow' completed with canonical task readback (correlation 78fe057a-858c-404b-bd85-0c9a90caf6c5), and a subsequent 'show my open tasks due tomorrow' read included the persisted task (correlation 8393a149-ef21-4e33-bcf6-ffe9e6130a6b). Broader natural-write family capability remains unclaimed.",
     "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
 }
