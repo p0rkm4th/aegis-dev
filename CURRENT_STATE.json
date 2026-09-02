@@ -42,6 +42,7 @@
       ,"reference decision composition seam at 3714594: Tasks-specific event-to-task corrective routing moved out of InteractionBoundary into an injected reference callback; focused validation passed and generic cognition retains only bounded read/write safety"
       ,"reference fast-path composition seam at 721dc58: reference Tasks/Household/Personal read and composer fast paths moved behind an injected composition resolver, and action grounding now loads reference state in composition; full validation passed at 335 tests, while generic fallback context remains transitional"
       ,"reference fallback-context composition seam at bc7d205: authorized canonical fallback context construction moved out of InteractionBoundary into the reference composition callback; full validation passed at 335 tests and owner readiness is green, with semantic capability evidence still separate"
+      ,"legacy runtime composition seam at 99e936f: InteractionBoundary no longer imports or selects the legacy first-party runtime; a composition-injected resolver supplies compatibility bindings, with full validation and owner readiness green"
     ],
     "live": [
       "M08.02 story generation through authenticated Qwen3:8B owner runtime",
@@ -123,14 +124,14 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "bc7d205",
-  "deterministic_green_sha": "bc7d205",
-  "last_pushed_sha": "bc7d205",
+  "repository_head_sha": "99e936f",
+  "deterministic_green_sha": "99e936f",
+  "last_pushed_sha": "99e936f",
   "hosted_ci_green_sha": "cf3db23",
-  "installed_release_sha": "bc7d205",
-  "running_release_sha": "bc7d205",
+  "installed_release_sha": "99e936f",
+  "running_release_sha": "99e936f",
   "live_green_sha": "f5add80",
-  "head_sha": "bc7d205",
+  "head_sha": "99e936f",
   "last_green_sha": "f5add80",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
@@ -146,15 +147,15 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "bc7d205",
+    "running_sha": "99e936f",
     "last_known_green_sha": "f5add80",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/bc7d205",
-    "repository_head_sha": "bc7d205",
-    "deterministic_green_sha": "bc7d205",
-    "installed_release_sha": "bc7d205",
-    "running_release_sha": "bc7d205",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/99e936f",
+    "repository_head_sha": "99e936f",
+    "deterministic_green_sha": "99e936f",
+    "installed_release_sha": "99e936f",
+    "running_release_sha": "99e936f",
     "live_green_sha": "f5add80",
-    "source_install_runtime_note": "GitHub origin/aegis-dev and exact deterministic validation are bc7d205; hosted validation remains confirmed through cf3db23 pending this source run. The installed/running owner release is bc7d205 with green PostgreSQL and Qwen3:8B readiness. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
+    "source_install_runtime_note": "GitHub origin/aegis-dev and exact deterministic validation are 99e936f; hosted validation remains confirmed through cf3db23 pending this source run. The installed/running owner release is 99e936f with green PostgreSQL and Qwen3:8B readiness. A fresh authenticated browser read on correlation c0bf34e4-7719-4522-a3b2-f7d9e78c5cc7 returned canonical Groceries: rice (x6) without model inference; indirect store wording fefe4b93-9f27-462d-b46c-df3cbdec5c12 safely blocked and remains semantic product evidence, not a capability green. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
     "browser_url": "http://127.0.0.1:18080/",
