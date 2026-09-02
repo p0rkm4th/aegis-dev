@@ -572,7 +572,8 @@ def test_prior_task_context_retains_deadline_candidates_within_bound():
     candidates = context.values["referents"]["those"]["candidates"]
 
     assert len(candidates) == 10
-    assert candidates[0] == {
+    assert candidates[0] == {"title": "undated-0", "status": "open"}
+    assert context.values["canonical_facts"]["canonical_tasks"][0] == {
         "title": "deadline task",
         "status": "open",
         "due_at": "2026-09-03",

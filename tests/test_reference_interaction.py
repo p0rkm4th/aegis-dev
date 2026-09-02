@@ -14,7 +14,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.household import PostgresHouseholdStore
-from aegis.interaction_context import resolve_obvious_ordinal
+from aegis.interaction_context import compact_context_evidence, resolve_obvious_ordinal
 from aegis.personal import PersonalState
 from aegis.reference_interaction import ground_reference_action, rewrite_reference_decision
 from aegis.tasks import Task
@@ -141,6 +141,23 @@ def test_obvious_ordinal_resolves_only_authorized_prior_canonical_tasks() -> Non
         "status": "open",
     }
     assert resolve_obvious_ordinal("complete the first one", Context(), "canonical_tasks") is None
+
+
+def test_compact_task_context_prioritizes_deadlines_for_model_working_set() -> None:
+    tasks = [
+        {"task_id": "first", "title": "first task", "status": "open"},
+        {
+            "task_id": "second",
+            "title": "second task",
+            "status": "open",
+            "due_at": "2026-09-02T12:00:00+00:00",
+        },
+    ]
+
+    assert compact_context_evidence({"canonical_tasks": tasks})["canonical_tasks"] == [
+        tasks[1],
+        tasks[0],
+    ]
 
 
 def test_grounding_uses_current_canonical_task_for_authorized_ordinal() -> None:
