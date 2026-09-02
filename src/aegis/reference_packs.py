@@ -184,7 +184,10 @@ def reference_packs() -> tuple[Pack, ...]:
                         required_permissions=("kitchen.read",),
                         verification=VerificationContract(kind="readback"),
                     ),
-                    summary="Show grocery list",
+                    summary=(
+                        "Read the authorized grocery shopping list: what to buy, pick up, "
+                        "bring home, or get at the store"
+                    ),
                     relevance=1,
                 ),
             ),
