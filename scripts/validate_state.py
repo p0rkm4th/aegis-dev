@@ -35,12 +35,15 @@ def main() -> int:
     # this check rejects pointers from a divergent history.
     if not isinstance(recorded, str) or not _is_ancestor(recorded, head):
         errors.append(f"repository_head_sha={recorded!r} is not an ancestor of checked-out HEAD")
-    pushed = state.get("last_pushed_sha")
-    if isinstance(pushed, str) and not _is_ancestor(pushed, head):
-        errors.append("last_pushed_sha is not an ancestor of checked-out HEAD")
-    hosted = state.get("hosted_ci_green_sha")
-    if isinstance(hosted, str) and not _is_ancestor(hosted, head):
-        errors.append("hosted_ci_green_sha is not an ancestor of checked-out HEAD")
+    for field in (
+        "deterministic_green_sha",
+        "last_pushed_sha",
+        "hosted_ci_green_sha",
+        "live_green_sha",
+    ):
+        value = state.get(field)
+        if isinstance(value, str) and not _is_ancestor(value, head):
+            errors.append(f"{field} is not an ancestor of checked-out HEAD")
     if errors:
         for error in errors:
             print(f"CURRENT_STATE invalid: {error}")
