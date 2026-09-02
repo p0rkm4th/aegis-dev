@@ -71,19 +71,6 @@ _domain_and_action = reference_domain_and_action
 _format = reference_format_result
 
 
-class _RuntimePolicy:
-    def allows(self, request: Any) -> bool:
-        return bool(request.action.action_id == "kitchen.groceries.add")
-
-
-class _NoApproval:
-    def required(self, request: Any) -> bool:
-        return False
-
-    def approved(self, request: Any) -> bool:
-        return True
-
-
 def _required(name: str) -> str:
     value = os.environ.get(name)
     if not value:
