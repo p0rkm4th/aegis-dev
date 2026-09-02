@@ -17,7 +17,11 @@ from aegis.contracts import (
 from aegis.household import PostgresHouseholdStore
 from aegis.interaction_context import compact_context_evidence, resolve_obvious_ordinal
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
-from aegis.reference_interaction import ground_reference_action, rewrite_reference_decision
+from aegis.reference_interaction import (
+    ground_reference_action,
+    resolve_contextual_ordinal_read,
+    rewrite_reference_decision,
+)
 from aegis.tasks import Task
 
 
@@ -32,6 +36,35 @@ def _task_card(arguments: dict[str, object]) -> ActionCard:
         relevance=1,
         argument_keys=("title", "due_at"),
     )
+
+
+def test_contextual_ordinal_read_stays_in_authorized_task_domain():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "first task", "status": "open"},
+                        {"title": "second task", "status": "open", "due_at": "2026-09-03"},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the second one?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Task: second task (open); due 2026-09-03"
+    assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
 
 
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:
