@@ -2098,6 +2098,25 @@ def test_ollama_provider_repairs_malformed_json_once():
     assert "single_card_rule" in transport.calls[0]["messages"][0]["content"]
 
 
+def test_ollama_classification_schema_requires_semantic_mode():
+    class Transport:
+        def chat(self, payload):
+            return {
+                "message": {"content": '{"kind":"ANSWER","semantic_mode":"READ","answer":"ok"}'}
+            }
+
+    provider = OllamaProvider("qwen3:8b", Transport())
+    response = provider.decide(
+        ModelRequest(
+            working_set=WorkingSet(intent=intent()),
+            action_cards=(),
+            classification_only=True,
+        )
+    )
+
+    assert response.raw["semantic_mode"] == "READ"
+
+
 def test_ollama_http_transport_rejects_non_http_urls():
     try:
         OllamaHttpTransport("unix:///run/ollama.sock")
