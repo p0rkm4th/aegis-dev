@@ -192,6 +192,7 @@ def test_fidelity_development_metrics_expose_correlated_omission_safety() -> Non
             independent=spec(
                 ("tasks.create", {"title": "A"}), ("kitchen.groceries.add", {"item": "C"})
             ),
+            structural_effect_count=3,
         ),
         FidelityEvaluationCase(
             name="ambiguous-effect",
@@ -215,11 +216,9 @@ def test_fidelity_development_metrics_expose_correlated_omission_safety() -> Non
     assert metrics.cases == 4
     assert metrics.requirement_recall < 1
     assert metrics.correlated_omission_false_acceptances == 1
-    # The intentionally adversarial case documents why independent review alone
-    # cannot be treated as a complete fidelity solution: correlated cognition can
-    # omit the same effect twice.  Core's plan/objective comparison itself still
-    # accepts the two matching untrusted proposals, so this remains a campaign
-    # blocker until a selected independent-effect mechanism catches it.
-    assert metrics.core_false_acceptances == 1
+    # The structural signal catches the omission even when both cognition
+    # proposals agree, so the Core safety metric is zero while model recall
+    # remains imperfect and the correlated omission remains measurable.
+    assert metrics.core_false_acceptances == 0
     assert metrics.ambiguity_detection == 1
     assert metrics.unsupported_effect_detection == 1

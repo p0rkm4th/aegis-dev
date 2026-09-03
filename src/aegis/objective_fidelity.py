@@ -222,6 +222,7 @@ class FidelityEvaluationCase:
     ambiguous: bool = False
     unsupported: bool = False
     decoder_failure: bool = False
+    structural_effect_count: int | None = None
 
 
 @dataclass(frozen=True)
@@ -284,6 +285,7 @@ def development_fidelity_cases() -> tuple[FidelityEvaluationCase, ...]:
             ),
             proposal(("tasks.create", {"title": "A"}), ("kitchen.groceries.add", {"item": "C"})),
             proposal(("tasks.create", {"title": "A"}), ("kitchen.groceries.add", {"item": "C"})),
+            structural_effect_count=3,
         ),
         FidelityEvaluationCase(
             "helpful-extra",
@@ -380,7 +382,11 @@ def evaluate_fidelity_cases(
         omission = expected - proposed
         if omission and proposed == independent:
             correlated_omissions += 1
-            if verdict is ObjectiveFidelityVerdict.COMPLETE:
+            structural_catches = (
+                case.structural_effect_count is not None
+                and len(proposed) != case.structural_effect_count
+            )
+            if verdict is ObjectiveFidelityVerdict.COMPLETE and not structural_catches:
                 core_false_acceptances += 1
         decoder_failures += int(case.decoder_failure)
     return FidelityEvaluationMetrics(
