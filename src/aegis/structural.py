@@ -7,6 +7,7 @@ capability mapping, authorization, execution, verification, and completion.
 
 from __future__ import annotations
 
+import importlib
 from typing import Any
 
 from .contracts import StructuralAnchor, StructuralCoverageSignal
@@ -24,7 +25,7 @@ class SpacyStructuralParser:
             self._model = model
             return
         try:
-            import spacy  # type: ignore[import-not-found]
+            spacy = importlib.import_module("spacy")
         except ImportError as exc:
             raise StructuralParserUnavailable("spaCy is not installed") from exc
         try:
