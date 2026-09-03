@@ -233,7 +233,8 @@ def test_contextual_ordinal_read_stays_in_authorized_event_domain():
     )
 
     assert result is not None
-    assert result.message == "Event: Apartment inspection (open); starts 2026-09-03T10:00:00+00:00"
+    local_date = datetime.fromisoformat("2026-09-03T10:00:00+00:00").astimezone().date().isoformat()
+    assert result.message.startswith(f"Event: Apartment inspection (open); starts {local_date}")
 
 
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
@@ -501,6 +502,38 @@ def test_contextual_ordinal_task_display_shortens_canonical_due_timestamp() -> N
     assert "+00:00" not in result.message
     assert ".956546" not in result.message
     assert due_at not in result.message
+
+
+def test_contextual_ordinal_event_display_shortens_canonical_start_timestamp() -> None:
+    starts_at = "2026-09-04T02:08:21.956546+00:00"
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "events",
+                    "candidates": [
+                        {"title": "inspection", "status": "open", "starts_at": starts_at}
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which appointment is first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    local_date = datetime.fromisoformat(starts_at).astimezone().date().isoformat()
+    assert result.message.startswith(f"Event: inspection (open); starts {local_date}")
+    assert "+00:00" not in result.message
+    assert ".956546" not in result.message
+    assert starts_at not in result.message
 
 
 def test_reference_chore_display_is_bounded_without_truncating_canonical_evidence() -> None:
