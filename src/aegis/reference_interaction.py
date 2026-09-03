@@ -24,6 +24,8 @@ from .contracts import (
     Decision,
     DecisionKind,
     IntentFrame,
+    ObjectiveRequirementProposal,
+    ObjectiveSpecProposal,
     ObjectiveState,
     Principal,
     ProposedPlan,
@@ -1238,7 +1240,18 @@ def run_reference_plan(
         store=PostgresObjectiveStore(connection),
         audit=PostgresAuditLog(connection),
     )
-    return kernel.run_proposed_plan(intent, proposal, plan_cards, context=context)
+    return kernel.run_proposed_plan(
+        intent,
+        proposal,
+        plan_cards,
+        context=context,
+        objective_spec=ObjectiveSpecProposal(
+            requirements=tuple(
+                ObjectiveRequirementProposal(action_ref=step.action_ref, arguments=step.arguments)
+                for step in proposal.steps
+            )
+        ),
+    )
 
 
 def rewrite_reference_decision(
