@@ -112,6 +112,34 @@ def test_contextual_ordinal_read_stays_in_authorized_task_domain():
     assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
 
 
+def test_grocery_ordinal_preserves_collection_for_correction():
+    context = Context(
+        values={
+            "referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice", "beans"]}}
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which grocery item is last?",
+        ),
+        context,
+    )
+    assert result is not None
+    assert result.evidence["canonical_items"] == ["rice", "beans"]
+    assert reference_format_result(result) == "Grocery item: beans"
+    correction = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Actually, I meant the first one.",
+        ),
+        context,
+    )
+    assert correction is not None
+    assert correction.evidence["authorized_ordinal_item"] == "rice"
+
+
 def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
     context = Context(
         values={
