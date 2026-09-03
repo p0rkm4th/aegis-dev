@@ -26,6 +26,8 @@ from .contracts import (
     IntentFrame,
     ObjectiveState,
     Principal,
+    ProposedPlan,
+    ProposedPlanStep,
     Result,
 )
 from .decoding import StrictDecisionDecoder
@@ -963,13 +965,32 @@ def run_reference_plan(
             correlation_id=intent.correlation_id,
             retryable=True,
         )
-    runtimes = {}
-    for action in plan_actions:
-        card = next(
-            card for card in manager.retrieve("tasks") if card.action.action_id == action.action_id
+    task_cards = tuple(manager.retrieve("tasks"))
+    cards_by_id = {card.action.action_id: card for card in task_cards}
+    try:
+        plan_cards = tuple(cards_by_id[action.action_id] for action in plan_actions)
+    except KeyError:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="A plan step is no longer an available capability",
+            correlation_id=intent.correlation_id,
         )
+    proposal = ProposedPlan(
+        steps=tuple(
+            ProposedPlanStep(
+                action_ref=action.action_id,
+                arguments=action.arguments,
+                depends_on=((index - 1,) if index else ()),
+            )
+            for index, action in enumerate(plan_actions)
+        )
+    )
+    runtimes = {}
+    for card in plan_cards:
+        action = card.action
         runtimes[action.action_id] = runtime_registry.resolve(card, connection, principal)
-    return Kernel(
+    kernel = Kernel(
         model,
         StrictDecisionDecoder(),
         PostgresSpacePolicy(
@@ -984,7 +1005,8 @@ def run_reference_plan(
         ),
         store=PostgresObjectiveStore(connection),
         audit=PostgresAuditLog(connection),
-    ).run_sequence(intent, plan_actions, context=context)
+    )
+    return kernel.run_proposed_plan(intent, proposal, plan_cards, context=context)
 
 
 def rewrite_reference_decision(
