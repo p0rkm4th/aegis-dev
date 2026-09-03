@@ -615,7 +615,11 @@ def resolve_reference_safety_fast_paths(
     if recovered_plan_actions is None:
         result = MultiActionFastPath.resolve(intent)
         if result is not None:
-            return result
+            # With the real model enabled, let the strict bounded PLAN
+            # contract attempt the proposal.  The no-model path retains the
+            # deterministic fail-closed response.
+            if not model_enabled:
+                return result
         # A recognized bounded compound plan owns its dependent references;
         # leave it for the existing plan validator/Kernel path.  Unrecognized
         # mutation references still fall through to ContextualMutationGuard.

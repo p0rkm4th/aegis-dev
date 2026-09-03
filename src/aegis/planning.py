@@ -159,7 +159,7 @@ class PlanModificationFastPath:
 class MultiActionFastPath:
     """Reject compound mutations until durable continuation exists."""
 
-    _ACTION = r"(?:add|complete|create|remove|update)"
+    _ACTION = r"(?:add|complete|create|remove|update|put|schedule)"
     _ACTION_INFLECTED = (
         r"(?:add|adding|added|complete|completing|completed|create|creating|created|"
         r"remove|removing|removed|update|updating|updated)"
