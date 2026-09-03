@@ -261,6 +261,51 @@ def test_plan_fidelity_provider_failure_fails_closed() -> None:
     assert result.retryable is True
 
 
+def test_compound_action_cannot_be_reduced_to_one_consequential_action() -> None:
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            if request.classification_only:
+                return ModelResponse(raw={"kind": "ANSWER", "semantic_mode": "ACTION"})
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.ACTION,
+                    semantic_mode="ACTION",
+                    action_ref="first",
+                    action_arguments={},
+                ).model_dump(mode="json")
+            )
+
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                required_permissions=(f"{action_id}.write",),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="add a task and send a message",
+        ),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.CLARIFY
+
+
 def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> None:
     cards = tuple(
         ActionCard(
