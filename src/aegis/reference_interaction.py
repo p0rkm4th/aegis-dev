@@ -822,6 +822,9 @@ def resolve_reference_fast_paths(
         or MultiActionFastPath.task_event_details(intent.utterance) is not None
     ):
         return None
+    contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
+    if contextual_ordinal_result is not None:
+        return contextual_ordinal_result
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
@@ -883,9 +886,6 @@ def resolve_reference_fast_paths(
         if result is not None:
             return result
         result = ContextualCrossDomainPriorityFastPath().resolve(intent, context)
-        if result is not None:
-            return result
-        result = resolve_contextual_ordinal_read(intent, context)
         if result is not None:
             return result
         result = TaskReadFastPath(task_store).resolve(intent)
