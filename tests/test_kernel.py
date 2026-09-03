@@ -145,6 +145,7 @@ from aegis.security_lab import PostgresSecurityLabStore, SecurityLab
 from aegis.store import PostgresObjectiveStore, SqliteObjectiveStore
 from aegis.tasks import (
     ContextualTaskPriorityFastPath,
+    ContextualTaskTemporalFastPath,
     PostgresTaskExecutor,
     PostgresTaskStore,
     PostgresTaskVerifier,
@@ -182,6 +183,32 @@ def test_contextual_task_priority_uses_only_authorized_prior_tasks():
     assert result.state is ObjectiveState.COMPLETED
     assert result.message.endswith("first task")
     assert result.evidence["priority_basis"] == "authorized_prior_result_earliest_due_at"
+
+
+def test_contextual_task_temporal_followup_uses_authorized_task_domain():
+    class Store:
+        def list(self, _principal):
+            return (Task(uuid4(), "apartment", "tomorrow task", "alice"),)
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {"fact_key": "canonical_tasks", "candidates": [{"title": "old"}]}
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualTaskTemporalFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about tomorrow?",
+        ),
+        context,
+        Store(),
+    )
+
+    assert result is not None
+    assert result.evidence["due_filter"] == "tomorrow"
 
 
 class Model:
