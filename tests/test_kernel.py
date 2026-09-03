@@ -3178,6 +3178,17 @@ def test_multi_action_fast_path_preserves_distinct_task_and_event_titles():
     assert details[2].endswith("+00:00")
 
 
+def test_multi_action_fast_path_accepts_scheduled_appointment_language():
+    details = MultiActionFastPath.task_event_details(
+        "Add a task to inspect the fuse box and schedule an appointment to inspect the "
+        "fuse box tomorrow."
+    )
+
+    assert details is not None
+    assert details[0:2] == ("inspect the fuse box", "inspect the fuse box")
+    assert details[2].endswith("+00:00")
+
+
 def test_domain_clarification_fast_path_handles_underspecified_request():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(principal=principal, utterance="Can you take care of the house stuff?")

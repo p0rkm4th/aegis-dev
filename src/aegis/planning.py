@@ -166,13 +166,15 @@ class MultiActionFastPath:
     def task_event_details(cls, utterance: str) -> tuple[str, str, str] | None:
         """Extract a bounded task/event plan with the existing tomorrow rule."""
         text = utterance.casefold().strip().rstrip(".!?")
-        if not ("task" in text and "event" in text and " and " in text):
+        if not ("task" in text and ("event" in text or "appointment" in text) and " and " in text):
             return None
-        if not any(term in text for term in ("add", "complete", "create", "remove", "update")):
+        if not any(
+            term in text for term in ("add", "complete", "create", "remove", "schedule", "update")
+        ):
             return None
         distinct_match = re.search(
             r"\b(?:a\s+)?task\s+(?:to|for)\s+(.+?)\s+and\s+"
-            r"(?:an?\s+)?event\s+(?:to|for)\s+(.+)$",
+            r"(?:(?:schedule|create|add)\s+)?(?:an?\s+)?(?:event|appointment)\s+(?:to|for)\s+(.+)$",
             text,
         )
         if distinct_match is not None:
