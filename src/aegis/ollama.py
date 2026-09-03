@@ -374,7 +374,12 @@ class OllamaProvider:
                     "authorized collection when the current request clearly targets "
                     "one (canonical_items, canonical_tasks, canonical_obligations, "
                     "or planning); omit it for general answers. This is a context "
-                    "hint only, never a permission or fact claim."
+                    "hint only, never a permission or fact claim. For ANSWER requests, "
+                    "set knowledge_source to general_model_knowledge for stable general "
+                    "knowledge, external_evidence for information explicitly requiring "
+                    "current/latest verification, and mixed_evidence only when public "
+                    "research must be combined with authorized local context. This is "
+                    "a source request, not a claim about evidence actually obtained."
                 ),
                 "context_rule": (
                     "Use only the bounded canonical context supplied below to resolve "

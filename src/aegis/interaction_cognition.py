@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 import re
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 from .contracts import (
@@ -212,6 +212,27 @@ def decide_fallback(
                                 return rewritten
                         return classification_decision
             if semantic_mode in {"GENERATION", "READ"}:
+                knowledge_source = (
+                    classification_response.raw.get("knowledge_source")
+                    if isinstance(classification_response.raw, dict)
+                    else None
+                )
+                if knowledge_source in {"external_evidence", "mixed_evidence"}:
+                    research_answer = getattr(dependencies, "research_answer", None)
+                    if research_answer is None:
+                        return Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.FAILED,
+                            message="I couldn't verify current information right now.",
+                            evidence={"source_kind": knowledge_source, "authoritative": False},
+                            correlation_id=intent.correlation_id,
+                            retryable=True,
+                        )
+                    researched = cast(
+                        Result | None, research_answer(intent, context, knowledge_source)
+                    )
+                    if researched is not None:
+                        return researched
                 if semantic_mode == "GENERATION":
                     generated_answer = (
                         classification_response.raw.get("answer")
@@ -223,6 +244,7 @@ def decide_fallback(
                             kind=DecisionKind.ANSWER,
                             answer=generated_answer,
                             semantic_mode="GENERATION",
+                            knowledge_source="general_model_knowledge",
                         )
                 answer_context = context
                 if semantic_mode == "GENERATION":
@@ -247,7 +269,12 @@ def decide_fallback(
                     answer_response, (), allow_argument_proposals=False
                 )
                 if answer.kind is DecisionKind.ANSWER:
-                    return answer.model_copy(update={"semantic_mode": semantic_mode})
+                    return answer.model_copy(
+                        update={
+                            "semantic_mode": semantic_mode,
+                            "knowledge_source": knowledge_source or "general_model_knowledge",
+                        }
+                    )
         routing_only = any(
             permission.endswith(".write")
             for card in cards
