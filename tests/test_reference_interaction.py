@@ -698,6 +698,25 @@ def test_memory_followup_clarifies_when_prior_list_has_multiple_referents() -> N
     assert "Which memory" in result.message
 
 
+def test_memory_followup_does_not_cross_into_memory_without_memory_context() -> None:
+    context = Context(
+        values={"canonical_facts": {"canonical_items": ["rice"]}},
+        sources=("authorized_canonical_result",),
+    )
+
+    result = PersonalMemoryFastPath(PersonalState()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Tell me more about that",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "specific memory" in result.message
+
+
 def test_memory_activity_query_returns_timestamped_memories_without_literal_match() -> None:
     memory = MemoryRecord(
         uuid4(),

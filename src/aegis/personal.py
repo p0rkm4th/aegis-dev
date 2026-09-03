@@ -558,6 +558,16 @@ class PersonalMemoryFastPath:
                 evidence={"memories": list(prior_memories)},
                 correlation_id=intent.correlation_id,
             )
+        elif context is not None and context.sources == ("authorized_canonical_result",):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I need a specific memory or a little more context before I can expand "
+                    "that reference."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         else:
             memories = tuple(
                 memory
