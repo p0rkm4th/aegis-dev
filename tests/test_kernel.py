@@ -331,6 +331,31 @@ def test_contextual_chore_next_never_invents_deadline_order():
     assert "no canonical deadlines" in result.message
 
 
+def test_correction_without_explicit_mutation_cannot_become_new_action():
+    result = ContextualMutationGuard.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, I meant my task list",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "explicit action" in result.message
+
+
+def test_explicit_mutation_after_correction_remains_available_to_normal_grounding():
+    assert (
+        ContextualMutationGuard.resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="Actually, add a task to check the mailbox",
+            )
+        )
+        is None
+    )
+
+
 class Model:
     def __init__(self, response):
         self.response = response
