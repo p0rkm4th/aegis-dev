@@ -547,7 +547,13 @@ class PersonalMemoryFastPath:
             # Conversational wording is not, by itself, a request for private
             # memory.  Let ordinary cognition answer general questions unless
             # an authorized prior memory projection establishes the referent.
-            if context is not None and context.sources == ("authorized_canonical_result",):
+            if (
+                prior_memories is None
+                and context is not None
+                and context.sources == ("authorized_canonical_result",)
+                and isinstance(context.values.get("canonical_facts"), dict)
+                and "memories" in context.values["canonical_facts"]
+            ):
                 return Result(
                     objective_id=uuid4(),
                     state=ObjectiveState.BLOCKED,
