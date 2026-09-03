@@ -66,6 +66,7 @@ class PlanProgressFastPath:
         "what is left",
         "what remains",
         "remaining",
+        "still left",
         "still need",
         "outstanding",
     )
