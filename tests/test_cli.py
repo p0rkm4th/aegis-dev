@@ -3497,6 +3497,14 @@ def test_task_read_fast_path_filters_remaining_task_list_to_open_tasks():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["open task"]
 
 
+def test_context_reset_strips_dash_before_new_objective():
+    from aegis.utterance import strip_context_reset
+
+    assert strip_context_reset("Actually, never mind — what chores need attention?") == (
+        "what chores need attention?"
+    )
+
+
 def test_task_read_fast_path_filters_open_tasks_before_weekend():
     from datetime import datetime, timedelta, timezone
 

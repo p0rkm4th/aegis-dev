@@ -14,7 +14,7 @@ _MARK_DONE = re.compile(
     r"(?:done|complete|completed)[.!?]?$"
 )
 _CONTEXT_RESET_PREFIX = re.compile(
-    r"^(?:actually[,:;\s]+)?(?:never\s+mind|forget\s+that|scratch\s+that)[,:;\s]+"
+    r"^(?:actually[,:;\s]+)?(?:never\s+mind|forget\s+that|scratch\s+that)[,:;\s\-—–]+"
 )
 
 
