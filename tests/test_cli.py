@@ -2899,9 +2899,12 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'id="theme-toggle"' in _INDEX_HTML
     assert "themeStorageKey = 'aegis.theme'" in _INDEX_HTML
     assert "color-scheme:dark" in _INDEX_HTML
+    assert "let initialTheme = 'dark';" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
     assert 'class="secondary" aria-label="Canonical state"' in _INDEX_HTML
-    assert 'placeholder="What can I help with?"' in _INDEX_HTML
+    assert 'placeholder="Talk to AEGIS…"' in _INDEX_HTML
+    assert '<textarea id="utterance"' in _INDEX_HTML
+    assert "Enter to send · Shift+Enter for a new line" in _INDEX_HTML
     assert 'id="conversation"' in _INDEX_HTML
     assert 'id="activity"' in _INDEX_HTML
     assert 'id="health-details"' in _INDEX_HTML
@@ -2918,7 +2921,11 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "event.currentTarget.setAttribute('aria-busy', 'false')" in _INDEX_HTML
     assert "nodes.setAttribute('aria-busy', 'true')" in _INDEX_HTML
     assert "nodes.setAttribute('aria-busy', 'false')" in _INDEX_HTML
-    assert "conversation.append(assistantLine)" in _INDEX_HTML
+    assert "appendConversationMessage('aegis-message'" in _INDEX_HTML
+    assert "appendConversationMessage('owner-message'" in _INDEX_HTML
+    assert "requestSubmit()" in _INDEX_HTML
+    assert "scrollIntoView({block: 'nearest', behavior: 'smooth'})" in _INDEX_HTML
+    assert 'role="log"' in _INDEX_HTML
     assert "renderDetailValue(details[node.id])" in _INDEX_HTML
     assert "aria-pressed" in _INDEX_HTML
     assert 'role="region"' in _INDEX_HTML
