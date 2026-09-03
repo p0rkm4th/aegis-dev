@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import io
+import json
+
 import pytest
 
 from aegis.research import (
@@ -9,6 +12,7 @@ from aegis.research import (
     ResearchService,
     SearchCandidate,
     SearchRequest,
+    SearxngSearchProvider,
     TrafilaturaContentExtractor,
     _validated_url,
     resolve_public,
@@ -172,3 +176,38 @@ def test_mixed_research_marks_local_context_only_after_collection() -> None:
 
     assert answer.source_kind.value == "mixed_evidence"
     assert answer.authoritative is False
+
+
+def test_searxng_adapter_consumes_bounded_json_results(monkeypatch: pytest.MonkeyPatch) -> None:
+    class Response(io.BytesIO):
+        def __enter__(self) -> "Response":
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            self.close()
+
+    payload = json.dumps(
+        {
+            "results": [
+                {"title": "One", "url": "https://public.example/one", "content": "snippet"},
+                {"title": "Two", "url": "https://public.example/two"},
+            ]
+        }
+    ).encode()
+    monkeypatch.setattr("aegis.research.urlopen", lambda *_args, **_kwargs: Response(payload))
+
+    result = SearxngSearchProvider("http://searx.local").search(SearchRequest("public", limit=1))
+
+    assert result == (SearchCandidate("One", "https://public.example/one", "snippet"),)
+
+
+def test_searxng_json_disabled_is_a_provider_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    from urllib.error import HTTPError
+
+    def disabled(*_args: object, **_kwargs: object) -> object:
+        raise HTTPError("http://searx.local/search", 403, "disabled", {}, None)
+
+    monkeypatch.setattr("aegis.research.urlopen", disabled)
+
+    with pytest.raises(RuntimeError, match="SearXNG search failed"):
+        SearxngSearchProvider("http://searx.local").search(SearchRequest("public"))
