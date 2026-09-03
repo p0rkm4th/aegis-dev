@@ -475,14 +475,15 @@ def reference_format_result(result: Any) -> str:
     if evidence.get("canonical_tasks") is not None:
         tasks = evidence["canonical_tasks"]
         display_tasks = tasks[:20]
-        listing = "; ".join(
+        entries = [
             f"{item['title']} ({item['status']})"
             + (f" due {_display_due_at(item['due_at'])}" if item.get("due_at") else "")
             for item in display_tasks
-        )
+        ]
+        listing = "\n".join(f"• {entry}" for entry in entries)
         if len(tasks) > len(display_tasks):
-            listing += f"; … and {len(tasks) - len(display_tasks)} more"
-        return "Tasks: " + (listing if tasks else "(empty)")
+            listing += f"\n… and {len(tasks) - len(display_tasks)} more"
+        return "Tasks: (empty)" if not tasks else "Tasks:\n" + listing
     if evidence.get("memories") is not None:
         memories = evidence["memories"]
         if not memories:
@@ -516,17 +517,17 @@ def reference_format_result(result: Any) -> str:
     if evidence.get("chores") is not None:
         chores = evidence["chores"]
         display_chores = chores[:20]
-        listing = "; ".join(f"{item['title']} ({item['assignee_id']})" for item in display_chores)
+        listing = "\n".join(f"• {item['title']} ({item['assignee_id']})" for item in display_chores)
         if len(chores) > len(display_chores):
-            listing += f"; … and {len(chores) - len(display_chores)} more"
-        return "Chores: " + (listing if chores else "(none)")
+            listing += f"\n… and {len(chores) - len(display_chores)} more"
+        return "Chores: (none)" if not chores else "Chores:\n" + listing
     if evidence.get("events") is not None:
         events = evidence["events"]
         display_events = events[:20]
-        listing = "; ".join(item["title"] for item in display_events)
+        listing = "\n".join(f"• {item['title']}" for item in display_events)
         if len(events) > len(display_events):
-            listing += f"; … and {len(events) - len(display_events)} more"
-        return "Events: " + (listing if events else "(none)")
+            listing += f"\n… and {len(events) - len(display_events)} more"
+        return "Events: (none)" if not events else "Events:\n" + listing
     if isinstance(evidence.get("planning"), dict):
         planning = evidence["planning"]
         summaries: list[str] = []
