@@ -51,7 +51,13 @@ def materialize_proposed_plan(
 class PlanProgressFastPath:
     """Answer bounded progress questions from persisted verified child results."""
 
-    _PROGRESS_TERMS = ("what's left", "what is left", "remaining", "still need")
+    _PROGRESS_TERMS = (
+        "what's left",
+        "what is left",
+        "what remains",
+        "remaining",
+        "still need",
+    )
 
     @classmethod
     def resolve(cls, intent: IntentFrame, context: Any) -> Result | None:

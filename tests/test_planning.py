@@ -143,6 +143,29 @@ def test_plan_progress_reads_only_authorized_persisted_step_state():
     assert result.evidence == {"plan_progress": {"completed": 1, "total": 2}}
 
 
+def test_plan_progress_accepts_what_remains_followup():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What remains?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "plan_steps": [
+                        {"index": 0, "state": "completed"},
+                        {"index": 1, "state": "completed"},
+                    ]
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.message == "All 2 plan steps are complete."
+
+
 def test_plan_progress_does_not_trust_unscoped_context():
     assert (
         PlanProgressFastPath.resolve(
