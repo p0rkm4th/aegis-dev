@@ -473,6 +473,33 @@ def test_reference_task_display_shortens_canonical_due_timestamp() -> None:
     assert result.evidence["canonical_tasks"][0]["due_at"] == due_at
 
 
+def test_contextual_ordinal_task_display_shortens_canonical_due_timestamp() -> None:
+    due_at = "2026-09-04T00:08:21.956546+00:00"
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [{"title": "replace filter", "status": "open", "due_at": due_at}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which task is first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.message == "Task: replace filter (open); due 2026-09-03 19:08 CDT"
+    assert due_at not in result.message
+
+
 def test_reference_chore_display_is_bounded_without_truncating_canonical_evidence() -> None:
     result = Result(
         objective_id=uuid4(),
