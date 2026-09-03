@@ -240,7 +240,12 @@ class MultiActionFastPath:
     def task_chore_titles(cls, utterance: str) -> tuple[str, str] | None:
         """Extract the narrow, reversible task/chore plan supported by Core."""
         text = utterance.casefold().strip().rstrip(".!?")
-        if not ("task" in text and "chore" in text and " and " in text):
+        if (
+            not ("task" in text and "chore" in text and " and " in text)
+            or "event" in text
+            or "appointment" in text
+            or re.search(r"\b(?:schedule|book|arrange)\b", text)
+        ):
             return None
         if not any(term in text for term in ("add", "complete", "create", "remove", "update")):
             return None
@@ -265,7 +270,10 @@ class MultiActionFastPath:
     def task_event_details(cls, utterance: str) -> tuple[str, str, str] | None:
         """Extract a bounded task/event plan with the existing tomorrow rule."""
         text = utterance.casefold().strip().rstrip(".!?")
-        if not ("task" in text and ("event" in text or "appointment" in text) and " and " in text):
+        if (
+            not ("task" in text and ("event" in text or "appointment" in text) and " and " in text)
+            or "chore" in text
+        ):
             return None
         if not any(
             term in text for term in ("add", "complete", "create", "remove", "schedule", "update")
