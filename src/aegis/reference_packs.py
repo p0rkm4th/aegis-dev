@@ -142,11 +142,14 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         required_permissions=("tasks.write",),
                         verification=VerificationContract(kind="readback"),
                     ),
-                    summary="Create a shared household event with a title and time",
+                    summary=(
+                        "Schedule or book a shared household event or appointment with a "
+                        "title and time"
+                    ),
                     relevance=1,
                     argument_keys=("title", "starts_at"),
                     argument_descriptions={
-                        "title": "the event description",
+                        "title": "the event or appointment description",
                         "starts_at": "the user-supplied event start time",
                     },
                 ),
