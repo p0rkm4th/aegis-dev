@@ -66,6 +66,7 @@ from aegis.homelab import HomelabPack, Host, PostgresHomelabStore, Service
 from aegis.household import (
     Chore,
     ChoreCompletionFastPath,
+    ContextualChorePriorityFastPath,
     HouseholdEvent,
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -209,6 +210,31 @@ def test_contextual_task_temporal_followup_uses_authorized_task_domain():
 
     assert result is not None
     assert result.evidence["due_filter"] == "tomorrow"
+
+
+def test_contextual_chore_priority_never_invents_deadline_order():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_chores",
+                    "candidates": [{"title": "clean kitchen", "completed": False}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualChorePriorityFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one should I start with?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no canonical deadlines" in result.message
 
 
 class Model:

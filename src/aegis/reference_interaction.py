@@ -38,6 +38,7 @@ from .homelab import PostgresHomelabStore
 from .household import (
     Chore,
     ChoreCompletionFastPath,
+    ContextualChorePriorityFastPath,
     GroceryReadFastPath,
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -815,6 +816,9 @@ def resolve_reference_fast_paths(
         if result is not None:
             return result
         result = ContextualTaskPriorityFastPath().resolve(intent, context)
+        if result is not None:
+            return result
+        result = ContextualChorePriorityFastPath.resolve(intent, context)
         if result is not None:
             return result
         result = ContextualCrossDomainPriorityFastPath().resolve(intent, context)

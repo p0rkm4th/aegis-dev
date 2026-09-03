@@ -9,6 +9,7 @@ from typing import Any, Protocol, cast
 from uuid import uuid4
 
 from .contracts import (
+    Context,
     ExecutionRequest,
     IntentFrame,
     ObjectiveState,
@@ -518,6 +519,35 @@ class HouseholdReadFastPath:
             state=ObjectiveState.COMPLETED,
             message="Shared household state read",
             evidence=evidence,
+            correlation_id=intent.correlation_id,
+        )
+
+
+class ContextualChorePriorityFastPath:
+    """Refuse to invent chore priority when canonical chores have no deadlines."""
+
+    _TERMS = ("first", "priority", "prioritize", "focus", "start", "begin")
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame, context: Context) -> Result | None:
+        text = " ".join(intent.utterance.casefold().split())
+        if (
+            context.sources != ("authorized_canonical_result",)
+            or is_mutation_request(text)
+            or not any(term in text for term in cls._TERMS)
+        ):
+            return None
+        referents = context.values.get("referents")
+        those = referents.get("those") if isinstance(referents, dict) else None
+        if not isinstance(those, dict) or those.get("fact_key") != "canonical_chores":
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I cannot determine which chore comes first because the referenced chores "
+                "have no canonical deadlines."
+            ),
             correlation_id=intent.correlation_id,
         )
 
