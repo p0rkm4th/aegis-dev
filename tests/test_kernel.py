@@ -962,6 +962,81 @@ def test_postgres_requirement_plan_restart_does_not_replay_verified_step():
         retry_connection.close()
 
 
+@pytest.mark.skipif(
+    not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
+)
+def test_postgres_dependency_readiness_preserves_independent_branch():
+    import psycopg
+
+    principal = Principal(id=f"dependency-{uuid4()}", vault_id=f"vault-{uuid4()}")
+    url = os.environ["AEGIS_TEST_DATABASE_URL"]
+    setup = psycopg.connect(url)
+    setup.execute(
+        "INSERT INTO aegis_principals (id, external_subject) VALUES (%s, %s)",
+        (principal.id, principal.id),
+    )
+    setup.execute(
+        "INSERT INTO vaults (id, owner_principal_id) VALUES (%s, %s)",
+        (principal.vault_id, principal.id),
+    )
+    setup.commit()
+    setup.close()
+
+    class AllowExceptFirst:
+        def authorize(self, request):
+            allowed = request.action.capability != "first"
+            return PolicyDecision(allowed=allowed, reason="ok" if allowed else "revoked")
+
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "independent", "dependent")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    proposal = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="first"),
+            ProposedPlanStep(action_ref="independent"),
+            ProposedPlanStep(action_ref="dependent", depends_on=(0,)),
+        )
+    )
+    connection = psycopg.connect(url)
+    executor = Executor()
+    try:
+        result = Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+            AllowExceptFirst(),
+            executor,
+            Verifier(True),
+            store=PostgresObjectiveStore(connection),
+        ).run_proposed_plan(
+            IntentFrame(principal=principal, utterance="prepare everything"),
+            proposal,
+            cards,
+            objective_spec=objective_spec,
+        )
+    finally:
+        connection.close()
+
+    assert result.state is ObjectiveState.BLOCKED
+    assert executor.calls == 1
+    assert [step["state"] for step in result.evidence["steps"]] == [
+        "blocked",
+        "completed",
+        "blocked",
+    ]
+
+
 def test_kernel_run_sequence_recovers_after_crash_before_aggregate_persistence(tmp_path):
     from aegis.store import SqliteObjectiveStore
 
