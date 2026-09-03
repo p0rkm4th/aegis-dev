@@ -241,6 +241,7 @@ class ModelRequest(StrictModel):
     allow_plan_proposals: bool = False
     capability_scoped: bool = False
     objective_interpretation_only: bool = False
+    source_selection_only: bool = False
 
 
 class ModelResponse(StrictModel):
