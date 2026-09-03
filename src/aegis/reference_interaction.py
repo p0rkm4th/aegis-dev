@@ -794,6 +794,10 @@ def reference_fallback_cards(
         None,
     )
     if is_task_destination_request(utterance):
+        if MultiActionFastPath.matches(utterance):
+            # A compound request needs every bounded action family from the
+            # Tasks Pack; the default five-card shortlist omits events.
+            return tuple(manager.retrieve("tasks", limit=10))[:10]
         return tuple(manager.retrieve("tasks"))[:10]
     cards = manager.retrieve(domain) if domain is not None else manager.enabled_cards()
     return tuple(cards)[:10]
