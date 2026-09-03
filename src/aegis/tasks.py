@@ -75,6 +75,15 @@ def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | 
 
     current = now or datetime.now(timezone.utc)
     text = utterance.casefold().strip()
+    # Owners sometimes put the destination after the deadline ("tomorrow to
+    # my task list").  Remove only this structural destination suffix so the
+    # existing explicit-date parser can still ground the deadline without
+    # treating arbitrary title text as a date.
+    text = re.sub(
+        r"\s+(?:to|on)\s+(?:my\s+)?(?:task\s+list|todo(?:s)?|to-do(?:\s+list)?)[.!?]?$",
+        "",
+        text,
+    ).strip()
     if re.search(r"\btomorrow[.!?]?$", text):
         return (current + timedelta(days=1)).isoformat()
     if re.search(r"\bnext\s+week[.!?]?$", text):
