@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 
 _MUTATION_PREFIX = re.compile(
-    r"^(?:(?:please|kindly)\s+|(?:(?:could|would|can)\s+you\s+)|(?:i\s+need\s+you\s+to\s+))*"
+    r"^(?:(?:actually[,:;\s]+)?(?:please|kindly)\s+|(?:actually[,:;\s]+)?(?:(?:could|would|can)\s+you\s+)|(?:actually[,:;\s]+)?(?:i\s+need\s+you\s+to\s+)|actually[,:;\s]+)?"
     r"(?:(?:i\s+want|i\s+would\s+like|i'd\s+like)\s+to\s+)*"
     r"(?:add|create|update|complete|remove|put|place|jot\s+down)\b"
 )
@@ -32,6 +32,13 @@ def is_mutation_request(utterance: str) -> bool:
     return (
         _MUTATION_PREFIX.match(normalized) is not None or _MARK_DONE.match(normalized) is not None
     )
+
+
+def is_correction_request(utterance: str) -> bool:
+    """Recognize a correction framing without assigning it a new objective."""
+
+    normalized = " ".join(utterance.casefold().split())
+    return normalized.startswith(("no,", "no ", "i meant ", "actually,", "actually "))
 
 
 def is_question_request(utterance: str) -> bool:

@@ -10,7 +10,7 @@ from uuid import uuid4
 from .contracts import ActionCard, ActionSpec, IntentFrame, ObjectiveState, ProposedPlan, Result
 from .personal import PersonalState
 from .tasks import Task
-from .utterance import is_mutation_request
+from .utterance import is_correction_request, is_mutation_request
 
 
 class PlanValidationError(ValueError):
@@ -286,6 +286,16 @@ class ContextualMutationGuard:
     @classmethod
     def resolve(cls, intent: IntentFrame) -> Result | None:
         text = intent.utterance.casefold()
+        if is_correction_request(text) and not is_mutation_request(text):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I will not turn a correction into a new change without an explicit "
+                    "action. Please state what you want me to add, update, or complete."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         if cls._IMPLICIT_ACTION_REFERENCE.fullmatch(text.strip()):
             return Result(
                 objective_id=uuid4(),
