@@ -149,7 +149,8 @@
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
-      ,"M09 objective-fidelity requested-effect boundary at f0a87ae: Core assigns stable action-agnostic RequestedEffect identities only after exact utterance span grounding; optional spaCy structural evidence is reduced to untrusted one-to-one anchors, broad/full-span and duplicate-span coverage is rejected, and negated/superseded effects cannot become action requirements. Deterministic validation passed at 580 tests and hosted run 33816085498 passed. Correlated omission remains measurable; Qwen and owner-runtime evidence are not yet capability-green."
+      ,"M09 objective-fidelity requested-effect boundary at f0a87ae: Core assigns stable action-agnostic RequestedEffect identities only after exact utterance span grounding; optional spaCy structural evidence is reduced to untrusted one-to-one anchors, broad/full-span and duplicate-span coverage is rejected, and negated/superseded effects cannot become action requirements."
+      ,"M09 structural fidelity checkpoint at 3f3df07: optional spaCy 3.8.16 with en_core_web_sm 3.8.0 is provisioned in the owner venv and loaded once per process with optional readiness diagnostics; guarded Qwen3:8B probe recorded zero false mutations/completions but 100% inappropriate clarification on the compound-heavy five-case corpus, so safety is proven while owner capability remains non-green. Hosted run 33819184966 passed."
     ],
     "capability": [
       "M08.08 natural-language capability green remains intentionally unclaimed; exact canaries and partial unseen-family evidence are recorded separately"
@@ -161,7 +162,7 @@
       "M09.09 installed owner proof at 8786394: fresh read 05e98038-4f0d-4cce-bf45-082ac6464300 followed by 'Which of those should I do first?' correlation 1a1ca07f-31cd-4275-a7ee-9c9d4652b00a retained an authorized bounded task projection, selected the earliest recorded deadline ('send the rent receipt'), and performed no mutation; this is novel continuation evidence, not capability-green proof",
       "M11.07 automatic defect harvesting is partially implemented as a bounded owner-feedback inspection report; automatic defect-to-regression/live-re-evaluation orchestration remains unmet",
       "M12.11 mobile/chat remains lane-limited"
-      ,"M09 requested-effect structural coverage remains partial: the parser-neutral Core gate and optional spaCy adapter are implemented and tested; fresh Qwen3:8B probe on five new cases at f0a87ae had zero decoder failures and zero false completions but two unsafe single-action reductions for negation/correction, so no capability-green claim is made and owner promotion is pending"
+      ,"M09 requested-effect structural coverage remains partial: the parser-neutral Core gate and optional spaCy adapter are implemented and tested; the guarded Qwen3:8B probe at 3f3df07 has zero decoder failures, false mutations, and false completions, but over-clarifies the compound-heavy probe, so no capability-green claim is made"
     ]
   },
   "completed_checkpoints": {
@@ -185,21 +186,21 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f0a87ae",
-  "deterministic_green_sha": "f0a87ae",
-  "last_pushed_sha": "f0a87ae",
-  "hosted_ci_green_sha": "f0a87ae",
+  "repository_head_sha": "3f3df07",
+  "deterministic_green_sha": "3f3df07",
+  "last_pushed_sha": "3f3df07",
+  "hosted_ci_green_sha": "3f3df07",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33816085498",
-    "commit_sha": "f0a87ae",
+    "run_id": "33819184966",
+    "commit_sha": "3f3df07",
     "conclusion": "success",
     "observed_at": "2026-09-03T09:18:00Z"
   },
-  "installed_release_sha": "91ace99",
-  "running_release_sha": "91ace99",
-  "live_green_sha": "91ace99",
+  "installed_release_sha": "3f3df07",
+  "running_release_sha": "3f3df07",
+  "live_green_sha": "3f3df07",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -214,14 +215,14 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "91ace99",
-    "last_known_green_sha": "91ace99",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/91ace99",
+    "running_sha": "3f3df07",
+    "last_known_green_sha": "3f3df07",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/3f3df07",
     "repository_head_sha": "99128f9",
     "deterministic_green_sha": "875bb60",
-    "installed_release_sha": "91ace99",
-    "running_release_sha": "91ace99",
-    "live_green_sha": "91ace99",
+    "installed_release_sha": "3f3df07",
+    "running_release_sha": "3f3df07",
+    "live_green_sha": "3f3df07",
     "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, hosted validation, and installed/running owner release are green through source checkpoint eaa51e3 (hosted run 33737725833); the owner release is separately promoted and verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
@@ -1239,9 +1240,9 @@
     "owner_fresh_event_task_plan_rotation_checkpoint": "partial installed owner evidence on release 0dc1871: a fresh session completed a filtered Friday appointment read, event ordinal grounding, safe non-unique correction clarification, natural next-week task creation, due-first task priority, a two-step task-plus-event objective, persisted progress, and verified-step skip protection. No unsafe mutation, state corruption, duplicate execution, or developer repair occurred; restart-in-session and broader acceptance remain incomplete.",
     "repository_head_sha": "91ace99",
     "hosted_ci_green_sha": "91ace99",
-    "installed_release_sha": "91ace99",
-    "running_release_sha": "91ace99",
-    "live_green_sha": "91ace99",
+    "installed_release_sha": "3f3df07",
+    "running_release_sha": "3f3df07",
+    "live_green_sha": "3f3df07",
     "owner_recent_action_followup_checkpoint": "partial installed owner evidence on release 1d03320 after hosted validation run 33733861886: in a fresh authenticated session, 'Please add a task to review the backup checklist next Thursday.' completed with canonical verification, and browser-equivalent context follow-up 'What did you just add?' returned the prior task result without a second mutation. This proves one recent-result referent family; broader continuity, corrections, and daily-driver acceptance remain incomplete.",
     "owner_due_first_followup_checkpoint": "partial installed owner evidence on release 1eb335b after hosted validation run 33734552646: a fresh authenticated session read open tasks due today, then the browser-equivalent follow-up 'Which one is due first?' returned the earliest canonical deadline ('call the landlord') rather than ordinal item one. The precedence fix preserves ordinary ordinal reads; broader referents, corrections, and daily-driver acceptance remain incomplete.",
     "owner_ordinal_correction_rotation_checkpoint": "partial installed owner evidence on release f21e4b4 after hosted validation run 33734975416: a fresh authenticated session read the first open tasks due today, resolved 'Which task is second?' to the second authorized task ('call the dentist'), and then answered 'Actually, not that one.' with a safe task clarification. No mutation occurred; broader correction families and sustained daily-driver acceptance remain incomplete.",
