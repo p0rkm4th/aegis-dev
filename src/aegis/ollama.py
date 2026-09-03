@@ -151,8 +151,9 @@ class OllamaProvider:
         # provider response without a mode is ambiguous at the boundary and
         # cannot safely support grounded recovery or action routing.
         required = schema.setdefault("required", [])
-        if "semantic_mode" not in required:
-            required.append("semantic_mode")
+        for field in ("semantic_mode", "knowledge_source"):
+            if field not in required:
+                required.append(field)
         if action_ref_only:
             properties = schema.get("properties")
             if isinstance(properties, dict):
