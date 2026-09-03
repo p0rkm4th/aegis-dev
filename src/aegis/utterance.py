@@ -87,4 +87,6 @@ def is_task_destination_request(utterance: str) -> bool:
     """Recognize an explicit task-list destination for action conflict checks."""
 
     normalized = " ".join(utterance.casefold().split())
-    return any(term in normalized for term in ("todo", "to-do", "task list", "things to do"))
+    return any(term in normalized for term in ("todo", "to-do", "task list", "things to do")) or (
+        re.search(r"\b(?:my|the)\s+tasks?\b", normalized) is not None
+    )
