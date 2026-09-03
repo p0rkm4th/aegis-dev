@@ -25,6 +25,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_format_result,
     resolve_contextual_ordinal_read,
+    resolve_contextual_remaining,
     rewrite_reference_decision,
 )
 from aegis.tasks import Task, requested_task_due_at
@@ -70,6 +71,34 @@ def test_contextual_ordinal_read_stays_in_authorized_task_domain():
     assert result.state is ObjectiveState.COMPLETED
     assert result.message == "Task: second task (open); due 2026-09-03"
     assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
+
+
+def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "done task", "status": "completed"},
+                        {"title": "remaining task", "status": "open"},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_remaining(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What's left?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.evidence["canonical_tasks"] == [{"title": "remaining task", "status": "open"}]
 
 
 def test_contextual_ordinal_read_stays_in_authorized_grocery_domain():

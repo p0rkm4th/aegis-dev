@@ -797,6 +797,10 @@ def resolve_reference_fast_paths(
         result = resolve_contextual_ordinal_read(intent, context)
         if result is not None:
             return result
+    if composed_title is None:
+        result = resolve_contextual_remaining(intent, context)
+        if result is not None:
+            return result
     if composed_title is None and HouseholdReadFastPath.matches(utterance):
         result = HouseholdReadFastPath(snapshot).resolve(intent)
         if result is not None:
@@ -917,6 +921,37 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             correlation_id=intent.correlation_id,
         )
     return None
+
+
+def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Result | None:
+    """Return unfinished members of an authorized prior task projection."""
+
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    if is_mutation_request(text) or text not in {
+        "what's left",
+        "what is left",
+        "what remains",
+        "what's remaining",
+        "what is remaining",
+    }:
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_tasks":
+        return None
+    candidates = those.get("candidates")
+    if not isinstance(candidates, list):
+        return None
+    remaining = [
+        item for item in candidates if isinstance(item, dict) and item.get("status") != "completed"
+    ]
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Canonical task list read",
+        evidence={"collection": "tasks", "canonical_tasks": remaining},
+        correlation_id=intent.correlation_id,
+    )
 
 
 def run_reference_plan(
