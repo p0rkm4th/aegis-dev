@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "770d150",
+  "repository_head_sha": "5448870",
   "deterministic_green_sha": "573de0a",
-  "last_pushed_sha": "770d150",
-  "hosted_ci_green_sha": "770d150",
+  "last_pushed_sha": "5448870",
+  "hosted_ci_green_sha": "5448870",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33740774706",
-    "commit_sha": "770d150",
+    "run_id": "33741005289",
+    "commit_sha": "5448870",
     "conclusion": "success",
     "observed_at": "2026-09-03T08:34:41Z"
   },
@@ -214,8 +214,8 @@
     "status": "active_authenticated_loopback",
     "running_sha": "770d150",
     "last_known_green_sha": "770d150",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/875bb60",
-    "repository_head_sha": "770d150",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/770d150",
+    "repository_head_sha": "5448870",
     "deterministic_green_sha": "875bb60",
     "installed_release_sha": "770d150",
     "running_release_sha": "770d150",
@@ -1254,5 +1254,6 @@
     "owner_model_plan_shape_checkpoint": "partial owner evidence on release 0532fd5 and hosted run 33740066119: a raw same-contract Qwen3:8B probe changed from a malformed PLAN carrying ACTION fields to a strict two-step plan object after a bounded prompt-contract clarification. Strict decoding remained unchanged and rejects mixed/malformed proposals.",
     "owner_plan_argument_grounding_checkpoint": "green installed owner evidence on release 770d150 after hosted run 33740774706: a fresh natural cross-domain objective 'Add checking the patio lights to my task list and schedule a guest room inspection for Friday.' completed two independently verified steps through the existing Kernel path. Proposed task arguments were preserved while the existing Pack grounder normalized the Friday deadline; no duplicate execution or state repair occurred.",
     "owner_plan_failure_autopsy_checkpoint": "partial owner evidence on releases 9ca0ecd and 770d150: the first live plan attempt exposed that plan grounding received empty retrieved-card arguments and dropped the proposed title, producing canonical invalid_title/execution failures. The durable handoff fix preserves step arguments before existing domain grounding; the subsequent patio-lights/guest-room plan completed. Broader natural plan-family and 20-turn daily-driver acceptance remain incomplete.",
+    "owner_plan_variance_followup_checkpoint": "partial installed owner evidence on release 770d150: a fresh patio-lantern/task plus guest-room/event objective completed with two canonical verified child steps (correlation 11d16da5-c748-4920-a518-02af2c68a65d), while a different fresh wording twice failed closed before plan creation despite isolated same-contract probes returning valid PLAN decisions. Follow-ups without a persisted plan clarified safely; this remains Qwen3:8B multi-pass variance evidence, not a phrase-specific routing target.",
     "next_action": "Continue M09 daily-driver work: run fresh owner sessions focused on corrections, natural compound objectives, and bounded plan continuation; classify the next friction without phrase-specific routing."
 }
