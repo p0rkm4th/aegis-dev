@@ -242,6 +242,28 @@ def test_contextual_task_temporal_followup_uses_cross_domain_planning_tasks():
     assert result.evidence["due_filter"] == "tomorrow"
 
 
+def test_contextual_task_temporal_followup_uses_authorized_priority_task_focus():
+    class Store:
+        def list(self, _principal):
+            return (Task(uuid4(), "apartment", "tomorrow task", "alice"),)
+
+    context = Context(
+        values={"canonical_facts": {"task": {"title": "current priority task"}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualTaskTemporalFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about tomorrow?",
+        ),
+        context,
+        Store(),
+    )
+
+    assert result is not None
+    assert result.evidence["due_filter"] == "tomorrow"
+
+
 def test_contextual_chore_priority_never_invents_deadline_order():
     context = Context(
         values={
