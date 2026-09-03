@@ -17,16 +17,18 @@ from .contracts import (
     ModelRequest,
     ModelResponse,
     Objective,
+    ObjectiveSpec,
     ObjectiveState,
     Observation,
     ProposedPlan,
     Result,
+    ValidatedPlan,
     VerificationResult,
     WorkingSet,
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .fastpath import DeterministicFastPath, NoopFastPath
-from .planning import materialize_proposed_plan
+from .planning import materialize_proposed_plan, materialize_validated_plan
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
 from .store import InMemoryObjectiveStore, ObjectiveStore
 
@@ -363,6 +365,8 @@ class Kernel:
         intent: IntentFrame,
         actions: tuple[ActionSpec, ...],
         context: Context | None = None,
+        objective_spec: ObjectiveSpec | None = None,
+        validated_plan: ValidatedPlan | None = None,
     ) -> Result:
         """Execute a bounded durable sequence through the ordinary Core path.
 
@@ -383,7 +387,13 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
         if objective is not None:
-            if objective.steps != actions:
+            if (
+                objective.steps != actions
+                or objective_spec is not None
+                and objective.objective_spec != objective_spec
+                or validated_plan is not None
+                and objective.validated_plan != validated_plan
+            ):
                 return Result(
                     objective_id=objective.id,
                     state=ObjectiveState.BLOCKED,
@@ -408,6 +418,8 @@ class Kernel:
                 intent=intent,
                 correlation_id=intent.correlation_id,
                 steps=actions,
+                objective_spec=objective_spec,
+                validated_plan=validated_plan,
             )
             self.store.save_objective(objective)
         step_results: list[dict[str, object]] = []
@@ -473,8 +485,19 @@ class Kernel:
         proposal: ProposedPlan,
         cards: tuple[ActionCard, ...],
         context: Context | None = None,
+        objective_spec: ObjectiveSpec | None = None,
     ) -> Result:
         """Validate a proposal against candidates, then reuse durable sequence execution."""
 
+        if objective_spec is not None:
+            objective_id = uuid5(intent.correlation_id, "objective-completeness")
+            validated = materialize_validated_plan(objective_id, objective_spec, proposal, cards)
+            return self.run_sequence(
+                intent,
+                tuple(step.action for step in validated.steps),
+                context=context,
+                objective_spec=objective_spec,
+                validated_plan=validated,
+            )
         actions = materialize_proposed_plan(proposal, cards)
         return self.run_sequence(intent, actions, context=context)
