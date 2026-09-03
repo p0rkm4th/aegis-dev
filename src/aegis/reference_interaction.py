@@ -978,7 +978,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             detail += f"; due {_display_due_at(due_at)}"
         starts_at = referent.get("starts_at")
         if isinstance(starts_at, str):
-            detail += f"; starts {starts_at}"
+            detail += f"; starts {_display_due_at(starts_at)}"
         collection_evidence = {
             "collection": fact_key,
             "authorized_ordinal_referent": referent,
