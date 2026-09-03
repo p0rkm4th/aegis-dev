@@ -659,7 +659,10 @@ class TaskPriorityFastPath:
         text = utterance.casefold()
         if is_mutation_request(text) or any(domain in text for domain in cls._NON_TASK_DOMAINS):
             return False
-        priority_language = any(term in text for term in ("first", "priorit", "focus", "next"))
+        temporal_priority = "tomorrow" in text and "should i do" in text
+        priority_language = temporal_priority or any(
+            term in text for term in ("first", "priorit", "focus", "next")
+        )
         if not priority_language:
             return False
         explicit_task = "task" in text
@@ -680,13 +683,19 @@ class TaskPriorityFastPath:
             task for task in self.store.list(intent.principal) if task.status is TaskStatus.OPEN
         )
         dated = tuple(task for task in open_tasks if task.due_at is not None)
+        requested = requested_task_due_at(intent.utterance)
+        if requested is not None and "tomorrow" in intent.utterance.casefold():
+            target_date = datetime.fromisoformat(requested).date()
+            dated = tuple(
+                task for task in dated if _aware_datetime(task.due_at).date() == target_date
+            )
         if not dated:
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
                 message=(
-                    "I cannot ground a first priority because none of your open tasks "
-                    "has a deadline."
+                    "I cannot ground a priority because none of your open tasks has a "
+                    "matching deadline."
                 ),
                 correlation_id=intent.correlation_id,
             )
@@ -702,7 +711,11 @@ class TaskPriorityFastPath:
             message=f"Based on the earliest recorded deadline, start with: {selected.title}",
             evidence={
                 "collection": "tasks",
-                "priority_basis": "earliest_due_at",
+                "priority_basis": (
+                    "earliest_due_at_on_tomorrow"
+                    if requested is not None and "tomorrow" in intent.utterance.casefold()
+                    else "earliest_due_at"
+                ),
                 "task": _task_projection(selected),
             },
             correlation_id=intent.correlation_id,

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
 import pytest
@@ -3161,6 +3161,39 @@ def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
         assert result.evidence["task"]["title"] == "call the dentist"
 
     assert not TaskPriorityFastPath.matches("which groceries should I buy first?")
+
+
+def test_task_priority_fast_path_filters_temporal_should_do_request():
+    tomorrow = Task(
+        uuid4(),
+        "apartment",
+        "call the dentist",
+        "alice",
+        due_at=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+    later = Task(
+        uuid4(),
+        "apartment",
+        "renew insurance",
+        "alice",
+        due_at=datetime.now(timezone.utc) + timedelta(days=2),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (tomorrow, later)
+
+    result = TaskPriorityFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="what should I do tomorrow?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["priority_basis"] == "earliest_due_at_on_tomorrow"
+    assert result.evidence["task"]["title"] == "call the dentist"
 
 
 def test_task_read_fast_path_exposes_canonical_due_at():
