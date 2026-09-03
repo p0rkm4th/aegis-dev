@@ -810,6 +810,9 @@ def resolve_reference_fast_paths(
     progress_result = PlanProgressFastPath.resolve(intent, context)
     if progress_result is not None:
         return progress_result
+    recent_action_result = resolve_contextual_recent_action_read(intent, context)
+    if recent_action_result is not None:
+        return recent_action_result
     # A recognized compound mutation must reach the plan runner before any
     # domain read fast path.  Continuation context may contain the word
     # "task" (or a relative date), but that must not collapse a plan into a
@@ -1067,6 +1070,54 @@ def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Resul
         state=ObjectiveState.COMPLETED,
         message="Canonical collection read",
         evidence={"collection": fact_key, **evidence},
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_recent_action_read(intent: IntentFrame, context: Context) -> Result | None:
+    """Read the immediately preceding canonical action result.
+
+    This is a bounded referent, not a new semantic router: it only exposes a
+    title already returned by the authorized prior Result and never performs
+    or authorizes another action.
+    """
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    if "just" not in text or not text.startswith(("what did", "what was", "what have")):
+        return None
+    facts = context.values.get("canonical_facts")
+    if not isinstance(facts, dict):
+        return None
+    title = facts.get("title")
+    collection = facts.get("collection")
+    if not isinstance(title, str) or not title.strip() or not isinstance(collection, str):
+        return None
+    labels = {
+        "tasks": "task",
+        "chores": "chore",
+        "events": "event",
+        "groceries": "grocery item",
+    }
+    label = labels.get(collection)
+    if label is None:
+        return None
+    status = facts.get("status")
+    if status == "completed":
+        message = f"{label.title()}: {title} (completed)"
+    else:
+        message = f"{label.title()}: {title}"
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=message,
+        evidence={
+            "collection": collection,
+            "title": title,
+            "status": status,
+            "referent": "prior_result",
+        },
         correlation_id=intent.correlation_id,
     )
 

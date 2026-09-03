@@ -25,6 +25,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_format_result,
     resolve_contextual_ordinal_read,
+    resolve_contextual_recent_action_read,
     resolve_contextual_remaining,
     resolve_reference_fast_paths,
     resolve_reference_safety_fast_paths,
@@ -476,6 +477,30 @@ def test_compact_task_context_prioritizes_deadlines_for_model_working_set() -> N
         tasks[1],
         tasks[0],
     ]
+
+
+def test_recent_canonical_action_result_can_answer_follow_up_without_model() -> None:
+    context = Context(
+        values={
+            "canonical_facts": {
+                "collection": "tasks",
+                "title": "check the backup checklist",
+                "status": "open",
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_recent_action_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What did you just add?",
+        ),
+        context,
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Task: check the backup checklist"
+    assert result.evidence["referent"] == "prior_result"
 
 
 def test_compact_planning_context_preserves_open_chores() -> None:
