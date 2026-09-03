@@ -653,6 +653,8 @@ def build_reference_fallback_context(
     values = dict(context.values)
     values.setdefault("as_of_date", datetime.now(timezone.utc).date().isoformat())
     facts = dict(values.get("canonical_facts", {}))
+    if "plan_steps" in facts:
+        return Context(values=values, sources=context.sources)
     if "canonical_items" in facts or "canonical_tasks" in facts:
         return Context(
             values=values,
