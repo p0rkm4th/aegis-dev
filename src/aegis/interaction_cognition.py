@@ -445,16 +445,27 @@ def decide_fallback(
                     raise ValueError("objective effects were not grounded")
             except Exception as exc:
                 raise InvalidDecision("objective fidelity failed its strict schema") from exc
-            objective_spec = decision.objective_spec or independent_spec
-            if decision.objective_spec is not None:
-                verdict = compare_objective_proposals(decision.objective_spec, independent_spec)
-                if verdict is not ObjectiveFidelityVerdict.COMPLETE:
-                    return Decision(
-                        kind=DecisionKind.CLARIFY,
-                        clarification=fidelity_message(verdict),
-                        semantic_mode="CLARIFY",
-                    )
-            decision = decision.model_copy(update={"objective_spec": objective_spec})
+            if decision.objective_spec is None:
+                # Independent effect segmentation can check a primary
+                # interpretation, but it cannot become that interpretation.
+                # Without the primary ObjectiveSpec there is no independent
+                # fidelity comparison and therefore no canonical objective.
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=(
+                        "I could not establish the complete requested objective safely; "
+                        "please clarify the changes."
+                    ),
+                    semantic_mode="CLARIFY",
+                )
+            verdict = compare_objective_proposals(decision.objective_spec, independent_spec)
+            if verdict is not ObjectiveFidelityVerdict.COMPLETE:
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=fidelity_message(verdict),
+                    semantic_mode="CLARIFY",
+                )
+            decision = decision.model_copy(update={"objective_spec": decision.objective_spec})
         if routing_only and decision.kind is DecisionKind.ANSWER:
             reconsidered = decoder.decode(
                 provider.decide(request), request.action_cards, allow_argument_proposals=True
