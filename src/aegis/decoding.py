@@ -7,6 +7,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from .contracts import ActionCard, ActionSpec, Decision, DecisionKind, ModelResponse
+from .planning import PlanValidationError, materialize_proposed_plan
 
 
 class InvalidDecision(ValueError):
@@ -79,6 +80,19 @@ class StrictDecisionDecoder:
                     # canonicalize the proposal before policy or execution.
                     return decision.model_copy(update={"action": card.action})
                 raise InvalidDecision("action is not an exact match for a retrieved ActionCard")
+        elif decision.kind is DecisionKind.PLAN:
+            if not allow_argument_proposals:
+                raise InvalidDecision("plan proposals require bounded proposal mode")
+            if decision.semantic_mode not in {None, "ACTION"}:
+                raise InvalidDecision("PLAN decision must use semantic_mode ACTION")
+            if decision.plan is None or len(decision.plan.steps) < 2:
+                raise InvalidDecision("PLAN requires at least two steps")
+            try:
+                materialize_proposed_plan(decision.plan, cards)
+            except PlanValidationError as exc:
+                raise InvalidDecision(str(exc)) from exc
+            if decision.action is not None or decision.action_ref is not None:
+                raise InvalidDecision("PLAN cannot contain a single action proposal")
         elif decision.kind is DecisionKind.ANSWER:
             if decision.semantic_mode not in {None, "READ", "GENERATION"}:
                 raise InvalidDecision("ANSWER decision must use semantic_mode READ or GENERATION")

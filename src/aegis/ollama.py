@@ -191,6 +191,15 @@ class OllamaProvider:
                         )
                     )
                 ),
+                "plan_rule": (
+                    "For PLAN, use only when the objective clearly requires multiple state "
+                    "changes. Set semantic_mode to ACTION and provide 2-5 steps, each with "
+                    "an exact action_ref from the supplied ActionCards, only declared "
+                    "arguments, and dependencies that point to earlier steps. If one action "
+                    "is sufficient, return ACTION instead. Never invent capabilities."
+                    if request.allow_plan_proposals
+                    else "Plan proposals are disabled; return at most one action."
+                ),
                 "action_rule": (
                     "For ACTION, set action_ref to exactly one action_id from the supplied "
                     "ActionCards and put only declared argument values in action_arguments. "

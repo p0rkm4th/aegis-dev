@@ -150,6 +150,7 @@ def decide_fallback(
             action_cards=cards,
             allow_argument_proposals=True,
             routing_only=routing_only,
+            allow_plan_proposals=True,
         )
         decoder = StrictDecisionDecoder()
         decision: Decision | None = None

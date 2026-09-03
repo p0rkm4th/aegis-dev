@@ -20,6 +20,7 @@ class StrictModel(BaseModel):
 
 class DecisionKind(StrEnum):
     ACTION = "ACTION"
+    PLAN = "PLAN"
     ANSWER = "ANSWER"
     NEED_CONTEXT = "NEED_CONTEXT"
     CLARIFY = "CLARIFY"
@@ -109,6 +110,7 @@ class Decision(StrictModel):
     action: ActionSpec | None = None
     action_ref: str | None = None
     action_arguments: dict[str, Any] = {}
+    plan: ProposedPlan | None = None
     clarification: str | None = None
     reason: str | None = None
     semantic_mode: Literal["GENERATION", "READ", "ACTION", "CLARIFY"] | None = None
@@ -187,6 +189,7 @@ class ModelRequest(StrictModel):
     allow_argument_proposals: bool = False
     routing_only: bool = False
     classification_only: bool = False
+    allow_plan_proposals: bool = False
 
 
 class ModelResponse(StrictModel):
