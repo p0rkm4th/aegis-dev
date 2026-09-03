@@ -459,7 +459,50 @@ class Kernel:
                 ]
             return evidence
 
+        completed_requirement_ids: set[UUID] = set()
+        had_failure = False
         for index, action in enumerate(actions):
+            if validated_plan is not None:
+                validated_step = validated_plan.steps[index]
+                dependency_states: list[ObjectiveState] = []
+                for dependency_id in validated_step.depends_on:
+                    dependency = next(
+                        (
+                            candidate
+                            for candidate in validated_plan.steps
+                            if candidate.step_id == dependency_id
+                        ),
+                        None,
+                    )
+                    if dependency is None:
+                        dependency_states.append(ObjectiveState.BLOCKED)
+                        continue
+                    dependency_index = validated_plan.steps.index(dependency)
+                    dependency_correlation = uuid5(
+                        intent.correlation_id,
+                        f"aegis-plan-step:{dependency_index}:{dependency.action.action_id}",
+                    )
+                    dependency_key = f"{dependency_correlation}:{dependency.action.action_id}"
+                    dependency_result = self.store.get_result(dependency_key)
+                    if dependency_result is not None:
+                        dependency_states.append(dependency_result.state)
+                    elif dependency.requirement_id in completed_requirement_ids:
+                        dependency_states.append(ObjectiveState.COMPLETED)
+                    else:
+                        dependency_states.append(ObjectiveState.BLOCKED)
+                if any(state is not ObjectiveState.COMPLETED for state in dependency_states):
+                    step_results.append(
+                        {
+                            "index": index,
+                            "action_id": action.action_id,
+                            "state": ObjectiveState.BLOCKED.value,
+                            "objective_id": str(objective.id),
+                            "correlation_id": str(intent.correlation_id),
+                            "message": "A verified prerequisite is not available",
+                            "requirement_id": str(validated_step.requirement_id),
+                        }
+                    )
+                    continue
             step_correlation = uuid5(
                 intent.correlation_id, f"aegis-plan-step:{index}:{action.action_id}"
             )
@@ -496,8 +539,11 @@ class Kernel:
                 }
             )
             if result.state is ObjectiveState.COMPLETED and validated_plan is not None:
+                completed_requirement_ids.add(validated_plan.steps[index].requirement_id)
                 satisfied_requirement_ids.add(validated_plan.steps[index].requirement_id)
-            if result.state is not ObjectiveState.COMPLETED:
+            if result.state is ObjectiveState.FAILED:
+                had_failure = True
+            if result.state is not ObjectiveState.COMPLETED and validated_plan is None:
                 objective = objective.model_copy(update={"state": result.state})
                 self.store.save_objective(objective)
                 aggregate = Result(
@@ -513,11 +559,12 @@ class Kernel:
         if objective_spec is not None and not objective_requirements_satisfied(
             objective_spec, satisfied_requirement_ids
         ):
-            objective = objective.model_copy(update={"state": ObjectiveState.BLOCKED})
+            incomplete_state = ObjectiveState.FAILED if had_failure else ObjectiveState.BLOCKED
+            objective = objective.model_copy(update={"state": incomplete_state})
             self.store.save_objective(objective)
             return Result(
                 objective_id=objective.id,
-                state=ObjectiveState.BLOCKED,
+                state=incomplete_state,
                 message=(
                     "Objective remains incomplete because a requested requirement is unsatisfied"
                 ),

@@ -131,6 +131,15 @@ class ObjectiveSpecProposal(StrictModel):
     requirements: tuple[ObjectiveRequirementProposal, ...] = Field(min_length=1, max_length=5)
 
 
+class ObjectiveFidelityVerdict(StrEnum):
+    """Core-owned comparison result for an independently proposed objective."""
+
+    COMPLETE = "COMPLETE"
+    MISSING_REQUIREMENT = "MISSING_REQUIREMENT"
+    EXTRA_REQUIREMENT = "EXTRA_REQUIREMENT"
+    NEED_CLARIFICATION = "NEED_CLARIFICATION"
+
+
 class ValidatedPlanStep(StrictModel):
     """Core-bound plan step with stable identity and one requirement owner."""
 
@@ -242,6 +251,7 @@ class ModelRequest(StrictModel):
     capability_scoped: bool = False
     objective_interpretation_only: bool = False
     source_selection_only: bool = False
+    objective_fidelity_only: bool = False
 
 
 class ModelResponse(StrictModel):
