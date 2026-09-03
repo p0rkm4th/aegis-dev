@@ -1360,6 +1360,7 @@ def resolve_reference_pre_model(
 
     explicit_compound_mutation = (
         is_mutation_request(utterance)
+        or MultiActionFastPath.matches(utterance)
         or MultiActionFastPath.task_chore_titles(utterance) is not None
         or MultiActionFastPath.task_event_details(utterance) is not None
     )
