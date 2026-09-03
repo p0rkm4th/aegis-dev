@@ -30,7 +30,7 @@ def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal
 
     return all(
         0 <= start < end <= len(utterance)
-        and utterance[start:end].strip() == effect.effect_text.strip()
+        and utterance[start:end].strip().casefold() == effect.effect_text.strip().casefold()
         for effect in effects
         for start, end in (effect.source_span,)
     )
@@ -49,10 +49,12 @@ def normalize_effect_spans(
             or utterance[start:end].strip() != effect.effect_text.strip()
         ):
             matches: list[int] = []
-            cursor = utterance.find(effect.effect_text)
+            source = utterance.casefold()
+            target = effect.effect_text.casefold()
+            cursor = source.find(target)
             while cursor >= 0:
                 matches.append(cursor)
-                cursor = utterance.find(effect.effect_text, cursor + 1)
+                cursor = source.find(target, cursor + 1)
             if len(matches) != 1:
                 return None
             start = matches[0]
