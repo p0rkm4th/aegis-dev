@@ -1255,6 +1255,14 @@ def ground_reference_action(
 
     principal = intent.principal
     if card.action.action_id == "tasks.complete":
+        text = intent.utterance.casefold()
+        if "chore" in text and "task" not in text:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="I could not safely match that chore to a personal task.",
+                correlation_id=intent.correlation_id,
+            )
         title = card.action.arguments.get("title")
         referent = (
             resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks")
@@ -1318,6 +1326,14 @@ def ground_reference_action(
                 return completion_result
 
     if card.action.action_id == "tasks.chores.complete":
+        text = intent.utterance.casefold()
+        if "task" in text and "chore" not in text:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="I could not safely match that task to a household chore.",
+                correlation_id=intent.correlation_id,
+            )
         title = card.action.arguments.get("title")
         referent = (
             resolve_obvious_ordinal(intent.utterance, context, "canonical_chores")

@@ -44,6 +44,45 @@ def _task_card(arguments: dict[str, object]) -> ActionCard:
     )
 
 
+def test_task_completion_cannot_ground_a_chore_referent_from_wrong_context():
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            arguments={"title": "Review backup architecture"},
+        ),
+        summary="Complete a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    result = ground_reference_action(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which chore is second?",
+        ),
+        card,
+        None,
+        None,
+        PersonalState(),
+        None,
+        None,
+        None,
+        None,
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_tasks",
+                        "candidates": [{"title": "Review backup architecture", "status": "open"}],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+    assert result.state is ObjectiveState.BLOCKED
+
+
 def test_contextual_ordinal_read_stays_in_authorized_task_domain():
     context = Context(
         values={
