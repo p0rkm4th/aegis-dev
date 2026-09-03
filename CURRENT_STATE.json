@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5195b18",
+  "repository_head_sha": "f07b12c",
   "deterministic_green_sha": "573de0a",
-  "last_pushed_sha": "5195b18",
-  "hosted_ci_green_sha": "5195b18",
+  "last_pushed_sha": "f07b12c",
+  "hosted_ci_green_sha": "f07b12c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
     "run_id": "33742925355",
-    "commit_sha": "5195b18",
+    "commit_sha": "f07b12c",
     "conclusion": "success",
     "observed_at": "2026-09-03T08:34:41Z"
   },
@@ -215,7 +215,7 @@
     "running_sha": "c0ce3ff",
     "last_known_green_sha": "c0ce3ff",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/c0ce3ff0dab829c8134c8d2f1135c85c6fd52b4d",
-    "repository_head_sha": "5195b18",
+    "repository_head_sha": "f07b12c",
     "deterministic_green_sha": "875bb60",
     "installed_release_sha": "c0ce3ff",
     "running_release_sha": "c0ce3ff",
@@ -1266,5 +1266,6 @@
     "owner_rendered_plan_continuation_checkpoint": "partial installed-owner rendered browser evidence on release b3db5c0: a fresh natural task-plus-appointment objective completed both verified child steps; 'What is still left on that plan?' reconstructed persisted progress and reported all two steps complete; and 'Actually, skip the inspection part.' refused to rewrite verified history, requiring a new independently authorized compensating action. No duplicate execution or state corruption occurred; pending-step modification and sustained daily-driver acceptance remain incomplete.",
     "owner_three_part_plan_coverage_checkpoint": "non-green installed-owner evidence on release c0ce3ff: a fresh task + appointment + chore objective generated and verified only two child steps, omitted the appointment, and reported 'Completed all 2 plan steps'; persisted evidence also showed contaminated task/chore titles containing trailing clauses. No unsafe authority crossing occurred, but this is false objective completion and argument-grounding failure. A generic complete-coverage prompt did not generalize, so prompt-only polishing is retired pending an objective-representation fix.",
     "owner_capacity_control_checkpoint": "development-only same-contract capacity comparison on source c0ce3ff over 160 cases: Qwen3:8B (digest 500a1f...) achieved 0.600 correct completion/answer, 0.5875 route accuracy, 0.69375 semantic-mode accuracy, 21 decoder failures, 8 false mutations, 6 false completions, and 6471ms average latency; Qwen2.5:14B (digest 7cdf5a...) achieved 0.3142857, 0.21875, 0.31875, 89, 17, 9, and 10259ms respectively. The stronger model is rejected for owner use; no production model switch or held-out tuning occurred. Full reports were checkpointed under /tmp and the comparison summary is evaluation/reports/qwen-capacity-control-c0ce3ff.json.",
+    "plan_coverage_review_experiment_checkpoint": "rejected after hosted/installed owner repro on a4afa90: a second model coverage-review call added latency and strict typed review tests, but accepted a plan that omitted one of three requested actions and allowed false completion. The seam was reverted in f07b12c and owner runtime restored to c0ce3ff. No canonical authority was granted by the experiment; future work requires a stronger objective decomposition/coverage representation, not another reviewer prompt.",
     "next_action": "Continue M09 daily-driver work: run fresh owner sessions focused on corrections, natural compound objectives, and bounded plan continuation; classify the next friction without phrase-specific routing."
 }
