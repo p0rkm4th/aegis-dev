@@ -462,6 +462,7 @@ class OllamaProvider:
                 "bounded_context": request.working_set.context.model_dump(mode="json"),
                 "routing_only": request.routing_only,
                 "classification_only": request.classification_only,
+                "objective_fidelity_only": request.objective_fidelity_only,
                 "action_cards": cards,
                 **(
                     {

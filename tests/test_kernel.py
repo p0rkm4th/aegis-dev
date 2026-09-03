@@ -2935,6 +2935,24 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
     assert "optional or 'if clearly stated'" in payload["argument_proposal_rule"]
 
 
+def test_ollama_fidelity_prompt_has_no_plan_authority():
+    proposal = ObjectiveSpecProposal(
+        requirements=(ObjectiveRequirementProposal(action_ref="tasks.create"),)
+    )
+    request = ModelRequest(
+        working_set=WorkingSet(intent=intent()),
+        action_cards=(),
+        objective_fidelity_only=True,
+        objective_spec_proposal=proposal,
+    )
+
+    payload = json.loads(OllamaProvider("qwen3:8b", object())._prompt(request))
+
+    assert payload["objective_fidelity_only"] is True
+    assert "not to any plan" in payload["instruction"]
+    assert payload["objective_spec_proposal"] == proposal.model_dump(mode="json")
+
+
 def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
     key = "correlation:kitchen.groceries.add"
     path = tmp_path / "groceries.tsv"
