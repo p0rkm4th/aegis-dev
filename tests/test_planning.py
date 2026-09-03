@@ -106,6 +106,28 @@ def test_proposed_plan_rejects_duplicate_candidate_ids():
         materialize_proposed_plan(proposal, (duplicate, duplicate))
 
 
+def test_proposed_plan_rejects_temporal_argument_copied_between_steps():
+    cards = (
+        card("tasks.create", "title", "due_at"),
+        card("tasks.events.create", "title", "starts_at"),
+    )
+    proposal = ProposedPlan(
+        steps=(
+            ProposedPlanStep(
+                action_ref="tasks.create",
+                arguments={"title": "check the latch", "due_at": "next Saturday"},
+            ),
+            ProposedPlanStep(
+                action_ref="tasks.events.create",
+                arguments={"title": "inspection", "starts_at": "next Saturday"},
+            ),
+        )
+    )
+
+    with pytest.raises(PlanValidationError, match="temporal argument"):
+        materialize_proposed_plan(proposal, cards)
+
+
 def test_proposed_plan_is_bounded():
     with pytest.raises(ValueError):
         ProposedPlan(

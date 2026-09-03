@@ -44,6 +44,7 @@ def materialize_proposed_plan(
             raise PlanValidationError("authorized candidate set contains duplicate action IDs")
         by_id[card.action.action_id] = card
     actions: list[ActionSpec] = []
+    temporal_arguments: dict[str, tuple[int, str]] = {}
     for index, step in enumerate(plan.steps):
         if any(dependency < 0 or dependency >= index for dependency in step.depends_on):
             raise PlanValidationError("plan dependencies must reference earlier steps")
@@ -54,6 +55,16 @@ def materialize_proposed_plan(
             raise PlanValidationError("plan action is not an authorized candidate")
         if not set(step.arguments).issubset(candidate.argument_keys):
             raise PlanValidationError("plan arguments exceed the ActionCard contract")
+        for key, value in step.arguments.items():
+            if not key.endswith("_at") or not isinstance(value, str):
+                continue
+            normalized_value = " ".join(value.casefold().split())
+            previous = temporal_arguments.get(normalized_value)
+            if previous is not None and previous[0] != index and previous[1] != key:
+                raise PlanValidationError(
+                    "plan cannot reuse one temporal argument across independent steps"
+                )
+            temporal_arguments[normalized_value] = (index, key)
         actions.append(candidate.action.model_copy(update={"arguments": dict(step.arguments)}))
     return tuple(actions)
 
