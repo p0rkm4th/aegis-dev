@@ -531,6 +531,38 @@ def test_memory_followup_reuses_only_authorized_prior_memory_projection() -> Non
     )
 
 
+def test_memory_followup_clarifies_when_prior_list_has_multiple_referents() -> None:
+    context = Context(
+        values={
+            "canonical_facts": {
+                "memories": [
+                    {
+                        "content": "The owner prefers quiet mornings.",
+                        "provenance": "explicit_user",
+                    },
+                    {
+                        "content": "The owner is planning a pantry project.",
+                        "provenance": "explicit_user",
+                    },
+                ]
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = PersonalMemoryFastPath(PersonalState()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Tell me more about that.",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "Which memory" in result.message
+
+
 def test_memory_activity_query_returns_timestamped_memories_without_literal_match() -> None:
     memory = MemoryRecord(
         uuid4(),

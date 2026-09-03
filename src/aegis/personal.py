@@ -538,6 +538,16 @@ class PersonalMemoryFastPath:
         if query.strip() and not broad_activity_query:
             memories = self._search_memories(query, start, end)
         elif prior_memories is not None and query.strip() == "":
+            if len(prior_memories) != 1:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=(
+                        "Which memory should I expand on? Please name the memory or provide "
+                        "a little more context."
+                    ),
+                    correlation_id=intent.correlation_id,
+                )
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.COMPLETED,
