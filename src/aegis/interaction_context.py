@@ -156,6 +156,23 @@ def resolve_obvious_ordinal_item(utterance: str, context: Context) -> str | None
     return candidate if isinstance(candidate, str) and candidate.strip() else None
 
 
+def resolve_unique_prior_task_reference(utterance: str, context: Context) -> dict[str, Any] | None:
+    """Resolve a pronoun only when the prior result exposed one task focus."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    text = " ".join(utterance.casefold().split())
+    if re.search(r"\b(?:it|that|that one|that task)\b", text) is None:
+        return None
+    facts = context.values.get("canonical_facts")
+    task = facts.get("task") if isinstance(facts, dict) else None
+    if not isinstance(task, dict):
+        return None
+    if not isinstance(task.get("title"), str) or not task["title"].strip():
+        return None
+    return task
+
+
 def grounded_context_answer(context: Context, raw: dict[str, Any]) -> Decision | None:
     """Recover an answer from one model-selected, authorized structured focus."""
 

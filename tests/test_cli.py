@@ -402,6 +402,29 @@ def test_model_working_context_preserves_plan_progress_source_marker():
     )
 
 
+def test_unique_prior_task_reference_grounds_scalar_priority_focus():
+    from aegis.interaction_context import resolve_unique_prior_task_reference
+
+    context = Context(
+        sources=("authorized_canonical_result",),
+        values={
+            "canonical_facts": {
+                "task": {
+                    "task_id": "11111111-1111-4111-8111-111111111111",
+                    "title": "renew insurance",
+                    "status": "open",
+                }
+            }
+        },
+    )
+
+    assert resolve_unique_prior_task_reference("Complete that one", context) == {
+        "task_id": "11111111-1111-4111-8111-111111111111",
+        "title": "renew insurance",
+        "status": "open",
+    }
+
+
 def test_model_working_context_includes_bounded_authorized_household_attention():
     principal = Principal(id="alice", vault_id="alice-vault")
     chore = type("Chore", (), {"title": "clean the utility closet", "completed": False})()
