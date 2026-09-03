@@ -63,6 +63,11 @@ def validate_clarification_recovery(
         return False
     if not set(proposal.arguments).issubset(card.argument_keys):
         return False
+    if (
+        proposal.ambiguity_type is ClarificationAmbiguityType.REFERENT
+        and proposal.referent_ref is None
+    ):
+        return False
     if proposal.referent_ref is None:
         return True
     referents = context.values.get("referents")

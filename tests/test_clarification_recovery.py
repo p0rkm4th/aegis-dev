@@ -70,6 +70,14 @@ def test_recovery_rejects_stale_or_unauthorized_referent() -> None:
     )
 
 
+def test_recovery_referent_cannot_fabricate_a_title_without_identity() -> None:
+    assert not validate_clarification_recovery(
+        resolved(None),
+        (card(),),
+        context({"task_id": "task-1", "title": "Replace porch bulb"}),
+    )
+
+
 def test_recovery_rejects_nonresolved_proposal_and_undeclared_arguments() -> None:
     proposal = resolved()
     unsupported = proposal.model_copy(update={"outcome": ClarificationRecoveryOutcome.UNSUPPORTED})
