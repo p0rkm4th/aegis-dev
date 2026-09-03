@@ -248,3 +248,21 @@ def test_fetch_rejects_unsupported_content_type_and_oversized_body() -> None:
         LargeFetcher(resolver=lambda _host, _port: ("93.184.216.34",), max_bytes=4).fetch(
             "http://public.example/"
         )
+
+
+def test_http_connection_uses_the_validated_address(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[tuple[str, int]] = []
+
+    class Socket:
+        pass
+
+    monkeypatch.setattr(
+        "aegis.research.socket.create_connection",
+        lambda address, _timeout: calls.append(address) or Socket(),
+    )
+    from aegis.research import _PinnedHTTPConnection
+
+    connection = _PinnedHTTPConnection("rebound.example", "93.184.216.34", 80, 1)
+    connection.connect()
+
+    assert calls == [("93.184.216.34", 80)]
