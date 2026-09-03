@@ -525,6 +525,7 @@ def test_kernel_persists_core_owned_objective_spec_and_validated_plan(tmp_path):
     assert persisted is not None
     assert persisted.objective_spec == objective_spec
     assert persisted.validated_plan is not None
+    assert persisted.validated_plan.objective_id == persisted.id == result.objective_id
     assert [step.requirement_id for step in persisted.validated_plan.steps] == [
         requirement.requirement_id for requirement in objective_spec.requirements
     ]

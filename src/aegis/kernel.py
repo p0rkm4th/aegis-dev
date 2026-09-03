@@ -373,6 +373,7 @@ class Kernel:
         context: Context | None = None,
         objective_spec: ObjectiveSpec | None = None,
         validated_plan: ValidatedPlan | None = None,
+        objective_id: UUID | None = None,
     ) -> Result:
         """Execute a bounded durable sequence through the ordinary Core path.
 
@@ -430,6 +431,7 @@ class Kernel:
                     correlation_id=intent.correlation_id,
                 )
             objective = Objective(
+                id=objective_id or uuid4(),
                 intent=intent,
                 correlation_id=intent.correlation_id,
                 steps=actions,
@@ -564,6 +566,7 @@ class Kernel:
                 context=context,
                 objective_spec=objective_spec,
                 validated_plan=validated,
+                objective_id=objective_id,
             )
         actions = materialize_proposed_plan(proposal, cards)
         return self.run_sequence(intent, actions, context=context)
