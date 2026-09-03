@@ -187,3 +187,27 @@ def test_decoder_accepts_candidate_bound_plan_only_in_proposal_mode():
     assert decision.plan is not None
     with pytest.raises(InvalidDecision, match="proposal mode"):
         StrictDecisionDecoder().decode(response, cards)
+
+
+def test_decoder_rejects_mixed_plan_and_answer():
+    cards = (card("tasks.create", "title"), card("chores.create", "title"))
+    response = type(
+        "Response",
+        (),
+        {
+            "raw": {
+                "kind": DecisionKind.PLAN.value,
+                "semantic_mode": "ACTION",
+                "answer": "also here",
+                "plan": {
+                    "steps": [
+                        {"action_ref": "tasks.create"},
+                        {"action_ref": "chores.create"},
+                    ]
+                },
+            }
+        },
+    )()
+
+    with pytest.raises(InvalidDecision, match="another decision kind"):
+        StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
