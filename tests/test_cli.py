@@ -3359,6 +3359,27 @@ def test_task_read_fast_path_filters_structural_get_done_today_request():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["today task"]
 
 
+def test_task_read_fast_path_filters_remaining_task_list_to_open_tasks():
+    class Store:
+        def list(self, _principal):
+            return (
+                Task(uuid4(), "apartment", "open task", "alice"),
+                Task(uuid4(), "apartment", "finished task", "alice", status=TaskStatus.COMPLETED),
+            )
+
+    utterance = "What is left on my task list?"
+    assert TaskReadFastPath.matches(utterance)
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance=utterance,
+        )
+    )
+    assert result is not None
+    assert result.evidence["status_filter"] == "open"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["open task"]
+
+
 def test_task_read_fast_path_filters_this_weekday_due_window():
     from datetime import datetime, timedelta, timezone
 

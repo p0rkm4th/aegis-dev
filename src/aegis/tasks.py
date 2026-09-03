@@ -582,6 +582,9 @@ class TaskReadFastPath:
         elif any(term in text for term in ("open", "pending", "unfinished")):
             tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
             status_filter = "open"
+        elif any(term in text for term in ("left", "remaining", "still need")):
+            tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
+            status_filter = "open"
         else:
             tasks = all_tasks
             status_filter = "all"
