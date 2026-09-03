@@ -81,7 +81,7 @@ def test_effect_text_allows_only_unique_deterministic_span_repair() -> None:
     utterance = "Add rice to groceries and add milk to groceries"
     effects = (
         RequestedEffectProposal(
-            effect_text="Add rice to groceries",
+            effect_text="add rice to groceries",
             source_span=(-1, 0),
             action_ref="kitchen.groceries.add",
             arguments={"item": "rice"},
