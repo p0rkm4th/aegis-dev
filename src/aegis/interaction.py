@@ -165,6 +165,19 @@ class InteractionBoundary:
         permissions: dict[str, frozenset[Any]] = {}
         cleanups: list[Callable[[], None]] = []
         try:
+            grounded_steps = []
+            for step, card in zip(proposal.steps, plan_cards, strict=True):
+                grounded = (
+                    self.dependencies.action_grounder(intent, card, connection, context)
+                    if self.dependencies.action_grounder is not None
+                    else card
+                )
+                if isinstance(grounded, Result):
+                    return grounded
+                grounded_steps.append(
+                    step.model_copy(update={"arguments": grounded.action.arguments})
+                )
+            proposal = proposal.model_copy(update={"steps": tuple(grounded_steps)})
             for card in plan_cards:
                 runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
                 runtimes[card.action.action_id] = runtime
