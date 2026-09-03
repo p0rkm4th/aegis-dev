@@ -155,6 +155,7 @@ def decide_fallback(
         )
         decoder = StrictDecisionDecoder()
         decision: Decision | None = None
+        last_invalid: InvalidDecision | None = None
         for attempt in range(2):
             response = provider.decide(request)
             last_raw = response.raw if isinstance(response.raw, dict) else None
@@ -166,6 +167,7 @@ def decide_fallback(
                 )
                 break
             except InvalidDecision as error:
+                last_invalid = error
                 # Repair only an empty benign answer with no capability
                 # cards. This remains bounded cognition and cannot turn a
                 # malformed action into an executable proposal.
@@ -178,6 +180,26 @@ def decide_fallback(
                 ):
                     raise error
                 request = request.model_copy(update={"action_cards": ()})
+        if decision is None and routing_only and last_invalid is not None:
+            # Providers can apply the routing-only instruction inconsistently.
+            # Give one final-pass opportunity with the same bounded cards and
+            # full authorized context before reporting a model-boundary
+            # failure. Strict decoding remains the acceptance gate.
+            final_request = request.model_copy(
+                update={
+                    "working_set": WorkingSet(intent=intent, context=context),
+                    "routing_only": False,
+                    "action_cards": cards,
+                }
+            )
+            try:
+                decision = decoder.decode(
+                    provider.decide(final_request),
+                    final_request.action_cards,
+                    allow_argument_proposals=True,
+                )
+            except InvalidDecision:
+                raise last_invalid
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
         if routing_only and decision.kind is DecisionKind.ANSWER:
