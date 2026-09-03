@@ -60,7 +60,8 @@ class PlanProgressFastPath:
         text = " ".join(intent.utterance.casefold().split())
         if not any(term in text for term in cls._PROGRESS_TERMS):
             return None
-        steps = context.values.get("plan_steps")
+        facts = context.values.get("canonical_facts")
+        steps = facts.get("plan_steps") if isinstance(facts, dict) else None
         if not isinstance(steps, list) or not steps:
             return None
         completed = sum(
