@@ -24,6 +24,7 @@ from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, 
 from aegis.planning import MultiActionFastPath
 from aegis.reference_interaction import (
     ground_reference_action,
+    reference_fallback_cards,
     reference_format_result,
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
@@ -333,6 +334,21 @@ def test_model_enabled_structural_compound_reaches_bounded_cognition():
 
     assert MultiActionFastPath.matches(intent.utterance)
     assert resolve_reference_safety_fast_paths(intent, None, True) is None
+
+
+def test_compound_task_destination_retrieves_event_candidate():
+    class Manager:
+        def retrieve(self, domain, limit=5):
+            assert domain == "tasks"
+            assert limit == 10
+            return tuple(_task_card({"title": str(index)}) for index in range(6))
+
+    cards = reference_fallback_cards(
+        Manager(),
+        "Put checking towels on my task list and schedule a bathroom inspection Friday.",
+    )
+
+    assert len(cards) == 6
 
 
 def test_structural_compound_single_action_is_blocked_before_execution():
