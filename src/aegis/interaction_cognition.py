@@ -81,13 +81,22 @@ def decide_fallback(
                 if selected_card is not None and isinstance(action_arguments, dict):
                     declared = set(selected_card.argument_keys)
                     if set(action_arguments).issubset(declared):
-                        return Decision(
+                        classification_decision = Decision(
                             kind=DecisionKind.ACTION,
                             action=selected_card.action.model_copy(
                                 update={"arguments": dict(action_arguments)}
                             ),
                             semantic_mode="ACTION",
                         )
+                        if dependencies.decision_rewriter is not None:
+                            rewritten = dependencies.decision_rewriter(
+                                intent, classification_decision, cards, context
+                            )
+                            if isinstance(rewritten, Result):
+                                return rewritten
+                            if isinstance(rewritten, Decision):
+                                return rewritten
+                        return classification_decision
             if semantic_mode in {"GENERATION", "READ"}:
                 if semantic_mode == "GENERATION":
                     generated_answer = (
