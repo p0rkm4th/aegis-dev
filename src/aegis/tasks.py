@@ -671,8 +671,15 @@ class ContextualTaskTemporalFastPath:
         temporal = self._TEMPORAL.search(text)
         if temporal is None:
             return None
+        open_scope = has_planning_tasks or has_task_focus
         follow_up = intent.model_copy(
-            update={"utterance": f"what tasks are due {temporal.group(0)}"}
+            update={
+                "utterance": (
+                    f"what open tasks are due {temporal.group(0)}"
+                    if open_scope
+                    else f"what tasks are due {temporal.group(0)}"
+                )
+            }
         )
         return TaskReadFastPath(store).resolve(follow_up)
 

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from threading import Event
 from uuid import uuid4
 
@@ -245,7 +245,23 @@ def test_contextual_task_temporal_followup_uses_cross_domain_planning_tasks():
 def test_contextual_task_temporal_followup_uses_authorized_priority_task_focus():
     class Store:
         def list(self, _principal):
-            return (Task(uuid4(), "apartment", "tomorrow task", "alice"),)
+            return (
+                Task(
+                    uuid4(),
+                    "apartment",
+                    "tomorrow task",
+                    "alice",
+                    due_at=datetime.now(timezone.utc) + timedelta(days=1),
+                ),
+                Task(
+                    uuid4(),
+                    "apartment",
+                    "completed tomorrow task",
+                    "alice",
+                    due_at=datetime.now(timezone.utc) + timedelta(days=1),
+                    status=TaskStatus.COMPLETED,
+                ),
+            )
 
     context = Context(
         values={"canonical_facts": {"task": {"title": "current priority task"}}},
@@ -262,6 +278,7 @@ def test_contextual_task_temporal_followup_uses_authorized_priority_task_focus()
 
     assert result is not None
     assert result.evidence["due_filter"] == "tomorrow"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
 def test_contextual_chore_priority_never_invents_deadline_order():
