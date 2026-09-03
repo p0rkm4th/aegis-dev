@@ -42,7 +42,6 @@ from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
-from .planning import PlanValidationError
 from .store import PostgresObjectiveStore
 from .utterance import strip_context_reset
 
@@ -218,7 +217,7 @@ class InteractionBoundary:
                 context=context,
                 objective_spec=objective_spec,
             )
-        except PlanValidationError as exc:
+        except ValueError as exc:
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
