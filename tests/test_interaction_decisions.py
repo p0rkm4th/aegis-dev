@@ -105,6 +105,62 @@ def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> N
     assert result.plan.steps[2].depends_on == (1,)
 
 
+def test_scoped_plan_does_not_copy_optional_arguments_into_existing_steps() -> None:
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=f"{action_id}.write",
+                required_permissions=(f"{action_id}.write",),
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+            argument_keys=("title", "due_at"),
+        )
+        for action_id in ("tasks.create", "tasks.chores.create", "tasks.events.create")
+    )
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            card = request.action_cards[0]
+            return ModelResponse(
+                raw={
+                    "kind": "ACTION",
+                    "action_ref": card.action.action_id,
+                    "action_arguments": {
+                        "title": card.action.action_id,
+                        "due_at": "next Friday",
+                    },
+                    "semantic_mode": "ACTION",
+                }
+            )
+
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="do one thing and another thing and one more thing",
+        correlation_id=uuid4(),
+    )
+    proposal = Decision(
+        kind=DecisionKind.PLAN,
+        semantic_mode="ACTION",
+        plan=ProposedPlan(
+            steps=(
+                ProposedPlanStep(action_ref="tasks.create", arguments={"title": "task"}),
+                ProposedPlanStep(action_ref="tasks.chores.create", arguments={"title": "chore"}),
+            )
+        ),
+    )
+
+    result = _scope_plan_by_capability(
+        Provider(), StrictDecisionDecoder(), intent, cards, Context(), proposal
+    )
+
+    assert result.plan is not None
+    assert "due_at" not in result.plan.steps[0].arguments
+    assert "due_at" not in result.plan.steps[1].arguments
+
+
 def test_scoped_plan_decomposition_fails_closed_when_no_capability_is_selected() -> None:
     card = ActionCard(
         action=ActionSpec(action_id="tasks.create", capability="tasks.write"),

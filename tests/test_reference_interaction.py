@@ -36,6 +36,47 @@ from aegis.reference_interaction import (
 from aegis.tasks import Task, requested_task_due_at
 
 
+def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> None:
+    fast_path = PersonalMemoryFastPath(PersonalState())
+    for utterance in (
+        "Tell me about Cult of the Lamb, the game.",
+        "Explain the fall of the Roman Republic.",
+        "Tell me about photosynthesis.",
+        "What is the Rust programming language?",
+        "Tell me about The Left Hand of Darkness.",
+    ):
+        result = fast_path.resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance=utterance,
+            )
+        )
+        assert result is None, utterance
+
+
+def test_memory_fast_path_keeps_explicit_memory_requests() -> None:
+    result = PersonalMemoryFastPath(PersonalState()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What memories do I have about the apartment?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+
+
+def test_memory_fast_path_does_not_invent_context_for_vague_followup() -> None:
+    result = PersonalMemoryFastPath(PersonalState()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Tell me about that.",
+        )
+    )
+
+    assert result is None
+
+
 def _task_card(arguments: dict[str, object]) -> ActionCard:
     return ActionCard(
         action=ActionSpec(

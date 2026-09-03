@@ -64,6 +64,11 @@ def _scope_plan_by_capability(
         )
 
     scoped: dict[str, Decision] = {}
+    proposed_arguments = (
+        {step.action_ref: dict(step.arguments) for step in proposed.plan.steps}
+        if proposed.plan is not None
+        else {}
+    )
     try:
         for card in cards:
             if not any(
@@ -95,10 +100,22 @@ def _scope_plan_by_capability(
         scoped_decision = scoped.get(action_id)
         if scoped_decision is None or scoped_decision.action is None:
             continue
+        arguments = dict(scoped_decision.action.arguments)
+        if action_id in proposed_arguments:
+            # A capability-scoped pass must not add optional arguments that the
+            # original bounded proposal did not assign to that operation. This
+            # prevents details such as a date intended for one step from
+            # leaking into sibling steps; Core still performs final schema and
+            # objective validation below this boundary.
+            arguments = {
+                key: value
+                for key, value in arguments.items()
+                if key in proposed_arguments[action_id]
+            }
         steps_list.append(
             ProposedPlanStep(
                 action_ref=action_id,
-                arguments=scoped_decision.action.arguments,
+                arguments=arguments,
                 depends_on=((index - 1,) if index else ()),
             )
         )

@@ -3089,7 +3089,7 @@ def test_personal_memory_fast_path_resolves_entity_alias_queries():
     assert result.evidence["memories"][0]["provenance"] == "observed"
 
 
-def test_personal_memory_fast_path_resolves_contextual_reference():
+def test_personal_memory_fast_path_does_not_claim_vague_general_followup():
     from datetime import datetime, timezone
 
     state = PersonalState()
@@ -3106,8 +3106,7 @@ def test_personal_memory_fast_path_resolves_contextual_reference():
         )
     )
 
-    assert result is not None
-    assert result.evidence["memories"][0]["content"] == ("Investigated the server backup failure")
+    assert result is None
 
 
 def test_personal_memory_fast_path_yields_to_explicit_mutation_requests():
