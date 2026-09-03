@@ -529,6 +529,18 @@ def test_kernel_persists_core_owned_objective_spec_and_validated_plan(tmp_path):
         requirement.requirement_id for requirement in objective_spec.requirements
     ]
     assert all(step.depends_on == () for step in persisted.validated_plan.steps)
+    legacy_retry = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    ).run_sequence(
+        intent().model_copy(update={"correlation_id": result.correlation_id}),
+        tuple(card.action for card in cards),
+    )
+    assert legacy_retry.state is ObjectiveState.BLOCKED
     store.close()
 
 
