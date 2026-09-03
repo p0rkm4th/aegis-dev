@@ -3621,6 +3621,40 @@ def test_task_read_fast_path_filters_structural_get_done_today_request():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["today task"]
 
 
+def test_task_read_fast_path_filters_this_week_to_open_current_week():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    this_week = Task(
+        uuid4(), "apartment", "this week task", "alice", due_at=now + timedelta(days=1)
+    )
+    next_week = Task(
+        uuid4(), "apartment", "next week task", "alice", due_at=now + timedelta(days=8)
+    )
+    completed = Task(
+        uuid4(),
+        "apartment",
+        "completed this week task",
+        "alice",
+        due_at=now + timedelta(days=1),
+        status=TaskStatus.COMPLETED,
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (this_week, next_week, completed)
+
+    utterance = "What do I need to get done this week?"
+    assert TaskReadFastPath.matches(utterance)
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance=utterance)
+    )
+    assert result is not None
+    assert result.evidence["due_filter"] == "this_week"
+    assert result.evidence["status_filter"] == "open"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["this week task"]
+
+
 def test_task_read_fast_path_filters_weekday_without_due_verb():
     from datetime import datetime, timedelta, timezone
 
