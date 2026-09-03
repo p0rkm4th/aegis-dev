@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c469e850e2d36e64d9c89b821c3f2925faa93e29",
-  "deterministic_green_sha": "c469e850e2d36e64d9c89b821c3f2925faa93e29",
-  "last_pushed_sha": "c469e850e2d36e64d9c89b821c3f2925faa93e29",
-  "hosted_ci_green_sha": "c469e850e2d36e64d9c89b821c3f2925faa93e29",
+  "repository_head_sha": "1819f655eb5b869b0747a78e57f6f8b2a0e3824d",
+  "deterministic_green_sha": "1819f655eb5b869b0747a78e57f6f8b2a0e3824d",
+  "last_pushed_sha": "1819f655eb5b869b0747a78e57f6f8b2a0e3824d",
+  "hosted_ci_green_sha": "1819f655eb5b869b0747a78e57f6f8b2a0e3824d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33699933932",
-    "commit_sha": "c469e850e2d36e64d9c89b821c3f2925faa93e29",
+    "run_id": "33700527751",
+    "commit_sha": "1819f655eb5b869b0747a78e57f6f8b2a0e3824d",
     "conclusion": "success",
     "observed_at": "2026-09-03T00:33:00Z"
   },
@@ -1137,5 +1137,7 @@
     "owner_weekday_task_read_followup_checkpoint": "partial installed owner evidence on release b807dd3: fresh variants 'what's due Friday?' (correlation d01a81b0-7885-4ada-a571-096f973a2bb9) and 'which tasks are due on Monday?' (correlation 663edaa0-5abf-4c25-86bf-5f4e2aef0268) both completed through the canonical weekday task-read window and returned only matching due tasks. This broadens the exact language evidence but does not establish capability-family green.",
     "owner_weekday_task_continuation_checkpoint": "partial installed owner evidence on release b807dd3: after authorized open-task list correlation 596ce9e5-2c9b-4e34-bf0d-d985db41de7e, attached follow-up 'which ones are due Monday?' correlation 97a0f5cb-1894-4b33-9db6-e8b851969135 returned only the canonical Monday task. The authorized task context survived the turn boundary; no mutation occurred and broader continuation capability remains unclaimed.",
     "owner_context_switch_checkpoint": "partial installed owner evidence on release c29a256: after chores list correlation ae569054-d436-4ce3-9297-9953c1d72f45, explicit interruption 'actually, never mind, what groceries do I need?' correlation f3f07900-5425-4444-8f4e-8634da01c61 returned the canonical grocery list and discarded the prior chores working context. The generic reset boundary passed hosted validation run 33699095898; broader continuation and owner acceptance remain incomplete.",
-    "next_action": "Continue varied installed-owner dogfood across personal, tasks, groceries, and household with correction, stale references, refresh, and unsupported-but-reasonable requests; prioritize demonstrated broad intent gaps, classify failures by responsible layer, and defer bounded planning unless single-Decision representation remains the dominant blocker."
+    "proposed_plan_contract_checkpoint": "green deterministic and hosted evidence at 9911ffe: strict ProposedPlan/ProposedPlanStep contracts bound at most five ordered steps to the retrieved ActionCard working set, reject invented action IDs, undeclared arguments, duplicate candidates, and invalid dependencies, while preserving card-owned capability, permissions, and verification. Full deterministic validation passed; hosted run 33700379452 passed. This is proposal-boundary proof, not general planning or daily-driver green.",
+    "proposed_plan_runtime_binding_checkpoint": "green deterministic and hosted evidence at 1819f65: existing reference task/chore and task/event compositions now construct candidate-bound ProposedPlans and execute through Kernel.run_proposed_plan, reusing durable per-step authorization, ownership, observation, verification, and recovery. Full deterministic validation passed; hosted run 33700527751 passed. Persisted plan continuation and broad objective composition remain incomplete.",
+    "next_action": "Integrate persisted ProposedPlan step state with conversational continuation using existing Objective/Result storage; prove restart, partial failure, revocation, and truthful 'what is left' behavior before expanding objective composition or declaring planning capability green."
 }
