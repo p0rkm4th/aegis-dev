@@ -3277,6 +3277,16 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
         assert result.evidence["due_filter"] == "tomorrow"
         assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Show me the tasks I need to finish tomorrow",
+        )
+    )
+    assert result is not None
+    assert result.evidence["due_filter"] == "tomorrow"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
+
 
 def test_task_read_fast_path_filters_this_weekday_due_window():
     from datetime import datetime, timedelta, timezone
