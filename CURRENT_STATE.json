@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "b6be4f3a1b06865bbf89e3733caa04cc36bd41db",
-  "deterministic_green_sha": "b6be4f3a1b06865bbf89e3733caa04cc36bd41db",
-  "last_pushed_sha": "b6be4f3a1b06865bbf89e3733caa04cc36bd41db",
-  "hosted_ci_green_sha": "b6be4f3a1b06865bbf89e3733caa04cc36bd41db",
+  "repository_head_sha": "314f4372e1a62af1c582a23ed926a8f7e63d1d97",
+  "deterministic_green_sha": "314f4372e1a62af1c582a23ed926a8f7e63d1d97",
+  "last_pushed_sha": "314f4372e1a62af1c582a23ed926a8f7e63d1d97",
+  "hosted_ci_green_sha": "314f4372e1a62af1c582a23ed926a8f7e63d1d97",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33701682122",
-    "commit_sha": "b6be4f3a1b06865bbf89e3733caa04cc36bd41db",
+    "run_id": "33701869991",
+    "commit_sha": "314f4372e1a62af1c582a23ed926a8f7e63d1d97",
     "conclusion": "success",
     "observed_at": "2026-09-03T00:33:00Z"
   },
@@ -1141,5 +1141,6 @@
     "proposed_plan_runtime_binding_checkpoint": "green deterministic and hosted evidence at 1819f65: existing reference task/chore and task/event compositions now construct candidate-bound ProposedPlans and execute through Kernel.run_proposed_plan, reusing durable per-step authorization, ownership, observation, verification, and recovery. Full deterministic validation passed; hosted run 33700527751 passed. Persisted plan continuation and broad objective composition remain incomplete.",
     "plan_progress_owner_checkpoint": "partial installed owner evidence on release 8e143bb: a fresh natural two-step task/chore objective completed with independent canonical readback verification (correlation ce40499f-b1e9-4693-9607-cec123b1a018); attached 'what's left?' reconstructed persisted plan steps and truthfully returned 'All 2 plan steps are complete.' The first probe exposed and corrected a context-projection lookup defect; no duplicate execution or state repair occurred. This is progress/recovery evidence, not broad planning or daily-driver green.",
     "owner_compound_plan_boundary_checkpoint": "partial installed owner evidence on release b6be4f3: fresh informal compound mutation 'Put checking the furnace on my task list and make wiping the porch a chore' no longer fell through to a successful read-only planning answer; it returned a truthful deadline clarification with no mutation. The prior defect was a semantic pre-model routing error, not proof of model PLAN capability; Qwen3:8B did not yet produce a usable multi-step proposal for this wording.",
+    "compound_planning_guard_regression_checkpoint": "green deterministic and hosted evidence at 314f437: CrossDomainPlanningFastPath now rejects mutation-shaped requests before assembling read-only planning context, with a reusable regression covering informal task-plus-chore wording. Hosted run 33701869991 passed; owner runtime behavior was already present in b6be4f3.",
     "next_action": "Add a deterministic regression for the compound-mutation planning guard, then measure the model PLAN path with a controlled multi-candidate fixture; preserve truthful blocking if candidate retrieval or Qwen3:8B cannot represent the objective."
 }
