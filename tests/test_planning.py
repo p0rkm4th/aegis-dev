@@ -20,6 +20,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
+from aegis.interaction_context import compact_context_evidence
 from aegis.planning import (
     MultiActionFastPath,
     PlanModificationFastPath,
@@ -338,6 +339,24 @@ def test_plan_progress_prefers_persisted_objective_requirements():
     assert result is not None
     assert result.message == "1 of 2 requested changes are complete; 1 remain."
     assert result.evidence["progress_basis"] == "persisted_objective_requirements"
+    compacted = compact_context_evidence(result.evidence)
+    assert compacted["plan_steps"] == [
+        {"index": 0, "state": "completed"},
+        {"index": 1, "state": "completed"},
+    ]
+    guarded = PlanModificationFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Actually, change the first part.",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={"canonical_facts": compacted},
+        ),
+    )
+    assert guarded is not None
+    assert guarded.state is ObjectiveState.BLOCKED
+    assert "already verified" in guarded.message
 
 
 def test_plan_progress_does_not_treat_model_done_question_as_completion():
