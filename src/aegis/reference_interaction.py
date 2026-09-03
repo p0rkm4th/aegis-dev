@@ -73,7 +73,7 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
-from .utterance import is_mutation_request, is_task_destination_request
+from .utterance import is_mutation_request, is_task_destination_request, strip_context_reset
 
 
 def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[str, ActionCard]:
@@ -745,7 +745,9 @@ def resolve_reference_fast_paths(
 
     if recovered_plan_actions is not None:
         return None
-    utterance = intent.utterance
+    utterance = strip_context_reset(intent.utterance)
+    if utterance != intent.utterance:
+        intent = intent.model_copy(update={"utterance": utterance})
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(

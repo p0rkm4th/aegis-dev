@@ -39,6 +39,7 @@ from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .store import PostgresObjectiveStore
+from .utterance import strip_context_reset
 
 
 class InteractionInputError(ValueError):
@@ -150,6 +151,12 @@ class InteractionBoundary:
             )
             objective_store = PostgresObjectiveStore(connection)
             context = _context_from_prior_result(objective_store, context_correlation_id, principal)
+            normalized_utterance = strip_context_reset(utterance)
+            if normalized_utterance != " ".join(utterance.casefold().split()):
+                # An explicit conversational reset revokes only the prior-turn
+                # working context; canonical state remains available to the new
+                # independent request through normal read paths.
+                context = Context()
             recovered_plan = objective_store.get_objective_by_correlation(
                 intent.correlation_id, principal
             )

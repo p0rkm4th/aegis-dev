@@ -152,7 +152,7 @@ from aegis.tasks import (
     TaskCompletionFastPath,
     TaskStatus,
 )
-from aegis.utterance import is_mutation_request
+from aegis.utterance import is_mutation_request, strip_context_reset
 
 
 def test_contextual_task_priority_uses_only_authorized_prior_tasks():
@@ -2507,6 +2507,12 @@ def test_personal_memory_fast_path_yields_to_explicit_mutation_requests():
 
 def test_mutation_request_recognizes_jot_down_action_language():
     assert is_mutation_request("Could you jot down replace the porch bulb on my to-do list?")
+
+
+def test_context_reset_prefix_preserves_the_new_objective():
+    assert strip_context_reset("Actually, never mind, what groceries do I need?") == (
+        "what groceries do i need?"
+    )
 
 
 def test_personal_memory_correction_supersedes_old_record():
