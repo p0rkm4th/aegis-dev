@@ -421,6 +421,21 @@ def reference_constellation_state(
         connection.close()
 
 
+def _display_due_at(value: object) -> str:
+    """Render canonical deadlines concisely without changing stored evidence."""
+
+    text = str(value)
+    if len(text) <= 10:
+        return text
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return text
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone()
+    return parsed.strftime("%Y-%m-%d %H:%M %Z").strip()
+
+
 def reference_format_result(result: Any) -> str:
     """Render reference-Pack canonical evidence for human-facing clients."""
 
@@ -457,7 +472,7 @@ def reference_format_result(result: Any) -> str:
         display_tasks = tasks[:20]
         listing = "; ".join(
             f"{item['title']} ({item['status']})"
-            + (f" due {item['due_at']}" if item.get("due_at") else "")
+            + (f" due {_display_due_at(item['due_at'])}" if item.get("due_at") else "")
             for item in display_tasks
         )
         if len(tasks) > len(display_tasks):
