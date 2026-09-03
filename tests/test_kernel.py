@@ -760,6 +760,95 @@ def test_postgres_persists_requirement_bound_plan_across_store_instance():
         store_connection.close()
 
 
+@pytest.mark.skipif(
+    not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
+)
+def test_postgres_requirement_plan_restart_does_not_replay_verified_step():
+    import psycopg
+
+    principal = Principal(id=f"restart-{uuid4()}", vault_id=f"vault-{uuid4()}")
+    url = os.environ["AEGIS_TEST_DATABASE_URL"]
+    setup = psycopg.connect(url)
+    setup.execute(
+        "INSERT INTO aegis_principals (id, external_subject) VALUES (%s, %s)",
+        (principal.id, principal.id),
+    )
+    setup.execute(
+        "INSERT INTO vaults (id, owner_principal_id) VALUES (%s, %s)",
+        (principal.vault_id, principal.id),
+    )
+    setup.commit()
+    setup.close()
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    proposal = ProposedPlan(
+        steps=tuple(ProposedPlanStep(action_ref=card.action.action_id) for card in cards)
+    )
+    original_intent = IntentFrame(principal=principal, utterance="do both")
+
+    class CrashStore(PostgresObjectiveStore):
+        crashed = False
+
+        def save_result(self, key, result):
+            if key.endswith(":first") and not self.crashed:
+                self.crashed = True
+                raise RuntimeError("simulated PostgreSQL restart")
+            super().save_result(key, result)
+
+    first_connection = psycopg.connect(url)
+    first_executor = Executor()
+    try:
+        Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+            Policy(PolicyDecision(allowed=True, reason="ok")),
+            first_executor,
+            Verifier(True),
+            store=CrashStore(first_connection),
+        ).run_proposed_plan(original_intent, proposal, cards, objective_spec=objective_spec)
+    except RuntimeError as exc:
+        assert "restart" in str(exc)
+    else:
+        raise AssertionError("simulated PostgreSQL restart was not raised")
+    finally:
+        first_connection.close()
+
+    retry_connection = psycopg.connect(url)
+    retry_executor = Executor()
+    try:
+        recovered = Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+            Policy(PolicyDecision(allowed=True, reason="ok")),
+            retry_executor,
+            Verifier(True),
+            store=PostgresObjectiveStore(retry_connection),
+        ).run_proposed_plan(
+            original_intent.model_copy(update={"utterance": "resume after restart"}),
+            proposal,
+            cards,
+            objective_spec=objective_spec,
+        )
+        assert recovered.state is ObjectiveState.COMPLETED
+        assert first_executor.calls == 1
+        assert retry_executor.calls == 1
+    finally:
+        retry_connection.close()
+
+
 def test_kernel_run_sequence_recovers_after_crash_before_aggregate_persistence(tmp_path):
     from aegis.store import SqliteObjectiveStore
 
