@@ -4,8 +4,10 @@ from aegis.contracts import (
     ObjectiveSpecProposal,
 )
 from aegis.objective_fidelity import (
+    FidelityEvaluationCase,
     RequestedEffectProposal,
     compare_objective_proposals,
+    evaluate_fidelity_cases,
     validate_effect_spans,
 )
 
@@ -72,3 +74,57 @@ def test_segmented_effects_must_be_grounded_in_original_utterance() -> None:
         utterance,
         (RequestedEffectProposal(effect_text="delete the list", source_span=(0, 10)),),
     )
+
+
+def test_fidelity_development_metrics_expose_correlated_omission_safety() -> None:
+    cases = (
+        FidelityEvaluationCase(
+            name="two-effects-complete",
+            expected=spec(("tasks.create", {"title": "A"}), ("chores.create", {"title": "B"})),
+            proposed=spec(("tasks.create", {"title": "A"}), ("chores.create", {"title": "B"})),
+            independent=spec(("chores.create", {"title": "B"}), ("tasks.create", {"title": "A"})),
+        ),
+        FidelityEvaluationCase(
+            name="correlated-middle-omission",
+            expected=spec(
+                ("tasks.create", {"title": "A"}),
+                ("chores.create", {"title": "B"}),
+                ("kitchen.groceries.add", {"item": "C"}),
+            ),
+            proposed=spec(
+                ("tasks.create", {"title": "A"}), ("kitchen.groceries.add", {"item": "C"})
+            ),
+            independent=spec(
+                ("tasks.create", {"title": "A"}), ("kitchen.groceries.add", {"item": "C"})
+            ),
+        ),
+        FidelityEvaluationCase(
+            name="ambiguous-effect",
+            expected=spec(("tasks.create", {"title": "the inspection"})),
+            proposed=spec(("tasks.create", {"title": "the inspection"})),
+            independent=spec(("tasks.complete", {"title": "the inspection"})),
+            ambiguous=True,
+        ),
+        FidelityEvaluationCase(
+            name="unsupported-effect",
+            expected=spec(("tasks.create", {"title": "A"}), ("unsupported.send", {"to": "B"})),
+            proposed=spec(("tasks.create", {"title": "A"})),
+            independent=spec(
+                ("tasks.create", {"title": "A"}),
+                ("unsupported.send", {"to": "B"}),
+            ),
+            unsupported=True,
+        ),
+    )
+    metrics = evaluate_fidelity_cases(cases)
+    assert metrics.cases == 4
+    assert metrics.requirement_recall < 1
+    assert metrics.correlated_omission_false_acceptances == 1
+    # The intentionally adversarial case documents why independent review alone
+    # cannot be treated as a complete fidelity solution: correlated cognition can
+    # omit the same effect twice.  Core's plan/objective comparison itself still
+    # accepts the two matching untrusted proposals, so this remains a campaign
+    # blocker until a selected independent-effect mechanism catches it.
+    assert metrics.core_false_acceptances == 1
+    assert metrics.ambiguity_detection == 1
+    assert metrics.unsupported_effect_detection == 1

@@ -88,6 +88,7 @@ class ActionCard(StrictModel):
     relevance: float = Field(ge=0, le=1)
     argument_keys: tuple[str, ...] = ()
     argument_descriptions: dict[str, str] = {}
+    semantic_scope: str | None = None
 
 
 class ProposedPlanStep(StrictModel):
