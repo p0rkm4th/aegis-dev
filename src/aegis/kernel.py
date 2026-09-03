@@ -19,12 +19,14 @@ from .contracts import (
     Objective,
     ObjectiveState,
     Observation,
+    ProposedPlan,
     Result,
     VerificationResult,
     WorkingSet,
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .fastpath import DeterministicFastPath, NoopFastPath
+from .planning import materialize_proposed_plan
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
 from .store import InMemoryObjectiveStore, ObjectiveStore
 
@@ -464,3 +466,15 @@ class Kernel:
         )
         self.store.save_result(plan_key, aggregate)
         return aggregate
+
+    def run_proposed_plan(
+        self,
+        intent: IntentFrame,
+        proposal: ProposedPlan,
+        cards: tuple[ActionCard, ...],
+        context: Context | None = None,
+    ) -> Result:
+        """Validate a proposal against candidates, then reuse durable sequence execution."""
+
+        actions = materialize_proposed_plan(proposal, cards)
+        return self.run_sequence(intent, actions, context=context)

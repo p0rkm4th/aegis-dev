@@ -7,10 +7,45 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 from uuid import uuid4
 
-from .contracts import IntentFrame, ObjectiveState, Result
+from .contracts import ActionCard, ActionSpec, IntentFrame, ObjectiveState, ProposedPlan, Result
 from .personal import PersonalState
 from .tasks import Task
 from .utterance import is_mutation_request
+
+
+class PlanValidationError(ValueError):
+    """Raised when an untrusted plan proposal exceeds its authorized working set."""
+
+
+def materialize_proposed_plan(
+    plan: ProposedPlan, cards: tuple[ActionCard, ...]
+) -> tuple[ActionSpec, ...]:
+    """Bind a proposal to retrieved ActionCards without granting new authority.
+
+    The returned actions retain the card's capability, permissions, and verification
+    contract. A proposal may supply only arguments declared by its selected card.
+    Dependencies are intentionally ordered references: a step may depend only on an
+    earlier step, so the existing durable sequence runner remains the execution owner.
+    """
+
+    by_id: dict[str, ActionCard] = {}
+    for card in cards:
+        if card.action.action_id in by_id:
+            raise PlanValidationError("authorized candidate set contains duplicate action IDs")
+        by_id[card.action.action_id] = card
+    actions: list[ActionSpec] = []
+    for index, step in enumerate(plan.steps):
+        if any(dependency < 0 or dependency >= index for dependency in step.depends_on):
+            raise PlanValidationError("plan dependencies must reference earlier steps")
+        if len(set(step.depends_on)) != len(step.depends_on):
+            raise PlanValidationError("plan dependencies must be unique")
+        candidate = by_id.get(step.action_ref)
+        if candidate is None:
+            raise PlanValidationError("plan action is not an authorized candidate")
+        if not set(step.arguments).issubset(candidate.argument_keys):
+            raise PlanValidationError("plan arguments exceed the ActionCard contract")
+        actions.append(candidate.action.model_copy(update={"arguments": dict(step.arguments)}))
+    return tuple(actions)
 
 
 class MultiActionFastPath:

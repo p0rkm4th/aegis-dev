@@ -89,6 +89,20 @@ class ActionCard(StrictModel):
     argument_descriptions: dict[str, str] = {}
 
 
+class ProposedPlanStep(StrictModel):
+    """Untrusted, candidate-bound proposal for one bounded plan step."""
+
+    action_ref: str = Field(min_length=1)
+    arguments: dict[str, Any] = {}
+    depends_on: tuple[int, ...] = ()
+
+
+class ProposedPlan(StrictModel):
+    """Model proposal only; Core must bind every step to retrieved cards."""
+
+    steps: tuple[ProposedPlanStep, ...] = Field(min_length=1, max_length=5)
+
+
 class Decision(StrictModel):
     kind: DecisionKind
     answer: str | None = None
