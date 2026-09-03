@@ -449,6 +449,25 @@ def test_domainless_today_priority_is_grounded_in_open_task_deadlines():
     assert result.evidence["task"]["title"] == "review the backup"
 
 
+def test_priority_followup_reuses_one_scalar_task_focus():
+    from aegis.tasks import ContextualTaskPriorityFastPath
+
+    context = Context(
+        values={"canonical_facts": {"task": {"title": "review the backup", "status": "open"}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one is most urgent?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.message == "The most urgent referenced task is: review the backup"
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={
