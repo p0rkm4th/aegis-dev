@@ -475,6 +475,35 @@ def test_contextual_task_priority_accepts_start_with_follow_up():
     assert result.evidence["canonical_tasks"] == context.values["referents"]["those"]["candidates"]
 
 
+def test_contextual_task_priority_accepts_begin_with_follow_up():
+    from aegis.tasks import ContextualTaskPriorityFastPath
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "later task", "status": "open", "due_at": "2026-09-05"},
+                        {"title": "first task", "status": "open", "due_at": "2026-09-02"},
+                    ],
+                }
+            }
+        }
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one should I begin with?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message.endswith("first task")
+
+
 def test_contextual_task_priority_accepts_earliest_from_planning_referents():
     from aegis.tasks import ContextualTaskPriorityFastPath
 
@@ -3417,6 +3446,34 @@ def test_task_read_fast_path_filters_structural_get_done_today_request():
     assert result is not None
     assert result.evidence["due_filter"] == "today"
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["today task"]
+
+
+def test_task_read_fast_path_filters_weekday_without_due_verb():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    target = (now + timedelta(days=(0 - now.weekday()) % 7)).date()
+    monday_task = Task(
+        uuid4(),
+        "apartment",
+        "monday task",
+        "alice",
+        due_at=datetime.combine(target, datetime.min.time(), timezone.utc),
+    )
+    later = Task(uuid4(), "apartment", "later task", "alice", due_at=now + timedelta(days=30))
+
+    class Store:
+        def list(self, _principal):
+            return (monday_task, later)
+
+    utterance = "Show the Monday tasks"
+    assert TaskReadFastPath.matches(utterance)
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance=utterance)
+    )
+    assert result is not None
+    assert result.evidence["due_filter"] == "weekday:monday"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["monday task"]
 
 
 def test_task_read_fast_path_filters_remaining_task_list_to_open_tasks():
