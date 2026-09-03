@@ -10,6 +10,8 @@ from aegis.contracts import (
     IntentFrame,
     ModelRequest,
     ModelResponse,
+    ObjectiveRequirementProposal,
+    ObjectiveSpecProposal,
     Principal,
     ProposedPlan,
     ProposedPlanStep,
@@ -142,6 +144,66 @@ def test_fresh_source_request_uses_answer_only_research_callback() -> None:
     assert isinstance(result, Result)
     assert result.message == "verified from bounded evidence"
     assert calls == [("What changed in the latest release?", "external_evidence")]
+
+
+def test_plan_fidelity_does_not_accept_matching_plan_that_omits_human_effect() -> None:
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            if request.classification_only:
+                return ModelResponse(raw={"kind": "ANSWER", "semantic_mode": "ACTION"})
+            if request.objective_fidelity_only:
+                return ModelResponse(
+                    raw=ObjectiveSpecProposal(
+                        requirements=tuple(
+                            ObjectiveRequirementProposal(action_ref=action_id)
+                            for action_id in ("first", "second", "third")
+                        )
+                    ).model_dump(mode="json")
+                )
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    objective_spec=ObjectiveSpecProposal(
+                        requirements=tuple(
+                            ObjectiveRequirementProposal(action_ref=action_id)
+                            for action_id in ("first", "second")
+                        )
+                    ),
+                    plan=ProposedPlan(
+                        steps=tuple(
+                            ProposedPlanStep(action_ref=action_id)
+                            for action_id in ("first", "second")
+                        )
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(action_id=action_id, capability=action_id),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second", "third")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do first, second, and third",
+        ),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.CLARIFY
 
 
 def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> None:

@@ -371,7 +371,9 @@ class InteractionBoundary:
                     tuple(self.dependencies.pack_bundles()),
                     self.dependencies.auto_enable_pack_ids,
                 )
-            if self.dependencies.plan_runner is not None:
+            if self.dependencies.plan_runner is not None and (
+                recovered_plan_actions is not None or self.dependencies.model_provider is None
+            ):
                 plan_result = self.dependencies.plan_runner(
                     intent,
                     connection,
