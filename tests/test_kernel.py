@@ -2441,6 +2441,7 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
     request = ModelRequest(
         working_set=WorkingSet(intent=intent()),
         action_cards=(),
+        allow_argument_proposals=True,
         allow_plan_proposals=True,
     )
 
@@ -2450,6 +2451,7 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
     assert "must not contain action_ref, action_arguments, or action" in payload["plan_rule"]
     assert "every independent state change requested by the user" in payload["plan_rule"]
     assert "Keep arguments scoped to their own step" in payload["plan_rule"]
+    assert "optional or 'if clearly stated'" in payload["argument_proposal_rule"]
 
 
 def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):

@@ -238,7 +238,10 @@ class OllamaProvider:
                     "target is ambiguous, "
                     "return CLARIFY. For a create action, extract the smallest complete "
                     "description of the thing the user wants recorded, excluding politeness "
-                    "and destination phrases such as 'on my list' or 'as a task'."
+                    "and destination phrases such as 'on my list' or 'as a task'. A declared "
+                    "argument described as optional or 'if clearly stated' must be omitted "
+                    "when the user did not supply it; do not ask for or invent an optional "
+                    "value."
                     if request.allow_argument_proposals
                     else "Argument proposals are disabled; copy ActionCard actions verbatim."
                 ),
