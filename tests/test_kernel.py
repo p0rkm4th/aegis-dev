@@ -130,6 +130,7 @@ from aegis.planning import (
     PersonalMemoryChoreComposer,
     PersonalMemoryTaskComposer,
     PersonalTaskComposer,
+    PlanModificationFastPath,
 )
 from aegis.projections import (
     HouseholdProjection,
@@ -3870,6 +3871,27 @@ def test_implicit_ordinal_mutation_reference_blocks_before_model_selection():
     assert result is not None
     assert result.state is ObjectiveState.BLOCKED
     assert "will not guess" in result.message
+
+
+def test_correction_against_persisted_plan_cannot_rewrite_or_execute_history():
+    result = PlanModificationFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Actually, change the task to a different one.",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "plan_steps": [{"index": 0, "state": "completed"}],
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "explicit new action" in result.message
 
 
 def test_domain_clarification_fast_path_gives_reminder_guidance():
