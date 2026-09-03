@@ -876,9 +876,6 @@ def resolve_reference_fast_paths(
             result = TaskIntentClarificationFastPath.resolve(intent)
             if result is not None:
                 return result
-        result = TaskReadFastPath(task_store).resolve(intent)
-        if result is not None:
-            return result
         result = ContextualTaskTemporalFastPath().resolve(intent, context, task_store)
         if result is not None:
             return result
@@ -889,6 +886,9 @@ def resolve_reference_fast_paths(
         if result is not None:
             return result
         result = resolve_contextual_ordinal_read(intent, context)
+        if result is not None:
+            return result
+        result = TaskReadFastPath(task_store).resolve(intent)
         if result is not None:
             return result
         result = TaskPriorityFastPath(task_store).resolve(intent)
