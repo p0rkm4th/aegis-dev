@@ -586,6 +586,14 @@ def resolve_reference_safety_fast_paths(
         result = MultiActionFastPath.resolve(intent)
         if result is not None:
             return result
+        # A recognized bounded compound plan owns its dependent references;
+        # leave it for the existing plan validator/Kernel path.  Unrecognized
+        # mutation references still fall through to ContextualMutationGuard.
+        if (
+            MultiActionFastPath.task_chore_titles(intent.utterance) is not None
+            or MultiActionFastPath.task_event_details(intent.utterance) is not None
+        ):
+            return None
     if not model_enabled:
         result = DomainClarificationFastPath.resolve(intent)
         if result is not None:

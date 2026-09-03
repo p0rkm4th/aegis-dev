@@ -26,6 +26,7 @@ from aegis.reference_interaction import (
     reference_format_result,
     resolve_contextual_ordinal_read,
     resolve_contextual_remaining,
+    resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
 )
 from aegis.tasks import Task, requested_task_due_at
@@ -274,6 +275,18 @@ def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correctio
     assert correction is not None
     assert correction.state is ObjectiveState.BLOCKED
     assert "choose an ordinal" in correction.message
+
+
+def test_bounded_task_event_plan_owns_its_dependent_reference():
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance=(
+            "Add a task to check the water softener and schedule an appointment "
+            "to check it tomorrow."
+        ),
+    )
+
+    assert resolve_reference_safety_fast_paths(intent, None, True) is None
 
 
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:

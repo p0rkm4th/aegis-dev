@@ -179,6 +179,8 @@ class MultiActionFastPath:
         )
         if distinct_match is not None:
             task_title, event_title = (part.strip() for part in distinct_match.groups())
+            if re.search(r"\b(?:it|that)\b", event_title):
+                event_title = task_title
             starts_at = datetime.now(timezone.utc)
             if event_title.endswith(" tomorrow"):
                 event_title = event_title.removesuffix(" tomorrow").strip()
