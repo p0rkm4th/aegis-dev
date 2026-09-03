@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 from uuid import uuid4
 
 from .contracts import (
     ActionCard,
+    ActionSpec,
+    ClarificationAmbiguityType,
     ClarificationRecoveryOutcome,
     ClarificationRecoveryProposal,
     Context,
@@ -21,6 +24,29 @@ from .contracts import (
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_context import grounded_context_answer
 from .utterance import is_mutation_request, is_question_request
+
+
+@dataclass(frozen=True)
+class ClarificationRecoveryEvaluationCase:
+    """Development-only case for the deterministic recovery safety boundary."""
+
+    name: str
+    proposal: ClarificationRecoveryProposal
+    cards: tuple[ActionCard, ...]
+    context: Context
+    expected_resolved: bool
+
+
+@dataclass(frozen=True)
+class ClarificationRecoveryEvaluationMetrics:
+    """Core safety metrics; provider latency/model quality stay with the caller."""
+
+    cases: int
+    expected_resolutions: int
+    accepted_resolutions: int
+    unsafe_acceptances: int
+    expected_rejections: int
+    rejected_cases: int
 
 
 def validate_clarification_recovery(
@@ -57,6 +83,120 @@ def validate_clarification_recovery(
         elif candidate == proposal.referent_ref:
             matches.append(candidate)
     return len(matches) == 1 and (not proposed_title or len(label_matches) == 1)
+
+
+def development_clarification_recovery_cases() -> tuple[ClarificationRecoveryEvaluationCase, ...]:
+    """Return varied, execution-free recovery cases for the bounded spike."""
+
+    card = ActionCard(
+        action=ActionSpec(action_id="example.complete", capability="example.complete"),
+        summary="Complete a named task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+
+    def context(*items: dict[str, str]) -> Context:
+        return Context(
+            values={
+                "referents": {"those": {"fact_key": "canonical_tasks", "candidates": list(items)}}
+            },
+            sources=("authorized_canonical_result",),
+        )
+
+    def proposal(
+        outcome: ClarificationRecoveryOutcome,
+        *,
+        referent_ref: str | None = "task-1",
+        title: str | None = "Replace porch bulb",
+        ambiguity_type: ClarificationAmbiguityType = ClarificationAmbiguityType.REFERENT,
+    ) -> ClarificationRecoveryProposal:
+        return ClarificationRecoveryProposal(
+            outcome=outcome,
+            ambiguity_type=ambiguity_type,
+            action_ref="example.complete",
+            referent_ref=referent_ref,
+            arguments={"title": title} if title is not None else {},
+        )
+
+    return (
+        ClarificationRecoveryEvaluationCase(
+            "unique-referent-pronoun-typo",
+            proposal(ClarificationRecoveryOutcome.RESOLVED),
+            (card,),
+            context({"task_id": "task-1", "title": "Replace porch bulb"}),
+            True,
+        ),
+        ClarificationRecoveryEvaluationCase(
+            "duplicate-partial-name",
+            proposal(ClarificationRecoveryOutcome.RESOLVED, title="Call dentist"),
+            (card,),
+            context(
+                {"task_id": "task-1", "title": "Call dentist"},
+                {"task_id": "task-2", "title": "Call dentist"},
+            ),
+            False,
+        ),
+        ClarificationRecoveryEvaluationCase(
+            "stale-referent",
+            proposal(ClarificationRecoveryOutcome.RESOLVED, referent_ref="gone"),
+            (card,),
+            context({"task_id": "task-1", "title": "Replace porch bulb"}),
+            False,
+        ),
+        ClarificationRecoveryEvaluationCase(
+            "missing-argument",
+            proposal(ClarificationRecoveryOutcome.RESOLVED).model_copy(
+                update={"arguments": {"task_id": "task-1"}}
+            ),
+            (card,),
+            context({"task_id": "task-1", "title": "Replace porch bulb"}),
+            False,
+        ),
+        ClarificationRecoveryEvaluationCase(
+            "unsupported-capability",
+            proposal(
+                ClarificationRecoveryOutcome.UNSUPPORTED,
+                ambiguity_type=ClarificationAmbiguityType.CAPABILITY,
+            ),
+            (),
+            Context(values={}, sources=()),
+            False,
+        ),
+        ClarificationRecoveryEvaluationCase(
+            "ambiguous-read-write",
+            proposal(ClarificationRecoveryOutcome.NEED_USER),
+            (card,),
+            context({"task_id": "task-1", "title": "Replace porch bulb"}),
+            False,
+        ),
+    )
+
+
+def evaluate_clarification_recovery_cases(
+    cases: tuple[ClarificationRecoveryEvaluationCase, ...] | None = None,
+) -> ClarificationRecoveryEvaluationMetrics:
+    """Measure Core recovery safety without invoking a provider or Kernel."""
+
+    cases = development_clarification_recovery_cases() if cases is None else cases
+    accepted = sum(
+        validate_clarification_recovery(case.proposal, case.cards, case.context) for case in cases
+    )
+    expected = sum(case.expected_resolved for case in cases)
+    unsafe = sum(
+        int(
+            validate_clarification_recovery(case.proposal, case.cards, case.context)
+            and not case.expected_resolved
+        )
+        for case in cases
+    )
+    return ClarificationRecoveryEvaluationMetrics(
+        cases=len(cases),
+        expected_resolutions=expected,
+        accepted_resolutions=accepted,
+        unsafe_acceptances=unsafe,
+        expected_rejections=len(cases) - expected,
+        rejected_cases=len(cases) - accepted,
+    )
 
 
 def request_clarification_recovery(
