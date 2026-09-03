@@ -741,8 +741,17 @@ class TaskPriorityFastPath:
         implicit_task = text.startswith(("what", "which")) and any(
             term in text for term in ("should", "take care", "focus", "work")
         )
-        return (explicit_task or implicit_task) and (
-            "should" in text or "priorit" in text or "focus" in text or "next" in text
+        due_priority = (
+            text.startswith("which")
+            and "due" in text
+            and any(term in text for term in ("first", "earliest", "soonest"))
+        )
+        return (explicit_task or implicit_task or due_priority) and (
+            "should" in text
+            or "priorit" in text
+            or "focus" in text
+            or "next" in text
+            or due_priority
         )
 
     def __init__(self, store: PostgresTaskStore) -> None:
