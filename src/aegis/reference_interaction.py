@@ -809,6 +809,15 @@ def resolve_reference_fast_paths(
     progress_result = PlanProgressFastPath.resolve(intent, context)
     if progress_result is not None:
         return progress_result
+    # A recognized compound mutation must reach the plan runner before any
+    # domain read fast path.  Continuation context may contain the word
+    # "task" (or a relative date), but that must not collapse a plan into a
+    # canonical collection read.
+    if (
+        MultiActionFastPath.task_chore_titles(intent.utterance) is not None
+        or MultiActionFastPath.task_event_details(intent.utterance) is not None
+    ):
+        return None
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
