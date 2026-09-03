@@ -1245,6 +1245,17 @@ def rewrite_reference_decision(
 ) -> Decision | Result | None:
     """Correct a reference-Pack event proposal when the user named a task destination."""
 
+    if decision.kind is DecisionKind.ACTION and MultiActionFastPath.matches(intent.utterance):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "This request contains multiple actions, but I could not form a complete "
+                "verified plan. No action was executed; please separate the requests."
+            ),
+            correlation_id=intent.correlation_id,
+        )
+
     if decision.kind is DecisionKind.CLARIFY and context is not None:
         referent = resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks")
         task_card = next(
