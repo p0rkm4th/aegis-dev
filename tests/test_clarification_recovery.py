@@ -5,8 +5,13 @@ from aegis.contracts import (
     ClarificationRecoveryOutcome,
     ClarificationRecoveryProposal,
     Context,
+    IntentFrame,
+    Principal,
 )
-from aegis.interaction_recovery import validate_clarification_recovery
+from aegis.interaction_recovery import (
+    request_clarification_recovery,
+    validate_clarification_recovery,
+)
 
 
 def card() -> ActionCard:
@@ -74,3 +79,28 @@ def test_recovery_rejects_nonresolved_proposal_and_undeclared_arguments() -> Non
     assert not validate_clarification_recovery(
         invalid_args, (card(),), context({"task_id": "task-1", "title": "Replace porch bulb"})
     )
+
+
+def test_recovery_request_isolated_mode_returns_no_direct_action() -> None:
+    class Provider:
+        def decide(self, request: object) -> object:
+            assert getattr(request, "clarification_recovery_only") is True
+            assert getattr(request, "clarification_reason") == "ambiguous target"
+            return type(
+                "Response",
+                (),
+                {"raw": resolved().model_dump(mode="json")},
+            )()
+
+    proposal = request_clarification_recovery(
+        Provider(),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="vault"),
+            utterance="finish that bulb thing",
+        ),
+        context({"task_id": "task-1", "title": "Replace porch bulb"}),
+        (card(),),
+        "ambiguous target",
+    )
+    assert proposal is not None
+    assert not hasattr(proposal, "action")

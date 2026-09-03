@@ -275,6 +275,9 @@ class OllamaProvider:
         return json.dumps(
             {
                 "instruction": instruction,
+                "clarification_reason": request.clarification_reason
+                if request.clarification_recovery_only
+                else None,
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "
                     "authorized information, GENERATION for benign creative/explanatory "
