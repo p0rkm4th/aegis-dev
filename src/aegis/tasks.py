@@ -520,7 +520,7 @@ class TaskReadFastPath:
     """Deterministic task reads over the membership-checked canonical store."""
 
     _TRIGGERS = ("task", "tasks", "to-do", "todo", "what do i need to do")
-    _READ_PREFIXES = ("what", "show", "list", "which", "see", "display")
+    _READ_PREFIXES = ("what", "show", "list", "which", "see", "display", "give me")
 
     def __init__(self, store: PostgresTaskStore) -> None:
         self.store = store
