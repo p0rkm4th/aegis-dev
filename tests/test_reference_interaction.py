@@ -14,7 +14,7 @@ from aegis.contracts import (
     Result,
     VerificationContract,
 )
-from aegis.household import PostgresHouseholdStore
+from aegis.household import GroceryReadFastPath, PostgresHouseholdStore
 from aegis.interaction_context import (
     compact_context_evidence,
     resolve_obvious_ordinal,
@@ -52,6 +52,42 @@ def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> No
             )
         )
         assert result is None, utterance
+
+
+def test_grocery_read_fast_path_does_not_substitute_shopping_list_for_inventory() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    principal = Principal(id="alice", vault_id="alice-vault")
+    for utterance in (
+        "What groceries do we have?",
+        "What's in the pantry?",
+        "How much rice is left?",
+    ):
+        result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+            IntentFrame(principal=principal, utterance=utterance)
+        )
+        assert result is not None
+        assert result.state is ObjectiveState.BLOCKED
+        assert "not pantry" in result.message
+
+
+def test_grocery_read_fast_path_preserves_shopping_list_scope() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What groceries do we need?",
+        )
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["semantic_scope"] == "kitchen.shopping_list"
+    assert result.evidence["canonical_items"] == ["rice"]
 
 
 def test_memory_fast_path_keeps_explicit_memory_requests() -> None:

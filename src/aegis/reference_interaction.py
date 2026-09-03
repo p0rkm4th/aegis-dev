@@ -702,6 +702,7 @@ def build_reference_fallback_context(
     facts["canonical_items"] = list(
         dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
     )[:20]
+    facts["canonical_item_scope"] = "kitchen.shopping_list"
     read_snapshot = getattr(household_store, "read_snapshot", None)
     snapshot = read_snapshot(principal) if callable(read_snapshot) else {}
     if isinstance(snapshot, dict):

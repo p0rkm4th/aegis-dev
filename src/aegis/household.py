@@ -20,6 +20,7 @@ from .contracts import (
     VerificationContract,
     VerificationResult,
 )
+from .read_applicability import ReadApplicability, assess_read_applicability
 from .utterance import is_mutation_request
 
 _WEEKDAYS = (
@@ -600,6 +601,7 @@ class GroceryReadFastPath:
         "display",
         "is",
         "are",
+        "how",
     )
 
     def __init__(self, store: PostgresHouseholdStore) -> None:
@@ -612,17 +614,40 @@ class GroceryReadFastPath:
             return False
         grocery_noun = any(term in text.split() for term in ("grocery", "groceries"))
         shopping_list = "shopping list" in text
-        return (grocery_noun or shopping_list) and text.startswith(cls._READ_PREFIXES)
+        unsupported_inventory = (
+            assess_read_applicability(text, "kitchen.shopping_list") is ReadApplicability.NO_MATCH
+        )
+        return (grocery_noun or shopping_list or unsupported_inventory) and text.startswith(
+            cls._READ_PREFIXES
+        )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):
             return None
+        applicability = assess_read_applicability(intent.utterance, "kitchen.shopping_list")
+        if applicability is ReadApplicability.NO_MATCH:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=("I track the grocery shopping list, but not pantry or on-hand inventory."),
+                evidence={"semantic_scope": "kitchen.shopping_list", "applicability": "NO_MATCH"},
+                correlation_id=intent.correlation_id,
+            )
+        if applicability is ReadApplicability.CLARIFY:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="Do you mean items to buy, or inventory you already have?",
+                evidence={"semantic_scope": "kitchen.shopping_list", "applicability": "CLARIFY"},
+                correlation_id=intent.correlation_id,
+            )
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message="Canonical grocery list read",
             evidence={
                 "collection": "groceries",
+                "semantic_scope": "kitchen.shopping_list",
                 "canonical_items": list(self.store.list_groceries(intent.principal)),
             },
             correlation_id=intent.correlation_id,

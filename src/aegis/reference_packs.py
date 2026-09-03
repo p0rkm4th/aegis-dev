@@ -192,6 +192,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "bring home, or get at the store"
                     ),
                     relevance=1,
+                    semantic_scope="kitchen.shopping_list",
                 ),
             ),
         ),
