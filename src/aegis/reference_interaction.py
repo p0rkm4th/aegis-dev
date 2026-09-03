@@ -879,6 +879,9 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     """Answer a read-only ordinal follow-up from the authorized prior list."""
 
     text = intent.utterance.casefold()
+    ambiguous_correction = (
+        re.search(r"\b(?:other|another)\s+(?:one|item|task|chore|event)\b", text) is not None
+    )
     if (
         is_mutation_request(text)
         or not any(
@@ -889,13 +892,32 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             "which" in text
             and re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\b", text)
         )
+        and not ambiguous_correction
     ):
         return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    candidates = those.get("candidates") if isinstance(those, dict) else None
+    if isinstance(candidates, list) and ambiguous_correction:
+        # A correction without a unique structural target must not fall
+        # through to semantic action selection.  Keep it in the same
+        # authorized collection and ask for the missing identity.
+        fact_key = those.get("fact_key") if isinstance(those, dict) else None
+        labels = {
+            "canonical_items": "grocery item",
+            "canonical_tasks": "task",
+            "canonical_chores": "chore",
+            "events": "event",
+        }
+        label = labels.get(str(fact_key), "item")
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=f"Which {label} did you mean? Please name it or choose an ordinal.",
+            correlation_id=intent.correlation_id,
+        )
     item = resolve_obvious_ordinal_item(text, context)
     if item is not None:
-        referents = context.values.get("referents")
-        those = referents.get("those") if isinstance(referents, dict) else None
-        candidates = those.get("candidates") if isinstance(those, dict) else None
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
@@ -930,11 +952,17 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         starts_at = referent.get("starts_at")
         if isinstance(starts_at, str):
             detail += f"; starts {starts_at}"
+        collection_evidence = {
+            "collection": fact_key,
+            "authorized_ordinal_referent": referent,
+        }
+        if isinstance(candidates, list):
+            collection_evidence[fact_key] = candidates
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message=detail,
-            evidence={"collection": fact_key, "authorized_ordinal_referent": referent},
+            evidence=collection_evidence,
             correlation_id=intent.correlation_id,
         )
     return None

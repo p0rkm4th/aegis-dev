@@ -235,6 +235,47 @@ def test_contextual_ordinal_read_stays_in_authorized_event_domain():
     assert result.message == "Event: Apartment inspection (open); starts 2026-09-03T10:00:00+00:00"
 
 
+def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_chores",
+                    "candidates": [
+                        {"chore_id": "one", "title": "wash dishes", "completed": False},
+                        {"chore_id": "two", "title": "take out trash", "completed": False},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    selected = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which chore is last?",
+        ),
+        context,
+    )
+
+    assert selected is not None
+    assert (
+        selected.evidence["canonical_chores"] == context.values["referents"]["those"]["candidates"]
+    )
+
+    correction = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, the other one.",
+        ),
+        context,
+    )
+
+    assert correction is not None
+    assert correction.state is ObjectiveState.BLOCKED
+    assert "choose an ordinal" in correction.message
+
+
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
