@@ -2437,6 +2437,19 @@ def test_ollama_compact_card_view_omits_policy_internals():
     assert "verification" not in visible
 
 
+def test_ollama_plan_prompt_separates_plan_and_action_shapes():
+    request = ModelRequest(
+        working_set=WorkingSet(intent=intent()),
+        action_cards=(),
+        allow_plan_proposals=True,
+    )
+
+    payload = json.loads(OllamaProvider("qwen3:8b", object())._prompt(request))
+
+    assert "plan object" in payload["plan_rule"]
+    assert "must not contain action_ref, action_arguments, or action" in payload["plan_rule"]
+
+
 def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
     key = "correlation:kitchen.groceries.add"
     path = tmp_path / "groceries.tsv"

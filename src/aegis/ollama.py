@@ -193,10 +193,13 @@ class OllamaProvider:
                 ),
                 "plan_rule": (
                     "For PLAN, use only when the objective clearly requires multiple state "
-                    "changes. Set semantic_mode to ACTION and provide 2-5 steps, each with "
-                    "an exact action_ref from the supplied ActionCards, only declared "
-                    "arguments, and dependencies that point to earlier steps. If one action "
-                    "is sufficient, return ACTION instead. Never invent capabilities."
+                    "changes. Set semantic_mode to ACTION and return a plan object whose "
+                    "steps array contains 2-5 steps. Each step must contain an exact action_ref "
+                    "from the supplied ActionCards, only declared argument keys, and optional "
+                    "depends_on indexes that point to earlier steps. A PLAN must contain the "
+                    "plan object and must not contain action_ref, action_arguments, or action; "
+                    "those fields are only for ACTION. If one action is sufficient, return "
+                    "ACTION instead. Never invent capabilities."
                     if request.allow_plan_proposals
                     else "Plan proposals are disabled; return at most one action."
                 ),
