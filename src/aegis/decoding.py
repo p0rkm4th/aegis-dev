@@ -100,7 +100,6 @@ class StrictDecisionDecoder:
                 or decision.answer is not None
                 or decision.clarification is not None
                 or decision.context_focus is not None
-                or decision.objective_spec is not None
             ):
                 raise InvalidDecision("PLAN cannot contain fields for another decision kind")
         elif decision.kind is DecisionKind.ANSWER:
