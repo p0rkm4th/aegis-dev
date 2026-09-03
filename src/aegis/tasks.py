@@ -676,14 +676,14 @@ class TaskPriorityFastPath:
     def __init__(self, store: PostgresTaskStore) -> None:
         self.store = store
 
-    def resolve(self, intent: IntentFrame) -> Result | None:
+    def resolve(self, intent: IntentFrame, now: datetime | None = None) -> Result | None:
         if not self.matches(intent.utterance):
             return None
         open_tasks = tuple(
             task for task in self.store.list(intent.principal) if task.status is TaskStatus.OPEN
         )
         dated = tuple(task for task in open_tasks if task.due_at is not None)
-        requested = requested_task_due_at(intent.utterance)
+        requested = requested_task_due_at(intent.utterance, now)
         if requested is not None and "tomorrow" in intent.utterance.casefold():
             target_date = datetime.fromisoformat(requested).date()
             dated = tuple(
