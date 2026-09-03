@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Literal
 
 from pydantic import Field
 
@@ -12,17 +12,41 @@ from .contracts import (
     ObjectiveFidelityVerdict,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
+    RequestedEffect,
     StrictModel,
+    StructuralCoverageSignal,
 )
 
 
 class RequestedEffectProposal(StrictModel):
-    """Development-only segmented effect; it is never executable or authoritative."""
+    """Untrusted utterance-grounded effect proposal; never executable."""
 
     effect_text: str = Field(min_length=1, max_length=500)
     source_span: tuple[int, int]
     action_ref: str | None = None
     arguments: dict[str, object] = {}
+    polarity: Literal["ACTIVE", "NEGATED", "SUPERSEDED"] = "ACTIVE"
+
+
+def materialize_requested_effects(
+    utterance: str, effects: tuple[RequestedEffectProposal, ...]
+) -> tuple[RequestedEffect, ...] | None:
+    """Assign Core identities only after exact source grounding succeeds."""
+
+    normalized = normalize_effect_spans(utterance, effects)
+    if normalized is None or not validate_effect_spans(utterance, normalized):
+        return None
+    spans = [effect.source_span for effect in normalized]
+    if len(spans) != len(set(spans)):
+        return None
+    return tuple(
+        RequestedEffect(
+            source_spans=(effect.source_span,),
+            normalized_effect=effect.effect_text.strip(),
+            polarity=effect.polarity,
+        )
+        for effect in normalized
+    )
 
 
 def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal, ...]) -> bool:
@@ -34,6 +58,45 @@ def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal
         for effect in effects
         for start, end in (effect.source_span,)
     )
+
+
+def validate_structural_coverage(
+    utterance: str,
+    effects: tuple[RequestedEffect, ...],
+    signal: StructuralCoverageSignal,
+) -> bool:
+    """Require one meaningful parser anchor for each requested effect.
+
+    The signal is intentionally supplied by a separate structural component.
+    This function neither assigns meaning nor maps actions.  Exact cardinality
+    and one-to-one span correspondence prevent one full-utterance or duplicated
+    span from claiming coverage of several structural units.
+    """
+
+    if not effects or len(effects) != len(signal.anchors):
+        return False
+    effect_spans = [span for effect in effects for span in effect.source_spans]
+    if len(effect_spans) != len(set(effect_spans)):
+        return False
+    anchor_spans = [anchor.source_span for anchor in signal.anchors]
+    if len(anchor_spans) != len(set(anchor_spans)):
+        return False
+    if any(not (0 <= start < end <= len(utterance)) for start, end in anchor_spans):
+        return False
+    if len(signal.anchors) > 1 and any(
+        start == 0 and end == len(utterance) for start, end in effect_spans
+    ):
+        return False
+
+    def overlaps(left: tuple[int, int], right: tuple[int, int]) -> bool:
+        return left[0] < right[1] and right[0] < left[1]
+
+    # Every anchor must correspond to exactly one effect, and every effect to
+    # exactly one anchor.  The parser's internal token/dependency details do
+    # not cross this Core boundary.
+    matches = [sum(overlaps(anchor, effect) for effect in effect_spans) for anchor in anchor_spans]
+    reverse = [sum(overlaps(effect, anchor) for anchor in anchor_spans) for effect in effect_spans]
+    return all(count == 1 for count in matches) and all(count == 1 for count in reverse)
 
 
 def normalize_effect_spans(
@@ -68,6 +131,12 @@ def effects_to_proposal(
 ) -> ObjectiveSpecProposal | None:
     """Bind grounded effect segments to an untrusted requirement proposal."""
 
+    # Establish the action-agnostic Core boundary before consulting any
+    # proposed capability mapping.  The materialized value is intentionally
+    # not used as executable state here; this helper remains a proposal path.
+    materialized = materialize_requested_effects(utterance, effects)
+    if materialized is None or any(effect.polarity != "ACTIVE" for effect in materialized):
+        return None
     normalized_effects = normalize_effect_spans(utterance, effects)
     if (
         normalized_effects is None

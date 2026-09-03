@@ -79,6 +79,7 @@ from .research import (
     TrafilaturaContentExtractor,
 )
 from .store import PostgresObjectiveStore
+from .structural import SpacyStructuralParser, StructuralParserUnavailable
 from .tasks import PostgresTaskStore
 from .utterance import is_task_destination_request
 from .web import serve
@@ -871,6 +872,17 @@ def run_interaction(
             ),
         )
 
+    structural_parser = None
+    structural_model = os.environ.get("AEGIS_STRUCTURAL_MODEL")
+    if structural_model:
+        try:
+            structural_parser = SpacyStructuralParser(model_path=structural_model).parse
+        except StructuralParserUnavailable:
+            # Compound objectives fail closed in cognition when independent
+            # structural evidence is unavailable; ordinary reads and answers
+            # retain their existing paths.
+            structural_parser = None
+
     boundary = InteractionBoundary(
         InteractionDependencies(
             connect=psycopg.connect,
@@ -898,6 +910,7 @@ def run_interaction(
             runtime_resolver=legacy_runtime,
             safety_fast_path_resolver=resolve_reference_safety_fast_paths,
             research_answer=research_answer,
+            structural_parser=structural_parser,
         )
     )
     return boundary.run(

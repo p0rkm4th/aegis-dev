@@ -178,6 +178,10 @@ class OllamaProvider:
                                     "maxItems": 2,
                                 },
                                 "action_ref": {"type": "string", "minLength": 1},
+                                "polarity": {
+                                    "type": "string",
+                                    "enum": ["ACTIVE", "NEGATED", "SUPERSEDED"],
+                                },
                                 "arguments": {"type": "object"},
                             },
                             "required": ["effect_text", "source_span", "action_ref", "arguments"],
