@@ -111,7 +111,9 @@ class ResearchAnswer:
 class AnswerSynthesizer(Protocol):
     """A provider with no action cards, tools, or plan proposal surface."""
 
-    def synthesize(self, question: str, evidence: EvidenceSet) -> str: ...
+    def synthesize(
+        self, question: str, evidence: EvidenceSet, local_context: dict[str, object] | None = None
+    ) -> str: ...
 
 
 @dataclass(frozen=True)
@@ -359,10 +361,15 @@ class ResearchService:
         )
 
     def answer(
-        self, question: str, request: SearchRequest, synthesizer: AnswerSynthesizer
+        self,
+        question: str,
+        request: SearchRequest,
+        synthesizer: AnswerSynthesizer,
+        local_context: dict[str, object] | None = None,
     ) -> ResearchAnswer:
         """Synthesize only from fetched evidence; this path cannot execute actions."""
 
         evidence = self.collect(request)
-        text = synthesizer.synthesize(question, evidence)
-        return ResearchAnswer(text=text, source_kind=KnowledgeSource.EXTERNAL, evidence=evidence)
+        text = synthesizer.synthesize(question, evidence, local_context)
+        source_kind = KnowledgeSource.MIXED if local_context else KnowledgeSource.EXTERNAL
+        return ResearchAnswer(text=text, source_kind=source_kind, evidence=evidence)

@@ -120,7 +120,12 @@ def test_research_answer_is_non_authoritative_and_has_no_action_surface() -> Non
             return document.body.decode()
 
     class Synthesizer:
-        def synthesize(self, _question: str, evidence: EvidenceSet) -> str:
+        def synthesize(
+            self,
+            _question: str,
+            evidence: EvidenceSet,
+            _local_context: dict[str, object] | None = None,
+        ) -> str:
             return evidence.evidence[0].text
 
     answer = ResearchService(Provider(), Fetcher(), Extractor()).answer(
@@ -130,3 +135,40 @@ def test_research_answer_is_non_authoritative_and_has_no_action_surface() -> Non
     assert answer.authoritative is False
     assert answer.source_kind.value == "external_evidence"
     assert not hasattr(answer, "action")
+
+
+def test_mixed_research_marks_local_context_only_after_collection() -> None:
+    class Provider:
+        provider_id = "fake"
+
+        def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]:
+            assert "private" not in request.query
+            return (SearchCandidate("Public", "https://public.example/one"),)
+
+    class Fetcher:
+        def fetch(self, url: str) -> FetchedDocument:
+            return FetchedDocument(url, "text/plain", b"public evidence")
+
+    class Extractor:
+        def extract(self, _document: FetchedDocument) -> str:
+            return "public evidence"
+
+    class Synthesizer:
+        def synthesize(
+            self,
+            _question: str,
+            _evidence: EvidenceSet,
+            local_context: dict[str, object] | None = None,
+        ) -> str:
+            assert local_context == {"preference": "private"}
+            return "combined"
+
+    answer = ResearchService(Provider(), Fetcher(), Extractor()).answer(
+        "latest public change I might like",
+        SearchRequest("latest public change"),
+        Synthesizer(),
+        local_context={"preference": "private"},
+    )
+
+    assert answer.source_kind.value == "mixed_evidence"
+    assert answer.authoritative is False
