@@ -393,6 +393,15 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
         if objective is not None:
+            if objective.objective_spec is not None and (
+                objective_spec is None or validated_plan is None
+            ):
+                return Result(
+                    objective_id=objective.id,
+                    state=ObjectiveState.BLOCKED,
+                    message="objective requires its persisted validated plan for recovery",
+                    correlation_id=intent.correlation_id,
+                )
             if (
                 objective.steps != actions
                 or objective_spec is not None
