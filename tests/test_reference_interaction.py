@@ -515,6 +515,26 @@ def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     assert result.evidence["memories"][0]["content"] == memory.content
 
 
+def test_memory_read_fast_path_handles_plural_memory_list_request() -> None:
+    memory = MemoryRecord(
+        uuid4(),
+        "The owner keeps the house interface calm and dark.",
+        datetime(2026, 9, 1, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    state = PersonalState(memories={memory.memory_id: memory})
+    result = PersonalMemoryFastPath(state).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What memories do I have?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["memories"][0]["content"] == memory.content
+
+
 def test_memory_followup_reuses_only_authorized_prior_memory_projection() -> None:
     context = Context(
         values={
