@@ -37,6 +37,16 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
             for step in raw_plan_steps[:5]
             if isinstance(step, dict)
         ]
+    raw_requirements = evidence.get("objective_requirements")
+    if isinstance(raw_requirements, (list, tuple)):
+        compact["objective_requirements"] = [
+            {
+                "requirement_id": item.get("requirement_id"),
+                "state": item.get("state"),
+            }
+            for item in raw_requirements[:5]
+            if isinstance(item, dict)
+        ]
     for key in ("task",):
         value = evidence.get(key)
         if isinstance(value, dict):

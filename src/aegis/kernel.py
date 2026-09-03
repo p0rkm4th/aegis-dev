@@ -430,6 +430,24 @@ class Kernel:
             self.store.save_objective(objective)
         step_results: list[dict[str, object]] = []
         satisfied_requirement_ids: set[UUID] = set()
+
+        def aggregate_evidence() -> dict[str, object]:
+            evidence: dict[str, object] = {"steps": step_results}
+            if objective_spec is not None and validated_plan is not None:
+                states = {
+                    str(step["requirement_id"]): step["state"]
+                    for step in step_results
+                    if "requirement_id" in step and "state" in step
+                }
+                evidence["objective_requirements"] = [
+                    {
+                        "requirement_id": str(requirement.requirement_id),
+                        "state": states.get(str(requirement.requirement_id), "pending"),
+                    }
+                    for requirement in objective_spec.requirements
+                ]
+            return evidence
+
         for index, action in enumerate(actions):
             step_correlation = uuid5(
                 intent.correlation_id, f"aegis-plan-step:{index}:{action.action_id}"
@@ -459,6 +477,11 @@ class Kernel:
                     "correlation_id": str(result.correlation_id),
                     "message": result.message,
                     "evidence": result.evidence,
+                    **(
+                        {"requirement_id": str(validated_plan.steps[index].requirement_id)}
+                        if validated_plan is not None
+                        else {}
+                    ),
                 }
             )
             if result.state is ObjectiveState.COMPLETED and validated_plan is not None:
@@ -470,7 +493,7 @@ class Kernel:
                     objective_id=objective.id,
                     state=result.state,
                     message=f"Plan stopped at step {index + 1} of {len(actions)}: {result.message}",
-                    evidence={"steps": step_results},
+                    evidence=aggregate_evidence(),
                     correlation_id=intent.correlation_id,
                     retryable=result.retryable,
                 )
@@ -487,7 +510,7 @@ class Kernel:
                 message=(
                     "Objective remains incomplete because a requested requirement is unsatisfied"
                 ),
-                evidence={"steps": step_results},
+                evidence=aggregate_evidence(),
                 correlation_id=intent.correlation_id,
             )
         objective = objective.model_copy(update={"state": ObjectiveState.COMPLETED})
@@ -496,7 +519,7 @@ class Kernel:
             objective_id=objective.id,
             state=ObjectiveState.COMPLETED,
             message=f"Completed all {len(actions)} plan steps",
-            evidence={"steps": step_results},
+            evidence=aggregate_evidence(),
             correlation_id=intent.correlation_id,
         )
         self.store.save_result(plan_key, aggregate)

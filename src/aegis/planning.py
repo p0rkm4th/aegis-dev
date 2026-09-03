@@ -196,7 +196,31 @@ class PlanProgressFastPath:
         if not any(term in text for term in cls._PROGRESS_TERMS):
             return None
         facts = context.values.get("canonical_facts")
+        requirements = facts.get("objective_requirements") if isinstance(facts, dict) else None
         steps = facts.get("plan_steps") if isinstance(facts, dict) else None
+        if isinstance(requirements, list) and requirements:
+            completed = sum(
+                isinstance(item, dict) and item.get("state") == ObjectiveState.COMPLETED.value
+                for item in requirements
+            )
+            remaining = len(requirements) - completed
+            if remaining:
+                message = (
+                    f"{completed} of {len(requirements)} requested changes are complete; "
+                    f"{remaining} remain."
+                )
+            else:
+                message = f"All {len(requirements)} requested changes are complete."
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message=message,
+                evidence={
+                    "objective_requirements": requirements,
+                    "progress_basis": "persisted_objective_requirements",
+                },
+                correlation_id=intent.correlation_id,
+            )
         if not isinstance(steps, list) or not steps:
             return None
         completed = sum(
