@@ -104,16 +104,17 @@ _INDEX_HTML = """<!doctype html>
 *{box-sizing:border-box}body{font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--text)}
 .app-shell{max-width:76rem;margin:auto;padding:1rem clamp(1rem,4vw,3rem) 4rem}.topbar{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0 2rem}.brand{display:flex;gap:.75rem;align-items:center}.brand-mark{display:grid;place-items:center;width:2.25rem;height:2.25rem;border:1px solid var(--border);border-radius:.75rem;color:var(--accent);background:var(--panel);font-weight:700}.brand h1{font-size:1.25rem;letter-spacing:.03em;margin:0}.eyebrow{font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}.workspace{max-width:54rem;margin:auto}.conversation-panel{background:var(--panel);border:1px solid var(--border);border-radius:1.25rem;padding:clamp(1rem,3vw,2rem);box-shadow:var(--shadow)}
 .muted{color:var(--muted)}.health-line{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1rem;color:var(--muted);font-size:.9rem}.health-line strong{color:var(--text);font-weight:600}.status-dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:#6fd18a;margin-right:.45rem}details summary{cursor:pointer;color:var(--muted);font-size:.85rem}#health-details{margin:.5rem 0 0;padding-left:1.2rem;font-size:.82rem}#health-details:empty{display:none}
-#chat{display:flex;gap:.7rem;margin:1rem 0 1.5rem}#utterance{flex:1;min-width:0;padding:.85rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--bg);color:var(--text);font:inherit}button{padding:.75rem 1rem;border:1px solid var(--border);border-radius:.7rem;background:var(--panel-raised);color:var(--text);font:inherit;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}button:disabled,input:disabled{cursor:wait;opacity:.65}
-#answer{font-size:1.08rem;white-space:pre-wrap;margin:0 0 .5rem}#activity,#step-status{font-size:.85rem;margin:.35rem 0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;padding:0;margin:1.5rem 0 0}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;background:var(--panel-raised);white-space:pre-wrap}#conversation li:nth-child(odd){align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}
+#chat{display:flex;align-items:flex-end;gap:.7rem;margin:1rem 0 1.5rem}#utterance{flex:1;min-width:0;min-height:3.25rem;max-height:11rem;resize:none;overflow-y:hidden;padding:.85rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--bg);color:var(--text);font:inherit;line-height:1.45}#composer-hint{font-size:.78rem;margin:-1rem 0 1rem;color:var(--muted)}button{padding:.75rem 1rem;border:1px solid var(--border);border-radius:.7rem;background:var(--panel-raised);color:var(--text);font:inherit;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}button:disabled,input:disabled,textarea:disabled{cursor:wait;opacity:.65}
+#answer{margin:0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#activity,#step-status{font-size:.85rem;margin:.35rem 0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;max-height:min(60vh,42rem);overflow-y:auto;padding:.25rem .35rem .5rem 0;margin:1.5rem 0 0;scroll-behavior:smooth}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;white-space:pre-wrap;overflow-wrap:anywhere}#conversation li.owner-message{align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}#conversation li.aegis-message{align-self:flex-start;background:var(--panel-raised)}#conversation li.conversation-empty{max-width:none;color:var(--muted);text-align:center;border:1px dashed var(--border);background:transparent}
 .secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
 @media(max-width:36rem){#chat{align-items:stretch;flex-direction:column}#chat button{width:100%}#conversation li{max-width:100%}}
 </style>
 </head><body><div class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><div class="eyebrow">Personal intelligence</div><h1>AEGIS</h1></div></div><button id="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button></header>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div>
-<form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><input id="utterance" autocomplete="off"
-placeholder="What can I help with?"><button>Send</button></form>
-<p id="answer" aria-live="polite"></p><p id="step-status" class="muted"
+<form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
+placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
+<p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
+<p id="answer" class="sr-only" aria-live="polite"></p><p id="step-status" class="muted"
 aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
 <p id="feedback" hidden>Was this useful?
@@ -121,7 +122,7 @@ aria-live="polite" aria-label="Selected node details"></div>
 <button type="button" data-feedback="not_helpful">Not helpful</button>
 <span id="feedback-status" class="muted" aria-live="polite"></span></p>
 <p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
-<h2 class="sr-only">Conversation</h2><ol id="conversation" aria-live="polite"></ol></section>
+<h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol></section>
 <section class="secondary" aria-label="Canonical state"><div class="state-tools"><h2>Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
@@ -222,6 +223,33 @@ function persistPendingRequest(utterance, correlationId) {
 function clearPendingRequest() {
   try { sessionStorage.removeItem(pendingStorageKey); } catch (_) { /* optional storage */ }
 }
+function resizeComposer() {
+  const input = document.getElementById('utterance');
+  input.style.height = 'auto';
+  input.style.height = `${Math.min(input.scrollHeight, 176)}px`;
+  input.style.overflowY = input.scrollHeight > 176 ? 'auto' : 'hidden';
+}
+function appendConversationMessage(kind, text) {
+  const conversation = document.getElementById('conversation');
+  conversation.querySelector('.conversation-empty')?.remove();
+  const wasNearBottom = conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 80;
+  const line = document.createElement('li');
+  line.className = kind;
+  line.textContent = text;
+  conversation.append(line);
+  if (wasNearBottom || kind === 'aegis-message')
+    line.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+}
+const composer = document.getElementById('utterance');
+composer.addEventListener('input', resizeComposer);
+composer.addEventListener('keydown', event => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    if (!document.querySelector('#chat button').disabled)
+      document.getElementById('chat').requestSubmit();
+  }
+});
+resizeComposer();
 function restorePendingRequest() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(pendingStorageKey) || 'null');
@@ -237,6 +265,7 @@ function restorePendingRequest() {
       'A previous request may still be in progress. Retry uses the same correlation.';
     document.querySelector('#chat button').textContent = 'Retry';
   } catch (_) { clearPendingRequest(); }
+  resizeComposer();
 }
 function scheduleRecoveryPoll() {
   if (recoveryPollScheduled || !pendingCorrelationId || recoveryPollAttempts >= maxRecoveryPolls) {
@@ -370,6 +399,10 @@ function clearAuthorizedDisplays() {
   nodeFilterStatus.textContent = 'Authorized nodes unavailable.';
   document.getElementById('answer').textContent = '';
   document.getElementById('conversation').replaceChildren();
+  const empty = document.createElement('li');
+  empty.className = 'conversation-empty';
+  empty.textContent = 'Your conversation will appear here.';
+  document.getElementById('conversation').append(empty);
   clearConversationContext();
   pendingCorrelationId = null;
   recoveryPollAttempts = 0;
@@ -511,12 +544,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
   event.preventDefault(); const input = document.getElementById('utterance');
   const send = event.currentTarget.querySelector('button');
   const utterance = input.value.trim(); if (!utterance || send.disabled) return;
-  const conversation = document.getElementById('conversation');
   const correlationId = pendingCorrelationId || crypto.randomUUID();
-  if (!pendingCorrelationId) {
-    const userLine = document.createElement('li'); userLine.textContent = `You: ${utterance}`;
-    conversation.append(userLine);
-  }
+  if (!pendingCorrelationId) appendConversationMessage('owner-message', `You: ${utterance}`);
   send.disabled = true; input.disabled = true;
   event.currentTarget.setAttribute('aria-busy', 'true');
   persistPendingRequest(utterance, correlationId);
@@ -533,8 +562,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     const result = await response.json();
     const answer = result.message || result.error || 'No response';
     document.getElementById('answer').textContent = answer;
-    const assistantLine = document.createElement('li');
-    assistantLine.textContent = `AEGIS: ${answer}`; conversation.append(assistantLine);
+    appendConversationMessage('aegis-message', `AEGIS: ${answer}`);
     if (result.steps && result.steps.length) document.getElementById('step-status').textContent =
       result.steps.map(step =>
         `${step.action_id}: ${lifecycleLabel(step.state)} · ${step.message}`).join(' | ');
