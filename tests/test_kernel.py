@@ -3189,6 +3189,16 @@ def test_multi_action_fast_path_accepts_scheduled_appointment_language():
     assert details[2].endswith("+00:00")
 
 
+def test_multi_action_fast_path_resolves_dependent_event_pronoun():
+    details = MultiActionFastPath.task_event_details(
+        "Add a task to check the water softener and schedule an appointment to check it tomorrow."
+    )
+
+    assert details is not None
+    assert details[0:2] == ("check the water softener", "check the water softener")
+    assert details[2].endswith("+00:00")
+
+
 def test_domain_clarification_fast_path_handles_underspecified_request():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     intent = IntentFrame(principal=principal, utterance="Can you take care of the house stuff?")
