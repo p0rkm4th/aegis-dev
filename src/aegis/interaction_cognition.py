@@ -342,6 +342,28 @@ def decide_fallback(
                 raise last_invalid
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
+        if decision.kind is DecisionKind.ANSWER and decision.knowledge_source in {
+            "external_evidence",
+            "mixed_evidence",
+        }:
+            research_answer = getattr(dependencies, "research_answer", None)
+            if research_answer is None:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.FAILED,
+                    message="I couldn't verify current information right now.",
+                    evidence={
+                        "source_kind": decision.knowledge_source,
+                        "authoritative": False,
+                    },
+                    correlation_id=intent.correlation_id,
+                    retryable=True,
+                )
+            researched = cast(
+                Result | None, research_answer(intent, context, decision.knowledge_source)
+            )
+            if researched is not None:
+                return researched
         if decision.kind is DecisionKind.PLAN and decision.plan is not None:
             if decision.objective_spec is None:
                 interpretation_request = request.model_copy(
