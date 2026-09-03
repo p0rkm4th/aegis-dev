@@ -57,6 +57,7 @@ class PlanProgressFastPath:
         "what remains",
         "remaining",
         "still need",
+        "outstanding",
     )
 
     @classmethod
