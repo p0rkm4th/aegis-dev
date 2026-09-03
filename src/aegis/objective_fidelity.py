@@ -21,6 +21,8 @@ class RequestedEffectProposal(StrictModel):
 
     effect_text: str = Field(min_length=1, max_length=500)
     source_span: tuple[int, int]
+    action_ref: str | None = None
+    arguments: dict[str, object] = {}
 
 
 def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal, ...]) -> bool:
@@ -31,6 +33,25 @@ def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal
         and utterance[start:end].strip() == effect.effect_text.strip()
         for effect in effects
         for start, end in (effect.source_span,)
+    )
+
+
+def effects_to_proposal(
+    utterance: str, effects: tuple[RequestedEffectProposal, ...]
+) -> ObjectiveSpecProposal | None:
+    """Bind grounded effect segments to an untrusted requirement proposal."""
+
+    if not validate_effect_spans(utterance, effects) or any(
+        effect.action_ref is None for effect in effects
+    ):
+        return None
+    return ObjectiveSpecProposal(
+        requirements=tuple(
+            ObjectiveRequirementProposal(
+                action_ref=effect.action_ref or "", arguments=dict(effect.arguments)
+            )
+            for effect in effects
+        )
     )
 
 

@@ -25,7 +25,12 @@ from .contracts import (
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_recovery import recover_invalid_model_decision
-from .objective_fidelity import compare_objective_proposals, fidelity_message
+from .objective_fidelity import (
+    RequestedEffectProposal,
+    compare_objective_proposals,
+    effects_to_proposal,
+    fidelity_message,
+)
 from .utterance import is_question_request
 
 
@@ -418,17 +423,26 @@ def decide_fallback(
                 request.model_copy(
                     update={
                         "objective_interpretation_only": False,
-                        "objective_fidelity_only": True,
+                        "objective_fidelity_only": False,
+                        "objective_effect_only": True,
                         "allow_plan_proposals": False,
                         "allow_argument_proposals": False,
-                        "objective_spec_proposal": decision.objective_spec,
+                        "objective_spec_proposal": None,
                     }
                 )
             )
             if not isinstance(fidelity_response.raw, dict):
                 raise InvalidDecision("objective fidelity must be an object")
             try:
-                independent_spec = ObjectiveSpecProposal.model_validate(fidelity_response.raw)
+                raw_effects = fidelity_response.raw.get("effects")
+                if not isinstance(raw_effects, list):
+                    raise ValueError("objective effects must be a list")
+                effects = tuple(
+                    RequestedEffectProposal.model_validate(item) for item in raw_effects
+                )
+                independent_spec = effects_to_proposal(intent.utterance, effects)
+                if independent_spec is None:
+                    raise ValueError("objective effects were not grounded")
             except Exception as exc:
                 raise InvalidDecision("objective fidelity failed its strict schema") from exc
             objective_spec = decision.objective_spec or independent_spec

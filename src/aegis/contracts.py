@@ -253,6 +253,7 @@ class ModelRequest(StrictModel):
     objective_interpretation_only: bool = False
     source_selection_only: bool = False
     objective_fidelity_only: bool = False
+    objective_effect_only: bool = False
     objective_spec_proposal: ObjectiveSpecProposal | None = None
 
 

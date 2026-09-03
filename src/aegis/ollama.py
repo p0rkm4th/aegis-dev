@@ -133,6 +133,35 @@ class OllamaProvider:
         model boundary is stricter: omitted action fields are ambiguous and
         must be rejected before policy or execution.
         """
+        if request is not None and request.objective_effect_only:
+            return {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "effects": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "properties": {
+                                "effect_text": {"type": "string", "minLength": 1},
+                                "source_span": {
+                                    "type": "array",
+                                    "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                },
+                                "action_ref": {"type": "string", "minLength": 1},
+                                "arguments": {"type": "object"},
+                            },
+                            "required": ["effect_text", "source_span", "action_ref", "arguments"],
+                        },
+                    }
+                },
+                "required": ["effects"],
+            }
         if request is not None and (
             request.objective_interpretation_only or request.objective_fidelity_only
         ):
@@ -183,27 +212,37 @@ class OllamaProvider:
             self._compact_card(card) if self.compact_action_cards else card.model_dump(mode="json")
             for card in request.action_cards
         ]
+        if request.objective_effect_only:
+            instruction = (
+                "Segment every independent requested state change into a grounded effect. "
+                "Return no plan and no completion claim. Each effect must cite an exact "
+                "contiguous source span from the user's utterance and bind only to an "
+                "exact supplied ActionCard action_ref with declared arguments. This is "
+                "untrusted evidence for Core fidelity checking."
+            )
+        elif request.objective_fidelity_only:
+            instruction = (
+                "Return exactly one objective_spec JSON object describing every independent "
+                "state change requested by the user. This is an independent fidelity "
+                "interpretation: compare the human request to the bounded capability "
+                "vocabulary, not to any plan. Do not return a plan, completion claim, "
+                "permissions, or verification. Core compares this proposal to the primary "
+                "interpretation."
+            )
+        elif request.objective_interpretation_only:
+            instruction = (
+                "Return exactly one objective_spec JSON object. It must contain one "
+                "requirement for each independent state change requested by the user. Use "
+                "only exact action_ref values from the supplied ActionCards and only the "
+                "grounded arguments needed for that effect. Do not include a plan, completion "
+                "claim, permissions, or verification. Core will assign stable identities and "
+                "validate the proposal."
+            )
+        else:
+            instruction = "Return exactly one structured Aegis Decision JSON object."
         return json.dumps(
             {
-                "instruction": (
-                    "Return exactly one objective_spec JSON object describing every "
-                    "independent state change requested by the user. This is an "
-                    "independent fidelity interpretation: compare the human request "
-                    "to the bounded capability vocabulary, not to any plan. Do not "
-                    "return a plan, completion claim, permissions, or verification. "
-                    "Core compares this proposal to the primary interpretation."
-                    if request.objective_fidelity_only
-                    else (
-                        "Return exactly one objective_spec JSON object. It must contain one "
-                        "requirement for each independent state change requested by the user. "
-                        "Use only exact action_ref values from the supplied ActionCards and "
-                        "only the grounded arguments needed for that effect. Do not include a "
-                        "plan, completion claim, permissions, or verification. Core will assign "
-                        "stable identities and validate the proposal."
-                        if request.objective_interpretation_only
-                        else "Return exactly one structured Aegis Decision JSON object."
-                    )
-                ),
+                "instruction": instruction,
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "
                     "authorized information, GENERATION for benign creative/explanatory "

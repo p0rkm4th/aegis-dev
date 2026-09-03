@@ -152,14 +152,23 @@ def test_plan_fidelity_does_not_accept_matching_plan_that_omits_human_effect() -
         def decide(self, request: ModelRequest) -> ModelResponse:
             if request.classification_only:
                 return ModelResponse(raw={"kind": "ANSWER", "semantic_mode": "ACTION"})
-            if request.objective_fidelity_only:
+            if request.objective_effect_only:
                 return ModelResponse(
-                    raw=ObjectiveSpecProposal(
-                        requirements=tuple(
-                            ObjectiveRequirementProposal(action_ref=action_id)
-                            for action_id in ("first", "second", "third")
-                        )
-                    ).model_dump(mode="json")
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": effect,
+                                "source_span": (start, start + len(effect)),
+                                "action_ref": action_id,
+                                "arguments": {},
+                            }
+                            for action_id, effect, start in (
+                                ("first", "do first", 0),
+                                ("second", "second", 10),
+                                ("third", "third", 22),
+                            )
+                        ]
+                    }
                 )
             return ModelResponse(
                 raw=Decision(
@@ -212,7 +221,7 @@ def test_plan_fidelity_provider_failure_fails_closed() -> None:
         def decide(self, request: ModelRequest) -> ModelResponse:
             if request.classification_only:
                 return ModelResponse(raw={"kind": "ANSWER", "semantic_mode": "ACTION"})
-            if request.objective_fidelity_only:
+            if request.objective_effect_only:
                 raise TimeoutError("fidelity timeout")
             return ModelResponse(
                 raw=Decision(
