@@ -42,6 +42,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         if isinstance(value, dict):
             compact[key] = dict(value)
     for key in (
+        "collection",
         "canonical_items",
         "canonical_tasks",
         "canonical_chores",
