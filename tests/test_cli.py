@@ -3163,6 +3163,12 @@ def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
     assert not TaskPriorityFastPath.matches("which groceries should I buy first?")
 
 
+def test_task_collection_request_keeps_an_ordered_referent_for_follow_up():
+    utterance = "Show me the open tasks I should focus on today"
+    assert TaskReadFastPath.matches(utterance)
+    assert not TaskPriorityFastPath.matches(utterance)
+
+
 def test_task_priority_fast_path_filters_temporal_should_do_request():
     now = datetime(2026, 9, 2, 12, tzinfo=timezone.utc)
     tomorrow = Task(
