@@ -480,6 +480,29 @@ def decide_fallback(
                 return rewritten
             if rewritten is not None:
                 decision = rewritten
+        if (
+            decision.kind is DecisionKind.ACTION
+            and decision.action is not None
+            and " and " in f" {intent.utterance.casefold()} "
+            and any(
+                permission.endswith(".write")
+                for card in cards
+                if card.action.action_id == decision.action.action_id
+                for permission in card.action.required_permissions
+            )
+        ):
+            # Durable structural safety rule: a conjunction in a consequential
+            # request cannot be silently reduced to one ACTION.  Compound
+            # interpretation must produce a complete PLAN or clarify; this is
+            # intentionally not a vocabulary of English action phrases.
+            return Decision(
+                kind=DecisionKind.CLARIFY,
+                clarification=(
+                    "This request contains more than one change, but I could not "
+                    "form a complete verified plan. Please clarify the changes."
+                ),
+                semantic_mode="CLARIFY",
+            )
         if decision.kind is DecisionKind.ACTION and decision.action is not None:
             action = decision.action
             if decision.kind is not DecisionKind.ACTION or action is None:
