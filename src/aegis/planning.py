@@ -297,7 +297,8 @@ class ContextualMutationGuard:
     """Block unsupported context-to-mutation transformations before dispatch."""
 
     _REFERENCE = re.compile(
-        r"\b(?:those|these|it|that|first|second|third|fourth|last|next|previous)\b"
+        r"\b(?:those|these|it|that|first|second|third|fourth|last|previous)\b"
+        r"|\bnext\s+(?:one|item|task|chore|event)\b"
     )
     _IMPLICIT_ACTION_REFERENCE = re.compile(
         r"^(?:go ahead and )?(?:do|handle|take care of) "
