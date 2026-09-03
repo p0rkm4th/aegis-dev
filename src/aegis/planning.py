@@ -76,6 +76,13 @@ class PlanProgressFastPath:
         if context.sources != ("authorized_canonical_result",):
             return None
         text = " ".join(intent.utterance.casefold().split())
+        explicit_domain = re.search(
+            r"\b(?:task|tasks|chore|chores|grocery|groceries|appointment|appointments|"
+            r"event|events|memory|memories)\b",
+            text,
+        )
+        if explicit_domain and not re.search(r"\b(?:plan|objective|step|steps)\b", text):
+            return None
         if not any(term in text for term in cls._PROGRESS_TERMS):
             return None
         facts = context.values.get("canonical_facts")
