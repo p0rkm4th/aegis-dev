@@ -556,6 +556,24 @@ def test_reference_chore_display_is_bounded_without_truncating_canonical_evidenc
     assert len(result.evidence["chores"]) == 22
 
 
+def test_reference_event_display_is_bounded_without_truncating_canonical_evidence() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Canonical event list read",
+        correlation_id=uuid4(),
+        evidence={"events": [{"title": f"event {index}"} for index in range(22)]},
+    )
+
+    rendered = reference_format_result(result)
+
+    assert "event 0" in rendered
+    assert "event 19" in rendered
+    assert "event 20" not in rendered
+    assert "… and 2 more" in rendered
+    assert len(result.evidence["events"]) == 22
+
+
 def test_reference_ordinal_domain_reads_do_not_render_as_mutations() -> None:
     for collection, message, title in (
         ("canonical_tasks", "Task: send the rent receipt (open)", "send the rent receipt"),

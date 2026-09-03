@@ -517,7 +517,11 @@ def reference_format_result(result: Any) -> str:
         return "Chores: " + (listing if chores else "(none)")
     if evidence.get("events") is not None:
         events = evidence["events"]
-        return "Events: " + ("; ".join(item["title"] for item in events) if events else "(none)")
+        display_events = events[:20]
+        listing = "; ".join(item["title"] for item in display_events)
+        if len(events) > len(display_events):
+            listing += f"; … and {len(events) - len(display_events)} more"
+        return "Events: " + (listing if events else "(none)")
     if isinstance(evidence.get("planning"), dict):
         planning = evidence["planning"]
         summaries: list[str] = []
