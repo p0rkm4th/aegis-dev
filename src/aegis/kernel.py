@@ -30,7 +30,11 @@ from .contracts import (
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .fastpath import DeterministicFastPath, NoopFastPath
-from .planning import materialize_proposed_plan, materialize_validated_plan
+from .planning import (
+    materialize_proposed_plan,
+    materialize_validated_plan,
+    objective_requirements_satisfied,
+)
 from .ports import DecisionDecoder, Executor, ModelRouter, Policy, Verifier
 from .store import InMemoryObjectiveStore, ObjectiveStore
 
@@ -425,6 +429,7 @@ class Kernel:
             )
             self.store.save_objective(objective)
         step_results: list[dict[str, object]] = []
+        satisfied_requirement_ids: set[UUID] = set()
         for index, action in enumerate(actions):
             step_correlation = uuid5(
                 intent.correlation_id, f"aegis-plan-step:{index}:{action.action_id}"
@@ -456,6 +461,8 @@ class Kernel:
                     "evidence": result.evidence,
                 }
             )
+            if result.state is ObjectiveState.COMPLETED and validated_plan is not None:
+                satisfied_requirement_ids.add(validated_plan.steps[index].requirement_id)
             if result.state is not ObjectiveState.COMPLETED:
                 objective = objective.model_copy(update={"state": result.state})
                 self.store.save_objective(objective)
@@ -469,6 +476,20 @@ class Kernel:
                 )
                 self.store.save_result(plan_key, aggregate)
                 return aggregate
+        if objective_spec is not None and not objective_requirements_satisfied(
+            objective_spec, satisfied_requirement_ids
+        ):
+            objective = objective.model_copy(update={"state": ObjectiveState.BLOCKED})
+            self.store.save_objective(objective)
+            return Result(
+                objective_id=objective.id,
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "Objective remains incomplete because a requested requirement is unsatisfied"
+                ),
+                evidence={"steps": step_results},
+                correlation_id=intent.correlation_id,
+            )
         objective = objective.model_copy(update={"state": ObjectiveState.COMPLETED})
         self.store.save_objective(objective)
         aggregate = Result(

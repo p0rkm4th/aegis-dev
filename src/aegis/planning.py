@@ -159,6 +159,15 @@ def _reject_dependency_cycles(steps: list[ValidatedPlanStep]) -> None:
         visit(step.step_id)
 
 
+def objective_requirements_satisfied(
+    objective: ObjectiveSpec, satisfied_requirement_ids: set[UUID]
+) -> bool:
+    """Return completion only when every persisted requirement has verified evidence."""
+
+    required = {requirement.requirement_id for requirement in objective.requirements}
+    return bool(required) and required <= satisfied_requirement_ids
+
+
 class PlanProgressFastPath:
     """Answer bounded progress questions from persisted verified child results."""
 
