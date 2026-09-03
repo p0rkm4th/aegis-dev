@@ -13,6 +13,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.planning import (
+    MultiActionFastPath,
     PlanModificationFastPath,
     PlanProgressFastPath,
     PlanValidationError,
@@ -126,6 +127,16 @@ def test_proposed_plan_rejects_temporal_argument_copied_between_steps():
 
     with pytest.raises(PlanValidationError, match="temporal argument"):
         materialize_proposed_plan(proposal, cards)
+
+
+def test_overlapping_fast_paths_decline_three_capability_objectives():
+    utterance = (
+        "Put checking the basement window on my task list, schedule a plumber inspection "
+        "for next Saturday, and add a chore to clear the mudroom bench."
+    )
+
+    assert MultiActionFastPath.task_chore_titles(utterance) is None
+    assert MultiActionFastPath.task_event_details(utterance) is None
 
 
 def test_proposed_plan_is_bounded():
