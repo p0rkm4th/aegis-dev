@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from uuid import uuid4
 
+from aegis.capability_retrieval import retrieve_action_cards
 from aegis.contracts import ActionCard, ActionSpec, ObjectiveState, Principal, Result
 from aegis.interaction import InteractionBoundary, InteractionDependencies, InteractionInputError
 
@@ -86,3 +87,38 @@ def test_model_fallback_reuses_one_bounded_retrieval_working_set(monkeypatch):
 
     assert result.state is ObjectiveState.COMPLETED
     assert len(retriever_calls) == 1
+
+
+def test_multiple_write_candidates_drop_same_namespace_read_noise():
+    writes = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                required_permissions=("tasks.write",),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("tasks.create", "tasks.chores.create")
+    )
+    read = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.list",
+            capability="tasks.list",
+            required_permissions=("tasks.read",),
+        ),
+        summary="tasks.list",
+        relevance=1,
+    )
+
+    class Dependencies:
+        capability_retriever = staticmethod(lambda _utterance, _manager: writes + (read,))
+        fallback_card_selector = None
+
+    cards = retrieve_action_cards(Dependencies(), object(), "compound request")
+
+    assert tuple(card.action.action_id for card in cards) == (
+        "tasks.create",
+        "tasks.chores.create",
+    )
