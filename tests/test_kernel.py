@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from threading import Event
 from uuid import uuid4, uuid5
@@ -528,6 +529,7 @@ def test_kernel_persists_core_owned_objective_spec_and_validated_plan(tmp_path):
         requirement.requirement_id for requirement in objective_spec.requirements
     ]
     assert all(step.depends_on == () for step in persisted.validated_plan.steps)
+    store.close()
 
 
 def test_kernel_assigns_requirement_ids_to_untrusted_spec_proposals(tmp_path):
@@ -565,7 +567,64 @@ def test_kernel_assigns_requirement_ids_to_untrusted_spec_proposals(tmp_path):
     assert persisted.objective_spec.requirements[0].requirement_id == uuid5(
         uuid5(result.correlation_id, "objective-completeness"), "objective-requirement:0"
     )
-    store.close()
+
+
+@pytest.mark.skipif(
+    not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
+)
+def test_postgres_persists_requirement_bound_plan_across_store_instance():
+    import psycopg
+
+    principal = Principal(id=f"objective-{uuid4()}", vault_id=f"vault-{uuid4()}")
+    url = os.environ["AEGIS_TEST_DATABASE_URL"]
+    setup = psycopg.connect(url)
+    setup.execute(
+        "INSERT INTO aegis_principals (id, external_subject) VALUES (%s, %s)",
+        (principal.id, principal.id),
+    )
+    setup.execute(
+        "INSERT INTO vaults (id, owner_principal_id) VALUES (%s, %s)",
+        (principal.vault_id, principal.id),
+    )
+    setup.commit()
+    setup.close()
+    store_connection = psycopg.connect(url)
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.write",
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Create a task",
+        relevance=1,
+    )
+    objective_spec = ObjectiveSpec(requirements=(ObjectiveRequirement(action_ref="tasks.create"),))
+    request_intent = IntentFrame(principal=principal, utterance="add a task")
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=PostgresObjectiveStore(store_connection),
+    ).run_proposed_plan(
+        request_intent,
+        ProposedPlan(steps=(ProposedPlanStep(action_ref="tasks.create"),)),
+        (card,),
+        objective_spec=objective_spec,
+    )
+    read_connection = None
+    try:
+        read_connection = psycopg.connect(url)
+        persisted = PostgresObjectiveStore(read_connection).get_objective(result.objective_id)
+        assert result.state is ObjectiveState.COMPLETED
+        assert persisted is not None
+        assert persisted.objective_spec == objective_spec
+        assert persisted.validated_plan is not None
+    finally:
+        if read_connection is not None:
+            read_connection.close()
+        store_connection.close()
 
 
 def test_kernel_run_sequence_recovers_after_crash_before_aggregate_persistence(tmp_path):
