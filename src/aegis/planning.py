@@ -515,7 +515,7 @@ class CrossDomainPlanningFastPath:
         )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
-        if not self.matches(intent.utterance):
+        if is_mutation_request(intent.utterance) or not self.matches(intent.utterance):
             return None
         goals = sorted(self.personal.goals.values(), key=lambda goal: goal.created_at)[
             : self._MAX_CONTEXT_ITEMS

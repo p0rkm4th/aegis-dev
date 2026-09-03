@@ -2847,6 +2847,18 @@ def test_cross_domain_planning_recognizes_conjoined_finance_memory_read():
     )
 
 
+def test_cross_domain_planning_never_absorbs_compound_mutation():
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    result = CrossDomainPlanningFastPath(PersonalState(), {}, ()).resolve(
+        IntentFrame(
+            principal=alice,
+            utterance="Put checking the furnace on my task list and make wiping the porch a chore",
+        )
+    )
+
+    assert result is None
+
+
 def test_domain_clarification_does_not_preempt_cross_domain_planning_vocabulary():
     assert not DomainClarificationFastPath.matches(
         "Given what I remember about backup rotation, what should I prioritize "
