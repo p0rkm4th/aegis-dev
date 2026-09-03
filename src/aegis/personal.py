@@ -437,7 +437,7 @@ class PersonalState:
 class PersonalMemoryFastPath:
     """Deterministic read adapter for grounded personal-context questions."""
 
-    _TRIGGERS = (
+    _EXPLICIT_TRIGGERS = (
         "memory",
         "memories",
         "remember",
@@ -449,10 +449,8 @@ class PersonalMemoryFastPath:
         "what did i",
         "what was i",
         "what do i know",
-        "tell me about",
-        "tell me more",
-        "what about",
     )
+    _CONTINUATION_TRIGGERS = ("tell me about", "tell me more", "what about")
     _PROJECT_TRIGGERS = ("project", "projects")
     _GOAL_TRIGGERS = ("goal", "goals")
     _STOPWORDS = frozenset(
@@ -527,7 +525,9 @@ class PersonalMemoryFastPath:
             return self._projects_result(intent)
         if any(trigger in text for trigger in self._GOAL_TRIGGERS):
             return self._goals_result(intent)
-        if not any(trigger in text for trigger in self._TRIGGERS):
+        explicit_memory_request = any(trigger in text for trigger in self._EXPLICIT_TRIGGERS)
+        continuation_request = any(trigger in text for trigger in self._CONTINUATION_TRIGGERS)
+        if not explicit_memory_request and not continuation_request:
             return None
         query = " ".join(
             self._NORMALIZED_TERMS.get(word.strip(".,!?;:"), word.strip(".,!?;:"))
@@ -543,6 +543,21 @@ class PersonalMemoryFastPath:
             facts = context.values.get("canonical_facts")
             if isinstance(facts, dict) and isinstance(facts.get("memories"), list):
                 prior_memories = tuple(item for item in facts["memories"] if isinstance(item, dict))
+        if continuation_request and not explicit_memory_request and prior_memories is None:
+            # Conversational wording is not, by itself, a request for private
+            # memory.  Let ordinary cognition answer general questions unless
+            # an authorized prior memory projection establishes the referent.
+            if context is not None and context.sources == ("authorized_canonical_result",):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=(
+                        "I need a specific memory or a little more context before I can "
+                        "expand that reference."
+                    ),
+                    correlation_id=intent.correlation_id,
+                )
+            return None
         if query.strip() and not broad_activity_query:
             memories = self._search_memories(query, start, end)
         elif prior_memories is not None and query.strip() == "":
