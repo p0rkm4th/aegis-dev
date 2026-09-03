@@ -278,6 +278,35 @@ def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correctio
     assert "choose an ordinal" in correction.message
 
 
+def test_contextual_correction_reaches_domain_specific_referent_guard():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "events",
+                    "candidates": [
+                        {"title": "first event", "starts_at": "2026-09-03T10:00:00+00:00"},
+                        {"title": "second event", "starts_at": "2026-09-03T11:00:00+00:00"},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_reference_safety_fast_paths(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, the other event",
+        ),
+        None,
+        True,
+        context,
+    )
+
+    assert result is None
+
+
 def test_bounded_task_event_plan_owns_its_dependent_reference():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
