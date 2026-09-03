@@ -135,6 +135,22 @@ class OllamaProvider:
         """
         if request is not None and request.objective_interpretation_only:
             return ObjectiveSpecProposal.model_json_schema()
+        if request is not None and request.source_selection_only:
+            return {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "knowledge_source": {
+                        "type": "string",
+                        "enum": [
+                            "general_model_knowledge",
+                            "external_evidence",
+                            "mixed_evidence",
+                        ],
+                    }
+                },
+                "required": ["knowledge_source"],
+            }
         schema = deepcopy(Decision.model_json_schema())
         action_schema = schema.get("$defs", {}).get("ActionSpec")
         if isinstance(action_schema, dict):
@@ -183,34 +199,44 @@ class OllamaProvider:
                     "content, or CLARIFY when the request is ambiguous."
                 ),
                 "routing_rule": (
-                    "This is a classification-only pass. Return ACTION when the user "
-                    "requests any state change, ANSWER with semantic_mode READ when the "
-                    "user seeks authorized information, ANSWER with semantic_mode "
-                    "GENERATION for benign creative or explanatory content, and CLARIFY "
-                    "with semantic_mode CLARIFY when the intent is ambiguous. For an "
-                    "ANSWER, also set knowledge_source to general_model_knowledge for "
-                    "stable knowledge, external_evidence when the question asks for "
-                    "current/latest/recent information, or mixed_evidence when current "
-                    "public information must be combined with authorized local context. "
-                    "Always provide semantic_mode and do not provide an action_ref or "
-                    "arguments."
-                    if request.classification_only
+                    "This is a source-selection-only pass. Return exactly one "
+                    "knowledge_source: general_model_knowledge for stable information, "
+                    "external_evidence for current/latest/recent information, or "
+                    "mixed_evidence when current public information must be combined "
+                    "with authorized local context. Do not return an action, answer, "
+                    "or any other field."
+                    if request.source_selection_only
                     else (
-                        "This is a capability-scoped pass for exactly one supplied ActionCard. "
-                        "Return ACTION only when the user requests this capability as one "
-                        "independent operation; otherwise return ANSWER with a brief empty "
-                        "scope indication. Do not select or invent any other capability."
-                        if request.capability_scoped
+                        "This is a classification-only pass. Return ACTION when the user "
+                        "requests any state change, ANSWER with semantic_mode READ when the "
+                        "user seeks authorized information, ANSWER with semantic_mode "
+                        "GENERATION for benign creative or explanatory content, and CLARIFY "
+                        "with semantic_mode CLARIFY when the intent is ambiguous. For an "
+                        "ANSWER, also set knowledge_source to general_model_knowledge for "
+                        "stable knowledge, external_evidence when the question asks for "
+                        "current/latest/recent information, or mixed_evidence when current "
+                        "public information must be combined with authorized local context. "
+                        "Always provide semantic_mode and do not provide an action_ref or "
+                        "arguments."
+                        if request.classification_only
                         else (
-                            "This is an action-routing pass. Decide whether the current request "
-                            "clearly proposes a supplied write-capable action. Do not answer a "
-                            "read question from context during this pass; return ANSWER only for "
-                            "benign conversation that does not request a change, or CLARIFY when "
-                            "the requested change is ambiguous."
-                            if request.routing_only
+                            "This is a capability-scoped pass for exactly one supplied ActionCard. "
+                            "Return ACTION only when the user requests this capability as one "
+                            "independent operation; otherwise return ANSWER with a brief empty "
+                            "scope indication. Do not select or invent any other capability."
+                            if request.capability_scoped
                             else (
-                                "This is the final bounded cognition pass; answer only from the "
-                                "supplied context."
+                                "This is an action-routing pass. Decide whether the current "
+                                "request clearly proposes a supplied write-capable action. Do not "
+                                "answer a read question from context during this pass; return "
+                                "ANSWER only for benign conversation that does not request a "
+                                "change, or CLARIFY when "
+                                "the requested change is ambiguous."
+                                if request.routing_only
+                                else (
+                                    "This is the final bounded cognition pass; answer only from "
+                                    "the supplied context."
+                                )
                             )
                         )
                     )

@@ -217,8 +217,36 @@ def decide_fallback(
                     if isinstance(classification_response.raw, dict)
                     else None
                 )
+                research_answer = getattr(dependencies, "research_answer", None)
+                if research_answer is not None:
+                    source_response = provider.decide(
+                        ModelRequest(
+                            working_set=WorkingSet(
+                                intent=intent,
+                                context=context.model_copy(
+                                    update={
+                                        "values": {
+                                            key: value
+                                            for key, value in context.values.items()
+                                            if key != "canonical_facts"
+                                        }
+                                    }
+                                ),
+                            ),
+                            action_cards=(),
+                            source_selection_only=True,
+                        )
+                    )
+                    source_raw = source_response.raw
+                    if isinstance(source_raw, dict):
+                        selected_source = source_raw.get("knowledge_source")
+                        if selected_source in {
+                            "general_model_knowledge",
+                            "external_evidence",
+                            "mixed_evidence",
+                        }:
+                            knowledge_source = selected_source
                 if knowledge_source in {"external_evidence", "mixed_evidence"}:
-                    research_answer = getattr(dependencies, "research_answer", None)
                     if research_answer is None:
                         return Result(
                             objective_id=uuid4(),
