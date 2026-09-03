@@ -144,6 +144,41 @@ def _scope_plan_by_capability(
     )
 
 
+def _structural_write_failure(
+    dependencies: Any,
+    intent: IntentFrame,
+    decision: Decision,
+    cards: tuple[ActionCard, ...],
+) -> str | None:
+    """Return a safe clarification reason for an unaccounted-for write."""
+
+    if decision.kind is not DecisionKind.ACTION or decision.action is None:
+        return None
+    is_write = any(
+        permission.endswith(".write")
+        for card in cards
+        if card.action.action_id == decision.action.action_id
+        for permission in card.action.required_permissions
+    )
+    if not is_write or not hasattr(dependencies, "structural_parser"):
+        return None
+    structural_parser = getattr(dependencies, "structural_parser", None)
+    if structural_parser is None:
+        return (
+            "I could not independently verify the requested change; please clarify the objective."
+        )
+    try:
+        structural_signal = structural_parser(intent.utterance)
+    except Exception as exc:
+        raise InvalidDecision("structural coverage unavailable") from exc
+    if len(structural_signal.anchors) != 1:
+        return (
+            "This request contains more than one change, but I could not form a complete "
+            "verified objective. Please clarify it."
+        )
+    return None
+
+
 def decide_fallback(
     dependencies: Any, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context
 ) -> Decision | Result | None:
@@ -211,6 +246,15 @@ def decide_fallback(
                             ),
                             semantic_mode="ACTION",
                         )
+                        structural_failure = _structural_write_failure(
+                            dependencies, intent, classification_decision, cards
+                        )
+                        if structural_failure is not None:
+                            return Decision(
+                                kind=DecisionKind.CLARIFY,
+                                clarification=structural_failure,
+                                semantic_mode="CLARIFY",
+                            )
                         if dependencies.decision_rewriter is not None:
                             rewritten = dependencies.decision_rewriter(
                                 intent, classification_decision, cards, context
@@ -534,36 +578,13 @@ def decide_fallback(
             if rewritten is not None:
                 decision = rewritten
         if decision.kind is DecisionKind.ACTION and decision.action is not None:
-            is_write = any(
-                permission.endswith(".write")
-                for card in cards
-                if card.action.action_id == decision.action.action_id
-                for permission in card.action.required_permissions
-            )
-            if is_write and hasattr(dependencies, "structural_parser"):
-                structural_parser = getattr(dependencies, "structural_parser", None)
-                if structural_parser is None:
-                    return Decision(
-                        kind=DecisionKind.CLARIFY,
-                        clarification=(
-                            "I could not independently verify the requested change; "
-                            "please clarify the objective."
-                        ),
-                        semantic_mode="CLARIFY",
-                    )
-                try:
-                    structural_signal = structural_parser(intent.utterance)
-                except Exception as exc:
-                    raise InvalidDecision("structural coverage unavailable") from exc
-                if len(structural_signal.anchors) != 1:
-                    return Decision(
-                        kind=DecisionKind.CLARIFY,
-                        clarification=(
-                            "This request contains more than one change, but I could not "
-                            "form a complete verified objective. Please clarify it."
-                        ),
-                        semantic_mode="CLARIFY",
-                    )
+            structural_failure = _structural_write_failure(dependencies, intent, decision, cards)
+            if structural_failure is not None:
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=structural_failure,
+                    semantic_mode="CLARIFY",
+                )
         if (
             decision.kind is DecisionKind.ACTION
             and decision.action is not None

@@ -23,6 +23,7 @@ dev = [
 ]
 live = ["cryptography>=43,<51", "websocket-client>=1.8,<2"]
 research = ["trafilatura==2.2.0"]
+structural = ["spacy==3.8.16"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/aegis"]

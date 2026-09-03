@@ -30,6 +30,12 @@ deterministic proof uses controlled structural signals. Production integration
 must provide an independently generated signal; absence of that signal is not
 evidence of complete coverage. No custom English parser was added.
 
+Reproducible runtime provisioning uses the optional `structural` extra
+(`spacy==3.8.16`) and the separately downloaded exact `en_core_web_sm==3.8.0`
+wheel. The model is not vendored; operators must verify its source and hash
+before installation and set `AEGIS_STRUCTURAL_MODEL` to its installed model
+name or path.
+
 The acceptance rule is conservative: the supplied structural outcome anchors
 must correspond one-to-one with grounded effect spans. A whole-utterance span
 or duplicated span cannot claim several anchors. Unsupported or unmapped

@@ -309,6 +309,9 @@ def test_semantic_action_reference_prevents_second_pass_read_drift():
             openclaw_channel=lambda: None,
             local_identity=lambda: False,
             model_provider=lambda: provider,
+            structural_parser=lambda _utterance: StructuralCoverageSignal(
+                anchors=(StructuralAnchor(source_span=(0, 1), kind="predicate"),)
+            ),
         )
     )
 
@@ -2428,6 +2431,7 @@ def test_cli_check_json_is_machine_readable(monkeypatch, capsys):
         "postgres",
         "ollama",
         "openclaw",
+        "structural_parser",
         "identity",
     }
     assert report["runtime"]["execution_mode"] == "source-checkout"

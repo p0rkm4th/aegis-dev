@@ -11,6 +11,7 @@ import sqlite3
 import urllib.error
 import urllib.request
 from collections.abc import Callable
+from functools import lru_cache
 from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
 from pathlib import Path
@@ -190,6 +191,7 @@ def _runtime_report() -> HealthReport:
             detail=openclaw_detail,
         )
     )
+    components.append(_structural_health(os.environ.get("AEGIS_STRUCTURAL_MODEL")))
 
     identity_healthy, identity_detail = _identity_health()
     components.append(
@@ -211,6 +213,40 @@ def _runtime_report() -> HealthReport:
             model_digest=_ollama_model_digest(ollama_url, ollama_model),
             endpoint=_safe_endpoint(ollama_url),
         ),
+    )
+
+
+@lru_cache(maxsize=4)
+def _cached_structural_parser(model: str) -> Callable[[str], Any]:
+    """Load one configured parser per model for the life of the process."""
+
+    return SpacyStructuralParser(model_path=model).parse
+
+
+def _structural_health(model: str | None) -> ComponentHealth:
+    """Report optional structural evidence without changing required readiness."""
+
+    if not model:
+        return ComponentHealth(
+            name="structural_parser",
+            healthy=True,
+            required=False,
+            detail="not configured (compound coverage remains fail-closed)",
+        )
+    try:
+        _cached_structural_parser(model)
+    except StructuralParserUnavailable:
+        return ComponentHealth(
+            name="structural_parser",
+            healthy=False,
+            required=False,
+            detail="configured parser/model unavailable",
+        )
+    return ComponentHealth(
+        name="structural_parser",
+        healthy=True,
+        required=False,
+        detail=f"configured ({model})",
     )
 
 
@@ -872,16 +908,15 @@ def run_interaction(
             ),
         )
 
-    structural_parser = None
     structural_model = os.environ.get("AEGIS_STRUCTURAL_MODEL")
-    if structural_model:
-        try:
-            structural_parser = SpacyStructuralParser(model_path=structural_model).parse
-        except StructuralParserUnavailable:
-            # Compound objectives fail closed in cognition when independent
-            # structural evidence is unavailable; ordinary reads and answers
-            # retain their existing paths.
-            structural_parser = None
+    try:
+        structural_parser = (
+            _cached_structural_parser(structural_model) if structural_model else None
+        )
+    except StructuralParserUnavailable:
+        # Compound objectives fail closed when independent structural evidence
+        # is unavailable; ordinary reads and answers retain their existing paths.
+        structural_parser = None
 
     boundary = InteractionBoundary(
         InteractionDependencies(
