@@ -3184,6 +3184,26 @@ def test_contextual_reference_mutation_fails_closed_instead_of_becoming_a_litera
     assert "will not guess" in result.message
 
 
+def test_temporal_next_week_is_not_mistaken_for_a_referent():
+    assert (
+        ContextualMutationGuard.resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="Add a task to inspect the sunroom latch next week",
+            )
+        )
+        is None
+    )
+    blocked = ContextualMutationGuard.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Add the next one",
+        )
+    )
+    assert blocked is not None
+    assert "will not guess" in blocked.message
+
+
 def test_multi_action_fast_path_still_blocks_unbounded_compound_requests():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     result = MultiActionFastPath.resolve(
