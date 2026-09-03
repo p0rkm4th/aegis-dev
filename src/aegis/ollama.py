@@ -187,8 +187,13 @@ class OllamaProvider:
                     "requests any state change, ANSWER with semantic_mode READ when the "
                     "user seeks authorized information, ANSWER with semantic_mode "
                     "GENERATION for benign creative or explanatory content, and CLARIFY "
-                    "with semantic_mode CLARIFY when the intent is ambiguous. Always "
-                    "provide semantic_mode and do not provide an action_ref or arguments."
+                    "with semantic_mode CLARIFY when the intent is ambiguous. For an "
+                    "ANSWER, also set knowledge_source to general_model_knowledge for "
+                    "stable knowledge, external_evidence when the question asks for "
+                    "current/latest/recent information, or mixed_evidence when current "
+                    "public information must be combined with authorized local context. "
+                    "Always provide semantic_mode and do not provide an action_ref or "
+                    "arguments."
                     if request.classification_only
                     else (
                         "This is a capability-scoped pass for exactly one supplied ActionCard. "
