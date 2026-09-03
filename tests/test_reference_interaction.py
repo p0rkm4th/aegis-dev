@@ -717,6 +717,31 @@ def test_memory_followup_does_not_cross_into_memory_without_memory_context() -> 
     assert "specific memory" in result.message
 
 
+def test_explicit_memory_topic_switch_survives_other_canonical_context() -> None:
+    memory = MemoryRecord(
+        uuid4(),
+        "The owner prefers a calm workstation.",
+        datetime(2026, 9, 1, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    context = Context(
+        values={"canonical_facts": {"canonical_items": ["rice"]}},
+        sources=("authorized_canonical_result",),
+    )
+
+    result = PersonalMemoryFastPath(PersonalState(memories={memory.memory_id: memory})).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What memories do I have?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["memories"][0]["content"] == memory.content
+
+
 def test_memory_activity_query_returns_timestamped_memories_without_literal_match() -> None:
     memory = MemoryRecord(
         uuid4(),

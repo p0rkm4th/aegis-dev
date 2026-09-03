@@ -493,6 +493,11 @@ class PersonalMemoryFastPath:
         }
     )
     _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
+    _VAGUE_EXPANSION_TERMS = (
+        "tell me more",
+        "tell me about that",
+        "what about that",
+    )
 
     def __init__(
         self,
@@ -558,7 +563,11 @@ class PersonalMemoryFastPath:
                 evidence={"memories": list(prior_memories)},
                 correlation_id=intent.correlation_id,
             )
-        elif context is not None and context.sources == ("authorized_canonical_result",):
+        elif (
+            context is not None
+            and context.sources == ("authorized_canonical_result",)
+            and any(term in text for term in self._VAGUE_EXPANSION_TERMS)
+        ):
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
