@@ -126,10 +126,12 @@ def test_plan_progress_reads_only_authorized_persisted_step_state():
         Context(
             sources=("authorized_canonical_result",),
             values={
-                "plan_steps": [
-                    {"index": 0, "state": "completed"},
-                    {"index": 1, "state": "blocked"},
-                ]
+                "canonical_facts": {
+                    "plan_steps": [
+                        {"index": 0, "state": "completed"},
+                        {"index": 1, "state": "blocked"},
+                    ]
+                }
             },
         ),
     )
@@ -146,7 +148,9 @@ def test_plan_progress_does_not_trust_unscoped_context():
                 principal=Principal(id="alice", vault_id="alice-vault"),
                 utterance="what's left?",
             ),
-            Context(values={"plan_steps": [{"index": 0, "state": "completed"}]}),
+            Context(
+                values={"canonical_facts": {"plan_steps": [{"index": 0, "state": "completed"}]}}
+            ),
         )
         is None
     )
