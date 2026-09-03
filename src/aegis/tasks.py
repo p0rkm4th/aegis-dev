@@ -585,13 +585,21 @@ class TaskReadFastPath:
         elif any(term in text for term in ("left", "remaining", "still need")):
             tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
             status_filter = "open"
+        elif "before the weekend" in text or "before weekend" in text:
+            tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
+            status_filter = "open"
         else:
             tasks = all_tasks
             status_filter = "all"
         now = datetime.now(timezone.utc)
         due_start: date | None = None
         due_end: date | None = None
-        if "today" in text and any(term in text for term in ("due", "get done", "finish")):
+        if "before the weekend" in text or "before weekend" in text:
+            days_until_saturday = (5 - now.weekday()) % 7 or 7
+            due_start = now.date()
+            due_end = due_start + timedelta(days=days_until_saturday)
+            due_filter = "before_weekend"
+        elif "today" in text and any(term in text for term in ("due", "get done", "finish")):
             due_start = now.date()
             due_end = due_start + timedelta(days=1)
             due_filter = "today"
