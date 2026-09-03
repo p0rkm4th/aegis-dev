@@ -659,7 +659,13 @@ class ContextualTaskTemporalFastPath:
             return None
         referents = context.values.get("referents")
         those = referents.get("those") if isinstance(referents, dict) else None
-        if not isinstance(those, dict) or those.get("fact_key") != "canonical_tasks":
+        facts = context.values.get("canonical_facts")
+        planning = facts.get("planning") if isinstance(facts, dict) else None
+        has_task_referent = isinstance(those, dict) and those.get("fact_key") == "canonical_tasks"
+        has_planning_tasks = isinstance(planning, dict) and isinstance(
+            planning.get("open_tasks"), list
+        )
+        if not has_task_referent and not has_planning_tasks:
             return None
         temporal = self._TEMPORAL.search(text)
         if temporal is None:
