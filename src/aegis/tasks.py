@@ -516,6 +516,17 @@ class PostgresTaskListVerifier:
         )
 
 
+def _asks_for_task_collection(text: str) -> bool:
+    """Recognize a structural collection display request, not its wording."""
+
+    return bool(
+        re.match(
+            r"^(?:could you|can you|please\s+)?(?:show|list|display|give me|see)\b",
+            text,
+        )
+    ) and any(term in text for term in ("task", "tasks", "todo", "to-do"))
+
+
 class TaskReadFastPath:
     """Deterministic task reads over the membership-checked canonical store."""
 
@@ -530,8 +541,10 @@ class TaskReadFastPath:
         text = utterance.casefold()
         if is_mutation_request(text):
             return False
-        if "should" in text and any(
-            term in text for term in ("first", "prioritize", "priority", "focus")
+        if (
+            "should" in text
+            and any(term in text for term in ("first", "prioritize", "priority", "focus"))
+            and not _asks_for_task_collection(text)
         ):
             # Recommendation needs bounded cognition over canonical tasks;
             # returning the raw list would not answer the user's objective.
@@ -660,6 +673,10 @@ class TaskPriorityFastPath:
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
         if is_mutation_request(text) or any(domain in text for domain in cls._NON_TASK_DOMAINS):
+            return False
+        if _asks_for_task_collection(text):
+            # A collection request with a prioritization modifier still needs
+            # the ordered canonical list as its referent for the next turn.
             return False
         temporal_priority = "tomorrow" in text and "should i do" in text
         priority_language = temporal_priority or any(
