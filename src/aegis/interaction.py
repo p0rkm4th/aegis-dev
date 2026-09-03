@@ -18,6 +18,7 @@ from .contracts import (
     IntentFrame,
     Objective,
     ObjectiveSpec,
+    ObjectiveSpecProposal,
     ObjectiveState,
     Principal,
     ProposedPlan,
@@ -141,7 +142,7 @@ class InteractionBoundary:
         connection: Any,
         principal: Principal,
         context: Context,
-        objective_spec: ObjectiveSpec | None = None,
+        objective_spec: ObjectiveSpec | ObjectiveSpecProposal | None = None,
     ) -> Result:
         """Run a candidate-bound plan through the existing per-step Kernel path."""
 

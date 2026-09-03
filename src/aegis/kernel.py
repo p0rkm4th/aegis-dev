@@ -17,7 +17,9 @@ from .contracts import (
     ModelRequest,
     ModelResponse,
     Objective,
+    ObjectiveRequirement,
     ObjectiveSpec,
+    ObjectiveSpecProposal,
     ObjectiveState,
     Observation,
     ProposedPlan,
@@ -485,12 +487,23 @@ class Kernel:
         proposal: ProposedPlan,
         cards: tuple[ActionCard, ...],
         context: Context | None = None,
-        objective_spec: ObjectiveSpec | None = None,
+        objective_spec: ObjectiveSpec | ObjectiveSpecProposal | None = None,
     ) -> Result:
         """Validate a proposal against candidates, then reuse durable sequence execution."""
 
         if objective_spec is not None:
             objective_id = uuid5(intent.correlation_id, "objective-completeness")
+            if isinstance(objective_spec, ObjectiveSpecProposal):
+                objective_spec = ObjectiveSpec(
+                    requirements=tuple(
+                        ObjectiveRequirement(
+                            requirement_id=uuid5(objective_id, f"objective-requirement:{index}"),
+                            action_ref=requirement.action_ref,
+                            arguments=requirement.arguments,
+                        )
+                        for index, requirement in enumerate(objective_spec.requirements)
+                    )
+                )
             validated = materialize_validated_plan(objective_id, objective_spec, proposal, cards)
             return self.run_sequence(
                 intent,
