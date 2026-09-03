@@ -836,7 +836,7 @@ class ContextualTaskPriorityFastPath:
         ):
             return None
         referents = context.values.get("referents")
-        if not isinstance(referents, dict):
+        if not isinstance(referents, dict) or not referents:
             # A priority result is a scalar canonical recommendation, not an
             # ordered collection.  A follow-up asking which one is urgent can
             # safely reaffirm that same uniquely identified task without
@@ -860,7 +860,7 @@ class ContextualTaskPriorityFastPath:
                     },
                     correlation_id=intent.correlation_id,
                 )
-        if not isinstance(referents, dict):
+        if not isinstance(referents, dict) or not referents:
             return None
         those = referents.get("those")
         if not isinstance(those, dict) or those.get("fact_key") != "canonical_tasks":
