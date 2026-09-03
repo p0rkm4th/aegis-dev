@@ -924,7 +924,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
 
 
 def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Result | None:
-    """Return unfinished members of an authorized prior task projection."""
+    """Return remaining members of an authorized prior collection projection."""
 
     text = " ".join(intent.utterance.casefold().split()).strip(".!?")
     if is_mutation_request(text) or text not in {
@@ -937,19 +937,39 @@ def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Resul
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
-    if not isinstance(those, dict) or those.get("fact_key") != "canonical_tasks":
+    if not isinstance(those, dict) or those.get("fact_key") not in {
+        "canonical_items",
+        "canonical_tasks",
+        "canonical_chores",
+    }:
         return None
     candidates = those.get("candidates")
     if not isinstance(candidates, list):
         return None
-    remaining = [
-        item for item in candidates if isinstance(item, dict) and item.get("status") != "completed"
-    ]
+    fact_key = those["fact_key"]
+    remaining: list[Any]
+    if fact_key == "canonical_items":
+        remaining = [item for item in candidates if isinstance(item, str)]
+        evidence = {"canonical_items": remaining}
+    elif fact_key == "canonical_chores":
+        remaining = [
+            item
+            for item in candidates
+            if isinstance(item, dict) and item.get("completed") is not True
+        ]
+        evidence = {"chores": remaining}
+    else:
+        remaining = [
+            item
+            for item in candidates
+            if isinstance(item, dict) and item.get("status") != "completed"
+        ]
+        evidence = {"canonical_tasks": remaining}
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
-        message="Canonical task list read",
-        evidence={"collection": "tasks", "canonical_tasks": remaining},
+        message="Canonical collection read",
+        evidence={"collection": fact_key, **evidence},
         correlation_id=intent.correlation_id,
     )
 
