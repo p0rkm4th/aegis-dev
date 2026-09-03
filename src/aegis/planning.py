@@ -12,6 +12,16 @@ from .personal import PersonalState
 from .tasks import Task
 from .utterance import is_correction_request, is_mutation_request
 
+_WEEKDAYS = (
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+)
+
 
 class PlanValidationError(ValueError):
     """Raised when an untrusted plan proposal exceeds its authorized working set."""
@@ -159,6 +169,23 @@ class MultiActionFastPath:
         "prepare",
     )
 
+    @staticmethod
+    def _event_title_and_start(title: str) -> tuple[str, datetime]:
+        """Ground an explicit bounded relative event date without inventing a time."""
+
+        normalized = title.strip().rstrip(".!?")
+        starts_at = datetime.now(timezone.utc)
+        if normalized.endswith(" tomorrow"):
+            return normalized[: -len(" tomorrow")].strip(), starts_at + timedelta(days=1)
+        weekday = re.search(
+            r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)$",
+            normalized,
+        )
+        if weekday is not None:
+            days_ahead = (_WEEKDAYS.index(weekday.group(1)) - starts_at.weekday()) % 7 or 7
+            return normalized[: weekday.start()].strip(), starts_at + timedelta(days=days_ahead)
+        return normalized, starts_at
+
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
@@ -234,20 +261,14 @@ class MultiActionFastPath:
             task_title, event_title = (part.strip() for part in distinct_match.groups())
             if re.search(r"\b(?:it|that)\b", event_title):
                 event_title = task_title
-            starts_at = datetime.now(timezone.utc)
-            if event_title.endswith(" tomorrow"):
-                event_title = event_title.removesuffix(" tomorrow").strip()
-                starts_at += timedelta(days=1)
+            event_title, starts_at = cls._event_title_and_start(event_title)
             if task_title and event_title:
                 return task_title, event_title, starts_at.isoformat()
         match = re.search(r"\b(?:to|for)\s+(.+)$", text)
         if match is None:
             return None
         title = match.group(1).strip()
-        starts_at = datetime.now(timezone.utc)
-        if title.endswith(" tomorrow"):
-            title = title.removesuffix(" tomorrow").strip()
-            starts_at += timedelta(days=1)
+        title, starts_at = cls._event_title_and_start(title)
         if not title:
             return None
         return title, title, starts_at.isoformat()

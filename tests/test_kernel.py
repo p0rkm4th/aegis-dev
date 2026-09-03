@@ -3308,6 +3308,20 @@ def test_multi_action_fast_path_accepts_scheduled_appointment_language():
     assert details[2].endswith("+00:00")
 
 
+def test_multi_action_fast_path_grounds_weekday_event_date():
+    details = MultiActionFastPath.task_event_details(
+        "Add a task to check the linens and schedule an appointment to inspect the smoke alarm "
+        "Friday."
+    )
+
+    assert details is not None
+    assert details[1] == "inspect the smoke alarm"
+    scheduled = datetime.fromisoformat(details[2])
+    now = datetime.now(timezone.utc)
+    assert scheduled.date() > now.date()
+    assert scheduled.weekday() == 4
+
+
 def test_multi_action_fast_path_resolves_dependent_event_pronoun():
     details = MultiActionFastPath.task_event_details(
         "Add a task to check the water softener and schedule an appointment to check it tomorrow."
