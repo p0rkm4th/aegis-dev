@@ -738,9 +738,11 @@ class TaskPriorityFastPath:
             # A collection request with a prioritization modifier still needs
             # the ordered canonical list as its referent for the next turn.
             return False
-        temporal_priority = "tomorrow" in text and "should i do" in text
+        temporal_priority = any(day in text for day in ("today", "tomorrow")) and any(
+            term in text for term in ("should", "take care", "work on")
+        )
         priority_language = temporal_priority or any(
-            term in text for term in ("first", "priorit", "focus", "next")
+            term in text for term in ("first", "priorit", "focus", "next", "urgent")
         )
         if not priority_language:
             return False

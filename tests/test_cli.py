@@ -418,6 +418,37 @@ def test_household_obligation_read_returns_obligations_not_events():
     assert "events" not in result.evidence
 
 
+def test_domainless_today_priority_is_grounded_in_open_task_deadlines():
+    from aegis.tasks import TaskPriorityFastPath
+
+    due = Task(
+        uuid4(),
+        "home",
+        "review the backup",
+        "alice",
+        due_at=datetime.now() + timedelta(hours=1),
+    )
+    later = Task(
+        uuid4(),
+        "home",
+        "clean the garage",
+        "alice",
+        due_at=datetime.now() + timedelta(days=2),
+    )
+
+    result = TaskPriorityFastPath(
+        type("Tasks", (), {"list": lambda _self, _p: [later, due]})()
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What should I take care of today?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["task"]["title"] == "review the backup"
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={
