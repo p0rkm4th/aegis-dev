@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "b3db5c0",
+  "repository_head_sha": "ece3ca6",
   "deterministic_green_sha": "573de0a",
-  "last_pushed_sha": "b3db5c0",
-  "hosted_ci_green_sha": "b3db5c0",
+  "last_pushed_sha": "ece3ca6",
+  "hosted_ci_green_sha": "ece3ca6",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
     "run_id": "33742925355",
-    "commit_sha": "b3db5c0",
+    "commit_sha": "ece3ca6",
     "conclusion": "success",
     "observed_at": "2026-09-03T08:34:41Z"
   },
@@ -215,7 +215,7 @@
     "running_sha": "b3db5c0",
     "last_known_green_sha": "b3db5c0",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/b3db5c03da1bb344a7ab845c6b3215be50efa1c9",
-    "repository_head_sha": "b3db5c0",
+    "repository_head_sha": "ece3ca6",
     "deterministic_green_sha": "875bb60",
     "installed_release_sha": "b3db5c0",
     "running_release_sha": "b3db5c0",
@@ -1262,5 +1262,6 @@
     "owner_fresh_task_event_plan_checkpoint": "partial installed owner evidence on release 67a322b: fresh wording 'Please add checking the side gate to my task list and book a utility inspection for Friday.' completed a two-step task-plus-event objective with independent canonical task/event readback verification (aggregate correlation 8f73619b-c9af-4d19-b8fb-1ab982bc82a9). No duplicate execution, state repair, or unsafe mutation occurred.",
     "owner_plan_strict_failure_reprobe_checkpoint": "partial installed owner evidence on release 67a322b: fresh mailroom-lock/task plus hallway-inspection/event wording failed after the bounded routed-decision retry with failure_class=invalid_model_decision and reason ACTION decision must use semantic_mode ACTION; persisted follow-ups clarified because no plan existed. Database inspection confirmed no corresponding task side effect. The safe block is retained; further retries are not justified without new evidence.",
     "owner_conversation_surface_checkpoint": "green rendered installed-owner evidence on release b3db5c0 after hosted run 33743625043: a real headless Chromium smoke confirmed the personal-intelligence title, dark theme toggle, readable multi-line composer, ready status, collapsed runtime details, and canonical state collapsed behind a secondary disclosure so conversation dominates the default viewport. No Core semantics changed; sustained daily-driver acceptance remains incomplete.",
+    "owner_rendered_followup_checkpoint": "partial installed-owner rendered browser evidence on release b3db5c0: a fresh three-turn session read tomorrow's authorized open tasks, resolved 'Which task is due first?' to the earliest canonical deadline, and safely clarified 'Actually, not that one' because duplicate task titles made the consequential target non-unique. The bounded list showed duplicate historical titles but no unsafe mutation, state corruption, or developer repair; broader correction and daily-driver acceptance remain incomplete.",
     "next_action": "Continue M09 daily-driver work: run fresh owner sessions focused on corrections, natural compound objectives, and bounded plan continuation; classify the next friction without phrase-specific routing."
 }
