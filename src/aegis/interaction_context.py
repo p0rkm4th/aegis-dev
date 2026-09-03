@@ -265,6 +265,12 @@ def context_from_prior_result(
         return Context()
     raw_evidence = result.evidence
     evidence = compact_context_evidence(raw_evidence)
+    continuation_objective_id = raw_evidence.get("continuation_of_objective_id")
+    if isinstance(continuation_objective_id, str):
+        try:
+            UUID(continuation_objective_id)
+        except ValueError:
+            continuation_objective_id = None
     if not evidence:
         if result.state.value != "blocked":
             return Context()
@@ -274,7 +280,7 @@ def context_from_prior_result(
         return Context(
             values={
                 "prior_correlation_id": str(correlation_id),
-                "prior_objective_id": str(objective.id),
+                "prior_objective_id": continuation_objective_id or str(objective.id),
                 "prior_state": result.state.value,
                 "recent_turns": [
                     {
@@ -337,7 +343,7 @@ def context_from_prior_result(
     return Context(
         values={
             "prior_correlation_id": str(correlation_id),
-            "prior_objective_id": str(objective.id),
+            "prior_objective_id": continuation_objective_id or str(objective.id),
             "prior_state": result.state.value,
             "recent_turns": [
                 {

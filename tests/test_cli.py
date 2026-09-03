@@ -847,6 +847,39 @@ def test_follow_up_result_can_trace_authorized_prior_objective_without_reusing_i
     assert enriched.evidence["continuation_of_objective_id"] == prior_id
 
 
+def test_context_reconstruction_preserves_original_objective_through_follow_up_result():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    original_id = uuid4()
+    progress_id = uuid4()
+    objective = Objective(
+        id=progress_id,
+        intent=IntentFrame(
+            principal=principal,
+            utterance="what is left?",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=progress_id,
+        state=ObjectiveState.COMPLETED,
+        message="All requested changes are complete.",
+        evidence={"continuation_of_objective_id": str(original_id), "plan_steps": []},
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+    assert context.values["prior_objective_id"] == str(original_id)
+
+
 def test_prior_context_turn_and_referents_are_bounded():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
