@@ -439,6 +439,7 @@ class PersonalMemoryFastPath:
 
     _TRIGGERS = (
         "memory",
+        "memories",
         "remember",
         "recall",
         "working on",
@@ -487,6 +488,8 @@ class PersonalMemoryFastPath:
             "lately",
             "remember",
             "recall",
+            "memory",
+            "memories",
         }
     )
     _NORMALIZED_TERMS = {"working": "work", "worked": "work"}
