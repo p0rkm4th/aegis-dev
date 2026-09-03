@@ -3859,6 +3859,19 @@ def test_domainless_collection_status_clarifies_without_guessing():
     )
 
 
+def test_implicit_ordinal_mutation_reference_blocks_before_model_selection():
+    result = ContextualMutationGuard.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Take care of the first one.",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "will not guess" in result.message
+
+
 def test_domain_clarification_fast_path_gives_reminder_guidance():
     result = DomainClarificationFastPath.resolve(
         IntentFrame(
