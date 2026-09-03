@@ -46,7 +46,11 @@ from .household import (
 )
 from .identity import PostgresSpacePolicy, Role
 from .interaction import InteractionInputError
-from .interaction_context import resolve_obvious_ordinal, resolve_obvious_ordinal_item
+from .interaction_context import (
+    resolve_obvious_ordinal,
+    resolve_obvious_ordinal_item,
+    resolve_unique_prior_task_reference,
+)
 from .kernel import Kernel
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -1416,6 +1420,8 @@ def ground_reference_action(
             if context is not None
             else None
         )
+        if referent is None and context is not None:
+            referent = resolve_unique_prior_task_reference(intent.utterance, context)
         referent_title = referent.get("title") if referent is not None else None
         referent_task_id = referent.get("task_id") if referent is not None else None
         if isinstance(referent_title, str) and referent_title.strip():
