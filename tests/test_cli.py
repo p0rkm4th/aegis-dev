@@ -3288,6 +3288,7 @@ def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
         "which task should I focus on first?",
         "what should I prioritize today?",
         "what should I work on next?",
+        "which one is due first?",
     ):
         assert TaskPriorityFastPath.matches(utterance)
         result = TaskPriorityFastPath(Store()).resolve(
