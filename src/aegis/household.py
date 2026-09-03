@@ -440,7 +440,7 @@ class HouseholdReadFastPath:
         )
         if task_objective and not explicit_event:
             return False
-        return any(trigger in text for trigger in cls._TRIGGERS) and (
+        return any(re.search(rf"\b{re.escape(trigger)}\b", text) for trigger in cls._TRIGGERS) and (
             text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS
         )
 

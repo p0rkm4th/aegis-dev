@@ -384,6 +384,12 @@ def test_model_working_context_excludes_canonical_state_for_general_subjects():
     assert "canonical_facts" not in context.values
 
 
+def test_household_read_does_not_match_rent_inside_current():
+    from aegis.household import HouseholdReadFastPath
+
+    assert HouseholdReadFastPath.matches("What is the current version of Rust?") is False
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={
