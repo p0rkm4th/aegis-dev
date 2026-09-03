@@ -183,9 +183,9 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e168cc0",
-  "deterministic_green_sha": "e168cc0",
-  "last_pushed_sha": "e168cc0",
+  "repository_head_sha": "5a5425f",
+  "deterministic_green_sha": "5a5425f",
+  "last_pushed_sha": "5a5425f",
   "hosted_ci_green_sha": "e168cc0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
@@ -1173,5 +1173,6 @@
     "owner_twenty_turn_continuity_checkpoint": "partial installed owner evidence on release 6ade461: fresh 20-turn authenticated session covered tasks, chores, groceries, events, memory, six-plus referential follow-ups, three corrections, ambiguity clarifications, natural task writes, and canonical readbacks. No unsafe mutation, developer shell/database intervention, state repair, or transport failure occurred. Repeated task titles remain observable fixture/presentation noise; broader restart-in-session and daily-driver acceptance remain incomplete.",
     "owner_memory_ambiguity_checkpoint": "green safety/product evidence on release ebfca21 after hosted run 33711349949: a fresh broad memory list followed by 'Tell me more about that.' returned a targeted clarification because multiple authorized memories were possible referents, rather than repeating the list or inventing detail. A vague subsequent response remained harmlessly empty; no mutation or private disclosure occurred.",
     "owner_dependent_plan_continuation_checkpoint": "partial installed owner evidence on release e168cc0 after hosted run 33711892025: fresh natural task-plus-appointment wording with a dependent 'it' completed two Kernel-backed verified steps; the immediate 'What remains?' follow-up returned the persisted aggregate plan progress, and 'Actually, never mind.' did not rewrite history. No developer repair or duplicate execution occurred; broader plan modification and daily-driver acceptance remain incomplete.",
+    "owner_natural_write_envelope_checkpoint": "partial installed owner evidence on release e168cc0: fresh natural household-chore creation and explicit task completion both completed with canonical result/readback verification, and subsequent open-chore/completed-task reads reflected the changes. No unrelated mutation or developer repair occurred; broader varied writes and daily-driver capability green remain incomplete.",
     "next_action": "Continue M09 daily-driver work: run fresh owner conversational dogfood across natural safe writes, corrections after restart, and another existing domain; classify the dominant continuity/UX defect and implement the smallest responsible-layer fix."
 }
