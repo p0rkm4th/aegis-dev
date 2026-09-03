@@ -59,6 +59,32 @@ def validate_clarification_recovery(
     return len(matches) == 1 and (not proposed_title or len(label_matches) == 1)
 
 
+def request_clarification_recovery(
+    provider: Any,
+    intent: IntentFrame,
+    context: Context,
+    cards: tuple[ActionCard, ...],
+    reason: str,
+) -> ClarificationRecoveryProposal | None:
+    """Run the isolated recovery mode and return only its validated-shaped proposal."""
+
+    if not context.values.get("referents") and not context.values.get("canonical_facts"):
+        return None
+    response = provider.decide(
+        ModelRequest(
+            working_set=WorkingSet(intent=intent, context=context),
+            action_cards=cards,
+            clarification_recovery_only=True,
+            clarification_reason=reason,
+        )
+    )
+    try:
+        proposal = ClarificationRecoveryProposal.model_validate(response.raw)
+    except Exception:
+        return None
+    return proposal if validate_clarification_recovery(proposal, cards, context) else None
+
+
 def recover_invalid_model_decision(
     dependencies: Any,
     intent: IntentFrame,
