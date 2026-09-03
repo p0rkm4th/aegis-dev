@@ -97,7 +97,7 @@ class ConstellationProjection(BaseModel):
 
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><title>AEGIS Constellation</title>
+<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><title>AEGIS · Personal intelligence</title>
 <style>
 :root{color-scheme:dark;--bg:#0e1117;--panel:#171c25;--panel-raised:#1d2430;--border:#2b3442;--text:#edf2f7;--muted:#9aa8b8;--accent:#8dc7ff;--shadow:0 1rem 3rem #0005}
 :root[data-theme="light"]{color-scheme:light;--bg:#f4f6f8;--panel:#fff;--panel-raised:#f8fafc;--border:#d7dee7;--text:#18212b;--muted:#536273;--accent:#155ea8;--shadow:0 .75rem 2rem #18212b18}
@@ -106,7 +106,7 @@ _INDEX_HTML = """<!doctype html>
 .muted{color:var(--muted)}.health-line{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1rem;color:var(--muted);font-size:.9rem}.health-line strong{color:var(--text);font-weight:600}.status-dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:#6fd18a;margin-right:.45rem}details summary{cursor:pointer;color:var(--muted);font-size:.85rem}#health-details{margin:.5rem 0 0;padding-left:1.2rem;font-size:.82rem}#health-details:empty{display:none}
 #chat{display:flex;align-items:flex-end;gap:.7rem;margin:1rem 0 1.5rem}#utterance{flex:1;min-width:0;min-height:3.25rem;max-height:11rem;resize:none;overflow-y:hidden;padding:.85rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--bg);color:var(--text);font:inherit;line-height:1.45}#composer-hint{font-size:.78rem;margin:-1rem 0 1rem;color:var(--muted)}button{padding:.75rem 1rem;border:1px solid var(--border);border-radius:.7rem;background:var(--panel-raised);color:var(--text);font:inherit;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}button:disabled,input:disabled,textarea:disabled{cursor:wait;opacity:.65}
 #answer{margin:0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#activity,#step-status{font-size:.85rem;margin:.35rem 0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;max-height:min(60vh,42rem);overflow-y:auto;padding:.25rem .35rem .5rem 0;margin:1.5rem 0 0;scroll-behavior:smooth}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;white-space:pre-wrap;overflow-wrap:anywhere}#conversation li.owner-message{align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}#conversation li.aegis-message{align-self:flex-start;background:var(--panel-raised)}#conversation li.conversation-empty{max-width:none;color:var(--muted);text-align:center;border:1px dashed var(--border);background:transparent}
-.secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
+.secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.secondary>summary{font-weight:600;color:var(--muted);padding:.35rem 0}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
 @media(max-width:36rem){#chat{align-items:stretch;flex-direction:column}#chat button{width:100%}#conversation li{max-width:100%}}
 </style>
 </head><body><div class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><div class="eyebrow">Personal intelligence</div><h1>AEGIS</h1></div></div><button id="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button></header>
@@ -123,14 +123,14 @@ aria-live="polite" aria-label="Selected node details"></div>
 <span id="feedback-status" class="muted" aria-live="polite"></span></p>
 <p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
 <h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol></section>
-<section class="secondary" aria-label="Canonical state"><div class="state-tools"><h2>Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
+<details class="secondary" aria-label="Canonical state"><summary>Canonical state</summary><div class="state-tools"><h2 class="sr-only">Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
 autocomplete="off" aria-describedby="node-filter-status"
 placeholder="Filter authorized nodes"></label>
 <p id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"></p>
 <main id="nodes"><p>Loading state…</p></main>
-<h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul></section></div></div>
+<h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul></details></div></div>
 <script>
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
