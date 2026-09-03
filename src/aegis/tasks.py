@@ -28,6 +28,17 @@ class TaskStatus(StrEnum):
     COMPLETED = "completed"
 
 
+_WEEKDAYS = (
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+)
+
+
 @dataclass(frozen=True)
 class Task:
     task_id: UUID
@@ -73,15 +84,7 @@ def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | 
         text,
     )
     if weekday_match is not None:
-        target = (
-            "monday",
-            "tuesday",
-            "wednesday",
-            "thursday",
-            "friday",
-            "saturday",
-            "sunday",
-        ).index(weekday_match.group(1))
+        target = _WEEKDAYS.index(weekday_match.group(1))
         days_ahead = (target - current.weekday()) % 7 or 7
         return (current + timedelta(days=days_ahead)).isoformat()
     return None
@@ -534,9 +537,14 @@ class TaskReadFastPath:
             # returning the raw list would not answer the user's objective.
             return False
         if not any(trigger in text for trigger in cls._TRIGGERS):
-            temporal_task_read = any(term in text for term in ("tomorrow", "next week")) and any(
-                term in text for term in ("due", "get done")
-            )
+            temporal_task_read = (
+                any(term in text for term in ("tomorrow", "next week"))
+                or re.search(
+                    r"\b(?:this\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+                    text,
+                )
+                is not None
+            ) and any(term in text for term in ("due", "get done"))
             if not temporal_task_read:
                 return False
         # A domain noun alone is not evidence of a read. Keep this fast path
@@ -569,7 +577,18 @@ class TaskReadFastPath:
             due_end = due_start + timedelta(days=7)
             due_filter = "next_week"
         else:
-            due_filter = "all"
+            weekday_match = re.search(
+                r"\b(?:this\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+                text,
+            )
+            if weekday_match is not None and ("due" in text or "get done" in text):
+                target = _WEEKDAYS.index(weekday_match.group(1))
+                days_ahead = (target - now.weekday()) % 7
+                due_start = (now + timedelta(days=days_ahead)).date()
+                due_end = due_start + timedelta(days=1)
+                due_filter = f"weekday:{weekday_match.group(1)}"
+            else:
+                due_filter = "all"
         if due_start is not None and due_end is not None:
             tasks = tuple(
                 task
