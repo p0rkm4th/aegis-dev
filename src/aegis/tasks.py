@@ -665,7 +665,8 @@ class ContextualTaskTemporalFastPath:
         has_planning_tasks = isinstance(planning, dict) and isinstance(
             planning.get("open_tasks"), list
         )
-        if not has_task_referent and not has_planning_tasks:
+        has_task_focus = isinstance(facts, dict) and isinstance(facts.get("task"), dict)
+        if not has_task_referent and not has_planning_tasks and not has_task_focus:
             return None
         temporal = self._TEMPORAL.search(text)
         if temporal is None:
