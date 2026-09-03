@@ -14,12 +14,83 @@ from .contracts import (
     IntentFrame,
     ModelRequest,
     ObjectiveState,
+    ProposedPlan,
+    ProposedPlanStep,
     Result,
     WorkingSet,
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_recovery import recover_invalid_model_decision
 from .utterance import is_question_request
+
+
+def _scope_plan_by_capability(
+    provider: Any,
+    decoder: StrictDecisionDecoder,
+    intent: IntentFrame,
+    cards: tuple[ActionCard, ...],
+    context: Context,
+    proposed: Decision,
+) -> Decision:
+    """Reinterpret a multi-action objective one authorized capability at a time.
+
+    A single overloaded plan response can omit an independent operation.  This
+    bounded pass asks the same provider to interpret each already-retrieved
+    write card independently, then preserves only candidate-bound ACTIONs.  It
+    is decomposition, not a completeness reviewer: no result is trusted until
+    normal plan validation, policy, execution ownership, observation, and
+    verification run below this boundary.
+    """
+
+    if proposed.kind is not DecisionKind.PLAN or len(cards) < 3:
+        return proposed
+    scoped: dict[str, Decision] = {}
+    try:
+        for card in cards:
+            if not any(
+                permission.endswith(".write") for permission in card.action.required_permissions
+            ):
+                continue
+            request = ModelRequest(
+                working_set=WorkingSet(intent=intent, context=context),
+                action_cards=(card,),
+                allow_argument_proposals=True,
+                capability_scoped=True,
+            )
+            decision = decoder.decode(
+                provider.decide(request), (card,), allow_argument_proposals=True
+            )
+            action = decision.action
+            if decision.kind is DecisionKind.ACTION and action is not None:
+                scoped[card.action.action_id] = decision
+    except Exception:
+        return proposed
+    if len(scoped) < 2:
+        return proposed
+    original_order = [step.action_ref for step in proposed.plan.steps] if proposed.plan else []
+    ordered_ids = [action_id for action_id in original_order if action_id in scoped] + [
+        action_id for action_id in scoped if action_id not in original_order
+    ]
+    steps_list: list[ProposedPlanStep] = []
+    for index, action_id in enumerate(ordered_ids):
+        scoped_decision = scoped.get(action_id)
+        if scoped_decision is None or scoped_decision.action is None:
+            continue
+        steps_list.append(
+            ProposedPlanStep(
+                action_ref=action_id,
+                arguments=scoped_decision.action.arguments,
+                depends_on=((index - 1,) if index else ()),
+            )
+        )
+    steps = tuple(steps_list)
+    if len(steps) < 2:
+        return proposed
+    return Decision(
+        kind=DecisionKind.PLAN,
+        plan=ProposedPlan(steps=steps),
+        semantic_mode="ACTION",
+    )
 
 
 def decide_fallback(
@@ -202,6 +273,10 @@ def decide_fallback(
                 raise last_invalid
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
+        if decision.kind is DecisionKind.PLAN and decision.plan is not None:
+            decision = _scope_plan_by_capability(
+                provider, decoder, intent, cards, context, decision
+            )
         if routing_only and decision.kind is DecisionKind.ANSWER:
             reconsidered = decoder.decode(
                 provider.decide(request), request.action_cards, allow_argument_proposals=True

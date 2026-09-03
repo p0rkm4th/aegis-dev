@@ -179,15 +179,22 @@ class OllamaProvider:
                     "provide semantic_mode and do not provide an action_ref or arguments."
                     if request.classification_only
                     else (
-                        "This is an action-routing pass. Decide whether the current request "
-                        "clearly proposes a supplied write-capable action. Do not answer a "
-                        "read question from context during this pass; return ANSWER only for "
-                        "benign conversation that does not request a change, or CLARIFY when "
-                        "the requested change is ambiguous."
-                        if request.routing_only
+                        "This is a capability-scoped pass for exactly one supplied ActionCard. "
+                        "Return ACTION only when the user requests this capability as one "
+                        "independent operation; otherwise return ANSWER with a brief empty "
+                        "scope indication. Do not select or invent any other capability."
+                        if request.capability_scoped
                         else (
-                            "This is the final bounded cognition pass; answer only from the "
-                            "supplied context."
+                            "This is an action-routing pass. Decide whether the current request "
+                            "clearly proposes a supplied write-capable action. Do not answer a "
+                            "read question from context during this pass; return ANSWER only for "
+                            "benign conversation that does not request a change, or CLARIFY when "
+                            "the requested change is ambiguous."
+                            if request.routing_only
+                            else (
+                                "This is the final bounded cognition pass; answer only from the "
+                                "supplied context."
+                            )
                         )
                     )
                 ),

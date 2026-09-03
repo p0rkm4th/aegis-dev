@@ -190,6 +190,7 @@ class ModelRequest(StrictModel):
     routing_only: bool = False
     classification_only: bool = False
     allow_plan_proposals: bool = False
+    capability_scoped: bool = False
 
 
 class ModelResponse(StrictModel):
