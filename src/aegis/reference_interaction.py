@@ -430,6 +430,8 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("priority_basis") and evidence.get("task") is not None:
         return str(result.message)
+    if evidence.get("authorized_ordinal_item") is not None:
+        return f"Grocery item: {evidence['authorized_ordinal_item']}"
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         counts: dict[str, int] = {}
@@ -875,7 +877,8 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     if (
         is_mutation_request(text)
         or not any(
-            marker in text for marker in ("what about", "tell me about", "which one", "what is")
+            marker in text
+            for marker in ("what about", "tell me about", "which one", "what is", "meant")
         )
         and not (
             "which" in text
@@ -885,11 +888,18 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         return None
     item = resolve_obvious_ordinal_item(text, context)
     if item is not None:
+        referents = context.values.get("referents")
+        those = referents.get("those") if isinstance(referents, dict) else None
+        candidates = those.get("candidates") if isinstance(those, dict) else None
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message=f"Grocery item: {item}",
-            evidence={"collection": "groceries", "authorized_ordinal_item": item},
+            evidence={
+                "collection": "groceries",
+                "authorized_ordinal_item": item,
+                **({"canonical_items": candidates} if isinstance(candidates, list) else {}),
+            },
             correlation_id=intent.correlation_id,
         )
     for fact_key, label in (
