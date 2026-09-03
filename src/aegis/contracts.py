@@ -112,10 +112,23 @@ class ObjectiveRequirement(StrictModel):
     arguments: dict[str, Any] = {}
 
 
+class ObjectiveRequirementProposal(StrictModel):
+    """Untrusted requirement proposal; Core assigns the durable identity."""
+
+    action_ref: str = Field(min_length=1)
+    arguments: dict[str, Any] = {}
+
+
 class ObjectiveSpec(StrictModel):
     """Persisted objective meaning; never derived from plan exhaustion."""
 
     requirements: tuple[ObjectiveRequirement, ...] = Field(min_length=1, max_length=5)
+
+
+class ObjectiveSpecProposal(StrictModel):
+    """Model-facing objective meaning without model-controlled stable IDs."""
+
+    requirements: tuple[ObjectiveRequirementProposal, ...] = Field(min_length=1, max_length=5)
 
 
 class ValidatedPlanStep(StrictModel):
@@ -141,7 +154,7 @@ class Decision(StrictModel):
     action_ref: str | None = None
     action_arguments: dict[str, Any] = {}
     plan: ProposedPlan | None = None
-    objective_spec: ObjectiveSpec | None = None
+    objective_spec: ObjectiveSpecProposal | None = None
     clarification: str | None = None
     reason: str | None = None
     semantic_mode: Literal["GENERATION", "READ", "ACTION", "CLARIFY"] | None = None
