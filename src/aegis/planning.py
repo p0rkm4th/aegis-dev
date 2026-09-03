@@ -221,6 +221,13 @@ class PlanProgressFastPath:
                 evidence={
                     "objective_requirements": requirements,
                     "progress_basis": "persisted_objective_requirements",
+                    "plan_steps": [
+                        {"index": step.get("index"), "state": step.get("state")}
+                        for step in steps[:5]
+                        if isinstance(step, dict)
+                    ]
+                    if isinstance(steps, list)
+                    else [],
                 },
                 correlation_id=intent.correlation_id,
             )
