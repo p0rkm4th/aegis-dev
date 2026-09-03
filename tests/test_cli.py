@@ -560,6 +560,37 @@ def test_authorized_prior_plan_progress_preserves_step_state_for_restart_followu
     ]
 
 
+def test_authorized_priority_context_preserves_task_focus_for_temporal_followup():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="Which one should I start with?",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="Start with the first task.",
+        evidence={"task": {"task_id": str(uuid4()), "title": "first task"}},
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+
+    assert context.values["canonical_facts"]["task"] == result.evidence["task"]
+
+
 def test_authorized_task_context_preserves_due_candidates_beyond_ordinal_window():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
