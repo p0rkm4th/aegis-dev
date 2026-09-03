@@ -326,6 +326,7 @@ def test_semantic_action_reference_prevents_second_pass_read_drift():
 
 def test_task_read_fast_path_requires_high_confidence_read_shape():
     assert TaskReadFastPath.matches("Show my tasks")
+    assert TaskReadFastPath.matches("Give me a quick list of my open tasks")
     assert not TaskReadFastPath.matches("set task status get gud scrub complete")
     assert not TaskReadFastPath.matches("I finished the task get gud scrub")
 
