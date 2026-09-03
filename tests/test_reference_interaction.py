@@ -452,6 +452,27 @@ def test_reference_task_display_is_bounded_without_truncating_canonical_evidence
     assert len(result.evidence["canonical_tasks"]) == 22
 
 
+def test_reference_task_display_shortens_canonical_due_timestamp() -> None:
+    due_at = "2026-09-04T00:08:21.956546+00:00"
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Canonical task list read",
+        correlation_id=uuid4(),
+        evidence={
+            "canonical_tasks": [
+                {"title": "replace the porch bulb", "status": "open", "due_at": due_at}
+            ]
+        },
+    )
+
+    rendered = reference_format_result(result)
+
+    assert "replace the porch bulb (open) due " in rendered
+    assert ".956546" not in rendered
+    assert result.evidence["canonical_tasks"][0]["due_at"] == due_at
+
+
 def test_reference_chore_display_is_bounded_without_truncating_canonical_evidence() -> None:
     result = Result(
         objective_id=uuid4(),
