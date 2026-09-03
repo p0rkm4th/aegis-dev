@@ -857,10 +857,6 @@ def resolve_reference_fast_paths(
     composed_title = next((title for title, _error in composer_results if title is not None), None)
     snapshot = household_store.read_snapshot(principal)
     if composed_title is None:
-        result = resolve_contextual_ordinal_read(intent, context)
-        if result is not None:
-            return result
-    if composed_title is None:
         result = resolve_contextual_remaining(intent, context)
         if result is not None:
             return result
