@@ -3378,6 +3378,36 @@ def test_task_read_fast_path_filters_relative_due_window():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
+def test_task_read_fast_path_uses_owner_local_date_for_relative_due_window():
+    from datetime import datetime, timedelta, timezone
+
+    local_now = datetime.now().astimezone()
+    local_tomorrow = (local_now + timedelta(days=1)).date()
+    local_midnight = datetime.combine(local_tomorrow, datetime.min.time(), local_now.tzinfo)
+    tomorrow = Task(
+        uuid4(),
+        "apartment",
+        "local tomorrow task",
+        "alice",
+        due_at=local_midnight.astimezone(timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (tomorrow,)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What's due tomorrow?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["due_filter"] == "tomorrow"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["local tomorrow task"]
+
+
 def test_task_read_fast_path_accepts_implicit_temporal_task_language():
     from datetime import datetime, timedelta, timezone
 
@@ -3467,7 +3497,7 @@ def test_task_read_fast_path_filters_weekday_without_due_verb():
         "apartment",
         "monday task",
         "alice",
-        due_at=datetime.combine(target, datetime.min.time(), timezone.utc),
+        due_at=datetime.combine(target, datetime.min.time(), now.astimezone().tzinfo),
     )
     later = Task(uuid4(), "apartment", "later task", "alice", due_at=now + timedelta(days=30))
 
@@ -3563,7 +3593,7 @@ def test_task_read_fast_path_filters_this_weekday_due_window():
         "apartment",
         "friday task",
         "alice",
-        due_at=datetime.combine(target, datetime.min.time(), timezone.utc),
+        due_at=datetime.combine(target, datetime.min.time(), now.astimezone().tzinfo),
     )
     later = Task(uuid4(), "apartment", "later task", "alice", due_at=now + timedelta(days=30))
 

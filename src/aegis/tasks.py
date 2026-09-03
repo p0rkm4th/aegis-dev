@@ -591,7 +591,7 @@ class TaskReadFastPath:
         else:
             tasks = all_tasks
             status_filter = "all"
-        now = datetime.now(timezone.utc)
+        now = datetime.now().astimezone()
         due_start: date | None = None
         due_end: date | None = None
         if "before the weekend" in text or "before weekend" in text:
@@ -632,7 +632,7 @@ class TaskReadFastPath:
                 task
                 for task in tasks
                 if task.due_at is not None
-                and due_start <= _aware_datetime(task.due_at).date() < due_end
+                and due_start <= _aware_datetime(task.due_at).astimezone().date() < due_end
             )
         return Result(
             objective_id=uuid4(),
