@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta, timezone
 from threading import Event
-from uuid import uuid4
+from uuid import uuid4, uuid5
 
 import pytest
 
@@ -34,7 +34,9 @@ from aegis.contracts import (
     ModelRequest,
     ModelResponse,
     ObjectiveRequirement,
+    ObjectiveRequirementProposal,
     ObjectiveSpec,
+    ObjectiveSpecProposal,
     ObjectiveState,
     Observation,
     PolicyDecision,
@@ -526,6 +528,43 @@ def test_kernel_persists_core_owned_objective_spec_and_validated_plan(tmp_path):
         requirement.requirement_id for requirement in objective_spec.requirements
     ]
     assert all(step.depends_on == () for step in persisted.validated_plan.steps)
+
+
+def test_kernel_assigns_requirement_ids_to_untrusted_spec_proposals(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    store = SqliteObjectiveStore(str(tmp_path / "proposal-identity.sqlite"))
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.write",
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Create a task",
+        relevance=1,
+    )
+    spec = ObjectiveSpecProposal(
+        requirements=(ObjectiveRequirementProposal(action_ref="tasks.create"),)
+    )
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(
+        intent(),
+        ProposedPlan(steps=(ProposedPlanStep(action_ref="tasks.create"),)),
+        (card,),
+        objective_spec=spec,
+    )
+
+    persisted = store.get_objective(result.objective_id)
+    assert persisted is not None and persisted.objective_spec is not None
+    assert persisted.objective_spec.requirements[0].requirement_id == uuid5(
+        uuid5(result.correlation_id, "objective-completeness"), "objective-requirement:0"
+    )
     store.close()
 
 
