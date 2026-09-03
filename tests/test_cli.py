@@ -396,6 +396,28 @@ def test_household_read_keeps_explicit_obligation_questions():
     assert HouseholdReadFastPath.matches("What are my outstanding obligations?") is True
 
 
+def test_household_obligation_read_returns_obligations_not_events():
+    from aegis.household import HouseholdReadFastPath
+
+    obligation = type(
+        "Obligation",
+        (),
+        {"title": "Utilities", "settled": False, "responsible_id": "alice", "amount": 100},
+    )()
+    result = HouseholdReadFastPath(
+        {"space_id": "home", "obligations": (obligation,), "chores": (), "events": ()}
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What are my outstanding obligations?",
+        )
+    )
+
+    assert result is not None
+    assert "obligations" in result.evidence
+    assert "events" not in result.evidence
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={

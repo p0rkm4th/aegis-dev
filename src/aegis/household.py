@@ -451,7 +451,9 @@ class HouseholdReadFastPath:
             return None
         text = intent.utterance.casefold()
         evidence: dict[str, object] = {"space_id": self.snapshot["space_id"]}
-        if any(word in text for word in ("utility", "utilities", "rent")):
+        if any(
+            word in text for word in ("utility", "utilities", "rent", "obligation", "obligations")
+        ):
             obligations = cast(tuple[HouseholdObligation, ...], self.snapshot["obligations"])
             evidence["obligations"] = [
                 {
