@@ -3,11 +3,14 @@ import pytest
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
+    Context,
+    IntentFrame,
+    Principal,
     ProposedPlan,
     ProposedPlanStep,
     VerificationContract,
 )
-from aegis.planning import PlanValidationError, materialize_proposed_plan
+from aegis.planning import PlanProgressFastPath, PlanValidationError, materialize_proposed_plan
 
 
 def card(action_id: str, *arguments: str) -> ActionCard:
@@ -112,3 +115,38 @@ def test_proposed_plan_does_not_copy_card_mutable_arguments():
 
     assert action.arguments == {"title": "x"}
     assert action.arguments is not task.action.arguments
+
+
+def test_plan_progress_reads_only_authorized_persisted_step_state():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="what's left?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "plan_steps": [
+                    {"index": 0, "state": "completed"},
+                    {"index": 1, "state": "blocked"},
+                ]
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.message == "1 of 2 plan steps are complete; 1 remain."
+    assert result.evidence == {"plan_progress": {"completed": 1, "total": 2}}
+
+
+def test_plan_progress_does_not_trust_unscoped_context():
+    assert (
+        PlanProgressFastPath.resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="what's left?",
+            ),
+            Context(values={"plan_steps": [{"index": 0, "state": "completed"}]}),
+        )
+        is None
+    )

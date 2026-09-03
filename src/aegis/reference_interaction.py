@@ -61,6 +61,7 @@ from .planning import (
     PersonalMemoryChoreComposer,
     PersonalMemoryTaskComposer,
     PersonalTaskComposer,
+    PlanProgressFastPath,
 )
 from .projections import SharedObligation
 from .reference_packs import reference_bundles
@@ -750,6 +751,9 @@ def resolve_reference_fast_paths(
     utterance = strip_context_reset(intent.utterance)
     if utterance != intent.utterance:
         intent = intent.model_copy(update={"utterance": utterance})
+    progress_result = PlanProgressFastPath.resolve(intent, context)
+    if progress_result is not None:
+        return progress_result
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
