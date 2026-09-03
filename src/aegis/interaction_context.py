@@ -228,7 +228,33 @@ def context_from_prior_result(
     raw_evidence = result.evidence
     evidence = compact_context_evidence(raw_evidence)
     if not evidence:
-        return Context()
+        if result.state.value != "blocked":
+            return Context()
+        # Preserve a bounded clarification exchange so the next turn can
+        # answer or correct it.  This is conversational context only: no
+        # canonical facts or referents are created from a blocked result.
+        return Context(
+            values={
+                "prior_correlation_id": str(correlation_id),
+                "prior_objective_id": str(objective.id),
+                "prior_state": result.state.value,
+                "recent_turns": [
+                    {
+                        "role": "user",
+                        "utterance": objective.intent.utterance[:_MAX_CONTEXT_TURN_CHARS],
+                        "correlation_id": str(correlation_id),
+                    },
+                    {
+                        "role": "assistant",
+                        "message": result.message[:_MAX_CONTEXT_TURN_CHARS],
+                        "correlation_id": str(correlation_id),
+                    },
+                ],
+                "referents": {},
+                "canonical_facts": {},
+            },
+            sources=("authorized_prior_result",),
+        )
     referents: dict[str, Any] = {}
     for fact_key in (
         "canonical_items",

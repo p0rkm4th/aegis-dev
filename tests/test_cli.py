@@ -578,6 +578,42 @@ def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
     assert context.sources == ("authorized_canonical_result",)
 
 
+def test_blocked_prior_context_preserves_clarification_without_referents():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="What do I have on Friday?",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.BLOCKED,
+        message="Could you clarify whether you mean tasks or appointments?",
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+
+    assert context.sources == ("authorized_prior_result",)
+    assert context.values["referents"] == {}
+    assert context.values["recent_turns"][1] == {
+        "role": "assistant",
+        "message": result.message,
+        "correlation_id": str(correlation_id),
+    }
+
+
 def test_authorized_prior_plan_progress_preserves_step_state_for_restart_followup():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
