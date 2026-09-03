@@ -756,7 +756,7 @@ def run_interaction(
     if runtime_registry is None:
         runtime_registry = _default_runtime_registry(_openclaw_channel)
 
-    def research_answer(intent: IntentFrame, _context: Context, source_kind: str) -> Result:
+    def research_answer(intent: IntentFrame, context: Context, source_kind: str) -> Result:
         endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
         if not endpoint:
             return Result(
@@ -792,7 +792,12 @@ def run_interaction(
                     for item in evidence.evidence
                 ],
             }
-            synthesis_context = Context(values={"research_evidence": evidence_values})
+            synthesis_values: dict[str, Any] = {"research_evidence": evidence_values}
+            if source_kind == "mixed_evidence":
+                # Local synthesis may use authorized context only after public
+                # retrieval. This value is never passed to SearchProvider.
+                synthesis_values["authorized_local_context"] = context.values
+            synthesis_context = Context(values=synthesis_values)
             provider = OllamaProvider(
                 os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
                 OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
@@ -816,6 +821,9 @@ def run_interaction(
                     "source_kind": source_kind,
                     "authoritative": False,
                     "research": evidence_values,
+                    "local_context_sources": (
+                        list(context.sources) if source_kind == "mixed_evidence" else []
+                    ),
                 },
                 correlation_id=intent.correlation_id,
             )
