@@ -23,6 +23,7 @@ from aegis.planning import (
     PlanValidationError,
     materialize_proposed_plan,
     materialize_validated_plan,
+    objective_requirements_satisfied,
 )
 
 
@@ -227,6 +228,20 @@ def test_validated_plan_translates_dependencies_to_stable_step_ids():
 
     assert first == second
     assert second.steps[1].depends_on == (second.steps[0].step_id,)
+
+
+def test_objective_completion_requires_every_requirement_id():
+    objective = ObjectiveSpec(
+        requirements=(
+            ObjectiveRequirement(action_ref="tasks.create"),
+            ObjectiveRequirement(action_ref="chores.create"),
+        )
+    )
+    first_id = objective.requirements[0].requirement_id
+    second_id = objective.requirements[1].requirement_id
+
+    assert not objective_requirements_satisfied(objective, {first_id})
+    assert objective_requirements_satisfied(objective, {first_id, second_id})
 
 
 def test_plan_progress_reads_only_authorized_persisted_step_state():
