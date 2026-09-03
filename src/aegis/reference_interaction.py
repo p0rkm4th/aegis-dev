@@ -844,6 +844,11 @@ def resolve_reference_fast_paths(
         or MultiActionFastPath.task_event_details(intent.utterance) is not None
     ):
         return None
+    # A compound mutation must reach the bounded plan path.  Do not let the
+    # read-only cross-domain planning context claim completion for an objective
+    # that explicitly asks Core to create or change multiple records.
+    if MultiActionFastPath.matches(intent.utterance):
+        return None
     contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
     if contextual_ordinal_result is not None:
         return contextual_ordinal_result

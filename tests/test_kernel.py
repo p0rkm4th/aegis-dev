@@ -3894,6 +3894,14 @@ def test_correction_against_persisted_plan_cannot_rewrite_or_execute_history():
     assert "explicit new action" in result.message
 
 
+def test_paraphrased_compound_mutation_is_structurally_plan_shaped():
+    assert MultiActionFastPath.matches(
+        "Could you set up my Friday prep by creating a task to wipe down the entryway, "
+        "adding a chore to check the lights, and scheduling an appointment to inspect the "
+        "furnace next Friday?"
+    )
+
+
 def test_domain_clarification_fast_path_gives_reminder_guidance():
     result = DomainClarificationFastPath.resolve(
         IntentFrame(
