@@ -43,6 +43,22 @@ def retrieve_action_cards(
                     if card.action.action_id.split(".", 1)[0] == namespace
                 )
                 if scoped_cards:
+                    # When retrieval has surfaced several write capabilities,
+                    # read-only cards in the same namespace add decision noise
+                    # without helping a mutation proposal. Keep the full
+                    # namespace for a single-write case so ordinary read/write
+                    # ambiguity still has its bounded vocabulary.
+                    if len(write_cards) > 1:
+                        scoped_write_cards = tuple(
+                            card
+                            for card in scoped_cards
+                            if any(
+                                permission.endswith(".write")
+                                for permission in card.action.required_permissions
+                            )
+                        )
+                        if scoped_write_cards:
+                            return scoped_write_cards[:10]
                     return scoped_cards[:10]
             return tuple(semantic_cards)[:10]
     if dependencies.fallback_card_selector is not None:
