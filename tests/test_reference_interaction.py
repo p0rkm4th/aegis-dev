@@ -321,6 +321,34 @@ def test_bounded_task_event_plan_owns_its_dependent_reference():
     assert resolve_reference_safety_fast_paths(intent, None, True) is None
 
 
+def test_scalar_task_focus_allows_explicit_completion_followup():
+    context = Context(
+        values={
+            "canonical_facts": {
+                "task": {
+                    "task_id": "11111111-1111-4111-8111-111111111111",
+                    "title": "renew insurance",
+                    "status": "open",
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    assert (
+        resolve_reference_safety_fast_paths(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="Complete that one.",
+            ),
+            None,
+            True,
+            context,
+        )
+        is None
+    )
+
+
 def test_compound_mutation_cannot_be_swallowed_by_contextual_read_fast_path():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),

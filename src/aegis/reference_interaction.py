@@ -634,6 +634,7 @@ def resolve_reference_safety_fast_paths(
         and (
             resolve_obvious_ordinal(intent.utterance, context, "canonical_tasks") is not None
             or resolve_obvious_ordinal(intent.utterance, context, "canonical_chores") is not None
+            or resolve_unique_prior_task_reference(intent.utterance, context) is not None
         )
     ):
         return None
