@@ -687,7 +687,9 @@ class TaskPriorityFastPath:
         if requested is not None and "tomorrow" in intent.utterance.casefold():
             target_date = datetime.fromisoformat(requested).date()
             dated = tuple(
-                task for task in dated if _aware_datetime(task.due_at).date() == target_date
+                task
+                for task in dated
+                if task.due_at is not None and _aware_datetime(task.due_at).date() == target_date
             )
         if not dated:
             return Result(
