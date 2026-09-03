@@ -233,6 +233,14 @@ def decide_fallback(
                     )
                     if researched is not None:
                         return researched
+                    return Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.FAILED,
+                        message="I couldn't verify current information right now.",
+                        evidence={"source_kind": knowledge_source, "authoritative": False},
+                        correlation_id=intent.correlation_id,
+                        retryable=True,
+                    )
                 if semantic_mode == "GENERATION":
                     generated_answer = (
                         classification_response.raw.get("answer")
@@ -364,6 +372,17 @@ def decide_fallback(
             )
             if researched is not None:
                 return researched
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="I couldn't verify current information right now.",
+                evidence={
+                    "source_kind": decision.knowledge_source,
+                    "authoritative": False,
+                },
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
         if decision.kind is DecisionKind.PLAN and decision.plan is not None:
             if decision.objective_spec is None:
                 interpretation_request = request.model_copy(
