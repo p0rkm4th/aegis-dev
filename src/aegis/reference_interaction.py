@@ -443,11 +443,14 @@ def reference_format_result(result: Any) -> str:
         return "Groceries: " + (listing if listing else "(empty)")
     if evidence.get("canonical_tasks") is not None:
         tasks = evidence["canonical_tasks"]
+        display_tasks = tasks[:20]
         listing = "; ".join(
             f"{item['title']} ({item['status']})"
             + (f" due {item['due_at']}" if item.get("due_at") else "")
-            for item in tasks
+            for item in display_tasks
         )
+        if len(tasks) > len(display_tasks):
+            listing += f"; … and {len(tasks) - len(display_tasks)} more"
         return "Tasks: " + (listing if tasks else "(empty)")
     if evidence.get("memories") is not None:
         memories = evidence["memories"]

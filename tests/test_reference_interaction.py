@@ -23,6 +23,7 @@ from aegis.interaction_context import (
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
 from aegis.reference_interaction import (
     ground_reference_action,
+    reference_format_result,
     resolve_contextual_ordinal_read,
     rewrite_reference_decision,
 )
@@ -261,6 +262,26 @@ def test_compact_planning_context_preserves_priority_candidates() -> None:
     assert compact_context_evidence({"planning": {"priority_candidates": candidates}})[
         "planning"
     ] == {"priority_candidates": candidates}
+
+
+def test_reference_task_display_is_bounded_without_truncating_canonical_evidence() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Canonical task list read",
+        correlation_id=uuid4(),
+        evidence={
+            "canonical_tasks": [{"title": f"task {index}", "status": "open"} for index in range(22)]
+        },
+    )
+
+    rendered = reference_format_result(result)
+
+    assert "task 0 (open)" in rendered
+    assert "task 19 (open)" in rendered
+    assert "task 20 (open)" not in rendered
+    assert "… and 2 more" in rendered
+    assert len(result.evidence["canonical_tasks"]) == 22
 
 
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
