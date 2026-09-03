@@ -418,6 +418,29 @@ def test_reference_chore_display_is_bounded_without_truncating_canonical_evidenc
     assert len(result.evidence["chores"]) == 22
 
 
+def test_reference_ordinal_domain_reads_do_not_render_as_mutations() -> None:
+    for collection, message, title in (
+        ("canonical_tasks", "Task: send the rent receipt (open)", "send the rent receipt"),
+        ("canonical_chores", "Chore: clean the kitchen (open)", "clean the kitchen"),
+        ("events", "Event: inspection; starts 2026-09-05T10:00:00+00:00", "inspection"),
+    ):
+        result = Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=message,
+            correlation_id=uuid4(),
+            evidence={
+                "collection": collection,
+                "authorized_ordinal_referent": {"title": title},
+            },
+        )
+
+        rendered = reference_format_result(result)
+
+        assert rendered == message
+        assert not rendered.startswith("Done —")
+
+
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     memory = MemoryRecord(
         uuid4(),
