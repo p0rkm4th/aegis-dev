@@ -25,6 +25,14 @@ a visual representation of that world: a navigable central intelligence hub,
 domain relationships, contextual resources, activity, and verification state—not
 a second ontology or database.
 
+The installed Pack vocabulary is not the limit of AEGIS's cognitive reach. A
+mature AEGIS can investigate novel objectives with bounded general-purpose
+tools, discover missing capabilities, and help create or acquire reusable
+capabilities when no bespoke high-level Pack action directly covers the
+outcome. A bespoke Pack is not required for every possible useful result; any
+new route remains subordinate to Core's authority, privacy, execution, and
+verification boundaries.
+
 Models are replaceable local or cloud cognition. Vaults and explicit shared
 Spaces make privacy understandable. Actions are authorized, observed, and
 independently verified; AEGIS never turns a plausible model sentence or HTTP
