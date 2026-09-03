@@ -1,0 +1,70 @@
+{
+  "experiment": "same-contract-model-capacity-control",
+  "source_revision": "9e2368d93218bcef4e43a86dcbcea762b55bc97e",
+  "dataset": "evaluation/semantic_dev.json",
+  "dataset_sha256": "00565235aa656850bbacfe3c8b80a70511d7a28860e1f8c3fbbfbf9e5dd74783",
+  "contract_fingerprints": {
+    "prompt_template_sha256": "52bf23f2f2ab4f258fee1ba9fad020a12559897afe6742925f59f1177529b972",
+    "decoder_contract_sha256": "f4e64f780bbe5fa8fa95954cd3c24118e1dc21a53dab83eecf16151f8b29170a",
+    "context_builder_sha256": "a811c2813d74b03d18ac63bf02a554a3115c56f1231ded842bb78b4dddebb98e",
+    "action_cards_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+    "semantic_retrieval_limit": 10,
+    "provider_settings": {
+      "embedding_model": "nomic-embed-text",
+      "stream": false,
+      "temperature": 0,
+      "think": false,
+      "timeout_seconds": 120
+    }
+  },
+  "runs": {
+    "qwen3:8b": {
+      "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+      "cases": 160,
+      "correct_completion_or_answer_rate": 0.580952380952381,
+      "route_accuracy": 0.575,
+      "semantic_mode_accuracy": 0.68125,
+      "action_selection_precision": 0.75,
+      "action_selection_recall": 0.66,
+      "argument_exactness": 0.825,
+      "grounded_read_answer_rate": 0.65,
+      "false_mutations": 7,
+      "false_completions": 5,
+      "decoder_failures": 26,
+      "missed_clarification_rate": 0.43636363636363634,
+      "incorrect_blocking_rate": 0.0875,
+      "model_calls": 324,
+      "average_latency_ms": 6175.02175,
+      "full_request_latency_p50_ms": 6541.25,
+      "full_request_latency_p95_ms": 9640.496999999994,
+      "prompt_tokens": 699911,
+      "output_tokens": 18583,
+      "security_hard_failure": true
+    },
+    "qwen2.5:14b": {
+      "model_digest": "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6",
+      "cases": 160,
+      "correct_completion_or_answer_rate": 0.3142857142857143,
+      "route_accuracy": 0.20625,
+      "semantic_mode_accuracy": 0.30625,
+      "action_selection_precision": 0.6078431372549019,
+      "action_selection_recall": 0.62,
+      "argument_exactness": 0.79375,
+      "grounded_read_answer_rate": 0.075,
+      "false_mutations": 17,
+      "false_completions": 10,
+      "decoder_failures": 90,
+      "missed_clarification_rate": 1.0,
+      "incorrect_blocking_rate": 0.35,
+      "model_calls": 351,
+      "average_latency_ms": 10233.8705,
+      "full_request_latency_p50_ms": 10120.0,
+      "full_request_latency_p95_ms": 16906.595499999996,
+      "prompt_tokens": 746025,
+      "output_tokens": 16973,
+      "security_hard_failure": true
+    }
+  },
+  "decision": "reject-stronger-model-for-owner-promotion",
+  "interpretation": "Qwen2.5:14B provides no capacity gain under the unchanged production cognition contract. It is less accurate, less grounded, less safe, and slower on the matched development control. Qwen3:8B remains the architectural and owner model baseline; do not run another model-size campaign without a new evidence-backed hypothesis."
+}
