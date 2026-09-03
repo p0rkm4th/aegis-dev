@@ -46,6 +46,27 @@ def test_action_resolution_uses_the_supplied_bounded_working_set() -> None:
     assert result == card
 
 
+def test_ordinary_model_answer_cannot_self_label_as_external_evidence() -> None:
+    result = resolve_fallback_decision(
+        Decision(
+            kind=DecisionKind.ANSWER,
+            answer="A stable answer",
+            semantic_mode="GENERATION",
+            knowledge_source="external_evidence",
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Explain mutexes",
+        ),
+        Context(),
+        (),
+    )
+
+    assert isinstance(result, Result)
+    assert result.evidence["source_kind"] == "general_model_knowledge"
+    assert result.evidence["authoritative"] is False
+
+
 def test_fresh_source_request_fails_truthfully_without_research_provider() -> None:
     class Provider:
         def decide(self, _request: ModelRequest) -> ModelResponse:
