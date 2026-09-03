@@ -837,6 +837,10 @@ def resolve_reference_fast_paths(
         result = resolve_contextual_remaining(intent, context)
         if result is not None:
             return result
+    if composed_title is None:
+        result = ContextualChorePriorityFastPath.resolve(intent, context)
+        if result is not None:
+            return result
     if composed_title is None and HouseholdReadFastPath.matches(utterance):
         result = HouseholdReadFastPath(snapshot).resolve(intent)
         if result is not None:
@@ -856,9 +860,6 @@ def resolve_reference_fast_paths(
         if result is not None:
             return result
         result = ContextualTaskPriorityFastPath().resolve(intent, context)
-        if result is not None:
-            return result
-        result = ContextualChorePriorityFastPath.resolve(intent, context)
         if result is not None:
             return result
         result = ContextualCrossDomainPriorityFastPath().resolve(intent, context)
