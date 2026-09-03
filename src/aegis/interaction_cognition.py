@@ -14,6 +14,8 @@ from .contracts import (
     DecisionKind,
     IntentFrame,
     ModelRequest,
+    ObjectiveRequirementProposal,
+    ObjectiveSpecProposal,
     ObjectiveState,
     ProposedPlan,
     ProposedPlanStep,
@@ -106,7 +108,12 @@ def _scope_plan_by_capability(
     return Decision(
         kind=DecisionKind.PLAN,
         plan=ProposedPlan(steps=steps),
-        objective_spec=proposed.objective_spec,
+        objective_spec=ObjectiveSpecProposal(
+            requirements=tuple(
+                ObjectiveRequirementProposal(action_ref=step.action_ref, arguments=step.arguments)
+                for step in steps
+            )
+        ),
         semantic_mode="ACTION",
     )
 

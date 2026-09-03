@@ -146,6 +146,16 @@ class InteractionBoundary:
     ) -> Result:
         """Run a candidate-bound plan through the existing per-step Kernel path."""
 
+        if objective_spec is None:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I could not safely persist every requested change as an objective; "
+                    "please clarify the request."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         if self.dependencies.runtime_registry is None:
             return Result(
                 objective_id=uuid4(),
