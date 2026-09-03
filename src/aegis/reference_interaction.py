@@ -79,7 +79,12 @@ from .tasks import (
     ground_task_due_at,
     requested_task_due_at,
 )
-from .utterance import is_mutation_request, is_task_destination_request, strip_context_reset
+from .utterance import (
+    is_correction_request,
+    is_mutation_request,
+    is_task_destination_request,
+    strip_context_reset,
+)
 
 
 def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[str, ActionCard]:
@@ -626,6 +631,11 @@ def resolve_reference_safety_fast_paths(
             or resolve_obvious_ordinal(intent.utterance, context, "canonical_chores") is not None
         )
     ):
+        return None
+    if context is not None and is_correction_request(intent.utterance):
+        # Let the authorized referent resolver provide a domain-specific
+        # clarification; the context-free guard protects only corrections that
+        # lack canonical context to resolve against.
         return None
     return ContextualMutationGuard.resolve(intent)
 
