@@ -425,6 +425,26 @@ def test_unique_prior_task_reference_grounds_scalar_priority_focus():
     }
 
 
+def test_unique_prior_task_reference_grounds_recent_task_result():
+    from aegis.interaction_context import resolve_unique_prior_task_reference
+
+    context = Context(
+        sources=("authorized_canonical_result",),
+        values={
+            "canonical_facts": {
+                "collection": "tasks",
+                "title": "check the loading dock lock",
+                "status": "open",
+            }
+        },
+    )
+
+    assert resolve_unique_prior_task_reference("Complete that one", context) == {
+        "title": "check the loading dock lock",
+        "status": "open",
+    }
+
+
 def test_model_working_context_includes_bounded_authorized_household_attention():
     principal = Principal(id="alice", vault_id="alice-vault")
     chore = type("Chore", (), {"title": "clean the utility closet", "completed": False})()
