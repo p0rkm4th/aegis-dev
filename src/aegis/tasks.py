@@ -610,6 +610,37 @@ class TaskReadFastPath:
         )
 
 
+class ContextualTaskTemporalFastPath:
+    """Resolve a temporal follow-up against the previously authorized task domain."""
+
+    _TEMPORAL = re.compile(
+        r"\b(?:today|tomorrow|next week|this week|"
+        r"monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b"
+    )
+
+    def resolve(
+        self, intent: IntentFrame, context: Context, store: PostgresTaskStore
+    ) -> Result | None:
+        text = " ".join(intent.utterance.casefold().split())
+        if (
+            context.sources != ("authorized_canonical_result",)
+            or is_mutation_request(text)
+            or self._TEMPORAL.search(text) is None
+        ):
+            return None
+        referents = context.values.get("referents")
+        those = referents.get("those") if isinstance(referents, dict) else None
+        if not isinstance(those, dict) or those.get("fact_key") != "canonical_tasks":
+            return None
+        temporal = self._TEMPORAL.search(text)
+        if temporal is None:
+            return None
+        follow_up = intent.model_copy(
+            update={"utterance": f"what tasks are due {temporal.group(0)}"}
+        )
+        return TaskReadFastPath(store).resolve(follow_up)
+
+
 class TaskPriorityFastPath:
     """Give a grounded priority hint without treating undated work as urgent."""
 

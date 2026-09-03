@@ -68,6 +68,7 @@ from .reference_packs import reference_bundles
 from .store import PostgresObjectiveStore
 from .tasks import (
     ContextualTaskPriorityFastPath,
+    ContextualTaskTemporalFastPath,
     PostgresTaskStore,
     TaskCompletionFastPath,
     TaskIntentClarificationFastPath,
@@ -805,6 +806,9 @@ def resolve_reference_fast_paths(
             if result is not None:
                 return result
         result = TaskReadFastPath(task_store).resolve(intent)
+        if result is not None:
+            return result
+        result = ContextualTaskTemporalFastPath().resolve(intent, context, task_store)
         if result is not None:
             return result
         result = ContextualTaskPriorityFastPath().resolve(intent, context)
