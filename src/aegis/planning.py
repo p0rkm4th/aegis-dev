@@ -455,7 +455,9 @@ class ContextualMutationGuard:
     )
     _IMPLICIT_ACTION_REFERENCE = re.compile(
         r"^(?:go ahead and )?(?:do|handle|take care of) "
-        r"(?:it|that|this|those)(?: too)?[.!?]?$"
+        r"(?:it|that|this|those|the (?:first|second|third|fourth|last) "
+        r"(?:one|item|task|chore|event)|the next (?:one|item|task|chore|event))"
+        r"(?: too)?[.!?]?$"
     )
 
     @classmethod
