@@ -12,6 +12,7 @@ from aegis.contracts import (
     ModelResponse,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
+    ObjectiveState,
     Principal,
     ProposedPlan,
     ProposedPlanStep,
@@ -204,6 +205,60 @@ def test_plan_fidelity_does_not_accept_matching_plan_that_omits_human_effect() -
 
     assert isinstance(result, Decision)
     assert result.kind is DecisionKind.CLARIFY
+
+
+def test_plan_fidelity_provider_failure_fails_closed() -> None:
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            if request.classification_only:
+                return ModelResponse(raw={"kind": "ANSWER", "semantic_mode": "ACTION"})
+            if request.objective_fidelity_only:
+                raise TimeoutError("fidelity timeout")
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    objective_spec=ObjectiveSpecProposal(
+                        requirements=(
+                            ObjectiveRequirementProposal(action_ref="first"),
+                            ObjectiveRequirementProposal(action_ref="second"),
+                        )
+                    ),
+                    plan=ProposedPlan(
+                        steps=(
+                            ProposedPlanStep(action_ref="first"),
+                            ProposedPlanStep(action_ref="second"),
+                        )
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(action_id=action_id, capability=action_id),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do both",
+        ),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.FAILED
+    assert result.retryable is True
 
 
 def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> None:
