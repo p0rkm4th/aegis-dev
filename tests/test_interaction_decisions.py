@@ -74,7 +74,7 @@ def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> N
 
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
-        utterance="do three separate things",
+        utterance="do one thing and another thing and one more thing",
         correlation_id=uuid4(),
     )
     proposal = Decision(

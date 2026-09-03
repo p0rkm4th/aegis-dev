@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import re
 from typing import Any
 from uuid import uuid4
 
@@ -43,6 +44,11 @@ def _scope_plan_by_capability(
     """
 
     if proposed.kind is not DecisionKind.PLAN or len(cards) < 3:
+        return proposed
+    # A normal two-operation plan commonly contains one conjunction.  Extra
+    # capability-scoped calls are justified only when the request has multiple
+    # structural conjunction boundaries, which is evidence of a third clause.
+    if len(re.findall(r"\b(?:and|then|plus)\b", intent.utterance.casefold())) < 2:
         return proposed
     scoped: dict[str, Decision] = {}
     try:
