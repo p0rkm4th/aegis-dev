@@ -767,6 +767,54 @@ def test_requirement_bound_plan_recovers_after_verified_step_persistence_crash(t
     store.close()
 
 
+def test_requirement_bound_dependencies_gate_only_dependent_steps(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class AllowExceptFirst:
+        def authorize(self, request):
+            allowed = request.action.capability != "first"
+            return PolicyDecision(allowed=allowed, reason="ok" if allowed else "revoked")
+
+    store = SqliteObjectiveStore(str(tmp_path / "dependency-readiness.sqlite"))
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "independent", "dependent")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    proposal = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="first"),
+            ProposedPlanStep(action_ref="independent"),
+            ProposedPlanStep(action_ref="dependent", depends_on=(0,)),
+        )
+    )
+    executor = Executor()
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        AllowExceptFirst(),
+        executor,
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(intent(), proposal, cards, objective_spec=objective_spec)
+
+    assert result.state is ObjectiveState.BLOCKED
+    assert executor.calls == 1
+    states = [step["state"] for step in result.evidence["steps"]]
+    assert states == ["blocked", "completed", "blocked"]
+    store.close()
+
+
 @pytest.mark.skipif(
     not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
 )
