@@ -954,9 +954,24 @@ def test_memory_followup_does_not_cross_into_memory_without_memory_context() -> 
         context,
     )
 
-    assert result is not None
-    assert result.state is ObjectiveState.BLOCKED
-    assert "specific memory" in result.message
+    assert result is None
+
+
+def test_general_continuation_wording_does_not_claim_canonical_network_as_memory() -> None:
+    context = Context(
+        values={"canonical_facts": {"network": {"devices": ["router"]}}},
+        sources=("authorized_canonical_result",),
+    )
+
+    result = PersonalMemoryFastPath(PersonalState()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Tell me about my network",
+        ),
+        context,
+    )
+
+    assert result is None
 
 
 def test_explicit_memory_topic_switch_survives_other_canonical_context() -> None:
