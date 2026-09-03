@@ -21,6 +21,7 @@ from aegis.interaction_context import (
     resolve_obvious_ordinal_item,
 )
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
+from aegis.planning import MultiActionFastPath
 from aegis.reference_interaction import (
     ground_reference_action,
     reference_format_result,
@@ -318,6 +319,19 @@ def test_bounded_task_event_plan_owns_its_dependent_reference():
         ),
     )
 
+    assert resolve_reference_safety_fast_paths(intent, None, True) is None
+
+
+def test_model_enabled_structural_compound_reaches_bounded_cognition():
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance=(
+            "Get the guest room ready for Friday: put checking the towels on my task list "
+            "and schedule a bathroom inspection for Friday."
+        ),
+    )
+
+    assert MultiActionFastPath.matches(intent.utterance)
     assert resolve_reference_safety_fast_paths(intent, None, True) is None
 
 
