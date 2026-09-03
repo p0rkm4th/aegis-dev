@@ -4,12 +4,14 @@ from aegis.contracts import (
     ActionCard,
     ActionSpec,
     Context,
+    DecisionKind,
     IntentFrame,
     Principal,
     ProposedPlan,
     ProposedPlanStep,
     VerificationContract,
 )
+from aegis.decoding import InvalidDecision, StrictDecisionDecoder
 from aegis.planning import PlanProgressFastPath, PlanValidationError, materialize_proposed_plan
 
 
@@ -154,3 +156,34 @@ def test_plan_progress_does_not_trust_unscoped_context():
         )
         is None
     )
+
+
+def test_decoder_accepts_candidate_bound_plan_only_in_proposal_mode():
+    cards = (card("tasks.create", "title"), card("chores.create", "title"))
+    response = type(
+        "Response",
+        (),
+        {
+            "raw": {
+                "kind": DecisionKind.PLAN.value,
+                "semantic_mode": "ACTION",
+                "plan": {
+                    "steps": [
+                        {"action_ref": "tasks.create", "arguments": {"title": "x"}},
+                        {
+                            "action_ref": "chores.create",
+                            "arguments": {"title": "y"},
+                            "depends_on": [0],
+                        },
+                    ]
+                },
+            }
+        },
+    )()
+
+    decision = StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
+
+    assert decision.kind is DecisionKind.PLAN
+    assert decision.plan is not None
+    with pytest.raises(InvalidDecision, match="proposal mode"):
+        StrictDecisionDecoder().decode(response, cards)
