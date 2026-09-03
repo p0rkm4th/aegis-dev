@@ -276,6 +276,23 @@ class InteractionBoundary:
                 if isinstance(fallback, Result):
                     return persist_fast_result(fallback)
                 if isinstance(fallback, Decision):
+                    if self.dependencies.decision_rewriter is not None:
+                        try:
+                            inspect.signature(self.dependencies.decision_rewriter).bind(
+                                intent, fallback, fallback_cards, fallback_context
+                            )
+                        except (TypeError, ValueError):
+                            rewritten = self.dependencies.decision_rewriter(
+                                intent, fallback, fallback_cards
+                            )
+                        else:
+                            rewritten = self.dependencies.decision_rewriter(
+                                intent, fallback, fallback_cards, fallback_context
+                            )
+                        if isinstance(rewritten, Result):
+                            return persist_fast_result(rewritten)
+                        if isinstance(rewritten, Decision):
+                            fallback = rewritten
                     resolution = resolve_fallback_decision(
                         fallback,
                         intent,
