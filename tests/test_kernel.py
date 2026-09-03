@@ -582,6 +582,69 @@ def test_kernel_assigns_requirement_ids_to_untrusted_spec_proposals(tmp_path):
     )
 
 
+def test_requirement_bound_objective_survives_provider_replacement_without_reinterpretation(
+    tmp_path,
+):
+    from aegis.store import SqliteObjectiveStore
+
+    store = SqliteObjectiveStore(str(tmp_path / "provider-replacement.sqlite"))
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    proposal = ProposedPlan(
+        steps=tuple(ProposedPlanStep(action_ref=card.action.action_id) for card in cards)
+    )
+    original = intent()
+    first_executor = Executor()
+    first = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        first_executor,
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(original, proposal, cards, objective_spec=objective_spec)
+
+    replacement_executor = Executor()
+    replacement = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="replacement provider unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        replacement_executor,
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(
+        original.model_copy(update={"utterance": "replacement provider retry"}),
+        proposal,
+        cards,
+        objective_spec=objective_spec,
+    )
+
+    persisted = store.get_objective(first.objective_id)
+    assert first.state is ObjectiveState.COMPLETED
+    assert replacement == first
+    assert replacement_executor.calls == 0
+    assert persisted is not None
+    assert persisted.objective_spec == objective_spec
+    assert persisted.validated_plan is not None
+    assert [step.requirement_id for step in persisted.validated_plan.steps] == [
+        requirement.requirement_id for requirement in objective_spec.requirements
+    ]
+    store.close()
+
+
 def test_requirement_bound_plan_stops_when_next_step_is_revoked(tmp_path):
     from aegis.store import SqliteObjectiveStore
 
