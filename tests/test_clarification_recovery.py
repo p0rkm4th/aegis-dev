@@ -9,6 +9,7 @@ from aegis.contracts import (
     Principal,
 )
 from aegis.interaction_recovery import (
+    evaluate_clarification_recovery_cases,
     request_clarification_recovery,
     validate_clarification_recovery,
 )
@@ -104,3 +105,13 @@ def test_recovery_request_isolated_mode_returns_no_direct_action() -> None:
     )
     assert proposal is not None
     assert not hasattr(proposal, "action")
+
+
+def test_development_recovery_corpus_has_zero_unsafe_acceptances() -> None:
+    metrics = evaluate_clarification_recovery_cases()
+
+    assert metrics.cases == 6
+    assert metrics.expected_resolutions == 1
+    assert metrics.accepted_resolutions == 1
+    assert metrics.unsafe_acceptances == 0
+    assert metrics.rejected_cases == 5
