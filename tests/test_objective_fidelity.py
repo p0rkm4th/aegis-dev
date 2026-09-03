@@ -7,6 +7,7 @@ from aegis.objective_fidelity import (
     FidelityEvaluationCase,
     RequestedEffectProposal,
     compare_objective_proposals,
+    effects_to_proposal,
     evaluate_fidelity_cases,
     validate_effect_spans,
 )
@@ -74,6 +75,28 @@ def test_segmented_effects_must_be_grounded_in_original_utterance() -> None:
         utterance,
         (RequestedEffectProposal(effect_text="delete the list", source_span=(0, 10)),),
     )
+
+
+def test_effect_text_allows_only_unique_deterministic_span_repair() -> None:
+    utterance = "Add rice to groceries and add milk to groceries"
+    effects = (
+        RequestedEffectProposal(
+            effect_text="Add rice to groceries",
+            source_span=(-1, 0),
+            action_ref="kitchen.groceries.add",
+            arguments={"item": "rice"},
+        ),
+    )
+    assert effects_to_proposal(utterance, effects) is not None
+    duplicate = (
+        RequestedEffectProposal(
+            effect_text="groceries",
+            source_span=(-1, 0),
+            action_ref="kitchen.groceries.add",
+            arguments={"item": "rice"},
+        ),
+    )
+    assert effects_to_proposal(utterance, duplicate) is None
 
 
 def test_fidelity_development_metrics_expose_correlated_omission_safety() -> None:
