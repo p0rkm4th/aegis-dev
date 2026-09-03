@@ -198,8 +198,10 @@ class OllamaProvider:
                     "from the supplied ActionCards, only declared argument keys, and optional "
                     "depends_on indexes that point to earlier steps. A PLAN must contain the "
                     "plan object and must not contain action_ref, action_arguments, or action; "
-                    "those fields are only for ACTION. If one action is sufficient, return "
-                    "ACTION instead. Never invent capabilities."
+                    "those fields are only for ACTION. Include every independent state change "
+                    "requested by the user exactly once; if you cannot account for all of them "
+                    "from the supplied cards, return CLARIFY instead of claiming completion. "
+                    "If one action is sufficient, return ACTION instead. Never invent capabilities."
                     if request.allow_plan_proposals
                     else "Plan proposals are disabled; return at most one action."
                 ),

@@ -2448,6 +2448,7 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
 
     assert "plan object" in payload["plan_rule"]
     assert "must not contain action_ref, action_arguments, or action" in payload["plan_rule"]
+    assert "every independent state change requested by the user" in payload["plan_rule"]
 
 
 def test_openclaw_grocery_verifier_rejects_duplicate_external_records(tmp_path):
