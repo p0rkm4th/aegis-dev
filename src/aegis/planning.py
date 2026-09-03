@@ -86,7 +86,14 @@ class PlanProgressFastPath:
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
             message=message,
-            evidence={"plan_progress": {"completed": completed, "total": len(steps)}},
+            evidence={
+                "plan_progress": {"completed": completed, "total": len(steps)},
+                "plan_steps": [
+                    {"index": step.get("index"), "state": step.get("state")}
+                    for step in steps[:5]
+                    if isinstance(step, dict)
+                ],
+            },
             correlation_id=intent.correlation_id,
         )
 

@@ -145,7 +145,13 @@ def test_plan_progress_reads_only_authorized_persisted_step_state():
 
     assert result is not None
     assert result.message == "1 of 2 plan steps are complete; 1 remain."
-    assert result.evidence == {"plan_progress": {"completed": 1, "total": 2}}
+    assert result.evidence == {
+        "plan_progress": {"completed": 1, "total": 2},
+        "plan_steps": [
+            {"index": 0, "state": "completed"},
+            {"index": 1, "state": "blocked"},
+        ],
+    }
 
 
 def test_plan_progress_accepts_what_remains_followup():
