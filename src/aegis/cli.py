@@ -494,6 +494,22 @@ def _browser_interaction(
             for step in raw_steps[:5]
             if isinstance(step, dict)
         )
+    research = result.evidence.get("research")
+    if isinstance(research, dict) and isinstance(research.get("sources"), list):
+        response["sources"] = tuple(
+            {
+                "source_id": item.get("source_id"),
+                "title": item.get("title"),
+                "url": item.get("url"),
+                "retrieved_at": item.get("retrieved_at"),
+            }
+            for item in research["sources"][:5]
+            if isinstance(item, dict)
+            and all(
+                isinstance(item.get(key), str)
+                for key in ("source_id", "title", "url", "retrieved_at")
+            )
+        )
     if result.retryable:
         response["retryable"] = True
     return response
