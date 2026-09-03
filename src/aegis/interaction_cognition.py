@@ -202,6 +202,36 @@ def decide_fallback(
                 raise last_invalid
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
+        if decision.kind is DecisionKind.PLAN and decision.plan is not None:
+            review_context = context.model_copy(
+                update={
+                    "values": {
+                        **context.values,
+                        "proposed_plan": decision.plan.model_dump(mode="json"),
+                    }
+                }
+            )
+            review_request = ModelRequest(
+                working_set=WorkingSet(intent=intent, context=review_context),
+                action_cards=cards,
+                plan_coverage_review=True,
+            )
+            review = decoder.decode(
+                provider.decide(review_request),
+                cards,
+                allow_plan_coverage=True,
+            )
+            if review.kind is not DecisionKind.ANSWER or review.plan_complete is not True:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=(
+                        "I could not verify that every requested part is represented in the "
+                        "plan. No action was executed; please separate the requests."
+                    ),
+                    evidence={"provenance": "plan_coverage_review", "authoritative": False},
+                    correlation_id=intent.correlation_id,
+                )
         if routing_only and decision.kind is DecisionKind.ANSWER:
             reconsidered = decoder.decode(
                 provider.decide(request), request.action_cards, allow_argument_proposals=True
