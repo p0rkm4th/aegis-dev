@@ -10,6 +10,7 @@ from aegis.contracts import (
     IntentFrame,
     ObjectiveRequirement,
     ObjectiveSpec,
+    ObjectiveState,
     Principal,
     ProposedPlan,
     ProposedPlanStep,
@@ -300,6 +301,30 @@ def test_plan_progress_prefers_persisted_objective_requirements():
     assert result is not None
     assert result.message == "1 of 2 requested changes are complete; 1 remain."
     assert result.evidence["progress_basis"] == "persisted_objective_requirements"
+
+
+def test_plan_progress_does_not_treat_model_done_question_as_completion():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="did you finish everything?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "objective_requirements": [
+                        {"requirement_id": "req-a", "state": "completed"},
+                        {"requirement_id": "req-b", "state": "failed"},
+                    ]
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert "1 of 2 requested changes" in result.message
 
 
 def test_plan_progress_accepts_what_remains_followup():
