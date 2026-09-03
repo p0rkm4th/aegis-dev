@@ -177,6 +177,29 @@ def test_plan_progress_accepts_what_remains_followup():
     assert result.message == "All 2 plan steps are complete."
 
 
+def test_plan_progress_accepts_outstanding_followup():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="How much of that is still outstanding?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "plan_steps": [
+                        {"index": 0, "state": "completed"},
+                        {"index": 1, "state": "pending"},
+                    ]
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.message == "1 of 2 plan steps are complete; 1 remain."
+
+
 def test_plan_modification_does_not_rewrite_verified_history():
     result = PlanModificationFastPath.resolve(
         IntentFrame(
