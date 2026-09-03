@@ -14,6 +14,7 @@ from .contracts import (
     DecisionKind,
     IntentFrame,
     ModelRequest,
+    ObjectiveFidelityVerdict,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
     ObjectiveState,
@@ -24,6 +25,7 @@ from .contracts import (
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_recovery import recover_invalid_model_decision
+from .objective_fidelity import compare_objective_proposals, fidelity_message
 from .utterance import is_question_request
 
 
@@ -412,25 +414,32 @@ def decide_fallback(
                 retryable=True,
             )
         if decision.kind is DecisionKind.PLAN and decision.plan is not None:
-            if decision.objective_spec is None:
-                interpretation_request = request.model_copy(
-                    update={"objective_interpretation_only": True}
+            fidelity_response = provider.decide(
+                request.model_copy(
+                    update={
+                        "objective_interpretation_only": False,
+                        "objective_fidelity_only": True,
+                        "allow_plan_proposals": False,
+                        "allow_argument_proposals": False,
+                    }
                 )
-                interpretation_response = provider.decide(interpretation_request)
-                if not isinstance(interpretation_response.raw, dict):
-                    raise InvalidDecision("objective interpretation must be an object")
-                try:
-                    objective_spec = ObjectiveSpecProposal.model_validate(
-                        interpretation_response.raw
-                    )
-                except Exception as exc:
-                    raise InvalidDecision(
-                        "objective interpretation failed its strict schema"
-                    ) from exc
-                decision = decision.model_copy(update={"objective_spec": objective_spec})
-            decision = _scope_plan_by_capability(
-                provider, decoder, intent, cards, context, decision
             )
+            if not isinstance(fidelity_response.raw, dict):
+                raise InvalidDecision("objective fidelity must be an object")
+            try:
+                independent_spec = ObjectiveSpecProposal.model_validate(fidelity_response.raw)
+            except Exception as exc:
+                raise InvalidDecision("objective fidelity failed its strict schema") from exc
+            objective_spec = decision.objective_spec or independent_spec
+            if decision.objective_spec is not None:
+                verdict = compare_objective_proposals(decision.objective_spec, independent_spec)
+                if verdict is not ObjectiveFidelityVerdict.COMPLETE:
+                    return Decision(
+                        kind=DecisionKind.CLARIFY,
+                        clarification=fidelity_message(verdict),
+                        semantic_mode="CLARIFY",
+                    )
+            decision = decision.model_copy(update={"objective_spec": objective_spec})
         if routing_only and decision.kind is DecisionKind.ANSWER:
             reconsidered = decoder.decode(
                 provider.decide(request), request.action_cards, allow_argument_proposals=True

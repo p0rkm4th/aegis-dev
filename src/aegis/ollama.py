@@ -184,14 +184,23 @@ class OllamaProvider:
         return json.dumps(
             {
                 "instruction": (
-                    "Return exactly one objective_spec JSON object. It must contain one "
-                    "requirement for each independent state change requested by the user. "
-                    "Use only exact action_ref values from the supplied ActionCards and "
-                    "only the grounded arguments needed for that effect. Do not include a "
-                    "plan, completion claim, permissions, or verification. Core will assign "
-                    "stable identities and validate the proposal."
-                    if request.objective_interpretation_only
-                    else "Return exactly one structured Aegis Decision JSON object."
+                    "Return exactly one objective_spec JSON object describing every "
+                    "independent state change requested by the user. This is an "
+                    "independent fidelity interpretation: compare the human request "
+                    "to the bounded capability vocabulary, not to any plan. Do not "
+                    "return a plan, completion claim, permissions, or verification. "
+                    "Core compares this proposal to the primary interpretation."
+                    if request.objective_fidelity_only
+                    else (
+                        "Return exactly one objective_spec JSON object. It must contain one "
+                        "requirement for each independent state change requested by the user. "
+                        "Use only exact action_ref values from the supplied ActionCards and "
+                        "only the grounded arguments needed for that effect. Do not include a "
+                        "plan, completion claim, permissions, or verification. Core will assign "
+                        "stable identities and validate the proposal."
+                        if request.objective_interpretation_only
+                        else "Return exactly one structured Aegis Decision JSON object."
+                    )
                 ),
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "
