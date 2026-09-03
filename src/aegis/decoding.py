@@ -21,6 +21,7 @@ class StrictDecisionDecoder:
         cards: tuple[ActionCard, ...],
         *,
         allow_argument_proposals: bool = False,
+        allow_plan_coverage: bool = False,
     ) -> Decision:
         if not isinstance(response.raw, dict):
             raise InvalidDecision("model response must be an object")
@@ -29,6 +30,10 @@ class StrictDecisionDecoder:
             decision = Decision.model_validate(raw)
         except ValidationError as exc:
             raise InvalidDecision("model response failed the decision schema") from exc
+        if decision.plan_complete is not None and not allow_plan_coverage:
+            raise InvalidDecision("plan coverage is only valid during a coverage review")
+        if allow_plan_coverage and decision.plan_complete is None:
+            raise InvalidDecision("plan coverage review must provide plan_complete")
         if decision.kind is DecisionKind.ACTION:
             if decision.semantic_mode not in {None, "ACTION"}:
                 raise InvalidDecision("ACTION decision must use semantic_mode ACTION")

@@ -165,6 +165,17 @@ class OllamaProvider:
         return json.dumps(
             {
                 "instruction": "Return exactly one structured Aegis Decision JSON object.",
+                "plan_coverage_review_rule": (
+                    "This is a plan coverage review. Compare the current user utterance with "
+                    "the supplied proposed_plan in bounded context. Set plan_complete to true "
+                    "only when every independent state change requested by the user is represented "
+                    "by exactly one proposed step with the right capability and arguments. Set it "
+                    "to false when any requested part is missing, merged incorrectly, ambiguous, "
+                    "or has contaminated arguments. Return ANSWER with no action or plan proposal; "
+                    "this review grants no authority and cannot execute anything."
+                    if request.plan_coverage_review
+                    else "Not a plan coverage review; omit plan_complete."
+                ),
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "
                     "authorized information, GENERATION for benign creative/explanatory "
