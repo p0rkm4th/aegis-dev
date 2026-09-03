@@ -21,7 +21,7 @@ from uuid import UUID
 import psycopg
 
 from .audit import PostgresAuditLog
-from .contracts import Principal, RequestStatus, Result
+from .contracts import ActionCard, Principal, RequestStatus, Result
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
 from .finance import PostgresFinanceSnapshotStore
@@ -62,6 +62,7 @@ from .reference_runtime import default_runtime_registry, legacy_runtime
 from .release_truth import runtime_release_sha
 from .store import PostgresObjectiveStore
 from .tasks import PostgresTaskStore
+from .utterance import is_task_destination_request
 from .web import serve
 
 # Backward-compatible import for callers of the alpha's legacy helper.  The
@@ -737,6 +738,21 @@ def run_interaction(
     if runtime_registry is None:
         runtime_registry = _default_runtime_registry(_openclaw_channel)
 
+    def retrieve_reference_capabilities(query: str, manager: Any) -> tuple[ActionCard, ...]:
+        if is_task_destination_request(query):
+            return reference_fallback_cards(manager, query)
+        return cast(
+            tuple[ActionCard, ...],
+            manager.retrieve_semantic(
+                query,
+                OllamaEmbeddingProvider(
+                    os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
+                    _required("AEGIS_OLLAMA_URL"),
+                ),
+                limit=10,
+            ),
+        )
+
     boundary = InteractionBoundary(
         InteractionDependencies(
             connect=psycopg.connect,
@@ -750,14 +766,7 @@ def run_interaction(
                 os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
                 OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
             ),
-            capability_retriever=lambda query, manager: manager.retrieve_semantic(
-                query,
-                OllamaEmbeddingProvider(
-                    os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
-                    _required("AEGIS_OLLAMA_URL"),
-                ),
-                limit=10,
-            ),
+            capability_retriever=retrieve_reference_capabilities,
             runtime_registry=runtime_registry,
             pack_bundles=reference_bundles,
             auto_enable_pack_ids=frozenset(("tasks", "kitchen")),
