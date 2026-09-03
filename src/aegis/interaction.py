@@ -14,10 +14,12 @@ from .contracts import (
     ActionCard,
     Context,
     Decision,
+    DecisionKind,
     IntentFrame,
     Objective,
     ObjectiveState,
     Principal,
+    ProposedPlan,
     Result,
 )
 from .decoding import StrictDecisionDecoder
@@ -129,6 +131,71 @@ class InteractionBoundary:
             os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
             OllamaHttpTransport(self.dependencies.required("AEGIS_OLLAMA_URL")),
         )
+
+    def _run_proposed_plan(
+        self,
+        intent: IntentFrame,
+        proposal: ProposedPlan,
+        cards: tuple[ActionCard, ...],
+        connection: Any,
+        principal: Principal,
+        context: Context,
+    ) -> Result:
+        """Run a candidate-bound plan through the existing per-step Kernel path."""
+
+        if self.dependencies.runtime_registry is None:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="Plan runtime is unavailable; request can be retried",
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+        by_id = {card.action.action_id: card for card in cards}
+        try:
+            plan_cards = tuple(by_id[step.action_ref] for step in proposal.steps)
+        except KeyError:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="A plan step is no longer an available capability",
+                correlation_id=intent.correlation_id,
+            )
+        runtimes: dict[str, Any] = {}
+        permissions: dict[str, frozenset[Any]] = {}
+        cleanups: list[Callable[[], None]] = []
+        try:
+            for card in plan_cards:
+                runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
+                runtimes[card.action.action_id] = runtime
+                permissions.update(runtime.permissions)
+                if runtime.cleanup is not None:
+                    cleanups.append(runtime.cleanup)
+            kernel = Kernel(
+                self._model(),
+                StrictDecisionDecoder(),
+                PostgresSpacePolicy(connection, permissions),
+                _ActionExecutorDispatch(
+                    {action_id: runtime.executor for action_id, runtime in runtimes.items()}
+                ),
+                _ActionVerifierDispatch(
+                    {action_id: runtime.verifier for action_id, runtime in runtimes.items()}
+                ),
+                store=PostgresObjectiveStore(connection),
+                audit=PostgresAuditLog(connection),
+            )
+            return kernel.run_proposed_plan(intent, proposal, plan_cards, context=context)
+        except (LookupError, PermissionError, RuntimeError):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="A plan capability is temporarily unavailable; request can be retried",
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+        finally:
+            for cleanup in cleanups:
+                cleanup()
 
     def run(
         self,
@@ -300,6 +367,15 @@ class InteractionBoundary:
                             return persist_fast_result(rewritten)
                         if isinstance(rewritten, Decision):
                             fallback = rewritten
+                    if fallback.kind is DecisionKind.PLAN and fallback.plan is not None:
+                        return self._run_proposed_plan(
+                            intent,
+                            fallback.plan,
+                            fallback_cards,
+                            connection,
+                            principal,
+                            fallback_context,
+                        )
                     resolution = resolve_fallback_decision(
                         fallback,
                         intent,
