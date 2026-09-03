@@ -31,6 +31,7 @@ from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseErro
 from aegis.pack_lifecycle import PackManager
 from aegis.reference_interaction import reference_fallback_cards
 from aegis.reference_packs import reference_bundles
+from aegis.structural import SpacyStructuralParser
 
 READ_ACTIONS = {
     "kitchen.groceries.list",
@@ -182,6 +183,7 @@ def _boundary(
     reuse_classification_action_reference: bool = True,
     retrieval_limit: int = 10,
     retrieval_traces: list[dict[str, Any]] | None = None,
+    structural_parser: Any | None = None,
 ) -> InteractionBoundary:
     def retrieve(query: str, manager: PackManager) -> tuple[ActionCard, ...]:
         matches = manager.retrieve_semantic_with_scores(query, embedder, limit=retrieval_limit)
@@ -217,6 +219,7 @@ def _boundary(
             capability_retriever=retrieve,
             fallback_card_selector=reference_fallback_cards,
             reuse_classification_action_reference=reuse_classification_action_reference,
+            structural_parser=structural_parser,
         )
     )
 
@@ -264,6 +267,7 @@ def evaluate(
     resume_path: Path | None = None,
     compact_action_cards: bool = False,
     action_ref_only: bool = False,
+    structural_model: str | None = None,
 ) -> dict[str, Any]:
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
@@ -286,6 +290,9 @@ def evaluate(
         reuse_classification_action_reference=reuse_classification_action_reference,
         retrieval_limit=retrieval_limit,
         retrieval_traces=retrieval_traces,
+        structural_parser=(
+            SpacyStructuralParser(model_path=structural_model).parse if structural_model else None
+        ),
     )
     principal = Principal(id="evaluation", vault_id="evaluation")
     prompt_template_sha = _sha256(
@@ -738,6 +745,10 @@ def main() -> int:
         action="store_true",
         help="evaluation experiment: require the concise action_ref/action_arguments form",
     )
+    parser.add_argument(
+        "--structural-model",
+        help="operator-supplied spaCy model for independent structural coverage",
+    )
     args = parser.parse_args()
     report = evaluate(
         args.corpus,
@@ -747,6 +758,7 @@ def main() -> int:
         resume_path=args.resume,
         compact_action_cards=args.compact_action_cards,
         action_ref_only=args.action_ref_only,
+        structural_model=args.structural_model,
     )
     serialized = json.dumps(report, indent=2, sort_keys=True)
     if args.output is not None:

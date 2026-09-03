@@ -533,6 +533,37 @@ def decide_fallback(
                 return rewritten
             if rewritten is not None:
                 decision = rewritten
+        if decision.kind is DecisionKind.ACTION and decision.action is not None:
+            is_write = any(
+                permission.endswith(".write")
+                for card in cards
+                if card.action.action_id == decision.action.action_id
+                for permission in card.action.required_permissions
+            )
+            if is_write and hasattr(dependencies, "structural_parser"):
+                structural_parser = getattr(dependencies, "structural_parser", None)
+                if structural_parser is None:
+                    return Decision(
+                        kind=DecisionKind.CLARIFY,
+                        clarification=(
+                            "I could not independently verify the requested change; "
+                            "please clarify the objective."
+                        ),
+                        semantic_mode="CLARIFY",
+                    )
+                try:
+                    structural_signal = structural_parser(intent.utterance)
+                except Exception as exc:
+                    raise InvalidDecision("structural coverage unavailable") from exc
+                if len(structural_signal.anchors) != 1:
+                    return Decision(
+                        kind=DecisionKind.CLARIFY,
+                        clarification=(
+                            "This request contains more than one change, but I could not "
+                            "form a complete verified objective. Please clarify it."
+                        ),
+                        semantic_mode="CLARIFY",
+                    )
         if (
             decision.kind is DecisionKind.ACTION
             and decision.action is not None
