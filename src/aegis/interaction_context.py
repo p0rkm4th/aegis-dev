@@ -166,6 +166,16 @@ def resolve_unique_prior_task_reference(utterance: str, context: Context) -> dic
         return None
     facts = context.values.get("canonical_facts")
     task = facts.get("task") if isinstance(facts, dict) else None
+    if not isinstance(task, dict) and isinstance(facts, dict):
+        # A recent canonical task Result is a scalar projection rather than a
+        # collection.  Preserve its title as a bounded referent; the task
+        # completion path still resolves it against current canonical state
+        # and rejects duplicate or unavailable titles.
+        if facts.get("collection") == "tasks" and isinstance(facts.get("title"), str):
+            task = {
+                "title": facts["title"],
+                "status": facts.get("status"),
+            }
     if not isinstance(task, dict):
         return None
     if not isinstance(task.get("title"), str) or not task["title"].strip():
