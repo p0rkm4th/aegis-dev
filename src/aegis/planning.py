@@ -264,7 +264,9 @@ class PlanModificationFastPath:
         if context.sources != ("authorized_canonical_result",):
             return None
         text = " ".join(intent.utterance.casefold().split())
-        if not any(term in text for term in cls._MODIFICATION_TERMS):
+        if not (
+            is_correction_request(text) or any(term in text for term in cls._MODIFICATION_TERMS)
+        ):
             return None
         facts = context.values.get("canonical_facts")
         steps = facts.get("plan_steps") if isinstance(facts, dict) else None
@@ -278,12 +280,14 @@ class PlanModificationFastPath:
             status = "all" if completed == len(steps) else "some"
             message = (
                 f"{status.capitalize()} plan steps are already verified. I will not rewrite "
-                "that history; any compensating change must be requested as a new action."
+                "that history; any objective change must be requested as an explicit new "
+                "action."
             )
         else:
             message = (
                 "This plan has not completed a step yet, but implicit plan edits are not "
-                "supported. I will not remove or execute a step without an explicit plan change."
+                "supported. I will not change, remove, or execute a step without an explicit "
+                "plan change."
             )
         return Result(
             objective_id=uuid4(),
