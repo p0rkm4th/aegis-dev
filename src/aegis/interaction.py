@@ -177,9 +177,16 @@ class InteractionBoundary:
                 )
                 if isinstance(grounded, Result):
                     return grounded
-                grounded_steps.append(
-                    step.model_copy(update={"arguments": grounded.action.arguments})
-                )
+                # A plan step owns only the arguments it proposed.  The shared
+                # utterance may contain details for a neighboring step (for
+                # example, an event date); allowing the domain grounder to add
+                # those details here would silently cross-contaminate steps.
+                grounded_arguments = {
+                    key: grounded.action.arguments[key]
+                    for key in step.arguments
+                    if key in grounded.action.arguments
+                }
+                grounded_steps.append(step.model_copy(update={"arguments": grounded_arguments}))
             proposal = proposal.model_copy(update={"steps": tuple(grounded_steps)})
             for card in plan_cards:
                 runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
