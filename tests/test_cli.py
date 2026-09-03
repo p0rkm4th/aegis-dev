@@ -390,6 +390,12 @@ def test_household_read_does_not_match_rent_inside_current():
     assert HouseholdReadFastPath.matches("What is the current version of Rust?") is False
 
 
+def test_household_read_keeps_explicit_obligation_questions():
+    from aegis.household import HouseholdReadFastPath
+
+    assert HouseholdReadFastPath.matches("What are my outstanding obligations?") is True
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={
