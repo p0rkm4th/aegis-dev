@@ -303,9 +303,12 @@ class MultiActionFastPath:
     _ACTION = r"(?:add|complete|create|remove|update|put|schedule)"
     _ACTION_INFLECTED = (
         r"(?:add|adding|added|complete|completing|completed|create|creating|created|"
-        r"remove|removing|removed|update|updating|updated)"
+        r"remove|removing|removed|update|updating|updated|schedule|scheduling|scheduled)"
     )
-    _TARGET = r"(?:a task|tasks|a chore|chores|an event|events|groceries|a grocery)"
+    _TARGET = (
+        r"(?:a task|tasks|a chore|chores|an event|events|an appointment|appointments|"
+        r"groceries|a grocery)"
+    )
     _READ = ("can i afford", "can we afford", "affordability", "show", "list", "what")
     _UNRESOLVED_ACTION_TERMS = (
         "handle",
