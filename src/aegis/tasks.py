@@ -544,7 +544,7 @@ class TaskReadFastPath:
                     text,
                 )
                 is not None
-            ) and any(term in text for term in ("due", "get done"))
+            ) and any(term in text for term in ("due", "get done", "finish"))
             if not temporal_task_read:
                 return False
         # A domain noun alone is not evidence of a read. Keep this fast path
@@ -568,11 +568,11 @@ class TaskReadFastPath:
         now = datetime.now(timezone.utc)
         due_start: date | None = None
         due_end: date | None = None
-        if "tomorrow" in text and ("due" in text or "get done" in text):
+        if "tomorrow" in text and any(term in text for term in ("due", "get done", "finish")):
             due_start = (now + timedelta(days=1)).date()
             due_end = due_start + timedelta(days=1)
             due_filter = "tomorrow"
-        elif "next week" in text and ("due" in text or "get done" in text):
+        elif "next week" in text and any(term in text for term in ("due", "get done", "finish")):
             due_start = (now + timedelta(days=7)).date()
             due_end = due_start + timedelta(days=7)
             due_filter = "next_week"
@@ -581,7 +581,9 @@ class TaskReadFastPath:
                 r"\b(?:this\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
                 text,
             )
-            if weekday_match is not None and ("due" in text or "get done" in text):
+            if weekday_match is not None and any(
+                term in text for term in ("due", "get done", "finish")
+            ):
                 target = _WEEKDAYS.index(weekday_match.group(1))
                 days_ahead = (target - now.weekday()) % 7
                 due_start = (now + timedelta(days=days_ahead)).date()
