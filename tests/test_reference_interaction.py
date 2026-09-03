@@ -335,6 +335,26 @@ def test_model_enabled_structural_compound_reaches_bounded_cognition():
     assert resolve_reference_safety_fast_paths(intent, None, True) is None
 
 
+def test_structural_compound_single_action_is_blocked_before_execution():
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="Put checking towels on my task list and schedule a bathroom inspection Friday.",
+    )
+    decision = Decision(
+        kind=DecisionKind.ACTION,
+        action=_task_card({"title": "checking towels"}).action,
+        semantic_mode="ACTION",
+    )
+
+    result = rewrite_reference_decision(
+        intent, decision, (_task_card({"title": "checking towels"}),)
+    )
+
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert "No action was executed" in result.message
+
+
 def test_scalar_task_focus_allows_explicit_completion_followup():
     context = Context(
         values={
