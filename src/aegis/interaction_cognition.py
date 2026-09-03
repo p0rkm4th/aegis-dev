@@ -65,6 +65,7 @@ def decide_fallback(
                 dependencies.reuse_classification_action_reference
                 and semantic_mode == "ACTION"
                 and isinstance(classification_response.raw, dict)
+                and len(cards) == 1
             ):
                 # Some providers return a bounded action reference even
                 # during the mode pass. Reuse it only when it exactly
