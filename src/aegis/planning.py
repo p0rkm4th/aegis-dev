@@ -5,9 +5,19 @@ from __future__ import annotations
 import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, cast
-from uuid import uuid4
+from uuid import UUID, uuid4, uuid5
 
-from .contracts import ActionCard, ActionSpec, IntentFrame, ObjectiveState, ProposedPlan, Result
+from .contracts import (
+    ActionCard,
+    ActionSpec,
+    IntentFrame,
+    ObjectiveSpec,
+    ObjectiveState,
+    ProposedPlan,
+    Result,
+    ValidatedPlan,
+    ValidatedPlanStep,
+)
 from .personal import PersonalState
 from .tasks import Task
 from .utterance import is_correction_request, is_mutation_request
@@ -67,6 +77,86 @@ def materialize_proposed_plan(
             temporal_arguments[normalized_value] = (index, key)
         actions.append(candidate.action.model_copy(update={"arguments": dict(step.arguments)}))
     return tuple(actions)
+
+
+def materialize_validated_plan(
+    objective_id: UUID,
+    objective: ObjectiveSpec,
+    proposal: ProposedPlan,
+    cards: tuple[ActionCard, ...],
+) -> ValidatedPlan:
+    """Bind an untrusted proposal to exactly one persisted requirement per step.
+
+    Positional proposal dependencies are translated to deterministic step IDs at
+    this boundary.  This is deliberately strict: the initial completeness
+    contract does not permit partial coverage, duplicate coverage, or helpful
+    extra mutations.
+    """
+
+    actions = materialize_proposed_plan(proposal, cards)
+    if len(proposal.steps) != len(objective.requirements):
+        raise PlanValidationError("plan must cover every objective requirement exactly once")
+    requirements_by_key = {
+        (requirement.action_ref, _stable_arguments(requirement.arguments)): requirement
+        for requirement in objective.requirements
+    }
+    if len(requirements_by_key) != len(objective.requirements):
+        raise PlanValidationError("objective requirements must be unique")
+    steps: list[ValidatedPlanStep] = []
+    for index, (proposal_step, action) in enumerate(zip(proposal.steps, actions, strict=True)):
+        requirement = requirements_by_key.get(
+            (proposal_step.action_ref, _stable_arguments(proposal_step.arguments))
+        )
+        if requirement is None:
+            raise PlanValidationError("plan has missing, duplicate, or extra requirement coverage")
+        step_id = uuid5(objective_id, f"validated-plan-step:{index}")
+        dependencies = tuple(
+            uuid5(objective_id, f"validated-plan-step:{dependency}")
+            for dependency in proposal_step.depends_on
+        )
+        steps.append(
+            ValidatedPlanStep(
+                step_id=step_id,
+                requirement_id=requirement.requirement_id,
+                action=action,
+                depends_on=dependencies,
+            )
+        )
+        del requirements_by_key[(requirement.action_ref, _stable_arguments(requirement.arguments))]
+    if requirements_by_key:
+        raise PlanValidationError("plan leaves an objective requirement uncovered")
+    step_ids = {step.step_id for step in steps}
+    for step in steps:
+        if step.step_id in step.depends_on or not set(step.depends_on) <= step_ids:
+            raise PlanValidationError("plan dependency references an invalid step")
+    _reject_dependency_cycles(steps)
+    return ValidatedPlan(objective_id=objective_id, steps=tuple(steps))
+
+
+def _stable_arguments(arguments: dict[str, Any]) -> str:
+    import json
+
+    return json.dumps(arguments, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def _reject_dependency_cycles(steps: list[ValidatedPlanStep]) -> None:
+    by_id = {step.step_id: step for step in steps}
+    visiting: set[UUID] = set()
+    visited: set[UUID] = set()
+
+    def visit(step_id: UUID) -> None:
+        if step_id in visiting:
+            raise PlanValidationError("plan dependencies must not contain cycles")
+        if step_id in visited:
+            return
+        visiting.add(step_id)
+        for dependency in by_id[step_id].depends_on:
+            visit(dependency)
+        visiting.remove(step_id)
+        visited.add(step_id)
+
+    for step in steps:
+        visit(step.step_id)
 
 
 class PlanProgressFastPath:

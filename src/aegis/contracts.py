@@ -104,6 +104,36 @@ class ProposedPlan(StrictModel):
     steps: tuple[ProposedPlanStep, ...] = Field(min_length=1, max_length=5)
 
 
+class ObjectiveRequirement(StrictModel):
+    """Core-owned description of one bounded effect the user requested."""
+
+    requirement_id: UUID = Field(default_factory=uuid4)
+    action_ref: str = Field(min_length=1)
+    arguments: dict[str, Any] = {}
+
+
+class ObjectiveSpec(StrictModel):
+    """Persisted objective meaning; never derived from plan exhaustion."""
+
+    requirements: tuple[ObjectiveRequirement, ...] = Field(min_length=1, max_length=5)
+
+
+class ValidatedPlanStep(StrictModel):
+    """Core-bound plan step with stable identity and one requirement owner."""
+
+    step_id: UUID
+    requirement_id: UUID
+    action: ActionSpec
+    depends_on: tuple[UUID, ...] = ()
+
+
+class ValidatedPlan(StrictModel):
+    """Validated proposal; it grants no authority outside the ordinary Kernel."""
+
+    objective_id: UUID
+    steps: tuple[ValidatedPlanStep, ...] = Field(min_length=1, max_length=5)
+
+
 class Decision(StrictModel):
     kind: DecisionKind
     answer: str | None = None
@@ -181,6 +211,8 @@ class Objective(StrictModel):
     action: ActionSpec | None = None
     correlation_id: UUID
     steps: tuple[ActionSpec, ...] = ()
+    objective_spec: ObjectiveSpec | None = None
+    validated_plan: ValidatedPlan | None = None
 
 
 class ModelRequest(StrictModel):
