@@ -95,6 +95,26 @@ class EvidenceSet:
 
 
 @dataclass(frozen=True)
+class ResearchAnswer:
+    """Answer-only output with truthful, non-authoritative provenance."""
+
+    text: str
+    source_kind: KnowledgeSource
+    evidence: EvidenceSet
+    authoritative: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.text.strip() or self.authoritative:
+            raise ValueError("research answers must be non-empty and non-authoritative")
+
+
+class AnswerSynthesizer(Protocol):
+    """A provider with no action cards, tools, or plan proposal surface."""
+
+    def synthesize(self, question: str, evidence: EvidenceSet) -> str: ...
+
+
+@dataclass(frozen=True)
 class FetchedDocument:
     final_url: str
     content_type: str
@@ -337,3 +357,12 @@ class ResearchService:
             evidence=tuple(evidence),
             retrieved_at=datetime.now().astimezone(),
         )
+
+    def answer(
+        self, question: str, request: SearchRequest, synthesizer: AnswerSynthesizer
+    ) -> ResearchAnswer:
+        """Synthesize only from fetched evidence; this path cannot execute actions."""
+
+        evidence = self.collect(request)
+        text = synthesizer.synthesize(question, evidence)
+        return ResearchAnswer(text=text, source_kind=KnowledgeSource.EXTERNAL, evidence=evidence)
