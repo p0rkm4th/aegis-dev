@@ -890,10 +890,13 @@ def resolve_reference_fast_paths(
         result = ContextualCrossDomainPriorityFastPath().resolve(intent, context)
         if result is not None:
             return result
-        result = TaskReadFastPath(task_store).resolve(intent)
+        # A direct task-priority question must not be swallowed by the broad
+        # collection read, even when the immediately preceding result was a
+        # scalar task mutation rather than a task list.
+        result = TaskPriorityFastPath(task_store).resolve(intent)
         if result is not None:
             return result
-        result = TaskPriorityFastPath(task_store).resolve(intent)
+        result = TaskReadFastPath(task_store).resolve(intent)
         if result is not None:
             return result
     semantic_enabled = os.environ.get("AEGIS_SEMANTIC_MEMORY", "0").lower() in {
