@@ -201,6 +201,9 @@ class OllamaProvider:
                     "those fields are only for ACTION. Include every independent state change "
                     "requested by the user exactly once; if you cannot account for all of them "
                     "from the supplied cards, return CLARIFY instead of claiming completion. "
+                    "Keep arguments scoped to their own step; do not copy a date, time, or "
+                    "other detail from one independent operation into another unless the user "
+                    "explicitly assigns that detail to both. "
                     "If one action is sufficient, return ACTION instead. Never invent capabilities."
                     if request.allow_plan_proposals
                     else "Plan proposals are disabled; return at most one action."
