@@ -274,6 +274,34 @@ def test_plan_progress_reads_only_authorized_persisted_step_state():
     }
 
 
+def test_plan_progress_prefers_persisted_objective_requirements():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="what remains on the objective?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "objective_requirements": [
+                        {"requirement_id": "req-a", "state": "completed"},
+                        {"requirement_id": "req-b", "state": "failed"},
+                    ],
+                    "plan_steps": [
+                        {"index": 0, "state": "completed"},
+                        {"index": 1, "state": "completed"},
+                    ],
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.message == "1 of 2 requested changes are complete; 1 remain."
+    assert result.evidence["progress_basis"] == "persisted_objective_requirements"
+
+
 def test_plan_progress_accepts_what_remains_followup():
     result = PlanProgressFastPath.resolve(
         IntentFrame(
