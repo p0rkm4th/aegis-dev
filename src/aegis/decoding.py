@@ -91,8 +91,15 @@ class StrictDecisionDecoder:
                 materialize_proposed_plan(decision.plan, cards)
             except PlanValidationError as exc:
                 raise InvalidDecision(str(exc)) from exc
-            if decision.action is not None or decision.action_ref is not None:
-                raise InvalidDecision("PLAN cannot contain a single action proposal")
+            if (
+                decision.action is not None
+                or decision.action_ref is not None
+                or decision.action_arguments
+                or decision.answer is not None
+                or decision.clarification is not None
+                or decision.context_focus is not None
+            ):
+                raise InvalidDecision("PLAN cannot contain fields for another decision kind")
         elif decision.kind is DecisionKind.ANSWER:
             if decision.semantic_mode not in {None, "READ", "GENERATION"}:
                 raise InvalidDecision("ANSWER decision must use semantic_mode READ or GENERATION")
