@@ -179,6 +179,9 @@ class PlanProgressFastPath:
         "still left",
         "still need",
         "outstanding",
+        "did you finish everything",
+        "finished everything",
+        "all done",
     )
 
     @classmethod
