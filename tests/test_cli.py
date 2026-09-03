@@ -366,6 +366,24 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
     assert context.values["as_of_date"] == datetime.now(timezone.utc).date().isoformat()
 
 
+def test_model_working_context_excludes_canonical_state_for_general_subjects():
+    principal = Principal(id="alice", vault_id="alice-vault")
+
+    class Tasks:
+        def list(self, _principal):
+            raise AssertionError("general knowledge must not load task context")
+
+    class Household:
+        def list_groceries(self, _principal):
+            raise AssertionError("general knowledge must not load household context")
+
+    context = build_reference_fallback_context(
+        Context(), Tasks(), Household(), principal, "What is the current version of Rust?"
+    )
+
+    assert "canonical_facts" not in context.values
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={

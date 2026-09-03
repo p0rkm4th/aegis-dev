@@ -671,6 +671,34 @@ def build_reference_fallback_context(
             values=values,
             sources=tuple(dict.fromkeys((*context.sources, "authorized_canonical_context"))),
         )
+    # The fallback builder may see every reference-Pack projection, but an
+    # unrelated general question must not receive that projection as tempting
+    # answer material.  Canonical context is relevant only when the utterance
+    # identifies an owned collection/state concern or an explicit attention
+    # request.  This is context minimization, not an intent router; normal
+    # domain fast paths still handle the explicit reads before cognition.
+    lowered = utterance.casefold()
+    canonical_markers = (
+        "task",
+        "todo",
+        "chore",
+        "grocery",
+        "groceries",
+        "shopping list",
+        "obligation",
+        "utility",
+        "utilities",
+        "calendar",
+        "event",
+        "appointment",
+        "need attention",
+        "needs attention",
+        "my ",
+        "i need",
+        "what should i",
+    )
+    if not any(marker in lowered for marker in canonical_markers):
+        return Context(values=values, sources=context.sources)
     facts["canonical_items"] = list(
         dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
     )[:20]
