@@ -284,6 +284,26 @@ def test_reference_task_display_is_bounded_without_truncating_canonical_evidence
     assert len(result.evidence["canonical_tasks"]) == 22
 
 
+def test_reference_chore_display_is_bounded_without_truncating_canonical_evidence() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Shared household state read",
+        correlation_id=uuid4(),
+        evidence={
+            "chores": [{"title": f"chore {index}", "assignee_id": "alice"} for index in range(22)]
+        },
+    )
+
+    rendered = reference_format_result(result)
+
+    assert "chore 0 (alice)" in rendered
+    assert "chore 19 (alice)" in rendered
+    assert "chore 20 (alice)" not in rendered
+    assert "… and 2 more" in rendered
+    assert len(result.evidence["chores"]) == 22
+
+
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     memory = MemoryRecord(
         uuid4(),

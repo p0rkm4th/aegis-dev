@@ -485,11 +485,11 @@ def reference_format_result(result: Any) -> str:
         )
     if evidence.get("chores") is not None:
         chores = evidence["chores"]
-        return "Chores: " + (
-            "; ".join(f"{item['title']} ({item['assignee_id']})" for item in chores)
-            if chores
-            else "(none)"
-        )
+        display_chores = chores[:20]
+        listing = "; ".join(f"{item['title']} ({item['assignee_id']})" for item in display_chores)
+        if len(chores) > len(display_chores):
+            listing += f"; … and {len(chores) - len(display_chores)} more"
+        return "Chores: " + (listing if chores else "(none)")
     if evidence.get("events") is not None:
         events = evidence["events"]
         return "Events: " + ("; ".join(item["title"] for item in events) if events else "(none)")
