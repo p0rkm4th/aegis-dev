@@ -830,6 +830,11 @@ def resolve_reference_fast_paths(
     recent_action_result = resolve_contextual_recent_action_read(intent, context)
     if recent_action_result is not None:
         return recent_action_result
+    ambiguous_collection_result = DomainClarificationFastPath.resolve_ambiguous_collection_status(
+        intent
+    )
+    if ambiguous_collection_result is not None:
+        return ambiguous_collection_result
     # A recognized compound mutation must reach the plan runner before any
     # domain read fast path.  Continuation context may contain the word
     # "task" (or a relative date), but that must not collapse a plan into a

@@ -3835,6 +3835,30 @@ def test_domain_clarification_fast_path_handles_underspecified_request():
     assert "more direction" in result.message
 
 
+def test_domainless_collection_status_clarifies_without_guessing():
+    ambiguous = DomainClarificationFastPath.resolve_ambiguous_collection_status(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Could you show me what is still open?",
+        )
+    )
+
+    assert ambiguous is not None
+    assert ambiguous.state is ObjectiveState.BLOCKED
+    assert ambiguous.message == (
+        "What should I check: open tasks, household chores, groceries, or memories?"
+    )
+    assert (
+        DomainClarificationFastPath.resolve_ambiguous_collection_status(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="Show my open tasks",
+            )
+        )
+        is None
+    )
+
+
 def test_domain_clarification_fast_path_gives_reminder_guidance():
     result = DomainClarificationFastPath.resolve(
         IntentFrame(
