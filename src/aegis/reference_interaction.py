@@ -1135,7 +1135,8 @@ def resolve_reference_pre_model(
             finance = finance_result.evidence
 
     explicit_compound_mutation = (
-        MultiActionFastPath.task_chore_titles(utterance) is not None
+        is_mutation_request(utterance)
+        or MultiActionFastPath.task_chore_titles(utterance) is not None
         or MultiActionFastPath.task_event_details(utterance) is not None
     )
     if not explicit_compound_mutation and CrossDomainPlanningFastPath.matches(utterance):
