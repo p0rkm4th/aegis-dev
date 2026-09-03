@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "3836990",
-  "deterministic_green_sha": "3836990",
-  "last_pushed_sha": "3836990",
-  "hosted_ci_green_sha": "3836990",
+  "repository_head_sha": "8ca5566",
+  "deterministic_green_sha": "8ca5566",
+  "last_pushed_sha": "8ca5566",
+  "hosted_ci_green_sha": "8ca5566",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33709643100",
-    "commit_sha": "3836990",
+    "run_id": "33709787068",
+    "commit_sha": "8ca5566",
     "conclusion": "success",
     "observed_at": "2026-09-03T00:33:00Z"
   },
@@ -1162,5 +1162,6 @@
     "owner_task_priority_collection_continuity_checkpoint": "partial installed owner evidence on release 5b029ef after hosted run 33709026417: a natural collection request with a prioritization modifier returned an ordered canonical task list, a follow-up priority question returned the earliest grounded deadline recommendation, and a subsequent correction/progress request continued from the authorized task projection instead of blocking. The responsible-layer fix preserves canonical task candidates in the priority Result while keeping recommendation presentation concise. This is a novel continuity improvement, not daily-driver green.",
     "owner_cross_domain_referent_safety_checkpoint": "green safety correction at source 73a9a54, hosted run 33709348464, promoted owner release 73a9a54: fresh dogfood exposed a chore-list misclassification followed by an unsafe task completion proposal for 'Which chore is second?'. Pack-owned grounding now rejects task/chore domain mismatches before canonical lookup or execution. Re-probe returned a chore collection followed by a chore ordinal read, with no task mutation. The prior canonical mutation was not repaired or rewritten; state remains canonical. Broader task/grocery implicit-language and daily-driver capability remain partial.",
     "owner_grocery_correction_checkpoint": "partial installed owner evidence on release 3836990 after hosted run 33709643100: fresh market wording completed once with canonical grocery evidence and blocked safely on a repeated fresh attempt, showing semantic stability remains incomplete without phrase-specific expansion. A grocery ordinal followed by generic correction 'Actually, I meant the first one' resolved to the authorized first item with no mutation. This improves referent continuity but does not establish grocery capability or daily-driver green.",
+    "owner_domain_boundary_read_session_checkpoint": "partial installed owner evidence on release 3836990 after hosted state run 33709787068: fresh read-only session showed open tasks, Friday task filtering, chores, and a chore ordinal all stayed in the intended canonical domain. No mutation or developer repair occurred. This confirms the cross-domain referent guard under a second session shape; broader corrections, writes, and daily-driver acceptance remain incomplete.",
     "next_action": "Continue M09 daily-driver work: run fresh owner conversational dogfood across corrections, ordinals, refresh/restart, and another existing domain; classify the dominant continuity/UX defect and implement the smallest responsible-layer fix."
 }
