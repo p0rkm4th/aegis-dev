@@ -240,7 +240,9 @@ class OllamaProvider:
             instruction = (
                 "Recover only this clarification if supplied authorized context makes it "
                 "uniquely safe. Return RESOLVED only with an exact supplied action_ref, an "
-                "exact authorized referent_ref when relevant, and declared arguments. Return "
+                "exact authorized referent_ref when relevant. A referent_ref must be the "
+                "candidate object's actual id/task_id/chore_id value, never a context key, "
+                "collection name, or container label. Return only declared arguments. Return "
                 "NEED_USER for ambiguity or UNSUPPORTED for a missing capability. Never return "
                 "a plan, ObjectiveSpec, permissions, verification, or invented state."
             )
