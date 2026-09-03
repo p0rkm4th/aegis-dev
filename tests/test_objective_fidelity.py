@@ -3,7 +3,11 @@ from aegis.contracts import (
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
 )
-from aegis.objective_fidelity import compare_objective_proposals
+from aegis.objective_fidelity import (
+    RequestedEffectProposal,
+    compare_objective_proposals,
+    validate_effect_spans,
+)
 
 
 def spec(*requirements: tuple[str, dict[str, object]]) -> ObjectiveSpecProposal:
@@ -52,4 +56,19 @@ def test_fidelity_requires_clarification_when_both_interpretations_differ() -> N
             spec(("chores.create", {"title": "B"})),
         )
         is ObjectiveFidelityVerdict.NEED_CLARIFICATION
+    )
+
+
+def test_segmented_effects_must_be_grounded_in_original_utterance() -> None:
+    utterance = "add towels and schedule an inspection"
+    assert validate_effect_spans(
+        utterance,
+        (
+            RequestedEffectProposal(effect_text="add towels", source_span=(0, 10)),
+            RequestedEffectProposal(effect_text="schedule an inspection", source_span=(15, 37)),
+        ),
+    )
+    assert not validate_effect_spans(
+        utterance,
+        (RequestedEffectProposal(effect_text="delete the list", source_span=(0, 10)),),
     )

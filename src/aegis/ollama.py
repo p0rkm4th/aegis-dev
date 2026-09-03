@@ -133,7 +133,9 @@ class OllamaProvider:
         model boundary is stricter: omitted action fields are ambiguous and
         must be rejected before policy or execution.
         """
-        if request is not None and request.objective_interpretation_only:
+        if request is not None and (
+            request.objective_interpretation_only or request.objective_fidelity_only
+        ):
             return ObjectiveSpecProposal.model_json_schema()
         if request is not None and request.source_selection_only:
             return {
@@ -461,6 +463,16 @@ class OllamaProvider:
                 "routing_only": request.routing_only,
                 "classification_only": request.classification_only,
                 "action_cards": cards,
+                **(
+                    {
+                        "objective_spec_proposal": request.objective_spec_proposal.model_dump(
+                            mode="json"
+                        )
+                    }
+                    if request.objective_fidelity_only
+                    and request.objective_spec_proposal is not None
+                    else {}
+                ),
             },
             sort_keys=True,
         )

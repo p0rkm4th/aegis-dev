@@ -4,11 +4,32 @@ from __future__ import annotations
 
 import json
 
+from pydantic import Field
+
 from .contracts import (
     ObjectiveFidelityVerdict,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
+    StrictModel,
 )
+
+
+class RequestedEffectProposal(StrictModel):
+    """Development-only segmented effect; it is never executable or authoritative."""
+
+    effect_text: str = Field(min_length=1, max_length=500)
+    source_span: tuple[int, int]
+
+
+def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal, ...]) -> bool:
+    """Core-check that independently segmented effects are grounded in the utterance."""
+
+    return all(
+        0 <= start < end <= len(utterance)
+        and utterance[start:end].strip() == effect.effect_text.strip()
+        for effect in effects
+        for start, end in (effect.source_span,)
+    )
 
 
 def _key(requirement: ObjectiveRequirementProposal) -> str:
