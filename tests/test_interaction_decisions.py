@@ -13,6 +13,7 @@ from aegis.contracts import (
     Principal,
     ProposedPlan,
     ProposedPlanStep,
+    Result,
     VerificationContract,
 )
 from aegis.decoding import StrictDecisionDecoder
@@ -76,6 +77,50 @@ def test_fresh_source_request_fails_truthfully_without_research_provider() -> No
     assert result.state.value == "failed"
     assert "couldn't verify current" in result.message
     assert result.evidence["authoritative"] is False
+
+
+def test_fresh_source_request_uses_answer_only_research_callback() -> None:
+    calls: list[tuple[str, str]] = []
+
+    class Provider:
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            return ModelResponse(
+                raw={
+                    "kind": "ANSWER",
+                    "answer": "unused fallback",
+                    "semantic_mode": "GENERATION",
+                    "knowledge_source": "external_evidence",
+                }
+            )
+
+    def research_answer(intent: IntentFrame, _context: Context, source_kind: str) -> Result:
+        calls.append((intent.utterance, source_kind))
+        return Result(
+            objective_id=uuid4(),
+            state="completed",
+            message="verified from bounded evidence",
+            evidence={"source_kind": source_kind, "authoritative": False},
+            correlation_id=intent.correlation_id,
+        )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=research_answer,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What changed in the latest release?",
+        ),
+        (),
+        Context(values={"private": "never sent to search"}),
+    )
+
+    assert isinstance(result, Result)
+    assert result.message == "verified from bounded evidence"
+    assert calls == [("What changed in the latest release?", "external_evidence")]
 
 
 def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> None:
