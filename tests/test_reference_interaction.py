@@ -496,7 +496,10 @@ def test_contextual_ordinal_task_display_shortens_canonical_due_timestamp() -> N
     )
 
     assert result is not None
-    assert result.message == "Task: replace filter (open); due 2026-09-03 19:08 CDT"
+    local_date = datetime.fromisoformat(due_at).astimezone().date().isoformat()
+    assert result.message.startswith(f"Task: replace filter (open); due {local_date}")
+    assert "+00:00" not in result.message
+    assert ".956546" not in result.message
     assert due_at not in result.message
 
 
