@@ -507,6 +507,7 @@ def test_reference_task_display_is_bounded_without_truncating_canonical_evidence
 
     rendered = reference_format_result(result)
 
+    assert rendered.startswith("Tasks:\n• task 0 (open)\n• task 1 (open)")
     assert "task 0 (open)" in rendered
     assert "task 19 (open)" in rendered
     assert "task 20 (open)" not in rendered
