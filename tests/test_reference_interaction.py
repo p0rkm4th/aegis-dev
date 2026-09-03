@@ -101,6 +101,24 @@ def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
     assert result.evidence["canonical_tasks"] == [{"title": "remaining task", "status": "open"}]
 
 
+def test_contextual_remaining_preserves_grocery_and_chore_collections():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    cases = (
+        ("canonical_items", ["milk", "eggs"], "canonical_items"),
+        ("canonical_chores", [{"title": "wash dishes", "completed": False}], "chores"),
+    )
+    for fact_key, candidates, evidence_key in cases:
+        result = resolve_contextual_remaining(
+            IntentFrame(principal=principal, utterance="What remains?"),
+            Context(
+                values={"referents": {"those": {"fact_key": fact_key, "candidates": candidates}}},
+                sources=("authorized_canonical_result",),
+            ),
+        )
+        assert result is not None
+        assert result.evidence[evidence_key] == candidates
+
+
 def test_contextual_ordinal_read_stays_in_authorized_grocery_domain():
     context = Context(
         values={
