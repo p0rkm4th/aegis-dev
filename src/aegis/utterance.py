@@ -13,6 +13,16 @@ _MARK_DONE = re.compile(
     r"^mark\s+(?:the\s+)?(?:task|chore)\s+.+?\s+as\s+"
     r"(?:done|complete|completed)[.!?]?$"
 )
+_CONTEXT_RESET_PREFIX = re.compile(
+    r"^(?:actually[,:;\s]+)?(?:never\s+mind|forget\s+that|scratch\s+that)[,:;\s]+"
+)
+
+
+def strip_context_reset(utterance: str) -> str:
+    """Remove a conversational reset before matching the owner's new objective."""
+
+    normalized = " ".join(utterance.casefold().split())
+    return _CONTEXT_RESET_PREFIX.sub("", normalized, count=1)
 
 
 def is_mutation_request(utterance: str) -> bool:
