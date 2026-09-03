@@ -132,6 +132,43 @@ class ObjectiveSpecProposal(StrictModel):
     requirements: tuple[ObjectiveRequirementProposal, ...] = Field(min_length=1, max_length=5)
 
 
+class RequestedEffectResolution(StrEnum):
+    """Core state for an utterance-grounded effect before capability mapping."""
+
+    UNRESOLVED = "UNRESOLVED"
+    MAPPED = "MAPPED"
+    AMBIGUOUS = "AMBIGUOUS"
+    UNSUPPORTED = "UNSUPPORTED"
+    ALREADY_SATISFIED = "ALREADY_SATISFIED"
+
+
+class RequestedEffect(StrictModel):
+    """Core-owned, action-agnostic evidence of one requested outcome.
+
+    This boundary deliberately has no action, permission, runtime, or plan
+    authority.  ``effect_id`` is assigned by Core after span validation.
+    """
+
+    effect_id: UUID = Field(default_factory=uuid4)
+    source_spans: tuple[tuple[int, int], ...] = Field(min_length=1, max_length=3)
+    normalized_effect: str = Field(min_length=1, max_length=500)
+    polarity: Literal["ACTIVE", "NEGATED", "SUPERSEDED"] = "ACTIVE"
+    resolution: RequestedEffectResolution = RequestedEffectResolution.UNRESOLVED
+
+
+class StructuralAnchor(StrictModel):
+    """Untrusted parser evidence used only to test effect coverage."""
+
+    source_span: tuple[int, int]
+    kind: Literal["predicate", "object", "clause", "modifier", "negation"]
+
+
+class StructuralCoverageSignal(StrictModel):
+    """Parser output; it defines no meaning and grants no authority."""
+
+    anchors: tuple[StructuralAnchor, ...] = Field(min_length=1, max_length=12)
+
+
 class ObjectiveFidelityVerdict(StrEnum):
     """Core-owned comparison result for an independently proposed objective."""
 

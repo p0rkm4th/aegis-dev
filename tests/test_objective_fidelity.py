@@ -2,6 +2,8 @@ from aegis.contracts import (
     ObjectiveFidelityVerdict,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
+    StructuralAnchor,
+    StructuralCoverageSignal,
 )
 from aegis.objective_fidelity import (
     FidelityEvaluationCase,
@@ -9,7 +11,9 @@ from aegis.objective_fidelity import (
     compare_objective_proposals,
     effects_to_proposal,
     evaluate_fidelity_cases,
+    materialize_requested_effects,
     validate_effect_spans,
+    validate_structural_coverage,
 )
 
 
@@ -97,6 +101,74 @@ def test_effect_text_allows_only_unique_deterministic_span_repair() -> None:
         ),
     )
     assert effects_to_proposal(utterance, duplicate) is None
+
+
+def test_requested_effect_is_action_agnostic_and_gets_core_identity() -> None:
+    effects = materialize_requested_effects(
+        "Add milk and eggs",
+        (
+            RequestedEffectProposal(effect_text="Add milk", source_span=(0, 8)),
+            RequestedEffectProposal(effect_text="eggs", source_span=(13, 17)),
+        ),
+    )
+    assert effects is not None
+    assert len(effects) == 2
+    assert all(effect.effect_id is not None for effect in effects)
+    assert all(effect.resolution.value == "UNRESOLVED" for effect in effects)
+
+
+def test_structural_coverage_rejects_correlated_middle_omission() -> None:
+    utterance = "Add milk, schedule inspection, and clean the porch"
+    effects = materialize_requested_effects(
+        utterance,
+        (
+            RequestedEffectProposal(effect_text="Add milk", source_span=(0, 8)),
+            RequestedEffectProposal(effect_text="clean the porch", source_span=(35, 50)),
+        ),
+    )
+    assert effects is not None
+    signal = StructuralCoverageSignal(
+        anchors=(
+            StructuralAnchor(source_span=(0, 8), kind="clause"),
+            StructuralAnchor(source_span=(10, 29), kind="clause"),
+            StructuralAnchor(source_span=(35, 50), kind="clause"),
+        )
+    )
+    assert not validate_structural_coverage(utterance, effects, signal)
+
+
+def test_structural_coverage_rejects_full_span_and_duplicate_gaming() -> None:
+    utterance = "Add milk and eggs"
+    full = materialize_requested_effects(
+        utterance,
+        (RequestedEffectProposal(effect_text=utterance, source_span=(0, len(utterance))),),
+    )
+    assert full is not None
+    signal = StructuralCoverageSignal(
+        anchors=(
+            StructuralAnchor(source_span=(0, 8), kind="clause"),
+            StructuralAnchor(source_span=(13, 17), kind="clause"),
+        )
+    )
+    assert not validate_structural_coverage(utterance, full, signal)
+    duplicate = (
+        RequestedEffectProposal(effect_text="Add milk", source_span=(0, 8)),
+        RequestedEffectProposal(effect_text="Add milk", source_span=(0, 8)),
+    )
+    assert materialize_requested_effects(utterance, duplicate) is None
+
+
+def test_negated_or_superseded_effect_cannot_become_an_action_requirement() -> None:
+    utterance = "Add milk but do not add eggs"
+    effects = (
+        RequestedEffectProposal(effect_text="Add milk", source_span=(0, 8)),
+        RequestedEffectProposal(
+            effect_text="add eggs", source_span=(21, 29), polarity="NEGATED", action_ref="add"
+        ),
+    )
+    materialized = materialize_requested_effects(utterance, effects)
+    assert materialized is not None
+    assert effects_to_proposal(utterance, effects) is None
 
 
 def test_fidelity_development_metrics_expose_correlated_omission_safety() -> None:

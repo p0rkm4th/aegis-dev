@@ -30,6 +30,8 @@ from .objective_fidelity import (
     compare_objective_proposals,
     effects_to_proposal,
     fidelity_message,
+    materialize_requested_effects,
+    validate_structural_coverage,
 )
 from .utterance import is_question_request
 
@@ -445,6 +447,32 @@ def decide_fallback(
                     raise ValueError("objective effects were not grounded")
             except Exception as exc:
                 raise InvalidDecision("objective fidelity failed its strict schema") from exc
+            structural_parser = getattr(dependencies, "structural_parser", None)
+            if structural_parser is None:
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=(
+                        "I could not independently account for every requested change; "
+                        "please clarify the objective."
+                    ),
+                    semantic_mode="CLARIFY",
+                )
+            try:
+                structural_signal = structural_parser(intent.utterance)
+                materialized_effects = materialize_requested_effects(intent.utterance, effects)
+            except Exception as exc:
+                raise InvalidDecision("objective structural coverage failed") from exc
+            if materialized_effects is None or not validate_structural_coverage(
+                intent.utterance, materialized_effects, structural_signal
+            ):
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=(
+                        "I could not independently account for every requested change; "
+                        "please clarify the objective."
+                    ),
+                    semantic_mode="CLARIFY",
+                )
             if decision.objective_spec is None:
                 # Independent effect segmentation can check a primary
                 # interpretation, but it cannot become that interpretation.
