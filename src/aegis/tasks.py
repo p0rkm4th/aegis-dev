@@ -92,6 +92,13 @@ def requested_task_due_at(utterance: str, now: datetime | None = None) -> str | 
         r"\b(?:for|on)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)[.!?]?$",
         text,
     )
+    if weekday_match is None and any(
+        term in text for term in ("task", "todo", "to-do", "add", "create", "put", "place")
+    ):
+        weekday_match = re.search(
+            r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)[.!?]?$",
+            text,
+        )
     if weekday_match is not None:
         target = _WEEKDAYS.index(weekday_match.group(1))
         days_ahead = (target - current.weekday()) % 7 or 7

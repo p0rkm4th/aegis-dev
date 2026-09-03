@@ -1138,6 +1138,11 @@ def test_model_task_deadline_must_be_grounded_in_request():
         None,
         now,
     ) == (True, "2026-09-02T12:00:00+00:00")
+    assert ground_task_due_at(
+        "add a task to inspect the side gate Friday",
+        None,
+        now,
+    ) == (True, "2026-09-04T12:00:00+00:00")
 
 
 def test_cli_routes_task_completion_to_complete_action() -> None:
