@@ -16,12 +16,22 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any, cast
 from urllib.parse import urlsplit, urlunsplit
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import psycopg
 
 from .audit import PostgresAuditLog
-from .contracts import ActionCard, Principal, RequestStatus, Result
+from .contracts import (
+    ActionCard,
+    Context,
+    IntentFrame,
+    ModelRequest,
+    ObjectiveState,
+    Principal,
+    RequestStatus,
+    Result,
+    WorkingSet,
+)
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
 from .finance import PostgresFinanceSnapshotStore
@@ -60,6 +70,14 @@ from .reference_packs import (
 )
 from .reference_runtime import default_runtime_registry, legacy_runtime
 from .release_truth import runtime_release_sha
+from .research import (
+    DocumentFetcher,
+    ResearchService,
+    ResearchUnavailable,
+    SearchRequest,
+    SearxngSearchProvider,
+    TrafilaturaContentExtractor,
+)
 from .store import PostgresObjectiveStore
 from .tasks import PostgresTaskStore
 from .utterance import is_task_destination_request
@@ -738,6 +756,82 @@ def run_interaction(
     if runtime_registry is None:
         runtime_registry = _default_runtime_registry(_openclaw_channel)
 
+    def research_answer(intent: IntentFrame, _context: Context, source_kind: str) -> Result:
+        endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
+        if not endpoint:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message=(
+                    "I couldn't verify current information right now because research is "
+                    "not configured."
+                ),
+                evidence={"source_kind": source_kind, "authoritative": False},
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+        try:
+            service = ResearchService(
+                SearxngSearchProvider(endpoint),
+                DocumentFetcher(),
+                TrafilaturaContentExtractor(),
+            )
+            evidence = service.collect(SearchRequest(intent.utterance))
+            evidence_values = {
+                "query": evidence.query,
+                "provider_id": evidence.provider_id,
+                "retrieved_at": evidence.retrieved_at.isoformat(),
+                "sources": [
+                    {
+                        "source_id": item.source_id,
+                        "url": item.final_url,
+                        "title": item.title,
+                        "text": item.text,
+                        "retrieved_at": item.retrieved_at.isoformat(),
+                    }
+                    for item in evidence.evidence
+                ],
+            }
+            synthesis_context = Context(values={"research_evidence": evidence_values})
+            provider = OllamaProvider(
+                os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
+                OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
+            )
+            response = provider.decide(
+                ModelRequest(
+                    working_set=WorkingSet(intent=intent, context=synthesis_context),
+                    action_cards=(),
+                )
+            )
+            from .decoding import StrictDecisionDecoder
+
+            decision = StrictDecisionDecoder().decode(response, (), allow_argument_proposals=False)
+            if decision.kind.value != "ANSWER" or not decision.answer:
+                raise ResearchUnavailable("research synthesis returned no answer")
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message=decision.answer,
+                evidence={
+                    "source_kind": source_kind,
+                    "authoritative": False,
+                    "research": evidence_values,
+                },
+                correlation_id=intent.correlation_id,
+            )
+        except Exception:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message=(
+                    "I couldn't verify current information right now. The research provider "
+                    "was unavailable."
+                ),
+                evidence={"source_kind": source_kind, "authoritative": False},
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+
     def retrieve_reference_capabilities(query: str, manager: Any) -> tuple[ActionCard, ...]:
         if is_task_destination_request(query):
             return reference_fallback_cards(manager, query)
@@ -779,6 +873,7 @@ def run_interaction(
             fallback_context_builder=build_reference_fallback_context_runtime,
             runtime_resolver=legacy_runtime,
             safety_fast_path_resolver=resolve_reference_safety_fast_paths,
+            research_answer=research_answer,
         )
     )
     return boundary.run(
