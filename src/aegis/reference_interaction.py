@@ -62,6 +62,7 @@ from .planning import (
     PersonalMemoryChoreComposer,
     PersonalMemoryTaskComposer,
     PersonalTaskComposer,
+    PlanModificationFastPath,
     PlanProgressFastPath,
 )
 from .projections import SharedObligation
@@ -773,6 +774,9 @@ def resolve_reference_fast_paths(
     utterance = strip_context_reset(intent.utterance)
     if utterance != intent.utterance:
         intent = intent.model_copy(update={"utterance": utterance})
+    modification_result = PlanModificationFastPath.resolve(intent, context)
+    if modification_result is not None:
+        return modification_result
     progress_result = PlanProgressFastPath.resolve(intent, context)
     if progress_result is not None:
         return progress_result

@@ -12,7 +12,12 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
-from aegis.planning import PlanProgressFastPath, PlanValidationError, materialize_proposed_plan
+from aegis.planning import (
+    PlanModificationFastPath,
+    PlanProgressFastPath,
+    PlanValidationError,
+    materialize_proposed_plan,
+)
 
 
 def card(action_id: str, *arguments: str) -> ActionCard:
@@ -164,6 +169,31 @@ def test_plan_progress_accepts_what_remains_followup():
 
     assert result is not None
     assert result.message == "All 2 plan steps are complete."
+
+
+def test_plan_modification_does_not_rewrite_verified_history():
+    result = PlanModificationFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Skip the appointment part.",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "plan_steps": [
+                        {"index": 0, "state": "completed"},
+                        {"index": 1, "state": "completed"},
+                    ]
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.state.value == "blocked"
+    assert "already verified" in result.message
+    assert "rewrite" in result.message
 
 
 def test_plan_progress_does_not_trust_unscoped_context():
