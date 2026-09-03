@@ -46,6 +46,30 @@ verification, or declare objective completion without Core evidence.
 Generated answers are explicitly non-authoritative unless separately grounded
 by canonical state. Transcript text is context, never a capability grant.
 
+### Capability boundary is not the cognitive ceiling
+
+ActionCards describe the currently executable capability vocabulary; they do
+not describe the complete universe of outcomes AEGIS may reason about. Keep
+three spaces distinct:
+
+1. **Cognition and investigation space** — broad reasoning about the owner's
+   objective, including unresolved needs and possible procedures.
+2. **Typed/scoped execution space** — capabilities represented by bounded
+   contracts and explicit runtime providers.
+3. **Authorized execution** — a specific action permitted by current policy,
+   observed, and independently verified through Core and the Kernel.
+
+AEGIS may understand an objective beyond installed typed capabilities. A
+missing capability remains an unsatisfied requirement that may lead to bounded
+investigation, composition through general-purpose scoped tools, capability
+discovery, acquisition, generation, or owner escalation. Models and workers
+may propose capabilities, procedures, implementations, and acquisition paths,
+but proposals grant no authority. Discovery is not permission; generation is
+not installation; installation is not enablement; enablement is not approval;
+reachability is not authority; and tool success is not objective completion.
+Core continues to own objective meaning, canonical truth, permission,
+lifecycle, verification, completion, and parent-objective resumption.
+
 ## Semantic Pack retrieval and model scale
 
 Packs expose compact model-facing capability descriptions. Retrieval should

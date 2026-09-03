@@ -121,6 +121,28 @@ Models may not:
 - claim execution succeeded without observation and verification;
 - declare consequential objective completion without Core evidence.
 
+## 2.1.1 Capability boundary is not the cognitive ceiling
+
+The capability boundary constrains execution authority, not cognitive
+expressiveness. AEGIS may understand and investigate objectives beyond its
+installed typed capabilities. A missing capability may remain an unsatisfied
+objective requirement and lead to bounded investigation, composition through
+general-purpose scoped tools, capability discovery, adapter or Pack
+generation, or owner escalation.
+
+Models and workers may propose capabilities, procedures, implementations, and
+acquisition paths, but proposals grant no authority. Discovery is not
+permission; generation is not installation; installation is not enablement;
+enablement is not approval; reachability is not authority; and tool success is
+not objective completion. Core continues to own objective meaning, canonical
+truth, permission, lifecycle, verification, completion, and parent-objective
+resumption.
+
+ActionCards remain the strict vocabulary of executable candidates, not the
+complete universe of outcomes AEGIS may reason about. General-purpose tools
+are replaceable providers inside explicit authority envelopes. Reusable
+acquired behavior should converge toward typed, testable capability contracts.
+
 ## 2.2 Determinism protects truth and authority, not English vocabulary
 
 The division of labor is:
@@ -1144,6 +1166,9 @@ Preserve what succeeded and explain what did not.
 ### M10.10 — Cross-domain capability dogfood
 Vary combinations rather than repeatedly proving one chain.
 
+### M10.11 — Capability coverage and unresolved capability needs
+Plans preserve unsatisfied requirements instead of silently dropping them or treating the objective as complete. Missing capability is durable product state that may require bounded investigation, composition, discovery, acquisition, owner escalation, or a later reusable capability.
+
 ## Exit criteria
 
 AEGIS can coordinate multiple domains as one objective while each domain retains its truth/permission boundaries.
@@ -1312,6 +1337,9 @@ Suggest without acting when authority is absent.
 ### M13.11 — Bounded autonomy
 Background work has explicit limits, timeouts, budgets, and stop conditions.
 
+### M13.12 — Bounded investigation loop
+An unresolved objective may inspect already-authorized state, integrations, public information, and available capabilities under explicit budgets and stop conditions before escalating to the owner. Investigation proposes no authority and cannot silently complete an unsatisfied requirement.
+
 ## Example mature behavior
 
 - "Your electric bill is unusually high."
@@ -1364,6 +1392,9 @@ Connect AEGIS to real-world systems behind typed replaceable adapters.
 ### M14.12 — Business systems
 
 ### M14.13 — Documents/cloud storage
+
+### M14.14 — Governed general browser/API execution
+General external digital interaction is available only behind explicit observation, preparation, mutation, and submission authority boundaries. Replaceable runtime providers remain subordinate to Core authorization, privacy, verification, and completion semantics.
 
 ## Exit criteria
 
@@ -1436,6 +1467,12 @@ Make AEGIS something ordinary technical users can actually install, configure, u
 ### M16.11 — Self-hosting documentation
 
 ### M16.12 — Hardware/model sizing guidance
+
+### M16.13 — Capability acquisition lifecycle
+Discover → reuse/adapt/build → sandbox → test → permission analysis → install/enable → verify. Each transition is explicit; discovery, generation, installation, and enablement do not grant approval or execution authority.
+
+### M16.14 — Pack Forge Phase B
+Pack Forge becomes the deterministic compiler/scaffolder below model- or worker-assisted capability generation, without granting model or worker authority. Generated behavior must converge toward typed, testable capability contracts.
 
 ## Exit criteria
 
@@ -1597,6 +1634,9 @@ A new domain can be added without redesigning Core.
 
 ### M19.12 — Ambient availability
 Users can reach AEGIS through the interface appropriate to the moment.
+
+### M19.13 — Novel objective generalization
+AEGIS can pursue useful objectives for which no bespoke high-level Pack action was pre-authored by combining bounded general capabilities or acquiring the smallest appropriate reusable capability. Novel cognition and capability proposals remain non-authoritative until Core validates, authorizes, executes, and verifies them.
 
 ## Final product acceptance
 
