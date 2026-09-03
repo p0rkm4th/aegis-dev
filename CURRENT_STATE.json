@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "b42257cceb4766012a466d4f1c2af032740795ca",
-  "deterministic_green_sha": "b42257cceb4766012a466d4f1c2af032740795ca",
-  "last_pushed_sha": "b42257cceb4766012a466d4f1c2af032740795ca",
-  "hosted_ci_green_sha": "b42257cceb4766012a466d4f1c2af032740795ca",
+  "repository_head_sha": "b3856912ff65cbd9e2561fecf85a00b983d057b7",
+  "deterministic_green_sha": "b3856912ff65cbd9e2561fecf85a00b983d057b7",
+  "last_pushed_sha": "b3856912ff65cbd9e2561fecf85a00b983d057b7",
+  "hosted_ci_green_sha": "b3856912ff65cbd9e2561fecf85a00b983d057b7",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33708120133",
-    "commit_sha": "b42257cceb4766012a466d4f1c2af032740795ca",
+    "run_id": "33708403750",
+    "commit_sha": "b3856912ff65cbd9e2561fecf85a00b983d057b7",
     "conclusion": "success",
     "observed_at": "2026-09-03T00:33:00Z"
   },
@@ -1157,6 +1157,7 @@
     "owner_remaining_task_followup_checkpoint": "partial installed owner evidence on release 1741877: after fresh filtered task read correlation 58318144-feaa-4f60-a3b5-a19ce96864db, 'What is left?' returned exactly the two still-open canonical tasks (correlation cc029d28-0677-4921-bb75-dbc51e5adc09); after restarting aegis-owner.service and rotating the browser token, the same authorized prior correlation returned the same two tasks (correlation 757274cf-aa8b-4459-99ac-6e69493218ff). No mutation occurred and restart continuity held; broader referent-family and daily-driver green remain unclaimed.",
     "owner_remaining_collection_followup_checkpoint": "partial installed owner evidence on release ab2e6a5: after fresh grocery read correlation 59d33c03-15c4-4d2c-bc54-7e21dd45bc9f, attached 'What remains?' correlation 3732624a-8e57-4d0d-9fbb-15abc7939639 stayed in the authorized grocery collection and returned the canonical rice list. The generalized remaining resolver now covers task, grocery, and chore projections; broader conversation and daily-driver green remain unclaimed.",
     "owner_chore_priority_clarification_checkpoint": "green installed owner evidence on release e4799c3: after a fresh open-chore list, 'Which one should I start with?' returned a truthful clarification that the referenced chores have no canonical deadlines instead of generic model failure or invented priority. No mutation occurred; hosted validation run 33703289704 passed.",
-    "m05_09a_pack_forge_checkpoint": "closed bounded spike at b42257cceb4766012a466d4f1c2af032740795ca with hosted validation run 33708120133 green and local validation 443 passed, 2 skipped. Result: PROCEED AFTER DAILY-DRIVER. Strict PackProposalV0 compiles deterministically to the production PackBundle, reuses the single public validate_pack_bundle implementation, and materializes only structural declarations/seams through the pinned Copier 9.18.1 local task-free template. Aquarium read/write lifecycle proof remained pending until explicit PackManager approval; generated executor/verifier/runtime stubs fail closed. Copier was ADAPTED (MIT); Cookiecutter and Backstage were design-harvest/rejected as primary, datamodel-code-generator deferred, and pluggy rejected. Pack Contract V1, M05.09B, and further Forge expansion remain unclaimed; see M05.09A_FORGE_REPORT.md.",
-    "next_action": "Forge M05.09A is closed. Refresh repository truth and return to M09 daily-driver work: run fresh owner conversational dogfood, classify the dominant continuity/UX defect, and implement the smallest responsible-layer fix."
+    "m05_09a_pack_forge_checkpoint": "closed bounded spike at b42257c with hosted validation run 33708120133 green and local validation 443 passed, 2 skipped. Result: PROCEED AFTER DAILY-DRIVER. Strict PackProposalV0 compiles deterministically to the production PackBundle, reuses the single public validate_pack_bundle implementation, and materializes only structural declarations/seams through the pinned Copier 9.18.1 local task-free template. Aquarium read/write lifecycle proof remained pending until explicit PackManager approval; generated executor/verifier/runtime stubs fail closed. Copier was ADAPTED (MIT); Cookiecutter and Backstage were design-harvest/rejected as primary, datamodel-code-generator deferred, and pluggy rejected. Pack Contract V1, M05.09B, and further Forge expansion remain unclaimed; see M05.09A_FORGE_REPORT.md.",
+    "semantic_capacity_qwen25_14b_checkpoint": "complete development-only stronger-model control at source b3856912ff65cbd9e2561fecf85a00b983d057b7, report evaluation/reports/qwen25-14b-semantic-160-dev.json, hosted validation run 33708403750 green. Using the identical production cognition contract and Qwen2.5:14B digest 7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6 over 160 development cases, route accuracy was 0.20625, semantic-mode accuracy 0.30625, 17 false mutations, 10 false completions, 90 decoder failures, and 106.25 unsafe mutations per 1,000. This is materially worse than the canonical Qwen3:8B baseline; no owner model switch is justified. Capacity escalation stops and the next work returns to M09 context/referent/product diagnosis.",
+    "next_action": "Continue M09 daily-driver work: run fresh owner conversational dogfood across corrections, ordinals, refresh/restart, and another existing domain; classify the dominant continuity/UX defect and implement the smallest responsible-layer fix."
 }
