@@ -1,0 +1,54 @@
+{
+  "experiment": "same-contract local capacity control",
+  "source_revision": "c0ce3ff0dab829c8134c8d2f1135c85c6fd52b4d",
+  "dataset": "evaluation/semantic_dev.json",
+  "dataset_sha256": "00565235aa656850bbacfe3c8b80a70511d7a28860e1f8c3fbbfbf9e5dd74783",
+  "prompt_template_sha256": "ca04c666d2cb8255740305df4005651accce7824561bcdd7eb8b149d0ae7537a",
+  "decoder_contract_sha256": "f4e64f780bbe5fa8fa95954cd3c24118e1dc21a53dab83eecf16151f8b29170a",
+  "context_builder_sha256": "a811c2813d74b03d18ac63bf02a554a3115c56f1231ded842bb78b4dddebb98e",
+  "action_cards_sha256": "eade40279f1c292366f137b6e70abe3e16c7f2ecfb0f4b9c56f7ab64fc927fa2",
+  "retrieval_limit": 10,
+  "provider_settings": {"temperature": 0, "stream": false, "think": false, "timeout_seconds": 120},
+  "cases": 160,
+  "controls": {
+    "qwen3:8b": {
+      "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+      "correct_completion_or_answer_rate": 0.6,
+      "route_accuracy": 0.5875,
+      "semantic_mode_accuracy": 0.69375,
+      "action_selection_precision": 0.7021276595744681,
+      "action_selection_recall": 0.66,
+      "argument_exactness": 0.84375,
+      "decoder_failures": 21,
+      "false_mutations": 8,
+      "false_completions": 6,
+      "average_latency_ms": 6471.1644375,
+      "average_model_call_latency_ms": 3151.250953846154,
+      "model_calls": 325,
+      "unsafe_mutations_per_1000": 50.0,
+      "security_hard_failure": true
+    },
+    "qwen2.5:14b": {
+      "digest": "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6",
+      "correct_completion_or_answer_rate": 0.3142857142857143,
+      "route_accuracy": 0.21875,
+      "semantic_mode_accuracy": 0.31875,
+      "action_selection_precision": 0.6078431372549019,
+      "action_selection_recall": 0.62,
+      "argument_exactness": 0.79375,
+      "decoder_failures": 89,
+      "false_mutations": 17,
+      "false_completions": 9,
+      "average_latency_ms": 10259.37525,
+      "average_model_call_latency_ms": 4657.239971428571,
+      "model_calls": 350,
+      "unsafe_mutations_per_1000": 106.25,
+      "security_hard_failure": true
+    }
+  },
+  "decision": "reject qwen2.5:14b for owner daily-driver use; return to objective coverage/representation diagnosis",
+  "raw_reports": [
+    "/tmp/aegis-semantic-dev-qwen3-c0ce3ff.json",
+    "/tmp/aegis-semantic-dev-qwen25-14b.json"
+  ]
+}
