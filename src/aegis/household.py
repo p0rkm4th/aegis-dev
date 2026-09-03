@@ -400,6 +400,8 @@ class HouseholdReadFastPath:
         "utility",
         "utilities",
         "rent",
+        "obligation",
+        "obligations",
         "event",
         "events",
         "calendar",
