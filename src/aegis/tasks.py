@@ -558,7 +558,7 @@ class TaskReadFastPath:
             return False
         if not any(trigger in text for trigger in cls._TRIGGERS):
             temporal_task_read = (
-                any(term in text for term in ("today", "tomorrow", "next week"))
+                any(term in text for term in ("today", "tomorrow", "next week", "before weekend"))
                 or re.search(
                     r"\b(?:this\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
                     text,
@@ -616,9 +616,7 @@ class TaskReadFastPath:
                 r"\b(?:this\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
                 text,
             )
-            if weekday_match is not None and any(
-                term in text for term in ("due", "get done", "finish")
-            ):
+            if weekday_match is not None:
                 target = _WEEKDAYS.index(weekday_match.group(1))
                 days_ahead = (target - now.weekday()) % 7
                 due_start = (now + timedelta(days=days_ahead)).date()
@@ -794,6 +792,7 @@ class ContextualTaskPriorityFastPath:
                 "prioritize",
                 "focus",
                 "start",
+                "begin",
             )
         ):
             return None
