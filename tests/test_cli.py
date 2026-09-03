@@ -366,6 +366,42 @@ def test_model_working_context_preserves_only_canonical_task_deadlines():
     assert context.values["as_of_date"] == datetime.now(timezone.utc).date().isoformat()
 
 
+def test_model_working_context_preserves_plan_progress_source_marker():
+    context = Context(
+        values={
+            "canonical_facts": {
+                "plan_steps": [
+                    {"index": 0, "state": "completed"},
+                    {"index": 1, "state": "completed"},
+                ]
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    class UnreachableTasks:
+        def list(self, _principal):
+            raise AssertionError("plan progress should not load task fallback context")
+
+    class UnreachableHousehold:
+        def list_groceries(self, _principal):
+            raise AssertionError("plan progress should not load household fallback context")
+
+    result = build_reference_fallback_context(
+        context,
+        UnreachableTasks(),
+        UnreachableHousehold(),
+        Principal(id="alice", vault_id="alice-vault"),
+        "What's left?",
+    )
+
+    assert result.sources == ("authorized_canonical_result",)
+    assert (
+        result.values["canonical_facts"]["plan_steps"]
+        == context.values["canonical_facts"]["plan_steps"]
+    )
+
+
 def test_model_working_context_includes_bounded_authorized_household_attention():
     principal = Principal(id="alice", vault_id="alice-vault")
     chore = type("Chore", (), {"title": "clean the utility closet", "completed": False})()
