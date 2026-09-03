@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "7e412a2",
-  "deterministic_green_sha": "7e412a2",
-  "last_pushed_sha": "7e412a2",
-  "hosted_ci_green_sha": "7e412a2",
+  "repository_head_sha": "6eb7980",
+  "deterministic_green_sha": "6eb7980",
+  "last_pushed_sha": "6eb7980",
+  "hosted_ci_green_sha": "6eb7980",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33710943210",
-    "commit_sha": "7e412a2",
+    "run_id": "33711037494",
+    "commit_sha": "6eb7980",
     "conclusion": "success",
     "observed_at": "2026-09-03T00:33:00Z"
   },
@@ -1169,5 +1169,6 @@
     "owner_safe_write_probe_checkpoint": "partial installed owner evidence on release 6ade461: an explicit benign task-create request was conservatively blocked with a retryable model-boundary Result and exact-correlation replay produced no mutation; canonical task readback contained no new target. This is truthful safety/recovery evidence, not natural-write capability green.",
     "owner_natural_task_write_checkpoint": "partial installed owner evidence on release 6ade461: fresh everyday wording 'Put review the daily driver notes on my task list for Friday.' completed one canonical task mutation with readback verification, and a new 'Show my open tasks due Friday.' request returned the created task with its persisted Friday deadline. No unrelated mutation occurred; this is an exact family datapoint, not natural-write capability green.",
     "owner_post_write_referent_checkpoint": "partial installed owner evidence on release 6ade461: after a fresh Friday-filtered task list, an ordinal follow-up selected the correct canonical last task, and 'No, the other one' clarified within the task domain; the same correction shape clarified within groceries. No mutation or developer repair occurred; broader natural writes and daily-driver acceptance remain incomplete.",
+    "owner_natural_write_rotation_checkpoint": "partial installed owner evidence on release 6ade461: unseen task wording 'Please put return the borrowed book on my to-do list for Monday.' completed with canonical persistence; unseen chore creation wording clarified safely, nonexistent chore completion blocked safely, and indirect store-language grocery read remained conservatively blocked. No unsafe mutation or developer repair occurred; natural-write/read capability remains model-limited and unclaimed.",
     "next_action": "Continue M09 daily-driver work: run fresh owner conversational dogfood across natural safe writes, corrections after restart, and another existing domain; classify the dominant continuity/UX defect and implement the smallest responsible-layer fix."
 }
