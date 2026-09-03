@@ -200,6 +200,29 @@ def test_plan_progress_accepts_outstanding_followup():
     assert result.message == "1 of 2 plan steps are complete; 1 remain."
 
 
+def test_plan_progress_accepts_still_left_followup():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is still left on that plan?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "plan_steps": [
+                        {"index": 0, "state": "completed"},
+                        {"index": 1, "state": "completed"},
+                    ]
+                }
+            },
+        ),
+    )
+
+    assert result is not None
+    assert result.message == "All 2 plan steps are complete."
+
+
 def test_plan_modification_does_not_rewrite_verified_history():
     result = PlanModificationFastPath.resolve(
         IntentFrame(
