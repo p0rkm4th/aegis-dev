@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from uuid import uuid4
 
 from aegis.contracts import (
@@ -15,7 +16,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.decoding import StrictDecisionDecoder
-from aegis.interaction_cognition import _scope_plan_by_capability
+from aegis.interaction_cognition import _scope_plan_by_capability, decide_fallback
 from aegis.interaction_decisions import resolve_fallback_decision
 
 
@@ -42,6 +43,39 @@ def test_action_resolution_uses_the_supplied_bounded_working_set() -> None:
     )
 
     assert result == card
+
+
+def test_fresh_source_request_fails_truthfully_without_research_provider() -> None:
+    class Provider:
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            return ModelResponse(
+                raw={
+                    "kind": "ANSWER",
+                    "answer": "The latest answer would need verification.",
+                    "semantic_mode": "GENERATION",
+                    "knowledge_source": "external_evidence",
+                }
+            )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is the latest release?",
+        ),
+        (),
+        Context(),
+    )
+
+    assert result is not None
+    assert result.state.value == "failed"
+    assert "couldn't verify current" in result.message
+    assert result.evidence["authoritative"] is False
 
 
 def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> None:
