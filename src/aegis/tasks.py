@@ -830,10 +830,36 @@ class ContextualTaskPriorityFastPath:
                 "focus",
                 "start",
                 "begin",
+                "urgent",
+                "important",
             )
         ):
             return None
         referents = context.values.get("referents")
+        if not isinstance(referents, dict):
+            # A priority result is a scalar canonical recommendation, not an
+            # ordered collection.  A follow-up asking which one is urgent can
+            # safely reaffirm that same uniquely identified task without
+            # asking the model to rediscover or broaden the candidate set.
+            facts = context.values.get("canonical_facts")
+            task = facts.get("task") if isinstance(facts, dict) else None
+            if (
+                isinstance(task, dict)
+                and isinstance(task.get("title"), str)
+                and "which one" in text
+                and any(term in text for term in ("urgent", "important", "priority"))
+            ):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.COMPLETED,
+                    message=f"The most urgent referenced task is: {task['title']}",
+                    evidence={
+                        "collection": "tasks",
+                        "priority_basis": "authorized_prior_result",
+                        "task": task,
+                    },
+                    correlation_id=intent.correlation_id,
+                )
         if not isinstance(referents, dict):
             return None
         those = referents.get("those")
