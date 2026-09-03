@@ -223,6 +223,21 @@ def test_plan_progress_accepts_still_left_followup():
     assert result.message == "All 2 plan steps are complete."
 
 
+def test_plan_progress_yields_to_explicit_domain_followup():
+    result = PlanProgressFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What chores still need attention?",
+        ),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={"canonical_facts": {"plan_steps": [{"index": 0, "state": "completed"}]}},
+        ),
+    )
+
+    assert result is None
+
+
 def test_plan_modification_does_not_rewrite_verified_history():
     result = PlanModificationFastPath.resolve(
         IntentFrame(
