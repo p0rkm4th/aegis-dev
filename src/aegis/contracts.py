@@ -113,7 +113,6 @@ class Decision(StrictModel):
     plan: ProposedPlan | None = None
     clarification: str | None = None
     reason: str | None = None
-    plan_complete: bool | None = None
     semantic_mode: Literal["GENERATION", "READ", "ACTION", "CLARIFY"] | None = None
     context_focus: (
         Literal["canonical_items", "canonical_tasks", "canonical_obligations", "planning"] | None
@@ -191,7 +190,6 @@ class ModelRequest(StrictModel):
     routing_only: bool = False
     classification_only: bool = False
     allow_plan_proposals: bool = False
-    plan_coverage_review: bool = False
 
 
 class ModelResponse(StrictModel):
