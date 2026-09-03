@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol, cast
@@ -20,6 +21,16 @@ from .contracts import (
     VerificationResult,
 )
 from .utterance import is_mutation_request
+
+_WEEKDAYS = (
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+)
 
 
 @dataclass(frozen=True)
@@ -506,6 +517,26 @@ class HouseholdReadFastPath:
                     ).date()
                     < week_end
                 )
+            else:
+                weekday_match = re.search(
+                    r"\b(?:this\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+                    text,
+                )
+                if weekday_match is not None:
+                    target = _WEEKDAYS.index(weekday_match.group(1))
+                    days_ahead = (target - now.weekday()) % 7
+                    target_date = (now + timedelta(days=days_ahead)).date()
+                    date_filter = f"weekday:{weekday_match.group(1)}"
+                    events = tuple(
+                        event
+                        for event in events
+                        if (
+                            event.starts_at.replace(tzinfo=timezone.utc)
+                            if event.starts_at.tzinfo is None
+                            else event.starts_at.astimezone(timezone.utc)
+                        ).date()
+                        == target_date
+                    )
             evidence["events"] = [
                 {"title": event.title, "starts_at": event.starts_at.isoformat()} for event in events
             ]
