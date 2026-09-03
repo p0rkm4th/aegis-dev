@@ -299,6 +299,22 @@ def decide_fallback(
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
         if decision.kind is DecisionKind.PLAN and decision.plan is not None:
+            if decision.objective_spec is None:
+                interpretation_request = request.model_copy(
+                    update={"objective_interpretation_only": True}
+                )
+                interpretation_response = provider.decide(interpretation_request)
+                if not isinstance(interpretation_response.raw, dict):
+                    raise InvalidDecision("objective interpretation must be an object")
+                try:
+                    objective_spec = ObjectiveSpecProposal.model_validate(
+                        interpretation_response.raw
+                    )
+                except Exception as exc:
+                    raise InvalidDecision(
+                        "objective interpretation failed its strict schema"
+                    ) from exc
+                decision = decision.model_copy(update={"objective_spec": objective_spec})
             decision = _scope_plan_by_capability(
                 provider, decoder, intent, cards, context, decision
             )

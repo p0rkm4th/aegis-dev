@@ -8,7 +8,7 @@ from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from .contracts import Decision, ModelRequest, ModelResponse
+from .contracts import Decision, ModelRequest, ModelResponse, ObjectiveSpecProposal
 
 
 class OllamaTransport(Protocol):
@@ -133,6 +133,8 @@ class OllamaProvider:
         model boundary is stricter: omitted action fields are ambiguous and
         must be rejected before policy or execution.
         """
+        if request is not None and request.objective_interpretation_only:
+            return ObjectiveSpecProposal.model_json_schema()
         schema = deepcopy(Decision.model_json_schema())
         action_schema = schema.get("$defs", {}).get("ActionSpec")
         if isinstance(action_schema, dict):
@@ -164,7 +166,16 @@ class OllamaProvider:
         ]
         return json.dumps(
             {
-                "instruction": "Return exactly one structured Aegis Decision JSON object.",
+                "instruction": (
+                    "Return exactly one objective_spec JSON object. It must contain one "
+                    "requirement for each independent state change requested by the user. "
+                    "Use only exact action_ref values from the supplied ActionCards and "
+                    "only the grounded arguments needed for that effect. Do not include a "
+                    "plan, completion claim, permissions, or verification. Core will assign "
+                    "stable identities and validate the proposal."
+                    if request.objective_interpretation_only
+                    else "Return exactly one structured Aegis Decision JSON object."
+                ),
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "
                     "authorized information, GENERATION for benign creative/explanatory "
