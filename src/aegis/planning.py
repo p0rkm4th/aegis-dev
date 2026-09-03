@@ -512,6 +512,17 @@ class DomainClarificationFastPath:
     """Give unsupported or underspecified alpha requests a useful next step."""
 
     _REMINDER_TERMS = ("remind me", "remember to", "make sure i remember")
+    _COLLECTION_STATUS_TERMS = ("open", "remaining", "remains", "left", "still need")
+    _COLLECTION_READ_PREFIXES = (
+        "what",
+        "which",
+        "show",
+        "list",
+        "tell me",
+        "could you",
+        "can you",
+        "please",
+    )
 
     _KNOWN_TERMS = (
         "task",
@@ -564,6 +575,24 @@ class DomainClarificationFastPath:
             objective_id=uuid4(),
             state=ObjectiveState.BLOCKED,
             message=message,
+            correlation_id=intent.correlation_id,
+        )
+
+    @classmethod
+    def resolve_ambiguous_collection_status(cls, intent: IntentFrame) -> Result | None:
+        """Clarify a domain-less collection query without guessing its owner."""
+
+        text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+        if any(term in text for term in cls._KNOWN_TERMS):
+            return None
+        if not text.startswith(cls._COLLECTION_READ_PREFIXES) or not any(
+            term in text for term in cls._COLLECTION_STATUS_TERMS
+        ):
+            return None
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=("What should I check: open tasks, household chores, groceries, or memories?"),
             correlation_id=intent.correlation_id,
         )
 
