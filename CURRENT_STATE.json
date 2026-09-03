@@ -183,15 +183,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "949c9e7",
-  "deterministic_green_sha": "949c9e7",
-  "last_pushed_sha": "949c9e7",
-  "hosted_ci_green_sha": "949c9e7",
+  "repository_head_sha": "0af8e4e",
+  "deterministic_green_sha": "0af8e4e",
+  "last_pushed_sha": "0af8e4e",
+  "hosted_ci_green_sha": "0af8e4e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33710668160",
-    "commit_sha": "949c9e7",
+    "run_id": "33710830480",
+    "commit_sha": "0af8e4e",
     "conclusion": "success",
     "observed_at": "2026-09-03T00:33:00Z"
   },
@@ -1167,5 +1167,6 @@
     "owner_ambiguous_correction_checkpoint": "green safety/continuity evidence on release 6ade461 after hosted run 33710526883: fresh chore and event ordinal results preserved their authorized canonical collections, and 'No, the other one' returned a domain-specific clarification rather than falling into unrelated grocery action selection. No mutation or developer repair occurred; broader correction families and daily-driver acceptance remain incomplete.",
     "owner_restart_followup_checkpoint": "partial installed owner evidence on release 6ade461: a fresh filtered task read correlation 03cd44e6-f1ab-488f-a260-ee53cfeb3a72 was followed by a real aegis-owner.service restart and rotated browser session token; post-restart 'What is left?' returned the same authorized canonical task projection with readiness green. No mutation or developer repair occurred; broader restart and referent families remain incomplete.",
     "owner_safe_write_probe_checkpoint": "partial installed owner evidence on release 6ade461: an explicit benign task-create request was conservatively blocked with a retryable model-boundary Result and exact-correlation replay produced no mutation; canonical task readback contained no new target. This is truthful safety/recovery evidence, not natural-write capability green.",
+    "owner_natural_task_write_checkpoint": "partial installed owner evidence on release 6ade461: fresh everyday wording 'Put review the daily driver notes on my task list for Friday.' completed one canonical task mutation with readback verification, and a new 'Show my open tasks due Friday.' request returned the created task with its persisted Friday deadline. No unrelated mutation occurred; this is an exact family datapoint, not natural-write capability green.",
     "next_action": "Continue M09 daily-driver work: run fresh owner conversational dogfood across natural safe writes, corrections after restart, and another existing domain; classify the dominant continuity/UX defect and implement the smallest responsible-layer fix."
 }
