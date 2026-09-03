@@ -3164,19 +3164,20 @@ def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
 
 
 def test_task_priority_fast_path_filters_temporal_should_do_request():
+    now = datetime(2026, 9, 2, 12, tzinfo=timezone.utc)
     tomorrow = Task(
         uuid4(),
         "apartment",
         "call the dentist",
         "alice",
-        due_at=datetime.now(timezone.utc) + timedelta(days=1),
+        due_at=now + timedelta(days=1),
     )
     later = Task(
         uuid4(),
         "apartment",
         "renew insurance",
         "alice",
-        due_at=datetime.now(timezone.utc) + timedelta(days=2),
+        due_at=now + timedelta(days=2),
     )
 
     class Store:
@@ -3187,7 +3188,8 @@ def test_task_priority_fast_path_filters_temporal_should_do_request():
         IntentFrame(
             principal=Principal(id="alice", vault_id="alice-vault"),
             utterance="what should I do tomorrow?",
-        )
+        ),
+        now=now,
     )
 
     assert result is not None
