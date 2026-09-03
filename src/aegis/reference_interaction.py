@@ -432,6 +432,11 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("authorized_ordinal_item") is not None:
         return f"Grocery item: {evidence['authorized_ordinal_item']}"
+    # Ordinal follow-ups are canonical reads.  Their evidence carries the
+    # already-rendered domain label so it must not fall through to the generic
+    # mutation-shaped title formatter ("Done — ...").
+    if isinstance(evidence.get("authorized_ordinal_referent"), dict):
+        return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         counts: dict[str, int] = {}
