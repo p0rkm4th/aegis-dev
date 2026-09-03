@@ -3239,6 +3239,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "response.ok" in _INDEX_HTML
     assert "apiFetch('/api/message'" in _INDEX_HTML
     assert "apiFetch('/api/feedback'" in _INDEX_HTML
+    assert "if (response.status !== 401 || resource === '/') return response;" in _INDEX_HTML
+    assert 'const refreshed = html.match(/<meta name="aegis-session-token"' in _INDEX_HTML
+    assert "return fetch(resource, {...options, headers: retryHeaders});" in _INDEX_HTML
     assert "clearAuthorizedDisplays()" in _INDEX_HTML
     assert "document.getElementById('step-status').textContent = '';" in _INDEX_HTML
     assert "document.querySelector('#chat button').textContent = 'Send';" in _INDEX_HTML

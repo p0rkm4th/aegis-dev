@@ -435,11 +435,25 @@ function applyNodeFilter() {
     : `${renderedNodeCards.size} authorized nodes.`;
 }
 nodeFilter.addEventListener('input', applyNodeFilter);
-function apiFetch(resource, options = {}) {
+async function apiFetch(resource, options = {}) {
   const token = document.querySelector('meta[name="aegis-session-token"]')?.content;
   const headers = new Headers(options.headers || {});
   if (token) headers.set('x-aegis-session', token);
-  return fetch(resource, {...options, headers});
+  const response = await fetch(resource, {...options, headers});
+  if (response.status !== 401 || resource === '/') return response;
+  // A normal owner-service token rotation should not discard the persistent
+  // conversation. Refresh the transport token once, then let the endpoint's
+  // normal authorization response decide whether the request is allowed.
+  const root = await fetch('/');
+  if (!root.ok) return response;
+  const html = await root.text();
+  const refreshed = html.match(/<meta name="aegis-session-token" content="([^"]*)"/);
+  if (!refreshed || !refreshed[1]) return response;
+  const meta = document.querySelector('meta[name="aegis-session-token"]');
+  if (meta) meta.content = refreshed[1];
+  const retryHeaders = new Headers(options.headers || {});
+  retryHeaders.set('x-aegis-session', refreshed[1]);
+  return fetch(resource, {...options, headers: retryHeaders});
 }
 async function fetchWithTimeout(resource, options = {}) {
   const controller = new AbortController();
