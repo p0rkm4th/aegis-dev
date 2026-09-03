@@ -975,7 +975,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             detail += f" ({status})"
         due_at = referent.get("due_at")
         if isinstance(due_at, str):
-            detail += f"; due {due_at}"
+            detail += f"; due {_display_due_at(due_at)}"
         starts_at = referent.get("starts_at")
         if isinstance(starts_at, str):
             detail += f"; starts {starts_at}"
