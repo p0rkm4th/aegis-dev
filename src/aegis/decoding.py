@@ -30,6 +30,8 @@ class StrictDecisionDecoder:
         except ValidationError as exc:
             raise InvalidDecision("model response failed the decision schema") from exc
         if decision.kind is DecisionKind.ACTION:
+            if decision.objective_spec is not None:
+                raise InvalidDecision("objective requirements are only valid for PLAN")
             if decision.semantic_mode not in {None, "ACTION"}:
                 raise InvalidDecision("ACTION decision must use semantic_mode ACTION")
             proposed = decision.action
@@ -98,14 +100,19 @@ class StrictDecisionDecoder:
                 or decision.answer is not None
                 or decision.clarification is not None
                 or decision.context_focus is not None
+                or decision.objective_spec is not None
             ):
                 raise InvalidDecision("PLAN cannot contain fields for another decision kind")
         elif decision.kind is DecisionKind.ANSWER:
+            if decision.objective_spec is not None:
+                raise InvalidDecision("objective requirements are only valid for PLAN")
             if decision.semantic_mode not in {None, "READ", "GENERATION"}:
                 raise InvalidDecision("ANSWER decision must use semantic_mode READ or GENERATION")
             if not decision.answer or not decision.answer.strip():
                 raise InvalidDecision("ANSWER requires non-empty answer content")
         elif decision.kind is DecisionKind.CLARIFY:
+            if decision.objective_spec is not None:
+                raise InvalidDecision("objective requirements are only valid for PLAN")
             if decision.semantic_mode not in {None, "CLARIFY"}:
                 raise InvalidDecision("CLARIFY decision must use semantic_mode CLARIFY")
             if not decision.clarification or not decision.clarification.strip():
@@ -115,6 +122,7 @@ class StrictDecisionDecoder:
             or decision.action_ref is not None
             or decision.action_arguments
             or decision.context_focus is not None
+            or decision.objective_spec is not None
         ):
             raise InvalidDecision("only ACTION decisions may contain an action proposal")
         return decision

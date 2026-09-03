@@ -211,6 +211,10 @@ class OllamaProvider:
                     "Keep arguments scoped to their own step; do not copy a date, time, or "
                     "other detail from one independent operation into another unless the user "
                     "explicitly assigns that detail to both. "
+                    "Also return objective_spec with one requirement for every requested "
+                    "state change; each requirement must use the exact same action_ref and "
+                    "arguments as its corresponding plan step. Core will validate and persist "
+                    "these requirements and will reject incomplete or extra coverage. "
                     "If one action is sufficient, return ACTION instead. Never invent capabilities."
                     if request.allow_plan_proposals
                     else "Plan proposals are disabled; return at most one action."
