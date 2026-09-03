@@ -48,6 +48,29 @@ class PackBundle(BaseModel):
     cards: tuple[ActionCard, ...] = Field(max_length=100)
 
 
+def validate_pack_bundle(bundle: PackBundle) -> None:
+    """Validate executable Pack invariants shared by lifecycle and Forge.
+
+    This function deliberately validates declarations only.  It does not install,
+    enable, grant permissions, or inspect runtime implementations.
+    """
+
+    ids = [card.action.action_id for card in bundle.cards]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Pack contains duplicate action ids")
+    declared = set(bundle.manifest.permissions)
+    for card in bundle.cards:
+        prefix = f"{bundle.manifest.pack_id}."
+        if not card.action.action_id.startswith(prefix):
+            raise ValueError("Pack action id must remain within its Pack namespace")
+        if not card.action.capability.startswith(prefix):
+            raise ValueError("Pack capability must remain within its Pack namespace")
+        if not set(card.action.required_permissions).issubset(declared):
+            raise ValueError("Action requires an undeclared Pack permission")
+        if card.action.required_permissions and card.action.verification is None:
+            raise ValueError("permissioned Pack actions require verification")
+
+
 class PendingPackUpgrade(BaseModel):
     """A discovered replacement that has not acquired new authority."""
 
@@ -440,17 +463,4 @@ class PackManager:
 
     @staticmethod
     def _validate(bundle: PackBundle) -> None:
-        ids = [card.action.action_id for card in bundle.cards]
-        if len(ids) != len(set(ids)):
-            raise ValueError("Pack contains duplicate action ids")
-        declared = set(bundle.manifest.permissions)
-        for card in bundle.cards:
-            prefix = f"{bundle.manifest.pack_id}."
-            if not card.action.action_id.startswith(prefix):
-                raise ValueError("Pack action id must remain within its Pack namespace")
-            if not card.action.capability.startswith(prefix):
-                raise ValueError("Pack capability must remain within its Pack namespace")
-            if not set(card.action.required_permissions).issubset(declared):
-                raise ValueError("Action requires an undeclared Pack permission")
-            if card.action.required_permissions and card.action.verification is None:
-                raise ValueError("permissioned Pack actions require verification")
+        validate_pack_bundle(bundle)
