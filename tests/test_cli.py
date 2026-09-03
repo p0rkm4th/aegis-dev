@@ -16,6 +16,8 @@ from aegis.contracts import (
     ObjectiveState,
     Principal,
     Result,
+    StructuralAnchor,
+    StructuralCoverageSignal,
     VerificationContract,
 )
 from aegis.interaction import (
@@ -248,6 +250,9 @@ def test_write_capable_fallback_routes_without_canonical_read_context():
             openclaw_channel=lambda: None,
             local_identity=lambda: False,
             model_provider=lambda: provider,
+            structural_parser=lambda _utterance: StructuralCoverageSignal(
+                anchors=(StructuralAnchor(source_span=(0, 1), kind="predicate"),)
+            ),
         )
     )
 
