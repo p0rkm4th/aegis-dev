@@ -261,6 +261,15 @@ def context_from_prior_result(
                 "candidates": selected,
             }
             break
+    if "those" not in referents:
+        planning = evidence.get("planning")
+        open_tasks = planning.get("open_tasks") if isinstance(planning, dict) else None
+        if isinstance(open_tasks, list) and open_tasks:
+            referents["those"] = {
+                "source": "canonical_facts",
+                "fact_key": "canonical_tasks",
+                "candidates": open_tasks[:_MAX_CONTEXT_CANDIDATES],
+            }
     return Context(
         values={
             "prior_correlation_id": str(correlation_id),
