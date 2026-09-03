@@ -3165,7 +3165,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "color-scheme:dark" in _INDEX_HTML
     assert "let initialTheme = 'dark';" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
-    assert 'class="secondary" aria-label="Canonical state"' in _INDEX_HTML
+    assert '<details class="secondary" aria-label="Canonical state">' in _INDEX_HTML
+    assert "<summary>Canonical state</summary>" in _INDEX_HTML
     assert 'placeholder="Talk to AEGIS…"' in _INDEX_HTML
     assert '<textarea id="utterance"' in _INDEX_HTML
     assert "Enter to send · Shift+Enter for a new line" in _INDEX_HTML
