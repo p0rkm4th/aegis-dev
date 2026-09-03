@@ -429,7 +429,7 @@ def reference_format_result(result: Any) -> str:
     if evidence.get("provenance") == "model_generated":
         return str(result.message)
     if evidence.get("priority_basis") and evidence.get("task") is not None:
-        return result.message
+        return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         counts: dict[str, int] = {}
