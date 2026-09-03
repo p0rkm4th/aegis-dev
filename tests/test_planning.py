@@ -1,3 +1,5 @@
+from uuid import UUID, uuid4
+
 import pytest
 
 from aegis.contracts import (
@@ -6,6 +8,8 @@ from aegis.contracts import (
     Context,
     DecisionKind,
     IntentFrame,
+    ObjectiveRequirement,
+    ObjectiveSpec,
     Principal,
     ProposedPlan,
     ProposedPlanStep,
@@ -18,6 +22,7 @@ from aegis.planning import (
     PlanProgressFastPath,
     PlanValidationError,
     materialize_proposed_plan,
+    materialize_validated_plan,
 )
 
 
@@ -155,6 +160,73 @@ def test_proposed_plan_does_not_copy_card_mutable_arguments():
 
     assert action.arguments == {"title": "x"}
     assert action.arguments is not task.action.arguments
+
+
+def test_validated_plan_requires_exact_one_to_one_requirement_coverage():
+    cards = (card("tasks.create", "title"), card("chores.create", "title"))
+    objective_id = UUID("00000000-0000-0000-0000-000000000001")
+    objective = ObjectiveSpec(
+        requirements=(
+            ObjectiveRequirement(action_ref="tasks.create", arguments={"title": "a"}),
+            ObjectiveRequirement(action_ref="chores.create", arguments={"title": "b"}),
+        )
+    )
+    proposal = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="tasks.create", arguments={"title": "a"}),
+            ProposedPlanStep(action_ref="chores.create", arguments={"title": "b"}),
+        )
+    )
+
+    validated = materialize_validated_plan(objective_id, objective, proposal, cards)
+
+    assert [step.requirement_id for step in validated.steps] == [
+        requirement.requirement_id for requirement in objective.requirements
+    ]
+    assert validated.steps[1].depends_on == ()
+    assert validated.steps[0].step_id == UUID("e8ea9666-6e66-516e-8733-0b4848100342")
+
+
+@pytest.mark.parametrize("arguments", [{"title": "a"}, {"title": "b"}])
+def test_validated_plan_rejects_missing_duplicate_or_extra_coverage(arguments):
+    cards = (card("tasks.create", "title"), card("chores.create", "title"))
+    objective = ObjectiveSpec(
+        requirements=(
+            ObjectiveRequirement(action_ref="tasks.create", arguments={"title": "a"}),
+            ObjectiveRequirement(action_ref="chores.create", arguments={"title": "b"}),
+        )
+    )
+    proposal = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="tasks.create", arguments=arguments),
+            ProposedPlanStep(action_ref="tasks.create", arguments=arguments),
+        )
+    )
+
+    with pytest.raises(PlanValidationError, match="coverage"):
+        materialize_validated_plan(uuid4(), objective, proposal, cards)
+
+
+def test_validated_plan_translates_dependencies_to_stable_step_ids():
+    cards = (card("tasks.create", "title"), card("chores.create", "title"))
+    objective = ObjectiveSpec(
+        requirements=(
+            ObjectiveRequirement(action_ref="tasks.create", arguments={"title": "a"}),
+            ObjectiveRequirement(action_ref="chores.create", arguments={"title": "b"}),
+        )
+    )
+    proposal = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="tasks.create", arguments={"title": "a"}),
+            ProposedPlanStep(action_ref="chores.create", arguments={"title": "b"}, depends_on=(0,)),
+        )
+    )
+
+    first = materialize_validated_plan(UUID(int=2), objective, proposal, cards)
+    second = materialize_validated_plan(UUID(int=2), objective, proposal, cards)
+
+    assert first == second
+    assert second.steps[1].depends_on == (second.steps[0].step_id,)
 
 
 def test_plan_progress_reads_only_authorized_persisted_step_state():
