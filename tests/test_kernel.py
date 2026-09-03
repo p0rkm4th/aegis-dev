@@ -2200,6 +2200,7 @@ def test_household_read_fast_path_does_not_capture_explicit_task_completion():
     from aegis.household import HouseholdReadFastPath
 
     assert HouseholdReadFastPath.matches("What chores are on the list?")
+    assert HouseholdReadFastPath.matches("Give me the chores I still have to do")
     assert HouseholdReadFastPath.matches("What do I have scheduled tomorrow?")
     assert not HouseholdReadFastPath.matches("What tasks are scheduled tomorrow?")
     assert not HouseholdReadFastPath.matches(

@@ -403,6 +403,7 @@ class HouseholdReadFastPath:
         "which",
         "see",
         "display",
+        "give me",
         "is",
         "are",
         "when",
