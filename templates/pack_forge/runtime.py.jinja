@@ -1,0 +1,23 @@
+"""Generated runtime-registration skeleton for {{ pack_id }}."""
+
+from typing import Any
+
+from aegis.contracts import Principal
+from aegis.pack_runtime import ActionRuntime, RuntimeFactory
+
+
+def executor_stub(_connection: Any, _principal: Principal) -> Any:
+    raise NotImplementedError("{{ pack_id }} executor requires domain implementation")
+
+
+def verifier_stub(_connection: Any, _principal: Principal) -> Any:
+    raise NotImplementedError("{{ pack_id }} verifier requires domain implementation")
+
+
+def runtime_factory(_connection: Any, _principal: Principal) -> ActionRuntime:
+    raise NotImplementedError("{{ pack_id }} runtime requires domain implementation")
+
+
+RUNTIME_FACTORIES: dict[str, RuntimeFactory] = {
+{% for card in cards %}    "{{ card.action.action_id }}": runtime_factory,
+{% endfor %}}

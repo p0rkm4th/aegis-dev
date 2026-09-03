@@ -1,0 +1,9 @@
+"""Generated registration skeleton for {{ pack_id }}."""
+
+from aegis.pack_runtime import PackRuntimeRegistry
+
+from .runtime import RUNTIME_FACTORIES
+
+
+def register(registry: PackRuntimeRegistry, cards: tuple) -> None:
+    registry.register_pack(cards, RUNTIME_FACTORIES)

@@ -1,0 +1,13 @@
+"""Generated structural contract test for {{ pack_id }}."""
+
+import json
+from pathlib import Path
+
+from runtime import RUNTIME_FACTORIES
+
+
+def test_manifest_declares_generated_action_ids() -> None:
+    manifest = json.loads((Path(__file__).parents[1] / "pack_manifest.json").read_text())
+    assert manifest["pack_id"] == "{{ pack_id }}"
+    assert manifest["action_ids"] == [{% for card in cards %}"{{ card.action.action_id }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+    assert set(RUNTIME_FACTORIES) == set(manifest["action_ids"])

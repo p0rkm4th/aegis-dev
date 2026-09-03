@@ -1,0 +1,7 @@
+{
+  "pack_id": "{{ pack_id }}",
+  "version": "{{ version }}",
+  "permissions": [{% for value in permissions %}"{{ value }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+  "dependencies": [{% for value in dependencies %}"{{ value }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+  "action_ids": [{% for card in cards %}"{{ card.action.action_id }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+}

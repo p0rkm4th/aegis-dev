@@ -19,6 +19,7 @@ dev = [
     "pytest>=8,<9",
     "ruff>=0.6,<1",
     "mypy>=1.11,<2",
+    "copier==9.18.1",
 ]
 live = ["cryptography>=43,<51", "websocket-client>=1.8,<2"]
 
