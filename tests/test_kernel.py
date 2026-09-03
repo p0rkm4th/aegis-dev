@@ -569,6 +569,59 @@ def test_kernel_assigns_requirement_ids_to_untrusted_spec_proposals(tmp_path):
     )
 
 
+def test_requirement_bound_plan_stops_when_next_step_is_revoked(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class AllowFirstOnly:
+        calls = 0
+
+        def authorize(self, _request):
+            self.calls += 1
+            return PolicyDecision(
+                allowed=self.calls == 1,
+                reason="revoked" if self.calls > 1 else "ok",
+            )
+
+    store = SqliteObjectiveStore(str(tmp_path / "revoked-objective.sqlite"))
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    executor = Executor()
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        AllowFirstOnly(),
+        executor,
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(
+        intent(),
+        ProposedPlan(
+            steps=tuple(ProposedPlanStep(action_ref=card.action.action_id) for card in cards)
+        ),
+        cards,
+        objective_spec=objective_spec,
+    )
+
+    assert result.state is ObjectiveState.BLOCKED
+    assert executor.calls == 1
+    assert len(result.evidence["steps"]) == 2
+    assert result.evidence["steps"][0]["state"] == ObjectiveState.COMPLETED.value
+    assert result.evidence["steps"][1]["state"] == ObjectiveState.BLOCKED.value
+
+
 @pytest.mark.skipif(
     not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
 )
