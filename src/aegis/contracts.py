@@ -158,6 +158,9 @@ class Decision(StrictModel):
     clarification: str | None = None
     reason: str | None = None
     semantic_mode: Literal["GENERATION", "READ", "ACTION", "CLARIFY"] | None = None
+    knowledge_source: (
+        Literal["general_model_knowledge", "external_evidence", "mixed_evidence"] | None
+    ) = None
     context_focus: (
         Literal["canonical_items", "canonical_tasks", "canonical_obligations", "planning"] | None
     ) = None
