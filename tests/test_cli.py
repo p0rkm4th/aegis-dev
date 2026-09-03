@@ -472,6 +472,7 @@ def test_contextual_task_priority_accepts_start_with_follow_up():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.message.endswith("first task")
+    assert result.evidence["canonical_tasks"] == context.values["referents"]["those"]["candidates"]
 
 
 def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():

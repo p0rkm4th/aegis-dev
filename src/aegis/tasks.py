@@ -789,6 +789,9 @@ class ContextualTaskPriorityFastPath:
                 "collection": "tasks",
                 "priority_basis": "authorized_prior_result_earliest_due_at",
                 "task": selected,
+                # Preserve the authorized ordered projection so a later
+                # "what's left?" or correction can continue the same thread.
+                "canonical_tasks": candidates,
             },
             correlation_id=intent.correlation_id,
         )
