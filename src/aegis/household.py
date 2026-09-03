@@ -526,7 +526,7 @@ class HouseholdReadFastPath:
 class ContextualChorePriorityFastPath:
     """Refuse to invent chore priority when canonical chores have no deadlines."""
 
-    _TERMS = ("first", "priority", "prioritize", "focus", "start", "begin")
+    _TERMS = ("first", "next", "priority", "prioritize", "focus", "start", "begin")
 
     @classmethod
     def resolve(cls, intent: IntentFrame, context: Context) -> Result | None:
