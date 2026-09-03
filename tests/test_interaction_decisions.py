@@ -270,6 +270,63 @@ def test_plan_fidelity_provider_failure_fails_closed() -> None:
     assert result.retryable is True
 
 
+def test_plan_without_primary_objective_spec_cannot_use_effects_as_objective() -> None:
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            if request.classification_only:
+                return ModelResponse(raw={"kind": "ANSWER", "semantic_mode": "ACTION"})
+            if request.objective_effect_only:
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": "do first and second",
+                                "source_span": (0, 19),
+                                "action_ref": "first",
+                                "arguments": {},
+                            }
+                        ]
+                    }
+                )
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    plan=ProposedPlan(
+                        steps=(
+                            ProposedPlanStep(action_ref="first"),
+                            ProposedPlanStep(action_ref="second"),
+                        )
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do first and second",
+        ),
+        tuple(
+            ActionCard(
+                action=ActionSpec(action_id=action_id, capability=action_id),
+                summary=action_id,
+                relevance=1,
+            )
+            for action_id in ("first", "second")
+        ),
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.CLARIFY
+
+
 def test_compound_action_cannot_be_reduced_to_one_consequential_action() -> None:
     class Provider:
         def decide(self, request: ModelRequest) -> ModelResponse:
