@@ -3295,6 +3295,30 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
+def test_task_read_fast_path_filters_structural_get_done_today_request():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    today = Task(uuid4(), "apartment", "today task", "alice", due_at=now.replace(hour=12))
+    tomorrow = Task(uuid4(), "apartment", "tomorrow task", "alice", due_at=now + timedelta(days=1))
+
+    class Store:
+        def list(self, _principal):
+            return (today, tomorrow)
+
+    utterance = "What else do I need to get done today?"
+    assert TaskReadFastPath.matches(utterance)
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance=utterance,
+        )
+    )
+    assert result is not None
+    assert result.evidence["due_filter"] == "today"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["today task"]
+
+
 def test_task_read_fast_path_filters_this_weekday_due_window():
     from datetime import datetime, timedelta, timezone
 

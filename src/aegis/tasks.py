@@ -530,7 +530,14 @@ def _asks_for_task_collection(text: str) -> bool:
 class TaskReadFastPath:
     """Deterministic task reads over the membership-checked canonical store."""
 
-    _TRIGGERS = ("task", "tasks", "to-do", "todo", "what do i need to do")
+    _TRIGGERS = (
+        "task",
+        "tasks",
+        "to-do",
+        "todo",
+        "what do i need to do",
+        "what do i need to get done",
+    )
     _READ_PREFIXES = ("what", "show", "list", "which", "see", "display", "give me")
 
     def __init__(self, store: PostgresTaskStore) -> None:
@@ -551,7 +558,7 @@ class TaskReadFastPath:
             return False
         if not any(trigger in text for trigger in cls._TRIGGERS):
             temporal_task_read = (
-                any(term in text for term in ("tomorrow", "next week"))
+                any(term in text for term in ("today", "tomorrow", "next week"))
                 or re.search(
                     r"\b(?:this\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
                     text,
@@ -581,7 +588,11 @@ class TaskReadFastPath:
         now = datetime.now(timezone.utc)
         due_start: date | None = None
         due_end: date | None = None
-        if "tomorrow" in text and any(term in text for term in ("due", "get done", "finish")):
+        if "today" in text and any(term in text for term in ("due", "get done", "finish")):
+            due_start = now.date()
+            due_end = due_start + timedelta(days=1)
+            due_filter = "today"
+        elif "tomorrow" in text and any(term in text for term in ("due", "get done", "finish")):
             due_start = (now + timedelta(days=1)).date()
             due_end = due_start + timedelta(days=1)
             due_filter = "tomorrow"
