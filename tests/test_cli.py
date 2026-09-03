@@ -2917,8 +2917,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "component.detail" in _INDEX_HTML
     assert "send.disabled = true" in _INDEX_HTML
     assert "input.disabled = true" in _INDEX_HTML
-    assert "event.currentTarget.setAttribute('aria-busy', 'true')" in _INDEX_HTML
-    assert "event.currentTarget.setAttribute('aria-busy', 'false')" in _INDEX_HTML
+    assert "form.setAttribute('aria-busy', 'true')" in _INDEX_HTML
+    assert "form.setAttribute('aria-busy', 'false')" in _INDEX_HTML
     assert "nodes.setAttribute('aria-busy', 'true')" in _INDEX_HTML
     assert "nodes.setAttribute('aria-busy', 'false')" in _INDEX_HTML
     assert "appendConversationMessage('aegis-message'" in _INDEX_HTML
@@ -2973,6 +2973,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "await loadHealth();" in _INDEX_HTML
     assert "await loadState();" in _INDEX_HTML
     assert "response.ok" in _INDEX_HTML
+    assert "apiFetch('/api/message'" in _INDEX_HTML
+    assert "apiFetch('/api/feedback'" in _INDEX_HTML
     assert "clearAuthorizedDisplays()" in _INDEX_HTML
     assert "document.getElementById('step-status').textContent = '';" in _INDEX_HTML
     assert "document.querySelector('#chat button').textContent = 'Send';" in _INDEX_HTML

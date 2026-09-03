@@ -541,13 +541,14 @@ refreshState().catch(() => {
   document.getElementById('health').textContent = 'Runtime status unavailable.';
 });
 document.getElementById('chat').addEventListener('submit', async event => {
-  event.preventDefault(); const input = document.getElementById('utterance');
-  const send = event.currentTarget.querySelector('button');
+  event.preventDefault(); const form = event.currentTarget;
+  const input = document.getElementById('utterance');
+  const send = form.querySelector('button');
   const utterance = input.value.trim(); if (!utterance || send.disabled) return;
   const correlationId = pendingCorrelationId || crypto.randomUUID();
   if (!pendingCorrelationId) appendConversationMessage('owner-message', `You: ${utterance}`);
   send.disabled = true; input.disabled = true;
-  event.currentTarget.setAttribute('aria-busy', 'true');
+  form.setAttribute('aria-busy', 'true');
   persistPendingRequest(utterance, correlationId);
   document.getElementById('activity').textContent = 'Status: working';
   const controller = new AbortController();
@@ -556,7 +557,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     const requestBody = {utterance, correlation_id:correlationId, session_id:conversationSessionId};
     if (!pendingCorrelationId && conversationContextCorrelationId)
       requestBody.context_correlation_id = conversationContextCorrelationId;
-    const response = await fetch('/api/message', {method:'POST',
+    const response = await apiFetch('/api/message', {method:'POST',
       headers:{'content-type':'application/json'},
       body:JSON.stringify(requestBody), signal:controller.signal});
     const result = await response.json();
@@ -612,7 +613,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     persistPendingRequest(utterance, correlationId);
   } finally {
     clearTimeout(timeout);
-    event.currentTarget.setAttribute('aria-busy', 'false');
+    form.setAttribute('aria-busy', 'false');
     send.disabled = false; input.disabled = false;
   }
 });
@@ -623,7 +624,7 @@ document.querySelectorAll('[data-feedback]').forEach(button =>
   if (!correlationId) return;
   for (const item of document.querySelectorAll('[data-feedback]')) item.disabled = true;
   try {
-    const response = await fetch('/api/feedback', {method:'POST',
+    const response = await apiFetch('/api/feedback', {method:'POST',
       headers:{'content-type':'application/json'}, body:JSON.stringify({
         correlation_id:correlationId, outcome:event.currentTarget.dataset.feedback})});
     const result = await response.json();
