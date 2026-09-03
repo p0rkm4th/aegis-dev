@@ -42,6 +42,7 @@ from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
+from .planning import PlanValidationError
 from .store import PostgresObjectiveStore
 from .utterance import strip_context_reset
 
@@ -216,6 +217,13 @@ class InteractionBoundary:
                 plan_cards,
                 context=context,
                 objective_spec=objective_spec,
+            )
+        except PlanValidationError as exc:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=f"I could not safely account for every requested change: {exc}",
+                correlation_id=intent.correlation_id,
             )
         except (LookupError, PermissionError, RuntimeError):
             return Result(
