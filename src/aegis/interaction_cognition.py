@@ -421,6 +421,7 @@ def decide_fallback(
                         "objective_fidelity_only": True,
                         "allow_plan_proposals": False,
                         "allow_argument_proposals": False,
+                        "objective_spec_proposal": decision.objective_spec,
                     }
                 )
             )
