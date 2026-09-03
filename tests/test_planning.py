@@ -8,8 +8,11 @@ from aegis.contracts import (
     Context,
     DecisionKind,
     IntentFrame,
+    ModelResponse,
     ObjectiveRequirement,
+    ObjectiveRequirementProposal,
     ObjectiveSpec,
+    ObjectiveSpecProposal,
     ObjectiveState,
     Principal,
     ProposedPlan,
@@ -187,6 +190,40 @@ def test_validated_plan_requires_exact_one_to_one_requirement_coverage():
     ]
     assert validated.steps[1].depends_on == ()
     assert validated.steps[0].step_id == UUID("e8ea9666-6e66-516e-8733-0b4848100342")
+
+
+def test_strict_decoder_accepts_plan_with_core_bound_objective_proposal():
+    action_card = card("tasks.create", "title")
+    second_card = card("chores.create", "title")
+    decision = StrictDecisionDecoder().decode(
+        ModelResponse(
+            raw={
+                "kind": "PLAN",
+                "semantic_mode": "ACTION",
+                "objective_spec": ObjectiveSpecProposal(
+                    requirements=(
+                        ObjectiveRequirementProposal(
+                            action_ref="tasks.create", arguments={"title": "a"}
+                        ),
+                        ObjectiveRequirementProposal(
+                            action_ref="chores.create", arguments={"title": "b"}
+                        ),
+                    )
+                ).model_dump(mode="json"),
+                "plan": {
+                    "steps": [
+                        {"action_ref": "tasks.create", "arguments": {"title": "a"}},
+                        {"action_ref": "chores.create", "arguments": {"title": "b"}},
+                    ]
+                },
+            }
+        ),
+        (action_card, second_card),
+        allow_argument_proposals=True,
+    )
+
+    assert decision.objective_spec is not None
+    assert decision.plan is not None
 
 
 @pytest.mark.parametrize("arguments", [{"title": "a"}, {"title": "b"}])
