@@ -36,13 +36,41 @@ def validate_effect_spans(utterance: str, effects: tuple[RequestedEffectProposal
     )
 
 
+def normalize_effect_spans(
+    utterance: str, effects: tuple[RequestedEffectProposal, ...]
+) -> tuple[RequestedEffectProposal, ...] | None:
+    """Repair only malformed citations whose exact text has one safe location."""
+
+    normalized: list[RequestedEffectProposal] = []
+    for effect in effects:
+        start, end = effect.source_span
+        if (
+            not (0 <= start < end <= len(utterance))
+            or utterance[start:end].strip() != effect.effect_text.strip()
+        ):
+            matches: list[int] = []
+            cursor = utterance.find(effect.effect_text)
+            while cursor >= 0:
+                matches.append(cursor)
+                cursor = utterance.find(effect.effect_text, cursor + 1)
+            if len(matches) != 1:
+                return None
+            start = matches[0]
+            end = start + len(effect.effect_text)
+        normalized.append(effect.model_copy(update={"source_span": (start, end)}))
+    return tuple(normalized)
+
+
 def effects_to_proposal(
     utterance: str, effects: tuple[RequestedEffectProposal, ...]
 ) -> ObjectiveSpecProposal | None:
     """Bind grounded effect segments to an untrusted requirement proposal."""
 
-    if not validate_effect_spans(utterance, effects) or any(
-        effect.action_ref is None for effect in effects
+    normalized_effects = normalize_effect_spans(utterance, effects)
+    if (
+        normalized_effects is None
+        or not validate_effect_spans(utterance, normalized_effects)
+        or any(effect.action_ref is None for effect in normalized_effects)
     ):
         return None
     return ObjectiveSpecProposal(
@@ -50,7 +78,7 @@ def effects_to_proposal(
             ObjectiveRequirementProposal(
                 action_ref=effect.action_ref or "", arguments=dict(effect.arguments)
             )
-            for effect in effects
+            for effect in normalized_effects
         )
     )
 
