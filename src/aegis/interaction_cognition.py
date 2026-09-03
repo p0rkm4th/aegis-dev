@@ -106,6 +106,7 @@ def _scope_plan_by_capability(
     return Decision(
         kind=DecisionKind.PLAN,
         plan=ProposedPlan(steps=steps),
+        objective_spec=proposed.objective_spec,
         semantic_mode="ACTION",
     )
 
