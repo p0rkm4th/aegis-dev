@@ -141,6 +141,7 @@ class Decision(StrictModel):
     action_ref: str | None = None
     action_arguments: dict[str, Any] = {}
     plan: ProposedPlan | None = None
+    objective_spec: ObjectiveSpec | None = None
     clarification: str | None = None
     reason: str | None = None
     semantic_mode: Literal["GENERATION", "READ", "ACTION", "CLARIFY"] | None = None

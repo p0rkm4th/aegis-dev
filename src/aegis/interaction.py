@@ -17,6 +17,7 @@ from .contracts import (
     DecisionKind,
     IntentFrame,
     Objective,
+    ObjectiveSpec,
     ObjectiveState,
     Principal,
     ProposedPlan,
@@ -140,6 +141,7 @@ class InteractionBoundary:
         connection: Any,
         principal: Principal,
         context: Context,
+        objective_spec: ObjectiveSpec | None = None,
     ) -> Result:
         """Run a candidate-bound plan through the existing per-step Kernel path."""
 
@@ -207,7 +209,13 @@ class InteractionBoundary:
                 store=PostgresObjectiveStore(connection),
                 audit=PostgresAuditLog(connection),
             )
-            return kernel.run_proposed_plan(intent, proposal, plan_cards, context=context)
+            return kernel.run_proposed_plan(
+                intent,
+                proposal,
+                plan_cards,
+                context=context,
+                objective_spec=objective_spec,
+            )
         except (LookupError, PermissionError, RuntimeError):
             return Result(
                 objective_id=uuid4(),
@@ -398,6 +406,7 @@ class InteractionBoundary:
                             connection,
                             principal,
                             fallback_context,
+                            fallback.objective_spec,
                         )
                     resolution = resolve_fallback_decision(
                         fallback,

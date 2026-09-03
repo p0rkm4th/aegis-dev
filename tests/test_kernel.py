@@ -33,10 +33,14 @@ from aegis.contracts import (
     IntentFrame,
     ModelRequest,
     ModelResponse,
+    ObjectiveRequirement,
+    ObjectiveSpec,
     ObjectiveState,
     Observation,
     PolicyDecision,
     Principal,
+    ProposedPlan,
+    ProposedPlanStep,
     Result,
     VerificationContract,
     VerificationResult,
@@ -478,6 +482,50 @@ def test_kernel_run_sequence_replays_persisted_steps_without_duplicate_execution
     assert replay == first
     assert ex.calls == 2
     assert replay_executor.calls == 0
+
+
+def test_kernel_persists_core_owned_objective_spec_and_validated_plan(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    store = SqliteObjectiveStore(str(tmp_path / "objective-completeness.sqlite"))
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                arguments={},
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    proposal = ProposedPlan(
+        steps=tuple(ProposedPlanStep(action_ref=card.action.action_id) for card in cards)
+    )
+    ex = Executor()
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ex,
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(intent(), proposal, cards, objective_spec=objective_spec)
+
+    persisted = store.get_objective(result.objective_id)
+    assert result.state is ObjectiveState.COMPLETED
+    assert persisted is not None
+    assert persisted.objective_spec == objective_spec
+    assert persisted.validated_plan is not None
+    assert [step.requirement_id for step in persisted.validated_plan.steps] == [
+        requirement.requirement_id for requirement in objective_spec.requirements
+    ]
+    assert all(step.depends_on == () for step in persisted.validated_plan.steps)
     store.close()
 
 
