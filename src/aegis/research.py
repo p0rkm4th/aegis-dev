@@ -211,6 +211,8 @@ class DocumentFetcher:
                 raise ValueError("research destination is not globally routable")
             response = self._request(scheme, host, target_port, normalized, addresses[0])
             status, headers, body, location = response
+            if len(body) > self.max_bytes:
+                raise ValueError("research response exceeds size bound")
             if status in {301, 302, 303, 307, 308}:
                 if redirect >= MAX_REDIRECTS or not location:
                     raise ValueError("research redirect limit exceeded")

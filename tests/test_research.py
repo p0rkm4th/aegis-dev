@@ -211,3 +211,40 @@ def test_searxng_json_disabled_is_a_provider_failure(monkeypatch: pytest.MonkeyP
 
     with pytest.raises(RuntimeError, match="SearXNG search failed"):
         SearxngSearchProvider("http://searx.local").search(SearchRequest("public"))
+
+
+def test_redirect_is_revalidated_before_connection() -> None:
+    class Fetcher(DocumentFetcher):
+        def __init__(self) -> None:
+            super().__init__(
+                resolver=lambda host, _port: (
+                    ("93.184.216.34",) if host == "public.example" else ("127.0.0.1",)
+                )
+            )
+            self.calls = 0
+
+        def _request(self, scheme: str, host: str, port: int, url: str, address: str):
+            self.calls += 1
+            assert address == "93.184.216.34"
+            return 302, {"content-type": "text/html"}, b"", "http://private.example/"
+
+    with pytest.raises(ValueError, match="globally routable"):
+        Fetcher().fetch("http://public.example/")
+
+
+def test_fetch_rejects_unsupported_content_type_and_oversized_body() -> None:
+    class Fetcher(DocumentFetcher):
+        def _request(self, *_args: object):
+            return 200, {"content-type": "application/pdf"}, b"pdf", None
+
+    with pytest.raises(ValueError, match="content type"):
+        Fetcher(resolver=lambda _host, _port: ("93.184.216.34",)).fetch("http://public.example/")
+
+    class LargeFetcher(DocumentFetcher):
+        def _request(self, *_args: object):
+            return 200, {"content-type": "text/plain"}, b"12345", None
+
+    with pytest.raises(ValueError, match="size bound"):
+        LargeFetcher(resolver=lambda _host, _port: ("93.184.216.34",), max_bytes=4).fetch(
+            "http://public.example/"
+        )
