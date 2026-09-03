@@ -634,6 +634,74 @@ def test_requirement_bound_plan_stops_when_next_step_is_revoked(tmp_path):
     assert result.evidence["steps"][1]["state"] == ObjectiveState.BLOCKED.value
 
 
+def test_requirement_bound_plan_recovers_after_verified_step_persistence_crash(tmp_path):
+    from aegis.store import SqliteObjectiveStore
+
+    class CrashAfterFirstStep(SqliteObjectiveStore):
+        crashed = False
+
+        def save_result(self, key, result):
+            if key.endswith(":first") and not self.crashed:
+                self.crashed = True
+                raise RuntimeError("simulated requirement result persistence crash")
+            super().save_result(key, result)
+
+    store = CrashAfterFirstStep(str(tmp_path / "requirement-recovery.sqlite"))
+    cards = tuple(
+        ActionCard(
+            action=ActionSpec(
+                action_id=action_id,
+                capability=action_id,
+                verification=VerificationContract(kind="readback"),
+            ),
+            summary=action_id,
+            relevance=1,
+        )
+        for action_id in ("first", "second")
+    )
+    objective_spec = ObjectiveSpec(
+        requirements=tuple(ObjectiveRequirement(action_ref=card.action.action_id) for card in cards)
+    )
+    proposal = ProposedPlan(
+        steps=tuple(ProposedPlanStep(action_ref=card.action.action_id) for card in cards)
+    )
+    original_intent = intent()
+    first_executor = Executor()
+    try:
+        Kernel(
+            Model(object()),
+            Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+            Policy(PolicyDecision(allowed=True, reason="ok")),
+            first_executor,
+            Verifier(True),
+            store=store,
+        ).run_proposed_plan(original_intent, proposal, cards, objective_spec=objective_spec)
+    except RuntimeError as exc:
+        assert "persistence crash" in str(exc)
+    else:
+        raise AssertionError("simulated requirement persistence crash was not raised")
+
+    retry_executor = Executor()
+    recovered = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.BLOCKED, reason="unused")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        retry_executor,
+        Verifier(True),
+        store=store,
+    ).run_proposed_plan(
+        original_intent.model_copy(update={"utterance": "resume objective"}),
+        proposal,
+        cards,
+        objective_spec=objective_spec,
+    )
+
+    assert recovered.state is ObjectiveState.COMPLETED
+    assert first_executor.calls == 1
+    assert retry_executor.calls == 1
+    store.close()
+
+
 @pytest.mark.skipif(
     not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
 )
