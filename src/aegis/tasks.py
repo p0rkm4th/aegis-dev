@@ -625,6 +625,9 @@ class TaskReadFastPath:
             else:
                 due_filter = "all"
         if due_start is not None and due_end is not None:
+            if status_filter == "all":
+                tasks = tuple(task for task in tasks if task.status is TaskStatus.OPEN)
+                status_filter = "open"
             tasks = tuple(
                 task
                 for task in tasks

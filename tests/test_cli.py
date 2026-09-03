@@ -3389,6 +3389,14 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
         "alice",
         due_at=now + timedelta(days=1),
     )
+    completed_tomorrow = Task(
+        uuid4(),
+        "apartment",
+        "completed tomorrow task",
+        "alice",
+        due_at=now + timedelta(days=1),
+        status=TaskStatus.COMPLETED,
+    )
     later = Task(
         uuid4(),
         "apartment",
@@ -3399,7 +3407,7 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
 
     class Store:
         def list(self, _principal):
-            return (tomorrow, later)
+            return (tomorrow, completed_tomorrow, later)
 
     for utterance in ("what's due tomorrow?", "what do I need to get done tomorrow?"):
         assert TaskReadFastPath.matches(utterance)
@@ -3411,6 +3419,7 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
         )
         assert result is not None
         assert result.evidence["due_filter"] == "tomorrow"
+        assert result.evidence["status_filter"] == "open"
         assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
     result = TaskReadFastPath(Store()).resolve(
