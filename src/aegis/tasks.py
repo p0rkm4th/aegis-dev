@@ -562,6 +562,7 @@ class TaskReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
+        read_text = re.sub(r"^(?:could you|can you|please)\s+", "", text)
         if is_mutation_request(text):
             return False
         if (
@@ -588,7 +589,12 @@ class TaskReadFastPath:
                 return False
         # A domain noun alone is not evidence of a read. Keep this fast path
         # high-confidence and let bounded cognition resolve unfamiliar language.
-        return text.startswith(cls._READ_PREFIXES) or text in {"task", "tasks", "todo", "to-do"}
+        return read_text.startswith(cls._READ_PREFIXES) or read_text in {
+            "task",
+            "tasks",
+            "todo",
+            "to-do",
+        }
 
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):

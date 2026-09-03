@@ -468,6 +468,12 @@ def test_priority_followup_reuses_one_scalar_task_focus():
     assert result.message == "The most urgent referenced task is: review the backup"
 
 
+def test_polite_task_collection_read_is_recognized():
+    from aegis.tasks import TaskReadFastPath
+
+    assert TaskReadFastPath.matches("Could you show me what tasks are still open?") is True
+
+
 def test_model_working_context_preserves_plan_progress_source_marker():
     context = Context(
         values={
