@@ -777,7 +777,16 @@ class ContextualTaskPriorityFastPath:
     def resolve(self, intent: IntentFrame, context: Context) -> Result | None:
         text = intent.utterance.casefold()
         if is_mutation_request(text) or not any(
-            term in text for term in ("first", "priority", "prioritize", "focus", "start")
+            term in text
+            for term in (
+                "first",
+                "earliest",
+                "soonest",
+                "priority",
+                "prioritize",
+                "focus",
+                "start",
+            )
         ):
             return None
         referents = context.values.get("referents")

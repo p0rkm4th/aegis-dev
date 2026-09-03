@@ -475,6 +475,35 @@ def test_contextual_task_priority_accepts_start_with_follow_up():
     assert result.evidence["canonical_tasks"] == context.values["referents"]["those"]["candidates"]
 
 
+def test_contextual_task_priority_accepts_earliest_from_planning_referents():
+    from aegis.tasks import ContextualTaskPriorityFastPath
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "later task", "status": "open", "due_at": "2026-09-05"},
+                        {"title": "earliest task", "status": "open", "due_at": "2026-09-02"},
+                    ],
+                }
+            }
+        }
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which is the earliest one?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message.endswith("earliest task")
+
+
 def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
