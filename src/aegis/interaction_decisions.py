@@ -36,7 +36,10 @@ def resolve_fallback_decision(
             "provenance": "model_generated",
             "authoritative": False,
             "answer_mode": decision.semantic_mode,
-            "source_kind": decision.knowledge_source or "general_model_knowledge",
+            # This is the ordinary model-answer path.  A model cannot label
+            # its own output as externally sourced; research provenance is
+            # attached only by the answer-only research callback.
+            "source_kind": "general_model_knowledge",
         }
         authorized_facts = authorized_context_evidence(context)
         if decision.context_focus is not None:
