@@ -133,6 +133,30 @@ class OllamaProvider:
         model boundary is stricter: omitted action fields are ambiguous and
         must be rejected before policy or execution.
         """
+        if request is not None and request.clarification_recovery_only:
+            return {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "outcome": {"type": "string", "enum": ["RESOLVED", "NEED_USER", "UNSUPPORTED"]},
+                    "ambiguity_type": {
+                        "type": "string",
+                        "enum": ["REFERENT", "ARGUMENT", "CAPABILITY"],
+                    },
+                    "action_ref": {"type": ["string", "null"]},
+                    "referent_ref": {"type": ["string", "null"]},
+                    "arguments": {"type": "object", "maxProperties": 8},
+                    "clarification": {"type": ["string", "null"], "maxLength": 500},
+                },
+                "required": [
+                    "outcome",
+                    "ambiguity_type",
+                    "action_ref",
+                    "referent_ref",
+                    "arguments",
+                    "clarification",
+                ],
+            }
         if request is not None and request.objective_effect_only:
             return {
                 "type": "object",
@@ -212,7 +236,15 @@ class OllamaProvider:
             self._compact_card(card) if self.compact_action_cards else card.model_dump(mode="json")
             for card in request.action_cards
         ]
-        if request.objective_effect_only:
+        if request.clarification_recovery_only:
+            instruction = (
+                "Recover only this clarification if supplied authorized context makes it "
+                "uniquely safe. Return RESOLVED only with an exact supplied action_ref, an "
+                "exact authorized referent_ref when relevant, and declared arguments. Return "
+                "NEED_USER for ambiguity or UNSUPPORTED for a missing capability. Never return "
+                "a plan, ObjectiveSpec, permissions, verification, or invented state."
+            )
+        elif request.objective_effect_only:
             instruction = (
                 "Segment every independent requested state change into a grounded effect. "
                 "Return no plan and no completion claim. Each effect must cite an exact "

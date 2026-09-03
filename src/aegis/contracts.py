@@ -141,6 +141,29 @@ class ObjectiveFidelityVerdict(StrEnum):
     NEED_CLARIFICATION = "NEED_CLARIFICATION"
 
 
+class ClarificationRecoveryOutcome(StrEnum):
+    RESOLVED = "RESOLVED"
+    NEED_USER = "NEED_USER"
+    UNSUPPORTED = "UNSUPPORTED"
+
+
+class ClarificationAmbiguityType(StrEnum):
+    REFERENT = "REFERENT"
+    ARGUMENT = "ARGUMENT"
+    CAPABILITY = "CAPABILITY"
+
+
+class ClarificationRecoveryProposal(StrictModel):
+    """Untrusted, non-executable proposal for recovering a bounded clarification."""
+
+    outcome: ClarificationRecoveryOutcome
+    ambiguity_type: ClarificationAmbiguityType
+    action_ref: str | None = None
+    referent_ref: str | None = None
+    arguments: dict[str, Any] = Field(default_factory=dict, max_length=8)
+    clarification: str | None = Field(default=None, max_length=500)
+
+
 class ValidatedPlanStep(StrictModel):
     """Core-bound plan step with stable identity and one requirement owner."""
 
@@ -254,6 +277,7 @@ class ModelRequest(StrictModel):
     source_selection_only: bool = False
     objective_fidelity_only: bool = False
     objective_effect_only: bool = False
+    clarification_recovery_only: bool = False
     objective_spec_proposal: ObjectiveSpecProposal | None = None
 
 
