@@ -50,6 +50,17 @@ def _scope_plan_by_capability(
     # structural conjunction boundaries, which is evidence of a third clause.
     if len(re.findall(r"\b(?:and|then|plus)\b", intent.utterance.casefold())) < 2:
         return proposed
+
+    def blocked() -> Decision:
+        return Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification=(
+                "I found several independent changes in that request, but I could not "
+                "safely account for each one. Please separate the changes or clarify them."
+            ),
+            semantic_mode="CLARIFY",
+        )
+
     scoped: dict[str, Decision] = {}
     try:
         for card in cards:
@@ -70,9 +81,9 @@ def _scope_plan_by_capability(
             if decision.kind is DecisionKind.ACTION and action is not None:
                 scoped[card.action.action_id] = decision
     except Exception:
-        return proposed
+        return blocked()
     if len(scoped) < 2:
-        return proposed
+        return blocked()
     original_order = [step.action_ref for step in proposed.plan.steps] if proposed.plan else []
     ordered_ids = [action_id for action_id in original_order if action_id in scoped] + [
         action_id for action_id in scoped if action_id not in original_order

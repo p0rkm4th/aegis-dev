@@ -103,3 +103,44 @@ def test_scoped_plan_decomposition_collects_independent_candidate_actions() -> N
     assert result.plan.steps[0].depends_on == ()
     assert result.plan.steps[1].depends_on == (0,)
     assert result.plan.steps[2].depends_on == (1,)
+
+
+def test_scoped_plan_decomposition_fails_closed_when_no_capability_is_selected() -> None:
+    card = ActionCard(
+        action=ActionSpec(action_id="tasks.create", capability="tasks.write"),
+        summary="Create a task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="do one thing and another thing and one more thing",
+        correlation_id=uuid4(),
+    )
+    proposal = Decision(
+        kind=DecisionKind.PLAN,
+        semantic_mode="ACTION",
+        plan=ProposedPlan(
+            steps=(
+                ProposedPlanStep(action_ref="tasks.create", arguments={"title": "task"}),
+                ProposedPlanStep(action_ref="tasks.create", arguments={"title": "other"}),
+            )
+        ),
+    )
+
+    class Provider:
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            return ModelResponse(raw={"kind": "ANSWER", "answer": "not this capability"})
+
+    other = card.model_copy(
+        update={"action": ActionSpec(action_id="chores.create", capability="chores.write")}
+    )
+    third = card.model_copy(
+        update={"action": ActionSpec(action_id="events.create", capability="events.write")}
+    )
+    result = _scope_plan_by_capability(
+        Provider(), StrictDecisionDecoder(), intent, (card, other, third), Context(), proposal
+    )
+
+    assert result.kind is DecisionKind.CLARIFY
+    assert result.clarification is not None
