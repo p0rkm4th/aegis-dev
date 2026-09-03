@@ -149,7 +149,7 @@
       "M10.01-M10.10 bounded cross-domain planning and recovery evidence",
       "M11.01-M11.06 persistent owner runtime, release promotion, traceability, feedback, and evaluation terminology",
       "M12.01-M12.10 client-neutral browser, authorized projection, accessible detail, and Constellation evidence"
-      ,"M09 objective-fidelity requested-effect boundary at a8592e8: Core assigns stable action-agnostic RequestedEffect identities only after exact utterance span grounding; optional spaCy structural evidence is reduced to untrusted one-to-one anchors, broad/full-span and duplicate-span coverage is rejected, and negated/superseded effects cannot become action requirements. Deterministic validation passed at 580 tests and hosted run 33815287089 passed. Correlated omission remains measurable; Qwen and owner-runtime evidence are not yet capability-green because no operator-supplied structural parser model is configured."
+      ,"M09 objective-fidelity requested-effect boundary at f0a87ae: Core assigns stable action-agnostic RequestedEffect identities only after exact utterance span grounding; optional spaCy structural evidence is reduced to untrusted one-to-one anchors, broad/full-span and duplicate-span coverage is rejected, and negated/superseded effects cannot become action requirements. Deterministic validation passed at 580 tests and hosted run 33816085498 passed. Correlated omission remains measurable; Qwen and owner-runtime evidence are not yet capability-green."
     ],
     "capability": [
       "M08.08 natural-language capability green remains intentionally unclaimed; exact canaries and partial unseen-family evidence are recorded separately"
@@ -161,7 +161,7 @@
       "M09.09 installed owner proof at 8786394: fresh read 05e98038-4f0d-4cce-bf45-082ac6464300 followed by 'Which of those should I do first?' correlation 1a1ca07f-31cd-4275-a7ee-9c9d4652b00a retained an authorized bounded task projection, selected the earliest recorded deadline ('send the rent receipt'), and performed no mutation; this is novel continuation evidence, not capability-green proof",
       "M11.07 automatic defect harvesting is partially implemented as a bounded owner-feedback inspection report; automatic defect-to-regression/live-re-evaluation orchestration remains unmet",
       "M12.11 mobile/chat remains lane-limited"
-      ,"M09 requested-effect structural coverage remains partial: the parser-neutral Core gate and optional spaCy adapter are implemented and tested, but installed-owner promotion and fresh Qwen3:8B proof require an operator-supplied parser model; no false-completion capability claim is made"
+      ,"M09 requested-effect structural coverage remains partial: the parser-neutral Core gate and optional spaCy adapter are implemented and tested; fresh Qwen3:8B probe on five new cases at f0a87ae had zero decoder failures and zero false completions but two unsafe single-action reductions for negation/correction, so no capability-green claim is made and owner promotion is pending"
     ]
   },
   "completed_checkpoints": {
@@ -185,15 +185,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a8592e8",
-  "deterministic_green_sha": "a8592e8",
-  "last_pushed_sha": "a8592e8",
-  "hosted_ci_green_sha": "a8592e8",
+  "repository_head_sha": "f0a87ae",
+  "deterministic_green_sha": "f0a87ae",
+  "last_pushed_sha": "f0a87ae",
+  "hosted_ci_green_sha": "f0a87ae",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33815287089",
-    "commit_sha": "a8592e8",
+    "run_id": "33816085498",
+    "commit_sha": "f0a87ae",
     "conclusion": "success",
     "observed_at": "2026-09-03T09:18:00Z"
   },
