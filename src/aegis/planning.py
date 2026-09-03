@@ -91,6 +91,45 @@ class PlanProgressFastPath:
         )
 
 
+class PlanModificationFastPath:
+    """Keep implicit edits from rewriting a persisted plan or verified history."""
+
+    _MODIFICATION_TERMS = ("skip", "cancel", "drop", "remove")
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame, context: Any) -> Result | None:
+        if context.sources != ("authorized_canonical_result",):
+            return None
+        text = " ".join(intent.utterance.casefold().split())
+        if not any(term in text for term in cls._MODIFICATION_TERMS):
+            return None
+        facts = context.values.get("canonical_facts")
+        steps = facts.get("plan_steps") if isinstance(facts, dict) else None
+        if not isinstance(steps, list) or not steps:
+            return None
+        completed = sum(
+            isinstance(step, dict) and step.get("state") == ObjectiveState.COMPLETED.value
+            for step in steps
+        )
+        if completed:
+            status = "all" if completed == len(steps) else "some"
+            message = (
+                f"{status.capitalize()} plan steps are already verified. I will not rewrite "
+                "that history; any compensating change must be requested as a new action."
+            )
+        else:
+            message = (
+                "This plan has not completed a step yet, but implicit plan edits are not "
+                "supported. I will not remove or execute a step without an explicit plan change."
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=message,
+            correlation_id=intent.correlation_id,
+        )
+
+
 class MultiActionFastPath:
     """Reject compound mutations until durable continuation exists."""
 
