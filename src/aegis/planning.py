@@ -48,6 +48,42 @@ def materialize_proposed_plan(
     return tuple(actions)
 
 
+class PlanProgressFastPath:
+    """Answer bounded progress questions from persisted verified child results."""
+
+    _PROGRESS_TERMS = ("what's left", "what is left", "remaining", "still need")
+
+    @classmethod
+    def resolve(cls, intent: IntentFrame, context: Any) -> Result | None:
+        if context.sources != ("authorized_canonical_result",):
+            return None
+        text = " ".join(intent.utterance.casefold().split())
+        if not any(term in text for term in cls._PROGRESS_TERMS):
+            return None
+        steps = context.values.get("plan_steps")
+        if not isinstance(steps, list) or not steps:
+            return None
+        completed = sum(
+            isinstance(step, dict) and step.get("state") == ObjectiveState.COMPLETED.value
+            for step in steps
+        )
+        remaining = sum(
+            isinstance(step, dict) and step.get("state") != ObjectiveState.COMPLETED.value
+            for step in steps
+        )
+        if remaining:
+            message = f"{completed} of {len(steps)} plan steps are complete; {remaining} remain."
+        else:
+            message = f"All {len(steps)} plan steps are complete."
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=message,
+            evidence={"plan_progress": {"completed": completed, "total": len(steps)}},
+            correlation_id=intent.correlation_id,
+        )
+
+
 class MultiActionFastPath:
     """Reject compound mutations until durable continuation exists."""
 

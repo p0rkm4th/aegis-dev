@@ -17,6 +17,16 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     """Keep only bounded canonical facts for a follow-up model working set."""
 
     compact: dict[str, Any] = {}
+    raw_steps = evidence.get("steps")
+    if isinstance(raw_steps, (list, tuple)):
+        compact["plan_steps"] = [
+            {
+                "index": step.get("index"),
+                "state": step.get("state"),
+            }
+            for step in raw_steps[:5]
+            if isinstance(step, dict)
+        ]
     for key in (
         "canonical_items",
         "canonical_tasks",
