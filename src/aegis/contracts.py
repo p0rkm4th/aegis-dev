@@ -230,6 +230,7 @@ class ProposalFailureEvidence(StrictModel):
     detail: str | None = Field(default=None, max_length=240)
     related_effect_ids: tuple[UUID, ...] = Field(default=(), max_length=5)
     related_source_spans: tuple[tuple[int, int], ...] = Field(default=(), max_length=5)
+    structural_anchor_spans: tuple[tuple[int, int], ...] = Field(default=(), max_length=5)
 
 
 class ValidatedPlanStep(StrictModel):
