@@ -255,6 +255,9 @@ def _repair_clarification(
         validator_stage="proposal_repair",
         max_attempts=2,
     )
+    events = getattr(provider, "recovery_events", None)
+    if isinstance(events, list):
+        events.extend(event.__dict__ for event in result.events)
     return result.proposal if result.proposal is not None else decision
 
 
@@ -595,20 +598,16 @@ def decide_fallback(
                     }
                 )
             )
-            if not isinstance(fidelity_response.raw, dict):
-                raise InvalidDecision("objective fidelity must be an object")
+            effect_raw = fidelity_response.raw if isinstance(fidelity_response.raw, dict) else {}
+            raw_effects = effect_raw.get("effects")
             try:
-                raw_effects = fidelity_response.raw.get("effects")
-                if not isinstance(raw_effects, list):
-                    raise ValueError("objective effects must be a list")
-                effects = tuple(
-                    RequestedEffectProposal.model_validate(item) for item in raw_effects
+                effects = (
+                    tuple(RequestedEffectProposal.model_validate(item) for item in raw_effects)
+                    if isinstance(raw_effects, list)
+                    else ()
                 )
-                independent_spec = effects_to_proposal(intent.utterance, effects)
-                if independent_spec is None:
-                    raise ValueError("objective effects were not grounded")
-            except Exception as exc:
-                raise InvalidDecision("objective fidelity failed its strict schema") from exc
+            except Exception:
+                effects = ()
             structural_parser = getattr(dependencies, "structural_parser", None)
             if structural_parser is None:
                 return Decision(
@@ -624,14 +623,118 @@ def decide_fallback(
                 materialized_effects = materialize_requested_effects(intent.utterance, effects)
             except Exception as exc:
                 raise InvalidDecision("objective structural coverage failed") from exc
-            if materialized_effects is None or not validate_structural_coverage(
-                intent.utterance, materialized_effects, structural_signal
-            ):
+
+            def validate_effect_proposal(candidate: dict[str, Any]) -> ValidationResult:
+                raw_candidate = candidate.get("effects")
+                if not isinstance(raw_candidate, list):
+                    return ValidationResult(
+                        valid=False,
+                        failure=ProposalFailureEvidence(
+                            kind=ProposalFailureKind.DECODER_SCHEMA_FAILURE,
+                            detail="objective effects must be a list",
+                        ),
+                    )
+                try:
+                    candidate_effects = tuple(
+                        RequestedEffectProposal.model_validate(item) for item in raw_candidate
+                    )
+                except Exception:
+                    return ValidationResult(
+                        valid=False,
+                        failure=ProposalFailureEvidence(
+                            kind=ProposalFailureKind.DECODER_SCHEMA_FAILURE,
+                            detail="objective effect schema is invalid",
+                        ),
+                    )
+                candidate_materialized = materialize_requested_effects(
+                    intent.utterance, candidate_effects
+                )
+                if candidate_materialized is None:
+                    return ValidationResult(
+                        valid=False,
+                        failure=ProposalFailureEvidence(kind=ProposalFailureKind.BAD_SOURCE_SPAN),
+                    )
+                for effect in candidate_materialized:
+                    if effect.polarity == "NEGATED":
+                        kind = ProposalFailureKind.NEGATED_EFFECT_ACTIVE
+                    elif effect.polarity == "SUPERSEDED":
+                        kind = ProposalFailureKind.SUPERSEDED_EFFECT_ACTIVE
+                    else:
+                        continue
+                    return ValidationResult(valid=False, failure=ProposalFailureEvidence(kind=kind))
+                if not validate_structural_coverage(
+                    intent.utterance, candidate_materialized, structural_signal
+                ):
+                    return ValidationResult(
+                        valid=False,
+                        failure=ProposalFailureEvidence(
+                            kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR
+                        ),
+                    )
+                return ValidationResult(valid=True)
+
+            effect_failure = validate_effect_proposal(effect_raw).failure
+            if effect_failure is not None:
+
+                def repair_effects(
+                    current: dict[str, Any], evidence: ProposalFailureEvidence
+                ) -> tuple[dict[str, Any] | None, ProposalFailureEvidence]:
+                    response = provider.decide(
+                        request.model_copy(
+                            update={
+                                "objective_effect_only": True,
+                                "proposal_repair_only": True,
+                                "proposal_failure": evidence,
+                                "current_proposal": current,
+                                "allow_plan_proposals": False,
+                                "allow_argument_proposals": False,
+                            }
+                        )
+                    )
+                    if not isinstance(response.raw, dict):
+                        return None, ProposalFailureEvidence(
+                            kind=ProposalFailureKind.DECODER_SCHEMA_FAILURE,
+                            detail="objective effect repair must be an object",
+                        )
+                    result = validate_effect_proposal(response.raw)
+                    return response.raw, result.failure or evidence
+
+                repaired_effects = bounded_proposal_repair(
+                    effect_raw,
+                    effect_failure,
+                    repair_effects,
+                    validate_effect_proposal,
+                    validator_stage="requested_effect_structural_coverage",
+                    max_attempts=2,
+                )
+                recovery_events = getattr(provider, "recovery_events", None)
+                if isinstance(recovery_events, list):
+                    recovery_events.extend(event.__dict__ for event in repaired_effects.events)
+                if repaired_effects.proposal is None:
+                    return Decision(
+                        kind=DecisionKind.CLARIFY,
+                        clarification=(
+                            "I could not independently account for every requested change; "
+                            "please clarify the objective."
+                        ),
+                        semantic_mode="CLARIFY",
+                    )
+                repaired_raw = repaired_effects.proposal.get("effects")
+                if not isinstance(repaired_raw, list):
+                    raise InvalidDecision("objective effect repair returned no effects")
+                effects = tuple(
+                    RequestedEffectProposal.model_validate(item) for item in repaired_raw
+                )
+                materialized_effects = materialize_requested_effects(intent.utterance, effects)
+                if materialized_effects is None:
+                    raise InvalidDecision("objective effect repair was not grounded")
+            independent_spec = effects_to_proposal(intent.utterance, effects)
+            if independent_spec is None:
                 return Decision(
                     kind=DecisionKind.CLARIFY,
                     clarification=(
-                        "I could not independently account for every requested change; "
-                        "please clarify the objective."
+                        "I could not establish the complete requested objective safely; "
+                        "please clarify the changes."
                     ),
                     semantic_mode="CLARIFY",
                 )
