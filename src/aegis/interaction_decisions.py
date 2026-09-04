@@ -18,6 +18,40 @@ from .interaction_context import authorized_context_evidence
 from .utterance import has_multiple_question_clauses
 
 
+def _unknown_consequential_objective(intent: IntentFrame, clarification: str) -> bool:
+    """Recognize a domain-mismatch clarification without inventing an effect."""
+
+    text = " ".join(intent.utterance.casefold().split())
+    clarification_text = clarification.casefold()
+    action_language = (
+        "spin up" in text
+        or "set up" in text
+        or "deploy" in text
+        or "install" in text
+        or "configure" in text
+        or "provision" in text
+        or "launch" in text
+    )
+    known_domain = any(
+        term in text
+        for term in (
+            "task",
+            "todo",
+            "chore",
+            "event",
+            "appointment",
+            "grocery",
+            "shopping list",
+            "memory",
+            "finance",
+            "homelab",
+            "network",
+        )
+    )
+    domain_mismatch = any(term in clarification_text for term in ("task", "chore", "event"))
+    return action_language and domain_mismatch and not known_domain
+
+
 def resolve_fallback_decision(
     decision: Decision,
     intent: IntentFrame,
@@ -63,6 +97,24 @@ def resolve_fallback_decision(
                 "That request contains multiple independent questions. "
                 "Please ask one at a time so I can answer each from "
                 "authorized information."
+            )
+        if _unknown_consequential_objective(intent, clarification):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I could not map that consequential objective to an available capability. "
+                    "It remains open; please clarify the capability or provide an approved "
+                    "workflow."
+                ),
+                evidence={
+                    "authoritative": False,
+                    "provenance": "model_boundary",
+                    "objective_open": True,
+                    "capability_state": "unresolved",
+                    "resolution": "UNSUPPORTED",
+                },
+                correlation_id=intent.correlation_id,
             )
         return Result(
             objective_id=uuid4(),

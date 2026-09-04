@@ -275,6 +275,46 @@ def test_ordinary_model_answer_cannot_self_label_as_external_evidence() -> None:
     assert result.evidence["authoritative"] is False
 
 
+def test_unknown_consequential_clarification_preserves_open_objective() -> None:
+    result = resolve_fallback_decision(
+        Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification="Could you clarify whether this is a task, chore, or event?",
+            semantic_mode="CLARIFY",
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Spin up a Palworld server for the family on easy mode.",
+        ),
+        Context(),
+        (),
+    )
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["objective_open"] is True
+    assert result.evidence["resolution"] == "UNSUPPORTED"
+    assert "remains open" in result.message
+
+
+def test_known_domain_clarification_is_not_reclassified_as_unknown() -> None:
+    result = resolve_fallback_decision(
+        Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification="Which task should I update?",
+            semantic_mode="CLARIFY",
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Set up a task to inspect the server.",
+        ),
+        Context(),
+        (),
+    )
+    assert isinstance(result, Result)
+    assert result.message == "Which task should I update?"
+    assert result.evidence == {}
+
+
 def test_fresh_source_request_fails_truthfully_without_research_provider() -> None:
     class Provider:
         def decide(self, _request: ModelRequest) -> ModelResponse:
