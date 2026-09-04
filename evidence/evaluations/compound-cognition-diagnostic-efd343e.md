@@ -51,3 +51,27 @@ accuracy was 3/20, inappropriate clarification was 80%, mean latency was
 11.24 s, and model calls increased to 91. The broader signal increased
 decision noise without improving usable compound planning, so the experiment
 was reverted and is not part of the production checkpoint.
+
+## Action-agnostic decomposition experiment
+
+At source `c195f6f`, the same 41-case corpus (SHA
+`641a694d0d9b850f968e0c99108ac4ee8a5ca81614431bbaec0db00eccdc4d33`) was run
+through a temporary action-agnostic discovery contract followed by bounded
+per-effect capability mapping. Discovery received no ActionCards and returned
+only effect text, grounded span, and polarity; Core performed grounding and
+structural checks before mapping.
+
+The first decomposed run recorded 0/20 supported-clear plans, 95%
+inappropriate clarification, 1 decoder failure, 85 model calls, 10.10 s mean
+latency, and 20.85 s p95. A bounded mapping refinement supplied the original
+utterance plus a Core-derived focus effect and an explicit mapping-only prompt.
+It removed decoder failures, but still recorded 0/20 supported-clear plans,
+95% inappropriate clarification, 84 model calls, 8.89 s mean latency, and
+16.53 s p95. Safety remained clean in both runs: zero false completions,
+unsafe mutations, and Core false acceptances.
+
+The decomposition hypothesis is rejected for this baseline: isolating effect
+discovery did not improve Qwen3:8B compound usability and materially increased
+clarification. The temporary contracts and runtime path were removed. This is
+an evaluated model/cognition boundary, not permission to weaken structural
+safety or to add another equivalent reviewer.
