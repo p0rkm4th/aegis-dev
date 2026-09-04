@@ -191,14 +191,12 @@ class OllamaProvider:
                                     "minItems": 2,
                                     "maxItems": 2,
                                 },
-                                "action_ref": {"type": ["string", "null"], "minLength": 1},
                                 "polarity": {
                                     "type": "string",
                                     "enum": ["ACTIVE", "NEGATED", "SUPERSEDED"],
                                 },
-                                "arguments": {"type": "object"},
                             },
-                            "required": ["effect_text", "source_span", "action_ref", "arguments"],
+                            "required": ["effect_text", "source_span"],
                         },
                     }
                 },
@@ -240,14 +238,12 @@ class OllamaProvider:
                                     "minItems": 2,
                                     "maxItems": 2,
                                 },
-                                "action_ref": {"type": ["string", "null"], "minLength": 1},
                                 "polarity": {
                                     "type": "string",
                                     "enum": ["ACTIVE", "NEGATED", "SUPERSEDED"],
                                 },
-                                "arguments": {"type": "object"},
                             },
-                            "required": ["effect_text", "source_span", "action_ref", "arguments"],
+                            "required": ["effect_text", "source_span"],
                         },
                     }
                 },

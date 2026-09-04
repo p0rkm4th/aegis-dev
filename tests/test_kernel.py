@@ -2916,6 +2916,22 @@ def test_ollama_schema_requires_semantic_mode_for_all_provider_decisions():
     assert "semantic_mode" in schema["required"]
 
 
+def test_ollama_effect_schema_is_segmentation_only():
+    schema = OllamaProvider._decision_schema(
+        ModelRequest(
+            working_set=WorkingSet(intent=intent()),
+            action_cards=(),
+            objective_effect_only=True,
+        )
+    )
+    properties = schema["properties"]["effects"]["items"]["properties"]
+    assert set(properties) == {"effect_text", "source_span", "polarity"}
+    assert schema["properties"]["effects"]["items"]["required"] == [
+        "effect_text",
+        "source_span",
+    ]
+
+
 def test_ollama_http_transport_rejects_non_http_urls():
     try:
         OllamaHttpTransport("unix:///run/ollama.sock")
