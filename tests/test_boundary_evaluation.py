@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from aegis.contracts import ActionSpec
+from aegis.contracts import ActionCard, ActionSpec, ProposedPlan, ProposedPlanStep
 
 _AUDIT_SPEC = importlib.util.spec_from_file_location(
     "audit_semantic_corpus", Path("scripts/audit_semantic_corpus.py")
@@ -280,6 +280,63 @@ def test_grounding_preview_uses_production_reference_grounding(
     )
 
     assert state == expected
+
+
+def test_grounding_preview_materializes_and_checks_every_plan_step() -> None:
+    contracts = _EVALUATE_MODULE
+    intent = contracts.IntentFrame(
+        principal=contracts.Principal(id="evaluation", vault_id="evaluation"),
+        utterance="Add a review task and a cleanup chore.",
+    )
+    cards = (
+        ActionCard(
+            action=ActionSpec(action_id="tasks.create", capability="tasks.create"),
+            summary="create task",
+            relevance=1,
+            argument_keys=("title",),
+        ),
+        ActionCard(
+            action=ActionSpec(action_id="chores.create", capability="chores.create"),
+            summary="create chore",
+            relevance=1,
+            argument_keys=("title",),
+        ),
+    )
+    decision = contracts.Decision(
+        kind=contracts.DecisionKind.PLAN,
+        semantic_mode="ACTION",
+        plan=ProposedPlan(
+            steps=(
+                ProposedPlanStep(action_ref="tasks.create", arguments={"title": "review"}),
+                ProposedPlanStep(action_ref="chores.create", arguments={"title": "cleanup"}),
+            )
+        ),
+    )
+
+    state, accepted = contracts._grounding_preview(
+        intent, decision, contracts._evaluation_context(), cards
+    )
+
+    assert (state, accepted) == ("accepted", True)
+
+
+def test_grounding_preview_rejects_plan_outside_candidate_contract() -> None:
+    contracts = _EVALUATE_MODULE
+    intent = contracts.IntentFrame(
+        principal=contracts.Principal(id="evaluation", vault_id="evaluation"),
+        utterance="Do the unavailable thing.",
+    )
+    decision = contracts.Decision(
+        kind=contracts.DecisionKind.PLAN,
+        semantic_mode="ACTION",
+        plan=ProposedPlan(steps=(ProposedPlanStep(action_ref="invented.create"),)),
+    )
+
+    state, accepted = contracts._grounding_preview(
+        intent, decision, contracts._evaluation_context(), ()
+    )
+
+    assert (state, accepted) == ("blocked", False)
 
 
 def test_evaluation_reports_freeze_prompt_context_and_decoder_contracts() -> None:

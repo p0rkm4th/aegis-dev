@@ -38,6 +38,7 @@ from aegis.interaction import InteractionBoundary, InteractionDependencies
 from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseError
 from aegis.pack_lifecycle import PackManager
 from aegis.personal import PersonalState
+from aegis.planning import PlanValidationError, materialize_proposed_plan
 from aegis.reference_interaction import ground_reference_action, reference_fallback_cards
 from aegis.reference_packs import reference_bundles
 from aegis.structural import SpacyStructuralParser
@@ -285,32 +286,65 @@ class _EvaluationHouseholdStore:
 
 
 def _grounding_preview(
-    intent: IntentFrame, decision: Decision | Result, context: Context
+    intent: IntentFrame,
+    decision: Decision | Result,
+    context: Context,
+    cards: tuple[ActionCard, ...] = (),
 ) -> tuple[str, bool | None]:
-    """Preview reference grounding without authorization, execution, or persistence."""
+    """Preview reference grounding without authorization, execution, or persistence.
 
-    if not isinstance(decision, Decision) or decision.kind is not DecisionKind.ACTION:
+    This is deliberately narrower than full validation: objective fidelity,
+    authorization, Kernel execution, observation, and verification remain outside
+    this evaluator-only read-only preview.
+    """
+
+    if not isinstance(decision, Decision):
         return "not_applicable", None
-    if decision.action is None:
+    if decision.kind is DecisionKind.ACTION:
+        if decision.action is None:
+            return "not_applicable", None
+        proposed_cards = (
+            ActionCard(
+                action=decision.action,
+                summary="evaluation proposal",
+                relevance=1,
+                argument_keys=tuple(decision.action.arguments),
+            ),
+        )
+    elif decision.kind is DecisionKind.PLAN and decision.plan is not None:
+        try:
+            actions = materialize_proposed_plan(decision.plan, cards)
+        except (PlanValidationError, ValueError):
+            return "blocked", False
+        cards_by_id = {card.action.action_id: card for card in cards}
+        proposed_cards = tuple(
+            cards_by_id[action.action_id].model_copy(update={"action": action})
+            for action in actions
+            if action.action_id in cards_by_id
+        )
+        if len(proposed_cards) != len(actions):
+            return "blocked", False
+    else:
         return "not_applicable", None
-    grounded = ground_reference_action(
-        intent,
-        ActionCard(
-            action=decision.action,
-            summary="evaluation proposal",
-            relevance=1,
-            argument_keys=tuple(decision.action.arguments),
-        ),
-        task_store=_EvaluationTaskStore(context),
-        household_store=_EvaluationHouseholdStore(),
-        personal_state=PersonalState(),
-        goal_task_title=None,
-        goal_chore_title=None,
-        memory_task_title=None,
-        memory_chore_title=None,
-        context=context,
-    )
-    return ("accepted", True) if isinstance(grounded, ActionCard) else ("blocked", False)
+
+    task_store = _EvaluationTaskStore(context)
+    household_store = _EvaluationHouseholdStore()
+    for card in proposed_cards:
+        grounded = ground_reference_action(
+            intent,
+            card,
+            task_store=task_store,
+            household_store=household_store,
+            personal_state=PersonalState(),
+            goal_task_title=None,
+            goal_chore_title=None,
+            memory_task_title=None,
+            memory_chore_title=None,
+            context=context,
+        )
+        if not isinstance(grounded, ActionCard):
+            return "blocked", False
+    return "accepted", True
 
 
 def _decision_fields(
@@ -594,7 +628,7 @@ def evaluate(
         recovery_events = provider.recovery_events[recovery_before:]
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         plan_steps, objective_requirements = _plan_fields(decision)
-        grounding_preview, grounding_accepted = _grounding_preview(intent, decision, context)
+        grounding_preview, grounding_accepted = _grounding_preview(intent, decision, context, cards)
         grounding_preview_evaluated = grounding_preview in {"accepted", "blocked"}
         grounding_preview_false_acceptance = (
             grounding_accepted is True and not case.expected_mutation
