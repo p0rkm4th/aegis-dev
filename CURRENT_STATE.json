@@ -193,21 +193,21 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "55b32b2",
-  "deterministic_green_sha": "55b32b2",
-  "last_pushed_sha": "db9ee3b",
-  "hosted_ci_green_sha": "db9ee3b",
+  "repository_head_sha": "adacaa1",
+  "deterministic_green_sha": "adacaa1",
+  "last_pushed_sha": "adacaa1",
+  "hosted_ci_green_sha": "adacaa1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "db9ee3b",
+    "commit_sha": "adacaa1",
     "conclusion": "success",
-    "run_id": "33917367442",
-    "observed_at": "2026-09-04T21:35:00Z"
+    "run_id": "33917658283",
+    "observed_at": "2026-09-04T21:45:00Z"
   },
-  "installed_release_sha": "55b32b2",
-  "running_release_sha": "55b32b2",
-  "live_green_sha": "55b32b2",
+  "installed_release_sha": "adacaa1",
+  "running_release_sha": "adacaa1",
+  "live_green_sha": "adacaa1",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -222,14 +222,14 @@
   },
   "owner_dogfood_runtime": {
     "status": "active_authenticated_loopback",
-    "running_sha": "55b32b2",
-    "last_known_green_sha": "55b32b2",
-    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/55b32b2",
-    "repository_head_sha": "55b32b2",
-    "deterministic_green_sha": "55b32b2",
-    "installed_release_sha": "55b32b2",
-    "running_release_sha": "55b32b2",
-    "live_green_sha": "55b32b2",
+    "running_sha": "adacaa1",
+    "last_known_green_sha": "adacaa1",
+    "installed_release": "/home/scootz/.local/share/aegis-owner/releases/adacaa1",
+    "repository_head_sha": "adacaa1",
+    "deterministic_green_sha": "adacaa1",
+    "installed_release_sha": "adacaa1",
+    "running_release_sha": "adacaa1",
+    "live_green_sha": "adacaa1",
     "source_install_runtime_note": "GitHub origin/aegis-dev, deterministic validation, hosted validation, and installed/running owner release are green through source checkpoint eaa51e3 (hosted run 33737725833); the owner release is separately promoted and verified healthy by authenticated /api/health. PostgreSQL and Qwen3:8B readiness are green; the runtime reports model digest 500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41. OpenClaw is optional and not configured; semantic capability evidence remains separately tracked.",
     "service": "aegis-owner.service",
     "service_unit": "/home/scootz/.config/systemd/user/aegis-owner.service",
@@ -1393,6 +1393,7 @@
     "owner_cross_domain_temporal_correction_checkpoint": "green installed-owner proof on release 05a6cb8: a fresh authenticated chain read the canonical grocery list, corrected the topic to 'which tasks are due tomorrow?', returned canonical dated tasks, and then resolved 'Which one is due first?' to the earliest task. The correction did not reuse stale grocery context, trigger mutation, or require developer repair; PostgreSQL and all required runtime health checks remained green.",
     "owner_same_capability_multiple_entity_checkpoint": "green installed-owner proof on release 05a6cb8: a fresh authenticated task-list read returned a bounded canonical list containing duplicate and near-duplicate task names; the follow-up 'Which one is second?' returned a targeted clarification instead of guessing an entity, executing a mutation, or falsely completing. PostgreSQL, identity, Ollama, and owner readiness remained healthy.",
     "owner_next_weekday_temporal_checkpoint": "green installed-owner proof on release 55b32b2 after hosted validation run 33916875190: authenticated Qwen3:8B requests 'What tasks are due next Monday?' and the ordinary 'What tasks are due this Monday?' both returned the canonical tasks due 2026-09-07. Before the routing correction, the next-weekday wording was incorrectly captured by priority cognition and answered as a recommendation; the regression now preserves explicit due-date read semantics. No mutation or false completion occurred; PostgreSQL, identity, Ollama, OpenClaw, and structural parser remained healthy.",
+    "owner_next_calendar_week_temporal_checkpoint": "green installed-owner proof on release adacaa1 after hosted validation run 33917658283: authenticated Qwen3:8B 'What tasks are due next week?' returned only canonical open tasks dated 2026-09-07 through 2026-09-10, while 'What tasks are due this week?' returned the current-week canonical set. The calendar-window correction excluded a following-week task and preserved ordinary read semantics; no mutation or false completion occurred, and PostgreSQL, identity, Ollama, OpenClaw, and structural parser remained healthy.",
     "compound_recovery_qwen3_14b_current_replay_checkpoint": "execution-free same-contract Qwen3:14B replay at source 646efd1 over the unchanged 41-case corpus used digest bdbd181c...9debe8 and en_core_web_sm. It made 132 model calls, 19 repair requests, and 24 bounded repair attempts with maximum two per case. Supported-clear final correctness was 4/20 (20%), overall correct completion/answer rate 19.23%, route and semantic-mode accuracy 39.02%, inappropriate clarification 76.92%, and p50/p95 latency 25.45s/48.21s. Safety remained green: zero false completions, false mutations, unsafe mutations, decoder failures, and security hard failure. Qwen3:14B remains diagnostic/reference only; no promotion or automatic routing is justified. Evidence: evidence/evaluations/compound-recovery-qwen3-14b-current-646efd1.md.",
-    "next_action": "Refresh origin/aegis-dev and hosted truth, then rearm into the next bounded M09/M10 frontier. Temporal due-date routing is now owner-proven on release 55b32b2, while compound recovery remains below target. Prefer a novel correction/temporal edge or unresolved-capability investigation, then implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
+    "next_action": "Refresh origin/aegis-dev and hosted truth, then rearm into the next bounded M09/M10 frontier. Temporal weekday and calendar-week reads are owner-proven on release adacaa1, while compound recovery remains below target. Prefer a novel correction/temporal edge or unresolved-capability investigation, then implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
 }
