@@ -14,6 +14,8 @@ from aegis.contracts import (
     ObjectiveSpecProposal,
     ObjectiveState,
     Principal,
+    ProposalFailureEvidence,
+    ProposalFailureKind,
     ProposedPlan,
     ProposedPlanStep,
     RequestedEffect,
@@ -24,6 +26,7 @@ from aegis.contracts import (
 )
 from aegis.decoding import StrictDecisionDecoder
 from aegis.interaction_cognition import (
+    _repair_clarification,
     _scope_plan_by_capability,
     _unresolved_investigation_result,
     decide_fallback,
@@ -698,6 +701,39 @@ def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
     assert isinstance(result, Decision)
     assert result.kind is DecisionKind.PLAN
     assert repair_calls == 1
+
+
+def test_compound_plan_repair_budget_is_one_before_generic_recovery() -> None:
+    calls = 0
+
+    class Provider:
+        recovery_events: list[dict[str, object]] = []
+
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            nonlocal calls
+            calls += 1
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.CLARIFY,
+                    semantic_mode="CLARIFY",
+                    clarification="still unclear",
+                ).model_dump(mode="json")
+            )
+
+    result = _repair_clarification(
+        Provider(),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance="do A and B"),
+        Context(),
+        (),
+        Decision(kind=DecisionKind.CLARIFY, semantic_mode="CLARIFY", clarification="unclear"),
+        "multiple changes",
+        ProposalFailureEvidence(kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR),
+        plans_only=True,
+        max_attempts=1,
+    )
+
+    assert result.kind is DecisionKind.CLARIFY
+    assert calls == 1
 
 
 def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> None:
