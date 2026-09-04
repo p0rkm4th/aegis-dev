@@ -34,6 +34,7 @@ from .interaction_recovery import (
     proposal_repair_event_record,
     recover_invalid_model_decision,
     repair_invalid_decision_once,
+    repair_invalid_decision_once_with_evidence,
 )
 from .objective_fidelity import (
     RequestedEffectProposal,
@@ -481,18 +482,29 @@ def decide_fallback(
             # A malformed or rejected proposal may receive at most two
             # validation-guided repairs. Every repair is decoded against the
             # original candidate set before this function continues.
-            previous_fingerprint: str | None = None
-            for _ in range(1):
-                repaired = repair_invalid_decision_once(
-                    provider, intent, context, cards, last_raw, error
+            current_raw = last_raw
+            current_failure = proposal_failure_evidence(error)
+            seen_failures = {proposal_failure_fingerprint(current_failure)}
+            for _ in range(2):
+                repaired, next_failure, repaired_raw = repair_invalid_decision_once_with_evidence(
+                    provider,
+                    intent,
+                    context,
+                    cards,
+                    current_raw,
+                    error,
+                    current_failure,
                 )
                 if repaired is not None:
                     decision = repaired
                     break
-                fingerprint = proposal_failure_fingerprint(proposal_failure_evidence(error))
-                if fingerprint == previous_fingerprint:
+                fingerprint = proposal_failure_fingerprint(next_failure)
+                if fingerprint in seen_failures:
                     break
-                previous_fingerprint = fingerprint
+                seen_failures.add(fingerprint)
+                current_raw = repaired_raw or current_raw
+                current_failure = next_failure
+                error = InvalidDecision(next_failure.detail or next_failure.kind.value)
             if decision is None:
                 raise error
         if decision is None and routing_only:
