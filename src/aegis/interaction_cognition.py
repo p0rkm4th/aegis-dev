@@ -687,7 +687,16 @@ def decide_fallback(
                 if card.action.action_id == decision.action.action_id
                 for permission in card.action.required_permissions
             )
-            if structural_failure is not None or conjunction_failure:
+            has_contrast_evidence = False
+            structural_parser = getattr(dependencies, "structural_parser", None)
+            if structural_parser is not None:
+                try:
+                    has_contrast_evidence = bool(structural_parser(intent.utterance).negation_spans)
+                except Exception:
+                    has_contrast_evidence = True
+            if (
+                structural_failure is not None or conjunction_failure
+            ) and not has_contrast_evidence:
                 # Route the incomplete single-action proposal through the same
                 # bounded PLAN repair before the fidelity validator runs. A
                 # late clarification would otherwise discard the repair seam
@@ -1223,6 +1232,13 @@ def decide_fallback(
                 decision = rewritten
         if decision.kind is DecisionKind.ACTION and decision.action is not None:
             action = decision.action
+            structural_failure = _structural_write_failure(dependencies, intent, decision, cards)
+            if structural_failure is not None:
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=structural_failure,
+                    semantic_mode="CLARIFY",
+                )
             if " and " in f" {intent.utterance.casefold()} " and any(
                 permission.endswith(".write")
                 for card in cards
