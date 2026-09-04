@@ -193,21 +193,21 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "aa275d6",
-  "deterministic_green_sha": "aa275d6",
-  "last_pushed_sha": "aa275d6",
-  "hosted_ci_green_sha": "aa275d6",
+  "repository_head_sha": "05a6cb8",
+  "deterministic_green_sha": "05a6cb8",
+  "last_pushed_sha": "05a6cb8",
+  "hosted_ci_green_sha": "05a6cb8",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "aa275d6",
+    "commit_sha": "05a6cb8",
     "conclusion": "success",
-    "run_id": "33912438799",
-    "observed_at": "2026-09-04T20:00:00Z"
+    "run_id": "33913835215",
+    "observed_at": "2026-09-04T20:30:00Z"
   },
-  "installed_release_sha": "68ccf71",
-  "running_release_sha": "68ccf71",
-  "live_green_sha": "68ccf71",
+  "installed_release_sha": "05a6cb8",
+  "running_release_sha": "05a6cb8",
+  "live_green_sha": "05a6cb8",
   "frozen_hades_reference_sha": "65ac52f2f0ba7d468644d4ff84460f00cb7e1cd8",
   "frozen_hades_reference_metadata": "reference/HADES_REFERENCE.json",
   "active_candidate_runtime": {
@@ -1394,5 +1394,6 @@
     "compound_recovery_qwen3_8b_repair_contract_checkpoint": "execution-free same-contract replay at source da1f31a over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after a typed structural-repair prompt contract. It made 123 model calls, 17 repair requests, and 30 bounded attempts; repair outputs attempted PLANs on several prior clarify cases, but supported-clear final correctness remained 2/20 (10%) with 90% inappropriate clarification, overall route accuracy 46.34%, and overall correct completion/answer rate 15.38%. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 616 tests with 5 skips; hosted validation is pending for this source. The contract is retained as bounded recovery behavior, but it is not capability-green and does not justify owner promotion. Report: evidence/evaluations/compound-recovery-qwen3-8b-repair-contract-da1f31a.md.",
     "compound_recovery_qwen3_8b_plan_correlation_checkpoint": "execution-free same-contract replay at source 3a678ef over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after Core added exact repaired-plan/objective requirement correlation. It made 123 model calls, 17 repair requests, and 30 bounded attempts; supported-clear final correctness remained 2/20 (10%) with 90% inappropriate clarification, overall route accuracy 46.34%, and overall correct completion/answer rate 15.38%, identical to the preceding replay. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 617 tests with 5 skips and hosted run 33911232202 passed. The change closes a containment gap but provides no capability-green evidence; owner promotion is not warranted. Report: evidence/evaluations/compound-recovery-qwen3-8b-plan-correlation-3a678ef.md.",
     "compound_recovery_qwen3_8b_mapping_recovery_checkpoint": "execution-free same-contract replay at source aa275d6 over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after adding bounded candidate-bound recovery for incomplete capability mappings. The mapping pass ran four times but requested no mapping repair; supported-clear final correctness remained 2/20 (10%), inappropriate clarification 90%, overall route accuracy 46.34%, and overall correct completion/answer rate 15.38%. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 619 tests with 5 skips and hosted run 33912438799 passed. This closes an unexercised production seam but is not capability-green and does not justify owner promotion. Report: evidence/evaluations/compound-recovery-qwen3-8b-mapping-aa275d6.md.",
-    "next_action": "Refresh origin/aegis-dev and hosted truth, then select the next highest-leverage M09 frontier from the dominant ordinary-decision telemetry: daily-driver continuity, temporal/correction context, or compound cognition. Prefer a novel owner-runtime reproduction when safe; implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Keep installed owner release 68ccf71 explicit; preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
+    "owner_grocery_priority_followup_checkpoint": "green installed-owner proof on release 05a6cb8 after hosted validation run 33913835215: a fresh authenticated chained session read canonical tasks, switched to the canonical grocery list, and correctly blocked 'Which one should I handle first?' because groceries have no canonical priority order. The ordinary grocery ordinal control 'Which one is second?' still returned the authorized rice item. PostgreSQL, identity, Ollama, and structural parser remained healthy; no mutation, false completion, or developer repair occurred.",
+    "next_action": "Refresh origin/aegis-dev and hosted truth, then select the next highest-leverage M09 frontier from novel owner evidence: cross-domain referent continuity, temporal interpretation, correction after prior reads, or compound cognition. Prefer a fresh safe owner reproduction; implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Keep installed owner release 05a6cb8 explicit; preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
 }
