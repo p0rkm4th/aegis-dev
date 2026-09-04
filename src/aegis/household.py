@@ -609,10 +609,10 @@ class GroceryReadFastPath:
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
-        text = utterance.casefold().strip()
+        text = " ".join(utterance.casefold().split())
         if is_mutation_request(text):
             return False
-        grocery_noun = any(term in text.split() for term in ("grocery", "groceries"))
+        grocery_noun = re.search(r"\b(?:grocery|groceries)\b", text) is not None
         shopping_list = "shopping list" in text
         unsupported_inventory = (
             assess_read_applicability(text, "kitchen.shopping_list") is ReadApplicability.NO_MATCH

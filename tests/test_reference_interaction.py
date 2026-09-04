@@ -93,6 +93,22 @@ def test_grocery_read_fast_path_preserves_shopping_list_scope() -> None:
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_grocery_read_fast_path_accepts_punctuated_topic_follow_up() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about groceries?",
+        )
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["canonical_items"] == ["rice"]
+
+
 def test_memory_fast_path_keeps_explicit_memory_requests() -> None:
     result = PersonalMemoryFastPath(PersonalState()).resolve(
         IntentFrame(
