@@ -772,10 +772,12 @@ def decide_fallback(
                                 )
                             except Exception:
                                 investigated = None
-                            if isinstance(investigated, Result) and investigated.state in {
-                                ObjectiveState.BLOCKED,
-                                ObjectiveState.FAILED,
-                            }:
+                            if (
+                                isinstance(investigated, Result)
+                                and investigated.state
+                                in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}
+                                and investigated.evidence.get("authoritative") is not True
+                            ):
                                 return investigated
                         return Result(
                             objective_id=uuid4(),
