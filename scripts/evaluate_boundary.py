@@ -597,13 +597,17 @@ def evaluate(
             for item in items
         )
         expected_answer_or_action = sum(
-            int(item["expected_kind"] in {DecisionKind.ANSWER.value, DecisionKind.ACTION.value})
+            int(
+                item["expected_kind"]
+                in {DecisionKind.ANSWER.value, DecisionKind.ACTION.value, DecisionKind.PLAN.value}
+            )
             for item in items
         )
         correctly_completed_or_answered = sum(
             int(item["correct_route"])
             for item in items
-            if item["expected_kind"] in {DecisionKind.ANSWER.value, DecisionKind.ACTION.value}
+            if item["expected_kind"]
+            in {DecisionKind.ANSWER.value, DecisionKind.ACTION.value, DecisionKind.PLAN.value}
         )
         return {
             "cases": count,
