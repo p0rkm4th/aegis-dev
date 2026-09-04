@@ -35,6 +35,8 @@ def proposal_failure_evidence(error: Exception) -> ProposalFailureEvidence:
 
     message = str(error).casefold()
     mappings = (
+        (("more than one", "change"), ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR),
+        (("complete", "verified", "plan"), ProposalFailureKind.MISSING_EFFECT),
         (("coverage", "requirement", "missing"), ProposalFailureKind.MISSING_EFFECT),
         (("extra", "coverage"), ProposalFailureKind.EXTRA_EFFECT),
         (("negat",), ProposalFailureKind.NEGATED_EFFECT_ACTIVE),
