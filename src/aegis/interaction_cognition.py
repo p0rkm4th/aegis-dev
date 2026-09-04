@@ -261,7 +261,18 @@ def _unresolved_investigation_result(
         and investigated.state in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}
         and investigated.evidence.get("authoritative") is False
     ):
-        return investigated
+        evidence = dict(investigated.evidence)
+        evidence["objective_open"] = True
+        evidence["unsatisfied_requirements"] = [
+            {
+                "effect_id": str(effect.effect_id),
+                "normalized_effect": effect.normalized_effect,
+                "source_spans": [list(span) for span in effect.source_spans],
+                "resolution": RequestedEffectResolution.UNSUPPORTED.value,
+            }
+            for effect in effects
+        ]
+        return investigated.model_copy(update={"evidence": evidence})
     return None
 
 

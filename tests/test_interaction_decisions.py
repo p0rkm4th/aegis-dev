@@ -16,6 +16,7 @@ from aegis.contracts import (
     Principal,
     ProposedPlan,
     ProposedPlanStep,
+    RequestedEffect,
     Result,
     StructuralAnchor,
     StructuralCoverageSignal,
@@ -607,7 +608,7 @@ def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> 
 
 def test_unresolved_investigation_requires_explicit_non_authoritative_result() -> None:
     intent = IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance="set up X")
-    effect = object()
+    effect = RequestedEffect(source_spans=((0, 9),), normalized_effect="set up X")
 
     for evidence in ({}, {"authoritative": True}):
         result = _unresolved_investigation_result(
@@ -641,6 +642,8 @@ def test_unresolved_investigation_requires_explicit_non_authoritative_result() -
         (effect,),
     )
     assert result is not None
+    assert result.evidence["objective_open"] is True
+    assert result.evidence["unsatisfied_requirements"][0]["resolution"] == "UNSUPPORTED"
 
 
 def test_plan_fidelity_provider_failure_fails_closed() -> None:
