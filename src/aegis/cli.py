@@ -29,6 +29,7 @@ from .contracts import (
     ModelRequest,
     ObjectiveState,
     Principal,
+    RequestedEffect,
     RequestStatus,
     Result,
     WorkingSet,
@@ -823,6 +824,7 @@ def run_interaction(
                 correlation_id=intent.correlation_id,
                 retryable=True,
             )
+
         try:
             service = ResearchService(
                 SearxngSearchProvider(endpoint),
@@ -893,6 +895,63 @@ def run_interaction(
                 retryable=True,
             )
 
+    def investigate_unresolved(
+        intent: IntentFrame, _context: Context, effects: tuple[RequestedEffect, ...]
+    ) -> Result:
+        """Collect bounded public evidence without converting it into authority."""
+
+        endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
+        query = " ".join(effect.normalized_effect for effect in effects).strip()[:500]
+        if not endpoint or not query:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="I could not investigate the unresolved capability right now.",
+                evidence={"investigation": "authorized_read_only", "authoritative": False},
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+        try:
+            evidence = ResearchService(
+                SearxngSearchProvider(endpoint),
+                DocumentFetcher(),
+                TrafilaturaContentExtractor(),
+            ).collect(SearchRequest(query))
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I found public evidence related to the unsupported request, but no "
+                    "capability or permission was added."
+                ),
+                evidence={
+                    "investigation": "authorized_read_only",
+                    "authoritative": False,
+                    "query": evidence.query,
+                    "provider_id": evidence.provider_id,
+                    "sources": [
+                        {
+                            "source_id": item.source_id,
+                            "url": item.final_url,
+                            "title": item.title,
+                            "retrieved_at": item.retrieved_at.isoformat(),
+                        }
+                        for item in evidence.evidence
+                    ],
+                    "objective_open": True,
+                },
+                correlation_id=intent.correlation_id,
+            )
+        except Exception:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="I could not investigate the unresolved capability right now.",
+                evidence={"investigation": "authorized_read_only", "authoritative": False},
+                correlation_id=intent.correlation_id,
+                retryable=True,
+            )
+
     def retrieve_reference_capabilities(query: str, manager: Any) -> tuple[ActionCard, ...]:
         if is_task_destination_request(query):
             return reference_fallback_cards(manager, query)
@@ -945,6 +1004,7 @@ def run_interaction(
             runtime_resolver=legacy_runtime,
             safety_fast_path_resolver=resolve_reference_safety_fast_paths,
             research_answer=research_answer,
+            unresolved_requirement_investigator=investigate_unresolved,
             structural_parser=structural_parser,
         )
     )
