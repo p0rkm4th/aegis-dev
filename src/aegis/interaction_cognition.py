@@ -290,7 +290,7 @@ def _repair_clarification(
     plans_only: bool = False,
     max_attempts: int = 2,
 ) -> Decision:
-    """Give fidelity-generated clarification one bounded repair opportunity."""
+    """Give fidelity-generated clarification bounded repair opportunities."""
 
     decision = failed_proposal
 
@@ -620,7 +620,7 @@ def decide_fallback(
                     detail="structural plurality requires one plan step per requested change",
                 ),
                 plans_only=True,
-                max_attempts=1,
+                max_attempts=2,
             )
         if (
             decision.kind in {DecisionKind.CLARIFY, DecisionKind.NEED_CONTEXT}
