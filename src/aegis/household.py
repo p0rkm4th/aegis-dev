@@ -21,7 +21,7 @@ from .contracts import (
     VerificationResult,
 )
 from .read_applicability import ReadApplicability, assess_read_applicability
-from .utterance import is_mutation_request
+from .utterance import is_mutation_request, strip_correction_prefix
 
 _WEEKDAYS = (
     "monday",
@@ -430,7 +430,7 @@ class HouseholdReadFastPath:
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
-        text = utterance.casefold()
+        text = strip_correction_prefix(utterance).casefold()
         if is_mutation_request(text):
             return False
         if any(term in text for term in ("task", "tasks", "todo", "to-do", "grocery")):
@@ -609,7 +609,7 @@ class GroceryReadFastPath:
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
-        text = " ".join(utterance.casefold().split())
+        text = strip_correction_prefix(utterance).casefold()
         if is_mutation_request(text):
             return False
         grocery_noun = re.search(r"\b(?:grocery|groceries)\b", text) is not None
