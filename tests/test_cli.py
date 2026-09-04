@@ -1672,6 +1672,7 @@ def test_run_interaction_unresolved_investigation_reports_installed_capabilities
     assert result.evidence["available_action_ids"] == ["tasks.read"]
     assert result.evidence["authoritative"] is False
     assert result.evidence["objective_open"] is True
+    assert result.evidence["unsatisfied_requirements"][0]["effect_id"] == str(effect.effect_id)
 
 
 def test_default_runtime_registry_covers_kitchen_mutation(monkeypatch):
