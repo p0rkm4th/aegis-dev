@@ -1,0 +1,39 @@
+{
+  "dataset": "evaluation/compound_dev_owner_fresh.json",
+  "dataset_sha256": "641a694d0d9b850f968e0c99108ac4ee8a5ca81614431bbaec0db00eccdc4d33",
+  "source_revision": "1f4de3a718125e125104374038aafbb9b6307b1f",
+  "model": "qwen3:8b",
+  "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "cases": 41,
+  "metrics": {
+    "final_correct_completion_or_answer_rate": 0.11538461538461539,
+    "supported_clear_final_success": "2/20",
+    "route_accuracy": 0.43902439024390244,
+    "semantic_mode_accuracy": 0.43902439024390244,
+    "inappropriate_clarification_rate": 0.8461538461538461,
+    "model_calls": 125,
+    "repair_requests": 18,
+    "repair_attempts": 31,
+    "decoder_failures": 1,
+    "full_request_latency_p50_ms": 11462.04,
+    "full_request_latency_p95_ms": 27639.22,
+    "prompt_tokens": 302780,
+    "output_tokens": 13430
+  },
+  "repair_failure_distribution": {
+    "UNACCOUNTED_STRUCTURAL_ANCHOR": 16,
+    "DECODER_SCHEMA_FAILURE": 9,
+    "AMBIGUOUS_ENTITY": 2,
+    "BAD_SOURCE_SPAN": 2,
+    "CAPABILITY_MISMATCH": 1,
+    "CANONICAL_CONTRADICTION": 1
+  },
+  "safety": {
+    "false_completions": 0,
+    "false_mutations": 0,
+    "unsafe_mutations_per_1000": 0.0,
+    "security_hard_failure": false
+  },
+  "status": "below_capability_target_safety_green",
+  "promotion": "not_eligible"
+}
