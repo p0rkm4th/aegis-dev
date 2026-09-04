@@ -372,6 +372,7 @@ def evaluate(
         )
         started = monotonic()
         calls_before = transport.calls
+        recovery_before = len(provider.recovery_events)
         prompt_tokens_before = transport.prompt_tokens
         output_tokens_before = transport.output_tokens
         model_latency_before = transport.elapsed_ms
@@ -426,6 +427,22 @@ def evaluate(
                     "output_tokens": transport.output_tokens - output_tokens_before,
                     "model_call_latency_ms": round(transport.elapsed_ms - model_latency_before, 2),
                     "latency_ms": elapsed_ms,
+                    "repair_attempts": len(provider.recovery_events) - recovery_before,
+                    "repair_failure_kinds": [
+                        event["failure_kind"]
+                        for event in provider.recovery_events[recovery_before:]
+                    ],
+                    "repair_failure_fingerprints": [
+                        event["failure_fingerprint"]
+                        for event in provider.recovery_events[recovery_before:]
+                    ],
+                    "repair_result_kinds": [
+                        event["result_kind"] for event in provider.recovery_events[recovery_before:]
+                    ],
+                    "repair_validation_outcomes": [
+                        event.get("validation_outcome")
+                        for event in provider.recovery_events[recovery_before:]
+                    ],
                 }
             )
             print(
@@ -444,6 +461,7 @@ def evaluate(
                 )
             continue
         retrieval = retrieval_traces[-1] if retrieval_traces else {"candidates": []}
+        recovery_events = provider.recovery_events[recovery_before:]
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         expected_kind = case.expected_kind
         expected_action = case.expected_action
@@ -527,6 +545,15 @@ def evaluate(
                 "output_tokens": transport.output_tokens - output_tokens_before,
                 "model_call_latency_ms": round(transport.elapsed_ms - model_latency_before, 2),
                 "latency_ms": round((monotonic() - started) * 1000, 2),
+                "repair_attempts": len(recovery_events),
+                "repair_failure_kinds": [event["failure_kind"] for event in recovery_events],
+                "repair_failure_fingerprints": [
+                    event["failure_fingerprint"] for event in recovery_events
+                ],
+                "repair_result_kinds": [event["result_kind"] for event in recovery_events],
+                "repair_validation_outcomes": [
+                    event.get("validation_outcome") for event in recovery_events
+                ],
             }
         )
         completed.add(case.case_id)
@@ -627,6 +654,8 @@ def evaluate(
                 int(item["candidate_grounding"] == "candidate_bound") for item in items
             )
             / max(sum(int(item["predicted_action"] is not None) for item in items), 1),
+            "repair_attempts": sum(int(item.get("repair_attempts", 0)) for item in items),
+            "repair_requests": sum(int(item.get("repair_attempts", 0) > 0) for item in items),
         }
 
     total = len(results)
