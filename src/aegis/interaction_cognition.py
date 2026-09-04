@@ -38,7 +38,7 @@ from .objective_fidelity import (
     materialize_requested_effects,
     validate_structural_coverage,
 )
-from .utterance import is_mutation_request, is_question_request
+from .utterance import is_question_request
 
 
 def _scope_plan_by_capability(
@@ -459,7 +459,11 @@ def decide_fallback(
             raise InvalidDecision("model answer repair did not produce a decision")
         if (
             decision.kind in {DecisionKind.CLARIFY, DecisionKind.NEED_CONTEXT}
-            and is_mutation_request(intent.utterance)
+            and any(
+                permission.endswith(".write")
+                for card in cards
+                for permission in card.action.required_permissions
+            )
             and (context.values.get("referents") or context.values.get("canonical_facts"))
         ):
             # Clarification recovery is deliberately narrow: only a mutation

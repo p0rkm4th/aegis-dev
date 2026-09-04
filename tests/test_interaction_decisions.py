@@ -24,6 +24,69 @@ from aegis.interaction_cognition import _scope_plan_by_capability, decide_fallba
 from aegis.interaction_decisions import resolve_fallback_decision
 
 
+def test_clarification_proposal_gets_bounded_repair_before_returning_blocked() -> None:
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            required_permissions=("tasks.write",),
+        ),
+        summary="Complete a named task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    calls: list[ModelRequest] = []
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            calls.append(request)
+            if request.proposal_repair_only:
+                return ModelResponse(
+                    raw={
+                        "kind": "ACTION",
+                        "semantic_mode": "ACTION",
+                        "knowledge_source": "general_model_knowledge",
+                        "action_ref": "tasks.complete",
+                        "action_arguments": {"title": "Replace porch bulb"},
+                    }
+                )
+            if request.classification_only:
+                return ModelResponse(
+                    raw={
+                        "semantic_mode": "ACTION",
+                        "knowledge_source": "general_model_knowledge",
+                    }
+                )
+            return ModelResponse(
+                raw={
+                    "kind": "CLARIFY",
+                    "semantic_mode": "CLARIFY",
+                    "knowledge_source": "general_model_knowledge",
+                    "clarification": "Which task?",
+                }
+            )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=False,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="v"),
+            utterance="finish that bulb thing",
+        ),
+        (card,),
+        Context(values={"referents": {"those": {"candidates": [{"task_id": "t1"}]}}}),
+    )
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.ACTION
+    assert result.action is not None
+    assert result.action.arguments["title"] == "Replace porch bulb"
+    assert sum(request.proposal_repair_only for request in calls) == 1
+
+
 def test_action_resolution_uses_the_supplied_bounded_working_set() -> None:
     card = ActionCard(
         action=ActionSpec(action_id="weather.note.write", capability="weather.write"),
