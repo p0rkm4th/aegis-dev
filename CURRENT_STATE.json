@@ -193,17 +193,17 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "713c5da",
-  "deterministic_green_sha": "713c5da",
-  "last_pushed_sha": "713c5da",
-  "hosted_ci_green_sha": "713c5da",
+  "repository_head_sha": "f40dfa4",
+  "deterministic_green_sha": "f40dfa4",
+  "last_pushed_sha": "f40dfa4",
+  "hosted_ci_green_sha": "f40dfa4",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "713c5da",
+    "commit_sha": "f40dfa4",
     "conclusion": "success",
-    "run_id": "33919293500",
-    "observed_at": "2026-09-04T22:45:00Z"
+    "run_id": "33919653140",
+    "observed_at": "2026-09-04T23:05:00Z"
   },
   "installed_release_sha": "713c5da",
   "running_release_sha": "713c5da",
@@ -225,8 +225,8 @@
     "running_sha": "713c5da",
     "last_known_green_sha": "713c5da",
     "installed_release": "/home/scootz/.local/share/aegis-owner/releases/713c5da",
-    "repository_head_sha": "713c5da",
-    "deterministic_green_sha": "713c5da",
+    "repository_head_sha": "f40dfa4",
+    "deterministic_green_sha": "f40dfa4",
     "installed_release_sha": "713c5da",
     "running_release_sha": "713c5da",
     "live_green_sha": "713c5da",
@@ -1398,7 +1398,8 @@
     "owner_unknown_kubernetes_capability_checkpoint": "green installed-owner proof on release adacaa1: the genuinely unfamiliar consequential objective 'Set up a local Kubernetes cluster.' returned a bounded BLOCKED result explicitly stating that no available capability was identified and that the objective remains open. A separate workflow-shaped variant clarified its ambiguous meaning rather than inventing an execution capability. No installation, permission change, mutation, false completion, or developer repair occurred; owner readiness and PostgreSQL remained healthy.",
     "owner_capability_inventory_replay_checkpoint": "safe installed-owner replay on release 08d1e5b after hosted validation run 33918771331: the unfamiliar 'Set up a local Kubernetes cluster.' objective remained BLOCKED with objective-open wording, but the model proposal failed at objective mapping before the new capability-inventory investigator was reached. Deterministic composition coverage proves the inventory returns bounded installed action IDs when invoked; no capability, permission, installation, mutation, or false completion was invented. This is retained as model-capacity/path telemetry, not capability-green evidence.",
     "owner_capability_inventory_handoff_checkpoint": "green installed-owner proof on release 713c5da after hosted validation run 33919293500: the same unfamiliar Kubernetes objective now reached the bounded investigator after model clarification and returned 'I checked the currently installed capabilities, but none covers this request.' The objective remained open, evidence stayed non-authoritative, and no capability, permission, installation, mutation, or false completion was added.",
+    "unresolved_effect_identity_checkpoint": "implemented at source f40dfa4 and hosted validation run 33919653140: capability-inventory investigation evidence now preserves each unsatisfied RequestedEffect effect_id alongside normalized text and bounded source spans, improving restart/provenance correlation without changing authority or execution. Full deterministic validation passed 625 tests with 5 skips; installed/running/live owner release remains 713c5da because behavior is unchanged.",
     "owner_restart_next_week_priority_checkpoint": "green installed-owner proof on release adacaa1: a canonical 'What tasks are due next week?' read was followed by a real aegis-owner.service restart and the authorized context follow-up 'Which one is due first?'. The follow-up returned the earliest canonical task due in that window after restart, with no context loss, duplicate mutation, false completion, or developer repair; readiness and PostgreSQL remained healthy.",
     "compound_recovery_qwen3_14b_current_replay_checkpoint": "execution-free same-contract Qwen3:14B replay at source 646efd1 over the unchanged 41-case corpus used digest bdbd181c...9debe8 and en_core_web_sm. It made 132 model calls, 19 repair requests, and 24 bounded repair attempts with maximum two per case. Supported-clear final correctness was 4/20 (20%), overall correct completion/answer rate 19.23%, route and semantic-mode accuracy 39.02%, inappropriate clarification 76.92%, and p50/p95 latency 25.45s/48.21s. Safety remained green: zero false completions, false mutations, unsafe mutations, decoder failures, and security hard failure. Qwen3:14B remains diagnostic/reference only; no promotion or automatic routing is justified. Evidence: evidence/evaluations/compound-recovery-qwen3-14b-current-646efd1.md.",
-    "next_action": "Refresh origin/aegis-dev and hosted truth, then rearm into the next bounded M09/M10 frontier. Temporal continuity and unresolved-capability investigation handoff are owner-proven on release 713c5da; compound recovery remains below target. Prefer a novel recovery generalization case or correction/restart edge, then implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
+    "next_action": "Refresh origin/aegis-dev and hosted truth, then rearm into the next bounded M09/M10 frontier. Temporal continuity and unresolved-capability investigation handoff are owner-proven on release 713c5da; evidence identity is now preserved at source f40dfa4; compound recovery remains below target. Prefer a novel recovery generalization case or correction/restart edge, then implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
 }
