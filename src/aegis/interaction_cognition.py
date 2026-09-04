@@ -43,6 +43,7 @@ from .objective_fidelity import (
     effects_to_proposal,
     fidelity_message,
     materialize_requested_effects,
+    plan_covers_objective,
     validate_structural_coverage,
 )
 from .utterance import is_question_request
@@ -1008,6 +1009,16 @@ def decide_fallback(
                             valid=False,
                             failure=ProposalFailureEvidence(
                                 kind=ProposalFailureKind.CAPABILITY_MISMATCH
+                            ),
+                        )
+                    if candidate.plan is None or not plan_covers_objective(
+                        candidate.plan, candidate.objective_spec
+                    ):
+                        return ValidationResult(
+                            valid=False,
+                            failure=ProposalFailureEvidence(
+                                kind=ProposalFailureKind.MISSING_EFFECT,
+                                detail="repaired plan does not cover its objective requirements",
                             ),
                         )
                     next_verdict = compare_objective_proposals(
