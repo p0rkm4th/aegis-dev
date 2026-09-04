@@ -641,6 +641,24 @@ def test_compound_cross_domain_read_does_not_claim_only_one_result() -> None:
     assert "multiple independent reads" in result.message
 
 
+def test_non_question_correction_after_blocked_result_cannot_create_action() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="Actually, skip the chore part.",
+    )
+    result = resolve_reference_safety_fast_paths(
+        intent,
+        None,
+        True,
+        Context(
+            values={"canonical_facts": {}, "referents": {}},
+            sources=("authorized_prior_result",),
+        ),
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+
+
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),

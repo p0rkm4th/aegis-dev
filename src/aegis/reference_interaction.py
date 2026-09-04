@@ -89,6 +89,7 @@ from .utterance import (
     has_multiple_question_clauses,
     is_correction_request,
     is_mutation_request,
+    is_question_request,
     is_task_destination_request,
     strip_context_reset,
     strip_correction_prefix,
@@ -647,6 +648,12 @@ def resolve_reference_safety_fast_paths(
     ):
         return None
     if context is not None and is_correction_request(intent.utterance):
+        if context.sources == ("authorized_prior_result",) and not is_question_request(
+            strip_correction_prefix(intent.utterance)
+        ):
+            # A blocked prior turn has no canonical plan or referent to amend.
+            # Keep imperative correction language out of model action selection.
+            return ContextualMutationGuard.resolve(intent)
         # Let the authorized referent resolver provide a domain-specific
         # clarification; the context-free guard protects only corrections that
         # lack canonical context to resolve against.
