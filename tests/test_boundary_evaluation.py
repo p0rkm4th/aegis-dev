@@ -252,6 +252,8 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"semantic_mode_accuracy"' in source
     assert '"provider_evidence_valid": bool(' in source
     assert '"model_digest_source"' in source
+    assert '"repair_model_digest"' in source
+    assert '"repair_model": repair_model' in source
     assert '"decoder_failures"' in source
     assert '"model_calls_avoided"' in source
     assert '"--disable-classification-action-shortcut"' in source

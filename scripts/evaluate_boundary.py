@@ -738,6 +738,8 @@ def evaluate(
         "provider": provider.provider_id,
         "endpoint": base_url,
         "model_digest": model_digest,
+        "repair_model": repair_model,
+        "repair_model_digest": repair_model_digest,
         "model_digest_source": (
             "environment"
             if configured_digest
