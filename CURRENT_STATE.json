@@ -154,6 +154,7 @@
       ,"M09 owner structural-gate promotion at 8d61b05: hosted run 33819875459 passed; installed/running owner release 8d61b05 reports PostgreSQL, Qwen3:8B, identity, and optional structural_parser healthy. A fresh authenticated session completed 20/20 requests without transport failure; groceries and general knowledge were correct, compound writes blocked safely, and a follow-up seven-case dogfood corrected the prior network-memory capture while current-date questions answered. This is safety/runtime evidence, not compound capability-green proof."
       ,"M09 validation reproducibility at f5ca353: local-date task-window fixtures now use the same owner-local clock as production, eliminating UTC/local-midnight false failures; full validation passed 581 tests and hosted run 33820388323 passed."
       ,"M09 compound cognition diagnostic at 93d8c5d: a fresh 41-case Qwen3:8B corpus with actual spaCy structural evidence recorded 0/20 supported-clear compound plans, 75% inappropriate clarification in that family, 4 decoder failures, and 0 false completions. Candidate visibility was widened only from bounded structural plurality, and post-repair safety recorded 0 unsafe mutations; a fresh six-case negation/correction follow-up also recorded zero unsafe mutations, false completions, and decoder failures. The dominant remaining limitation is Qwen/requested-effect interpretation, not parser authority or Core safety. Hosted run 33824314639 passed."
+      ,"M09 compound cognition decision boundary at ddda39e: the candidate-visibility/negation-safety checkpoint is hosted-green, while fresh Qwen3:8B evidence remains below the compound usability target (0/20 supported-clear plans; 4 decoder failures; 0 false completions and 0 unsafe mutation proposals after the guard). The dominant blocker is requested-effect cognition/model behavior after bounded harness improvements; no owner promotion was made for a non-green usability change. Management decision is required before further model/cognition escalation. Hosted run 33824468485 passed."
       ,"M09 structural-fidelity owner-usability campaign at 2f07c4d: actual spaCy 3.8.16/en_core_web_sm 3.8.0 structural evidence and guarded Qwen3:8B evaluation recorded zero Core false acceptances, false completions, unsafe mutations, and decoder failures; the installed owner runtime completed 20/20 requests without transport failure and remained structurally available. Qwen over-clarified the compound-heavy development probe, so owner capability is not green. Campaign verdict: ESCALATE the remaining usability/model limitation; retain spaCy as the optional structural adapter and do not weaken the safety gate. Hosted run 33820495721 passed."
     ],
     "capability": [
@@ -190,17 +191,17 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "93d8c5d",
-  "deterministic_green_sha": "93d8c5d",
-  "last_pushed_sha": "93d8c5d",
-  "hosted_ci_green_sha": "93d8c5d",
+  "repository_head_sha": "ddda39e",
+  "deterministic_green_sha": "ddda39e",
+  "last_pushed_sha": "ddda39e",
+  "hosted_ci_green_sha": "ddda39e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33824314639",
-    "commit_sha": "93d8c5d",
+    "run_id": "33824468485",
+    "commit_sha": "ddda39e",
     "conclusion": "success",
-    "observed_at": "2026-09-04T01:14:00Z"
+    "observed_at": "2026-09-04T01:27:00Z"
   },
   "installed_release_sha": "8d61b05",
   "running_release_sha": "8d61b05",
