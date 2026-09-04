@@ -442,6 +442,7 @@ class InteractionBoundary:
                         intent,
                         fallback_context,
                         fallback_cards,
+                        self.dependencies.unresolved_requirement_investigator,
                     )
                     if isinstance(resolution, Result):
                         return persist_fast_result(resolution)

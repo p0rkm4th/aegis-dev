@@ -925,6 +925,14 @@ def run_interaction(
                     "objective_open": True,
                     "provider_configured": False,
                     "available_action_ids": list(runtime_registry.action_ids()),
+                    "unsatisfied_requirements": [
+                        {
+                            "normalized_effect": effect.normalized_effect,
+                            "source_spans": [list(span) for span in effect.source_spans],
+                            "resolution": "UNSUPPORTED",
+                        }
+                        for effect in effects
+                    ],
                 },
                 correlation_id=intent.correlation_id,
             )
