@@ -259,6 +259,8 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"grounded_read_answer_rate"' in source
     assert "DecisionKind.PLAN.value" in source
     assert '"candidate_action_ids"' in source
+    assert '"predicted_plan_steps"' in source
+    assert '"predicted_objective_requirements"' in source
     assert '"average_write_candidate_count"' in source
     assert '"--retrieval-limit"' in source
 
