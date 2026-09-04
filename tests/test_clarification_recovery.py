@@ -11,6 +11,8 @@ from aegis.contracts import (
     ProposalFailureKind,
 )
 from aegis.interaction_recovery import (
+    ValidationResult,
+    bounded_proposal_repair,
     evaluate_clarification_recovery_cases,
     proposal_failure_evidence,
     proposal_failure_fingerprint,
@@ -195,3 +197,48 @@ def test_invalid_proposal_repair_is_decoded_against_supplied_cards() -> None:
     assert repaired.kind.value == "ACTION"
     assert repaired.action is not None
     assert repaired.action.action_id == "tasks.complete"
+
+
+def test_bounded_repair_revalidates_and_uses_new_failure_for_attempt_two() -> None:
+    f1 = ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_EFFECT)
+    f2 = ProposalFailureEvidence(kind=ProposalFailureKind.INVALID_ARGUMENT)
+    calls: list[tuple[str, str]] = []
+
+    def repair(value: str, failure: ProposalFailureEvidence) -> tuple[str, ProposalFailureEvidence]:
+        calls.append((value, failure.kind.value))
+        return ("p1", f2) if len(calls) == 1 else ("p2", f2)
+
+    def validate(value: str) -> ValidationResult:
+        return ValidationResult(valid=value == "p2", failure=None if value == "p2" else f2)
+
+    result = bounded_proposal_repair(
+        "p0", f1, repair, validate, validator_stage="test", max_attempts=2
+    )
+    assert result.proposal == "p2"
+    assert result.stop_reason == "VALIDATED"
+    assert calls == [("p0", "MISSING_EFFECT"), ("p1", "INVALID_ARGUMENT")]
+    assert result.events[0].validation_outcome == "invalid"
+    assert result.events[1].validation_outcome == "valid"
+
+
+def test_bounded_repair_stops_repeated_failure_without_second_attempt() -> None:
+    failure = ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_EFFECT)
+    calls = 0
+
+    def repair(
+        value: str, _failure: ProposalFailureEvidence
+    ) -> tuple[str, ProposalFailureEvidence]:
+        nonlocal calls
+        calls += 1
+        return value, failure
+
+    result = bounded_proposal_repair(
+        "p0",
+        failure,
+        repair,
+        lambda _value: ValidationResult(valid=False, failure=failure),
+        validator_stage="test",
+        max_attempts=2,
+    )
+    assert result.stop_reason == "REPEATED_FAILURE"
+    assert calls == 1
