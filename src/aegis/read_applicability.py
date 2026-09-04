@@ -40,8 +40,15 @@ def assess_read_applicability(utterance: str, semantic_scope: str | None) -> Rea
         or "to pick up" in text
         or "to get" in text
     )
+    temporal_concept = (
+        any(day in text for day in ("today", "tomorrow", "yesterday", "this week", "next week"))
+        or re.search(r"\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", text)
+        is not None
+    )
     if inventory_concept and shopping_concept:
         return ReadApplicability.CLARIFY
     if inventory_concept:
         return ReadApplicability.NO_MATCH
+    if temporal_concept and shopping_concept:
+        return ReadApplicability.CLARIFY
     return ReadApplicability.MATCH

@@ -125,6 +125,22 @@ def test_grocery_read_fast_path_accepts_explicit_read_correction() -> None:
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_grocery_read_fast_path_does_not_claim_undated_temporal_scope() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What groceries do we need tomorrow?",
+        )
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "items to buy" in result.message
+
+
 def test_memory_fast_path_keeps_explicit_memory_requests() -> None:
     result = PersonalMemoryFastPath(PersonalState()).resolve(
         IntentFrame(
