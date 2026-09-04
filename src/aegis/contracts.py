@@ -167,6 +167,7 @@ class StructuralCoverageSignal(StrictModel):
     """Parser output; it defines no meaning and grants no authority."""
 
     anchors: tuple[StructuralAnchor, ...] = Field(min_length=1, max_length=12)
+    negation_spans: tuple[tuple[int, int], ...] = Field(default=(), max_length=12)
 
 
 class ObjectiveFidelityVerdict(StrEnum):

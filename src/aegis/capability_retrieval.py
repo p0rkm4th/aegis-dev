@@ -8,6 +8,24 @@ from .contracts import ActionCard, Context
 from .pack_lifecycle import PackManager
 
 
+def _has_multiple_structural_anchors(dependencies: Any, utterance: str) -> bool:
+    """Use optional structural evidence to avoid narrowing a compound request.
+
+    This is only candidate-set shaping.  The parser remains non-authoritative,
+    and failures leave ordinary semantic retrieval unchanged; Core still
+    validates every proposal and structural fidelity before execution.
+    """
+
+    parser = getattr(dependencies, "structural_parser", None)
+    if parser is None:
+        return False
+    try:
+        signal = parser(utterance)
+    except Exception:
+        return False
+    return len(signal.anchors) > 1
+
+
 def retrieve_action_cards(
     dependencies: Any,
     manager: PackManager,
@@ -28,6 +46,24 @@ def retrieve_action_cards(
             # change the authority path.
             semantic_cards = ()
         if semantic_cards:
+            if _has_multiple_structural_anchors(dependencies, utterance):
+                enabled_cards = getattr(manager, "enabled_cards", lambda: ())()
+                write_cards = tuple(
+                    card
+                    for card in enabled_cards
+                    if any(
+                        permission.endswith(".write")
+                        for permission in card.action.required_permissions
+                    )
+                )
+                if len(write_cards) > 1:
+                    # Structural plurality is evidence that a narrow semantic
+                    # shortlist may have hidden a second capability.  Widen
+                    # only to the bounded installed write vocabulary; this
+                    # grants no authority and keeps the model candidate-bound.
+                    by_id = {card.action.action_id: card for card in semantic_cards}
+                    by_id.update({card.action.action_id: card for card in write_cards})
+                    return tuple(by_id.values())[:10]
             write_cards = tuple(
                 card
                 for card in semantic_cards

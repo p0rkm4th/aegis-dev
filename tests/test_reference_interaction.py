@@ -12,9 +12,12 @@ from aegis.contracts import (
     ObjectiveState,
     Principal,
     Result,
+    StructuralAnchor,
+    StructuralCoverageSignal,
     VerificationContract,
 )
 from aegis.household import GroceryReadFastPath, PostgresHouseholdStore
+from aegis.interaction_cognition import _structural_write_failure
 from aegis.interaction_context import (
     compact_context_evidence,
     resolve_obvious_ordinal,
@@ -446,6 +449,36 @@ def test_structural_compound_single_action_is_blocked_before_execution():
     assert isinstance(result, Result)
     assert result.state is ObjectiveState.BLOCKED
     assert "No action was executed" in result.message
+
+
+def test_negated_structural_write_proposal_is_blocked_before_execution():
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="Make the inspection task, not the cleaning chore.",
+    )
+    decision = Decision(
+        kind=DecisionKind.ACTION,
+        action=_task_card({"title": "inspection task"}).action,
+        semantic_mode="ACTION",
+    )
+
+    class Dependencies:
+        structural_parser = staticmethod(
+            lambda _utterance: StructuralCoverageSignal(
+                anchors=(StructuralAnchor(source_span=(0, 4), kind="predicate"),),
+                negation_spans=((5, 8),),
+            )
+        )
+
+    card = _task_card({}).model_copy(
+        update={
+            "action": decision.action.model_copy(update={"required_permissions": ("tasks.write",)})
+        }
+    )
+    result = _structural_write_failure(Dependencies(), intent, decision, (card,))
+
+    assert result is not None
+    assert "negated" in result
 
 
 def test_scalar_task_focus_allows_explicit_completion_followup():

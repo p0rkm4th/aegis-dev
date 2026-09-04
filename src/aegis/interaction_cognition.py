@@ -171,6 +171,11 @@ def _structural_write_failure(
         structural_signal = structural_parser(intent.utterance)
     except Exception as exc:
         raise InvalidDecision("structural coverage unavailable") from exc
+    if structural_signal.negation_spans:
+        return (
+            "I noticed a negated or contrasting change in that request, but I could not "
+            "safely determine which change you want. Please clarify it."
+        )
     if len(structural_signal.anchors) != 1:
         return (
             "This request contains more than one change, but I could not form a complete "

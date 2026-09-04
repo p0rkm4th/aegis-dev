@@ -137,6 +137,30 @@ def test_structural_coverage_rejects_correlated_middle_omission() -> None:
     assert not validate_structural_coverage(utterance, effects, signal)
 
 
+def test_structural_signal_preserves_negation_evidence() -> None:
+    from aegis.structural import SpacyStructuralParser
+
+    class Token:
+        def __init__(self, idx: int, text: str, pos: str, dep: str) -> None:
+            self.idx = idx
+            self.text = text
+            self.pos_ = pos
+            self.dep_ = dep
+
+    class Model:
+        def __call__(self, _utterance: str) -> tuple[Token, ...]:
+            return (
+                Token(0, "Make", "VERB", "ROOT"),
+                Token(5, "not", "PART", "neg"),
+            )
+
+    signal = SpacyStructuralParser(model=Model()).parse(
+        "Make the inspection task, not the cleaning chore."
+    )
+
+    assert signal.negation_spans
+
+
 def test_structural_coverage_rejects_full_span_and_duplicate_gaming() -> None:
     utterance = "Add milk and eggs"
     full = materialize_requested_effects(

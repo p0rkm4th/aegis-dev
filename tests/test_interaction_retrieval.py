@@ -122,3 +122,43 @@ def test_multiple_write_candidates_drop_same_namespace_read_noise():
         "tasks.create",
         "tasks.chores.create",
     )
+
+
+def test_structural_plurality_widens_a_single_write_shortlist_without_authority():
+    selected = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.write",
+            required_permissions=("tasks.write",),
+        ),
+        summary="Create a task",
+        relevance=1,
+    )
+    second = ActionCard(
+        action=ActionSpec(
+            action_id="kitchen.groceries.add",
+            capability="kitchen.write",
+            required_permissions=("kitchen.write",),
+        ),
+        summary="Add groceries",
+        relevance=1,
+    )
+
+    class Dependencies:
+        capability_retriever = staticmethod(lambda _utterance, _manager: (selected,))
+        structural_parser = staticmethod(
+            lambda _utterance: type("Signal", (), {"anchors": (1, 2), "negation_spans": ()})()
+        )
+        fallback_card_selector = None
+
+    class Manager:
+        @staticmethod
+        def enabled_cards():
+            return (selected, second)
+
+    cards = retrieve_action_cards(Dependencies(), Manager(), "create a task and add groceries")
+
+    assert tuple(card.action.action_id for card in cards) == (
+        "tasks.create",
+        "kitchen.groceries.add",
+    )
