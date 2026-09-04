@@ -8,6 +8,7 @@ capability mapping, authorization, execution, verification, and completion.
 from __future__ import annotations
 
 import importlib
+import re
 from typing import Any
 
 from .contracts import StructuralAnchor, StructuralCoverageSignal
@@ -68,7 +69,19 @@ class SpacyStructuralParser:
                         source_span=(root.idx, root.idx + len(root.text)), kind="predicate"
                     )
                 ]
-        negation_spans = tuple(
+        negation_spans = [
             (token.idx, token.idx + len(token.text)) for token in doc if token.dep_ == "neg"
+        ]
+        # Dependency models can attach a contrastive correction such as
+        # "wait, I meant ..." to one root and omit the superseded clause.
+        # Preserve that deterministic safety signal so a single-action fast
+        # path cannot silently mutate the wrong referent.
+        for match in re.finditer(
+            r"\b(?:wait\s*,?\s*i\s+meant|actually\s*,?\s+i\s+meant|no\s*,?\s+i\s+meant)\b",
+            utterance,
+            flags=re.IGNORECASE,
+        ):
+            negation_spans.append(match.span())
+        return StructuralCoverageSignal(
+            anchors=tuple(anchors), negation_spans=tuple(negation_spans)
         )
-        return StructuralCoverageSignal(anchors=tuple(anchors), negation_spans=negation_spans)
