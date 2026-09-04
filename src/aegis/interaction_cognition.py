@@ -208,6 +208,41 @@ def _has_structural_plurality(dependencies: Any, utterance: str) -> bool:
     return len(signal.anchors) > 1
 
 
+def _bounded_decision_repair(
+    provider: Any,
+    intent: IntentFrame,
+    context: Context,
+    cards: tuple[ActionCard, ...],
+    raw: dict[str, Any] | None,
+    error: InvalidDecision,
+) -> Decision | None:
+    """Repair a decoded action proposal within the shared two-attempt budget."""
+
+    current_raw = raw
+    current_failure = proposal_failure_evidence(error)
+    seen_failures = {proposal_failure_fingerprint(current_failure)}
+    for _ in range(2):
+        repaired, next_failure, repaired_raw = repair_invalid_decision_once_with_evidence(
+            provider,
+            intent,
+            context,
+            cards,
+            current_raw,
+            error,
+            current_failure,
+        )
+        if repaired is not None:
+            return repaired
+        fingerprint = proposal_failure_fingerprint(next_failure)
+        if fingerprint in seen_failures:
+            return None
+        seen_failures.add(fingerprint)
+        current_raw = repaired_raw or current_raw
+        current_failure = next_failure
+        error = InvalidDecision(next_failure.detail or next_failure.kind.value)
+    return None
+
+
 def _repair_clarification(
     provider: Any,
     intent: IntentFrame,
@@ -482,29 +517,9 @@ def decide_fallback(
             # A malformed or rejected proposal may receive at most two
             # validation-guided repairs. Every repair is decoded against the
             # original candidate set before this function continues.
-            current_raw = last_raw
-            current_failure = proposal_failure_evidence(error)
-            seen_failures = {proposal_failure_fingerprint(current_failure)}
-            for _ in range(2):
-                repaired, next_failure, repaired_raw = repair_invalid_decision_once_with_evidence(
-                    provider,
-                    intent,
-                    context,
-                    cards,
-                    current_raw,
-                    error,
-                    current_failure,
-                )
-                if repaired is not None:
-                    decision = repaired
-                    break
-                fingerprint = proposal_failure_fingerprint(next_failure)
-                if fingerprint in seen_failures:
-                    break
-                seen_failures.add(fingerprint)
-                current_raw = repaired_raw or current_raw
-                current_failure = next_failure
-                error = InvalidDecision(next_failure.detail or next_failure.kind.value)
+            decision = _bounded_decision_repair(provider, intent, context, cards, last_raw, error)
+            if decision is None:
+                raise error
             if decision is None:
                 raise error
         if decision is None and routing_only:
@@ -935,9 +950,28 @@ def decide_fallback(
                 # object argument. Re-ask with the already-selected card;
                 # this remains bounded cognition, not phrase extraction.
                 focused = request.model_copy(update={"action_cards": (card,)})
-                decision = decoder.decode(
-                    provider.decide(focused), (card,), allow_argument_proposals=True
+                focused_response = provider.decide(focused)
+                focused_raw = (
+                    focused_response.raw if isinstance(focused_response.raw, dict) else None
                 )
+                try:
+                    decision = decoder.decode(
+                        focused_response, (card,), allow_argument_proposals=True
+                    )
+                except InvalidDecision as error:
+                    decision = _bounded_decision_repair(
+                        provider, intent, context, (card,), focused_raw, error
+                    )
+                    if decision is None:
+                        raise error
+                if decision.action is not None and not decision.action.arguments:
+                    missing_argument_error = InvalidDecision("required action argument is missing")
+                    repaired = _bounded_decision_repair(
+                        provider, intent, context, (card,), focused_raw, missing_argument_error
+                    )
+                    if repaired is None:
+                        raise missing_argument_error
+                    decision = repaired
         return decision
     except InvalidDecision as exc:
         return recover_invalid_model_decision(dependencies, intent, context, focused_raw, exc)
