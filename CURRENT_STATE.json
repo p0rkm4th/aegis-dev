@@ -195,8 +195,8 @@
   "active_branch": "aegis-dev",
   "repository_head_sha": "646efd1",
   "deterministic_green_sha": "646efd1",
-  "last_pushed_sha": "646efd1",
-  "hosted_ci_green_sha": "646efd1",
+  "last_pushed_sha": "cce61cb",
+  "hosted_ci_green_sha": "cce61cb",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
