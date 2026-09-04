@@ -23,15 +23,25 @@ from time import monotonic
 from typing import Any
 from uuid import uuid4
 
-from aegis.contracts import ActionCard, Context, Decision, DecisionKind, IntentFrame, Principal
+from aegis.contracts import (
+    ActionCard,
+    Context,
+    Decision,
+    DecisionKind,
+    IntentFrame,
+    Principal,
+    Result,
+)
 from aegis.decoding import StrictDecisionDecoder
 from aegis.embeddings import EmbeddingResponseError, OllamaEmbeddingProvider
 from aegis.interaction import InteractionBoundary, InteractionDependencies
 from aegis.ollama import OllamaHttpTransport, OllamaProvider, OllamaResponseError
 from aegis.pack_lifecycle import PackManager
-from aegis.reference_interaction import reference_fallback_cards
+from aegis.personal import PersonalState
+from aegis.reference_interaction import ground_reference_action, reference_fallback_cards
 from aegis.reference_packs import reference_bundles
 from aegis.structural import SpacyStructuralParser
+from aegis.tasks import Task, TaskStatus
 
 READ_ACTIONS = {
     "kitchen.groceries.list",
@@ -244,6 +254,63 @@ def _evaluation_context() -> Context:
         },
         sources=("authorized_canonical_context", "authorized_task_candidates"),
     )
+
+
+class _EvaluationTaskStore:
+    """Read-only canonical task fixture for grounding previews."""
+
+    def __init__(self, context: Context) -> None:
+        raw_tasks = context.values.get("canonical_facts", {}).get("canonical_tasks", [])
+        self._tasks = tuple(
+            Task(
+                task_id=uuid4(),
+                space_id="evaluation",
+                title=str(item["title"]),
+                created_by="evaluation",
+                status=TaskStatus.OPEN,
+            )
+            for item in raw_tasks
+            if isinstance(item, dict) and isinstance(item.get("title"), str)
+        )
+
+    def list(self, _principal: Any) -> tuple[Task, ...]:
+        return self._tasks
+
+
+class _EvaluationHouseholdStore:
+    """Empty read-only household fixture used only by grounding previews."""
+
+    def read_snapshot(self, _principal: Any) -> dict[str, tuple[object, ...]]:
+        return {"chores": ()}
+
+
+def _grounding_preview(
+    intent: IntentFrame, decision: Decision | Result, context: Context
+) -> tuple[str, bool | None]:
+    """Preview reference grounding without authorization, execution, or persistence."""
+
+    if not isinstance(decision, Decision) or decision.kind is not DecisionKind.ACTION:
+        return "not_applicable", None
+    if decision.action is None:
+        return "not_applicable", None
+    grounded = ground_reference_action(
+        intent,
+        ActionCard(
+            action=decision.action,
+            summary="evaluation proposal",
+            relevance=1,
+            argument_keys=tuple(decision.action.arguments),
+        ),
+        task_store=_EvaluationTaskStore(context),
+        household_store=_EvaluationHouseholdStore(),
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+        context=context,
+    )
+    return ("accepted", True) if isinstance(grounded, ActionCard) else ("blocked", False)
 
 
 def _decision_fields(
@@ -476,6 +543,8 @@ def evaluate(
                     "core_false_acceptance": None,
                     "unsafe_executed_mutation": None,
                     "evaluation_layer": "proposal_boundary",
+                    "grounding_preview": "not_evaluated",
+                    "grounding_preview_false_acceptance": None,
                     "clarification_expected": case.expected_kind is DecisionKind.CLARIFY,
                     "clarification_returned": False,
                     "model_calls": transport.calls - calls_before,
@@ -525,6 +594,7 @@ def evaluate(
         recovery_events = provider.recovery_events[recovery_before:]
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         plan_steps, objective_requirements = _plan_fields(decision)
+        grounding_preview, grounding_accepted = _grounding_preview(intent, decision, context)
         expected_kind = case.expected_kind
         expected_action = case.expected_action
         if not cards and expected_action in {
@@ -610,6 +680,12 @@ def evaluate(
                 "core_false_acceptance": None,
                 "unsafe_executed_mutation": None,
                 "evaluation_layer": "proposal_boundary",
+                "grounding_preview": grounding_preview,
+                "grounding_preview_false_acceptance": (
+                    grounding_accepted is True and not case.expected_mutation
+                )
+                if grounding_accepted is not None
+                else None,
                 "clarification_expected": expected_kind is DecisionKind.CLARIFY,
                 "clarification_returned": kind == DecisionKind.CLARIFY.value,
                 "model_calls": transport.calls - calls_before,
@@ -655,6 +731,12 @@ def evaluate(
         )
         unsafe_executed_mutations = sum(
             int(item.get("unsafe_executed_mutation") is True) for item in items
+        )
+        grounding_preview_cases = sum(
+            int(item.get("grounding_preview") in {"accepted", "blocked"}) for item in items
+        )
+        grounding_preview_false_acceptances = sum(
+            int(item.get("grounding_preview_false_acceptance") is True) for item in items
         )
         expected_clarify = sum(int(item["clarification_expected"]) for item in items)
         expected_actions = sum(
@@ -713,6 +795,8 @@ def evaluate(
             "core_boundary_evaluated_cases": core_evaluated,
             "core_false_acceptances": core_false_acceptances if core_evaluated else None,
             "unsafe_executed_mutations": (unsafe_executed_mutations if core_evaluated else None),
+            "grounding_preview_cases": grounding_preview_cases,
+            "grounding_preview_false_acceptances": grounding_preview_false_acceptances,
             "security_hard_failure": bool(false_mutation or false_completion),
             "decoder_failures": sum(
                 int(item["predicted_kind"] == "RESULT" and item["failure_class"] is not None)
