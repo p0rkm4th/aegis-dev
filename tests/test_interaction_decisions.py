@@ -89,6 +89,66 @@ def test_clarification_proposal_gets_bounded_repair_before_returning_blocked() -
     assert sum(request.proposal_repair_only for request in calls) == 1
 
 
+def test_missing_action_argument_uses_bounded_repair_after_focused_retry() -> None:
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.create",
+            capability="tasks.create",
+            required_permissions=("tasks.write",),
+        ),
+        summary="Create a named task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    calls: list[ModelRequest] = []
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            calls.append(request)
+            if request.classification_only:
+                return ModelResponse(raw={"semantic_mode": "ACTION"})
+            if request.proposal_repair_only:
+                return ModelResponse(
+                    raw={
+                        "kind": "ACTION",
+                        "semantic_mode": "ACTION",
+                        "knowledge_source": "general_model_knowledge",
+                        "action_ref": "tasks.create",
+                        "action_arguments": {"title": "buy stamps"},
+                    }
+                )
+            if request.action_cards == (card,):
+                return ModelResponse(raw={"kind": "ACTION"})
+            return ModelResponse(
+                raw={
+                    "kind": "ACTION",
+                    "semantic_mode": "ACTION",
+                    "knowledge_source": "general_model_knowledge",
+                    "action_ref": "tasks.create",
+                    "action_arguments": {},
+                }
+            )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=False,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="v"), utterance="add buy stamps to my tasks"
+        ),
+        (card,),
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.action is not None
+    assert result.action.arguments == {"title": "buy stamps"}
+    assert sum(request.proposal_repair_only for request in calls) == 1
+
+
 def test_action_resolution_uses_the_supplied_bounded_working_set() -> None:
     card = ActionCard(
         action=ActionSpec(action_id="weather.note.write", capability="weather.write"),
