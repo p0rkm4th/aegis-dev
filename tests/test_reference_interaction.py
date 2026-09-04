@@ -138,7 +138,7 @@ def test_grocery_read_fast_path_does_not_claim_undated_temporal_scope() -> None:
     )
     assert result is not None
     assert result.state is ObjectiveState.BLOCKED
-    assert "items to buy" in result.message
+    assert "not date-specific" in result.message
 
 
 def test_memory_fast_path_keeps_explicit_memory_requests() -> None:

@@ -634,6 +634,24 @@ class GroceryReadFastPath:
                 correlation_id=intent.correlation_id,
             )
         if applicability is ReadApplicability.CLARIFY:
+            if any(
+                term in intent.utterance.casefold()
+                for term in ("today", "tomorrow", "yesterday", "this week", "next week")
+            ):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=(
+                        "The canonical grocery list is not date-specific. "
+                        "Please ask for the shopping list, or provide a dated source."
+                    ),
+                    evidence={
+                        "semantic_scope": "kitchen.shopping_list",
+                        "applicability": "CLARIFY",
+                        "reason": "temporal_scope_unavailable",
+                    },
+                    correlation_id=intent.correlation_id,
+                )
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
