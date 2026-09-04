@@ -327,6 +327,18 @@ class OllamaProvider:
                 "repaired response will be decoded and validated again by Core; never execute "
                 "anything and never return hidden reasoning."
             )
+            if (
+                request.repair_validator_stage == "proposal_repair"
+                and request.proposal_failure is not None
+                and request.proposal_failure.kind.value == "UNACCOUNTED_STRUCTURAL_ANCHOR"
+            ):
+                instruction += (
+                    " The supplied diagnosis means the request contains multiple independently "
+                    "requested changes: return a PLAN with one independently grounded step "
+                    "per change. Do not return CLARIFY merely because the prior proposal was "
+                    "incomplete; return CLARIFY only for genuine ambiguity or an unavailable "
+                    "capability."
+                )
         elif request.objective_effect_only:
             instruction = (
                 "Segment every independent requested state change into a grounded effect. "
