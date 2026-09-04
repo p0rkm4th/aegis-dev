@@ -649,7 +649,32 @@ def resolve_reference_safety_fast_paths(
         # clarification; the context-free guard protects only corrections that
         # lack canonical context to resolve against.
         return None
+    if context is not None and _ambiguous_temporal_collection_follow_up(intent, context):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "Could you clarify what you mean by that date? Are you asking about "
+                "tasks, events, or groceries?"
+            ),
+            correlation_id=intent.correlation_id,
+        )
     return ContextualMutationGuard.resolve(intent)
+
+
+def _ambiguous_temporal_collection_follow_up(intent: IntentFrame, context: Context) -> bool:
+    """Keep a date-only follow-up from becoming an ungrounded mutation."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return False
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+        return False
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    return (
+        re.fullmatch(r"(?:what|how) about (?:today|tomorrow|this week|next week)", text) is not None
+    )
 
 
 def build_reference_fallback_context(
