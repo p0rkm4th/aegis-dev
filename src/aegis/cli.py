@@ -902,7 +902,7 @@ def run_interaction(
 
         endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
         query = " ".join(effect.normalized_effect for effect in effects).strip()[:500]
-        if not endpoint or not query:
+        if not query:
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.FAILED,
@@ -910,6 +910,23 @@ def run_interaction(
                 evidence={"investigation": "authorized_read_only", "authoritative": False},
                 correlation_id=intent.correlation_id,
                 retryable=True,
+            )
+        if not endpoint:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I checked the currently installed capabilities, but none covers this "
+                    "request. The objective remains open; no capability or permission was added."
+                ),
+                evidence={
+                    "investigation": "authorized_capability_inventory",
+                    "authoritative": False,
+                    "objective_open": True,
+                    "provider_configured": False,
+                    "available_action_ids": list(runtime_registry.action_ids()),
+                },
+                correlation_id=intent.correlation_id,
             )
         try:
             evidence = ResearchService(
