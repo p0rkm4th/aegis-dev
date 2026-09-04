@@ -679,6 +679,35 @@ def decide_fallback(
                 if fingerprint == clarification_fingerprint:
                     break
                 clarification_fingerprint = fingerprint
+        if decision.kind is DecisionKind.ACTION and decision.action is not None:
+            structural_failure = _structural_write_failure(dependencies, intent, decision, cards)
+            conjunction_failure = " and " in f" {intent.utterance.casefold()} " and any(
+                permission.endswith(".write")
+                for card in cards
+                if card.action.action_id == decision.action.action_id
+                for permission in card.action.required_permissions
+            )
+            if structural_failure is not None or conjunction_failure:
+                # Route the incomplete single-action proposal through the same
+                # bounded PLAN repair before the fidelity validator runs. A
+                # late clarification would otherwise discard the repair seam
+                # and leave supported compound requests unrecoverable.
+                decision = _repair_clarification(
+                    repair_provider,
+                    intent,
+                    context,
+                    cards,
+                    decision,
+                    structural_failure
+                    or "the request contains multiple independently requested changes",
+                    ProposalFailureEvidence(
+                        kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
+                        detail=structural_failure
+                        or "structural plurality requires one plan step per requested change",
+                    ),
+                    plans_only=True,
+                    max_attempts=2,
+                )
         if decision.kind is DecisionKind.ANSWER and decision.knowledge_source in {
             "external_evidence",
             "mixed_evidence",
@@ -1193,38 +1222,23 @@ def decide_fallback(
             if rewritten is not None:
                 decision = rewritten
         if decision.kind is DecisionKind.ACTION and decision.action is not None:
-            structural_failure = _structural_write_failure(dependencies, intent, decision, cards)
-            if structural_failure is not None:
-                return Decision(
-                    kind=DecisionKind.CLARIFY,
-                    clarification=structural_failure,
-                    semantic_mode="CLARIFY",
-                )
-        if (
-            decision.kind is DecisionKind.ACTION
-            and decision.action is not None
-            and " and " in f" {intent.utterance.casefold()} "
-            and any(
+            action = decision.action
+            if " and " in f" {intent.utterance.casefold()} " and any(
                 permission.endswith(".write")
                 for card in cards
-                if card.action.action_id == decision.action.action_id
+                if card.action.action_id == action.action_id
                 for permission in card.action.required_permissions
-            )
-        ):
-            # Durable structural safety rule: a conjunction in a consequential
-            # request cannot be silently reduced to one ACTION.  Compound
-            # interpretation must produce a complete PLAN or clarify; this is
-            # intentionally not a vocabulary of English action phrases.
-            return Decision(
-                kind=DecisionKind.CLARIFY,
-                clarification=(
-                    "This request contains more than one change, but I could not "
-                    "form a complete verified plan. Please clarify the changes."
-                ),
-                semantic_mode="CLARIFY",
-            )
-        if decision.kind is DecisionKind.ACTION and decision.action is not None:
-            action = decision.action
+            ):
+                # A failed bounded repair must not restore the original
+                # single-action proposal across a compound request.
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=(
+                        "This request contains more than one change, but I could not "
+                        "form a complete verified plan. Please clarify the changes."
+                    ),
+                    semantic_mode="CLARIFY",
+                )
             if decision.kind is not DecisionKind.ACTION or action is None:
                 return decision
             selected_card = next(
