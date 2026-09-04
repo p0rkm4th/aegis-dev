@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 from uuid import uuid4
 
@@ -12,6 +13,7 @@ from .contracts import (
     DecisionKind,
     IntentFrame,
     ObjectiveState,
+    RequestedEffect,
     Result,
 )
 from .interaction_context import authorized_context_evidence
@@ -57,6 +59,7 @@ def resolve_fallback_decision(
     intent: IntentFrame,
     context: Context,
     cards: tuple[ActionCard, ...],
+    unresolved_requirement_investigator: Callable[..., Result | None] | None = None,
 ) -> ActionCard | Result:
     """Resolve a bounded proposal without granting it authority.
 
@@ -99,6 +102,21 @@ def resolve_fallback_decision(
                 "authorized information."
             )
         if _unknown_consequential_objective(intent, clarification):
+            if unresolved_requirement_investigator is not None:
+                effect = RequestedEffect(
+                    source_spans=((0, len(intent.utterance)),),
+                    normalized_effect=intent.utterance,
+                )
+                try:
+                    investigated = unresolved_requirement_investigator(intent, context, (effect,))
+                except Exception:
+                    investigated = None
+                if (
+                    isinstance(investigated, Result)
+                    and investigated.state in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}
+                    and investigated.evidence.get("authoritative") is False
+                ):
+                    return investigated
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
