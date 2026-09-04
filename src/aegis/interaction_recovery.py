@@ -61,6 +61,25 @@ class ProposalRepairEvent:
     stop_reason: str | None = None
 
 
+def proposal_repair_event_record(event: ProposalRepairEvent) -> dict[str, Any]:
+    """Expose rich recovery telemetry without breaking evaluator consumers."""
+
+    return {
+        "attempt": event.attempt,
+        "failure_kind": event.input_failure_kind.value,
+        "failure_fingerprint": event.input_failure_fingerprint,
+        "result_kind": event.output_failure_kind.value if event.output_failure_kind else None,
+        "validation_outcome": event.validation_outcome,
+        "validator_stage": event.validator_stage,
+        "decode_outcome": event.decode_outcome,
+        "output_failure_kind": (
+            event.output_failure_kind.value if event.output_failure_kind else None
+        ),
+        "output_failure_fingerprint": event.output_failure_fingerprint,
+        "stop_reason": event.stop_reason,
+    }
+
+
 @dataclass(frozen=True)
 class ProposalRepairResult(Generic[T]):
     proposal: T | None

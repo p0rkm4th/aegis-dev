@@ -31,6 +31,7 @@ from .interaction_recovery import (
     bounded_proposal_repair,
     proposal_failure_evidence,
     proposal_failure_fingerprint,
+    proposal_repair_event_record,
     recover_invalid_model_decision,
     repair_invalid_decision_once,
 )
@@ -257,7 +258,7 @@ def _repair_clarification(
     )
     events = getattr(provider, "recovery_events", None)
     if isinstance(events, list):
-        events.extend(event.__dict__ for event in result.events)
+        events.extend(proposal_repair_event_record(event) for event in result.events)
     return result.proposal if result.proposal is not None else decision
 
 
@@ -709,7 +710,9 @@ def decide_fallback(
                 )
                 recovery_events = getattr(provider, "recovery_events", None)
                 if isinstance(recovery_events, list):
-                    recovery_events.extend(event.__dict__ for event in repaired_effects.events)
+                    recovery_events.extend(
+                        proposal_repair_event_record(event) for event in repaired_effects.events
+                    )
                 if repaired_effects.proposal is None:
                     return Decision(
                         kind=DecisionKind.CLARIFY,
