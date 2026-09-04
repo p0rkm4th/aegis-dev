@@ -41,3 +41,13 @@ The dominant remaining failure is therefore requested-effect cognition / plan
 proposal quality interacting with the conservative structural gate, not a
 missing authority check. No phrase-specific routing, parser authority, or
 second reviewer model was added.
+
+## Follow-up parser experiment
+
+A bounded follow-up widened structural anchors for argument-bearing `dep` and
+`advcl` predicates so previously under-segmented clauses could expose more
+write candidates. On the same 41-case Qwen3:8B corpus, supported-clear route
+accuracy was 3/20, inappropriate clarification was 80%, mean latency was
+11.24 s, and model calls increased to 91. The broader signal increased
+decision noise without improving usable compound planning, so the experiment
+was reverted and is not part of the production checkpoint.
