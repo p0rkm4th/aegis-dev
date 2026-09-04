@@ -503,6 +503,7 @@ def test_structural_repair_rejects_prettier_plan_with_stale_effect_coverage() ->
     assert "anchor_count=3" in repair_request.proposal_failure.detail
     assert "effect_count=2" in repair_request.proposal_failure.detail
     assert "unmatched_anchors=[(6, 7)]" in repair_request.proposal_failure.detail
+    assert repair_request.proposal_failure.related_source_spans == ((6, 7),)
 
 
 def test_structural_repair_reenters_fidelity_with_complete_effects() -> None:

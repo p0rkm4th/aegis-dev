@@ -818,6 +818,9 @@ def decide_fallback(
                                 f"unmatched_anchors={unmatched_anchors} "
                                 f"unmatched_effects={unmatched_effects}"
                             ),
+                            related_source_spans=tuple(
+                                unmatched_anchors[:5] + unmatched_effects[:5]
+                            )[:5],
                         ),
                     )
                 return ValidationResult(valid=True)
