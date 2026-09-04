@@ -352,7 +352,12 @@ def context_from_prior_result(
                     "role": "user",
                     "utterance": objective.intent.utterance[:_MAX_CONTEXT_TURN_CHARS],
                     "correlation_id": str(correlation_id),
-                }
+                },
+                {
+                    "role": "assistant",
+                    "message": result.message[:_MAX_CONTEXT_TURN_CHARS],
+                    "correlation_id": str(correlation_id),
+                },
             ],
             "referents": referents,
             "canonical_facts": evidence,

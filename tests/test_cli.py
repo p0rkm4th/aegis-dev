@@ -789,7 +789,12 @@ def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
             "role": "user",
             "utterance": "What's on my grocery list?",
             "correlation_id": str(correlation_id),
-        }
+        },
+        {
+            "role": "assistant",
+            "message": "Your list contains rice.",
+            "correlation_id": str(correlation_id),
+        },
     ]
     assert context.values["referents"] == {
         "those": {
