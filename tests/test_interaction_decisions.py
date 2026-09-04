@@ -22,7 +22,11 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.decoding import StrictDecisionDecoder
-from aegis.interaction_cognition import _scope_plan_by_capability, decide_fallback
+from aegis.interaction_cognition import (
+    _scope_plan_by_capability,
+    _unresolved_investigation_result,
+    decide_fallback,
+)
 from aegis.interaction_decisions import resolve_fallback_decision
 
 
@@ -599,6 +603,44 @@ def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> 
     requirement = result.evidence["unsatisfied_requirements"][0]
     assert requirement["resolution"] == "UNSUPPORTED"
     assert requirement["normalized_effect"] == utterance
+
+
+def test_unresolved_investigation_requires_explicit_non_authoritative_result() -> None:
+    intent = IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance="set up X")
+    effect = object()
+
+    for evidence in ({}, {"authoritative": True}):
+        result = _unresolved_investigation_result(
+            SimpleNamespace(
+                unresolved_requirement_investigator=lambda *_args, evidence=evidence: Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="investigation",
+                    evidence=evidence,
+                    correlation_id=intent.correlation_id,
+                )
+            ),
+            intent,
+            Context(),
+            (effect,),
+        )
+        assert result is None
+
+    result = _unresolved_investigation_result(
+        SimpleNamespace(
+            unresolved_requirement_investigator=lambda *_args: Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="investigation",
+                evidence={"authoritative": False},
+                correlation_id=intent.correlation_id,
+            )
+        ),
+        intent,
+        Context(),
+        (effect,),
+    )
+    assert result is not None
 
 
 def test_plan_fidelity_provider_failure_fails_closed() -> None:

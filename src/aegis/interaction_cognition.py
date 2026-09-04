@@ -244,6 +244,27 @@ def _bounded_decision_repair(
     return None
 
 
+def _unresolved_investigation_result(
+    dependencies: Any, intent: IntentFrame, context: Context, effects: tuple[Any, ...]
+) -> Result | None:
+    """Accept only an explicit non-authoritative, non-completing investigation result."""
+
+    investigator = getattr(dependencies, "unresolved_requirement_investigator", None)
+    if investigator is None:
+        return None
+    try:
+        investigated = investigator(intent, context, effects)
+    except Exception:
+        return None
+    if (
+        isinstance(investigated, Result)
+        and investigated.state in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}
+        and investigated.evidence.get("authoritative") is False
+    ):
+        return investigated
+    return None
+
+
 def _repair_clarification(
     provider: Any,
     intent: IntentFrame,
@@ -762,23 +783,11 @@ def decide_fallback(
                         }
                         and materialized_effects is not None
                     ):
-                        investigator = getattr(
-                            dependencies, "unresolved_requirement_investigator", None
+                        investigated = _unresolved_investigation_result(
+                            dependencies, intent, context, tuple(materialized_effects)
                         )
-                        if investigator is not None:
-                            try:
-                                investigated = investigator(
-                                    intent, context, tuple(materialized_effects)
-                                )
-                            except Exception:
-                                investigated = None
-                            if (
-                                isinstance(investigated, Result)
-                                and investigated.state
-                                in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}
-                                and investigated.evidence.get("authoritative") is not True
-                            ):
-                                return investigated
+                        if investigated is not None:
+                            return investigated
                         return Result(
                             objective_id=uuid4(),
                             state=ObjectiveState.BLOCKED,
