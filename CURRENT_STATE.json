@@ -152,6 +152,7 @@
       ,"M09 objective-fidelity requested-effect boundary at f0a87ae: Core assigns stable action-agnostic RequestedEffect identities only after exact utterance span grounding; optional spaCy structural evidence is reduced to untrusted one-to-one anchors, broad/full-span and duplicate-span coverage is rejected, and negated/superseded effects cannot become action requirements."
       ,"M09 structural fidelity checkpoint at 3f3df07: optional spaCy 3.8.16 with en_core_web_sm 3.8.0 is provisioned in the owner venv and loaded once per process with optional readiness diagnostics; guarded Qwen3:8B probe recorded zero false mutations/completions but 100% inappropriate clarification on the compound-heavy five-case corpus, so safety is proven while owner capability remains non-green. Hosted run 33819184966 passed."
       ,"M09 owner structural-gate promotion at 8d61b05: hosted run 33819875459 passed; installed/running owner release 8d61b05 reports PostgreSQL, Qwen3:8B, identity, and optional structural_parser healthy. A fresh authenticated session completed 20/20 requests without transport failure; groceries and general knowledge were correct, compound writes blocked safely, and a follow-up seven-case dogfood corrected the prior network-memory capture while current-date questions answered. This is safety/runtime evidence, not compound capability-green proof."
+      ,"M09 validation reproducibility at f5ca353: local-date task-window fixtures now use the same owner-local clock as production, eliminating UTC/local-midnight false failures; full validation passed 581 tests and hosted run 33820388323 passed."
     ],
     "capability": [
       "M08.08 natural-language capability green remains intentionally unclaimed; exact canaries and partial unseen-family evidence are recorded separately"
@@ -187,15 +188,15 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8d61b05",
-  "deterministic_green_sha": "8d61b05",
-  "last_pushed_sha": "8d61b05",
-  "hosted_ci_green_sha": "8d61b05",
+  "repository_head_sha": "f5ca353",
+  "deterministic_green_sha": "f5ca353",
+  "last_pushed_sha": "f5ca353",
+  "hosted_ci_green_sha": "f5ca353",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33819875459",
-    "commit_sha": "8d61b05",
+    "run_id": "33820388323",
+    "commit_sha": "f5ca353",
     "conclusion": "success",
     "observed_at": "2026-09-03T09:18:00Z"
   },
