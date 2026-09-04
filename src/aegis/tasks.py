@@ -633,7 +633,7 @@ class TaskReadFastPath:
             due_end = due_start + timedelta(days=1)
             due_filter = "tomorrow"
         elif "next week" in text and any(term in text for term in ("due", "get done", "finish")):
-            due_start = (now + timedelta(days=7)).date()
+            due_start = (now + timedelta(days=7 - now.weekday())).date()
             due_end = due_start + timedelta(days=7)
             due_filter = "next_week"
         elif "this week" in text and any(term in text for term in ("due", "get done", "finish")):
