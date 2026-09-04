@@ -42,6 +42,8 @@ from aegis.contracts import (
     Observation,
     PolicyDecision,
     Principal,
+    ProposalFailureEvidence,
+    ProposalFailureKind,
     ProposedPlan,
     ProposedPlanStep,
     Result,
@@ -3025,6 +3027,19 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
     assert "every independent state change requested by the user" in payload["plan_rule"]
     assert "Keep arguments scoped to their own step" in payload["plan_rule"]
     assert "optional or 'if clearly stated'" in payload["argument_proposal_rule"]
+
+
+def test_ollama_repair_prompt_exposes_validator_stage_only_as_context():
+    request = ModelRequest(
+        working_set=WorkingSet(intent=intent()),
+        action_cards=(),
+        proposal_repair_only=True,
+        repair_validator_stage="requested_effect_structural_coverage",
+        proposal_failure=ProposalFailureEvidence(kind=ProposalFailureKind.BAD_SOURCE_SPAN),
+    )
+    payload = json.loads(OllamaProvider("qwen3:8b", object())._prompt(request))
+    assert payload["repair_validator_stage"] == "requested_effect_structural_coverage"
+    assert payload["proposal_failure"]["kind"] == "BAD_SOURCE_SPAN"
 
 
 def test_ollama_fidelity_prompt_has_no_plan_authority():

@@ -193,11 +193,12 @@ def repair_invalid_decision_once(
     raw: dict[str, Any] | None,
     error: InvalidDecision,
     evidence: ProposalFailureEvidence | None = None,
+    validator_stage: str = "decision_decoder",
 ) -> Decision | None:
     """Ask for one bounded repair; the ordinary decoder remains the gate."""
 
     repaired, _failure, _raw = repair_invalid_decision_once_with_evidence(
-        provider, intent, context, cards, raw, error, evidence
+        provider, intent, context, cards, raw, error, evidence, validator_stage
     )
     return repaired
 
@@ -210,6 +211,7 @@ def repair_invalid_decision_once_with_evidence(
     raw: dict[str, Any] | None,
     error: InvalidDecision,
     evidence: ProposalFailureEvidence | None = None,
+    validator_stage: str = "decision_decoder",
 ) -> tuple[Decision | None, ProposalFailureEvidence, dict[str, Any] | None]:
     """Repair once while retaining the next typed failure and failed proposal."""
 
@@ -221,6 +223,7 @@ def repair_invalid_decision_once_with_evidence(
             allow_argument_proposals=True,
             allow_plan_proposals=True,
             proposal_repair_only=True,
+            repair_validator_stage=validator_stage,
             proposal_failure=evidence,
             current_proposal=raw,
         )
