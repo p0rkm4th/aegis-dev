@@ -86,10 +86,12 @@ from .tasks import (
     requested_task_due_at,
 )
 from .utterance import (
+    has_multiple_question_clauses,
     is_correction_request,
     is_mutation_request,
     is_task_destination_request,
     strip_context_reset,
+    strip_correction_prefix,
 )
 
 
@@ -904,6 +906,17 @@ def resolve_reference_fast_paths(
     # that explicitly asks Core to create or change multiple records.
     if MultiActionFastPath.matches(intent.utterance):
         return None
+    normalized_read = strip_correction_prefix(intent.utterance)
+    if not is_mutation_request(intent.utterance) and has_multiple_question_clauses(normalized_read):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "That request contains multiple independent reads. "
+                "Please ask one at a time so each result stays grounded."
+            ),
+            correlation_id=intent.correlation_id,
+        )
     contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
     if contextual_ordinal_result is not None:
         return contextual_ordinal_result
