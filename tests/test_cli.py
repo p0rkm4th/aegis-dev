@@ -3772,9 +3772,9 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
 
 
 def test_task_read_fast_path_filters_structural_get_done_today_request():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now().astimezone()
     today = Task(uuid4(), "apartment", "today task", "alice", due_at=now.replace(hour=12))
     tomorrow = Task(uuid4(), "apartment", "tomorrow task", "alice", due_at=now + timedelta(days=1))
 
@@ -3887,9 +3887,9 @@ def test_context_reset_strips_dash_before_new_objective():
 
 
 def test_task_read_fast_path_filters_open_tasks_before_weekend():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now().astimezone()
     days_until_saturday = (5 - now.weekday()) % 7 or 7
     before_weekend = Task(
         uuid4(), "apartment", "before weekend task", "alice", due_at=now + timedelta(days=1)
