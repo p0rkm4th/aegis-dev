@@ -96,11 +96,24 @@ class OllamaProvider:
         self.compact_action_cards = compact_action_cards
         self.action_ref_only = action_ref_only
         self.recovery_events: list[dict[str, Any]] = []
+        self.request_mode_counts: dict[str, int] = {}
 
     def available(self) -> bool:
         return True
 
     def decide(self, request: ModelRequest) -> ModelResponse:
+        mode = (
+            "effect_repair"
+            if request.proposal_repair_only and request.objective_effect_only
+            else "effect_segmentation"
+            if request.objective_effect_only
+            else "objective_mapping"
+            if request.objective_interpretation_only
+            else "objective_fidelity"
+            if request.objective_fidelity_only
+            else "ordinary_decision"
+        )
+        self.request_mode_counts[mode] = self.request_mode_counts.get(mode, 0) + 1
         prompt = self._prompt(request)
         for attempt in range(self.max_repairs + 1):
             payload = {

@@ -2875,6 +2875,7 @@ def test_ollama_provider_repairs_malformed_json_once():
     )
     assert response.raw == {"kind": "ANSWER", "answer": "ok"}
     assert len(transport.calls) == 2
+    assert provider.request_mode_counts == {"ordinary_decision": 1}
     assert "invalid" in transport.calls[1]["messages"][0]["content"]
     assert transport.calls[0]["think"] is False
     assert transport.calls[0]["format"]["title"] == "Decision"

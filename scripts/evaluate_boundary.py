@@ -376,6 +376,7 @@ def evaluate(
         prompt_tokens_before = transport.prompt_tokens
         output_tokens_before = transport.output_tokens
         model_latency_before = transport.elapsed_ms
+        request_modes_before = dict(provider.request_mode_counts)
         intent = IntentFrame(principal=principal, utterance=case.utterance, correlation_id=uuid4())
         context = _evaluation_context()
         retrieval_traces.clear()
@@ -427,6 +428,11 @@ def evaluate(
                     "output_tokens": transport.output_tokens - output_tokens_before,
                     "model_call_latency_ms": round(transport.elapsed_ms - model_latency_before, 2),
                     "latency_ms": elapsed_ms,
+                    "request_mode_counts": {
+                        mode: count - request_modes_before.get(mode, 0)
+                        for mode, count in provider.request_mode_counts.items()
+                        if count - request_modes_before.get(mode, 0)
+                    },
                     "repair_attempts": len(provider.recovery_events) - recovery_before,
                     "repair_failure_kinds": [
                         event["failure_kind"]
@@ -545,6 +551,11 @@ def evaluate(
                 "output_tokens": transport.output_tokens - output_tokens_before,
                 "model_call_latency_ms": round(transport.elapsed_ms - model_latency_before, 2),
                 "latency_ms": round((monotonic() - started) * 1000, 2),
+                "request_mode_counts": {
+                    mode: count - request_modes_before.get(mode, 0)
+                    for mode, count in provider.request_mode_counts.items()
+                    if count - request_modes_before.get(mode, 0)
+                },
                 "repair_attempts": len(recovery_events),
                 "repair_failure_kinds": [event["failure_kind"] for event in recovery_events],
                 "repair_failure_fingerprints": [
@@ -680,6 +691,7 @@ def evaluate(
         "provider_evidence_valid": bool(
             sum(int(item["model_calls"]) for item in results) and model_digest
         ),
+        "request_mode_counts": dict(provider.request_mode_counts),
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "prompt_template_sha256": prompt_template_sha,
         "context_builder_sha256": context_builder_sha,
