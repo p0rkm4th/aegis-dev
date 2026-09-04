@@ -606,7 +606,6 @@ def test_compound_mutation_cannot_be_swallowed_by_contextual_read_fast_path():
             "and schedule an appointment to inspect the smoke alarm Friday."
         ),
     )
-
     # The recognized plan must be handed to the plan runner even when a prior
     # authorized task result is present; otherwise TaskReadFastPath wins.
     assert (
@@ -627,6 +626,19 @@ def test_compound_mutation_cannot_be_swallowed_by_contextual_read_fast_path():
         )
         is None
     )
+
+
+def test_compound_cross_domain_read_does_not_claim_only_one_result() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="What tasks are still open and what groceries do we need?",
+    )
+    result = resolve_reference_fast_paths(
+        intent, object(), intent.principal, Context(), None, lambda name: name, True
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "multiple independent reads" in result.message
 
 
 def test_reference_action_grounding_rejects_unrequested_model_deadline() -> None:
