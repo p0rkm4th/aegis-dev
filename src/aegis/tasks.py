@@ -580,7 +580,7 @@ class TaskReadFastPath:
                     for term in ("today", "tomorrow", "this week", "next week", "before weekend")
                 )
                 or re.search(
-                    r"\b(?:this\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+                    r"\b(?:(?:this|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
                     text,
                 )
                 is not None
@@ -642,15 +642,18 @@ class TaskReadFastPath:
             due_filter = "this_week"
         else:
             weekday_match = re.search(
-                r"\b(?:this\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+                r"\b(?:(this|next)\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
                 text,
             )
             if weekday_match is not None:
-                target = _WEEKDAYS.index(weekday_match.group(1))
+                modifier, weekday = weekday_match.groups()
+                target = _WEEKDAYS.index(weekday)
                 days_ahead = (target - now.weekday()) % 7
+                if modifier == "next" and days_ahead == 0:
+                    days_ahead = 7
                 due_start = (now + timedelta(days=days_ahead)).date()
                 due_end = due_start + timedelta(days=1)
-                due_filter = f"weekday:{weekday_match.group(1)}"
+                due_filter = f"weekday:{'next:' if modifier == 'next' else ''}{weekday}"
             else:
                 due_filter = "all"
         if due_start is not None and due_end is not None:
@@ -682,7 +685,7 @@ class ContextualTaskTemporalFastPath:
 
     _TEMPORAL = re.compile(
         r"\b(?:today|tomorrow|next week|this week|"
-        r"monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b"
+        r"(?:(?:this|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday))\b"
     )
 
     def resolve(

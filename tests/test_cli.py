@@ -3862,6 +3862,37 @@ def test_task_read_fast_path_filters_weekday_without_due_verb():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["monday task"]
 
 
+def test_task_read_fast_path_next_same_weekday_means_next_occurrence():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    weekday = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")[
+        now.weekday()
+    ]
+    this_week = Task(uuid4(), "apartment", "today's task", "alice", due_at=now)
+    next_week = Task(
+        uuid4(),
+        "apartment",
+        "next week's task",
+        "alice",
+        due_at=now + timedelta(days=7),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (this_week, next_week)
+
+    utterance = f"Show tasks due next {weekday}"
+    assert TaskReadFastPath.matches(utterance)
+    result = TaskReadFastPath.resolve(
+        TaskReadFastPath(Store()),
+        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance=utterance),
+    )
+    assert result is not None
+    assert result.evidence["due_filter"] == f"weekday:next:{weekday}"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["next week's task"]
+
+
 def test_task_read_fast_path_filters_remaining_task_list_to_open_tasks():
     class Store:
         def list(self, _principal):
