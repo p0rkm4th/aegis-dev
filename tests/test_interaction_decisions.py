@@ -419,6 +419,14 @@ def test_structural_repair_rejects_prettier_plan_with_stale_effect_coverage() ->
         sum(request.proposal_repair_only and request.objective_effect_only for request in calls)
         == 1
     )
+    repair_request = next(
+        request
+        for request in calls
+        if request.proposal_repair_only and request.objective_effect_only
+    )
+    assert repair_request.proposal_failure is not None
+    assert "anchor_count=3" in repair_request.proposal_failure.detail
+    assert "effect_count=2" in repair_request.proposal_failure.detail
 
 
 def test_structural_repair_reenters_fidelity_with_complete_effects() -> None:
