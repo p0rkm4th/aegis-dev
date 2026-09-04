@@ -193,17 +193,17 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "904e616",
-  "deterministic_green_sha": "da1f31a",
-  "last_pushed_sha": "904e616",
-  "hosted_ci_green_sha": "904e616",
+  "repository_head_sha": "aa275d6",
+  "deterministic_green_sha": "aa275d6",
+  "last_pushed_sha": "aa275d6",
+  "hosted_ci_green_sha": "aa275d6",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "904e616",
+    "commit_sha": "aa275d6",
     "conclusion": "success",
-    "run_id": "33910859197",
-    "observed_at": "2026-09-04T19:30:00Z"
+    "run_id": "33912438799",
+    "observed_at": "2026-09-04T20:00:00Z"
   },
   "installed_release_sha": "68ccf71",
   "running_release_sha": "68ccf71",
@@ -1393,5 +1393,6 @@
     "compound_recovery_qwen3_8b_structural_anchor_checkpoint": "execution-free same-contract replay at source 71ac78d over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after a conservative independent-predicate anchor refinement. It made 120 model calls, 17 repair requests, and 30 bounded attempts; supported-clear final correctness was 2/20 (10%) with 90% inappropriate clarification, overall route accuracy 43.90%, and overall correct completion/answer rate 11.54%. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 615 tests with 5 skips and hosted run 33908409400 passed. The parser improvement is retained as evidence quality, but it is not capability-green and does not justify owner promotion or further parser expansion. Report: evidence/evaluations/compound-recovery-qwen3-8b-structural-71ac78d.md.",
     "compound_recovery_qwen3_8b_repair_contract_checkpoint": "execution-free same-contract replay at source da1f31a over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after a typed structural-repair prompt contract. It made 123 model calls, 17 repair requests, and 30 bounded attempts; repair outputs attempted PLANs on several prior clarify cases, but supported-clear final correctness remained 2/20 (10%) with 90% inappropriate clarification, overall route accuracy 46.34%, and overall correct completion/answer rate 15.38%. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 616 tests with 5 skips; hosted validation is pending for this source. The contract is retained as bounded recovery behavior, but it is not capability-green and does not justify owner promotion. Report: evidence/evaluations/compound-recovery-qwen3-8b-repair-contract-da1f31a.md.",
     "compound_recovery_qwen3_8b_plan_correlation_checkpoint": "execution-free same-contract replay at source 3a678ef over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after Core added exact repaired-plan/objective requirement correlation. It made 123 model calls, 17 repair requests, and 30 bounded attempts; supported-clear final correctness remained 2/20 (10%) with 90% inappropriate clarification, overall route accuracy 46.34%, and overall correct completion/answer rate 15.38%, identical to the preceding replay. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 617 tests with 5 skips and hosted run 33911232202 passed. The change closes a containment gap but provides no capability-green evidence; owner promotion is not warranted. Report: evidence/evaluations/compound-recovery-qwen3-8b-plan-correlation-3a678ef.md.",
-    "next_action": "Refresh origin/aegis-dev and hosted truth, then choose the next highest-leverage M09 frontier from evidence: effect-to-plan mapping remains below target, while daily-driver continuity and temporal/correction seams have partial owner proof. Implement only a generic bounded improvement with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Keep installed owner release 68ccf71 explicit; preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
+    "compound_recovery_qwen3_8b_mapping_recovery_checkpoint": "execution-free same-contract replay at source aa275d6 over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after adding bounded candidate-bound recovery for incomplete capability mappings. The mapping pass ran four times but requested no mapping repair; supported-clear final correctness remained 2/20 (10%), inappropriate clarification 90%, overall route accuracy 46.34%, and overall correct completion/answer rate 15.38%. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 619 tests with 5 skips and hosted run 33912438799 passed. This closes an unexercised production seam but is not capability-green and does not justify owner promotion. Report: evidence/evaluations/compound-recovery-qwen3-8b-mapping-aa275d6.md.",
+    "next_action": "Refresh origin/aegis-dev and hosted truth, then select the next highest-leverage M09 frontier from the dominant ordinary-decision telemetry: daily-driver continuity, temporal/correction context, or compound cognition. Prefer a novel owner-runtime reproduction when safe; implement only the smallest generic fix with adversarial regressions, full deterministic validation, real-model replay, and owner proof where warranted. Keep installed owner release 68ccf71 explicit; preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
 }
