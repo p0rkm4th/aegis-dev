@@ -258,6 +258,28 @@ def _decision_fields(
     return ("RESULT", None, {}, str(failure) if failure is not None else None, None)
 
 
+def _plan_fields(value: object) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Expose bounded plan-shape telemetry without retaining private prose."""
+
+    if not isinstance(value, Decision):
+        return [], []
+    steps = [
+        {
+            "action_ref": step.action_ref,
+            "arguments": dict(step.arguments),
+            "depends_on": list(step.depends_on),
+        }
+        for step in (value.plan.steps if value.plan is not None else ())
+    ]
+    requirements = [
+        {"action_ref": requirement.action_ref, "arguments": dict(requirement.arguments)}
+        for requirement in (
+            value.objective_spec.requirements if value.objective_spec is not None else ()
+        )
+    ]
+    return steps, requirements
+
+
 def evaluate(
     corpus: Path,
     *,
@@ -404,6 +426,8 @@ def evaluate(
                     "predicted_kind": "RESULT",
                     "predicted_action": None,
                     "predicted_arguments": {},
+                    "predicted_plan_steps": [],
+                    "predicted_objective_requirements": [],
                     "failure_class": _failure_class(exc),
                     "error_type": type(exc).__name__,
                     "expected_kind": case.expected_kind.value,
@@ -469,6 +493,7 @@ def evaluate(
         retrieval = retrieval_traces[-1] if retrieval_traces else {"candidates": []}
         recovery_events = provider.recovery_events[recovery_before:]
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
+        plan_steps, objective_requirements = _plan_fields(decision)
         expected_kind = case.expected_kind
         expected_action = case.expected_action
         if not cards and expected_action in {
@@ -517,6 +542,8 @@ def evaluate(
                 "predicted_kind": kind,
                 "predicted_action": action,
                 "predicted_arguments": arguments,
+                "predicted_plan_steps": plan_steps,
+                "predicted_objective_requirements": objective_requirements,
                 "failure_class": failure_class,
                 "expected_kind": expected_kind.value,
                 "expected_action": expected_action,
