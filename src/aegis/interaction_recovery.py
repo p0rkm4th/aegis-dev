@@ -89,6 +89,10 @@ def repair_invalid_decision_once(
             current_proposal=raw,
         )
     )
+    try:
+        repaired = StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
+    except InvalidDecision:
+        repaired = None
     events = getattr(provider, "recovery_events", None)
     if isinstance(events, list):
         events.append(
@@ -96,12 +100,10 @@ def repair_invalid_decision_once(
                 "failure_kind": evidence.kind.value,
                 "failure_fingerprint": proposal_failure_fingerprint(evidence),
                 "result_kind": response.raw.get("kind") if isinstance(response.raw, dict) else None,
+                "validation_outcome": "accepted" if repaired is not None else "rejected",
             }
         )
-    try:
-        return StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
-    except InvalidDecision:
-        return None
+    return repaired
 
 
 @dataclass(frozen=True)
