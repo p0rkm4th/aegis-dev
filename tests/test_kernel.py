@@ -3051,6 +3051,23 @@ def test_ollama_repair_prompt_exposes_validator_stage_only_as_context():
     assert payload["proposal_failure"]["kind"] == "BAD_SOURCE_SPAN"
 
 
+def test_ollama_structural_repair_prompt_requires_plan_attempt():
+    request = ModelRequest(
+        working_set=WorkingSet(intent=intent()),
+        action_cards=(),
+        proposal_repair_only=True,
+        repair_validator_stage="proposal_repair",
+        proposal_failure=ProposalFailureEvidence(
+            kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR
+        ),
+    )
+
+    payload = json.loads(OllamaProvider("qwen3:8b", object())._prompt(request))
+
+    assert "return a PLAN" in payload["instruction"]
+    assert "Do not return CLARIFY merely" in payload["instruction"]
+
+
 def test_ollama_fidelity_prompt_has_no_plan_authority():
     proposal = ObjectiveSpecProposal(
         requirements=(ObjectiveRequirementProposal(action_ref="tasks.create"),)
