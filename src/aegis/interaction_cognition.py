@@ -326,9 +326,6 @@ def _repair_clarification(
         validator_stage="proposal_repair",
         max_attempts=max_attempts,
     )
-    events = getattr(provider, "recovery_events", None)
-    if isinstance(events, list):
-        events.extend(proposal_repair_event_record(event) for event in result.events)
     return result.proposal if result.proposal is not None else decision
 
 

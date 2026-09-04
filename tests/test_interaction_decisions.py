@@ -734,6 +734,7 @@ def test_compound_plan_repair_budget_is_one_before_generic_recovery() -> None:
 
     assert result.kind is DecisionKind.CLARIFY
     assert calls == 1
+    assert len(Provider.recovery_events) == 1
 
 
 def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> None:
