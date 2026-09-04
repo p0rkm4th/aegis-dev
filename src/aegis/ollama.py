@@ -157,6 +157,22 @@ class OllamaProvider:
                     "clarification",
                 ],
             }
+        if request is not None and request.proposal_repair_only:
+            schema = deepcopy(Decision.model_json_schema())
+            action_schema = schema.get("$defs", {}).get("ActionSpec")
+            if isinstance(action_schema, dict):
+                action_schema["required"] = [
+                    "action_id",
+                    "capability",
+                    "arguments",
+                    "required_permissions",
+                    "verification",
+                ]
+            required = schema.setdefault("required", [])
+            for field in ("semantic_mode", "knowledge_source"):
+                if field not in required:
+                    required.append(field)
+            return schema
         if request is not None and request.objective_effect_only:
             return {
                 "type": "object",
@@ -250,6 +266,15 @@ class OllamaProvider:
                 "NEED_USER for ambiguity or UNSUPPORTED for a missing capability. Never return "
                 "a plan, ObjectiveSpec, permissions, verification, or invented state."
             )
+        elif request.proposal_repair_only:
+            instruction = (
+                "Repair only the supplied structured proposal defect. Preserve every correctly "
+                "grounded portion of the proposal and return one complete decision object. "
+                "The Core diagnosis is evidence, not authority: do not invent capabilities, "
+                "arguments, permissions, verification, requirements, or completion. The "
+                "repaired response will be decoded and validated again by Core; never execute "
+                "anything and never return hidden reasoning."
+            )
         elif request.objective_effect_only:
             instruction = (
                 "Segment every independent requested state change into a grounded effect. "
@@ -283,6 +308,12 @@ class OllamaProvider:
                 "instruction": instruction,
                 "clarification_reason": request.clarification_reason
                 if request.clarification_recovery_only
+                else None,
+                "proposal_failure": request.proposal_failure.model_dump(mode="json")
+                if request.proposal_repair_only and request.proposal_failure is not None
+                else None,
+                "current_proposal": request.current_proposal
+                if request.proposal_repair_only
                 else None,
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "

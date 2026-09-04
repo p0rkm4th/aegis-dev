@@ -7,9 +7,14 @@ from aegis.contracts import (
     Context,
     IntentFrame,
     Principal,
+    ProposalFailureEvidence,
+    ProposalFailureKind,
 )
 from aegis.interaction_recovery import (
     evaluate_clarification_recovery_cases,
+    proposal_failure_evidence,
+    proposal_failure_fingerprint,
+    repair_invalid_decision_once,
     request_clarification_recovery,
     validate_clarification_recovery,
 )
@@ -123,3 +128,66 @@ def test_development_recovery_corpus_has_zero_unsafe_acceptances() -> None:
     assert metrics.accepted_resolutions == 1
     assert metrics.unsafe_acceptances == 0
     assert metrics.rejected_cases == 5
+
+
+def test_proposal_failure_evidence_is_bounded_and_fingerprint_stable() -> None:
+    evidence = proposal_failure_evidence(ValueError("plan has missing requirement coverage"))
+    assert evidence.kind is ProposalFailureKind.MISSING_EFFECT
+    assert proposal_failure_fingerprint(evidence) == proposal_failure_fingerprint(
+        ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_EFFECT, detail=evidence.detail)
+    )
+    assert len(proposal_failure_fingerprint(evidence)) == 16
+
+
+def test_repair_contract_is_not_an_execution_contract() -> None:
+    from aegis.contracts import IntentFrame, ModelRequest, WorkingSet
+
+    request = ModelRequest(
+        working_set=WorkingSet(
+            intent=IntentFrame(utterance="add milk", principal=Principal(id="a", vault_id="v")),
+            context=Context(),
+        ),
+        action_cards=(card(),),
+        proposal_repair_only=True,
+        proposal_failure=ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_ARGUMENT),
+        current_proposal={"kind": "ACTION"},
+    )
+    assert request.proposal_repair_only is True
+    assert request.proposal_failure is not None
+    assert not hasattr(request.proposal_failure, "action")
+
+
+def test_invalid_proposal_repair_is_decoded_against_supplied_cards() -> None:
+    from aegis.decoding import InvalidDecision
+
+    class Provider:
+        def decide(self, request: object) -> object:
+            assert getattr(request, "proposal_repair_only") is True
+            return type(
+                "Response",
+                (),
+                {
+                    "raw": {
+                        "kind": "ACTION",
+                        "semantic_mode": "ACTION",
+                        "knowledge_source": "general_model_knowledge",
+                        "action": {
+                            **card().action.model_dump(mode="json"),
+                            "arguments": {"title": "Replace porch bulb"},
+                        },
+                    }
+                },
+            )()
+
+    repaired = repair_invalid_decision_once(
+        Provider(),
+        IntentFrame(utterance="finish that bulb thing", principal=Principal(id="a", vault_id="v")),
+        Context(),
+        (card(),),
+        {"kind": "ACTION", "action_ref": "tasks.complete"},
+        InvalidDecision("missing argument"),
+    )
+    assert repaired is not None
+    assert repaired.kind.value == "ACTION"
+    assert repaired.action is not None
+    assert repaired.action.action_id == "tasks.complete"

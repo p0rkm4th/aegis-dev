@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass
 from typing import Any
 from uuid import uuid4
@@ -18,12 +20,76 @@ from .contracts import (
     IntentFrame,
     ModelRequest,
     ObjectiveState,
+    ProposalFailureEvidence,
+    ProposalFailureKind,
     Result,
     WorkingSet,
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_context import grounded_context_answer
 from .utterance import is_mutation_request, is_question_request
+
+
+def proposal_failure_evidence(error: Exception) -> ProposalFailureEvidence:
+    """Map validator failures to a bounded repair diagnosis."""
+
+    message = str(error).casefold()
+    mappings = (
+        (("coverage", "requirement", "missing"), ProposalFailureKind.MISSING_EFFECT),
+        (("extra", "coverage"), ProposalFailureKind.EXTRA_EFFECT),
+        (("negat",), ProposalFailureKind.NEGATED_EFFECT_ACTIVE),
+        (("supersed",), ProposalFailureKind.SUPERSEDED_EFFECT_ACTIVE),
+        (("span", "ground"), ProposalFailureKind.BAD_SOURCE_SPAN),
+        (("argument", "missing"), ProposalFailureKind.MISSING_ARGUMENT),
+        (("argument",), ProposalFailureKind.INVALID_ARGUMENT),
+        (("not an authorized",), ProposalFailureKind.CAPABILITY_MISMATCH),
+        (("capability", "unavailable"), ProposalFailureKind.CAPABILITY_UNAVAILABLE),
+        (("ambiguous",), ProposalFailureKind.AMBIGUOUS_ENTITY),
+        (("unknown", "entity"), ProposalFailureKind.UNKNOWN_ENTITY),
+        (("unsupported",), ProposalFailureKind.UNSUPPORTED_REQUIREMENT),
+    )
+    kind = ProposalFailureKind.DECODER_SCHEMA_FAILURE
+    for needles, candidate in mappings:
+        if all(needle in message for needle in needles):
+            kind = candidate
+            break
+    return ProposalFailureEvidence(kind=kind, detail=str(error)[:240] or None)
+
+
+def proposal_failure_fingerprint(evidence: ProposalFailureEvidence) -> str:
+    """Return a stable, privacy-minimal identity for repeated repair failures."""
+
+    payload = evidence.model_dump(mode="json")
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()[:16]
+
+
+def repair_invalid_decision_once(
+    provider: Any,
+    intent: IntentFrame,
+    context: Context,
+    cards: tuple[ActionCard, ...],
+    raw: dict[str, Any] | None,
+    error: InvalidDecision,
+) -> Decision | None:
+    """Ask for one bounded repair; the ordinary decoder remains the gate."""
+
+    evidence = proposal_failure_evidence(error)
+    response = provider.decide(
+        ModelRequest(
+            working_set=WorkingSet(intent=intent, context=context),
+            action_cards=cards,
+            allow_argument_proposals=True,
+            allow_plan_proposals=True,
+            proposal_repair_only=True,
+            proposal_failure=evidence,
+            current_proposal=raw,
+        )
+    )
+    try:
+        return StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
+    except InvalidDecision:
+        return None
 
 
 @dataclass(frozen=True)
