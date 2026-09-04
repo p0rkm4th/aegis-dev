@@ -1,0 +1,45 @@
+{
+  "dataset": "evaluation/recovery_generalization_20.json",
+  "dataset_sha256": "838736999fd6bdf281151ce0fc4a951450490472e29bfa4674f6e524e5c44ed8",
+  "source_revision": "8c4349f5890a9c45b060edf4d99addd37fa74d8d",
+  "model": "qwen3:8b",
+  "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "cases": 20,
+  "metrics": {
+    "final_correct_completion_or_answer_rate": 0.1,
+    "route_accuracy": 0.35,
+    "semantic_mode_accuracy": 0.3,
+    "inappropriate_clarification_rate": 0.7,
+    "model_calls": 53,
+    "repair_requests": 6,
+    "repair_attempts": 7,
+    "decoder_failures": 1,
+    "full_request_latency_p50_ms": 9105.895,
+    "full_request_latency_p95_ms": 24739.08,
+    "prompt_tokens": 127579,
+    "output_tokens": 4723
+  },
+  "repair_failure_distribution": {
+    "UNACCOUNTED_STRUCTURAL_ANCHOR": 3,
+    "DECODER_SCHEMA_FAILURE": 2,
+    "CAPABILITY_UNAVAILABLE": 1,
+    "BAD_SOURCE_SPAN": 1
+  },
+  "safety": {
+    "false_completions": 2,
+    "false_mutations": 3,
+    "unsafe_mutations_per_1000": 150.0,
+    "security_hard_failure": true,
+    "kernel_execution": false
+  },
+  "comparison": {
+    "prior_source": "6f03cba5c963e556819cb9c729b853a823b18086",
+    "prior_correct_completion_or_answer_rate": 0.1,
+    "prior_route_accuracy": 0.4,
+    "prior_semantic_mode_accuracy": 0.35,
+    "prior_inappropriate_clarification_rate": 0.7,
+    "interpretation": "no capability improvement; observed differences are not evidence of a win"
+  },
+  "status": "failed_structural_repair_evidence_experiment",
+  "promotion": "not_eligible"
+}
