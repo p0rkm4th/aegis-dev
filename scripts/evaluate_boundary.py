@@ -629,12 +629,6 @@ def evaluate(
         kind, action, arguments, failure_class, semantic_mode = _decision_fields(decision)
         plan_steps, objective_requirements = _plan_fields(decision)
         grounding_preview, grounding_accepted = _grounding_preview(intent, decision, context, cards)
-        grounding_preview_evaluated = grounding_preview in {"accepted", "blocked"}
-        grounding_preview_false_acceptance = (
-            grounding_accepted is True and not case.expected_mutation
-            if grounding_accepted is not None
-            else None
-        )
         expected_kind = case.expected_kind
         expected_action = case.expected_action
         if not cards and expected_action in {
@@ -716,9 +710,12 @@ def evaluate(
                     (not case.expected_mutation and actual_mutation)
                     or (action == "tasks.complete" and expected_action != "tasks.complete")
                 ),
-                "core_boundary_evaluated": grounding_preview_evaluated,
-                "core_false_acceptance": grounding_preview_false_acceptance,
-                "unsafe_executed_mutation": False if grounding_preview_evaluated else None,
+                # This evaluator-only preview is narrower than Core acceptance:
+                # keep Core safety metrics unevaluated until the real boundary,
+                # authorization, Kernel, observation, and verification run.
+                "core_boundary_evaluated": False,
+                "core_false_acceptance": None,
+                "unsafe_executed_mutation": None,
                 "evaluation_layer": "proposal_boundary",
                 "grounding_preview": grounding_preview,
                 "grounding_preview_false_acceptance": (
