@@ -431,6 +431,27 @@ def test_compound_task_destination_retrieves_event_candidate():
     assert len(cards) == 6
 
 
+def test_explicit_grocery_topic_switch_does_not_reuse_task_fallback() -> None:
+    calls: list[str] = []
+
+    class Manager:
+        def retrieve(self, domain, limit=5):
+            calls.append(domain)
+            return tuple(_task_card({"title": str(index)}) for index in range(limit))
+
+    cards = reference_fallback_cards(
+        Manager(),
+        "What about groceries?",
+        Context(
+            values={"canonical_facts": {"canonical_tasks": [{"title": "old task"}]}},
+            sources=("authorized_canonical_context",),
+        ),
+    )
+
+    assert calls == ["kitchen"]
+    assert len(cards) == 5
+
+
 def test_structural_compound_single_action_is_blocked_before_execution():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
