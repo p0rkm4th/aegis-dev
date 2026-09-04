@@ -68,4 +68,7 @@ class SpacyStructuralParser:
                         source_span=(root.idx, root.idx + len(root.text)), kind="predicate"
                     )
                 ]
-        return StructuralCoverageSignal(anchors=tuple(anchors))
+        negation_spans = tuple(
+            (token.idx, token.idx + len(token.text)) for token in doc if token.dep_ == "neg"
+        )
+        return StructuralCoverageSignal(anchors=tuple(anchors), negation_spans=negation_spans)
