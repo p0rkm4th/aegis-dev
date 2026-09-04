@@ -730,6 +730,41 @@ def test_reference_action_grounding_preserves_explicit_deadline() -> None:
     assert datetime.fromisoformat(result.action.arguments["due_at"]).tzinfo == timezone.utc
 
 
+def test_reference_event_grounding_blocks_missing_user_supplied_time() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="schedule the review",
+    )
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.events.create",
+            capability="tasks.events.create",
+            arguments={"title": "review", "starts_at": "2026-09-04T00:00:00+00:00"},
+            required_permissions=("tasks.write",),
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Schedule an event",
+        relevance=1,
+        argument_keys=("title", "starts_at"),
+    )
+
+    result = ground_reference_action(
+        intent,
+        card,
+        task_store=object(),
+        household_store=cast(PostgresHouseholdStore, object()),
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+    )
+
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert "date and time" in result.message.lower()
+
+
 def test_reference_action_grounding_blocks_unknown_completion_target() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
