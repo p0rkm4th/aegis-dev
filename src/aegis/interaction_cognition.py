@@ -731,7 +731,7 @@ def decide_fallback(
                     return ValidationResult(valid=False, failure=ProposalFailureEvidence(kind=kind))
                 available_actions = {card.action.action_id for card in cards}
                 if any(
-                    effect.action_ref is None or effect.action_ref not in available_actions
+                    effect.action_ref is not None and effect.action_ref not in available_actions
                     for effect in candidate_effects
                 ):
                     return ValidationResult(
@@ -874,7 +874,64 @@ def decide_fallback(
                 materialized_effects = materialize_requested_effects(intent.utterance, effects)
                 if materialized_effects is None:
                     raise InvalidDecision("objective effect repair was not grounded")
-            independent_spec = effects_to_proposal(intent.utterance, effects)
+            independent_spec: ObjectiveSpecProposal | None
+            if any(effect.action_ref is None for effect in effects):
+                mapping_values = dict(context.values)
+                mapping_values["grounded_requested_effects"] = [
+                    {
+                        "effect_text": effect.effect_text,
+                        "source_span": list(effect.source_span),
+                        "polarity": effect.polarity,
+                    }
+                    for effect in effects
+                ]
+                mapping_response = provider.decide(
+                    request.model_copy(
+                        update={
+                            "working_set": WorkingSet(
+                                intent=intent,
+                                context=context.model_copy(update={"values": mapping_values}),
+                            ),
+                            "objective_effect_only": False,
+                            "objective_interpretation_only": True,
+                            "objective_fidelity_only": False,
+                            "allow_plan_proposals": False,
+                            "allow_argument_proposals": False,
+                        }
+                    )
+                )
+                try:
+                    mapped_spec = ObjectiveSpecProposal.model_validate(mapping_response.raw)
+                except Exception:
+                    mapped_spec = None
+                if mapped_spec is None or len(mapped_spec.requirements) != len(effects):
+                    return Decision(
+                        kind=DecisionKind.CLARIFY,
+                        clarification=(
+                            "I grounded the requested changes but could not safely map "
+                            "each one to an available capability."
+                        ),
+                        semantic_mode="CLARIFY",
+                    )
+                for requirement in mapped_spec.requirements:
+                    card = next(
+                        (card for card in cards if card.action.action_id == requirement.action_ref),
+                        None,
+                    )
+                    if card is None or not set(requirement.arguments).issubset(
+                        set(card.argument_keys)
+                    ):
+                        return Decision(
+                            kind=DecisionKind.CLARIFY,
+                            clarification=(
+                                "I could not safely map every grounded change to the "
+                                "available capabilities."
+                            ),
+                            semantic_mode="CLARIFY",
+                        )
+                independent_spec = mapped_spec
+            else:
+                independent_spec = effects_to_proposal(intent.utterance, effects)
             if independent_spec is None:
                 return Decision(
                     kind=DecisionKind.CLARIFY,

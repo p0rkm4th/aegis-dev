@@ -178,7 +178,7 @@ class OllamaProvider:
                                     "minItems": 2,
                                     "maxItems": 2,
                                 },
-                                "action_ref": {"type": "string", "minLength": 1},
+                                "action_ref": {"type": ["string", "null"], "minLength": 1},
                                 "polarity": {
                                     "type": "string",
                                     "enum": ["ACTIVE", "NEGATED", "SUPERSEDED"],
@@ -227,7 +227,7 @@ class OllamaProvider:
                                     "minItems": 2,
                                     "maxItems": 2,
                                 },
-                                "action_ref": {"type": "string", "minLength": 1},
+                                "action_ref": {"type": ["string", "null"], "minLength": 1},
                                 "polarity": {
                                     "type": "string",
                                     "enum": ["ACTIVE", "NEGATED", "SUPERSEDED"],
@@ -304,8 +304,9 @@ class OllamaProvider:
             instruction = (
                 "Repair only the supplied requested-effect segmentation defect. Preserve every "
                 "correctly grounded effect, restore every independently requested effect, and "
-                "return only an effects object. Cite exact contiguous spans and use only the "
-                "supplied ActionCards with declared arguments. The Core diagnosis is evidence, "
+                "return only an effects object. Cite exact contiguous spans. Leave action_ref "
+                "null and arguments empty when segmentation is the only safe conclusion; "
+                "capability mapping is a separate bounded pass. The Core diagnosis is evidence, "
                 "not authority; never invent capabilities or activate negated/superseded effects."
             )
         elif request.proposal_repair_only:
@@ -321,8 +322,9 @@ class OllamaProvider:
             instruction = (
                 "Segment every independent requested state change into a grounded effect. "
                 "Return no plan and no completion claim. Each effect must cite an exact "
-                "contiguous source span from the user's utterance and bind only to an "
-                "exact supplied ActionCard action_ref with declared arguments. This is "
+                "contiguous source span from the user's utterance. Leave action_ref null "
+                "and arguments empty; a later bounded pass maps grounded effects to the "
+                "supplied ActionCards. This is "
                 "untrusted evidence for Core fidelity checking."
             )
         elif request.objective_fidelity_only:
@@ -340,8 +342,9 @@ class OllamaProvider:
                 "requirement for each independent state change requested by the user. Use "
                 "only exact action_ref values from the supplied ActionCards and only the "
                 "grounded arguments needed for that effect. Do not include a plan, completion "
-                "claim, permissions, or verification. Core will assign stable identities and "
-                "validate the proposal."
+                "claim, permissions, or verification. If grounded_requested_effects are "
+                "supplied in context, preserve their order and map exactly one requirement "
+                "to each effect. Core will assign stable identities and validate the proposal."
             )
         else:
             instruction = "Return exactly one structured Aegis Decision JSON object."
