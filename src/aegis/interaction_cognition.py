@@ -18,6 +18,8 @@ from .contracts import (
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
     ObjectiveState,
+    ProposalFailureEvidence,
+    ProposalFailureKind,
     ProposedPlan,
     ProposedPlanStep,
     Result,
@@ -207,19 +209,15 @@ def _repair_clarification(
     intent: IntentFrame,
     context: Context,
     cards: tuple[ActionCard, ...],
+    failed_proposal: Decision,
     clarification: str,
+    failure_evidence: ProposalFailureEvidence,
     *,
     plans_only: bool = False,
 ) -> Decision:
     """Give fidelity-generated clarification one bounded repair opportunity."""
 
-    decision = Decision(
-        kind=DecisionKind.CLARIFY,
-        clarification=clarification,
-        semantic_mode="CLARIFY",
-    )
-    if not (context.values.get("referents") or context.values.get("canonical_facts")):
-        return decision
+    decision = failed_proposal
     failure = InvalidDecision(clarification)
     previous: str | None = None
     for _ in range(2):
@@ -230,6 +228,7 @@ def _repair_clarification(
             cards,
             decision.model_dump(mode="json"),
             failure,
+            failure_evidence,
         )
         if repaired is not None and repaired.kind not in {
             DecisionKind.CLARIFY,
@@ -237,7 +236,7 @@ def _repair_clarification(
         }:
             if not plans_only or repaired.kind is DecisionKind.PLAN:
                 return repaired
-        fingerprint = proposal_failure_fingerprint(proposal_failure_evidence(failure))
+        fingerprint = proposal_failure_fingerprint(failure_evidence)
         if fingerprint == previous:
             break
         previous = fingerprint
@@ -618,8 +617,10 @@ def decide_fallback(
                     intent,
                     context,
                     cards,
+                    decision,
                     "I could not independently account for every requested change; "
                     "please clarify the objective.",
+                    ProposalFailureEvidence(kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR),
                     plans_only=True,
                 )
                 if decision.kind is DecisionKind.CLARIFY:
@@ -641,7 +642,17 @@ def decide_fallback(
                     intent,
                     context,
                     cards,
+                    decision,
                     fidelity_message(verdict),
+                    ProposalFailureEvidence(
+                        kind=(
+                            ProposalFailureKind.MISSING_EFFECT
+                            if verdict is ObjectiveFidelityVerdict.MISSING_REQUIREMENT
+                            else ProposalFailureKind.EXTRA_EFFECT
+                            if verdict is ObjectiveFidelityVerdict.EXTRA_REQUIREMENT
+                            else ProposalFailureKind.CANONICAL_CONTRADICTION
+                        )
+                    ),
                     plans_only=True,
                 )
                 if decision.kind is DecisionKind.CLARIFY:
