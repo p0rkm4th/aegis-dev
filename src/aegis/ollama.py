@@ -95,6 +95,7 @@ class OllamaProvider:
         self.max_repairs = max_repairs
         self.compact_action_cards = compact_action_cards
         self.action_ref_only = action_ref_only
+        self.recovery_events: list[dict[str, Any]] = []
 
     def available(self) -> bool:
         return True

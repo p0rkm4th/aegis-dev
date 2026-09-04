@@ -73,10 +73,11 @@ def repair_invalid_decision_once(
     cards: tuple[ActionCard, ...],
     raw: dict[str, Any] | None,
     error: InvalidDecision,
+    evidence: ProposalFailureEvidence | None = None,
 ) -> Decision | None:
     """Ask for one bounded repair; the ordinary decoder remains the gate."""
 
-    evidence = proposal_failure_evidence(error)
+    evidence = proposal_failure_evidence(error) if evidence is None else evidence
     response = provider.decide(
         ModelRequest(
             working_set=WorkingSet(intent=intent, context=context),
@@ -88,6 +89,15 @@ def repair_invalid_decision_once(
             current_proposal=raw,
         )
     )
+    events = getattr(provider, "recovery_events", None)
+    if isinstance(events, list):
+        events.append(
+            {
+                "failure_kind": evidence.kind.value,
+                "failure_fingerprint": proposal_failure_fingerprint(evidence),
+                "result_kind": response.raw.get("kind") if isinstance(response.raw, dict) else None,
+            }
+        )
     try:
         return StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
     except InvalidDecision:
