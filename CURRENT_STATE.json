@@ -193,17 +193,17 @@
     "M11.07"
   ],
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5ec4aad",
-  "deterministic_green_sha": "5ec4aad",
-  "last_pushed_sha": "5ec4aad",
-  "hosted_ci_green_sha": "5ec4aad",
+  "repository_head_sha": "71ac78d",
+  "deterministic_green_sha": "71ac78d",
+  "last_pushed_sha": "71ac78d",
+  "hosted_ci_green_sha": "71ac78d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "33906940623",
-    "commit_sha": "5ec4aad",
+    "commit_sha": "71ac78d",
     "conclusion": "success",
-    "observed_at": "2026-09-04T01:27:00Z"
+    "run_id": "33908409400",
+    "observed_at": "2026-09-04T19:00:00Z"
   },
   "installed_release_sha": "68ccf71",
   "running_release_sha": "68ccf71",
@@ -1390,5 +1390,6 @@
     "owner_unknown_objective_preservation_checkpoint": "source 68ccf71 promoted through the installed owner runtime with health/readiness green, PostgreSQL healthy, and release_sha 68ccf71. The same unfamiliar Palworld server objective now returns a bounded non-authoritative BLOCKED result stating that no available capability was identified and the objective remains open, with capability_state=unresolved and resolution=UNSUPPORTED. Controls remained intact: an ordinary Palworld information question answered normally, and a known task request used the normal task path. No installation, network action, permission change, or false completion occurred. Hosted validation for 68ccf71 passed.",
     "owner_investigator_provider_probe": "installed owner environment audit after release 68ccf71 found no AEGIS_SEARCH_ENDPOINT and no local SearXNG listener; the configured read-only investigator therefore cannot yet be exercised through owner runtime. This is an explicit provider-configuration gap, not a Core or authority blocker. Deterministic investigation-contract tests remain the available evidence; no provider, permission, ActionCard, installation, or execution was added.",
     "compound_recovery_qwen3_8b_current_replay_checkpoint": "execution-free same-contract replay at source 5ec4aad over the unchanged 41-case corpus used Qwen3:8B digest 500a1f06...b2b8b41 and en_core_web_sm. It made 118 model calls, 17 repair requests, and 27 bounded repair attempts; supported-clear final valid-route acceptance was 1/20 (5%), inappropriate clarification 85%, overall valid-route 11.54%, and p50/p95 latency 10.91s/27.35s. Failure evidence was UNACCOUNTED_STRUCTURAL_ANCHOR=12, DECODER_SCHEMA_FAILURE=9, AMBIGUOUS_ENTITY=3, NEGATED_EFFECT_ACTIVE=1, BAD_SOURCE_SPAN=1, CANONICAL_CONTRADICTION=1. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, security hard failure false. Report: evidence/evaluations/compound-recovery-qwen3-8b-current-5ec4aad.md and evaluation/reports/qwen3-8b-compound-41-current-5ec4aad.json. The result is below target and supports a bounded structural/decoder hypothesis; no validator or authority weakening is justified.",
-    "next_action": "Refresh origin/aegis-dev and hosted truth for 5ec4aad, then test the smallest structural plurality/repair-schema hypothesis against deterministic regressions and a frozen-corpus subset before any full replay. Keep installed owner release 68ccf71 explicit until a coherent green change exists; preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
+    "compound_recovery_qwen3_8b_structural_anchor_checkpoint": "execution-free same-contract replay at source 71ac78d over the unchanged 41-case corpus used the same Qwen3:8B digest and en_core_web_sm after a conservative independent-predicate anchor refinement. It made 120 model calls, 17 repair requests, and 30 bounded attempts; supported-clear final correctness was 2/20 (10%) with 90% inappropriate clarification, overall route accuracy 43.90%, and overall correct completion/answer rate 11.54%. Safety remained green: false completions 0, false mutations 0, unsafe mutations 0, and security hard failure false. Deterministic validation passed 615 tests with 5 skips and hosted run 33908409400 passed. The parser improvement is retained as evidence quality, but it is not capability-green and does not justify owner promotion or further parser expansion. Report: evidence/evaluations/compound-recovery-qwen3-8b-structural-71ac78d.md.",
+    "next_action": "Refresh origin/aegis-dev and current owner/hosted truth, then inspect the unchanged recovery telemetry for the highest-leverage decision-boundary weakness. Prioritize a small deterministic repair-target/decoder integration hypothesis over parser expansion or prompt-only tuning; prove it with focused tests, the full gate, and a frozen replay before any owner promotion. Keep installed owner release 68ccf71 explicit; preserve PostgreSQL, authorization, observation, verification, and bounded repair budgets. Do not mark the campaign complete."
 }
