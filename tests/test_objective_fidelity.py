@@ -161,6 +161,27 @@ def test_structural_signal_preserves_negation_evidence() -> None:
     assert signal.negation_spans
 
 
+def test_structural_signal_preserves_contrastive_correction_evidence() -> None:
+    from aegis.structural import SpacyStructuralParser
+
+    class Token:
+        def __init__(self, idx: int, text: str, pos: str, dep: str) -> None:
+            self.idx = idx
+            self.text = text
+            self.pos_ = pos
+            self.dep_ = dep
+
+    class Model:
+        def __call__(self, _utterance: str) -> tuple[Token, ...]:
+            return (Token(0, "Put", "VERB", "ROOT"),)
+
+    signal = SpacyStructuralParser(model=Model()).parse(
+        "Put the form on my task list, wait, I meant the inspection notes."
+    )
+
+    assert signal.negation_spans
+
+
 def test_structural_coverage_rejects_full_span_and_duplicate_gaming() -> None:
     utterance = "Add milk and eggs"
     full = materialize_requested_effects(
