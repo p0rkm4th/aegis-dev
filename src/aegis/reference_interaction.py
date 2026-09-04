@@ -1054,6 +1054,21 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
     candidates = those.get("candidates") if isinstance(those, dict) else None
+    if (
+        isinstance(those, dict)
+        and those.get("fact_key") == "canonical_items"
+        and re.search(r"\b(?:handle|take care of|urgent|priority)\b", text)
+        and re.search(r"\b(?:first|next|most)\b", text)
+    ):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "The grocery list has no canonical priority order. "
+                "Please name a grocery item, or ask which task is due first."
+            ),
+            correlation_id=intent.correlation_id,
+        )
     if isinstance(candidates, list) and ambiguous_correction:
         # A correction without a unique structural target must not fall
         # through to semantic action selection.  Keep it in the same
