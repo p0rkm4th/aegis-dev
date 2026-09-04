@@ -195,15 +195,15 @@
   "active_branch": "aegis-dev",
   "repository_head_sha": "55b32b2",
   "deterministic_green_sha": "55b32b2",
-  "last_pushed_sha": "e6a54d0",
-  "hosted_ci_green_sha": "e6a54d0",
+  "last_pushed_sha": "db9ee3b",
+  "hosted_ci_green_sha": "db9ee3b",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "55b32b2",
+    "commit_sha": "db9ee3b",
     "conclusion": "success",
-    "run_id": "33916875190",
-    "observed_at": "2026-09-04T21:20:00Z"
+    "run_id": "33917367442",
+    "observed_at": "2026-09-04T21:35:00Z"
   },
   "installed_release_sha": "55b32b2",
   "running_release_sha": "55b32b2",
