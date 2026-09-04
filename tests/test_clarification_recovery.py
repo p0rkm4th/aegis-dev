@@ -16,6 +16,7 @@ from aegis.interaction_recovery import (
     evaluate_clarification_recovery_cases,
     proposal_failure_evidence,
     proposal_failure_fingerprint,
+    proposal_repair_event_record,
     repair_invalid_decision_once,
     request_clarification_recovery,
     validate_clarification_recovery,
@@ -242,3 +243,23 @@ def test_bounded_repair_stops_repeated_failure_without_second_attempt() -> None:
     )
     assert result.stop_reason == "REPEATED_FAILURE"
     assert calls == 1
+
+
+def test_repair_event_record_preserves_legacy_and_rich_telemetry() -> None:
+    failure = ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_EFFECT)
+    result = bounded_proposal_repair(
+        "p0",
+        failure,
+        lambda _value, _failure: ("p1", failure),
+        lambda _value: ValidationResult(
+            valid=False, failure=ProposalFailureEvidence(kind=ProposalFailureKind.INVALID_ARGUMENT)
+        ),
+        validator_stage="requested_effect_structural_coverage",
+        max_attempts=1,
+    )
+
+    record = proposal_repair_event_record(result.events[0])
+    assert record["failure_kind"] == "MISSING_EFFECT"
+    assert record["result_kind"] == "INVALID_ARGUMENT"
+    assert record["validator_stage"] == "requested_effect_structural_coverage"
+    assert record["attempt"] == 1
