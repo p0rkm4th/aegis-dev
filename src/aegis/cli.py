@@ -977,6 +977,18 @@ def run_interaction(
         # is unavailable; ordinary reads and answers retain their existing paths.
         structural_parser = None
 
+    repair_model = os.environ.get("AEGIS_OLLAMA_REPAIR_MODEL")
+    repair_model_provider = (
+        (
+            lambda: OllamaProvider(
+                repair_model or "qwen3:8b",
+                OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
+            )
+        )
+        if repair_model
+        else None
+    )
+
     boundary = InteractionBoundary(
         InteractionDependencies(
             connect=psycopg.connect,
@@ -990,6 +1002,7 @@ def run_interaction(
                 os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
                 OllamaHttpTransport(_required("AEGIS_OLLAMA_URL")),
             ),
+            repair_model_provider=repair_model_provider,
             capability_retriever=retrieve_reference_capabilities,
             runtime_registry=runtime_registry,
             pack_bundles=reference_bundles,

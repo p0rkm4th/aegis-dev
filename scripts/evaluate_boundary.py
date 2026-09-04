@@ -180,6 +180,7 @@ def _boundary(
     provider: OllamaProvider,
     embedder: OllamaEmbeddingProvider,
     *,
+    repair_provider: OllamaProvider | None = None,
     reuse_classification_action_reference: bool = True,
     retrieval_limit: int = 10,
     retrieval_traces: list[dict[str, Any]] | None = None,
@@ -216,6 +217,9 @@ def _boundary(
             openclaw_channel=lambda: None,
             local_identity=lambda: False,
             model_provider=lambda: provider,
+            repair_model_provider=(
+                (lambda: repair_provider) if repair_provider is not None else None
+            ),
             capability_retriever=retrieve,
             fallback_card_selector=reference_fallback_cards,
             reuse_classification_action_reference=reuse_classification_action_reference,
@@ -294,12 +298,23 @@ def evaluate(
     cases = _load_cases(corpus)
     base_url = os.environ.get("AEGIS_OLLAMA_URL", "http://127.0.0.1:11434")
     model = os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b")
+    repair_model = os.environ.get("AEGIS_OLLAMA_REPAIR_MODEL")
     transport = MeasuringTransport(base_url)
     provider = OllamaProvider(
         model,
         transport,
         compact_action_cards=compact_action_cards,
         action_ref_only=action_ref_only,
+    )
+    repair_provider = (
+        OllamaProvider(
+            repair_model,
+            transport,
+            compact_action_cards=compact_action_cards,
+            action_ref_only=action_ref_only,
+        )
+        if repair_model
+        else None
     )
     embedder = OllamaEmbeddingProvider(
         os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"), base_url
@@ -309,6 +324,7 @@ def evaluate(
     boundary = _boundary(
         provider,
         embedder,
+        repair_provider=repair_provider,
         reuse_classification_action_reference=reuse_classification_action_reference,
         retrieval_limit=retrieval_limit,
         retrieval_traces=retrieval_traces,
@@ -341,6 +357,14 @@ def evaluate(
             # inventory endpoint is unavailable, but the missing provenance
             # remains visible in the report and must not be called frozen.
             model_digest = None
+    repair_model_digest = None
+    if repair_model:
+        repair_model_digest = os.environ.get("AEGIS_OLLAMA_REPAIR_MODEL_DIGEST")
+        if repair_model_digest is None:
+            try:
+                repair_model_digest = transport.model_digest(repair_model)
+            except Exception:
+                repair_model_digest = None
     model_inventory: dict[str, Any] | None = None
     try:
         for item in transport.tags().get("models", []):
@@ -359,6 +383,8 @@ def evaluate(
         "source_revision": subprocess.check_output(("git", "rev-parse", "HEAD"), text=True).strip(),
         "model": model,
         "model_digest": model_digest,
+        "repair_model": repair_model,
+        "repair_model_digest": repair_model_digest,
         "embedding_model": embedder.model,
         "embedding_digest": embedding_digest,
         "prompt_template_sha256": prompt_template_sha,
@@ -771,6 +797,7 @@ def evaluate(
             "think": False,
             "timeout_seconds": 120,
             "embedding_model": os.environ.get("AEGIS_EMBEDDING_MODEL", "nomic-embed-text"),
+            "repair_model": repair_model,
         },
         "results": results,
     }

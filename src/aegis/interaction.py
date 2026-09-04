@@ -70,6 +70,7 @@ class InteractionDependencies:
         openclaw_channel: Callable[[], OpenClawWebSocketChannel],
         local_identity: Callable[[], bool],
         model_provider: Callable[[], Any] | None = None,
+        repair_model_provider: Callable[[], Any] | None = None,
         capability_retriever: Callable[[str, PackManager], tuple[ActionCard, ...]] | None = None,
         runtime_registry: PackRuntimeRegistry | None = None,
         pack_bundles: Callable[[], tuple[Any, ...]] | None = None,
@@ -96,6 +97,7 @@ class InteractionDependencies:
         self.openclaw_channel = openclaw_channel
         self.local_identity = local_identity
         self.model_provider = model_provider
+        self.repair_model_provider = repair_model_provider
         self.capability_retriever = capability_retriever
         self.runtime_registry = runtime_registry
         self.pack_bundles = pack_bundles

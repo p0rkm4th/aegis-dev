@@ -329,6 +329,27 @@ def _repair_clarification(
     return result.proposal if result.proposal is not None else decision
 
 
+def _bounded_repair_provider(dependencies: Any, resident_provider: Any) -> Any:
+    """Select optional stronger cognition only for bounded proposal repair."""
+
+    factory = getattr(dependencies, "repair_model_provider", None)
+    if factory is None:
+        return resident_provider
+    repair_provider = factory()
+    # Recovery telemetry belongs to the runtime, not to whichever model was
+    # selected. Share the existing sinks so evaluators cannot lose or split
+    # repair events when escalation is enabled.
+    if hasattr(resident_provider, "recovery_events") and hasattr(
+        repair_provider, "recovery_events"
+    ):
+        repair_provider.recovery_events = resident_provider.recovery_events
+    if hasattr(resident_provider, "request_mode_counts") and hasattr(
+        repair_provider, "request_mode_counts"
+    ):
+        repair_provider.request_mode_counts = resident_provider.request_mode_counts
+    return repair_provider
+
+
 def decide_fallback(
     dependencies: Any, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context
 ) -> Decision | Result | None:
@@ -338,6 +359,7 @@ def decide_fallback(
     focused_raw: dict[str, Any] | None = None
     try:
         provider = dependencies.model_provider()
+        repair_provider = _bounded_repair_provider(dependencies, provider)
         if cards:
             classification_values = {
                 key: value for key, value in context.values.items() if key != "canonical_facts"
@@ -548,7 +570,9 @@ def decide_fallback(
             # A malformed or rejected proposal may receive at most two
             # validation-guided repairs. Every repair is decoded against the
             # original candidate set before this function continues.
-            decision = _bounded_decision_repair(provider, intent, context, cards, last_raw, error)
+            decision = _bounded_decision_repair(
+                repair_provider, intent, context, cards, last_raw, error
+            )
             if decision is None:
                 raise error
             if decision is None:
@@ -583,7 +607,7 @@ def decide_fallback(
             # a complete PLAN. The resulting proposal immediately re-enters
             # requested-effect coverage and objective-fidelity validation.
             decision = _repair_clarification(
-                provider,
+                repair_provider,
                 intent,
                 context,
                 cards,
@@ -615,7 +639,7 @@ def decide_fallback(
             )
             for _ in range(1):
                 repaired = repair_invalid_decision_once(
-                    provider,
+                    repair_provider,
                     intent,
                     context,
                     cards,
@@ -804,7 +828,7 @@ def decide_fallback(
                 def repair_effects(
                     current: dict[str, Any], evidence: ProposalFailureEvidence
                 ) -> tuple[dict[str, Any] | None, ProposalFailureEvidence]:
-                    response = provider.decide(
+                    response = repair_provider.decide(
                         request.model_copy(
                             update={
                                 "objective_effect_only": True,
@@ -1000,7 +1024,7 @@ def decide_fallback(
                     )
 
                 decision = _repair_clarification(
-                    provider,
+                    repair_provider,
                     intent,
                     context,
                     cards,
@@ -1152,14 +1176,19 @@ def decide_fallback(
                     )
                 except InvalidDecision as error:
                     decision = _bounded_decision_repair(
-                        provider, intent, context, (card,), focused_raw, error
+                        repair_provider, intent, context, (card,), focused_raw, error
                     )
                     if decision is None:
                         raise error
                 if decision.action is not None and not decision.action.arguments:
                     missing_argument_error = InvalidDecision("required action argument is missing")
                     repaired = _bounded_decision_repair(
-                        provider, intent, context, (card,), focused_raw, missing_argument_error
+                        repair_provider,
+                        intent,
+                        context,
+                        (card,),
+                        focused_raw,
+                        missing_argument_error,
                     )
                     if repaired is None:
                         raise missing_argument_error

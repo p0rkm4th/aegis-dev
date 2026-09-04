@@ -97,6 +97,78 @@ def test_clarification_proposal_gets_bounded_repair_before_returning_blocked() -
     assert sum(request.proposal_repair_only for request in calls) == 1
 
 
+def test_optional_repair_provider_is_used_only_for_bounded_repair() -> None:
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.complete",
+            capability="tasks.complete",
+            required_permissions=("tasks.write",),
+        ),
+        summary="Complete a named task",
+        relevance=1,
+        argument_keys=("title",),
+    )
+    resident_calls: list[ModelRequest] = []
+    repair_calls: list[ModelRequest] = []
+
+    class Resident:
+        recovery_events: list[dict[str, object]] = []
+        request_mode_counts: dict[str, int] = {}
+
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            resident_calls.append(request)
+            return ModelResponse(
+                raw=(
+                    {"semantic_mode": "ACTION", "knowledge_source": "general_model_knowledge"}
+                    if request.classification_only
+                    else {
+                        "kind": "CLARIFY",
+                        "semantic_mode": "CLARIFY",
+                        "knowledge_source": "general_model_knowledge",
+                        "clarification": "Which task?",
+                    }
+                )
+            )
+
+    class Repair:
+        recovery_events: list[dict[str, object]] = []
+        request_mode_counts: dict[str, int] = {}
+
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            repair_calls.append(request)
+            return ModelResponse(
+                raw={
+                    "kind": "ACTION",
+                    "semantic_mode": "ACTION",
+                    "knowledge_source": "general_model_knowledge",
+                    "action_ref": "tasks.complete",
+                    "action_arguments": {"title": "Replace porch bulb"},
+                }
+            )
+
+    resident = Resident()
+    repair = Repair()
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: resident,
+            repair_model_provider=lambda: repair,
+            reuse_classification_action_reference=False,
+            decision_rewriter=None,
+            research_answer=None,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="v"),
+            utterance="finish that bulb thing",
+        ),
+        (card,),
+        Context(values={"referents": {"those": {"candidates": [{"task_id": "t1"}]}}}),
+    )
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.ACTION
+    assert len(repair_calls) == 1
+    assert all(not request.proposal_repair_only for request in resident_calls)
+
+
 def test_missing_action_argument_uses_bounded_repair_after_focused_retry() -> None:
     card = ActionCard(
         action=ActionSpec(
