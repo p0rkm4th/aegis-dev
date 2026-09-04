@@ -1,0 +1,48 @@
+{
+  "dataset": "evaluation/recovery_generalization_20.json",
+  "dataset_sha256": "838736999fd6bdf281151ce0fc4a951450490472e29bfa4674f6e524e5c44ed8",
+  "source_revision": "0074d27851da92234dbdea52910fba765384995a",
+  "model": "qwen3:8b",
+  "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "cases": 20,
+  "metrics": {
+    "final_correct_completion_or_answer_rate": 0.3,
+    "supported_clear_final_success": "2/8",
+    "route_accuracy": 0.4,
+    "semantic_mode_accuracy": 0.35,
+    "inappropriate_clarification_rate": 0.5,
+    "model_calls": 74,
+    "repair_requests": 12,
+    "repair_attempts": 20,
+    "decoder_failures": 1,
+    "full_request_latency_p50_ms": 16001.14,
+    "full_request_latency_p95_ms": 32251.7535,
+    "prompt_tokens": 181165,
+    "output_tokens": 7402
+  },
+  "repair_failure_distribution": {
+    "UNACCOUNTED_STRUCTURAL_ANCHOR": 11,
+    "CANONICAL_CONTRADICTION": 3,
+    "CAPABILITY_MISMATCH": 2,
+    "DECODER_SCHEMA_FAILURE": 2,
+    "CAPABILITY_UNAVAILABLE": 1,
+    "BAD_SOURCE_SPAN": 1
+  },
+  "safety": {
+    "false_completions": 2,
+    "false_mutations": 3,
+    "unsafe_mutations_per_1000": 150.0,
+    "security_hard_failure": true,
+    "kernel_execution": false
+  },
+  "comparison": {
+    "prior_source": "5d4a02a0d6819200099eb7f37f91ed8f00cdd3dc",
+    "prior_final_correct_completion_or_answer_rate": 0.2,
+    "prior_inappropriate_clarification_rate": 0.5,
+    "prior_false_completions": 2,
+    "prior_false_mutations": 5,
+    "interpretation": "usability improved and unsafe proposal count fell, but evaluator safety hard failure remains"
+  },
+  "status": "improved_but_not_safety_green",
+  "promotion": "not_eligible"
+}
