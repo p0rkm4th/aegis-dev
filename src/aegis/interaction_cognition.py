@@ -748,6 +748,20 @@ def decide_fallback(
                     effect_spans = [
                         span for effect in candidate_materialized for span in effect.source_spans
                     ]
+
+                    def overlaps(left: tuple[int, int], right: tuple[int, int]) -> bool:
+                        return left[0] < right[1] and right[0] < left[1]
+
+                    unmatched_anchors = [
+                        span
+                        for span in anchor_spans
+                        if not any(overlaps(span, effect_span) for effect_span in effect_spans)
+                    ]
+                    unmatched_effects = [
+                        span
+                        for span in effect_spans
+                        if not any(overlaps(span, anchor_span) for anchor_span in anchor_spans)
+                    ]
                     return ValidationResult(
                         valid=False,
                         failure=ProposalFailureEvidence(
@@ -757,7 +771,9 @@ def decide_fallback(
                                 f"anchor_count={len(structural_signal.anchors)} "
                                 f"effect_count={len(candidate_materialized)} "
                                 f"anchor_spans={anchor_spans} "
-                                f"effect_spans={effect_spans}"
+                                f"effect_spans={effect_spans} "
+                                f"unmatched_anchors={unmatched_anchors} "
+                                f"unmatched_effects={unmatched_effects}"
                             ),
                         ),
                     )
