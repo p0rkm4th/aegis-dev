@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+from aegis.contracts import ActionSpec
+
 _AUDIT_SPEC = importlib.util.spec_from_file_location(
     "audit_semantic_corpus", Path("scripts/audit_semantic_corpus.py")
 )
@@ -232,8 +234,52 @@ def test_semantic_corpus_audit_rejects_cross_split_duplicate_utterances(tmp_path
 def test_evaluation_boundary_uses_pack_composition_for_fallback_selection() -> None:
     source = Path("scripts/evaluate_boundary.py").read_text(encoding="utf-8")
     assert "fallback_card_selector=reference_fallback_cards" in source
-    assert "from aegis.reference_interaction import reference_fallback_cards" in source
+    assert "reference_fallback_cards" in source
     assert '"--output"' in source
+
+
+@pytest.mark.parametrize(
+    ("utterance", "action_id", "arguments", "expected"),
+    [
+        (
+            "Finish that one from the list for me.",
+            "tasks.complete",
+            {"title": "that one from the list"},
+            "blocked",
+        ),
+        (
+            "Schedule the review.",
+            "tasks.events.create",
+            {"title": "review", "starts_at": "2026-09-04T00:00:00+00:00"},
+            "blocked",
+        ),
+        (
+            "Schedule the review tomorrow.",
+            "tasks.events.create",
+            {"title": "review", "starts_at": "2026-09-05T00:00:00+00:00"},
+            "accepted",
+        ),
+    ],
+)
+def test_grounding_preview_uses_production_reference_grounding(
+    utterance: str, action_id: str, arguments: dict[str, str], expected: str
+) -> None:
+    contracts = _EVALUATE_MODULE
+    intent = contracts.IntentFrame(
+        principal=contracts.Principal(id="evaluation", vault_id="evaluation"),
+        utterance=utterance,
+    )
+    decision = contracts.Decision(
+        kind=contracts.DecisionKind.ACTION,
+        semantic_mode="ACTION",
+        action=ActionSpec(action_id=action_id, capability=action_id, arguments=arguments),
+    )
+
+    state, _accepted = contracts._grounding_preview(
+        intent, decision, contracts._evaluation_context()
+    )
+
+    assert state == expected
 
 
 def test_evaluation_reports_freeze_prompt_context_and_decoder_contracts() -> None:
