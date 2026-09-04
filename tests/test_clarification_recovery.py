@@ -10,6 +10,7 @@ from aegis.contracts import (
     ProposalFailureEvidence,
     ProposalFailureKind,
 )
+from aegis.decoding import InvalidDecision
 from aegis.interaction_recovery import (
     ValidationResult,
     bounded_proposal_repair,
@@ -18,6 +19,7 @@ from aegis.interaction_recovery import (
     proposal_failure_fingerprint,
     proposal_repair_event_record,
     repair_invalid_decision_once,
+    repair_invalid_decision_once_with_evidence,
     request_clarification_recovery,
     validate_clarification_recovery,
 )
@@ -263,3 +265,46 @@ def test_repair_event_record_preserves_legacy_and_rich_telemetry() -> None:
     assert record["result_kind"] == "INVALID_ARGUMENT"
     assert record["validator_stage"] == "requested_effect_structural_coverage"
     assert record["attempt"] == 1
+
+
+def test_decoder_repair_preserves_failed_proposal_for_second_attempt() -> None:
+    responses = iter(
+        [
+            {"kind": "ACTION"},
+            {
+                "kind": "ACTION",
+                "semantic_mode": "ACTION",
+                "knowledge_source": "general_model_knowledge",
+                "action_ref": "tasks.complete",
+                "action_arguments": {"title": "Replace porch bulb"},
+            },
+        ]
+    )
+
+    class Provider:
+        def decide(self, _request: object) -> object:
+            return type("Response", (), {"raw": next(responses)})()
+
+    error = InvalidDecision("initial decision is malformed")
+    first, failure, failed_raw = repair_invalid_decision_once_with_evidence(
+        Provider(),
+        IntentFrame(utterance="finish that bulb thing", principal=Principal(id="a", vault_id="v")),
+        Context(),
+        (card(),),
+        {"kind": "CLARIFY"},
+        error,
+    )
+    assert first is None
+    assert failed_raw == {"kind": "ACTION"}
+    second, _next_failure, _next_raw = repair_invalid_decision_once_with_evidence(
+        Provider(),
+        IntentFrame(utterance="finish that bulb thing", principal=Principal(id="a", vault_id="v")),
+        Context(),
+        (card(),),
+        failed_raw,
+        InvalidDecision(failure.detail or "decoder failure"),
+        failure,
+    )
+    assert second is not None
+    assert second.action is not None
+    assert second.action.arguments["title"] == "Replace porch bulb"

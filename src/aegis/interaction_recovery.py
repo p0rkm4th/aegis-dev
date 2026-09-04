@@ -196,6 +196,23 @@ def repair_invalid_decision_once(
 ) -> Decision | None:
     """Ask for one bounded repair; the ordinary decoder remains the gate."""
 
+    repaired, _failure, _raw = repair_invalid_decision_once_with_evidence(
+        provider, intent, context, cards, raw, error, evidence
+    )
+    return repaired
+
+
+def repair_invalid_decision_once_with_evidence(
+    provider: Any,
+    intent: IntentFrame,
+    context: Context,
+    cards: tuple[ActionCard, ...],
+    raw: dict[str, Any] | None,
+    error: InvalidDecision,
+    evidence: ProposalFailureEvidence | None = None,
+) -> tuple[Decision | None, ProposalFailureEvidence, dict[str, Any] | None]:
+    """Repair once while retaining the next typed failure and failed proposal."""
+
     evidence = proposal_failure_evidence(error) if evidence is None else evidence
     response = provider.decide(
         ModelRequest(
@@ -208,10 +225,12 @@ def repair_invalid_decision_once(
             current_proposal=raw,
         )
     )
+    next_evidence = evidence
     try:
         repaired = StrictDecisionDecoder().decode(response, cards, allow_argument_proposals=True)
-    except InvalidDecision:
+    except InvalidDecision as next_error:
         repaired = None
+        next_evidence = proposal_failure_evidence(next_error)
     events = getattr(provider, "recovery_events", None)
     if isinstance(events, list):
         events.append(
@@ -220,9 +239,10 @@ def repair_invalid_decision_once(
                 "failure_fingerprint": proposal_failure_fingerprint(evidence),
                 "result_kind": response.raw.get("kind") if isinstance(response.raw, dict) else None,
                 "validation_outcome": "decoded" if repaired is not None else "rejected",
+                "output_failure_kind": next_evidence.kind.value if repaired is None else None,
             }
         )
-    return repaired
+    return repaired, next_evidence, response.raw if isinstance(response.raw, dict) else None
 
 
 @dataclass(frozen=True)
