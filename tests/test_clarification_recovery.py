@@ -137,6 +137,10 @@ def test_proposal_failure_evidence_is_bounded_and_fingerprint_stable() -> None:
         ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_EFFECT, detail=evidence.detail)
     )
     assert len(proposal_failure_fingerprint(evidence)) == 16
+    structural = proposal_failure_evidence(
+        ValueError("This request contains more than one change, but the plan is incomplete")
+    )
+    assert structural.kind is ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR
 
 
 def test_repair_contract_is_not_an_execution_contract() -> None:

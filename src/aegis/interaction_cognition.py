@@ -471,7 +471,9 @@ def decide_fallback(
             # A repaired proposal still passes the ordinary structural,
             # objective, authorization, Kernel, and verification boundaries.
             clarification_fingerprint: str | None = None
-            repair_error = InvalidDecision(decision.reason or "proposal requires clarification")
+            repair_error = InvalidDecision(
+                decision.clarification or decision.reason or "proposal requires clarification"
+            )
             for _ in range(2):
                 repaired = repair_invalid_decision_once(
                     provider,
