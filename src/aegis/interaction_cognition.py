@@ -24,7 +24,12 @@ from .contracts import (
     WorkingSet,
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
-from .interaction_recovery import recover_invalid_model_decision
+from .interaction_recovery import (
+    proposal_failure_evidence,
+    proposal_failure_fingerprint,
+    recover_invalid_model_decision,
+    repair_invalid_decision_once,
+)
 from .objective_fidelity import (
     RequestedEffectProposal,
     compare_objective_proposals,
@@ -33,7 +38,7 @@ from .objective_fidelity import (
     materialize_requested_effects,
     validate_structural_coverage,
 )
-from .utterance import is_question_request
+from .utterance import is_mutation_request, is_question_request
 
 
 def _scope_plan_by_capability(
@@ -406,32 +411,31 @@ def decide_fallback(
         )
         decoder = StrictDecisionDecoder()
         decision: Decision | None = None
-        last_invalid: InvalidDecision | None = None
-        for attempt in range(2):
-            response = provider.decide(request)
-            last_raw = response.raw if isinstance(response.raw, dict) else None
-            if last_raw is not None and last_raw.get("context_focus") is not None:
-                focused_raw = last_raw
-            try:
-                decision = decoder.decode(
-                    response, request.action_cards, allow_argument_proposals=True
+        response = provider.decide(request)
+        last_raw = response.raw if isinstance(response.raw, dict) else None
+        if last_raw is not None and last_raw.get("context_focus") is not None:
+            focused_raw = last_raw
+        try:
+            decision = decoder.decode(response, request.action_cards, allow_argument_proposals=True)
+        except InvalidDecision as error:
+            # A malformed or rejected proposal may receive at most two
+            # validation-guided repairs. Every repair is decoded against the
+            # original candidate set before this function continues.
+            previous_fingerprint: str | None = None
+            for _ in range(2):
+                repaired = repair_invalid_decision_once(
+                    provider, intent, context, cards, last_raw, error
                 )
-                break
-            except InvalidDecision as error:
-                last_invalid = error
-                # Repair only an empty benign answer with no capability
-                # cards. This remains bounded cognition and cannot turn a
-                # malformed action into an executable proposal.
-                raw = response.raw
-                if not (
-                    attempt == 0
-                    and isinstance(raw, dict)
-                    and raw.get("kind") == DecisionKind.ANSWER.value
-                    and not isinstance(raw.get("answer"), str)
-                ):
-                    raise error
-                request = request.model_copy(update={"action_cards": ()})
-        if decision is None and routing_only and last_invalid is not None:
+                if repaired is not None:
+                    decision = repaired
+                    break
+                fingerprint = proposal_failure_fingerprint(proposal_failure_evidence(error))
+                if fingerprint == previous_fingerprint:
+                    break
+                previous_fingerprint = fingerprint
+            if decision is None:
+                raise error
+        if decision is None and routing_only:
             # Providers can apply the routing-only instruction inconsistently.
             # Give one final-pass opportunity with the same bounded cards and
             # full authorized context before reporting a model-boundary
@@ -449,10 +453,40 @@ def decide_fallback(
                     final_request.action_cards,
                     allow_argument_proposals=True,
                 )
-            except InvalidDecision:
-                raise last_invalid
+            except InvalidDecision as error:
+                raise error
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
+        if (
+            decision.kind in {DecisionKind.CLARIFY, DecisionKind.NEED_CONTEXT}
+            and is_mutation_request(intent.utterance)
+            and (context.values.get("referents") or context.values.get("canonical_facts"))
+        ):
+            # Clarification recovery is deliberately narrow: only a mutation
+            # with bounded authorized evidence may get two proposal repairs.
+            # A repaired proposal still passes the ordinary structural,
+            # objective, authorization, Kernel, and verification boundaries.
+            clarification_fingerprint: str | None = None
+            repair_error = InvalidDecision(decision.reason or "proposal requires clarification")
+            for _ in range(2):
+                repaired = repair_invalid_decision_once(
+                    provider,
+                    intent,
+                    context,
+                    cards,
+                    decision.model_dump(mode="json"),
+                    repair_error,
+                )
+                if repaired is not None and repaired.kind not in {
+                    DecisionKind.CLARIFY,
+                    DecisionKind.NEED_CONTEXT,
+                }:
+                    decision = repaired
+                    break
+                fingerprint = proposal_failure_fingerprint(proposal_failure_evidence(repair_error))
+                if fingerprint == clarification_fingerprint:
+                    break
+                clarification_fingerprint = fingerprint
         if decision.kind is DecisionKind.ANSWER and decision.knowledge_source in {
             "external_evidence",
             "mixed_evidence",

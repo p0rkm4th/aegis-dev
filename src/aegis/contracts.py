@@ -202,6 +202,35 @@ class ClarificationRecoveryProposal(StrictModel):
     clarification: str | None = Field(default=None, max_length=500)
 
 
+class ProposalFailureKind(StrEnum):
+    """Bounded Core diagnoses that may guide an untrusted proposal repair."""
+
+    MISSING_EFFECT = "MISSING_EFFECT"
+    EXTRA_EFFECT = "EXTRA_EFFECT"
+    UNACCOUNTED_STRUCTURAL_ANCHOR = "UNACCOUNTED_STRUCTURAL_ANCHOR"
+    NEGATED_EFFECT_ACTIVE = "NEGATED_EFFECT_ACTIVE"
+    SUPERSEDED_EFFECT_ACTIVE = "SUPERSEDED_EFFECT_ACTIVE"
+    BAD_SOURCE_SPAN = "BAD_SOURCE_SPAN"
+    CAPABILITY_MISMATCH = "CAPABILITY_MISMATCH"
+    CAPABILITY_UNAVAILABLE = "CAPABILITY_UNAVAILABLE"
+    MISSING_ARGUMENT = "MISSING_ARGUMENT"
+    INVALID_ARGUMENT = "INVALID_ARGUMENT"
+    UNKNOWN_ENTITY = "UNKNOWN_ENTITY"
+    AMBIGUOUS_ENTITY = "AMBIGUOUS_ENTITY"
+    CANONICAL_CONTRADICTION = "CANONICAL_CONTRADICTION"
+    WRONG_SEMANTIC_MODE = "WRONG_SEMANTIC_MODE"
+    DECODER_SCHEMA_FAILURE = "DECODER_SCHEMA_FAILURE"
+    UNSUPPORTED_REQUIREMENT = "UNSUPPORTED_REQUIREMENT"
+
+
+class ProposalFailureEvidence(StrictModel):
+    """Small Core-owned diagnosis; it grants no authority to the repair model."""
+
+    kind: ProposalFailureKind
+    detail: str | None = Field(default=None, max_length=240)
+    related_effect_ids: tuple[UUID, ...] = Field(default=(), max_length=5)
+
+
 class ValidatedPlanStep(StrictModel):
     """Core-bound plan step with stable identity and one requirement owner."""
 
@@ -317,6 +346,9 @@ class ModelRequest(StrictModel):
     objective_effect_only: bool = False
     clarification_recovery_only: bool = False
     clarification_reason: str | None = Field(default=None, max_length=500)
+    proposal_repair_only: bool = False
+    proposal_failure: ProposalFailureEvidence | None = None
+    current_proposal: dict[str, Any] | None = None
     objective_spec_proposal: ObjectiveSpecProposal | None = None
 
 
