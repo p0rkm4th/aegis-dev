@@ -162,6 +162,7 @@ from aegis.tasks import (
     PostgresTaskVerifier,
     Task,
     TaskCompletionFastPath,
+    TaskReadFastPath,
     TaskStatus,
 )
 from aegis.utterance import is_mutation_request, strip_context_reset
@@ -220,6 +221,14 @@ def test_contextual_task_temporal_followup_uses_authorized_task_domain():
 
     assert result is not None
     assert result.evidence["due_filter"] == "tomorrow"
+
+
+def test_task_temporal_read_accepts_explicit_correction_prefix():
+    class Store:
+        def list(self, _principal):
+            return (Task(uuid4(), "space", "tomorrow task", "alice"),)
+
+    assert TaskReadFastPath.matches("No, I meant what tasks are due tomorrow?")
 
 
 def test_contextual_task_temporal_followup_uses_cross_domain_planning_tasks():
