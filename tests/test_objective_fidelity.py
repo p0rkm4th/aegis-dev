@@ -182,6 +182,34 @@ def test_structural_signal_preserves_contrastive_correction_evidence() -> None:
     assert signal.negation_spans
 
 
+def test_structural_signal_recognizes_independent_nonroot_effect_predicates() -> None:
+    from aegis.structural import SpacyStructuralParser
+
+    class Token:
+        def __init__(self, idx: int, text: str, pos: str, dep: str, children=()) -> None:
+            self.idx = idx
+            self.text = text
+            self.pos_ = pos
+            self.dep_ = dep
+            self.children = tuple(children)
+
+    chore = Token(35, "chore", "NOUN", "dobj")
+    clean = Token(42, "clean", "VERB", "ccomp")
+    make = Token(30, "make", "VERB", "dep", (chore, clean))
+    create = Token(0, "Create", "VERB", "ROOT", (make,))
+
+    class Model:
+        def __call__(self, _utterance: str) -> tuple[Token, ...]:
+            return (create, make, chore, clean)
+
+    signal = SpacyStructuralParser(model=Model()).parse(
+        "Create a task, then make a chore to clean the entryway."
+    )
+
+    assert len(signal.anchors) == 2
+    assert [anchor.source_span for anchor in signal.anchors] == [(0, 6), (30, 34)]
+
+
 def test_structural_coverage_rejects_full_span_and_duplicate_gaming() -> None:
     utterance = "Add milk and eggs"
     full = materialize_requested_effects(
