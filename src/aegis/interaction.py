@@ -84,6 +84,7 @@ class InteractionDependencies:
         runtime_resolver: Callable[..., Any] | None = None,
         safety_fast_path_resolver: Callable[..., Result | None] | None = None,
         research_answer: Callable[..., Result | None] | None = None,
+        unresolved_requirement_investigator: Callable[..., Result | None] | None = None,
         structural_parser: Callable[[str], StructuralCoverageSignal] | None = None,
         reuse_classification_action_reference: bool = True,
     ) -> None:
@@ -109,6 +110,7 @@ class InteractionDependencies:
         self.runtime_resolver = runtime_resolver
         self.safety_fast_path_resolver = safety_fast_path_resolver
         self.research_answer = research_answer
+        self.unresolved_requirement_investigator = unresolved_requirement_investigator
         self.structural_parser = structural_parser
         self.reuse_classification_action_reference = reuse_classification_action_reference
 

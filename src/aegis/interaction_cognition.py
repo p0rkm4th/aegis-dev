@@ -762,6 +762,21 @@ def decide_fallback(
                         }
                         and materialized_effects is not None
                     ):
+                        investigator = getattr(
+                            dependencies, "unresolved_requirement_investigator", None
+                        )
+                        if investigator is not None:
+                            try:
+                                investigated = investigator(
+                                    intent, context, tuple(materialized_effects)
+                                )
+                            except Exception:
+                                investigated = None
+                            if isinstance(investigated, Result) and investigated.state in {
+                                ObjectiveState.BLOCKED,
+                                ObjectiveState.FAILED,
+                            }:
+                                return investigated
                         return Result(
                             objective_id=uuid4(),
                             state=ObjectiveState.BLOCKED,
