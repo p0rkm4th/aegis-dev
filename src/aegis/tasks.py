@@ -20,7 +20,7 @@ from .contracts import (
     VerificationContract,
     VerificationResult,
 )
-from .utterance import is_mutation_request
+from .utterance import is_mutation_request, strip_correction_prefix
 
 
 class TaskStatus(StrEnum):
@@ -561,7 +561,7 @@ class TaskReadFastPath:
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
-        text = utterance.casefold()
+        text = strip_correction_prefix(utterance).casefold()
         read_text = re.sub(r"^(?:could you|can you|please)\s+", "", text)
         if is_mutation_request(text):
             return False
@@ -600,7 +600,7 @@ class TaskReadFastPath:
         if not self.matches(intent.utterance):
             return None
         all_tasks = self.store.list(intent.principal)
-        text = intent.utterance.casefold()
+        text = strip_correction_prefix(intent.utterance).casefold()
         if any(term in text for term in ("completed", "finished")):
             tasks = tuple(task for task in all_tasks if task.status is TaskStatus.COMPLETED)
             status_filter = "completed"
@@ -688,7 +688,7 @@ class ContextualTaskTemporalFastPath:
     def resolve(
         self, intent: IntentFrame, context: Context, store: PostgresTaskStore
     ) -> Result | None:
-        text = " ".join(intent.utterance.casefold().split())
+        text = strip_correction_prefix(intent.utterance).casefold()
         if (
             context.sources != ("authorized_canonical_result",)
             or is_mutation_request(text)
