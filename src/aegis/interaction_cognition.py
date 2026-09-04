@@ -287,6 +287,7 @@ def _repair_clarification(
     validator: Callable[[Decision], ValidationResult] | None = None,
     *,
     plans_only: bool = False,
+    max_attempts: int = 2,
 ) -> Decision:
     """Give fidelity-generated clarification one bounded repair opportunity."""
 
@@ -323,7 +324,7 @@ def _repair_clarification(
         repair,
         validate,
         validator_stage="proposal_repair",
-        max_attempts=2,
+        max_attempts=max_attempts,
     )
     events = getattr(provider, "recovery_events", None)
     if isinstance(events, list):
@@ -596,6 +597,7 @@ def decide_fallback(
                     detail="structural plurality requires one plan step per requested change",
                 ),
                 plans_only=True,
+                max_attempts=1,
             )
         if (
             decision.kind in {DecisionKind.CLARIFY, DecisionKind.NEED_CONTEXT}
