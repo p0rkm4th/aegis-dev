@@ -468,6 +468,26 @@ def test_explicit_grocery_topic_switch_does_not_reuse_task_fallback() -> None:
     assert len(cards) == 5
 
 
+def test_grocery_context_does_not_turn_ambiguous_date_follow_up_into_mutation() -> None:
+    result = resolve_reference_safety_fast_paths(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about tomorrow?",
+        ),
+        None,
+        True,
+        Context(
+            values={
+                "referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "tasks, events, or groceries" in result.message
+
+
 def test_structural_compound_single_action_is_blocked_before_execution():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
