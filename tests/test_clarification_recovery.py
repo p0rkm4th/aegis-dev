@@ -102,6 +102,8 @@ def test_recovery_rejects_nonresolved_proposal_and_undeclared_arguments() -> Non
 
 def test_recovery_request_isolated_mode_returns_no_direct_action() -> None:
     class Provider:
+        recovery_events: list[dict[str, object]] = []
+
         def decide(self, request: object) -> object:
             assert getattr(request, "clarification_recovery_only") is True
             assert getattr(request, "clarification_reason") == "ambiguous target"
@@ -170,6 +172,8 @@ def test_invalid_proposal_repair_is_decoded_against_supplied_cards() -> None:
     from aegis.decoding import InvalidDecision
 
     class Provider:
+        recovery_events: list[dict[str, object]] = []
+
         def decide(self, request: object) -> object:
             assert getattr(request, "proposal_repair_only") is True
             return type(
@@ -188,8 +192,9 @@ def test_invalid_proposal_repair_is_decoded_against_supplied_cards() -> None:
                 },
             )()
 
+    provider = Provider()
     repaired = repair_invalid_decision_once(
-        Provider(),
+        provider,
         IntentFrame(utterance="finish that bulb thing", principal=Principal(id="a", vault_id="v")),
         Context(),
         (card(),),
@@ -200,6 +205,9 @@ def test_invalid_proposal_repair_is_decoded_against_supplied_cards() -> None:
     assert repaired.kind.value == "ACTION"
     assert repaired.action is not None
     assert repaired.action.action_id == "tasks.complete"
+    assert provider.recovery_events[0]["attempt"] == 1
+    assert provider.recovery_events[0]["validator_stage"] == "decision_decoder"
+    assert provider.recovery_events[0]["decode_outcome"] == "decoded"
 
 
 def test_bounded_repair_revalidates_and_uses_new_failure_for_attempt_two() -> None:
