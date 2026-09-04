@@ -859,6 +859,7 @@ def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
         )
     )
     repair_calls = 0
+    repair_requests: list[ModelRequest] = []
 
     class Provider:
         def decide(self, request: ModelRequest) -> ModelResponse:
@@ -867,6 +868,7 @@ def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
                 return ModelResponse(raw={"semantic_mode": "ACTION"})
             if request.proposal_repair_only:
                 repair_calls += 1
+                repair_requests.append(request)
                 return ModelResponse(
                     raw=Decision(
                         kind=DecisionKind.PLAN,
@@ -924,6 +926,9 @@ def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
     assert isinstance(result, Decision)
     assert result.kind is DecisionKind.PLAN
     assert repair_calls == 1
+    assert repair_requests[0].proposal_failure is not None
+    assert "anchor_count=2" in repair_requests[0].proposal_failure.detail
+    assert repair_requests[0].proposal_failure.related_source_spans == ((0, 4), (9, 10))
 
 
 def test_compound_plan_repair_budget_is_one_before_generic_recovery() -> None:
