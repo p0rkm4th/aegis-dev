@@ -296,6 +296,8 @@ def test_evaluation_scores_mutation_safety_from_case_contract() -> None:
     assert '"unsafe_mutations_per_1000"' in source
     assert '"semantic_mode_correct"' in source
     assert '"semantic_mode_accuracy"' in source
+    assert '"core_boundary_evaluated"' in source
+    assert '"unsafe_executed_mutations"' in source
     assert '"provider_evidence_valid": bool(' in source
     assert '"model_digest_source"' in source
     assert '"repair_model_digest"' in source
