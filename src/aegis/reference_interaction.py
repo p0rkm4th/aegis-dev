@@ -96,6 +96,23 @@ from .utterance import (
 )
 
 
+def _event_time_is_explicit(utterance: str) -> bool:
+    """Require a user-supplied time before creating a calendar event."""
+
+    text = utterance.casefold()
+    return bool(
+        re.search(
+            r"\b(?:today|tomorrow|tonight|morning|afternoon|evening|noon|midnight|"
+            r"monday|tuesday|wednesday|thursday|friday|saturday|sunday|"
+            r"next\s+week|at\s+\d|\d{1,2}(?::\d{2})?\s*(?:am|pm)|"
+            r"\d{4}-\d{2}-\d{2}|\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|"
+            r"apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|"
+            r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b)",
+            text,
+        )
+    )
+
+
 def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[str, ActionCard]:
     """Compatibility router for reference Packs when cognition is disabled.
 
@@ -1656,6 +1673,16 @@ def ground_reference_action(
                     )
                 }
             )
+
+    if card.action.action_id == "tasks.events.create" and not _event_time_is_explicit(
+        intent.utterance
+    ):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="What date and time should I use for that event? I won't infer one.",
+            correlation_id=intent.correlation_id,
+        )
 
     if goal_task_title is not None and card.action.action_id == "tasks.create":
         card = card.model_copy(
