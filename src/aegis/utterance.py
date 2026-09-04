@@ -41,6 +41,17 @@ def is_correction_request(utterance: str) -> bool:
     return normalized.startswith(("no,", "no ", "i meant ", "actually,", "actually "))
 
 
+def strip_correction_prefix(utterance: str) -> str:
+    """Expose the corrected request shape to read-only matchers."""
+
+    normalized = " ".join(utterance.split())
+    lowered = normalized.casefold()
+    for prefix in ("no, i meant ", "no i meant ", "i meant ", "actually, ", "actually "):
+        if lowered.startswith(prefix):
+            return normalized[len(prefix) :]
+    return normalized
+
+
 def is_question_request(utterance: str) -> bool:
     """Recognize question shape for the read/write safety boundary."""
 
