@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable, Generic, TypeVar
 from uuid import uuid4
 
 from .contracts import (
@@ -28,6 +28,106 @@ from .contracts import (
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_context import grounded_context_answer
 from .utterance import is_mutation_request, is_question_request
+
+T = TypeVar("T")
+
+
+@dataclass(frozen=True)
+class ValidationResult:
+    """The result of the real validator for one untrusted proposal."""
+
+    valid: bool
+    failure: ProposalFailureEvidence | None = None
+
+    def __post_init__(self) -> None:
+        if self.valid and self.failure is not None:
+            raise ValueError("valid proposal cannot carry failure evidence")
+        if not self.valid and self.failure is None:
+            raise ValueError("invalid proposal requires failure evidence")
+
+
+@dataclass(frozen=True)
+class ProposalRepairEvent:
+    """Bounded runtime telemetry for one repair attempt."""
+
+    attempt: int
+    input_failure_kind: ProposalFailureKind
+    input_failure_fingerprint: str
+    decode_outcome: str
+    validator_stage: str
+    validation_outcome: str
+    output_failure_kind: ProposalFailureKind | None = None
+    output_failure_fingerprint: str | None = None
+    stop_reason: str | None = None
+
+
+@dataclass(frozen=True)
+class ProposalRepairResult(Generic[T]):
+    proposal: T | None
+    events: tuple[ProposalRepairEvent, ...]
+    stop_reason: str
+
+
+def bounded_proposal_repair(
+    initial: T,
+    failure: ProposalFailureEvidence,
+    repair: Callable[[T, ProposalFailureEvidence], tuple[T | None, ProposalFailureEvidence]],
+    validate: Callable[[T], ValidationResult],
+    *,
+    validator_stage: str,
+    max_attempts: int = 2,
+) -> ProposalRepairResult[T]:
+    """Run a finite repair loop where every candidate returns to the validator."""
+
+    if max_attempts < 0 or max_attempts > 2:
+        raise ValueError("proposal repair budget must be between zero and two")
+    current = initial
+    current_failure = failure
+    seen = {proposal_failure_fingerprint(failure)}
+    events: list[ProposalRepairEvent] = []
+    for attempt in range(1, max_attempts + 1):
+        candidate, decode_failure = repair(current, current_failure)
+        next_failure: ProposalFailureEvidence | None
+        if candidate is None:
+            next_failure = decode_failure
+            event = ProposalRepairEvent(
+                attempt=attempt,
+                input_failure_kind=current_failure.kind,
+                input_failure_fingerprint=proposal_failure_fingerprint(current_failure),
+                decode_outcome="rejected",
+                validator_stage=validator_stage,
+                validation_outcome="not_run",
+                output_failure_kind=next_failure.kind,
+                output_failure_fingerprint=proposal_failure_fingerprint(next_failure),
+            )
+        else:
+            result = validate(candidate)
+            next_failure = result.failure
+            event = ProposalRepairEvent(
+                attempt=attempt,
+                input_failure_kind=current_failure.kind,
+                input_failure_fingerprint=proposal_failure_fingerprint(current_failure),
+                decode_outcome="decoded",
+                validator_stage=validator_stage,
+                validation_outcome="valid" if result.valid else "invalid",
+                output_failure_kind=next_failure.kind if next_failure else None,
+                output_failure_fingerprint=(
+                    proposal_failure_fingerprint(next_failure) if next_failure else None
+                ),
+            )
+            if result.valid:
+                events.append(event)
+                return ProposalRepairResult(candidate, tuple(events), "VALIDATED")
+        events.append(event)
+        if next_failure is None:
+            raise ValueError("invalid repair must produce failure evidence")
+        fingerprint = proposal_failure_fingerprint(next_failure)
+        if fingerprint in seen:
+            return ProposalRepairResult(None, tuple(events), "REPEATED_FAILURE")
+        seen.add(fingerprint)
+        current = candidate if candidate is not None else current
+        current_failure = next_failure
+    return ProposalRepairResult(None, tuple(events), "BUDGET_EXHAUSTED")
 
 
 def proposal_failure_evidence(error: Exception) -> ProposalFailureEvidence:
