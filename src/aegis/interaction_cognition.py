@@ -605,7 +605,7 @@ def decide_fallback(
             dependencies, intent.utterance
         ):
             # A compound-shaped utterance that the ordinary cognition pass
-            # conservatively clarified has one bounded opportunity to produce
+            # conservatively clarified has two bounded opportunities to produce
             # a complete PLAN. The resulting proposal immediately re-enters
             # requested-effect coverage and objective-fidelity validation.
             decision = _repair_clarification(
