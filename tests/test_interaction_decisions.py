@@ -625,6 +625,81 @@ def test_unbound_effects_use_separate_capability_mapping_pass() -> None:
     assert mapping_calls == 1
 
 
+def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
+    utterance = "do A and B"
+    signal = StructuralCoverageSignal(
+        anchors=tuple(
+            StructuralAnchor(source_span=span, kind="clause") for span in ((0, 4), (9, 10))
+        )
+    )
+    repair_calls = 0
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            nonlocal repair_calls
+            if request.classification_only:
+                return ModelResponse(raw={"semantic_mode": "ACTION"})
+            if request.proposal_repair_only:
+                repair_calls += 1
+                return ModelResponse(
+                    raw=Decision(
+                        kind=DecisionKind.PLAN,
+                        semantic_mode="ACTION",
+                        objective_spec=ObjectiveSpecProposal(
+                            requirements=tuple(
+                                ObjectiveRequirementProposal(action_ref=ref) for ref in ("A", "B")
+                            )
+                        ),
+                        plan=ProposedPlan(
+                            steps=tuple(ProposedPlanStep(action_ref=ref) for ref in ("A", "B"))
+                        ),
+                    ).model_dump(mode="json")
+                )
+            if request.objective_effect_only:
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": "do A",
+                                "source_span": (0, 4),
+                                "action_ref": "A",
+                                "arguments": {},
+                            },
+                            {
+                                "effect_text": "B",
+                                "source_span": (9, 10),
+                                "action_ref": "B",
+                                "arguments": {},
+                            },
+                        ]
+                    }
+                )
+            return ModelResponse(
+                raw={"kind": "CLARIFY", "semantic_mode": "CLARIFY", "clarification": "unclear"}
+            )
+
+    cards = tuple(
+        ActionCard(action=ActionSpec(action_id=ref, capability=ref), summary=ref, relevance=1)
+        for ref in ("A", "B")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+            structural_parser=lambda _utterance: signal,
+        ),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance=utterance),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.PLAN
+    assert repair_calls == 1
+
+
 def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> None:
     utterance = "do the unavailable thing"
     signal = StructuralCoverageSignal(
