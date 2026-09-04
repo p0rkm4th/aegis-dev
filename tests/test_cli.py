@@ -3993,6 +3993,55 @@ def test_task_read_fast_path_filters_this_weekday_due_window():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["friday task"]
 
 
+def test_task_read_fast_path_next_week_uses_next_calendar_week():
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc)
+    next_monday = now.date() + timedelta(days=7 - now.weekday())
+    first = Task(
+        uuid4(),
+        "apartment",
+        "next Monday task",
+        "alice",
+        due_at=datetime.combine(next_monday, datetime.min.time().replace(hour=12), timezone.utc),
+    )
+    last = Task(
+        uuid4(),
+        "apartment",
+        "next Sunday task",
+        "alice",
+        due_at=datetime.combine(
+            next_monday + timedelta(days=6), datetime.min.time().replace(hour=12), timezone.utc
+        ),
+    )
+    following = Task(
+        uuid4(),
+        "apartment",
+        "following week task",
+        "alice",
+        due_at=datetime.combine(
+            next_monday + timedelta(days=7), datetime.min.time().replace(hour=12), timezone.utc
+        ),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (first, last, following)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What tasks are due next week?",
+        )
+    )
+    assert result is not None
+    assert result.evidence["due_filter"] == "next_week"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == [
+        "next Monday task",
+        "next Sunday task",
+    ]
+
+
 def test_task_read_fast_path_filters_explicit_status_language():
     completed = Task(uuid4(), "apartment", "done task", "alice", status=TaskStatus.COMPLETED)
     open_task = Task(uuid4(), "apartment", "open task", "alice", status=TaskStatus.OPEN)
