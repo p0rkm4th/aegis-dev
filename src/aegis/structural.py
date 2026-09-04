@@ -37,7 +37,7 @@ class SpacyStructuralParser:
     def parse(self, utterance: str) -> StructuralCoverageSignal:
         doc = self._model(utterance)
         predicates = [token for token in doc if token.pos_ in {"VERB", "AUX"}]
-        coordinated_predicates = [token for token in predicates if token.dep_ in {"ROOT", "conj"}]
+        coordinated_predicates = [token for token in predicates if self._is_effect_predicate(token)]
         anchors: list[StructuralAnchor]
         if len(coordinated_predicates) > 1:
             anchors = [
@@ -85,3 +85,18 @@ class SpacyStructuralParser:
         return StructuralCoverageSignal(
             anchors=tuple(anchors), negation_spans=tuple(negation_spans)
         )
+
+    @staticmethod
+    def _is_effect_predicate(token: Any) -> bool:
+        """Select bounded independent predicates without treating framing as effects."""
+
+        if token.dep_ in {"ROOT", "conj"}:
+            return True
+        if token.dep_ not in {"advcl", "ccomp", "dep", "relcl", "xcomp"}:
+            return False
+        children = tuple(getattr(token, "children", ()))
+        if any(child.dep_ == "cc" for child in children):
+            return False
+        if any(child.dep_ in {"dobj", "obj", "obl", "iobj"} for child in children):
+            return True
+        return sum(child.dep_ in {"nsubj", "csubj"} for child in children) > 1
