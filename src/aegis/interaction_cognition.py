@@ -577,6 +577,26 @@ def decide_fallback(
                 raise error
         if decision is None:
             raise InvalidDecision("model answer repair did not produce a decision")
+        if decision.kind is DecisionKind.CLARIFY and _has_structural_plurality(
+            dependencies, intent.utterance
+        ):
+            # A compound-shaped utterance that the ordinary cognition pass
+            # conservatively clarified has one bounded opportunity to produce
+            # a complete PLAN. The resulting proposal immediately re-enters
+            # requested-effect coverage and objective-fidelity validation.
+            decision = _repair_clarification(
+                provider,
+                intent,
+                context,
+                cards,
+                decision,
+                "the request contains multiple independently requested changes",
+                ProposalFailureEvidence(
+                    kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
+                    detail="structural plurality requires one plan step per requested change",
+                ),
+                plans_only=True,
+            )
         if (
             decision.kind in {DecisionKind.CLARIFY, DecisionKind.NEED_CONTEXT}
             and any(
