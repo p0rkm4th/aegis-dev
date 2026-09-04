@@ -12,6 +12,7 @@ from .contracts import (
     ObjectiveFidelityVerdict,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
+    ProposedPlan,
     RequestedEffect,
     StrictModel,
     StructuralCoverageSignal,
@@ -187,6 +188,24 @@ def compare_objective_proposals(
     if right_set - left_set and not left_set - right_set:
         return ObjectiveFidelityVerdict.EXTRA_REQUIREMENT
     return ObjectiveFidelityVerdict.NEED_CLARIFICATION
+
+
+def plan_covers_objective(plan: ProposedPlan, objective: ObjectiveSpecProposal) -> bool:
+    """Check that a proposed plan preserves the grounded objective requirements."""
+
+    if len(plan.steps) != len(objective.requirements):
+        return False
+    plan_keys = sorted(
+        _key(
+            ObjectiveRequirementProposal(
+                action_ref=step.action_ref,
+                arguments=dict(step.arguments),
+            )
+        )
+        for step in plan.steps
+    )
+    objective_keys = sorted(_key(requirement) for requirement in objective.requirements)
+    return plan_keys == objective_keys
 
 
 def fidelity_message(verdict: ObjectiveFidelityVerdict) -> str:

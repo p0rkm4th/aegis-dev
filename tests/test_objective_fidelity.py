@@ -2,6 +2,8 @@ from aegis.contracts import (
     ObjectiveFidelityVerdict,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
+    ProposedPlan,
+    ProposedPlanStep,
     StructuralAnchor,
     StructuralCoverageSignal,
 )
@@ -12,6 +14,7 @@ from aegis.objective_fidelity import (
     effects_to_proposal,
     evaluate_fidelity_cases,
     materialize_requested_effects,
+    plan_covers_objective,
     validate_effect_spans,
     validate_structural_coverage,
 )
@@ -64,6 +67,28 @@ def test_fidelity_requires_clarification_when_both_interpretations_differ() -> N
         )
         is ObjectiveFidelityVerdict.NEED_CLARIFICATION
     )
+
+
+def test_plan_correlation_requires_exact_objective_requirement_coverage() -> None:
+    objective = spec(
+        ("tasks.create", {"title": "review backup"}),
+        ("chores.create", {"title": "clean entryway"}),
+    )
+    aligned = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="tasks.create", arguments={"title": "review backup"}),
+            ProposedPlanStep(action_ref="chores.create", arguments={"title": "clean entryway"}),
+        )
+    )
+    dropped = ProposedPlan(
+        steps=(
+            ProposedPlanStep(action_ref="tasks.create", arguments={"title": "review backup"}),
+            ProposedPlanStep(action_ref="chores.create", arguments={"title": "other chore"}),
+        )
+    )
+
+    assert plan_covers_objective(aligned, objective)
+    assert not plan_covers_objective(dropped, objective)
 
 
 def test_segmented_effects_must_be_grounded_in_original_utterance() -> None:
