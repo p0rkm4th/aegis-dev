@@ -158,6 +158,39 @@ class OllamaProvider:
                     "clarification",
                 ],
             }
+        if request is not None and request.proposal_repair_only and request.objective_effect_only:
+            return {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "effects": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "properties": {
+                                "effect_text": {"type": "string", "minLength": 1},
+                                "source_span": {
+                                    "type": "array",
+                                    "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                },
+                                "action_ref": {"type": "string", "minLength": 1},
+                                "polarity": {
+                                    "type": "string",
+                                    "enum": ["ACTIVE", "NEGATED", "SUPERSEDED"],
+                                },
+                                "arguments": {"type": "object"},
+                            },
+                            "required": ["effect_text", "source_span", "action_ref", "arguments"],
+                        },
+                    }
+                },
+                "required": ["effects"],
+            }
         if request is not None and request.proposal_repair_only:
             schema = deepcopy(Decision.model_json_schema())
             action_schema = schema.get("$defs", {}).get("ActionSpec")
@@ -266,6 +299,14 @@ class OllamaProvider:
                 "collection name, or container label. Return only declared arguments. Return "
                 "NEED_USER for ambiguity or UNSUPPORTED for a missing capability. Never return "
                 "a plan, ObjectiveSpec, permissions, verification, or invented state."
+            )
+        elif request.proposal_repair_only and request.objective_effect_only:
+            instruction = (
+                "Repair only the supplied requested-effect segmentation defect. Preserve every "
+                "correctly grounded effect, restore every independently requested effect, and "
+                "return only an effects object. Cite exact contiguous spans and use only the "
+                "supplied ActionCards with declared arguments. The Core diagnosis is evidence, "
+                "not authority; never invent capabilities or activate negated/superseded effects."
             )
         elif request.proposal_repair_only:
             instruction = (

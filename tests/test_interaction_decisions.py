@@ -17,6 +17,8 @@ from aegis.contracts import (
     ProposedPlan,
     ProposedPlanStep,
     Result,
+    StructuralAnchor,
+    StructuralCoverageSignal,
     VerificationContract,
 )
 from aegis.decoding import StrictDecisionDecoder
@@ -277,6 +279,195 @@ def test_plan_fidelity_does_not_accept_matching_plan_that_omits_human_effect() -
 
     assert isinstance(result, Decision)
     assert result.kind is DecisionKind.CLARIFY
+
+
+def test_structural_repair_rejects_prettier_plan_with_stale_effect_coverage() -> None:
+    utterance = "do A, B, and C"
+    signal = StructuralCoverageSignal(
+        anchors=tuple(
+            StructuralAnchor(source_span=span, kind="clause") for span in ((0, 4), (6, 7), (13, 14))
+        )
+    )
+    calls: list[ModelRequest] = []
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            calls.append(request)
+            if request.classification_only:
+                return ModelResponse(raw={"semantic_mode": "ACTION"})
+            if request.objective_effect_only:
+                # The proposed repair still claims only A+C. The structural
+                # validator must reject it, regardless of any plan wording.
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": "do A",
+                                "source_span": (0, 4),
+                                "action_ref": "A",
+                                "arguments": {},
+                            },
+                            {
+                                "effect_text": "C",
+                                "source_span": (13, 14),
+                                "action_ref": "C",
+                                "arguments": {},
+                            },
+                        ]
+                    }
+                )
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    objective_spec=ObjectiveSpecProposal(
+                        requirements=tuple(
+                            ObjectiveRequirementProposal(action_ref=ref) for ref in ("A", "C")
+                        )
+                    ),
+                    plan=ProposedPlan(
+                        steps=tuple(ProposedPlanStep(action_ref=ref) for ref in ("A", "C"))
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    cards = tuple(
+        ActionCard(action=ActionSpec(action_id=ref, capability=ref), summary=ref, relevance=1)
+        for ref in ("A", "B", "C")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+            structural_parser=lambda _utterance: signal,
+        ),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance=utterance),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.CLARIFY
+    assert (
+        sum(request.proposal_repair_only and request.objective_effect_only for request in calls)
+        == 1
+    )
+
+
+def test_structural_repair_reenters_fidelity_with_complete_effects() -> None:
+    utterance = "do A, B, and C"
+    signal = StructuralCoverageSignal(
+        anchors=tuple(
+            StructuralAnchor(source_span=span, kind="clause") for span in ((0, 4), (6, 7), (13, 14))
+        )
+    )
+    repair_calls = 0
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            nonlocal repair_calls
+            if request.classification_only:
+                return ModelResponse(raw={"semantic_mode": "ACTION"})
+            if request.objective_effect_only and request.proposal_repair_only:
+                repair_calls += 1
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": "do A",
+                                "source_span": (0, 4),
+                                "action_ref": "A",
+                                "arguments": {},
+                            },
+                            {
+                                "effect_text": "B",
+                                "source_span": (6, 7),
+                                "action_ref": "B",
+                                "arguments": {},
+                            },
+                            {
+                                "effect_text": "C",
+                                "source_span": (13, 14),
+                                "action_ref": "C",
+                                "arguments": {},
+                            },
+                        ]
+                    }
+                )
+            if request.proposal_repair_only:
+                return ModelResponse(
+                    raw=Decision(
+                        kind=DecisionKind.PLAN,
+                        semantic_mode="ACTION",
+                        objective_spec=ObjectiveSpecProposal(
+                            requirements=tuple(
+                                ObjectiveRequirementProposal(action_ref=ref)
+                                for ref in ("A", "B", "C")
+                            )
+                        ),
+                        plan=ProposedPlan(
+                            steps=tuple(ProposedPlanStep(action_ref=ref) for ref in ("A", "B", "C"))
+                        ),
+                    ).model_dump(mode="json")
+                )
+            if request.objective_effect_only:
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": "do A",
+                                "source_span": (0, 4),
+                                "action_ref": "A",
+                                "arguments": {},
+                            },
+                            {
+                                "effect_text": "C",
+                                "source_span": (13, 14),
+                                "action_ref": "C",
+                                "arguments": {},
+                            },
+                        ]
+                    }
+                )
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    objective_spec=ObjectiveSpecProposal(
+                        requirements=tuple(
+                            ObjectiveRequirementProposal(action_ref=ref) for ref in ("A", "C")
+                        )
+                    ),
+                    plan=ProposedPlan(
+                        steps=tuple(ProposedPlanStep(action_ref=ref) for ref in ("A", "C"))
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    cards = tuple(
+        ActionCard(action=ActionSpec(action_id=ref, capability=ref), summary=ref, relevance=1)
+        for ref in ("A", "B", "C")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+            structural_parser=lambda _utterance: signal,
+        ),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance=utterance),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.PLAN
+    assert result.plan is not None
+    assert tuple(step.action_ref for step in result.plan.steps) == ("A", "B", "C")
+    assert repair_calls == 1
 
 
 def test_plan_fidelity_provider_failure_fails_closed() -> None:
