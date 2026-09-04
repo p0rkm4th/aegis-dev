@@ -3068,6 +3068,20 @@ def test_ollama_structural_repair_prompt_requires_plan_attempt():
     assert "Do not return CLARIFY merely" in payload["instruction"]
 
 
+def test_ollama_mapping_repair_schema_is_objective_spec():
+    schema = OllamaProvider._decision_schema(
+        ModelRequest(
+            working_set=WorkingSet(intent=intent()),
+            action_cards=(),
+            proposal_repair_only=True,
+            objective_interpretation_only=True,
+        )
+    )
+
+    assert "requirements" in schema["properties"]
+    assert "kind" not in schema["properties"]
+
+
 def test_ollama_fidelity_prompt_has_no_plan_authority():
     proposal = ObjectiveSpecProposal(
         requirements=(ObjectiveRequirementProposal(action_ref="tasks.create"),)

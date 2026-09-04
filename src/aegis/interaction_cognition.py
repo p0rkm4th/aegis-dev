@@ -934,50 +934,121 @@ def decide_fallback(
                     }
                     for effect in effects
                 ]
-                mapping_response = provider.decide(
-                    request.model_copy(
-                        update={
-                            "working_set": WorkingSet(
-                                intent=intent,
-                                context=context.model_copy(update={"values": mapping_values}),
-                            ),
-                            "objective_effect_only": False,
-                            "objective_interpretation_only": True,
-                            "objective_fidelity_only": False,
-                            "allow_plan_proposals": False,
-                            "allow_argument_proposals": False,
-                        }
-                    )
-                )
-                try:
-                    mapped_spec = ObjectiveSpecProposal.model_validate(mapping_response.raw)
-                except Exception:
-                    mapped_spec = None
-                if mapped_spec is None or len(mapped_spec.requirements) != len(effects):
-                    return Decision(
-                        kind=DecisionKind.CLARIFY,
-                        clarification=(
-                            "I grounded the requested changes but could not safely map "
-                            "each one to an available capability."
+                mapping_request = request.model_copy(
+                    update={
+                        "working_set": WorkingSet(
+                            intent=intent,
+                            context=context.model_copy(update={"values": mapping_values}),
                         ),
-                        semantic_mode="CLARIFY",
+                        "objective_effect_only": False,
+                        "objective_interpretation_only": True,
+                        "objective_fidelity_only": False,
+                        "allow_plan_proposals": False,
+                        "allow_argument_proposals": False,
+                    }
+                )
+                mapping_response = provider.decide(mapping_request)
+                mapping_raw = mapping_response.raw if isinstance(mapping_response.raw, dict) else {}
+
+                def validate_mapping(candidate: dict[str, Any]) -> ValidationResult:
+                    try:
+                        candidate_spec = ObjectiveSpecProposal.model_validate(candidate)
+                    except Exception:
+                        return ValidationResult(
+                            valid=False,
+                            failure=ProposalFailureEvidence(
+                                kind=ProposalFailureKind.DECODER_SCHEMA_FAILURE,
+                                detail="objective capability mapping schema is invalid",
+                            ),
+                        )
+                    if len(candidate_spec.requirements) != len(effects):
+                        return ValidationResult(
+                            valid=False,
+                            failure=ProposalFailureEvidence(
+                                kind=ProposalFailureKind.MISSING_EFFECT,
+                                detail=(
+                                    "objective capability mapping must cover every grounded "
+                                    f"effect; effect_count={len(effects)} "
+                                    f"requirement_count={len(candidate_spec.requirements)}"
+                                ),
+                            ),
+                        )
+                    for requirement in candidate_spec.requirements:
+                        card = next(
+                            (
+                                card
+                                for card in cards
+                                if card.action.action_id == requirement.action_ref
+                            ),
+                            None,
+                        )
+                        if card is None:
+                            return ValidationResult(
+                                valid=False,
+                                failure=ProposalFailureEvidence(
+                                    kind=ProposalFailureKind.CAPABILITY_UNAVAILABLE,
+                                    detail="objective mapping selected an unavailable ActionCard",
+                                ),
+                            )
+                        if not set(requirement.arguments).issubset(set(card.argument_keys)):
+                            return ValidationResult(
+                                valid=False,
+                                failure=ProposalFailureEvidence(
+                                    kind=ProposalFailureKind.INVALID_ARGUMENT,
+                                    detail="objective mapping proposed an undeclared argument",
+                                ),
+                            )
+                    return ValidationResult(valid=True)
+
+                mapping_failure = validate_mapping(mapping_raw).failure
+                if mapping_failure is not None:
+
+                    def repair_mapping(
+                        current: dict[str, Any], evidence: ProposalFailureEvidence
+                    ) -> tuple[dict[str, Any] | None, ProposalFailureEvidence]:
+                        response = repair_provider.decide(
+                            mapping_request.model_copy(
+                                update={
+                                    "proposal_repair_only": True,
+                                    "repair_validator_stage": "objective_capability_mapping",
+                                    "proposal_failure": evidence,
+                                    "current_proposal": current,
+                                }
+                            )
+                        )
+                        candidate = response.raw if isinstance(response.raw, dict) else None
+                        if candidate is None:
+                            return None, ProposalFailureEvidence(
+                                kind=ProposalFailureKind.DECODER_SCHEMA_FAILURE,
+                                detail="objective capability repair must be an object",
+                            )
+                        result = validate_mapping(candidate)
+                        return candidate, result.failure or evidence
+
+                    repaired_mapping = bounded_proposal_repair(
+                        mapping_raw,
+                        mapping_failure,
+                        repair_mapping,
+                        validate_mapping,
+                        validator_stage="objective_capability_mapping",
+                        max_attempts=2,
                     )
-                for requirement in mapped_spec.requirements:
-                    card = next(
-                        (card for card in cards if card.action.action_id == requirement.action_ref),
-                        None,
-                    )
-                    if card is None or not set(requirement.arguments).issubset(
-                        set(card.argument_keys)
-                    ):
+                    recovery_events = getattr(provider, "recovery_events", None)
+                    if isinstance(recovery_events, list):
+                        recovery_events.extend(
+                            proposal_repair_event_record(event) for event in repaired_mapping.events
+                        )
+                    if repaired_mapping.proposal is None:
                         return Decision(
                             kind=DecisionKind.CLARIFY,
                             clarification=(
-                                "I could not safely map every grounded change to the "
-                                "available capabilities."
+                                "I grounded the requested changes but could not safely map "
+                                "each one to an available capability."
                             ),
                             semantic_mode="CLARIFY",
                         )
+                    mapping_raw = repaired_mapping.proposal
+                mapped_spec = ObjectiveSpecProposal.model_validate(mapping_raw)
                 independent_spec = mapped_spec
             else:
                 independent_spec = effects_to_proposal(intent.utterance, effects)

@@ -202,6 +202,12 @@ class OllamaProvider:
                 },
                 "required": ["effects"],
             }
+        if (
+            request is not None
+            and request.proposal_repair_only
+            and request.objective_interpretation_only
+        ):
+            return ObjectiveSpecProposal.model_json_schema()
         if request is not None and request.proposal_repair_only:
             schema = deepcopy(Decision.model_json_schema())
             action_schema = schema.get("$defs", {}).get("ActionSpec")
