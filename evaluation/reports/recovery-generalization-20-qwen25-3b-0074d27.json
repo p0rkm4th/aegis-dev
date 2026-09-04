@@ -1,0 +1,36 @@
+{
+  "dataset": "evaluation/recovery_generalization_20.json",
+  "dataset_sha256": "838736999fd6bdf281151ce0fc4a951450490472e29bfa4674f6e524e5c44ed8",
+  "source_revision": "29e414138f05d6535cc2222765cb468246e27bde",
+  "model": "qwen2.5:3b",
+  "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "cases": 20,
+  "metrics": {
+    "final_correct_completion_or_answer_rate": 0.0,
+    "route_accuracy": 0.1,
+    "semantic_mode_accuracy": 0.1,
+    "inappropriate_clarification_rate": 0.2,
+    "model_calls": 59,
+    "repair_requests": 13,
+    "repair_attempts": 17,
+    "decoder_failures": 14,
+    "full_request_latency_p50_ms": 5541.815,
+    "full_request_latency_p95_ms": 9086.32,
+    "prompt_tokens": 145006,
+    "output_tokens": 5245
+  },
+  "repair_failure_distribution": {
+    "DECODER_SCHEMA_FAILURE": 11,
+    "UNACCOUNTED_STRUCTURAL_ANCHOR": 3,
+    "CAPABILITY_MISMATCH": 3
+  },
+  "safety": {
+    "false_completions": 1,
+    "false_mutations": 2,
+    "unsafe_mutations_per_1000": 100.0,
+    "security_hard_failure": true,
+    "kernel_execution": false
+  },
+  "decision": "reject_for_tiny_or_main_repair_role",
+  "promotion": "not_eligible"
+}
