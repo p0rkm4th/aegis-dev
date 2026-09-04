@@ -210,6 +210,30 @@ def _has_structural_plurality(dependencies: Any, utterance: str) -> bool:
     return len(signal.anchors) > 1
 
 
+def _structural_plurality_failure(dependencies: Any, utterance: str) -> ProposalFailureEvidence:
+    """Expose bounded parser spans when a clarification enters repair."""
+
+    structural_parser = getattr(dependencies, "structural_parser", None)
+    if structural_parser is not None:
+        try:
+            signal = structural_parser(utterance)
+            spans = [anchor.source_span for anchor in signal.anchors]
+            return ProposalFailureEvidence(
+                kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
+                detail=(
+                    "structural plurality requires one plan step per requested change; "
+                    f"anchor_count={len(spans)} anchor_spans={spans}"
+                ),
+                related_source_spans=tuple(spans[:5]),
+            )
+        except Exception:
+            pass
+    return ProposalFailureEvidence(
+        kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
+        detail="structural plurality requires one plan step per requested change",
+    )
+
+
 def _bounded_decision_repair(
     provider: Any,
     intent: IntentFrame,
@@ -615,10 +639,7 @@ def decide_fallback(
                 cards,
                 decision,
                 "the request contains multiple independently requested changes",
-                ProposalFailureEvidence(
-                    kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
-                    detail="structural plurality requires one plan step per requested change",
-                ),
+                _structural_plurality_failure(dependencies, intent.utterance),
                 plans_only=True,
                 max_attempts=2,
             )
