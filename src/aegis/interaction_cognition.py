@@ -713,7 +713,13 @@ def decide_fallback(
                 if candidate_materialized is None:
                     return ValidationResult(
                         valid=False,
-                        failure=ProposalFailureEvidence(kind=ProposalFailureKind.BAD_SOURCE_SPAN),
+                        failure=ProposalFailureEvidence(
+                            kind=ProposalFailureKind.BAD_SOURCE_SPAN,
+                            detail=(
+                                "requested effect spans did not ground uniquely; "
+                                f"effect_count={len(candidate_effects)}"
+                            ),
+                        ),
                     )
                 for effect in candidate_materialized:
                     if effect.polarity == "NEGATED":
@@ -738,10 +744,21 @@ def decide_fallback(
                 if not validate_structural_coverage(
                     intent.utterance, candidate_materialized, structural_signal
                 ):
+                    anchor_spans = [anchor.source_span for anchor in structural_signal.anchors]
+                    effect_spans = [
+                        span for effect in candidate_materialized for span in effect.source_spans
+                    ]
                     return ValidationResult(
                         valid=False,
                         failure=ProposalFailureEvidence(
-                            kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR
+                            kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
+                            detail=(
+                                "structural/effect coverage mismatch; "
+                                f"anchor_count={len(structural_signal.anchors)} "
+                                f"effect_count={len(candidate_materialized)} "
+                                f"anchor_spans={anchor_spans} "
+                                f"effect_spans={effect_spans}"
+                            ),
                         ),
                     )
                 return ValidationResult(valid=True)
