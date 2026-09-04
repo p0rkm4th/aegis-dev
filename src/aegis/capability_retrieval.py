@@ -8,7 +8,7 @@ from .contracts import ActionCard, Context
 from .pack_lifecycle import PackManager
 
 
-def _has_multiple_structural_anchors(dependencies: Any, utterance: str) -> bool:
+def _structural_anchor_count(dependencies: Any, utterance: str) -> int:
     """Use optional structural evidence to avoid narrowing a compound request.
 
     This is only candidate-set shaping.  The parser remains non-authoritative,
@@ -18,12 +18,12 @@ def _has_multiple_structural_anchors(dependencies: Any, utterance: str) -> bool:
 
     parser = getattr(dependencies, "structural_parser", None)
     if parser is None:
-        return False
+        return 0
     try:
         signal = parser(utterance)
     except Exception:
-        return False
-    return len(signal.anchors) > 1
+        return 0
+    return len(signal.anchors)
 
 
 def retrieve_action_cards(
@@ -46,7 +46,8 @@ def retrieve_action_cards(
             # change the authority path.
             semantic_cards = ()
         if semantic_cards:
-            if _has_multiple_structural_anchors(dependencies, utterance):
+            anchor_count = _structural_anchor_count(dependencies, utterance)
+            if anchor_count > 1:
                 enabled_cards = getattr(manager, "enabled_cards", lambda: ())()
                 write_cards = tuple(
                     card
@@ -61,9 +62,14 @@ def retrieve_action_cards(
                     # shortlist may have hidden a second capability.  Widen
                     # only to the bounded installed write vocabulary; this
                     # grants no authority and keeps the model candidate-bound.
-                    by_id = {card.action.action_id: card for card in semantic_cards}
+                    semantic_writes = tuple(
+                        card
+                        for card in semantic_cards
+                        if card.action.action_id in {item.action.action_id for item in write_cards}
+                    )
+                    by_id = {card.action.action_id: card for card in semantic_writes}
                     by_id.update({card.action.action_id: card for card in write_cards})
-                    return tuple(by_id.values())[:10]
+                    return tuple(by_id.values())[: min(5, max(2, anchor_count))]
             write_cards = tuple(
                 card
                 for card in semantic_cards

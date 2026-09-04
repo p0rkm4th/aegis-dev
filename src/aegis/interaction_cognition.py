@@ -56,9 +56,9 @@ def _scope_plan_by_capability(
 
     if proposed.kind is not DecisionKind.PLAN or len(cards) < 3:
         return proposed
-    # A normal two-operation plan commonly contains one conjunction.  Extra
-    # capability-scoped calls are justified only when the request has multiple
-    # structural conjunction boundaries, which is evidence of a third clause.
+    # A normal two-operation plan commonly contains one conjunction. Extra
+    # capability-scoped calls are justified only when multiple structural
+    # conjunction boundaries suggest a third clause.
     if len(re.findall(r"\b(?:and|then|plus)\b", intent.utterance.casefold())) < 2:
         return proposed
 
@@ -182,6 +182,19 @@ def _structural_write_failure(
             "verified objective. Please clarify it."
         )
     return None
+
+
+def _has_structural_plurality(dependencies: Any, utterance: str) -> bool:
+    """Return whether the optional parser found multiple structural anchors."""
+
+    structural_parser = getattr(dependencies, "structural_parser", None)
+    if structural_parser is None:
+        return False
+    try:
+        signal = structural_parser(utterance)
+    except Exception:
+        return False
+    return len(signal.anchors) > 1
 
 
 def decide_fallback(
@@ -369,10 +382,14 @@ def decide_fallback(
                             "knowledge_source": knowledge_source or "general_model_knowledge",
                         }
                     )
-        routing_only = any(
-            permission.endswith(".write")
-            for card in cards
-            for permission in card.action.required_permissions
+        structural_plurality = _has_structural_plurality(dependencies, intent.utterance)
+        routing_only = (
+            any(
+                permission.endswith(".write")
+                for card in cards
+                for permission in card.action.required_permissions
+            )
+            and not structural_plurality
         )
         routing_context = context
         if routing_only:
