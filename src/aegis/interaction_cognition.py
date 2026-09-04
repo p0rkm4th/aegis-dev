@@ -305,6 +305,7 @@ def _repair_clarification(
             candidate.model_dump(mode="json"),
             repair_error,
             evidence,
+            "proposal_repair",
         )
         return repaired, evidence if repaired is None else evidence
 
@@ -836,6 +837,7 @@ def decide_fallback(
                             update={
                                 "objective_effect_only": True,
                                 "proposal_repair_only": True,
+                                "repair_validator_stage": "requested_effect_structural_coverage",
                                 "proposal_failure": evidence,
                                 "current_proposal": current,
                                 "allow_plan_proposals": False,

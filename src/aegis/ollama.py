@@ -369,6 +369,9 @@ class OllamaProvider:
                 "current_proposal": request.current_proposal
                 if request.proposal_repair_only
                 else None,
+                "repair_validator_stage": request.repair_validator_stage
+                if request.proposal_repair_only
+                else None,
                 "semantic_mode_rule": (
                     "Always provide semantic_mode: ACTION for a state change, READ for "
                     "authorized information, GENERATION for benign creative/explanatory "

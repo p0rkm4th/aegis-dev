@@ -348,6 +348,7 @@ class ModelRequest(StrictModel):
     clarification_recovery_only: bool = False
     clarification_reason: str | None = Field(default=None, max_length=500)
     proposal_repair_only: bool = False
+    repair_validator_stage: str | None = Field(default=None, max_length=80)
     proposal_failure: ProposalFailureEvidence | None = None
     current_proposal: dict[str, Any] | None = None
     objective_spec_proposal: ObjectiveSpecProposal | None = None
