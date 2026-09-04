@@ -530,6 +530,77 @@ def test_structural_repair_reenters_fidelity_with_complete_effects() -> None:
     assert repair_calls == 1
 
 
+def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> None:
+    utterance = "do the unavailable thing"
+    signal = StructuralCoverageSignal(
+        anchors=(StructuralAnchor(source_span=(0, len(utterance)), kind="clause"),)
+    )
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            if request.classification_only:
+                return ModelResponse(raw={"semantic_mode": "ACTION"})
+            if request.objective_effect_only:
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {
+                                "effect_text": utterance,
+                                "source_span": (0, len(utterance)),
+                                "action_ref": "unavailable.thing",
+                                "arguments": {},
+                            }
+                        ]
+                    }
+                )
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    objective_spec=ObjectiveSpecProposal(
+                        requirements=(ObjectiveRequirementProposal(action_ref="available"),)
+                    ),
+                    plan=ProposedPlan(
+                        steps=(
+                            ProposedPlanStep(action_ref="available"),
+                            ProposedPlanStep(action_ref="available-2"),
+                        )
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+            structural_parser=lambda _utterance: signal,
+        ),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance=utterance),
+        (
+            ActionCard(
+                action=ActionSpec(action_id="available", capability="available"),
+                summary="Available action",
+                relevance=1,
+            ),
+            ActionCard(
+                action=ActionSpec(action_id="available-2", capability="available-2"),
+                summary="Second available action",
+                relevance=1,
+            ),
+        ),
+        Context(),
+    )
+
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["objective_open"] is True
+    requirement = result.evidence["unsatisfied_requirements"][0]
+    assert requirement["resolution"] == "UNSUPPORTED"
+    assert requirement["normalized_effect"] == utterance
+
+
 def test_plan_fidelity_provider_failure_fails_closed() -> None:
     class Provider:
         def decide(self, request: ModelRequest) -> ModelResponse:

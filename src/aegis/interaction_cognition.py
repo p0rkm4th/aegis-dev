@@ -22,6 +22,7 @@ from .contracts import (
     ProposalFailureKind,
     ProposedPlan,
     ProposedPlanStep,
+    RequestedEffectResolution,
     Result,
     WorkingSet,
 )
@@ -690,6 +691,18 @@ def decide_fallback(
                     else:
                         continue
                     return ValidationResult(valid=False, failure=ProposalFailureEvidence(kind=kind))
+                available_actions = {card.action.action_id for card in cards}
+                if any(
+                    effect.action_ref is None or effect.action_ref not in available_actions
+                    for effect in candidate_effects
+                ):
+                    return ValidationResult(
+                        valid=False,
+                        failure=ProposalFailureEvidence(
+                            kind=ProposalFailureKind.CAPABILITY_UNAVAILABLE,
+                            detail="requested effect has no available ActionCard",
+                        ),
+                    )
                 if not validate_structural_coverage(
                     intent.utterance, candidate_materialized, structural_signal
                 ):
@@ -741,6 +754,39 @@ def decide_fallback(
                         proposal_repair_event_record(event) for event in repaired_effects.events
                     )
                 if repaired_effects.proposal is None:
+                    if (
+                        effect_failure.kind
+                        in {
+                            ProposalFailureKind.CAPABILITY_UNAVAILABLE,
+                            ProposalFailureKind.UNSUPPORTED_REQUIREMENT,
+                        }
+                        and materialized_effects is not None
+                    ):
+                        return Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=(
+                                "I recognized a requested change that is not currently "
+                                "supported. I kept it open rather than dropping it."
+                            ),
+                            evidence={
+                                "authoritative": False,
+                                "provenance": "requested_effect_resolution",
+                                "objective_open": True,
+                                "unsatisfied_requirements": [
+                                    {
+                                        "effect_id": str(effect.effect_id),
+                                        "normalized_effect": effect.normalized_effect,
+                                        "source_spans": [
+                                            list(span) for span in effect.source_spans
+                                        ],
+                                        "resolution": RequestedEffectResolution.UNSUPPORTED.value,
+                                    }
+                                    for effect in materialized_effects
+                                ],
+                            },
+                            correlation_id=intent.correlation_id,
+                        )
                     return Decision(
                         kind=DecisionKind.CLARIFY,
                         clarification=(
