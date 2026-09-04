@@ -641,6 +641,30 @@ def test_compound_cross_domain_read_does_not_claim_only_one_result() -> None:
     assert "multiple independent reads" in result.message
 
 
+def test_grocery_collection_has_no_task_priority_semantics() -> None:
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one should I handle first?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_items",
+                        "candidates": ["rice", "beans"],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no canonical priority" in result.message
+
+
 def test_non_question_correction_after_blocked_result_cannot_create_action() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
