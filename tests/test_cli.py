@@ -1634,6 +1634,46 @@ def test_run_interaction_threads_pack_runtime_registry_to_shared_boundary(monkey
     assert captured["dependencies"].fast_path_resolver is cli.resolve_reference_fast_paths
 
 
+def test_run_interaction_unresolved_investigation_reports_installed_capabilities(monkeypatch):
+    from aegis import cli
+    from aegis.contracts import RequestedEffect
+    from aegis.pack_runtime import PackRuntimeRegistry
+
+    registry = PackRuntimeRegistry()
+    registry.register("tasks.read", lambda *_args: object())
+    captured = {}
+
+    class Boundary:
+        def __init__(self, dependencies):
+            captured["dependencies"] = dependencies
+
+        def run(self, *_args, **_kwargs):
+            return "shared-result"
+
+    monkeypatch.delenv("AEGIS_SEARCH_ENDPOINT", raising=False)
+    monkeypatch.setattr(cli, "InteractionBoundary", Boundary)
+    cli.run_interaction(
+        "set up a cluster",
+        Principal(id="alice", vault_id="alice-vault"),
+        runtime_registry=registry,
+    )
+
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="set up a cluster",
+    )
+    effect = RequestedEffect(source_spans=((0, 16),), normalized_effect="set up a cluster")
+    result = captured["dependencies"].unresolved_requirement_investigator(
+        intent, Context(), (effect,)
+    )
+
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["investigation"] == "authorized_capability_inventory"
+    assert result.evidence["available_action_ids"] == ["tasks.read"]
+    assert result.evidence["authoritative"] is False
+    assert result.evidence["objective_open"] is True
+
+
 def test_default_runtime_registry_covers_kitchen_mutation(monkeypatch):
     from aegis import cli
     from aegis.reference_packs import reference_bundles
