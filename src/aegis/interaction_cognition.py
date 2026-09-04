@@ -202,6 +202,48 @@ def _has_structural_plurality(dependencies: Any, utterance: str) -> bool:
     return len(signal.anchors) > 1
 
 
+def _repair_clarification(
+    provider: Any,
+    intent: IntentFrame,
+    context: Context,
+    cards: tuple[ActionCard, ...],
+    clarification: str,
+    *,
+    plans_only: bool = False,
+) -> Decision:
+    """Give fidelity-generated clarification one bounded repair opportunity."""
+
+    decision = Decision(
+        kind=DecisionKind.CLARIFY,
+        clarification=clarification,
+        semantic_mode="CLARIFY",
+    )
+    if not (context.values.get("referents") or context.values.get("canonical_facts")):
+        return decision
+    failure = InvalidDecision(clarification)
+    previous: str | None = None
+    for _ in range(2):
+        repaired = repair_invalid_decision_once(
+            provider,
+            intent,
+            context,
+            cards,
+            decision.model_dump(mode="json"),
+            failure,
+        )
+        if repaired is not None and repaired.kind not in {
+            DecisionKind.CLARIFY,
+            DecisionKind.NEED_CONTEXT,
+        }:
+            if not plans_only or repaired.kind is DecisionKind.PLAN:
+                return repaired
+        fingerprint = proposal_failure_fingerprint(proposal_failure_evidence(failure))
+        if fingerprint == previous:
+            break
+        previous = fingerprint
+    return decision
+
+
 def decide_fallback(
     dependencies: Any, intent: IntentFrame, cards: tuple[ActionCard, ...], context: Context
 ) -> Decision | Result | None:
@@ -571,19 +613,18 @@ def decide_fallback(
             if materialized_effects is None or not validate_structural_coverage(
                 intent.utterance, materialized_effects, structural_signal
             ):
-                return Decision(
-                    kind=DecisionKind.CLARIFY,
-                    clarification=(
-                        "I could not independently account for every requested change; "
-                        "please clarify the objective."
-                    ),
-                    semantic_mode="CLARIFY",
+                decision = _repair_clarification(
+                    provider,
+                    intent,
+                    context,
+                    cards,
+                    "I could not independently account for every requested change; "
+                    "please clarify the objective.",
+                    plans_only=True,
                 )
+                if decision.kind is DecisionKind.CLARIFY:
+                    return decision
             if decision.objective_spec is None:
-                # Independent effect segmentation can check a primary
-                # interpretation, but it cannot become that interpretation.
-                # Without the primary ObjectiveSpec there is no independent
-                # fidelity comparison and therefore no canonical objective.
                 return Decision(
                     kind=DecisionKind.CLARIFY,
                     clarification=(
@@ -592,13 +633,19 @@ def decide_fallback(
                     ),
                     semantic_mode="CLARIFY",
                 )
+            assert decision.objective_spec is not None
             verdict = compare_objective_proposals(decision.objective_spec, independent_spec)
             if verdict is not ObjectiveFidelityVerdict.COMPLETE:
-                return Decision(
-                    kind=DecisionKind.CLARIFY,
-                    clarification=fidelity_message(verdict),
-                    semantic_mode="CLARIFY",
+                decision = _repair_clarification(
+                    provider,
+                    intent,
+                    context,
+                    cards,
+                    fidelity_message(verdict),
+                    plans_only=True,
                 )
+                if decision.kind is DecisionKind.CLARIFY:
+                    return decision
             decision = decision.model_copy(update={"objective_spec": decision.objective_spec})
         if routing_only and decision.kind is DecisionKind.ANSWER:
             reconsidered = decoder.decode(
