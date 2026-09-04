@@ -238,11 +238,18 @@ def repair_invalid_decision_once_with_evidence(
     if isinstance(events, list):
         events.append(
             {
+                "attempt": 1,
                 "failure_kind": evidence.kind.value,
                 "failure_fingerprint": proposal_failure_fingerprint(evidence),
                 "result_kind": response.raw.get("kind") if isinstance(response.raw, dict) else None,
                 "validation_outcome": "decoded" if repaired is not None else "rejected",
+                "validator_stage": validator_stage,
+                "decode_outcome": "decoded" if repaired is not None else "rejected",
                 "output_failure_kind": next_evidence.kind.value if repaired is None else None,
+                "output_failure_fingerprint": (
+                    proposal_failure_fingerprint(next_evidence) if repaired is None else None
+                ),
+                "stop_reason": None,
             }
         )
     return repaired, next_evidence, response.raw if isinstance(response.raw, dict) else None
