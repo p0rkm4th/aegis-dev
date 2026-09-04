@@ -789,6 +789,8 @@ def reference_fallback_cards(
 ) -> tuple[ActionCard, ...]:
     """Reduce legacy no-provider candidates for the reference Packs."""
 
+    text = utterance.casefold()
+    explicit_kitchen = any(marker in text for marker in ("grocery", "groceries", "shopping list"))
     facts = (context.values if context is not None else {}).get("canonical_facts", {})
     if isinstance(facts, dict) and context is not None:
         if (
@@ -802,10 +804,9 @@ def reference_fallback_cards(
         if (
             isinstance(facts.get("canonical_tasks"), list)
             and "authorized_canonical_context" in context.sources
+            and not explicit_kitchen
         ):
             return tuple(manager.retrieve("tasks"))[:10]
-
-    text = utterance.casefold()
     domain = next(
         (
             pack_id
