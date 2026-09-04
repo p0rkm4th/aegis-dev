@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 import re
-from typing import Any, cast
+from typing import Any, Callable, cast
 from uuid import uuid4
 
 from .contracts import (
@@ -27,6 +27,8 @@ from .contracts import (
 )
 from .decoding import InvalidDecision, StrictDecisionDecoder
 from .interaction_recovery import (
+    ValidationResult,
+    bounded_proposal_repair,
     proposal_failure_evidence,
     proposal_failure_fingerprint,
     recover_invalid_model_decision,
@@ -212,37 +214,48 @@ def _repair_clarification(
     failed_proposal: Decision,
     clarification: str,
     failure_evidence: ProposalFailureEvidence,
+    validator: Callable[[Decision], ValidationResult] | None = None,
     *,
     plans_only: bool = False,
 ) -> Decision:
     """Give fidelity-generated clarification one bounded repair opportunity."""
 
     decision = failed_proposal
-    failure = InvalidDecision(clarification)
-    previous: str | None = None
-    # This helper owns one repair only. A second attempt is permitted only by
-    # a caller that has re-run the failed validator and can supply new F2.
-    for _ in range(1):
+
+    def repair(
+        candidate: Decision, evidence: ProposalFailureEvidence
+    ) -> tuple[Decision | None, ProposalFailureEvidence]:
+        repair_error = InvalidDecision(evidence.detail or evidence.kind.value)
         repaired = repair_invalid_decision_once(
             provider,
             intent,
             context,
             cards,
-            decision.model_dump(mode="json"),
-            failure,
-            failure_evidence,
+            candidate.model_dump(mode="json"),
+            repair_error,
+            evidence,
         )
-        if repaired is not None and repaired.kind not in {
-            DecisionKind.CLARIFY,
-            DecisionKind.NEED_CONTEXT,
-        }:
-            if not plans_only or repaired.kind is DecisionKind.PLAN:
-                return repaired
-        fingerprint = proposal_failure_fingerprint(failure_evidence)
-        if fingerprint == previous:
-            break
-        previous = fingerprint
-    return decision
+        return repaired, evidence if repaired is None else evidence
+
+    def validate(candidate: Decision) -> ValidationResult:
+        if plans_only and candidate.kind is not DecisionKind.PLAN:
+            return ValidationResult(
+                valid=False,
+                failure=ProposalFailureEvidence(kind=ProposalFailureKind.CAPABILITY_MISMATCH),
+            )
+        if validator is not None:
+            return validator(candidate)
+        return ValidationResult(valid=True)
+
+    result = bounded_proposal_repair(
+        decision,
+        failure_evidence,
+        repair,
+        validate,
+        validator_stage="proposal_repair",
+        max_attempts=2,
+    )
+    return result.proposal if result.proposal is not None else decision
 
 
 def decide_fallback(
@@ -614,19 +627,14 @@ def decide_fallback(
             if materialized_effects is None or not validate_structural_coverage(
                 intent.utterance, materialized_effects, structural_signal
             ):
-                decision = _repair_clarification(
-                    provider,
-                    intent,
-                    context,
-                    cards,
-                    decision,
-                    "I could not independently account for every requested change; "
-                    "please clarify the objective.",
-                    ProposalFailureEvidence(kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR),
-                    plans_only=True,
+                return Decision(
+                    kind=DecisionKind.CLARIFY,
+                    clarification=(
+                        "I could not independently account for every requested change; "
+                        "please clarify the objective."
+                    ),
+                    semantic_mode="CLARIFY",
                 )
-                if decision.kind is DecisionKind.CLARIFY:
-                    return decision
             if decision.objective_spec is None:
                 return Decision(
                     kind=DecisionKind.CLARIFY,
@@ -639,6 +647,33 @@ def decide_fallback(
             assert decision.objective_spec is not None
             verdict = compare_objective_proposals(decision.objective_spec, independent_spec)
             if verdict is not ObjectiveFidelityVerdict.COMPLETE:
+
+                def validate_fidelity(candidate: Decision) -> ValidationResult:
+                    if candidate.kind is not DecisionKind.PLAN or candidate.objective_spec is None:
+                        return ValidationResult(
+                            valid=False,
+                            failure=ProposalFailureEvidence(
+                                kind=ProposalFailureKind.CAPABILITY_MISMATCH
+                            ),
+                        )
+                    next_verdict = compare_objective_proposals(
+                        candidate.objective_spec, independent_spec
+                    )
+                    if next_verdict is ObjectiveFidelityVerdict.COMPLETE:
+                        return ValidationResult(valid=True)
+                    return ValidationResult(
+                        valid=False,
+                        failure=ProposalFailureEvidence(
+                            kind=(
+                                ProposalFailureKind.MISSING_EFFECT
+                                if next_verdict is ObjectiveFidelityVerdict.MISSING_REQUIREMENT
+                                else ProposalFailureKind.EXTRA_EFFECT
+                                if next_verdict is ObjectiveFidelityVerdict.EXTRA_REQUIREMENT
+                                else ProposalFailureKind.CANONICAL_CONTRADICTION
+                            )
+                        ),
+                    )
+
                 decision = _repair_clarification(
                     provider,
                     intent,
@@ -655,6 +690,7 @@ def decide_fallback(
                             else ProposalFailureKind.CANONICAL_CONTRADICTION
                         )
                     ),
+                    validator=validate_fidelity,
                     plans_only=True,
                 )
                 if decision.kind is DecisionKind.CLARIFY:
