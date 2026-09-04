@@ -220,7 +220,9 @@ def _repair_clarification(
     decision = failed_proposal
     failure = InvalidDecision(clarification)
     previous: str | None = None
-    for _ in range(2):
+    # This helper owns one repair only. A second attempt is permitted only by
+    # a caller that has re-run the failed validator and can supply new F2.
+    for _ in range(1):
         repaired = repair_invalid_decision_once(
             provider,
             intent,
@@ -463,7 +465,7 @@ def decide_fallback(
             # validation-guided repairs. Every repair is decoded against the
             # original candidate set before this function continues.
             previous_fingerprint: str | None = None
-            for _ in range(2):
+            for _ in range(1):
                 repaired = repair_invalid_decision_once(
                     provider, intent, context, cards, last_raw, error
                 )
@@ -515,7 +517,7 @@ def decide_fallback(
             repair_error = InvalidDecision(
                 decision.clarification or decision.reason or "proposal requires clarification"
             )
-            for _ in range(2):
+            for _ in range(1):
                 repaired = repair_invalid_decision_once(
                     provider,
                     intent,

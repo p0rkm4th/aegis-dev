@@ -100,7 +100,7 @@ def repair_invalid_decision_once(
                 "failure_kind": evidence.kind.value,
                 "failure_fingerprint": proposal_failure_fingerprint(evidence),
                 "result_kind": response.raw.get("kind") if isinstance(response.raw, dict) else None,
-                "validation_outcome": "accepted" if repaired is not None else "rejected",
+                "validation_outcome": "decoded" if repaired is not None else "rejected",
             }
         )
     return repaired
