@@ -3893,6 +3893,10 @@ def test_task_read_fast_path_next_same_weekday_means_next_occurrence():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["next week's task"]
 
 
+def test_task_priority_fast_path_yields_to_due_weekday_reads():
+    assert not TaskPriorityFastPath.matches("What tasks are due next Monday?")
+
+
 def test_task_read_fast_path_filters_remaining_task_list_to_open_tasks():
     class Store:
         def list(self, _principal):

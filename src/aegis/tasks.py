@@ -743,6 +743,18 @@ class TaskPriorityFastPath:
         text = utterance.casefold()
         if is_mutation_request(text) or any(domain in text for domain in cls._NON_TASK_DOMAINS):
             return False
+        if "due" in text and (
+            "next week" in text
+            or "this week" in text
+            or re.search(
+                r"\b(?:(?:this|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
+                text,
+            )
+            is not None
+        ):
+            # Explicit temporal reads belong to TaskReadFastPath. The word
+            # "next" must not turn a due-date query into a recommendation.
+            return False
         if _asks_for_task_collection(text):
             # A collection request with a prioritization modifier still needs
             # the ordered canonical list as its referent for the next turn.
