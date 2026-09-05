@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-grocery-quantity-synonym",
+  "source_sha": "1d2033415dcd00cfdfebe1b128e6888a9794695d",
+  "hosted": {"workflow": "validation", "run_id": "33971230400", "conclusion": "success"},
+  "owner": {
+    "release_sha": "1d2033415dcd00cfdfebe1b128e6888a9794695d",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What groceries are on my list?", "completed", "canonical grocery collection"],
+      ["Show me the first item.", "completed", "first authorized grocery item"],
+      ["What is its quantity?", "completed", "Groceries: rice (x6)"]
+    ]
+  },
+  "safety": "Quantity is re-read from the authorized canonical grocery item and current rows; no item or quantity is invented or mutated."
+}
