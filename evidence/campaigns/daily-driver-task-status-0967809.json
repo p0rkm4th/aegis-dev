@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-status",
+  "source_sha": "09678093c95c0c9df94374201c3f56f152bbc468",
+  "hosted": {"workflow": "validation", "run_id": "33969094333", "conclusion": "success"},
+  "owner": {
+    "release_sha": "09678093c95c0c9df94374201c3f56f152bbc468",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical task collection"],
+      ["What about the first one?", "completed", "earliest authorized task"],
+      ["Is it done?", "completed", "Task: check the smoke alarm (open); due 2026-09-03 17:11 CDT"]
+    ]
+  },
+  "safety": "Task status is read through the authorized canonical task focus and does not imply a completion mutation. No duplicate mutation or authority widening occurred."
+}
