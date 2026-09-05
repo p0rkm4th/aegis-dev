@@ -1,0 +1,14 @@
+{
+  "source_basis": "9ca1523effdd8e9f29c8fc4f75c77db676c102b8",
+  "checkpoint": "document to scoped workspace composition",
+  "composition": "authorized document read -> explicit target artifact -> workspace readback verification",
+  "proof": "tests/test_compositions.py",
+  "safety": {
+    "document_scope": "provider supplies only authorized documents",
+    "workspace_scope": "principal and objective scoped root",
+    "deployment": "none",
+    "source_provenance": "document source retained in result"
+  },
+  "verification": "800 passed, 5 skipped; all checks passed",
+  "remaining_gap": "wire composition into a normal owner objective/UI path and prove two additional compositions"
+}
