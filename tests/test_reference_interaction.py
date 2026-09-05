@@ -218,6 +218,50 @@ def test_contextual_grocery_quantity_uses_authorized_list_and_current_rows() -> 
     assert result.evidence["authorized_quantity"] == {"item": "rice", "quantity": 2}
 
 
+def test_contextual_grocery_quantity_resolves_singleton_implicit_followup() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "rice")
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_grocery_quantity_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="And how many do we need?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, GroceryStore()),
+    )
+
+    assert result is not None
+    assert result.evidence["authorized_quantity"] == {"item": "rice", "quantity": 2}
+
+
+def test_contextual_grocery_quantity_does_not_guess_after_list_changes() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "milk")
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    assert (
+        resolve_contextual_grocery_quantity_read(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="How many do we need?",
+            ),
+            context,
+            cast(PostgresHouseholdStore, GroceryStore()),
+        )
+        is None
+    )
+
+
 def test_contextual_grocery_other_singleton_followup_is_grounded() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
