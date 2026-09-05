@@ -1522,6 +1522,7 @@ def run_interaction(
             "file",
             "device",
             "entity",
+            "homelab",
         )
         if is_task_destination_request(query) or any(
             marker in query_text for marker in bounded_pack_markers
