@@ -62,6 +62,24 @@ def test_deterministic_research_workspace_action_requires_enabled_pack():
     assert card.action.arguments["target_path"] == "notes.md"
 
 
+def test_deterministic_workspace_artifact_action_preserves_explicit_file_content():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(bundle)
+    manager.install("workspace", frozenset({"workspace.write"}))
+    manager.enable("workspace")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Create a workspace artifact at owner-proof.html with content owner proof",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.artifact.create"
+    assert card.action.arguments == {"path": "owner-proof.html", "content": "owner proof"}
+
+
 def test_deterministic_device_control_action_requires_explicit_entity_and_postcondition():
     manager = PackManager()
     bundle = next(
