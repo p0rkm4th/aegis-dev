@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-ordinal-priority",
+  "source_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
+  "hosted": {"workflow": "validation", "run_id": "33970584436", "conclusion": "success"},
+  "owner": {
+    "release_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical task collection"],
+      ["What about the first one?", "completed", "first displayed canonical task"],
+      ["What is its deadline?", "completed", "no recorded deadline; no invention"]
+    ]
+  },
+  "safety": "Plain ordinal language no longer enters deadline priority ranking; explicit due/priority language retains the existing deterministic priority path."
+}
