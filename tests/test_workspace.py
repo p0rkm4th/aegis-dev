@@ -70,3 +70,21 @@ def test_workspace_artifact_requires_independent_validation(tmp_path: Path) -> N
     assert result.files == ("index.html",)
     with pytest.raises(WorkspaceError, match="validation failed"):
         workspace.write_artifact({"bad.txt": "not a site"}, uuid4(), lambda _: "bad output")
+
+
+def test_workspace_artifact_supports_bounded_multi_file_composition(tmp_path: Path) -> None:
+    workspace = ScopedWorkspace(tmp_path / "owner")
+    files = {
+        "index.html": "<!doctype html><link rel=stylesheet href=style.css>",
+        "style.css": "body { color: navy; }",
+    }
+    result = workspace.write_artifact(
+        files,
+        uuid4(),
+        lambda current: (
+            None
+            if all(current.read(path) == content for path, content in files.items())
+            else "readback mismatch"
+        ),
+    )
+    assert result.files == ("index.html", "style.css")

@@ -124,7 +124,7 @@ _INDEX_HTML = """<!doctype html>
 .intro{padding:.5rem 0 1.25rem}.intro h2{font-size:clamp(1.65rem,4vw,2.35rem);letter-spacing:-.03em;line-height:1.1;margin:0 0 .55rem}.intro p{max-width:38rem;color:var(--muted);margin:0}.muted{color:var(--muted)}.health-line{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1rem;color:var(--muted);font-size:.9rem}.health-line strong{color:var(--text);font-weight:600}.status-dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:#6fd18a;margin-right:.45rem}details summary{cursor:pointer;color:var(--muted);font-size:.85rem}#health-details{margin:.5rem 0 0;padding-left:1.2rem;font-size:.82rem}#health-details:empty{display:none}
 #chat{display:flex;align-items:flex-end;gap:.7rem;margin:1rem 0 1.5rem}#utterance{flex:1;min-width:0;min-height:3.25rem;max-height:11rem;resize:none;overflow-y:hidden;padding:.85rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--bg);color:var(--text);font:inherit;line-height:1.45}#composer-hint{font-size:.78rem;margin:-1rem 0 1rem;color:var(--muted)}button{padding:.75rem 1rem;border:1px solid var(--border);border-radius:.7rem;background:var(--panel-raised);color:var(--text);font:inherit;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}button:disabled,input:disabled,textarea:disabled{cursor:wait;opacity:.65}
 #answer{margin:0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#activity,#step-status{font-size:.85rem;margin:.35rem 0}.research-sources{font-size:.8rem;color:var(--muted);margin:.4rem 0 0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;max-height:min(60vh,42rem);overflow-y:auto;padding:.25rem .35rem .5rem 0;margin:1.5rem 0 0;scroll-behavior:smooth}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;white-space:pre-wrap;overflow-wrap:anywhere}#conversation li.owner-message{align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}#conversation li.aegis-message{align-self:flex-start;background:var(--panel-raised)}#conversation li.conversation-empty{max-width:none;color:var(--muted);text-align:center;border:1px dashed var(--border);background:transparent}
-.secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.secondary>summary{font-weight:600;color:var(--muted);padding:.35rem 0}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
+.secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.secondary>summary{font-weight:600;color:var(--muted);padding:.35rem 0}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));align-items:stretch}.node{text-align:left;width:100%;min-height:7rem}.node[data-category="core"]{grid-column:1/-1;justify-self:center;width:min(18rem,100%);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel-raised));text-align:center}.node[data-category="domain"]{border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}.node[data-category="capability"]{font-size:.9rem;min-height:5rem}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
 .product-nav{display:flex;gap:.45rem;overflow-x:auto;padding:.15rem 0 1rem;margin-bottom:1rem}.product-nav button{white-space:nowrap;padding:.55rem .8rem}.product-nav button[aria-current="page"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
 .view-summary{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;margin:0 0 1rem}.view-summary h2{font-size:1rem;margin:0}.view-summary p{margin:0;color:var(--muted);font-size:.85rem}
 @media(max-width:36rem){#chat{align-items:stretch;flex-direction:column}#chat button{width:100%}#conversation li{max-width:100%}}
@@ -163,7 +163,7 @@ aria-live="polite" aria-label="Selected node details"></div>
 autocomplete="off" aria-describedby="node-filter-status"
 placeholder="Filter authorized nodes"></label>
 <p id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"></p>
-<main id="nodes"><p>Loading state…</p></main>
+<h2>Constellation</h2><p class="muted">AEGIS is the root of an authorized semantic map. Select a domain or capability for its conventional detail.</p><main id="nodes" role="group" aria-label="Authorized AEGIS constellation"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul></details></div></div>
 <script>
 const nodes = document.getElementById('nodes');
@@ -189,6 +189,7 @@ let renderedNodeText = new Map();
 let renderedNodeViews = new Map();
 let renderedEdgeRows = [];
 let activeView = 'home';
+let latestResearch = null;
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
@@ -486,6 +487,20 @@ function applyNodeFilter() {
       : `No authorized nodes match “${nodeFilter.value.trim()}”.`)
     : `${renderedNodeCards.size} authorized nodes.`;
 }
+function renderResearchSummary() {
+  if (activeView !== 'research' || !latestResearch) return;
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  const heading = document.createElement('p');
+  heading.textContent = `Latest external evidence · ${latestResearch.sources.length} source(s)`;
+  panel.append(heading);
+  panel.append(renderDetailValue({
+    query: latestResearch.query,
+    provider: latestResearch.provider_id,
+    retrieved_at: latestResearch.retrieved_at,
+    evidence_status: 'external evidence; not canonical personal truth',
+    summary: latestResearch.summary,
+  }));
+}
 nodeFilter.addEventListener('input', applyNodeFilter);
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
   activeView = button.dataset.view || 'home';
@@ -508,6 +523,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   document.getElementById('view-description').textContent = viewCopy[1];
   if (activeView === 'research') input.focus();
   if (activeView === 'workspace') loadWorkspace();
+  renderResearchSummary();
   applyNodeFilter();
 }));
 async function apiFetch(resource, options = {}) {
@@ -569,6 +585,7 @@ async function loadState() {
   renderedEdgeRows = [];
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
+    card.dataset.category = node.category || 'domain';
     card.setAttribute('aria-pressed', 'false');
     card.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
     const title = document.createElement('h2'); title.textContent = node.label;
@@ -692,6 +709,16 @@ document.getElementById('chat').addEventListener('submit', async event => {
       link.href = source.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
       item.append(link); sources.append(item);
     });
+    if (result.sources && result.sources.length) {
+      latestResearch = {
+        query: utterance,
+        summary: answer,
+        provider_id: 'bounded public research',
+        retrieved_at: new Date().toISOString(),
+        sources: result.sources,
+      };
+      renderResearchSummary();
+    }
     researchPanel.hidden = !(result.sources && result.sources.length);
     if (result.steps && result.steps.length) document.getElementById('step-status').textContent =
       result.steps.map(step =>
