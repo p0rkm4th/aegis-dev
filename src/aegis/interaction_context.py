@@ -316,6 +316,8 @@ def context_from_prior_result(
         if fact_key == "canonical_chores" and not isinstance(candidates, list):
             candidates = raw_evidence.get("chores")
         if isinstance(candidates, list) and candidates:
+            if fact_key == "canonical_items":
+                candidates = list(dict.fromkeys(str(item) for item in candidates if str(item)))
             selected = candidates[:_MAX_CONTEXT_CANDIDATES]
             if fact_key == "canonical_tasks":
                 compact_tasks = evidence.get("canonical_tasks")
