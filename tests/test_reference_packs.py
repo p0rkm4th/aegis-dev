@@ -165,6 +165,41 @@ def test_device_controls_pack_verifies_low_risk_fixture_readback(monkeypatch) ->
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 
+def test_device_controls_pack_returns_structured_scope_denial(monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "light.desk")
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "device-controls.devices.command.execute"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "entity_id": "light.garage",
+                "service": "turn_on",
+                "expected_state": "on",
+            }
+        }
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="device-control-denied",
+        )
+    )
+    assert observation.command_succeeded is False
+    assert runtime.verifier.verify(observation, card.action.verification).verified is False
+    assert (
+        "outside the authorized device scope" in observation.evidence["device_execution"]["reason"]
+    )
+
+
 def test_workspace_pack_verifies_a_multi_file_artifact(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
     card = next(

@@ -583,7 +583,18 @@ class DeviceControlExecutor:
             if item.strip()
         }
         if entity_id not in authorized_entities or len(authorized_entities) > 50:
-            raise PermissionError("device entity is outside the authorized device scope")
+            return Observation(
+                execution_id=uuid4(),
+                evidence={
+                    "device_execution": {
+                        "accepted": False,
+                        "verified": False,
+                        "reason": "device entity is outside the authorized device scope",
+                        "entity_id": entity_id,
+                    }
+                },
+                command_succeeded=False,
+            )
         gateway = (
             HomeAssistantRestControlGateway(
                 os.environ["AEGIS_HOME_ASSISTANT_URL"],
