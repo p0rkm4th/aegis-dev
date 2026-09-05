@@ -1471,6 +1471,8 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         }
         if isinstance(candidates, list):
             collection_evidence[fact_key] = candidates
+        if fact_key == "canonical_tasks":
+            collection_evidence["task"] = referent
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
