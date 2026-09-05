@@ -151,6 +151,14 @@ def _ground_argument_provenance(
                     message="I could not safely ground that canonical target.",
                     correlation_id=intent.correlation_id,
                 )
+            if key == "entity_id":
+                spans = _utterance_spans(intent.utterance, value)
+                if spans:
+                    provenance[key] = ArgumentProvenance(
+                        kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                        source_spans=spans,
+                    )
+                    continue
             provenance[key] = ArgumentProvenance(
                 kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
                 canonical_ref=value,
@@ -223,6 +231,21 @@ def _ground_argument_provenance(
                 derivation="reference.temporal_grounding.v1",
             )
             continue
+        if (
+            card.action.action_id == "device-controls.devices.command.execute"
+            and key == "service"
+            and isinstance(value, str)
+        ):
+            service_match = re.search(
+                r"\b(?:turn|switch)\s+(on|off)\b", intent.utterance, flags=re.IGNORECASE
+            )
+            if service_match is not None and value == f"turn_{service_match.group(1).casefold()}":
+                provenance[key] = ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                    source_spans=(service_match.span(),),
+                    derivation="reference.device_service.v1",
+                )
+                continue
         spans = _utterance_spans(intent.utterance, value)
         if not spans:
             canonical_ref: str | None = None

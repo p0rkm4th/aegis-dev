@@ -133,7 +133,8 @@ def test_devices_pack_reads_authorized_entity_state_through_generic_runtime() ->
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 
-def test_device_controls_pack_verifies_low_risk_fixture_readback() -> None:
+def test_device_controls_pack_verifies_low_risk_fixture_readback(monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "light.desk")
     card = next(
         card
         for bundle in reference_bundles()
