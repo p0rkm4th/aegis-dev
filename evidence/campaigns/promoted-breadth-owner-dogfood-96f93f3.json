@@ -1,0 +1,37 @@
+{
+  "source_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "hosted_run_id": "33980982501",
+  "installed_release_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "running_release_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "live_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "session_kind": "promoted-breadth-owner-dogfood",
+  "runtime": {
+    "postgresql": "healthy",
+    "ollama": "qwen3:8b healthy",
+    "identity": "authenticated owner principal",
+    "structural_provider": "en_core_web_sm"
+  },
+  "flows": [
+    {
+      "surface": "Constellation",
+      "outcome": "AEGIS root plus Calendar and Documents Pack nodes and capability areas visible"
+    },
+    {
+      "surface": "Compositions",
+      "outcome": "three bounded workflows and authority boundaries returned through authenticated API"
+    },
+    {
+      "surface": "Workspace",
+      "utterance": "Write hello to owner-proof.txt in my workspace",
+      "outcome": "completed",
+      "verification": "workspace artifact readback verified",
+      "artifact": "owner-proof.txt"
+    }
+  ],
+  "safety": {
+    "normal_core_path": true,
+    "unsafe_executed_mutation": 0,
+    "postgresql_state_reset": false
+  },
+  "remaining_gap": "live Research/CapabilityNeed dogfood, additional verified consequential breadth, and further breadth tranche"
+}
