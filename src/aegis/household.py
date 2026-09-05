@@ -528,6 +528,49 @@ class HouseholdReadFastPath:
             "what is the earliest event",
             "which is the earliest event",
         }
+        next_event = normalized in {"when is the next event", "what is the next event"}
+        if next_event:
+            events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
+            now = datetime.now(timezone.utc)
+            upcoming = []
+            for event in events:
+                starts_at = event.starts_at
+                if starts_at.tzinfo is None:
+                    starts_at = starts_at.replace(tzinfo=timezone.utc)
+                starts_at = starts_at.astimezone(timezone.utc)
+                if starts_at >= now:
+                    upcoming.append((starts_at, event))
+            if not upcoming:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I cannot find an upcoming event in the calendar.",
+                    correlation_id=intent.correlation_id,
+                )
+            starts_at, selected = min(upcoming, key=lambda item: item[0])
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message=(
+                    f"Event: {selected.title}; "
+                    f"starts {starts_at.astimezone().strftime('%Y-%m-%d %H:%M %Z').strip()}"
+                ),
+                evidence={
+                    "collection": "events",
+                    "priority_basis": "canonical_next_event_starts_at",
+                    "authorized_next_referent": {
+                        "event_id": selected.event_id,
+                        "title": selected.title,
+                        "starts_at": selected.starts_at.isoformat(),
+                    },
+                    "event": {
+                        "event_id": selected.event_id,
+                        "title": selected.title,
+                        "starts_at": selected.starts_at.isoformat(),
+                    },
+                },
+                correlation_id=intent.correlation_id,
+            )
         if latest or earliest:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             if not events:
