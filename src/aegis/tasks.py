@@ -559,6 +559,7 @@ class TaskReadFastPath:
     _TEMPORAL_WORK_TERMS = (
         "due",
         "get done",
+        "need to do",
         "finish",
         "knock out",
         "on my plate",
