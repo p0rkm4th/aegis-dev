@@ -579,6 +579,18 @@ class HouseholdReadFastPath:
             elif "today" in text:
                 target_date = now.date()
                 date_filter = "today"
+            elif "coming up" in text:
+                date_filter = "upcoming"
+                events = tuple(
+                    event
+                    for event in events
+                    if (
+                        event.starts_at.replace(tzinfo=timezone.utc)
+                        if event.starts_at.tzinfo is None
+                        else event.starts_at.astimezone(timezone.utc)
+                    )
+                    >= now
+                )
             elif "this month" in text or "next month" in text:
                 month_start = now.date().replace(day=1)
                 following_month = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
