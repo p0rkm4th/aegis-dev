@@ -229,6 +229,28 @@ def test_contextual_grocery_quantity_uses_authorized_list_and_current_rows() -> 
     assert result.evidence["authorized_quantity"] == {"item": "rice", "quantity": 2}
 
 
+def test_contextual_grocery_quantity_accepts_quantity_wording() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "rice")
+
+    result = resolve_contextual_grocery_quantity_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is its quantity?",
+        ),
+        Context(
+            values={
+                "referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        GroceryStore(),
+    )
+    assert result is not None
+    assert result.evidence["authorized_quantity"] == {"item": "rice", "quantity": 2}
+
+
 def test_contextual_grocery_quantity_resolves_singleton_implicit_followup() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
