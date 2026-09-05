@@ -1216,6 +1216,30 @@ def _deterministic_composition_action(
             update={"action": card.action.model_copy(update={"arguments": send.groupdict()})}
         )
 
+    research_draft = re.fullmatch(
+        r"(?:draft|prepare) researched message to (?P<recipient>.+?) with subject "
+        r"(?P<subject>.+?) about (?P<query>.+?), save it "
+        r"(?:as|to) (?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if research_draft is not None:
+        card = manager.action_card("communication-drafts", "communication-drafts.messages.draft")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            **research_draft.groupdict(),
+                            "body_source": "bounded.research",
+                        }
+                    }
+                )
+            }
+        )
+
     draft = re.fullmatch(
         r"draft (?:a )?message to (?P<recipient>.+?) with subject (?P<subject>.+?) "
         r"saying (?P<body>.+?), save it (?:as|to) (?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",

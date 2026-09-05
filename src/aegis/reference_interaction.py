@@ -143,8 +143,12 @@ def _ground_argument_provenance(
 
     provenance: dict[str, ArgumentProvenance] = {}
     for key, value in card.action.arguments.items():
-        if key == "body_source" and value == "canonical.groceries":
-            spans = _utterance_spans(intent.utterance, "grocery list")
+        if key == "body_source" and value in {
+            "canonical.groceries",
+            "bounded.research",
+        }:
+            source_phrase = "grocery list" if value == "canonical.groceries" else "research"
+            spans = _utterance_spans(intent.utterance, source_phrase)
             if not spans:
                 return Result(
                     objective_id=uuid4(),
@@ -155,7 +159,11 @@ def _ground_argument_provenance(
             provenance[key] = ArgumentProvenance(
                 kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
                 source_spans=spans,
-                derivation="reference.communication_body_from_groceries.v1",
+                derivation=(
+                    "reference.communication_body_from_groceries.v1"
+                    if value == "canonical.groceries"
+                    else "reference.communication_body_from_research.v1"
+                ),
             )
             continue
         if key.endswith("_id"):

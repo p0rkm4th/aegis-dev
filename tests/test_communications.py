@@ -93,6 +93,32 @@ def test_canonical_grocery_source_is_fixed_before_generic_send(monkeypatch) -> N
     assert prepared.arguments["body"] == "Grocery list:\n- milk\n- rice"
 
 
+def test_bounded_research_source_is_fixed_before_unsent_draft(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_RESEARCH_FIXTURE_JSON",
+        '[{"title":"Guide","url":"https://fixture.test/guide",'
+        '"text":"Use the casual setting.","snippet":"casual"}]',
+    )
+    from aegis.contracts import ActionSpec
+
+    prepared = prepare_reference_action(
+        ActionSpec(
+            action_id="communication-drafts.messages.draft",
+            capability="communication-drafts.messages.draft",
+            arguments={
+                "recipient": "scotty",
+                "subject": "Settings",
+                "query": "casual settings",
+                "target_path": "research.md",
+                "body_source": "bounded.research",
+            },
+        ),
+        Principal(id="alice", vault_id="vault"),
+        uuid4(),
+    )
+    assert "Use the casual setting." in prepared.arguments["body"]
+
+
 def test_fixture_communications_are_bounded_and_read_only() -> None:
     evidence = communications_evidence(
         FixtureCommunicationProvider(

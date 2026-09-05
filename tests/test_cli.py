@@ -233,6 +233,30 @@ def test_deterministic_message_send_requires_explicit_destination_and_channel():
     }
 
 
+def test_deterministic_researched_message_draft_preserves_bounded_source_marker():
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "communication-drafts"
+    )
+    manager.discover(bundle)
+    manager.install(bundle.manifest.pack_id, frozenset(bundle.manifest.permissions))
+    manager.enable(bundle.manifest.pack_id)
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=(
+            "Draft researched message to scotty with subject Server tips about casual settings, "
+            "save it as research.md"
+        ),
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "communication-drafts.messages.draft"
+    assert card.action.arguments["body_source"] == "bounded.research"
+    assert card.action.arguments["query"] == "casual settings"
+
+
 def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
     manager = PackManager()
     bundle = next(

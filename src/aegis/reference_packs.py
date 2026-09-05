@@ -84,13 +84,38 @@ def prepare_reference_action(
         elif isinstance(args.get("path"), str) and isinstance(args.get("content"), str):
             files = {args["path"]: args["content"]}
     elif action.action_id == "communication-drafts.messages.draft":
+        if args.get("body_source") == "bounded.research":
+            values = (
+                args.get("recipient"),
+                args.get("subject"),
+                args.get("query"),
+                args.get("target_path"),
+            )
+            if all(isinstance(value, str) and value.strip() for value in values):
+                recipient, subject, query, target_path = cast(tuple[str, str, str, str], values)
+                try:
+                    evidence = configured_research_service().collect(SearchRequest(query))
+                except ResearchUnavailable as exc:
+                    raise ValueError(f"bounded research is unavailable: {exc}") from exc
+                excerpts = "\n\n".join(
+                    f"## {item.title}\n{item.text[:1_200]}\nSource: {item.final_url}"
+                    for item in evidence.evidence
+                )
+                if not excerpts:
+                    raise ValueError("bounded research returned no usable evidence")
+                body = f"Research notes for: {query}\n\n{excerpts}"
+                args = {**args, "body": body}
+                files = {
+                    target_path: f"# Draft message\n\nTo: {recipient}\n"
+                    f"Subject: {subject}\n\n{body}\n"
+                }
         values = (
             args.get("recipient"),
             args.get("subject"),
             args.get("body"),
             args.get("target_path"),
         )
-        if all(isinstance(value, str) and value.strip() for value in values):
+        if files is None and all(isinstance(value, str) and value.strip() for value in values):
             recipient, subject, body, target_path = cast(tuple[str, str, str, str], values)
             files = {
                 str(target_path): (
@@ -245,7 +270,10 @@ def prepare_reference_action(
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
     verification = action.verification or VerificationContract(kind="custom")
     return action.model_copy(
-        update={"verification": verification.model_copy(update={"expected": expectation})}
+        update={
+            "arguments": args,
+            "verification": verification.model_copy(update={"expected": expectation}),
+        }
     )
 
 
@@ -588,12 +616,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Draft a message into a scoped workspace artifact without sending it",
                     relevance=1,
-                    argument_keys=("recipient", "subject", "body", "target_path"),
+                    argument_keys=(
+                        "recipient",
+                        "subject",
+                        "body",
+                        "target_path",
+                        "body_source",
+                        "query",
+                    ),
                     argument_grounding={
                         key: ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                         for key in ("recipient", "subject", "body", "target_path")
+                    }
+                    | {
+                        "body_source": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
+                            approved_derivations=("reference.communication_body_from_research.v1",),
+                        ),
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,),
+                        ),
                     },
                 ),
             ),
