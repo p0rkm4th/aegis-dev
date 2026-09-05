@@ -1040,7 +1040,7 @@ def run_interaction(
             capability_retriever=retrieve_reference_capabilities,
             runtime_registry=runtime_registry,
             pack_bundles=reference_bundles,
-            auto_enable_pack_ids=frozenset(("tasks", "kitchen")),
+            auto_enable_pack_ids=frozenset(("tasks", "kitchen", "workspace")),
             action_grounder=ground_reference_action_runtime,
             pre_model_resolver=resolve_reference_pre_model,
             fallback_card_selector=reference_fallback_cards,
