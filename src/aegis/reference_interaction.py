@@ -2134,6 +2134,7 @@ def resolve_contextual_event_relative_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
     if text not in {"earlier one", "what about the earlier one", "what about an earlier one"}:
         return None
     facts = context.values.get("canonical_facts")
