@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "3a5d2869c047",
+  "state_basis_sha": "b3a5a6f67d0d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "3a5d2869c047",
-  "deterministic_green_sha": "3a5d2869c047",
-  "last_pushed_sha": "3a5d2869c047",
-  "hosted_green_sha": "3a5d2869c047",
-  "hosted_ci_green_sha": "3a5d2869c047",
+  "repository_head_sha": "b3a5a6f67d0d",
+  "deterministic_green_sha": "b3a5a6f67d0d",
+  "last_pushed_sha": "b3a5a6f67d0d",
+  "hosted_green_sha": "b3a5a6f67d0d",
+  "hosted_ci_green_sha": "b3a5a6f67d0d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "3a5d2869c047",
+    "commit_sha": "b3a5a6f67d0d",
     "conclusion": "success",
-    "run_id": "33941462666",
-    "observed_at": "2026-09-05T03:18:50Z"
+    "run_id": "33941849205",
+    "observed_at": "2026-09-05T03:26:00Z"
   },
-  "installed_release_sha": "3a5d286",
-  "running_release_sha": "3a5d286",
-  "live_green_sha": "3a5d286",
+  "installed_release_sha": "b3a5a6f",
+  "running_release_sha": "b3a5a6f",
+  "live_green_sha": "b3a5a6f",
   "active_milestone": "STAGE-4",
   "active_checkpoint": "daily-driver-continuity-correction",
   "checkpoint_status": "in_progress",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Fresh installed-owner proof on 3a5d286: an event list for this weekend followed by 'What about tomorrow?' remained event-scoped and returned Events: (none). No mutation, stale domain reuse, unnecessary clarification, provider failure, or false completion observed; session 7bed9911-7642-4e2c-b333-d2d9181094f0.",
+  "daily_driver_checkpoint": "Fresh installed-owner proof on b3a5a6f: an event list for next week followed by 'No, this weekend.' remained event-scoped and returned the weekend event. No mutation, stale domain reuse, unnecessary clarification, provider failure, or false completion observed; session da28681a-89ce-40b8-aebe-4ba38ebe7768.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -62,7 +62,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Reproduce one novel natural correction or cross-domain follow-up through the promoted owner surface, identify its responsible layer, and make the smallest durable fix if evidence shows a defect. Preserve provenance safety and do not start another broad model campaign.",
+  "next_action": "Reproduce one novel natural cross-domain or referent follow-up through the promoted owner surface, identify its responsible layer, and make the smallest durable fix if evidence shows a defect. Preserve provenance safety and do not start another broad model campaign.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
