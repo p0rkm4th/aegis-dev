@@ -3535,6 +3535,25 @@ def test_browser_app_exposes_bounded_calendar_projection():
     assert json.loads(payload)["events"] == [{"event_id": "event-1", "title": "alice"}]
 
 
+def test_browser_app_exposes_bounded_device_projection():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        device_state=lambda current: {
+            "source": "authorized_device_fixture",
+            "devices": [{"entity_id": "light.desk", "state": "off", "owner": current.id}],
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/devices", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["devices"][0]["state"] == "off"
+
+
 def test_browser_app_exposes_truthful_today_projection():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(

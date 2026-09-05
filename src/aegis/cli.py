@@ -28,6 +28,7 @@ from .compositions import available_compositions
 from .contracts import (
     ActionCard,
     Context,
+    ExecutionRequest,
     IntentFrame,
     ModelRequest,
     ObjectiveState,
@@ -72,6 +73,7 @@ from .reference_interaction import (
     run_reference_plan,
 )
 from .reference_packs import (
+    DeviceStatesExecutor,
     reference_bundles,
 )
 from .reference_runtime import default_runtime_registry, legacy_runtime
@@ -507,6 +509,27 @@ def _calendar_state(principal: Principal) -> dict[str, Any]:
 
     del principal
     return calendar_events_evidence(configured_calendar_provider().list_events())
+
+
+def _device_state(principal: Principal) -> dict[str, Any]:
+    """Expose the existing bounded device read adapter to the owner UI."""
+
+    del principal
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "devices.states.list"
+    )
+    observation = DeviceStatesExecutor().execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=card.action,
+            idempotency_key=f"owner-device-read-{uuid4()}",
+        )
+    )
+    return observation.evidence
 
 
 def _today_state(principal: Principal) -> dict[str, Any]:
@@ -1535,6 +1558,7 @@ def main() -> int:
                 pack_state=_pack_state,
                 pack_enable=_pack_enable,
                 calendar_state=_calendar_state,
+                device_state=_device_state,
                 today_state=_today_state,
             )
         except OSError as exc:
