@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a7ea12c50c6a",
+  "state_basis_sha": "27ebfb016845",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a7ea12c50c6a",
-  "deterministic_green_sha": "a7ea12c50c6a",
-  "last_pushed_sha": "a7ea12c50c6a",
-  "hosted_green_sha": "a7ea12c50c6a",
-  "hosted_ci_green_sha": "a7ea12c50c6a",
+  "repository_head_sha": "27ebfb016845",
+  "deterministic_green_sha": "27ebfb016845",
+  "last_pushed_sha": "27ebfb016845",
+  "hosted_green_sha": "27ebfb016845",
+  "hosted_ci_green_sha": "27ebfb016845",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a7ea12c50c6a",
+    "commit_sha": "27ebfb016845",
     "conclusion": "success",
-    "run_id": "33945821457",
-    "observed_at": "2026-09-05T08:20:00Z"
+    "run_id": "33946055809",
+    "observed_at": "2026-09-05T09:05:00Z"
   },
-  "installed_release_sha": "a7ea12c50c6a",
-  "running_release_sha": "a7ea12c50c6a",
-  "live_green_sha": "a7ea12c50c6a",
+  "installed_release_sha": "27ebfb016845",
+  "running_release_sha": "27ebfb016845",
+  "live_green_sha": "27ebfb016845",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-singleton-followup",
+  "active_checkpoint": "daily-driver-contextual-remaining-read",
   "checkpoint_status": "in_progress",
   "current_checkpoint": "natural-follow-up-continuity",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on a7ea12c returned the singleton grocery follow-up 'Which one?' as the authorized item rice (rendered message: 'Groceries: rice'). Multi-item ambiguity remains fail-closed by deterministic regressions; no mutation occurred.",
+  "daily_driver_checkpoint": "Installed-owner proof on 27ebfb0 returned the authorized grocery follow-up 'What is left?' as 'Groceries: rice' with completed state. The fix prioritizes context-aware remaining reads before domain-less safety clarification; uncontextualized and ambiguous collection queries remain fail-closed. No mutation occurred.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -62,7 +62,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Inspect the next natural follow-up continuity gap across task, chore, grocery, and event projections, prioritizing useful singleton/domain-preserving reads while keeping ambiguous or cross-domain referents fail-closed. Reproduce one novel owner-visible defect through the installed browser path before changing code.",
+  "next_action": "Probe the next natural follow-up continuity gap across task, chore, grocery, and event projections, prioritizing cross-domain and temporal read corrections while preserving authorized scope and fail-closed ambiguity. Reproduce one novel owner-visible defect through the installed browser path before changing code.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
