@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "fb1987b6cd9d3d4e02a0f7b82d5e157a582a21b2",
+  "state_basis_sha": "274f8e30eae2d530a7e94fed014aa11d4a411946",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "fb1987b6cd9d3d4e02a0f7b82d5e157a582a21b2",
-  "deterministic_green_sha": "fb1987b6cd9d3d4e02a0f7b82d5e157a582a21b2",
+  "repository_head_sha": "274f8e30eae2d530a7e94fed014aa11d4a411946",
+  "deterministic_green_sha": "274f8e30eae2d530a7e94fed014aa11d4a411946",
   "last_pushed_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_ci_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
@@ -53,6 +53,7 @@
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
     "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation",
     "owner release f54cfb2 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed for a minimal artifact"
+    ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -72,7 +73,7 @@
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "breadth_scoreboard": {
     "owner_visible_views": 7,
-    "usable_capability_families": 0,
+    "usable_capability_families": 3,
     "verified_write_capabilities": 0,
     "external_integrations": 0,
     "cross_domain_compositions": 0,
@@ -81,7 +82,7 @@
     "owner_workflows_completed": 2,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Add the next materially distinct capability family, preferably a provider-neutral external calendar read slice, then compose it with Research or Tasks.",
+  "next_action": "Compose the calendar read slice with Research or Tasks through the normal Core path, then add a second distinct integration family such as communications read/draft or authorized documents.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
