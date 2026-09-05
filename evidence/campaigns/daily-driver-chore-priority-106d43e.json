@@ -1,0 +1,15 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-chore-priority",
+  "source_sha": "106d43e28ab038750d0d42a6b5cd3af1957dd553",
+  "hosted": {"workflow": "validation", "run_id": "33966897204", "conclusion": "success"},
+  "owner": {
+    "release_sha": "106d43e28ab038750d0d42a6b5cd3af1957dd553",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What chores are open?", "completed", "canonical open chore collection"],
+      ["Which one needs attention first?", "blocked", "no canonical chore deadlines or priority"]
+    ]
+  },
+  "safety": "Unsupported chore ordering is rejected before ordinal selection; no mutation occurs."
+}
