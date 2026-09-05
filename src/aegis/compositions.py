@@ -39,6 +39,24 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "surfaces": ("Calendar", "Tasks"),
             "authority": "read-only narrowing; no task mutation or authorization",
         },
+        {
+            "id": "calendar-to-workspace",
+            "label": "Calendar → Workspace",
+            "description": (
+                "Save an authorized calendar snapshot as an independently verified artifact."
+            ),
+            "surfaces": ("Calendar", "Workspace"),
+            "authority": "calendar read + scoped workspace write; Core authorization required",
+        },
+        {
+            "id": "device-to-workspace",
+            "label": "Device → Workspace",
+            "description": (
+                "Preserve an authorized device-state snapshot in a verified scoped artifact."
+            ),
+            "surfaces": ("Devices", "Workspace"),
+            "authority": "device read + scoped workspace write; Core authorization required",
+        },
     )
 
 
