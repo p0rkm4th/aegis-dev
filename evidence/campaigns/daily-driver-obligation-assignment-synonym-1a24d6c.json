@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-obligation-assignment-synonym",
+  "source_sha": "1a24d6c8d9f3c8d0abc52831d4525585fa8f3810",
+  "hosted": {"workflow": "validation", "run_id": "33971532583", "conclusion": "success"},
+  "owner": {
+    "release_sha": "1a24d6c8d9f3c8d0abc52831d4525585fa8f3810",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What obligations are unsettled?", "completed", "canonical obligation collection"],
+      ["Show me the first obligation.", "completed", "first authorized obligation"],
+      ["Who is it assigned to?", "completed", "Obligation: Utilities is assigned to bob"]
+    ]
+  },
+  "safety": "Assignment is read from the revalidated canonical obligation ID; natural wording cannot create or alter responsibility."
+}
