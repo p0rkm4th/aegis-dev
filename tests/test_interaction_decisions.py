@@ -945,6 +945,80 @@ def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
     assert repair_requests[0].proposal_failure.related_source_spans == ((0, 4), (9, 10))
 
 
+def test_compound_clarification_collects_effect_evidence_before_plan_repair() -> None:
+    calls: list[str] = []
+    signal = StructuralCoverageSignal(
+        anchors=tuple(
+            StructuralAnchor(source_span=span, kind="clause") for span in ((0, 4), (9, 10))
+        )
+    )
+
+    class Provider:
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            if request.classification_only:
+                calls.append("classification")
+                return ModelResponse(raw={"semantic_mode": "ACTION"})
+            if request.objective_effect_only:
+                calls.append("effects")
+                return ModelResponse(
+                    raw={
+                        "effects": [
+                            {"effect_text": "do A", "source_span": (0, 4)},
+                            {"effect_text": "B", "source_span": (9, 10)},
+                        ]
+                    }
+                )
+            if request.proposal_repair_only:
+                calls.append("plan_repair")
+                assert request.working_set.context.values["grounded_requested_effects"]
+                return ModelResponse(
+                    raw=Decision(
+                        kind=DecisionKind.PLAN,
+                        semantic_mode="ACTION",
+                        objective_spec=ObjectiveSpecProposal(
+                            requirements=tuple(
+                                ObjectiveRequirementProposal(action_ref=ref) for ref in ("A", "B")
+                            )
+                        ),
+                        plan=ProposedPlan(
+                            steps=tuple(ProposedPlanStep(action_ref=ref) for ref in ("A", "B"))
+                        ),
+                    ).model_dump(mode="json")
+                )
+            if request.objective_interpretation_only:
+                calls.append("mapping")
+                return ModelResponse(
+                    raw={
+                        "requirements": [{"action_ref": ref, "arguments": {}} for ref in ("A", "B")]
+                    }
+                )
+            calls.append("ordinary")
+            return ModelResponse(
+                raw={"kind": "CLARIFY", "semantic_mode": "CLARIFY", "clarification": "unclear"}
+            )
+
+    cards = tuple(
+        ActionCard(action=ActionSpec(action_id=ref, capability=ref), summary=ref, relevance=1)
+        for ref in ("A", "B")
+    )
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=None,
+            structural_parser=lambda _utterance: signal,
+        ),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance="do A and B"),
+        cards,
+        Context(),
+    )
+
+    assert isinstance(result, Decision)
+    assert result.kind is DecisionKind.PLAN
+    assert calls.index("effects") < calls.index("plan_repair")
+
+
 def test_compound_plan_repair_budget_is_one_before_generic_recovery() -> None:
     calls = 0
 
