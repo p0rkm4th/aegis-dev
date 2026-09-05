@@ -1230,6 +1230,24 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
     candidates = those.get("candidates") if isinstance(those, dict) else None
+    fact_key = those.get("fact_key") if isinstance(those, dict) else None
+    requested_domain = next(
+        (
+            key
+            for key, terms in {
+                "canonical_tasks": ("task", "tasks"),
+                "canonical_chores": ("chore", "chores"),
+                "events": ("event", "events", "calendar"),
+                "canonical_items": ("grocery", "groceries"),
+            }.items()
+            if re.search(rf"\b(?:{'|'.join(terms)})\b", text)
+        ),
+        None,
+    )
+    if requested_domain is not None and fact_key is not None and requested_domain != fact_key:
+        # An ordinal word such as "first" is not permission to reinterpret a
+        # prior collection in a different domain.
+        return None
     if (
         isinstance(those, dict)
         and those.get("fact_key") == "canonical_items"
