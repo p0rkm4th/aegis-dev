@@ -39,6 +39,7 @@ def assess_read_applicability(utterance: str, semantic_scope: str | None) -> Rea
         or "to buy" in text
         or "to pick up" in text
         or "to get" in text
+        or ("pick up" in text and "store" in text)
     )
     temporal_concept = (
         any(day in text for day in ("today", "tomorrow", "yesterday", "this week", "next week"))

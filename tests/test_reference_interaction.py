@@ -111,6 +111,24 @@ def test_grocery_read_fast_path_accepts_punctuated_topic_follow_up() -> None:
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_grocery_read_fast_path_accepts_store_pickup_wording() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="what am i supposed to pick up at the store",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["semantic_scope"] == "kitchen.shopping_list"
+    assert result.evidence["canonical_items"] == ["rice"]
+
+
 def test_singleton_grocery_followup_resolves_its_only_authorized_item() -> None:
     result = resolve_contextual_ordinal_read(
         IntentFrame(
