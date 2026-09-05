@@ -1,0 +1,9 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "document-id-execution-handoff-repair",
+  "source": "working-tree",
+  "problem": "The grounded document title retained the human label in the executor argument even after canonical referent validation.",
+  "repair": "The verified canonical document_id is substituted into the typed ActionCard before execution while provenance remains AUTHORIZED_CANONICAL_REFERENT.",
+  "safety": "Substitution occurs only after exactly one configured authorized title match; missing or ambiguous documents still fail closed.",
+  "deterministic_tests": "814 passed, 5 skipped"
+}
