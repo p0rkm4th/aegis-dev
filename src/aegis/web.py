@@ -119,6 +119,7 @@ _INDEX_HTML = """<!doctype html>
 #answer{margin:0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#activity,#step-status{font-size:.85rem;margin:.35rem 0}.research-sources{font-size:.8rem;color:var(--muted);margin:.4rem 0 0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;max-height:min(60vh,42rem);overflow-y:auto;padding:.25rem .35rem .5rem 0;margin:1.5rem 0 0;scroll-behavior:smooth}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;white-space:pre-wrap;overflow-wrap:anywhere}#conversation li.owner-message{align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}#conversation li.aegis-message{align-self:flex-start;background:var(--panel-raised)}#conversation li.conversation-empty{max-width:none;color:var(--muted);text-align:center;border:1px dashed var(--border);background:transparent}
 .secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.secondary>summary{font-weight:600;color:var(--muted);padding:.35rem 0}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
 .product-nav{display:flex;gap:.45rem;overflow-x:auto;padding:.15rem 0 1rem;margin-bottom:1rem}.product-nav button{white-space:nowrap;padding:.55rem .8rem}.product-nav button[aria-current="page"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.view-summary{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;margin:0 0 1rem}.view-summary h2{font-size:1rem;margin:0}.view-summary p{margin:0;color:var(--muted);font-size:.85rem}
 @media(max-width:36rem){#chat{align-items:stretch;flex-direction:column}#chat button{width:100%}#conversation li{max-width:100%}}
 </style>
 <style>.status-badge{display:inline-flex;align-items:center;gap:.4rem;width:max-content;margin:.2rem 0 .35rem;padding:.3rem .65rem;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.78rem;font-weight:600}.status-badge[data-state="completed"]{border-color:#4f9b68;color:#9be2ae}.status-badge[data-state="blocked"],.status-badge[data-state="failed"]{border-color:#a56a6a;color:#f0b0b0}#detail:empty{display:none}</style>
@@ -131,8 +132,11 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
+<button type="button" data-view="objectives">Objectives</button>
+<button type="button" data-view="workspace">Workspace</button>
 </nav>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
+<div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
 <form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
@@ -144,7 +148,7 @@ aria-live="polite" aria-label="Selected node details"></div>
 <button type="button" data-feedback="not_helpful">Not helpful</button>
 <span id="feedback-status" class="muted" aria-live="polite"></span></p>
 <p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
-<p id="research-sources" class="research-sources" aria-live="polite"></p>
+<details id="research-panel" class="research-sources" hidden><summary>External research evidence</summary><ul id="research-sources" aria-live="polite"></ul></details>
 <h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol></section>
 <details class="secondary" aria-label="Canonical state"><summary>Canonical state</summary><div class="state-tools"><h2 class="sr-only">Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
@@ -482,6 +486,19 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     item.setAttribute('aria-current', item === button ? 'page' : 'false'));
   const input = document.getElementById('utterance');
   input.placeholder = activeView === 'research' ? 'Ask for sourced research…' : 'Talk to AEGIS…';
+  const viewCopy = {
+    home: ['Today', 'Your conversation and authorized world at a glance.'],
+    tasks: ['Tasks', 'Open and completed work from authorized canonical state.'],
+    calendar: ['Calendar', 'Events and appointments currently visible to you.'],
+    household: ['Household', 'Shared chores, groceries, and obligations.'],
+    systems: ['Systems', 'Authorized hosts, services, and network state.'],
+    research: ['Research', 'Ask for current public information with sources.'],
+    packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
+    objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
+    workspace: ['Workspace', 'Scoped artifacts and bounded digital work will appear here.']
+  }[activeView] || ['Today', 'Your conversation and authorized world at a glance.'];
+  document.getElementById('view-title').textContent = viewCopy[0];
+  document.getElementById('view-description').textContent = viewCopy[1];
   if (activeView === 'research') input.focus();
   applyNodeFilter();
 }));
@@ -558,6 +575,8 @@ async function loadState() {
     if (/household|chore|obligation|grocery|kitchen/.test(searchable)) views.push('household');
     if (/homelab|network|infrastructure|system/.test(searchable)) views.push('systems');
     if (node.id.startsWith('pack-')) views.push('packs');
+    if (/objective|capability|need/.test(searchable)) views.push('objectives');
+    if (/workspace|artifact|file/.test(searchable)) views.push('workspace');
     renderedNodeViews.set(node.id, views);
     card.append(title, detail); return card;
   }));
@@ -639,8 +658,16 @@ document.getElementById('chat').addEventListener('submit', async event => {
     document.getElementById('answer').textContent = answer;
     appendConversationMessage('aegis-message', `AEGIS: ${answer}`);
     const sources = document.getElementById('research-sources');
-    sources.textContent = result.sources && result.sources.length
-      ? `Sources · ${result.sources.map(source => `${source.title} (${source.url})`).join(' · ')}` : '';
+    const researchPanel = document.getElementById('research-panel');
+    sources.replaceChildren();
+    (result.sources || []).forEach(source => {
+      const item = document.createElement('li');
+      const link = document.createElement('a');
+      link.textContent = `${source.title} · retrieved ${source.retrieved_at}`;
+      link.href = source.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+      item.append(link); sources.append(item);
+    });
+    researchPanel.hidden = !(result.sources && result.sources.length);
     if (result.steps && result.steps.length) document.getElementById('step-status').textContent =
       result.steps.map(step =>
         `${step.action_id}: ${lifecycleLabel(step.state)} · ${step.message}`).join(' | ');

@@ -5340,13 +5340,16 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
         Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     )
 
-    assert [node["label"] for node in state["nodes"][:5]] == [
-        "AEGIS",
-        "Homelab",
-        "Kitchen",
-        "Network",
-        "Tasks",
-    ]
+    labels = {node["label"] for node in state["nodes"]}
+    assert {"AEGIS", "Homelab", "Kitchen", "Network", "Tasks"} <= labels
+    assert any(
+        node["id"].startswith("pack-tasks-area-") and node["category"] == "capability"
+        for node in state["nodes"]
+    )
+    assert any(
+        edge["source"] == "pack-tasks" and edge["target"].startswith("pack-tasks-area-")
+        for edge in state["edges"]
+    )
     assert state["nodes"][0]["category"] == "core"
     assert state["nodes"][0]["detail_view"] == "overview"
     assert state["nodes"][1]["category"] == "domain"
