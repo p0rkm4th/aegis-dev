@@ -48,7 +48,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
             for item in raw_requirements[:5]
             if isinstance(item, dict)
         ]
-    for key in ("task", "event"):
+    for key in ("task", "event", "obligation"):
         value = evidence.get(key)
         if isinstance(value, dict):
             compact[key] = dict(value)

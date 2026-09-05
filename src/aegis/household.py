@@ -636,6 +636,17 @@ class HouseholdReadFastPath:
                 }
                 for obligation in obligations
             ]
+            evidence["canonical_obligations"] = [
+                {
+                    "obligation_id": str(obligation.obligation_id),
+                    "title": obligation.title,
+                    "responsible_id": obligation.responsible_id,
+                    "amount": obligation.amount,
+                    "settled": obligation.settled,
+                }
+                for obligation in obligations
+                if hasattr(obligation, "obligation_id")
+            ]
         elif any(word in text for word in ("chore", "chores")):
             chores = cast(tuple[Chore, ...], self.snapshot["chores"])
             if any(term in text for term in ("completed", "finished")):

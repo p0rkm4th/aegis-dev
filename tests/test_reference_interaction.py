@@ -17,7 +17,12 @@ from aegis.contracts import (
     StructuralCoverageSignal,
     VerificationContract,
 )
-from aegis.household import GroceryReadFastPath, HouseholdEvent, PostgresHouseholdStore
+from aegis.household import (
+    GroceryReadFastPath,
+    HouseholdEvent,
+    HouseholdObligation,
+    PostgresHouseholdStore,
+)
 from aegis.interaction_cognition import _structural_write_failure
 from aegis.interaction_context import (
     compact_context_evidence,
@@ -38,6 +43,7 @@ from aegis.reference_interaction import (
     resolve_contextual_grocery_membership_read,
     resolve_contextual_grocery_other_read,
     resolve_contextual_grocery_quantity_read,
+    resolve_contextual_obligation_focus_read,
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
     resolve_contextual_remaining,
@@ -957,6 +963,32 @@ def test_contextual_ordinal_read_resolves_authorized_obligation():
     assert result is not None
     assert result.message == "Obligation: Utilities (unsettled) (bob)"
     assert result.evidence["obligation"]["responsible_id"] == "bob"
+
+
+def test_contextual_obligation_focus_reports_settled_state():
+    obligation = HouseholdObligation("obligation-1", "Utilities", 120, "bob", False)
+    result = resolve_contextual_obligation_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Is it settled?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "obligation": {
+                        "obligation_id": obligation.obligation_id,
+                        "title": obligation.title,
+                        "responsible_id": obligation.responsible_id,
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"obligations": (obligation,)},
+    )
+
+    assert result is not None
+    assert result.message == "Obligation: Utilities is unsettled (bob)"
 
 
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
