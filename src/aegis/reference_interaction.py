@@ -1394,6 +1394,21 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
                     correlation_id=intent.correlation_id,
                 )
     if (
+        next_match is not None
+        and fact_key == "canonical_items"
+        and isinstance(candidates, list)
+        and candidates
+    ):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "The grocery list has no canonical next item. "
+                "Please name a grocery item or choose an ordinal."
+            ),
+            correlation_id=intent.correlation_id,
+        )
+    if (
         relative_match is not None
         and fact_key == "canonical_tasks"
         and isinstance(candidates, list)
