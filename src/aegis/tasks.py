@@ -554,6 +554,7 @@ class TaskReadFastPath:
         "what do i need to do",
         "what do i have to do",
         "what do i need to get done",
+        "what else do i need to get done",
     )
     _READ_PREFIXES = ("what", "show", "list", "which", "see", "display", "give me")
     _TEMPORAL_WORK_TERMS = (
@@ -628,7 +629,7 @@ class TaskReadFastPath:
         elif any(term in text for term in ("open", "pending", "unfinished")):
             tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
             status_filter = "open"
-        elif any(term in text for term in ("left", "remaining", "still need")):
+        elif any(term in text for term in ("left", "remaining", "still need", "what else")):
             tasks = tuple(task for task in all_tasks if task.status is TaskStatus.OPEN)
             status_filter = "open"
         elif "before the weekend" in text or "before weekend" in text:

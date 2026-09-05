@@ -4313,6 +4313,27 @@ def test_task_read_fast_path_accepts_informal_temporal_work_terms():
         assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
+def test_task_read_fast_path_accepts_natural_open_task_remainder_wording():
+    class Store:
+        def list(self, _principal):
+            return (
+                Task(uuid4(), "apartment", "open task", "alice"),
+                Task(uuid4(), "apartment", "finished task", "alice", status=TaskStatus.COMPLETED),
+            )
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What else do I need to get done?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["status_filter"] == "open"
+    assert result.evidence["due_filter"] == "all"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["open task"]
+
+
 def test_task_read_fast_path_orders_temporal_results_by_deadline():
     from datetime import datetime, timedelta
 
