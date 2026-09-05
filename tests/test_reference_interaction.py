@@ -34,6 +34,7 @@ from aegis.interaction_context import (
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
 from aegis.planning import DomainClarificationFastPath, MultiActionFastPath
 from aegis.reference_interaction import (
+    _display_due_at,
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
@@ -2384,7 +2385,10 @@ def test_contextual_task_focus_read_accepts_tell_me_more_wording():
 
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
-    assert result.message == "Task: check the back gate (open); due 2026-09-06 14:11 CDT"
+    assert (
+        result.message
+        == f"Task: check the back gate (open); due {_display_due_at(task.due_at.isoformat())}"
+    )
 
 
 def test_contextual_task_focus_read_accepts_natural_due_followup():
