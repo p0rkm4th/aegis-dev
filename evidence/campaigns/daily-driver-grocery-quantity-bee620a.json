@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-grocery-quantity",
+  "source_sha": "bee620ab81ae83901f3d7185d1a483f85878afbe",
+  "hosted": {"workflow": "validation", "run_id": "33967112095", "conclusion": "success"},
+  "owner": {
+    "release_sha": "bee620ab81ae83901f3d7185d1a483f85878afbe",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What groceries do we need?", "completed", "rice (x6)"],
+      ["What about the first one?", "completed", "rice"],
+      ["How much is it?", "completed", "rice (x6) shopping-list quantity"]
+    ]
+  },
+  "safety": "Quantity is resolved only from the authorized shopping list; pantry inventory remains distinct and no mutation occurs."
+}
