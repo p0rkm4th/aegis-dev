@@ -657,6 +657,14 @@ def test_structural_repair_reenters_fidelity_with_complete_effects() -> None:
                         ]
                     }
                 )
+            if request.objective_interpretation_only:
+                return ModelResponse(
+                    raw={
+                        "requirements": [
+                            {"action_ref": ref, "arguments": {}} for ref in ("A", "B", "C")
+                        ]
+                    }
+                )
             return ModelResponse(
                 raw=Decision(
                     kind=DecisionKind.PLAN,
@@ -696,7 +704,7 @@ def test_structural_repair_reenters_fidelity_with_complete_effects() -> None:
     assert repair_calls == 1
 
 
-def test_unbound_effects_use_separate_capability_mapping_pass() -> None:
+def test_effects_use_separate_capability_mapping_pass_even_with_volunteered_refs() -> None:
     utterance = "do A and B"
     signal = StructuralCoverageSignal(
         anchors=tuple(
@@ -717,13 +725,13 @@ def test_unbound_effects_use_separate_capability_mapping_pass() -> None:
                             {
                                 "effect_text": "do A",
                                 "source_span": (0, 4),
-                                "action_ref": None,
+                                "action_ref": "B",
                                 "arguments": {},
                             },
                             {
                                 "effect_text": "B",
                                 "source_span": (9, 10),
-                                "action_ref": None,
+                                "action_ref": "A",
                                 "arguments": {},
                             },
                         ]
@@ -900,6 +908,12 @@ def test_compound_clarification_receives_one_bounded_plan_repair() -> None:
                                 "arguments": {},
                             },
                         ]
+                    }
+                )
+            if request.objective_interpretation_only:
+                return ModelResponse(
+                    raw={
+                        "requirements": [{"action_ref": ref, "arguments": {}} for ref in ("A", "B")]
                     }
                 )
             return ModelResponse(
