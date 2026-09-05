@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "d6459c7a2073d757570f14e36f7b69597435fa1f",
+  "state_basis_sha": "f61c23fbb1e2",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d6459c7a2073d757570f14e36f7b69597435fa1f",
-  "deterministic_green_sha": "25846cd",
-  "last_pushed_sha": "d6459c7a2073d757570f14e36f7b69597435fa1f",
-  "hosted_green_sha": "25846cd",
-  "hosted_ci_green_sha": "25846cd",
+  "repository_head_sha": "f61c23fbb1e2",
+  "deterministic_green_sha": "f61c23fbb1e2",
+  "last_pushed_sha": "f61c23fbb1e2",
+  "hosted_green_sha": "f61c23fbb1e2",
+  "hosted_ci_green_sha": "f61c23fbb1e2",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "25846cd",
+    "commit_sha": "f61c23fbb1e2",
     "conclusion": "success",
-    "run_id": "33939214239",
-    "observed_at": "2026-09-05T02:25:00Z"
+    "run_id": "33939693498",
+    "observed_at": "2026-09-05T02:39:00Z"
   },
-  "installed_release_sha": "25846cd",
-  "running_release_sha": "25846cd",
-  "live_green_sha": "25846cd",
-  "active_milestone": "P0",
-  "active_checkpoint": "stage-2-current-state-cleanup",
+  "installed_release_sha": "f61c23f",
+  "running_release_sha": "f61c23f",
+  "live_green_sha": "f61c23f",
+  "active_milestone": "STAGE-4",
+  "active_checkpoint": "daily-driver-frontier-selection",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "project-truth-state-migration",
+  "current_checkpoint": "showable-alpha-owner-proof",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -43,12 +43,12 @@
     "provenance_boundary": "production ACTION and bounded PLAN arguments are grounded before authorization",
     "owner_provenance_proof": "explicit ACTION, temporal ACTION, and task+chore PLAN verified on 25846cd",
     "compound_cognition": "bounded research evidence only; not capability-green",
-    "ui_showable_alpha": "not yet assessed in this campaign"
+    "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
     "detailed historical checkpoints moved to evidence/campaigns",
-    "browser UI polish and rendered owner proof remain open"
+    "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
   "known_runtime_limits": [
@@ -61,7 +61,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Inspect CURRENT_STATE consumers and validate this concise operational state; then begin owner browser UI inspection and rendered-alpha polish. Preserve provenance safety regressions and do not start another broad model campaign.",
+  "next_action": "Dogfood natural daily-driver reads and follow-ups through the promoted browser, then choose one concrete owner-visible M09 frontier from evidence. Preserve provenance safety regressions and do not start another broad model campaign.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
