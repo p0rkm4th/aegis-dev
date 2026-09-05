@@ -9,6 +9,8 @@ from uuid import uuid4
 
 from .contracts import (
     ActionCard,
+    CapabilityInvestigationState,
+    CapabilityNeed,
     Context,
     Decision,
     DecisionKind,
@@ -346,6 +348,31 @@ def _unresolved_investigation_result(
                 "source_spans": [list(span) for span in effect.source_spans],
                 "resolution": RequestedEffectResolution.UNSUPPORTED.value,
             }
+            for effect in effects
+        ]
+        evidence["capability_needs"] = [
+            CapabilityNeed(
+                requirement_id=effect.effect_id,
+                requested_effect=effect.normalized_effect,
+                reason="No enabled ActionCard currently satisfies this requested effect.",
+                permitted_scope=(
+                    "installed_capabilities",
+                    "authorized_canonical_state",
+                    "public_research",
+                ),
+                investigation=CapabilityInvestigationState.COMPLETE,
+                candidate_resolutions=tuple(
+                    item
+                    for item in (
+                        {
+                            "kind": "available_action_ids",
+                            "action_ids": investigated.evidence.get("available_action_ids", []),
+                        },
+                    )
+                    if isinstance(item, dict)
+                ),
+                parent_objective_id=investigated.objective_id,
+            ).model_dump(mode="json")
             for effect in effects
         ]
         return investigated.model_copy(update={"evidence": evidence})

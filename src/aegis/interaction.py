@@ -13,6 +13,7 @@ from .capability_retrieval import retrieve_action_cards
 from .contracts import (
     ActionCard,
     ArgumentProvenanceKind,
+    CapabilityNeed,
     Context,
     Decision,
     DecisionKind,
@@ -438,12 +439,18 @@ class InteractionBoundary:
 
             def persist_fast_result(result: Result) -> Result:
                 result = _with_continuation_context(result, context)
+                capability_needs = tuple(
+                    CapabilityNeed.model_validate(item)
+                    for item in result.evidence.get("capability_needs", ())
+                    if isinstance(item, dict)
+                )
                 objective_store.save_objective(
                     Objective(
                         id=result.objective_id,
                         intent=intent,
                         correlation_id=intent.correlation_id,
                         state=result.state,
+                        capability_needs=capability_needs,
                     )
                 )
                 objective_store.save_result(f"interaction:{intent.correlation_id}", result)

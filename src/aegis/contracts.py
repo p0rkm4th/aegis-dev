@@ -170,6 +170,32 @@ class ObjectiveSpecProposal(StrictModel):
     requirements: tuple[ObjectiveRequirementProposal, ...] = Field(min_length=1, max_length=5)
 
 
+class CapabilityNeedStatus(StrEnum):
+    OPEN = "open"
+    RESOLVED = "resolved"
+    OWNER_INPUT_REQUIRED = "owner_input_required"
+
+
+class CapabilityInvestigationState(StrEnum):
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    COMPLETE = "complete"
+
+
+class CapabilityNeed(StrictModel):
+    """A durable, non-authoritative record of an unsatisfied requirement."""
+
+    need_id: UUID = Field(default_factory=uuid4)
+    requirement_id: UUID | None = None
+    requested_effect: str = Field(min_length=1, max_length=500)
+    reason: str = Field(min_length=1, max_length=500)
+    permitted_scope: tuple[str, ...] = Field(default=(), max_length=8)
+    status: CapabilityNeedStatus = CapabilityNeedStatus.OPEN
+    investigation: CapabilityInvestigationState = CapabilityInvestigationState.NOT_STARTED
+    candidate_resolutions: tuple[dict[str, Any], ...] = Field(default=(), max_length=8)
+    parent_objective_id: UUID | None = None
+
+
 class RequestedEffectResolution(StrEnum):
     """Core state for an utterance-grounded effect before capability mapping."""
 
@@ -369,6 +395,7 @@ class Objective(StrictModel):
     steps: tuple[ActionSpec, ...] = ()
     objective_spec: ObjectiveSpec | None = None
     validated_plan: ValidatedPlan | None = None
+    capability_needs: tuple[CapabilityNeed, ...] = Field(default=(), max_length=5)
 
 
 class ModelRequest(StrictModel):
