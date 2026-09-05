@@ -803,7 +803,7 @@ def _deterministic_composition_action(
         )
     calendar_create = re.fullmatch(
         r"create a calendar event titled (?P<title>.+?) from "
-        r"(?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)",
+        r"(?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)(?: at [^ ]+(?: [^ ]+)?)?",
         text,
         flags=re.IGNORECASE,
     )

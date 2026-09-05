@@ -740,8 +740,20 @@ async function loadCalendar() {
       if (!title.value.trim() || Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf()) || end <= start) {
         return;
       }
+      const localIso = value => {
+        const offset = -value.getTimezoneOffset();
+        const sign = offset >= 0 ? '+' : '-';
+        const hours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0');
+        const minutes = String(Math.abs(offset) % 60).padStart(2, '0');
+        const iso = `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-` +
+          `${String(value.getDate()).padStart(2, '0')}T${String(value.getHours()).padStart(2, '0')}:` +
+          `${String(value.getMinutes()).padStart(2, '0')}:00${sign}${hours}:${minutes}`;
+        return iso;
+      };
+      const clock = start.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
       document.getElementById('utterance').value =
-        `Create a calendar event titled ${title.value.trim()} from ${start.toISOString()} to ${end.toISOString()}`;
+        `Create a calendar event titled ${title.value.trim()} from ${localIso(start)} to ` +
+        `${localIso(end)} at ${clock}`;
       document.getElementById('chat').requestSubmit();
     });
     panel.append(form);
