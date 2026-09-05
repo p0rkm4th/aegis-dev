@@ -1,8 +1,14 @@
 from uuid import uuid4
 
 from aegis.contracts import ExecutionRequest, Principal
+from aegis.documents import Document, FixtureDocumentProvider
 from aegis.pack_lifecycle import PackBundle
-from aegis.reference_packs import reference_bundles, reference_packs
+from aegis.reference_packs import (
+    DocumentWorkspaceExecutor,
+    DocumentWorkspaceVerifier,
+    reference_bundles,
+    reference_packs,
+)
 from aegis.reference_runtime import default_runtime_registry
 
 
@@ -65,3 +71,33 @@ def test_workspace_pack_verifies_a_multi_file_artifact(tmp_path, monkeypatch) ->
     assert observation.command_succeeded is True
     assert observation.evidence["files"] == ["index.html", "style.css"]
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_document_export_pack_composes_authorized_read_with_workspace(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "documents.export_to_workspace"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    executor = DocumentWorkspaceExecutor(
+        principal,
+        FixtureDocumentProvider((Document("doc-1", "Starter", "Keep this scoped."),)),
+    )
+    action = card.action.model_copy(
+        update={"arguments": {"document_id": "doc-1", "target_path": "starter.md"}}
+    )
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="export-1"
+        )
+    )
+    assert observation.command_succeeded is True
+    assert observation.evidence["source"] == "authorized_document"
+    assert (
+        DocumentWorkspaceVerifier().verify(observation, card.action.verification).verified is True
+    )
