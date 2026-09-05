@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-before-that",
+  "source_sha": "2d46b3c05e3dfa7aa2341a7b3c7fc1c37d51668d",
+  "hosted": {"workflow": "validation", "run_id": "33969895541", "conclusion": "success"},
+  "owner": {
+    "release_sha": "2d46b3c05e3dfa7aa2341a7b3c7fc1c37d51668d",
+    "postgresql_preserved": true,
+    "positive_workflow": [
+      ["What is on my calendar?", "completed", "canonical event collection"],
+      ["What about the second one?", "completed", "second authorized event"],
+      ["What about the event before that?", "completed", "immediately earlier canonical event"]
+    ],
+    "boundary_workflow": "The same request from the first event truthfully blocked because no earlier event exists."
+  },
+  "safety": "The predecessor is selected by current canonical event time relative to the authorized event ID; boundary ambiguity and absence remain fail-closed."
+}
