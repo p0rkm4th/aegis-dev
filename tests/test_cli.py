@@ -84,6 +84,24 @@ def test_deterministic_device_control_action_requires_explicit_entity_and_postco
     }
 
 
+def test_deterministic_device_workspace_report_action_requires_explicit_path():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "device-reports"
+    )
+    manager.discover(bundle)
+    manager.install("device-reports", frozenset(bundle.manifest.permissions))
+    manager.enable("device-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save authorized device states to workspace as devices.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "device-reports.devices.snapshot_to_workspace"
+    assert card.action.arguments == {"target_path": "devices.md"}
+
+
 def test_deterministic_communication_draft_action_preserves_explicit_arguments():
     manager = PackManager()
     bundle = next(
@@ -5339,6 +5357,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Devices",
         "Communication Drafts",
         "Device Controls",
+        "Device Reports",
     }
     assert all(bundle.manifest.permissions for bundle in bundles)
 

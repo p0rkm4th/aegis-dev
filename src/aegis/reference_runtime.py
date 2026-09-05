@@ -27,6 +27,8 @@ from .reference_packs import (
     CommunicationsVerifier,
     DeviceControlExecutor,
     DeviceControlVerifier,
+    DeviceSnapshotWorkspaceExecutor,
+    DeviceSnapshotWorkspaceVerifier,
     DeviceStatesExecutor,
     DeviceStatesVerifier,
     DocumentsExecutor,
@@ -227,6 +229,17 @@ def default_runtime_registry(
             {"devices.control": frozenset({Role.OWNER})},
         )
 
+    def device_snapshot_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            DeviceSnapshotWorkspaceExecutor(principal),
+            DeviceSnapshotWorkspaceVerifier(),
+            {
+                "devices.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+        )
+
     def document_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -263,6 +276,7 @@ def default_runtime_registry(
         "communication-drafts.messages.draft": communication_draft_runtime,
         "devices.states.list": devices_runtime,
         "device-controls.devices.command.execute": device_control_runtime,
+        "device-reports.devices.snapshot_to_workspace": device_snapshot_workspace_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
         "workspace.research_notes.create": research_workspace_runtime,
     }

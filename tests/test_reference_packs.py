@@ -30,6 +30,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "devices",
         "communication-drafts",
         "device-controls",
+        "device-reports",
     }
 
 
@@ -198,6 +199,31 @@ def test_device_controls_pack_returns_structured_scope_denial(monkeypatch) -> No
     assert (
         "outside the authorized device scope" in observation.evidence["device_execution"]["reason"]
     )
+
+
+def test_device_reports_pack_verifies_workspace_composition(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    monkeypatch.setenv("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "homeassistant.status")
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "device-reports.devices.snapshot_to_workspace"
+    )
+    action = card.action.model_copy(update={"arguments": {"target_path": "devices.md"}})
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="device-report-1",
+        )
+    )
+    assert observation.command_succeeded is True
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 
 def test_workspace_pack_verifies_a_multi_file_artifact(tmp_path, monkeypatch) -> None:
