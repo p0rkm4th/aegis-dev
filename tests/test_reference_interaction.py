@@ -1909,6 +1909,33 @@ def test_contextual_event_relative_read_selects_unique_later_event():
     assert result.evidence["authorized_relative_referent"]["event_id"] == "late"
 
 
+def test_contextual_event_relative_read_accepts_explicit_before_noun():
+    from aegis.household import HouseholdEvent
+
+    result = resolve_contextual_event_relative_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the event before that?",
+        ),
+        Context(
+            values={"canonical_facts": {"event": {"event_id": "middle", "title": "middle"}}},
+            sources=("authorized_canonical_result",),
+        ),
+        {
+            "space_id": "home",
+            "events": (
+                HouseholdEvent(
+                    "early", "early event", datetime(2026, 9, 5, 10, tzinfo=timezone.utc)
+                ),
+                HouseholdEvent("middle", "middle", datetime(2026, 9, 6, 10, tzinfo=timezone.utc)),
+            ),
+        },
+    )
+
+    assert result is not None
+    assert result.evidence["authorized_relative_referent"]["event_id"] == "early"
+
+
 def test_contextual_event_relative_read_accepts_show_correction():
     from aegis.household import HouseholdEvent
 
