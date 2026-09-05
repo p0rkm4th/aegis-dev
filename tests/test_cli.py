@@ -405,6 +405,12 @@ def test_household_read_keeps_explicit_obligation_questions():
     assert HouseholdReadFastPath.matches("No, show me what is on my calendar.") is True
 
 
+def test_grocery_read_accepts_polite_read_prefix():
+    from aegis.household import GroceryReadFastPath
+
+    assert GroceryReadFastPath.matches("Can you tell me what is on my grocery list?") is True
+
+
 def test_household_read_does_not_invent_chore_ordinal_order():
     from aegis.household import Chore, HouseholdReadFastPath
 
