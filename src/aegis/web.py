@@ -118,10 +118,20 @@ _INDEX_HTML = """<!doctype html>
 #chat{display:flex;align-items:flex-end;gap:.7rem;margin:1rem 0 1.5rem}#utterance{flex:1;min-width:0;min-height:3.25rem;max-height:11rem;resize:none;overflow-y:hidden;padding:.85rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--bg);color:var(--text);font:inherit;line-height:1.45}#composer-hint{font-size:.78rem;margin:-1rem 0 1rem;color:var(--muted)}button{padding:.75rem 1rem;border:1px solid var(--border);border-radius:.7rem;background:var(--panel-raised);color:var(--text);font:inherit;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}button:disabled,input:disabled,textarea:disabled{cursor:wait;opacity:.65}
 #answer{margin:0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#activity,#step-status{font-size:.85rem;margin:.35rem 0}.research-sources{font-size:.8rem;color:var(--muted);margin:.4rem 0 0}#conversation{display:flex;flex-direction:column;gap:.8rem;list-style:none;max-height:min(60vh,42rem);overflow-y:auto;padding:.25rem .35rem .5rem 0;margin:1.5rem 0 0;scroll-behavior:smooth}#conversation li{max-width:88%;padding:.7rem .9rem;border-radius:.85rem;white-space:pre-wrap;overflow-wrap:anywhere}#conversation li.owner-message{align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--panel))}#conversation li.aegis-message{align-self:flex-start;background:var(--panel-raised)}#conversation li.conversation-empty{max-width:none;color:var(--muted);text-align:center;border:1px dashed var(--border);background:transparent}
 .secondary{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem}.secondary>summary{font-weight:600;color:var(--muted);padding:.35rem 0}.state-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem}.secondary h2{font-size:.9rem;color:var(--muted);font-weight:600}#detail{border:1px solid var(--border);border-radius:.8rem;padding:1rem;min-height:2rem;background:var(--panel-raised)}#detail dl{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr;gap:.35rem .8rem}#detail dt{font-weight:600}#detail dd{margin:0}#nodes{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}.node{text-align:left;width:100%}.node[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 .15rem color-mix(in srgb,var(--accent) 25%,transparent)}
+.product-nav{display:flex;gap:.45rem;overflow-x:auto;padding:.15rem 0 1rem;margin-bottom:1rem}.product-nav button{white-space:nowrap;padding:.55rem .8rem}.product-nav button[aria-current="page"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
 @media(max-width:36rem){#chat{align-items:stretch;flex-direction:column}#chat button{width:100%}#conversation li{max-width:100%}}
 </style>
 <style>.status-badge{display:inline-flex;align-items:center;gap:.4rem;width:max-content;margin:.2rem 0 .35rem;padding:.3rem .65rem;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.78rem;font-weight:600}.status-badge[data-state="completed"]{border-color:#4f9b68;color:#9be2ae}.status-badge[data-state="blocked"],.status-badge[data-state="failed"]{border-color:#a56a6a;color:#f0b0b0}#detail:empty{display:none}</style>
 </head><body><div class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><div class="eyebrow">Personal intelligence</div><h1>AEGIS</h1></div></div><button id="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button></header>
+<nav class="product-nav" aria-label="AEGIS views">
+<button type="button" data-view="home" aria-current="page">Today</button>
+<button type="button" data-view="tasks">Tasks</button>
+<button type="button" data-view="calendar">Calendar</button>
+<button type="button" data-view="household">Household</button>
+<button type="button" data-view="systems">Systems</button>
+<button type="button" data-view="research">Research</button>
+<button type="button" data-view="packs">Packs</button>
+</nav>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
 <form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
@@ -165,7 +175,9 @@ let conversationContextCorrelationId = null;
 let selectedNode = null;
 let renderedNodeCards = new Map();
 let renderedNodeText = new Map();
+let renderedNodeViews = new Map();
 let renderedEdgeRows = [];
+let activeView = 'home';
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
@@ -416,6 +428,7 @@ function clearAuthorizedDisplays() {
   nodes.replaceChildren(); edges.replaceChildren();
   renderedNodeCards = new Map();
   renderedNodeText = new Map();
+  renderedNodeViews = new Map();
   renderedEdgeRows = [];
   authorizedProjectionLoaded = false;
   nodeFilter.value = '';
@@ -446,21 +459,32 @@ function applyNodeFilter() {
   const query = nodeFilter.value.trim().toLowerCase();
   let visibleCount = 0;
   renderedNodeCards.forEach((card, nodeId) => {
-    card.hidden = Boolean(query && !renderedNodeText.get(nodeId).includes(query));
+    const matchesView = activeView === 'home' || renderedNodeViews.get(nodeId)?.includes(activeView);
+    card.hidden = !matchesView || Boolean(query && !renderedNodeText.get(nodeId).includes(query));
     if (!card.hidden) visibleCount += 1;
   });
   renderedEdgeRows.forEach(({item, edge}) => {
-    const sourceMatches = !query || renderedNodeText.get(edge.source).includes(query);
-    const targetMatches = !query || renderedNodeText.get(edge.target).includes(query);
-    item.hidden = Boolean(query && !sourceMatches && !targetMatches);
+    item.hidden = renderedNodeCards.get(edge.source)?.hidden !== false
+      && renderedNodeCards.get(edge.target)?.hidden !== false;
   });
-  nodeFilterStatus.textContent = query
+  nodeFilterStatus.textContent = activeView === 'research'
+    ? 'Research is available through conversation; ask for current, sourced information.'
+    : query
     ? (visibleCount
       ? `Showing ${visibleCount} of ${renderedNodeCards.size} authorized nodes.`
       : `No authorized nodes match “${nodeFilter.value.trim()}”.`)
     : `${renderedNodeCards.size} authorized nodes.`;
 }
 nodeFilter.addEventListener('input', applyNodeFilter);
+document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
+  activeView = button.dataset.view || 'home';
+  document.querySelectorAll('[data-view]').forEach(item =>
+    item.setAttribute('aria-current', item === button ? 'page' : 'false'));
+  const input = document.getElementById('utterance');
+  input.placeholder = activeView === 'research' ? 'Ask for sourced research…' : 'Talk to AEGIS…';
+  if (activeView === 'research') input.focus();
+  applyNodeFilter();
+}));
 async function apiFetch(resource, options = {}) {
   const token = document.querySelector('meta[name="aegis-session-token"]')?.content;
   const headers = new Headers(options.headers || {});
@@ -516,6 +540,7 @@ async function loadState() {
   };
   renderedNodeCards = new Map();
   renderedNodeText = new Map();
+  renderedNodeViews = new Map();
   renderedEdgeRows = [];
   nodes.replaceChildren(...(state.nodes || []).map(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
@@ -526,6 +551,14 @@ async function loadState() {
     card.addEventListener('click', () => selectNode(node, card));
     nodeCards.set(node.id, card);
     renderedNodeText.set(node.id, `${node.label} ${node.detail || ''}`.toLowerCase());
+    const searchable = `${node.id} ${node.label} ${node.detail || ''} ${node.category || ''}`.toLowerCase();
+    const views = ['home'];
+    if (/task/.test(searchable)) views.push('tasks');
+    if (/event|calendar|appointment/.test(searchable)) views.push('calendar');
+    if (/household|chore|obligation|grocery|kitchen/.test(searchable)) views.push('household');
+    if (/homelab|network|infrastructure|system/.test(searchable)) views.push('systems');
+    if (node.id.startsWith('pack-')) views.push('packs');
+    renderedNodeViews.set(node.id, views);
     card.append(title, detail); return card;
   }));
   renderedNodeCards = nodeCards;
