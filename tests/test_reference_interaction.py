@@ -17,7 +17,7 @@ from aegis.contracts import (
     StructuralCoverageSignal,
     VerificationContract,
 )
-from aegis.household import GroceryReadFastPath, PostgresHouseholdStore
+from aegis.household import GroceryReadFastPath, HouseholdEvent, PostgresHouseholdStore
 from aegis.interaction_cognition import _structural_write_failure
 from aegis.interaction_context import (
     compact_context_evidence,
@@ -1136,6 +1136,29 @@ def test_contextual_event_focus_read_rechecks_event_id():
                         "title": event.title,
                     }
                 }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home", "events": (event,)},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
+
+
+def test_contextual_event_focus_read_accepts_natural_when_is_that_followup():
+    event = HouseholdEvent(
+        "event-1", "latest event", datetime(2026, 9, 10, 10, 0, tzinfo=timezone.utc)
+    )
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is that?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"event": {"event_id": event.event_id, "title": event.title}}
             },
             sources=("authorized_canonical_result",),
         ),
