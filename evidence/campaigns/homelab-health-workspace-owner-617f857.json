@@ -1,0 +1,26 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-homelab-health-workspace",
+  "source_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
+  "hosted_validation": {
+    "run_id": "33997667638",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "installed_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
+    "running_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
+    "postgresql": "preserved",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "objective_id": "53c4d775-4082-4b93-b514-1deb0c6005d6",
+    "correlation_id": "8212690f-dbea-4992-a4d6-aa45355cf2d4",
+    "workspace_id": "fd94f861-8270-50fe-a659-f53566e14c1d",
+    "files": ["health-report.html", "style.css"],
+    "proof": [
+      "owner request created a health report from authorized Homelab service observations",
+      "Core established expected file hashes before Workspace mutation",
+      "independent verifier reopened the Principal/objective-scoped Workspace and matched both files",
+      "Plex health remained unavailable truthfully; no restart or recovery was claimed"
+    ]
+  },
+  "result": "Homelab health observations compose into an independently verified scoped Workspace report."
+}
