@@ -1168,6 +1168,7 @@ def test_contextual_event_next_followup_accepts_leading_connective():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_next_referent"]["title"] == "next event"
+    assert reference_format_result(result) == result.message
 
 
 def test_contextual_event_next_followup_uses_compact_canonical_facts():
