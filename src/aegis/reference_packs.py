@@ -16,7 +16,13 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .calendar import calendar_events_evidence, configured_calendar_provider
-from .communications import FixtureCommunicationProvider, communications_evidence
+from .communications import (
+    CommunicationSendProvider,
+    FixtureCommunicationProvider,
+    OutboundMessage,
+    SendStatus,
+    communications_evidence,
+)
 from .compositions import document_to_workspace, research_to_workspace
 from .contracts import (
     ActionCard,
@@ -362,6 +368,23 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     summary="Read authorized messages without sending or mutating communications",
                     relevance=1,
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="communications.messages.send",
+                        capability="communications.messages.send",
+                        required_permissions=("communications.send",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Send an explicitly addressed message through an authorized provider",
+                    relevance=1,
+                    argument_keys=("target", "body", "channel", "account"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("target", "body", "channel", "account")
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -573,7 +596,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "calendar": ("calendar.read",),
-        "communications": ("communications.read",),
+        "communications": ("communications.read", "communications.send"),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
         "device-controls": ("devices.control",),
@@ -651,6 +674,75 @@ class CommunicationsVerifier:
             reason="communications readback is structurally valid"
             if verified
             else "communications read failed",
+        )
+
+
+class CommunicationsSendExecutor:
+    """Send an explicitly grounded message through a replaceable provider."""
+
+    def __init__(self, provider: CommunicationSendProvider) -> None:
+        self.provider = provider
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        target, body = args.get("target"), args.get("body")
+        channel, account = args.get("channel", "default"), args.get("account")
+        if not (
+            isinstance(target, str)
+            and target.strip()
+            and isinstance(body, str)
+            and body.strip()
+            and isinstance(channel, str)
+            and channel.strip()
+            and (account is None or isinstance(account, str))
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"communication_send": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        result = self.provider.send(
+            OutboundMessage(target=target, body=body, channel=channel, account=account),
+            request.idempotency_key,
+        )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "communication_send": {
+                    "status": result.status.value,
+                    "provider_message_id": result.provider_message_id,
+                    "detail": result.detail,
+                    "target": target,
+                    "channel": channel,
+                }
+            },
+            command_succeeded=result.status in {SendStatus.PROVIDER_ACCEPTED, SendStatus.DELIVERED},
+        )
+
+
+class CommunicationsSendVerifier:
+    """Verify provider response shape without upgrading acceptance to delivery."""
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("communication_send")
+        verified = (
+            observation.command_succeeded
+            and isinstance(evidence, dict)
+            and evidence.get("status")
+            in {SendStatus.PROVIDER_ACCEPTED.value, SendStatus.DELIVERED.value}
+            and isinstance(evidence.get("provider_message_id"), str)
+        )
+        status = evidence.get("status") if isinstance(evidence, dict) else None
+        return VerificationResult(
+            verified=verified,
+            evidence={"communication_send_status": status, "independent_delivery": False},
+            reason=(
+                "communication provider accepted the message; delivery is not independently proven"
+                if verified
+                else "communication provider did not accept the message"
+            ),
         )
 
 

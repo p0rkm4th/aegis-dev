@@ -64,7 +64,7 @@
     ,"communications read capability is deterministic-green through a generic Pack runtime; live owner request is correctly blocked while the Pack remains discovered"
     ,"authenticated owner Packs view exposes lifecycle, permissions, capabilities, actions, health, and explicit approval next steps without changing authority"
     ,"devices.states.list is deterministic-green through the existing HomeAssistantAdapter seam and completed a promoted owner readback through explicit Pack enablement; live HA acceptance remains pending"
-    ,"communications.messages.list completed a promoted owner readback after explicit owner-approved enablement; sending remains unavailable"
+    ,"communications.messages.list completed a promoted owner readback after explicit owner-approved enablement; sending is contract-green but live provider delivery remains unavailable"
     ,"bounded Home Assistant REST read provider is promoted with deterministic fixture fallback; live endpoint acceptance remains pending"
     ,"Calendar read completed after explicit owner approval; Documents Pack is enabled with its full declared permissions and currently has no authorized data"
     ,"Documents -> Workspace completed in the promoted owner runtime with canonical document-ID grounding, scoped artifact creation, readback verification, and persisted inventory"
@@ -76,6 +76,7 @@
     ,"device-controls Pack requires explicit owner approval and authorized entity scope; verifier performs separate provider state readback against Core expected state"
     ,"device-reports Pack composes authorized device reads with scoped Workspace writes; independent completion remains truthfully downgraded pending fixed-input staging"
     ,"installed owner proof on 812ce80 created and independently verified owner-proof.html, then created and independently verified index.html + style.css; restart preserved one workspace and no duplicate mutation"
+    ,"generic communications.messages.send is contract-green with explicit target/channel/account grounding, idempotent fixture acceptance, and truthful PROVIDER_ACCEPTED state; no OpenClaw outbound channel is configured for live delivery"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -102,7 +103,7 @@
     "calendar_write": "PARTIAL",
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
-    "communications_send": "PARTIAL",
+    "communications_send": "CONTRACT_GREEN",
     "research": "INSTALLED",
     "workspace_artifact": "VERIFIED_LIVE",
     "workspace_execute": "CONTRACT_GREEN",
