@@ -109,7 +109,7 @@ def test_deterministic_calendar_create_action_requires_explicit_times():
         principal=Principal(id="alice", vault_id="vault"),
         utterance=(
             "Create a calendar event titled Dinner from "
-            "2026-09-07T19:00:00+00:00 to 2026-09-07T20:00:00+00:00"
+            "2026-09-07T19:00:00+00:00 to 2026-09-07T20:00:00+00:00 at 7:00 pm"
         ),
     )
     card = _deterministic_composition_action(intent, manager, Context())
