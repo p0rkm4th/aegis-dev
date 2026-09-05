@@ -93,6 +93,23 @@ class ArgumentProvenance(StrictModel):
     default_contract: str | None = None
 
 
+class ArgumentGroundingRule(StrictModel):
+    """Pack-declared admissible provenance for one consequential argument."""
+
+    permitted_provenance: tuple[ArgumentProvenanceKind, ...] = Field(min_length=1)
+    canonical_source: str | None = None
+    approved_derivations: tuple[str, ...] = ()
+    approved_default: str | None = None
+
+
+class GroundingProposal(StrictModel):
+    """Pack proposal; Core still verifies its evidence independently."""
+
+    argument_key: str = Field(min_length=1)
+    proposed_value: Any
+    provenance: ArgumentProvenance
+
+
 class ActionSpec(StrictModel):
     action_id: str = Field(min_length=1)
     capability: str = Field(min_length=1)
@@ -108,6 +125,7 @@ class ActionCard(StrictModel):
     relevance: float = Field(ge=0, le=1)
     argument_keys: tuple[str, ...] = ()
     argument_descriptions: dict[str, str] = {}
+    argument_grounding: dict[str, ArgumentGroundingRule] = {}
     semantic_scope: str | None = None
 
 

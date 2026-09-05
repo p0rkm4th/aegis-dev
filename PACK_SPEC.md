@@ -17,3 +17,13 @@ Packs may optionally declare non-authoritative `ui` metadata in their manifest:
 labels and grouping, but they grant no permission, do not define canonical
 state, and cannot bypass Core policy or verification. A missing `ui` block is
 valid and falls back to a safe generated label.
+
+Consequential ActionCards may also declare `argument_grounding` rules. A Pack
+grounder may propose explicit utterance spans, authorized canonical references,
+approved deterministic derivation IDs, or a predeclared approved default for
+each argument. These remain proposals: Core independently verifies the value,
+current utterance, authorized context, declared rule, resolver ID, or default
+contract before authorization. Optional unstated arguments remain omitted.
+The same contract applies to ACTIONs and every PLAN step. Grounding never
+grants or caches authorization, execution, observation, verification, or
+completion.

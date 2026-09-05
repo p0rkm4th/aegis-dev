@@ -9,7 +9,7 @@ from typing import Any, Protocol
 from pydantic import BaseModel, ConfigDict, Field
 
 from .audit import AuditLog
-from .contracts import ActionCard
+from .contracts import ActionCard, ArgumentProvenanceKind
 from .registry import CapabilityEmbedder, CapabilityMatch, CapabilityRegistry
 
 
@@ -69,6 +69,23 @@ def validate_pack_bundle(bundle: PackBundle) -> None:
             raise ValueError("Action requires an undeclared Pack permission")
         if card.action.required_permissions and card.action.verification is None:
             raise ValueError("permissioned Pack actions require verification")
+        declared_arguments = set(card.argument_keys)
+        if not set(card.argument_grounding).issubset(declared_arguments):
+            raise ValueError("Pack grounding rules must name declared ActionCard arguments")
+        for key, rule in card.argument_grounding.items():
+            if (
+                ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT in rule.permitted_provenance
+                and not rule.canonical_source
+            ):
+                raise ValueError(f"grounding rule for {key} requires a canonical source")
+            if rule.approved_derivations and (
+                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION not in rule.permitted_provenance
+            ):
+                raise ValueError(f"grounding rule for {key} declares derivations it cannot use")
+            if rule.approved_default is not None and (
+                ArgumentProvenanceKind.APPROVED_DEFAULT not in rule.permitted_provenance
+            ):
+                raise ValueError(f"grounding rule for {key} declares an unpermitted default")
 
 
 class PendingPackUpgrade(BaseModel):

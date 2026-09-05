@@ -4,11 +4,13 @@ from uuid import uuid4
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
+    ArgumentGroundingRule,
     ArgumentProvenance,
     ArgumentProvenanceKind,
     Context,
     Decision,
     DecisionKind,
+    GroundingProposal,
     IntentFrame,
     ModelRequest,
     ModelResponse,
@@ -27,7 +29,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.decoding import StrictDecisionDecoder
-from aegis.interaction import _argument_provenance_error
+from aegis.interaction import _apply_grounding_proposals, _argument_provenance_error
 from aegis.interaction_cognition import (
     _repair_clarification,
     _scope_plan_by_capability,
@@ -35,6 +37,7 @@ from aegis.interaction_cognition import (
     decide_fallback,
 )
 from aegis.interaction_decisions import resolve_fallback_decision
+from aegis.pack_runtime import ActionRuntime, PackRuntimeRegistry
 
 
 def test_consequential_argument_provenance_accepts_explicit_and_rejects_invention() -> None:
@@ -71,6 +74,158 @@ def test_consequential_argument_provenance_requires_evidence_for_every_plan_step
 
     assert _argument_provenance_error(grounded, "add inspect the valve") is None
     assert _argument_provenance_error(ungrounded, "add inspect the valve") is not None
+
+
+def test_pack_grounding_rule_accepts_explicit_value_only_when_core_verifies_span() -> None:
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="thirdparty.light",
+            capability="thirdparty.light",
+            arguments={"level": 40},
+            argument_provenance={
+                "level": ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                    source_spans=((28, 30),),
+                )
+            },
+        ),
+        summary="Set light level",
+        relevance=1,
+        argument_keys=("level",),
+        argument_grounding={
+            "level": ArgumentGroundingRule(
+                permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+            )
+        },
+    )
+    utterance = "Set the test light level to 40"
+
+    assert _argument_provenance_error(card.action, utterance, card=card, context=Context()) is None
+    forged = card.model_copy(
+        update={
+            "action": card.action.model_copy(
+                update={
+                    "argument_provenance": {
+                        "level": ArgumentProvenance(
+                            kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                            source_spans=((28, 30),),
+                        )
+                    },
+                    "arguments": {"level": 41},
+                }
+            )
+        }
+    )
+    assert _argument_provenance_error(forged.action, utterance, card=forged) is not None
+
+
+def test_pack_grounding_rule_rejects_unapproved_derivation_and_forged_referent() -> None:
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="thirdparty.light",
+            capability="thirdparty.light",
+            arguments={"level": 40},
+            argument_provenance={
+                "level": ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                    source_spans=((28, 30),),
+                    derivation="lighting.unregistered.v1",
+                )
+            },
+        ),
+        summary="Set light level",
+        relevance=1,
+        argument_keys=("level",),
+        argument_grounding={
+            "level": ArgumentGroundingRule(
+                permitted_provenance=(
+                    ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                    ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                ),
+                canonical_source="thirdparty.light.state",
+                approved_derivations=("lighting.approved.v1",),
+            )
+        },
+    )
+    assert "unapproved deterministic" in (
+        _argument_provenance_error(card.action, "Set the test light level to 40", card=card) or ""
+    )
+    forged = card.model_copy(
+        update={
+            "action": card.action.model_copy(
+                update={
+                    "argument_provenance": {
+                        "level": ArgumentProvenance(
+                            kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                            canonical_ref="light-not-in-context",
+                        )
+                    }
+                }
+            )
+        }
+    )
+    assert "unavailable canonical" in (
+        _argument_provenance_error(forged.action, card=forged, context=Context()) or ""
+    )
+
+
+def test_unknown_pack_runtime_returns_typed_evidence_for_action_and_plan_contract() -> None:
+    utterance = "Set the test light level to 40"
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="thirdparty.light.set_level",
+            capability="thirdparty.light.set_level",
+            arguments={"level": 40},
+        ),
+        summary="Set a test light level",
+        relevance=1,
+        argument_keys=("level",),
+        argument_grounding={
+            "level": ArgumentGroundingRule(
+                permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+            )
+        },
+    )
+
+    def ground(_intent, proposed, _connection, _context):
+        return GroundingProposal(
+            argument_key="level",
+            proposed_value=proposed.action.arguments["level"],
+            provenance=ArgumentProvenance(
+                kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                source_spans=((28, 30),),
+            ),
+        )
+
+    registry = PackRuntimeRegistry()
+    registry.register(
+        card.action.action_id,
+        lambda _connection, _principal: ActionRuntime(
+            executor=object(), verifier=object(), permissions={}, grounder=ground
+        ),
+    )
+    runtime = registry.resolve(card, object(), Principal(id="alice", vault_id="vault"))
+    proposal = runtime.grounder(
+        IntentFrame(principal=Principal(id="alice", vault_id="vault"), utterance=utterance),
+        card,
+        object(),
+        Context(),
+    )
+    grounded = _apply_grounding_proposals(card, proposal)
+
+    assert (
+        _argument_provenance_error(grounded.action, utterance, card=grounded, context=Context())
+        is None
+    )
+    # The identical typed seam is used per plan step; a Pack cannot launder a
+    # fabricated value by returning evidence for a different proposal.
+    forged = proposal.model_copy(update={"proposed_value": 41})
+    try:
+        _apply_grounding_proposals(card, forged)
+    except ValueError as exc:
+        assert "changes argument" in str(exc)
+    else:
+        raise AssertionError("Pack evidence must not change the proposed value")
 
 
 def test_clarification_proposal_gets_bounded_repair_before_returning_blocked() -> None:
