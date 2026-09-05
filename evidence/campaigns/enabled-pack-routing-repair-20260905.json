@@ -1,0 +1,9 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "enabled-pack-routing-repair",
+  "source": "working-tree",
+  "problem": "An explicitly enabled Communications Pack remained unreachable because reference retrieval only routed legacy task/food markers.",
+  "repair": "Bounded lexical Pack routing now covers communications, documents, calendar, and devices before semantic retrieval.",
+  "safety": "Routing retrieves only cards from the lifecycle-enabled PackManager; it does not enable Packs or grant permissions.",
+  "deterministic_tests": "809 passed, 5 skipped"
+}

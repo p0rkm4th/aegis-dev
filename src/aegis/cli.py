@@ -1078,7 +1078,20 @@ def run_interaction(
             )
 
     def retrieve_reference_capabilities(query: str, manager: Any) -> tuple[ActionCard, ...]:
-        if is_task_destination_request(query):
+        query_text = query.casefold()
+        bounded_pack_markers = (
+            "calendar",
+            "appointment",
+            "message",
+            "communication",
+            "document",
+            "file",
+            "device",
+            "entity",
+        )
+        if is_task_destination_request(query) or any(
+            marker in query_text for marker in bounded_pack_markers
+        ):
             return reference_fallback_cards(manager, query)
         return cast(
             tuple[ActionCard, ...],
