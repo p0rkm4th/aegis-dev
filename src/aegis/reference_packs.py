@@ -97,6 +97,18 @@ def prepare_reference_action(
                     f"# Draft message\n\nTo: {recipient}\nSubject: {subject}\n\n{body}\n"
                 )
             }
+    elif action.action_id == "communications.messages.send":
+        if args.get("body_source") == "canonical.groceries" and connection is not None:
+            items = PostgresHouseholdStore(connection).list_groceries(principal)
+            body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
+            return action.model_copy(
+                update={
+                    "arguments": {
+                        **args,
+                        "body": body,
+                    }
+                }
+            )
     elif action.action_id == "calendar.events.create":
         title, starts_at, ends_at = (
             args.get("title"),
@@ -545,12 +557,20 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Send an explicitly addressed message through an authorized provider",
                     relevance=1,
-                    argument_keys=("target", "body", "channel", "account"),
+                    argument_keys=("target", "body", "channel", "account", "body_source"),
                     argument_grounding={
                         key: ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                         for key in ("target", "body", "channel", "account")
+                    }
+                    | {
+                        "body_source": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
+                            approved_derivations=(
+                                "reference.communication_body_from_groceries.v1",
+                            ),
+                        )
                     },
                 ),
             ),

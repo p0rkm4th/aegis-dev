@@ -1153,6 +1153,28 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    grocery_send = re.fullmatch(
+        r"(?:send|text) my grocery list to (?P<target>.+?) via (?P<channel>[a-z0-9_.-]+) "
+        r"account (?P<account>[a-z0-9_.-]+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if grocery_send is not None:
+        card = manager.action_card("communications", "communications.messages.send")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            **grocery_send.groupdict(),
+                            "body_source": "canonical.groceries",
+                        }
+                    }
+                )
+            }
+        )
     if send is not None:
         card = manager.action_card("communications", "communications.messages.send")
         if card is None:
