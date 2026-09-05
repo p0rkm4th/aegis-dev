@@ -535,6 +535,7 @@ class DomainClarificationFastPath:
         "left",
         "still need",
         "take care of",
+        "pending",
     )
     _COLLECTION_READ_PREFIXES = (
         "what",
