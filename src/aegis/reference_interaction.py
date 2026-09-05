@@ -2125,7 +2125,15 @@ def resolve_contextual_obligation_focus_read(
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
-    if text not in {"is it settled", "is that settled", "has it been settled", "was it settled"}:
+    if text not in {
+        "is it settled",
+        "is that settled",
+        "has it been settled",
+        "was it settled",
+        "who is responsible",
+        "who is responsible for it",
+        "who handles it",
+    }:
         return None
     facts = context.values.get("canonical_facts")
     focus = facts.get("obligation") if isinstance(facts, dict) else None
@@ -2155,11 +2163,15 @@ def resolve_contextual_obligation_focus_read(
             correlation_id=intent.correlation_id,
         )
     obligation = matches[0]
-    state = "settled" if obligation.settled else "unsettled"
+    if text in {"who is responsible", "who is responsible for it", "who handles it"}:
+        message = f"Obligation: {obligation.title} is assigned to {obligation.responsible_id}"
+    else:
+        state = "settled" if obligation.settled else "unsettled"
+        message = f"Obligation: {obligation.title} is {state} ({obligation.responsible_id})"
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
-        message=f"Obligation: {obligation.title} is {state} ({obligation.responsible_id})",
+        message=message,
         evidence={
             "collection": "canonical_obligations",
             "authorized_obligation_focus": {
