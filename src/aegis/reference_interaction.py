@@ -1903,6 +1903,7 @@ def resolve_contextual_event_priority_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
     latest = text in {"which event is latest", "what event is latest", "which one is latest"}
     earliest = text in {
         "which event is earliest",
