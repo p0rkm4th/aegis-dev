@@ -774,6 +774,21 @@ def _deterministic_composition_action(
                 )
             }
         )
+    calendar_create = re.fullmatch(
+        r"create a calendar event titled (?P<title>.+?) from "
+        r"(?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_create is not None:
+        card = manager.action_card("calendar", "calendar.events.create")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": calendar_create.groupdict()})
+            }
+        )
     report_paths = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", folded)
     if (
         report_paths

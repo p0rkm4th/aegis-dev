@@ -719,6 +719,32 @@ async function loadCalendar() {
       ? `${events.length} authorized calendar event(s)`
       : 'No authorized calendar events are currently visible.';
     panel.append(heading);
+    const form = document.createElement('form');
+    form.setAttribute('aria-label', 'Create calendar event');
+    const title = document.createElement('input');
+    title.type = 'text'; title.required = true; title.placeholder = 'Event title';
+    title.setAttribute('aria-label', 'Event title');
+    const starts = document.createElement('input');
+    starts.type = 'datetime-local'; starts.required = true;
+    starts.setAttribute('aria-label', 'Event start');
+    const ends = document.createElement('input');
+    ends.type = 'datetime-local'; ends.required = true;
+    ends.setAttribute('aria-label', 'Event end');
+    const submit = document.createElement('button');
+    submit.type = 'submit'; submit.textContent = 'Create event';
+    form.append(title, starts, ends, submit);
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const start = new Date(starts.value);
+      const end = new Date(ends.value);
+      if (!title.value.trim() || Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf()) || end <= start) {
+        return;
+      }
+      document.getElementById('utterance').value =
+        `Create a calendar event titled ${title.value.trim()} from ${start.toISOString()} to ${end.toISOString()}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    panel.append(form);
     panel.append(renderDetailValue(events));
   } catch (_) {
     panel.textContent = 'Calendar state is unavailable; no event state was changed.';
