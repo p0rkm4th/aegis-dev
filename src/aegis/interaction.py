@@ -121,7 +121,10 @@ def _argument_provenance_error(
             if (
                 rule is not None
                 and context is not None
-                and not _context_contains_canonical_ref(context.values, evidence.canonical_ref)
+                and (
+                    context.sources != ("authorized_canonical_result",)
+                    or not _context_contains_canonical_ref(context.values, evidence.canonical_ref)
+                )
             ):
                 return f"argument {key!r} references unavailable canonical evidence"
         elif evidence.kind is ArgumentProvenanceKind.DETERMINISTIC_DERIVATION:
