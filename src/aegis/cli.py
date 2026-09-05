@@ -540,6 +540,22 @@ class _InventoryOnlyHomelabRuntime:
         return False
 
 
+def _service_health(endpoint: str) -> str:
+    """Perform a bounded read-only health observation for canonical service data."""
+
+    parsed = urlsplit(endpoint)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return "invalid_endpoint"
+    try:
+        with urllib.request.urlopen(endpoint, timeout=2.0) as response:
+            response.read(4_096)
+            return "healthy" if response.status == 200 else f"http_{response.status}"
+    except urllib.error.HTTPError as exc:
+        return f"http_{exc.code}"
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return "unavailable"
+
+
 def _systems_state(principal: Principal) -> dict[str, Any]:
     """Expose authorized Homelab and Network inventory without action authority."""
 
@@ -565,6 +581,9 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                     "host_id": service.host_id,
                     "name": service.name,
                     "health_endpoint_configured": bool(service.health_endpoint),
+                    "health": _service_health(service.health_endpoint)
+                    if service.health_endpoint
+                    else "not_configured",
                 }
                 for service in homelab.services.values()
             ],
