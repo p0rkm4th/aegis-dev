@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from time import monotonic
 from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -97,6 +98,7 @@ class OllamaProvider:
         self.action_ref_only = action_ref_only
         self.recovery_events: list[dict[str, Any]] = []
         self.request_mode_counts: dict[str, int] = {}
+        self.last_response_metrics: dict[str, Any] = {}
 
     def available(self) -> bool:
         return True
@@ -115,6 +117,8 @@ class OllamaProvider:
         )
         self.request_mode_counts[mode] = self.request_mode_counts.get(mode, 0) + 1
         prompt = self._prompt(request)
+        started = monotonic()
+        model_calls = 0
         for attempt in range(self.max_repairs + 1):
             payload = {
                 "model": self.model,
@@ -125,9 +129,16 @@ class OllamaProvider:
                 "messages": [{"role": "user", "content": prompt}],
             }
             response = self.transport.chat(payload)
+            model_calls += 1
             try:
                 content = response["message"]["content"]
-                return ModelResponse(raw=json.loads(content))
+                self.last_response_metrics = {
+                    "model_calls": model_calls,
+                    "latency_ms": (monotonic() - started) * 1000,
+                    "prompt_tokens": response.get("prompt_eval_count"),
+                    "output_tokens": response.get("eval_count"),
+                }
+                return ModelResponse(raw=json.loads(content), **self.last_response_metrics)
             except (KeyError, TypeError, json.JSONDecodeError) as exc:
                 if attempt >= self.max_repairs:
                     raise OllamaResponseError("Ollama did not return valid JSON") from exc

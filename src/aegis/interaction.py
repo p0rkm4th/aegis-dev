@@ -12,6 +12,7 @@ from .audit import PostgresAuditLog
 from .capability_retrieval import retrieve_action_cards
 from .contracts import (
     ActionCard,
+    ArgumentProvenanceKind,
     Context,
     Decision,
     DecisionKind,
@@ -49,6 +50,29 @@ from .utterance import strip_context_reset
 
 class InteractionInputError(ValueError):
     """A safe, actionable request-shape error from a client-facing selector."""
+
+
+def _argument_provenance_error(action: Any) -> str | None:
+    """Reject consequential arguments without Core-admissible provenance."""
+
+    provenance = getattr(action, "argument_provenance", {})
+    for key in action.arguments:
+        evidence = provenance.get(key)
+        if evidence is None:
+            return f"argument {key!r} has no admissible provenance"
+        if evidence.kind is ArgumentProvenanceKind.EXPLICIT_UTTERANCE:
+            if not evidence.source_spans:
+                return f"argument {key!r} lacks utterance evidence"
+        elif evidence.kind is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT:
+            if not evidence.canonical_ref:
+                return f"argument {key!r} lacks a canonical referent"
+        elif evidence.kind is ArgumentProvenanceKind.DETERMINISTIC_DERIVATION:
+            if not evidence.source_spans or not evidence.derivation:
+                return f"argument {key!r} lacks deterministic derivation evidence"
+        elif evidence.kind is ArgumentProvenanceKind.APPROVED_DEFAULT:
+            if not evidence.default_contract:
+                return f"argument {key!r} lacks an approved default contract"
+    return None
 
 
 def _authorized_context_evidence(context: Context) -> dict[str, Any]:
@@ -199,6 +223,18 @@ class InteractionBoundary:
                 )
                 if isinstance(grounded, Result):
                     return grounded
+                provenance_error = _argument_provenance_error(grounded.action)
+                if provenance_error is not None:
+                    return Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message=(
+                            "I could not safely establish where a consequential plan "
+                            f"argument came from ({provenance_error})."
+                        ),
+                        evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                        correlation_id=intent.correlation_id,
+                    )
                 # A plan step owns only the arguments it proposed.  The shared
                 # utterance may contain details for a neighboring step (for
                 # example, an event date); allowing the domain grounder to add
@@ -461,6 +497,20 @@ class InteractionBoundary:
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
                 card = grounded
+            provenance_error = _argument_provenance_error(card.action)
+            if provenance_error is not None:
+                return persist_fast_result(
+                    Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message=(
+                            "I could not safely establish where a consequential argument "
+                            f"came from ({provenance_error})."
+                        ),
+                        evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                        correlation_id=intent.correlation_id,
+                    )
+                )
             try:
                 if self.dependencies.runtime_registry is not None:
                     runtime = self.dependencies.runtime_registry.resolve(

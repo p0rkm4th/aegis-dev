@@ -20,6 +20,8 @@ from .audit import PostgresAuditLog
 from .contracts import (
     ActionCard,
     ActionSpec,
+    ArgumentProvenance,
+    ArgumentProvenanceKind,
     Context,
     Decision,
     DecisionKind,
@@ -110,6 +112,155 @@ def _event_time_is_explicit(utterance: str) -> bool:
             r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b)",
             text,
         )
+    )
+
+
+def _utterance_spans(utterance: str, value: object) -> tuple[tuple[int, int], ...]:
+    """Return bounded exact spans for a textual argument value."""
+
+    if not isinstance(value, str) or not value.strip():
+        return ()
+    match = re.search(re.escape(value.strip()), utterance, flags=re.IGNORECASE)
+    return (match.span(),) if match is not None else ()
+
+
+def _ground_argument_provenance(
+    intent: IntentFrame, card: ActionCard, context: Context | None = None
+) -> ActionCard | Result:
+    """Attach typed evidence to reference-Pack arguments before Core execution."""
+
+    provenance: dict[str, ArgumentProvenance] = {}
+    for key, value in card.action.arguments.items():
+        if key.endswith("_id"):
+            if not isinstance(value, str) or not value.strip():
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely ground that canonical target.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                canonical_ref=value,
+            )
+            continue
+        if key.endswith("_at"):
+            if not isinstance(value, str):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I need a clear date or time for that consequential action.",
+                    evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                    correlation_id=intent.correlation_id,
+                )
+            try:
+                proposed_temporal = datetime.fromisoformat(value)
+            except ValueError:
+                proposed_temporal = None
+            clock = re.search(
+                r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b",
+                intent.utterance,
+                flags=re.IGNORECASE,
+            )
+            if proposed_temporal is None or (
+                key == "starts_at"
+                and clock is None
+                and proposed_temporal.time() != datetime.min.time()
+            ):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely ground the requested date or time.",
+                    evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                    correlation_id=intent.correlation_id,
+                )
+            if key == "starts_at" and clock is not None:
+                hour = int(clock.group(1)) % 12
+                if clock.group(3).casefold() == "pm":
+                    hour += 12
+                minute = int(clock.group(2) or 0)
+                if (proposed_temporal.hour, proposed_temporal.minute) != (hour, minute):
+                    return Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.BLOCKED,
+                        message="I could not safely ground the requested date or time.",
+                        evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                        correlation_id=intent.correlation_id,
+                    )
+            spans = tuple(
+                match.span()
+                for match in re.finditer(
+                    r"\b(?:today|tomorrow|tonight|morning|afternoon|evening|noon|midnight|"
+                    r"monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+week|"
+                    r"\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{4}-\d{2}-\d{2})\b",
+                    intent.utterance,
+                    flags=re.IGNORECASE,
+                )
+            )
+            if not spans:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I need an explicit date or time for that consequential action.",
+                    evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                source_spans=spans[:5],
+                derivation="reference.temporal_grounding.v1",
+            )
+            continue
+        spans = _utterance_spans(intent.utterance, value)
+        if not spans:
+            canonical_ref: str | None = None
+            if key in {"title", "item", "content"} and context is not None:
+                for identity_key in ("task_id", "chore_id", "event_id", "memory_id"):
+                    identity = card.action.arguments.get(identity_key)
+                    if isinstance(identity, str) and identity.strip():
+                        canonical_ref = identity
+                        break
+                referents = context.values.get("referents")
+                candidates = (
+                    referents.get("those", {}).get("candidates", [])
+                    if isinstance(referents, dict)
+                    else []
+                )
+                matches = [
+                    candidate
+                    for candidate in candidates
+                    if isinstance(candidate, dict)
+                    and candidate.get(key, candidate.get("title")) == value
+                ]
+                if len(matches) == 1:
+                    candidate = matches[0]
+                    canonical_ref = next(
+                        (
+                            str(candidate[field])
+                            for field in ("task_id", "chore_id", "event_id", "memory_id")
+                            if candidate.get(field)
+                        ),
+                        str(value),
+                    )
+            if canonical_ref is not None:
+                provenance[key] = ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                    canonical_ref=canonical_ref,
+                )
+                continue
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="I could not safely ground a consequential argument in your request.",
+                evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                correlation_id=intent.correlation_id,
+            )
+        provenance[key] = ArgumentProvenance(
+            kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+            source_spans=spans,
+        )
+    return card.model_copy(
+        update={"action": card.action.model_copy(update={"argument_provenance": provenance})}
     )
 
 
@@ -1741,7 +1892,7 @@ def ground_reference_action(
             update={"action": card.action.model_copy(update={"arguments": arguments})}
         )
 
-    return card
+    return _ground_argument_provenance(intent, card, context)
 
 
 def ground_reference_action_runtime(

@@ -5,6 +5,7 @@ from uuid import uuid4
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
+    ArgumentProvenanceKind,
     Context,
     Decision,
     DecisionKind,
@@ -781,6 +782,41 @@ def test_reference_event_grounding_blocks_missing_user_supplied_time() -> None:
     assert "date and time" in result.message.lower()
 
 
+def test_reference_event_grounding_rejects_model_invented_clock_time() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="schedule the review tomorrow",
+    )
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="tasks.events.create",
+            capability="tasks.events.create",
+            arguments={"title": "review", "starts_at": "2026-09-05T15:00:00+00:00"},
+            required_permissions=("tasks.write",),
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Schedule an event",
+        relevance=1,
+        argument_keys=("title", "starts_at"),
+    )
+
+    result = ground_reference_action(
+        intent,
+        card,
+        task_store=object(),
+        household_store=cast(PostgresHouseholdStore, object()),
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+    )
+
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["failure"] == "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"
+
+
 def test_reference_action_grounding_blocks_unknown_completion_target() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
@@ -1294,6 +1330,10 @@ def test_grounding_uses_current_canonical_task_for_authorized_ordinal() -> None:
 
     assert isinstance(grounded, ActionCard)
     assert grounded.action.arguments["title"] == "buy milk"
+    assert (
+        grounded.action.argument_provenance["title"].kind
+        is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT
+    )
 
 
 def test_grounding_uses_authorized_task_id_when_titles_are_duplicated() -> None:
@@ -1362,6 +1402,10 @@ def test_grounding_uses_authorized_task_id_when_titles_are_duplicated() -> None:
         "title": "review restore drill",
         "task_id": str(first_id),
     }
+    assert (
+        grounded.action.argument_provenance["task_id"].kind
+        is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT
+    )
 
 
 def test_clarification_for_authorized_ordinal_becomes_bounded_completion_action() -> None:

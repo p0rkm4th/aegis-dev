@@ -273,6 +273,27 @@ def test_repair_event_record_preserves_legacy_and_rich_telemetry() -> None:
     assert record["result_kind"] == "INVALID_ARGUMENT"
     assert record["validator_stage"] == "requested_effect_structural_coverage"
     assert record["attempt"] == 1
+    assert record["model_calls"] == 0
+    assert record["latency_ms"] is None
+
+
+def test_bounded_repair_event_captures_provider_telemetry() -> None:
+    failure = ProposalFailureEvidence(kind=ProposalFailureKind.MISSING_EFFECT)
+    metrics = {"model_calls": 1, "latency_ms": 12.5, "prompt_tokens": 40, "output_tokens": 8}
+    result = bounded_proposal_repair(
+        "p0",
+        failure,
+        lambda _value, _failure: ("p1", failure),
+        lambda _value: ValidationResult(
+            valid=False, failure=ProposalFailureEvidence(kind=ProposalFailureKind.INVALID_ARGUMENT)
+        ),
+        validator_stage="test",
+        max_attempts=1,
+        telemetry=lambda: metrics,
+    )
+
+    event = proposal_repair_event_record(result.events[0])
+    assert {key: event[key] for key in metrics} == metrics
 
 
 def test_decoder_repair_preserves_failed_proposal_for_second_attempt() -> None:
