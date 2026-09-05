@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
+  "state_basis_sha": "8880af04509cd6754d331f342654b23dc6c04718",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
-  "deterministic_green_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
-  "last_pushed_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
-  "hosted_green_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
-  "hosted_ci_green_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
+  "repository_head_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "deterministic_green_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "last_pushed_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "hosted_green_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "hosted_ci_green_sha": "8880af04509cd6754d331f342654b23dc6c04718",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
+    "commit_sha": "8880af04509cd6754d331f342654b23dc6c04718",
     "conclusion": "success",
-    "run_id": "33968327529",
+    "run_id": "33968788512",
     "observed_at": "2026-09-05T14:27:00Z"
   },
-  "installed_release_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
-  "running_release_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
-  "live_green_sha": "96b247a1269ccb72aea47b9e6052ab8866a7f032",
+  "installed_release_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "running_release_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "live_green_sha": "8880af04509cd6754d331f342654b23dc6c04718",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-obligation-amount",
+  "active_checkpoint": "daily-driver-chore-assignee",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "obligation-amount",
+  "current_checkpoint": "chore-assignee",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on 96b247a resolved unsettled obligation collection → ordinal referent → 'How much is it?' against canonical obligation amount, distinct from grocery quantity; no mutation occurred.",
+  "daily_driver_checkpoint": "Installed-owner proof on 8880af0 resolved open chore collection → ordinal referent → 'Who is assigned?' against the revalidated canonical chore assignee; no mutation occurred.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -63,6 +63,6 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "next_action": "Refresh origin/aegis-dev and select the next distinct owner-visible daily-driver continuity gap. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
-  "history_artifact": "evidence/campaigns/daily-driver-obligation-amount-96b247a.json",
+  "history_artifact": "evidence/campaigns/daily-driver-chore-assignee-8880af0.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
