@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-polite-calendar-read",
+  "source_sha": "7945fd5fb4dc44187bdec970576cdf4c907c5420",
+  "hosted_validation": {"run_id": "33973507540", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "7945fd5fb4dc44187bdec970576cdf4c907c5420",
+    "running_sha": "7945fd5fb4dc44187bdec970576cdf4c907c5420",
+    "postgresql": "preserved",
+    "proof": [
+      "Can you tell me about my calendar? -> canonical Events collection",
+      "Could you tell me about my calendar? -> canonical Events collection",
+      "Please tell me about my calendar? -> canonical Events collection"
+    ],
+    "mutation": "none"
+  },
+  "result": "Polite calendar reads no longer fall into cognition or falsely report that scheduled events are absent."
+}
