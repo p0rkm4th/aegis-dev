@@ -1115,6 +1115,9 @@ def resolve_reference_fast_paths(
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     snapshot = household_store.read_snapshot(principal)
+    repeat_result = resolve_contextual_repeat_read(intent, context, household_store)
+    if repeat_result is not None:
+        return repeat_result
     # Priority language such as "which one is latest" is a semantic event
     # read when the immediately authorized collection is events. Resolve it
     # before the generic ordinal guard, which cannot identify the domain.
@@ -1754,6 +1757,25 @@ def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Resul
         message="Canonical collection read",
         evidence={"collection": fact_key, **evidence},
         correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_repeat_read(
+    intent: IntentFrame, context: Context, store: PostgresHouseholdStore
+) -> Result | None:
+    """Repeat an authorized grocery collection read against current state."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    if re.fullmatch(r"(?:show(?: me)?|list|give me) (?:the )?(?:list|it) again", text) is None:
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+        return None
+    return GroceryReadFastPath(store).resolve(
+        intent.model_copy(update={"utterance": "What groceries do we need?"})
     )
 
 
