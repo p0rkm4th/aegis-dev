@@ -942,6 +942,29 @@ def test_contextual_event_next_followup_uses_authorized_future_event():
     assert result.evidence["authorized_next_referent"]["title"] == "next event"
 
 
+def test_contextual_event_next_followup_uses_compact_canonical_facts():
+    future = (datetime.now(timezone.utc) + timedelta(days=1)).replace(microsecond=0)
+    result = resolve_contextual_event_next_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is the next one?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "events": [{"title": "future event", "starts_at": future.isoformat()}]
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home"},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_next_referent"]["title"] == "future event"
+
+
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 

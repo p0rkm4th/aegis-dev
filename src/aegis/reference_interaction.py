@@ -1770,9 +1770,11 @@ def resolve_contextual_event_next_read(
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
-    if not isinstance(those, dict) or those.get("fact_key") != "events":
-        return None
-    candidates = those.get("candidates")
+    if isinstance(those, dict) and those.get("fact_key") == "events":
+        candidates = those.get("candidates")
+    else:
+        facts = context.values.get("canonical_facts")
+        candidates = facts.get("events") if isinstance(facts, dict) else None
     if not isinstance(candidates, list):
         return None
     now = datetime.now(timezone.utc)
