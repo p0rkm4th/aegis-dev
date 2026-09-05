@@ -437,6 +437,9 @@ class HouseholdReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = strip_correction_prefix(utterance).casefold()
+        # Preserve an explicit event/household topic when it is introduced as
+        # a conversational continuation after another authorized domain.
+        text = re.sub(r"^(?:and|but)\s+", "", text)
         if is_mutation_request(text):
             return False
         collection_correction = is_correction_request(utterance) and text.strip(".!?") in {
