@@ -62,6 +62,35 @@ def test_deterministic_research_workspace_action_requires_enabled_pack():
     assert card.action.arguments["target_path"] == "notes.md"
 
 
+def test_deterministic_communication_draft_action_preserves_explicit_arguments():
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "communication-drafts"
+    )
+    manager.discover(bundle)
+    permissions = frozenset(bundle.manifest.permissions)
+    manager.install("communication-drafts", permissions)
+    manager.enable("communication-drafts")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=(
+            "Draft a message to Maya with subject Weekend plan saying "
+            "We should meet Saturday, save it as drafts/weekend-plan.md"
+        ),
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "communication-drafts.messages.draft"
+    assert card.action.arguments == {
+        "recipient": "Maya",
+        "subject": "Weekend plan",
+        "body": "We should meet Saturday",
+        "target_path": "drafts/weekend-plan.md",
+    }
+
+
 def test_bounded_model_fallback_accepts_non_authoritative_answer():
     from aegis.interaction import InteractionBoundary
 
