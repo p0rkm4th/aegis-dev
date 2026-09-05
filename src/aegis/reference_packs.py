@@ -248,12 +248,15 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Create files in a bounded owner-scoped workspace and verify them",
                     relevance=1,
-                    argument_keys=("path", "content"),
+                    argument_keys=("path", "content", "files"),
                     argument_grounding={
                         "path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
                         "content": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "files": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
                     },
@@ -310,7 +313,26 @@ class WorkspaceArtifactExecutor:
     def execute(self, request: ExecutionRequest) -> Observation:
         args = request.action.arguments
         path, content = args.get("path"), args.get("content")
-        if not isinstance(path, str) or not isinstance(content, str):
+        files = args.get("files")
+        if files is not None:
+            if (
+                not isinstance(files, dict)
+                or not files
+                or len(files) > 50
+                or any(
+                    not isinstance(item, str) or not isinstance(value, str)
+                    for item, value in files.items()
+                )
+            ):
+                return Observation(
+                    execution_id=uuid4(),
+                    evidence={"workspace": "invalid_arguments"},
+                    command_succeeded=False,
+                )
+            artifact_files = files
+        elif isinstance(path, str) and isinstance(content, str):
+            artifact_files = {path: content}
+        else:
             return Observation(
                 execution_id=uuid4(),
                 evidence={"workspace": "invalid_arguments"},
@@ -320,9 +342,13 @@ class WorkspaceArtifactExecutor:
         workspace = WorkspaceManager(root).for_objective(self.principal.id, request.objective_id)
         try:
             artifact = workspace.write_artifact(
-                {path: content},
+                artifact_files,
                 request.action_id,
-                lambda current: None if current.read(path) == content else "readback mismatch",
+                lambda current: (
+                    None
+                    if all(current.read(item) == value for item, value in artifact_files.items())
+                    else "readback mismatch"
+                ),
             )
         except (ValueError, OSError) as exc:
             return Observation(

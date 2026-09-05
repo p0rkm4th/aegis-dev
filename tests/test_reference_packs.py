@@ -41,3 +41,25 @@ def test_workspace_pack_uses_generic_runtime_and_readback(tmp_path, monkeypatch)
     )
     assert observation.command_succeeded is True
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_workspace_pack_verifies_a_multi_file_artifact(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "workspace.artifact.create"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    files = {"index.html": "<link rel=stylesheet href=style.css>", "style.css": "body{}"}
+    action = card.action.model_copy(update={"arguments": {"files": files}})
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="artifact-2"
+        )
+    )
+    assert observation.command_succeeded is True
+    assert observation.evidence["files"] == ["index.html", "style.css"]
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True

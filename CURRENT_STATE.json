@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "state_basis_sha": "d766949624bf04b116abb1bee2a39c003b49bde5",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "repository_head_sha": "d766949624bf04b116abb1bee2a39c003b49bde5",
   "deterministic_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "last_pushed_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
@@ -19,9 +19,9 @@
   "running_release_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "live_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "owner-workspace-action-proof",
+  "active_checkpoint": "breadth-expansion-reconciled",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-workspace-action-proof",
+  "current_checkpoint": "breadth-expansion-reconciled",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -78,10 +78,10 @@
     "cross_domain_compositions": 0,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 1,
+    "owner_workflows_completed": 2,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Run a real-model owner ACTION proof for workspace.artifact.create through normal grounding/authorization/execution/verification, then add the next distinct capability family.",
+  "next_action": "Promote Research into a reusable owner-visible surface, then add the next distinct capability family while extending Constellation from actual Pack metadata.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
