@@ -332,7 +332,7 @@ def context_from_prior_result(
         candidates = raw_evidence.get(fact_key)
         if fact_key == "canonical_chores" and not isinstance(candidates, list):
             candidates = raw_evidence.get("chores")
-        if isinstance(candidates, list) and candidates:
+        if isinstance(candidates, list):
             if fact_key == "canonical_items":
                 candidates = list(dict.fromkeys(str(item) for item in candidates if str(item)))
             selected = candidates[:_MAX_CONTEXT_CANDIDATES]
