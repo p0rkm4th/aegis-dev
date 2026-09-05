@@ -71,6 +71,15 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "surfaces": ("Systems", "Workspace"),
             "authority": "Homelab read + scoped workspace write; Core authorization required",
         },
+        {
+            "id": "homelab-health-to-workspace",
+            "label": "Homelab health → Workspace",
+            "description": (
+                "Preserve bounded service health observations in a verified scoped report."
+            ),
+            "surfaces": ("Systems", "Workspace"),
+            "authority": "Homelab health read + scoped workspace write; no restart authority",
+        },
     )
 
 
