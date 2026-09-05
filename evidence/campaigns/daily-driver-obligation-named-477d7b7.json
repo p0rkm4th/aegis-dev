@@ -1,0 +1,8 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-obligation-named",
+  "source_sha": "477d7b775e19fc7ab08a61840e07361e301d2735",
+  "hosted_validation": {"run_id": "33972096984", "conclusion": "success"},
+  "owner_runtime": {"installed_sha": "477d7b775e19fc7ab08a61840e07361e301d2735", "running_sha": "477d7b775e19fc7ab08a61840e07361e301d2735", "postgresql": "preserved", "model": "qwen3:8b", "proof": ["How much does Utilities owe? -> $1.20", "Who is responsible for Utilities? -> bob", "Is Utilities settled? -> unsettled"], "mutation": "none"},
+  "result": "Unique named obligation reads resolve from current canonical state; duplicate titles remain unresolved."
+}
