@@ -1630,6 +1630,19 @@ def resolve_contextual_grocery_quantity_read(
             for prior_item in prior_items
         )
     )
+    if (
+        not matches
+        and len(dict.fromkeys(item.casefold() for item in prior_items if isinstance(item, str)))
+        == 1
+    ):
+        prior_item = next((item for item in prior_items if isinstance(item, str)), None)
+        current_unique = tuple(dict.fromkeys(item for item in current_items))
+        if (
+            prior_item is not None
+            and len(current_unique) == 1
+            and current_unique[0].casefold() == prior_item.casefold()
+        ):
+            matches = current_unique
     if len(matches) != 1:
         return None
     item = matches[0]
