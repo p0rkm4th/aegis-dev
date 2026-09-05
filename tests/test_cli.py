@@ -99,6 +99,29 @@ def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
     assert card.action.arguments["target_path"] == "agenda.md"
 
 
+def test_deterministic_calendar_communication_draft_requires_recipient_and_path():
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "calendar-communications"
+    )
+    manager.discover(bundle)
+    manager.install(
+        "calendar-communications",
+        frozenset({"calendar.read", "communications.draft", "workspace.write"}),
+    )
+    manager.enable("calendar-communications")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Draft my calendar for alice as schedule.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar-communications.events.draft"
+    assert card.action.arguments == {"recipient": "alice", "target_path": "schedule.md"}
+
+
 def test_deterministic_calendar_create_action_requires_explicit_times():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "calendar")
@@ -5555,6 +5578,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
     assert {bundle.manifest.ui.label for bundle in bundles if bundle.manifest.ui} == {
         "Calendar",
         "Calendar Reports",
+        "Calendar Communications",
         "Communications",
         "Documents",
         "Tasks",

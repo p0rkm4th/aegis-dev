@@ -22,6 +22,8 @@ from .identity import Role
 from .openclaw import OpenClawExecutor
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
+    CalendarCommunicationDraftExecutor,
+    CalendarCommunicationDraftVerifier,
     CalendarCreateExecutor,
     CalendarCreateVerifier,
     CalendarEventsExecutor,
@@ -243,6 +245,21 @@ def default_runtime_registry(
             prepare=prepare_reference_action,
         )
 
+    def calendar_communication_draft_runtime(
+        connection: Any, principal: Principal
+    ) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            CalendarCommunicationDraftExecutor(principal),
+            CalendarCommunicationDraftVerifier(principal),
+            {
+                "calendar.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "communications.draft": frozenset({Role.OWNER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=prepare_reference_action,
+        )
+
     def documents_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -354,6 +371,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar-reports.events.snapshot_to_workspace": calendar_snapshot_workspace_runtime,
+        "calendar-communications.events.draft": calendar_communication_draft_runtime,
         "documents.list": documents_runtime,
         "communications.messages.list": communications_runtime,
         "communications.messages.send": communications_send_runtime,
