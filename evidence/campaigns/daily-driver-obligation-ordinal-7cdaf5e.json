@@ -1,0 +1,23 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-obligation-ordinal",
+  "source_sha": "7cdaf5e9c18048149a5ea9511a25d9322a0b3584",
+  "hosted_validation": {
+    "run_id": "33971917446",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "installed_sha": "7cdaf5e9c18048149a5ea9511a25d9322a0b3584",
+    "running_sha": "7cdaf5e9c18048149a5ea9511a25d9322a0b3584",
+    "postgresql": "preserved",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "proof": [
+      "Show me the first obligation. -> Obligation: Utilities (unsettled) (bob)",
+      "How much is it? -> Obligation: Utilities is $1.20",
+      "Who handles it? -> Obligation: Utilities is assigned to bob"
+    ],
+    "mutation": "none"
+  },
+  "result": "Direct explicit obligation ordinals now use current canonical outstanding state and preserve safe follow-up evidence; model routing is not required."
+}
