@@ -19,9 +19,9 @@
   "running_release_sha": "6bb5b0d65484d2c3256ea51e9189e360f010afc6",
   "live_green_sha": "6bb5b0d65484d2c3256ea51e9189e360f010afc6",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-task-priority-correction-evidence",
+  "active_checkpoint": "daily-driver-task-priority-correction-audit",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "task-priority-correction-evidence",
+  "current_checkpoint": "task-priority-correction-audit",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on 6bb5b0d preserved the authorized deadline candidate set for task-priority continuation. Ambiguous 'other one' remained blocked safely; explicit ordinal correction requires follow-up investigation because the live dataset returned the same selected task.",
+  "daily_driver_checkpoint": "Owner task-priority correction audit confirmed the browser and PostgreSQL use the same persisted source; the earlier mismatch came from querying assignee_id instead of the task store's created_by scope. Ambiguous 'other one' remains safely blocked; explicit ordinal correction remains a bounded live-dogfood observation.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -62,7 +62,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Refresh origin/aegis-dev and inspect task-priority continuation context to determine why an explicit second ordinal can return the selected task. Verify persisted result/context candidate ordering and add a focused fix only if the responsible layer is proven.",
+  "next_action": "Refresh origin/aegis-dev and select the next distinct owner-visible daily-driver continuity gap. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
