@@ -994,6 +994,9 @@ class GroceryReadFastPath:
         # leading connective; the domain noun and read prefix remain required.
         text = re.sub(r"^(?:and|but)\s+", "", text)
         text = re.sub(r"^only\s+", "", text)
+        text = re.sub(
+            r"^(?:can you tell me|could you tell me|can you|could you|please)\s+", "", text
+        )
         if is_mutation_request(text):
             return False
         grocery_noun = re.search(r"\b(?:grocery|groceries)\b", text) is not None
