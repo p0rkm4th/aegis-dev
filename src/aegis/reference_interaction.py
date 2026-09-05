@@ -638,6 +638,12 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("priority_basis") and evidence.get("task") is not None:
         return str(result.message)
+    if evidence.get("priority_basis") and evidence.get("authorized_event_priority") is not None:
+        return str(result.message)
+    if any(
+        evidence.get(key) is not None for key in ("authorized_task_focus", "authorized_event_focus")
+    ):
+        return str(result.message)
     if evidence.get("authorized_ordinal_item") is not None:
         return f"Grocery item: {evidence['authorized_ordinal_item']}"
     # Ordinal follow-ups are canonical reads.  Their evidence carries the
