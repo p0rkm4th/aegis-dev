@@ -71,7 +71,7 @@ from .workspace import WorkspaceManager, workspace_expected_postcondition
 
 
 def prepare_reference_action(
-    action: ActionSpec, principal: Principal, objective_id: Any
+    action: ActionSpec, principal: Principal, objective_id: Any, connection: Any = None
 ) -> ActionSpec:
     """Bind invocation-specific postconditions before a consequential write."""
     args = action.arguments
@@ -188,6 +188,11 @@ def prepare_reference_action(
                     )
                 }
             )
+    elif action.action_id == "homelab-reports.inventory.to_workspace":
+        report_target = args.get("target_path")
+        if isinstance(report_target, str) and report_target.strip() and connection is not None:
+            page = _homelab_page_files(connection, principal)
+            files = {report_target: page["index.html"], "style.css": page["style.css"]}
     elif action.action_id == "documents.export_to_workspace":
         document_id = args.get("document_id")
         document_target_path = args.get("target_path")
@@ -427,6 +432,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     argument_keys=("service",),
                     argument_grounding={
                         "service": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
+            "homelab-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="homelab-reports.inventory.to_workspace",
+                        capability="homelab-reports.inventory.to_workspace",
+                        required_permissions=("homelab.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Create a verified static page from authorized Homelab inventory",
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                     },
@@ -747,6 +774,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
+        "homelab-reports": ("homelab.read", "workspace.write"),
         "network": ("network.read",),
         "workspace": ("workspace.write",),
     }
@@ -808,6 +836,45 @@ def _canonical_homelab_service(connection: Any, principal: Principal, service_id
         return pack.services[service_id]
     except KeyError as exc:
         raise ValueError("authorized Homelab service is unavailable") from exc
+
+
+def _homelab_page_files(connection: Any, principal: Principal) -> dict[str, str]:
+    """Render a bounded owner page from the authorized canonical Homelab inventory."""
+
+    pack = PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
+    hosts = sorted(pack.hosts.values(), key=lambda item: item.host_id)
+    services = sorted(pack.services.values(), key=lambda item: item.service_id)
+    host_rows = (
+        "".join(
+            f"<li><strong>{host.hostname}</strong> <code>{host.address}</code></li>"
+            for host in hosts
+        )
+        or "<li>No authorized hosts are configured.</li>"
+    )
+    service_rows = (
+        "".join(
+            f"<li><strong>{service.name}</strong> <code>{service.service_id}</code></li>"
+            for service in services
+        )
+        or "<li>No authorized services are configured.</li>"
+    )
+    html = (
+        "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>Homelab</title><link rel='stylesheet' href='style.css'></head>"
+        "<body><main><p class='eyebrow'>AEGIS · authorized inventory</p>"
+        "<h1>Homelab</h1><section><h2>Hosts</h2><ul>"
+        f"{host_rows}</ul></section><section><h2>Services</h2><ul>"
+        f"{service_rows}</ul></section></main></body></html>"
+    )
+    css = (
+        ":root{color-scheme:dark;font:16px system-ui,sans-serif;background:#10141c;"
+        "color:#edf2f7}body{margin:0;padding:3rem}main{max-width:52rem;margin:auto}"
+        ".eyebrow{color:#8cc8ff;letter-spacing:.12em;text-transform:uppercase;font-size:.75rem}"
+        "section{border:1px solid #334155;border-radius:12px;padding:1rem 1.25rem;"
+        "margin:1rem 0;background:#172033}li{margin:.55rem 0}code{color:#9fddae}"
+    )
+    return {"index.html": html, "style.css": css}
 
 
 def _health_read(endpoint: str) -> tuple[bool, str]:
@@ -902,6 +969,63 @@ class HomelabHealthVerifier:
             reason="Homelab health independently verified"
             if verified
             else "Homelab health readback failed",
+        )
+
+
+class HomelabWorkspaceExecutor:
+    """Create a small static inventory page from authorized canonical state."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            page = _homelab_page_files(self.connection, self.principal)
+            files = {target_path: page["index.html"], "style.css": page["style.css"]}
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(files, request.action_id, lambda current: None)
+        except (PermissionError, ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "homelab_workspace": "artifact",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class HomelabWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"homelab_workspace_verified": verified, "postcondition": detail},
+            reason="Homelab page independently verified"
+            if verified
+            else f"Homelab page verification failed: {detail}",
         )
 
 

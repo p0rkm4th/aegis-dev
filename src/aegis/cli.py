@@ -939,6 +939,27 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": health_request.groupdict()})
             }
         )
+    homelab_page = re.fullmatch(
+        r"make me (?:a )?(?:little )?(?:static )?webpage showing my homelab"
+        r"(?: (?:as|to) (?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}))?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if homelab_page is not None and "homelab" in folded:
+        card = manager.action_card("homelab-reports", "homelab-reports.inventory.to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "target_path": homelab_page.group("target_path") or "index.html"
+                        }
+                    }
+                )
+            }
+        )
     device = re.fullmatch(
         r"(?:turn|switch) (?P<state>on|off) (?P<entity_id>"
         r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?",
