@@ -55,6 +55,44 @@ def test_workspace_network_namespace_cannot_reach_parent_loopback(tmp_path: Path
     assert result.stdout.strip() == "blocked"
 
 
+@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
+@pytest.mark.skipif(shutil.which("prlimit") is None, reason="prlimit is not installed")
+def test_workspace_run_applies_resource_limits_inside_sandbox(tmp_path: Path) -> None:
+    workspace = ScopedWorkspace(
+        tmp_path / "owner",
+        max_cpu_seconds=3,
+        max_memory_bytes=128 * 1024 * 1024,
+        max_processes=17,
+        max_open_files=29,
+        max_file_bytes=4096,
+    )
+    script = (
+        "import resource; names=('RLIMIT_CPU','RLIMIT_AS','RLIMIT_NPROC',"
+        "'RLIMIT_NOFILE','RLIMIT_FSIZE'); print([resource.getrlimit(getattr(resource,n))[0] "
+        "for n in names])"
+    )
+    result = workspace.run(("python3", "-c", script), uuid4())
+    assert result.returncode == 0
+    assert result.stdout.strip() == "[3, 134217728, 17, 29, 4096]"
+
+
+@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
+def test_workspace_run_timeout_cleans_up_the_sandbox_process_group(tmp_path: Path) -> None:
+    workspace = ScopedWorkspace(tmp_path / "owner", timeout_seconds=0.2)
+    result = workspace.run(("python3", "-c", "import time; time.sleep(5)"), uuid4())
+    assert result.timed_out is True
+    assert result.returncode == 124
+
+
+@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
+def test_workspace_run_stops_file_abuse(tmp_path: Path) -> None:
+    workspace = ScopedWorkspace(tmp_path / "owner", max_workspace_files=2, max_workspace_bytes=1024)
+    script = "from pathlib import Path; [Path(f'abuse-{i}').write_text('x') for i in range(20)]"
+    result = workspace.run(("python3", "-c", script), uuid4())
+    assert result.returncode == 122
+    assert "file-count limit exceeded" in result.stderr
+
+
 def test_workspace_rejects_unallowlisted_command_and_symlink(tmp_path: Path) -> None:
     workspace = ScopedWorkspace(tmp_path / "owner", allowed_commands=("python3",))
     with pytest.raises(WorkspaceError):
