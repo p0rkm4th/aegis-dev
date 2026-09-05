@@ -28,6 +28,7 @@ PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CalendarState = Callable[[Principal], dict[str, Any]]
 DeviceState = Callable[[Principal], dict[str, Any]]
 TodayState = Callable[[Principal], dict[str, Any]]
+ObjectivesState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -558,6 +559,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'calendar') loadCalendar();
   if (activeView === 'devices') loadDevices();
   if (activeView === 'home') loadToday();
+  if (activeView === 'objectives') loadObjectives();
   renderResearchSummary();
   applyNodeFilter();
 }));
@@ -750,6 +752,30 @@ async function loadToday() {
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
+}
+async function loadObjectives() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/objectives');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Objectives unavailable.');
+    const objectives = payload.objectives || [];
+    const heading = document.createElement('p');
+    heading.textContent = objectives.length ? `${objectives.length} authorized objective(s)` : 'No active objectives.';
+    panel.append(heading);
+    objectives.forEach(objective => {
+      const card = document.createElement('section'); card.className = 'detail-card';
+      const title = document.createElement('h3'); title.textContent = `${objective.state} · ${objective.objective_id}`;
+      const text = document.createElement('p'); text.textContent = objective.utterance || 'Objective without conversational text';
+      card.append(title, text);
+      if (objective.capability_needs?.length) {
+        const needs = document.createElement('h4'); needs.textContent = 'Capability needs'; card.append(needs);
+        card.append(renderDetailValue(objective.capability_needs));
+      }
+      panel.append(card);
+    });
+  } catch (_) { panel.textContent = 'Objective state is unavailable; no objective state was changed.'; }
 }
 async function loadCompositions() {
   const panel = document.getElementById('detail');
@@ -990,6 +1016,7 @@ class BrowserApp:
         calendar_state: CalendarState | None = None,
         device_state: DeviceState | None = None,
         today_state: TodayState | None = None,
+        objectives_state: ObjectivesState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -1008,6 +1035,7 @@ class BrowserApp:
         self.calendar_state = calendar_state
         self.device_state = device_state
         self.today_state = today_state
+        self.objectives_state = objectives_state
 
     def dispatch(
         self,
@@ -1200,6 +1228,22 @@ class BrowserApp:
                     "Today state unavailable",
                 )
             return self._json(HTTPStatus.OK, today_projection)
+        if method == "GET" and route == "/api/objectives":
+            if self.objectives_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                objectives_projection = self.objectives_state(principal)
+                if not isinstance(objectives_projection, dict):
+                    raise ValueError("objectives state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "objectives unavailable"
+                )
+            return self._json(HTTPStatus.OK, objectives_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1437,6 +1481,7 @@ def serve(
     calendar_state: CalendarState | None = None,
     device_state: DeviceState | None = None,
     today_state: TodayState | None = None,
+    objectives_state: ObjectivesState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1458,6 +1503,7 @@ def serve(
         calendar_state=calendar_state,
         device_state=device_state,
         today_state=today_state,
+        objectives_state=objectives_state,
     )
 
     class Handler(BaseHTTPRequestHandler):
