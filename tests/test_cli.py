@@ -457,6 +457,42 @@ def test_domainless_today_priority_is_grounded_in_open_task_deadlines():
     assert result.evidence["task"]["title"] == "review the backup"
 
 
+def test_domainless_weekend_priority_uses_only_this_weekends_deadlines():
+    from aegis.tasks import TaskPriorityFastPath
+
+    now = datetime(2026, 9, 4, 12, tzinfo=timezone.utc)  # Friday
+    weekend = Task(
+        uuid4(),
+        "home",
+        "inspect the porch",
+        "alice",
+        due_at=datetime(2026, 9, 5, 12, tzinfo=timezone.utc),
+    )
+    later = Task(
+        uuid4(),
+        "home",
+        "inspect the roof",
+        "alice",
+        due_at=datetime(2026, 9, 12, 12, tzinfo=timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (later, weekend)
+
+    result = TaskPriorityFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What should I take care of this weekend?",
+        ),
+        now,
+    )
+
+    assert result is not None
+    assert result.evidence["priority_basis"] == "earliest_due_at_on_weekend"
+    assert result.evidence["task"]["title"] == "inspect the porch"
+
+
 def test_priority_followup_reuses_one_scalar_task_focus():
     from aegis.tasks import ContextualTaskPriorityFastPath
 

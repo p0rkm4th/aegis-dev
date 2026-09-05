@@ -21,7 +21,7 @@ from .contracts import (
     VerificationResult,
 )
 from .read_applicability import ReadApplicability, assess_read_applicability
-from .utterance import is_mutation_request, strip_correction_prefix
+from .utterance import is_correction_request, is_mutation_request, strip_correction_prefix
 
 _WEEKDAYS = (
     "monday",
@@ -433,6 +433,13 @@ class HouseholdReadFastPath:
         text = strip_correction_prefix(utterance).casefold()
         if is_mutation_request(text):
             return False
+        collection_correction = is_correction_request(utterance) and text.strip(".!?") in {
+            "just chores",
+            "just the chores",
+            "only chores",
+            "only the chores",
+            "chores only",
+        }
         if any(term in text for term in ("task", "tasks", "todo", "to-do", "grocery")):
             return False
         task_objective = any(
@@ -443,8 +450,10 @@ class HouseholdReadFastPath:
         )
         if task_objective and not explicit_event:
             return False
-        return any(re.search(rf"\b{re.escape(trigger)}\b", text) for trigger in cls._TRIGGERS) and (
-            text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS
+        return (
+            collection_correction
+            or any(re.search(rf"\b{re.escape(trigger)}\b", text) for trigger in cls._TRIGGERS)
+            and (text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS)
         )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
