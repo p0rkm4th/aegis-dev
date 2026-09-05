@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from uuid import uuid4
 
 from aegis.contracts import ExecutionRequest, Observation, Principal, VerificationContract
@@ -9,6 +10,8 @@ from aegis.reference_packs import (
     DeviceControlVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    HomelabHealthExecutor,
+    HomelabHealthVerifier,
     prepare_reference_action,
     reference_bundles,
     reference_packs,
@@ -239,6 +242,29 @@ def test_device_service_success_with_wrong_provider_state_is_not_verified(monkey
     assert action.verification is not None
     assert observation.command_succeeded is True
     assert verifier.verify(observation, action.verification).verified is False
+
+
+def test_homelab_health_verifier_performs_independent_second_read(monkeypatch) -> None:
+    service = SimpleNamespace(service_id="acceptance-plex", health_endpoint="https://health.test")
+    monkeypatch.setattr("aegis.reference_packs._canonical_homelab_service", lambda *_args: service)
+    reads = iter(((True, "http_200"), (False, "unavailable")))
+    monkeypatch.setattr("aegis.reference_packs._health_read", lambda _endpoint: next(reads))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    action = next(
+        card.action
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "homelab.service.health"
+    ).model_copy(update={"arguments": {"service": "acceptance-plex"}})
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="health-1"
+    )
+    observation = HomelabHealthExecutor(None, principal).execute(request)
+    assert observation.command_succeeded is True
+    assert (
+        HomelabHealthVerifier(None, principal).verify(observation, action.verification).verified
+        is False
+    )
 
 
 def test_device_controls_pack_returns_structured_scope_denial(monkeypatch) -> None:

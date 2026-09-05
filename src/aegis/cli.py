@@ -925,6 +925,20 @@ def _deterministic_composition_action(
                 )
             }
         )
+    health_request = re.fullmatch(
+        r"(?:check|show) health of (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if health_request is not None:
+        card = manager.action_card("homelab", "homelab.service.health")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": health_request.groupdict()})
+            }
+        )
     device = re.fullmatch(
         r"(?:turn|switch) (?P<state>on|off) (?P<entity_id>"
         r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?",

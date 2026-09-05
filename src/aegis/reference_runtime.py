@@ -44,6 +44,8 @@ from .reference_packs import (
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    HomelabHealthExecutor,
+    HomelabHealthVerifier,
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
     OpenClawHomelabExecutor,
@@ -166,6 +168,13 @@ def default_runtime_registry(
             OpenClawHomelabVerifier(endpoints),
             {"homelab.service.restart": frozenset({Role.OWNER})},
             cleanup=channel.close,
+        )
+
+    def homelab_health_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            HomelabHealthExecutor(connection, principal),
+            HomelabHealthVerifier(connection, principal),
+            {"homelab.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
     def network_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -323,6 +332,7 @@ def default_runtime_registry(
         "kitchen.groceries.list": grocery_list_runtime,
         "kitchen.groceries.add": grocery_add_runtime,
         "homelab.service.restart": homelab_runtime,
+        "homelab.service.health": homelab_health_runtime,
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
