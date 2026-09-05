@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "state_basis_sha": "93c32f43992b799f2898c69334383a576394d472",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
-  "deterministic_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
-  "last_pushed_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
-  "hosted_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
-  "hosted_ci_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "repository_head_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "deterministic_green_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "last_pushed_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "hosted_green_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "hosted_ci_green_sha": "93c32f43992b799f2898c69334383a576394d472",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+    "commit_sha": "93c32f43992b799f2898c69334383a576394d472",
     "conclusion": "success",
-    "run_id": "33981727940",
-    "observed_at": "2026-09-05T17:42:02Z"
+    "run_id": "33982045905",
+    "observed_at": "2026-09-05T17:48:21Z"
   },
-  "installed_release_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
-  "running_release_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
-  "live_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "installed_release_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "running_release_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "live_green_sha": "93c32f43992b799f2898c69334383a576394d472",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "packs-lifecycle-owner-surface",
+  "active_checkpoint": "devices-read-slice",
   "checkpoint_status": "in_progress",
   "current_checkpoint": "communications-owner-controlled-failure",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
@@ -62,6 +62,7 @@
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
     ,"communications read capability is deterministic-green through a generic Pack runtime; live owner request is correctly blocked while the Pack remains discovered"
     ,"authenticated owner Packs view exposes lifecycle, permissions, capabilities, actions, health, and explicit approval next steps without changing authority"
+    ,"devices.states.list is deterministic-green through the existing HomeAssistantAdapter seam; live HA acceptance is pending and the Pack remains discovered"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -90,7 +91,7 @@
     "owner_workflows_completed": 3,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Begin the next breadth vertical: implement a provider-neutral Home Assistant or equivalent authorized device-state read slice, expose it in conventional UI and Constellation, and preserve live-proof-pending status if no instance is available.",
+  "next_action": "Continue the next breadth tranche by selecting the cheapest remaining owner-usable family: add a provider-neutral document search/read composition or approval-gated Pack enablement request, then prove it through conventional UI, Constellation, and one cross-capability workflow.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
