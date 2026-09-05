@@ -1263,6 +1263,43 @@ def test_authorized_prior_context_contains_one_bounded_non_authoritative_turn():
     assert context.sources == ("authorized_canonical_result",)
 
 
+def test_authorized_prior_context_preserves_empty_canonical_collection():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = Objective(
+        intent=IntentFrame(
+            principal=principal,
+            utterance="What tasks are due Friday?",
+            correlation_id=correlation_id,
+        ),
+        correlation_id=correlation_id,
+    )
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="Tasks: (empty)",
+        evidence={"canonical_tasks": []},
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation, _principal):
+            return result
+
+    context = _context_from_prior_result(Store(), correlation_id, principal)
+
+    assert context.values["referents"] == {
+        "those": {
+            "source": "canonical_facts",
+            "fact_key": "canonical_tasks",
+            "candidates": [],
+        }
+    }
+
+
 def test_blocked_prior_context_preserves_clarification_without_referents():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
