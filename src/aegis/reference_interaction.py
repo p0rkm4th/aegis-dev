@@ -2127,6 +2127,7 @@ def resolve_contextual_event_next_read(
         evidence={
             "collection": "events",
             "authorized_next_referent": event,
+            "event": event,
             "canonical_events": candidates,
             "snapshot_space_id": snapshot.get("space_id"),
         },
