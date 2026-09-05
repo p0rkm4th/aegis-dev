@@ -750,6 +750,33 @@ def test_other_task_followup_uses_selected_priority_and_authorized_candidates():
     assert reference_format_result(result) == result.message
 
 
+def test_relative_task_followup_uses_selected_authorized_neighbor():
+    candidates = [
+        {"task_id": "one", "title": "first task", "status": "open"},
+        {"task_id": "two", "title": "second task", "status": "open"},
+    ]
+    context = Context(
+        values={
+            "referents": {"those": {"fact_key": "canonical_tasks", "candidates": candidates}},
+            "canonical_facts": {"task": candidates[1]},
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the one before that?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Task: first task (open)"
+    assert result.evidence["authorized_relative_referent"] == candidates[0]
+
+
 def test_contextual_correction_reaches_domain_specific_referent_guard():
     context = Context(
         values={
