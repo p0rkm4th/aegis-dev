@@ -40,6 +40,7 @@ from aegis.reference_interaction import (
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
     resolve_contextual_remaining,
+    resolve_contextual_repeat_read,
     resolve_contextual_task_focus_read,
     resolve_reference_fast_paths,
     resolve_reference_safety_fast_paths,
@@ -260,6 +261,28 @@ def test_contextual_grocery_quantity_does_not_guess_after_list_changes() -> None
         )
         is None
     )
+
+
+def test_contextual_repeat_read_reuses_authorized_grocery_domain() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "rice")
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_repeat_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Actually, show me the list again.",
+        ),
+        context,
+        cast(PostgresHouseholdStore, GroceryStore()),
+    )
+
+    assert result is not None
+    assert result.evidence["canonical_items"] == ["rice", "rice"]
 
 
 def test_contextual_grocery_other_singleton_followup_is_grounded() -> None:
