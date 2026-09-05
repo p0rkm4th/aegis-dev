@@ -626,7 +626,13 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     argument_keys=("title", "starts_at", "ends_at"),
                     argument_grounding={
                         key: ArgumentGroundingRule(
-                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                            ),
+                            approved_derivations=("reference.temporal_grounding.v1",)
+                            if key in {"starts_at", "ends_at"}
+                            else (),
                         )
                         for key in ("title", "starts_at", "ends_at")
                     },
