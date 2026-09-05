@@ -37,6 +37,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
+    resolve_ambiguous_event_focus_read,
     resolve_contextual_chore_focus_read,
     resolve_contextual_event_focus_read,
     resolve_contextual_event_next_read,
@@ -1857,6 +1858,33 @@ def test_contextual_event_focus_read_accepts_natural_when_is_it_followup():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
+
+
+def test_event_list_when_is_it_followup_clarifies_instead_of_creating_event():
+    result = resolve_ambiguous_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is it?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "events",
+                        "candidates": [
+                            {"event_id": "event-1", "title": "Inspection"},
+                            {"event_id": "event-2", "title": "Appointment"},
+                        ],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.message == "Which event did you mean? Please name the event or choose an ordinal."
 
 
 def test_contextual_event_focus_read_accepts_natural_date_wording():
