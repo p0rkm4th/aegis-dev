@@ -118,11 +118,19 @@ def _argument_provenance_error(
         if evidence.kind is ArgumentProvenanceKind.EXPLICIT_UTTERANCE:
             if not evidence.source_spans:
                 return f"argument {key!r} lacks utterance evidence"
-            if utterance is not None and not any(
-                0 <= start < end <= len(utterance)
-                and utterance[start:end].casefold() == str(action.arguments[key]).casefold()
-                for start, end in evidence.source_spans
-            ):
+            if utterance is None:
+                spans_match = False
+            elif key == "files" and action.action_id == "workspace.artifact.create":
+                spans_match = all(
+                    0 <= start < end <= len(utterance) for start, end in evidence.source_spans
+                )
+            else:
+                spans_match = any(
+                    0 <= start < end <= len(utterance)
+                    and utterance[start:end].casefold() == str(action.arguments[key]).casefold()
+                    for start, end in evidence.source_spans
+                )
+            if utterance is not None and not spans_match:
                 return f"argument {key!r} does not match its utterance evidence"
         elif evidence.kind is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT:
             if not evidence.canonical_ref:
