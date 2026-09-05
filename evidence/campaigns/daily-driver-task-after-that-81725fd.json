@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-after-that",
+  "source_sha": "81725fd6fd255b01a49357762db56949d5c22b5e",
+  "hosted": {"workflow": "validation", "run_id": "33969487597", "conclusion": "success"},
+  "owner": {
+    "release_sha": "81725fd6fd255b01a49357762db56949d5c22b5e",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical task collection"],
+      ["Which one is due first?", "completed", "earliest authorized task"],
+      ["What about the next one?", "completed", "next canonical task"],
+      ["What about the task after that?", "completed", "following canonical task with status and deadline"]
+    ]
+  },
+  "safety": "The relative successor is resolved from the authorized canonical task projection; no mutation, authority widening, or recent-action replay occurred."
+}
