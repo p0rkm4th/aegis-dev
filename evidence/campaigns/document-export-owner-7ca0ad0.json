@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-natural-document-export",
+  "source_sha": "7ca0ad0d09661f947b242747b4882e63a17fbadc",
+  "hosted_validation": {"run_id": "33999439489", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "7ca0ad0d09661f947b242747b4882e63a17fbadc",
+    "running_sha": "7ca0ad0d09661f947b242747b4882e63a17fbadc",
+    "postgresql": "preserved",
+    "request": "Export Alpha Handbook to handbook-copy.md",
+    "objective_id": "1677fe82-1f4d-405f-b366-9c3050f4d540",
+    "correlation_id": "2f4e37c4-fffb-49b7-827a-a14a46dbfb4e",
+    "workspace_id": "77e821c6-8a51-5e9c-bcdf-7ae84da60320",
+    "artifact": "handbook-copy.md",
+    "provider": "authorized_owner_fixture",
+    "result": "document export independently verified"
+  }
+}
