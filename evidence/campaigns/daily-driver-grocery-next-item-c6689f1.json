@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-grocery-next-item",
+  "source_sha": "c6689f1a1e1d560e7bc25abf816f10294b5b560d",
+  "hosted_validation": {"run_id": "33975063307", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "c6689f1a1e1d560e7bc25abf816f10294b5b560d",
+    "running_sha": "c6689f1a1e1d560e7bc25abf816f10294b5b560d",
+    "postgresql": "preserved",
+    "proof": [
+      "What is on my grocery list? -> canonical grocery list read",
+      "What about the next one? -> The grocery list has no canonical next item. Please name a grocery item or choose an ordinal."
+    ],
+    "mutation": "none"
+  },
+  "result": "A bare next-item follow-up after a grocery collection now preserves the grocery domain and explains that no canonical order exists."
+}
