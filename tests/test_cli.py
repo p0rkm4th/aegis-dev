@@ -4183,6 +4183,10 @@ def test_task_priority_fast_path_uses_earliest_open_deadline():
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["priority_basis"] == "earliest_due_at"
     assert result.evidence["task"]["title"] == "renew insurance"
+    assert {task["title"] for task in result.evidence["canonical_tasks"]} == {
+        "renew insurance",
+        "schedule inspection",
+    }
 
 
 def test_task_priority_fast_path_uses_latest_open_deadline():
