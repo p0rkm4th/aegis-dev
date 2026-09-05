@@ -3430,6 +3430,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
         in _INDEX_HTML
     )
     assert "No canonical records available" in _INDEX_HTML
+    assert "Show ${value.length} canonical records" in _INDEX_HTML
     assert "key.replaceAll('_', ' ')" in _INDEX_HTML
     assert "retryableCodes.has(result.code)" in _INDEX_HTML
     assert "const lifecycleLabels = Object.freeze" in _INDEX_HTML
