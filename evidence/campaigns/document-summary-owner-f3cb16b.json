@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-document-summary",
+  "source_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+  "hosted_validation": {"run_id": "33999734558", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+    "running_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+    "postgresql": "preserved",
+    "request": "Summarize Alpha Handbook to handbook-summary.md",
+    "objective_id": "95db0c67-cdfe-4982-8240-2d6bf6acf32b",
+    "correlation_id": "8f96a2b5-6e79-4dd6-b26d-8ce6955cd6d0",
+    "workspace_id": "8a8034da-3e9c-5c6e-8771-10dd3f07b5f3",
+    "artifact": "handbook-summary.md",
+    "provider": "authorized_owner_fixture",
+    "result": "document summary independently verified"
+  }
+}
