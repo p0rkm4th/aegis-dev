@@ -2240,6 +2240,9 @@ def resolve_contextual_event_focus_read(
         "what time is it",
         "what day is that",
         "what date is that",
+        "what is its date",
+        "what is the date",
+        "what date is it",
     }:
         return None
     facts = context.values.get("canonical_facts")

@@ -1405,6 +1405,29 @@ def test_contextual_event_focus_read_accepts_natural_when_is_it_followup():
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
+def test_contextual_event_focus_read_accepts_natural_date_wording():
+    event = HouseholdEvent(
+        "event-1", "apartment inspection", datetime(2026, 9, 10, 15, 0, tzinfo=timezone.utc)
+    )
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is its date?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"event": {"event_id": event.event_id, "title": event.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home", "events": (event,)},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
+
+
 def test_contextual_ordinal_task_due_followup_reports_missing_deadline():
     result = resolve_contextual_ordinal_read(
         IntentFrame(
