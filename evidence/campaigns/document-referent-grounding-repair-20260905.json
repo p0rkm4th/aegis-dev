@@ -1,0 +1,13 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "document-referent-grounding-repair",
+  "source": "working-tree",
+  "problem": "Document export was blocked because document_id was treated as a canonical referent without an authorized document context.",
+  "repair": "Configured authorized documents are presented as a bounded canonical referent for the typed export card.",
+  "safety": [
+    "exactly one title match is required",
+    "missing or ambiguous matches fail closed",
+    "document export remains behind Core grounding, authorization, execution, and readback verification"
+  ],
+  "deterministic_tests": "814 passed, 5 skipped"
+}

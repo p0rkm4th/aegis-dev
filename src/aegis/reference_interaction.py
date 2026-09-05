@@ -36,6 +36,7 @@ from .contracts import (
 )
 from .decoding import StrictDecisionDecoder
 from .dispatch import ActionExecutorDispatch, ActionVerifierDispatch
+from .documents import configured_document_provider
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
 from .homelab import PostgresHomelabStore
@@ -248,7 +249,13 @@ def _ground_argument_provenance(
                     canonical_ref = next(
                         (
                             str(candidate[field])
-                            for field in ("task_id", "chore_id", "event_id", "memory_id")
+                            for field in (
+                                "task_id",
+                                "chore_id",
+                                "event_id",
+                                "memory_id",
+                                "document_id",
+                            )
                             if candidate.get(field)
                         ),
                         str(value),
@@ -3434,6 +3441,33 @@ def ground_reference_action_runtime(
     """Load reference Pack state before applying its canonical grounding rules."""
 
     principal = intent.principal
+    if card.action.action_id == "documents.export_to_workspace":
+        documents = configured_document_provider().list_documents()
+        matches = [
+            document
+            for document in documents
+            if document.title.casefold() in intent.utterance.casefold()
+        ]
+        if len(matches) != 1:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="Name one authorized document to export; no document was changed.",
+                correlation_id=intent.correlation_id,
+            )
+        base_values = dict(context.values) if context is not None else {}
+        base_values["referents"] = {
+            "those": {
+                "fact_key": "authorized_documents",
+                "candidates": [
+                    {
+                        "document_id": matches[0].document_id,
+                        "title": matches[0].title,
+                    }
+                ],
+            }
+        }
+        context = Context(values=base_values, sources=("authorized_canonical_result",))
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
