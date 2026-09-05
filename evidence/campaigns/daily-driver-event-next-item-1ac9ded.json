@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-next-item",
+  "source_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+  "hosted_validation": {"run_id": "33975292374", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+    "running_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+    "postgresql": "preserved",
+    "proof": [
+      "What about events? -> canonical event collection read",
+      "What about the next one? -> next upcoming canonical event with recorded start time"
+    ],
+    "mutation": "none"
+  },
+  "result": "Natural next-event wording now uses the existing authorized chronological event resolver instead of falling into mutation cognition."
+}
