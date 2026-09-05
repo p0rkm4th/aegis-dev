@@ -56,7 +56,7 @@ from .identity import (
 from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
-from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
+from .pack_lifecycle import PackManager, PackStatus, PackUpgradeStatus, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_interaction import (
@@ -638,7 +638,9 @@ def _pack_state(principal: Principal) -> dict[str, Any]:
     connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
     try:
         _apply_migrations(connection)
-        lifecycle = PackManager(store=PostgresPackStore(connection)).lifecycle_snapshot()
+        manager = PackManager(store=PostgresPackStore(connection))
+        manager.reconcile(tuple(reference_bundles()))
+        lifecycle = manager.lifecycle_snapshot()
         packs = {
             bundle.manifest.pack_id: (bundle, status, grants)
             for bundle, status, grants in lifecycle
@@ -647,21 +649,28 @@ def _pack_state(principal: Principal) -> dict[str, Any]:
             packs.setdefault(bundle.manifest.pack_id, (bundle, PackStatus.DISCOVERED, frozenset()))
         projection: list[dict[str, Any]] = []
         for pack_id, (bundle, status, grants) in sorted(packs.items()):
-            manifest = bundle.manifest
+            pending = manager.pending_upgrade(pack_id)
+            display_bundle = pending.bundle if pending is not None else bundle
+            manifest = display_bundle.manifest
+            display_status = (
+                PackUpgradeStatus.PENDING_AUTHORIZATION if pending is not None else status
+            )
             projection.append(
                 {
                     "pack_id": pack_id,
                     "label": manifest.ui.label if manifest.ui else pack_id,
                     "category": manifest.ui.category if manifest.ui else "capability",
                     "detail_view": manifest.ui.detail_view if manifest.ui else None,
-                    "status": status.value,
+                    "status": display_status.value,
                     "permissions": sorted(manifest.permissions),
                     "granted_permissions": sorted(grants),
                     "capabilities": sorted({card.action.capability for card in bundle.cards}),
                     "available_actions": sorted({card.action.action_id for card in bundle.cards}),
                     "health": "enabled" if status is PackStatus.ENABLED else "lifecycle-ready",
                     "owner_next_step": (
-                        "available through enabled capabilities"
+                        "explicit owner approval is required for this Pack permission upgrade"
+                        if pending is not None
+                        else "available through enabled capabilities"
                         if status is PackStatus.ENABLED
                         else "explicit owner approval is required before installation or enablement"
                     ),
@@ -697,12 +706,26 @@ def _pack_enable(principal: Principal, request: dict[str, Any]) -> dict[str, Any
         # resolving permissions; discovery is not enablement or approval.
         try:
             manager.reconcile(tuple(reference_bundles()))
-            declared = manager.declared_permissions(pack_id)
+            pending = manager.pending_upgrade(pack_id)
+            declared = (
+                frozenset(pending.bundle.manifest.permissions)
+                if pending is not None
+                else manager.declared_permissions(pack_id)
+            )
         except KeyError as exc:
             raise ValueError(f"unknown Pack: {pack_id}") from exc
         approved = frozenset(item for item in permissions if isinstance(item, str))
         if approved != declared:
             raise PermissionError("explicit approval must name every declared Pack permission")
+        if pending is not None:
+            manager.approve_upgrade(pack_id, approved, actor_id=principal.id)
+            return {
+                "pack_id": pack_id,
+                "status": manager.status(pack_id).value,
+                "approved_permissions": sorted(approved),
+                "actor_id": principal.id,
+                "authority": "explicit owner approval of Pack upgrade",
+            }
         status = manager.status(pack_id)
         if status is PackStatus.DISCOVERED:
             manager.install(pack_id, approved, actor_id=principal.id)
