@@ -1882,6 +1882,33 @@ def test_contextual_event_relative_read_accepts_leading_connective():
     assert result.evidence["authorized_relative_referent"]["event_id"] == "early"
 
 
+def test_contextual_event_relative_read_selects_unique_later_event():
+    from aegis.household import HouseholdEvent
+
+    result = resolve_contextual_event_relative_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the event after that?",
+        ),
+        Context(
+            values={"canonical_facts": {"event": {"event_id": "middle", "title": "middle"}}},
+            sources=("authorized_canonical_result",),
+        ),
+        {
+            "space_id": "home",
+            "events": (
+                HouseholdEvent("middle", "middle", datetime(2026, 9, 6, 10, tzinfo=timezone.utc)),
+                HouseholdEvent(
+                    "late", "later event", datetime(2026, 9, 7, 10, tzinfo=timezone.utc)
+                ),
+            ),
+        },
+    )
+
+    assert result is not None
+    assert result.evidence["authorized_relative_referent"]["event_id"] == "late"
+
+
 def test_contextual_task_focus_read_rechecks_authorized_task_id():
     task = Task(uuid4(), "home", "check the back gate", "alice")
 
