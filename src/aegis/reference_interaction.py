@@ -1145,6 +1145,9 @@ def resolve_reference_fast_paths(
     result = resolve_contextual_event_priority_read(intent, context, snapshot)
     if result is not None:
         return result
+    result = resolve_contextual_event_focus_read(intent, context, snapshot)
+    if result is not None:
+        return result
     # Resolve an authorized event temporal follow-up before broad personal
     # composers can reinterpret a short correction such as "No, tomorrow."
     # The resolver remains read-only and requires the prior event projection.
@@ -1952,6 +1955,61 @@ def resolve_contextual_event_priority_read(
             "authorized_event_priority": event,
             "canonical_events": candidates,
             "snapshot_space_id": snapshot.get("space_id"),
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_event_focus_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Read the time of one event from an authorized scalar event focus."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    if text not in {"when does it start", "when does that start", "what time is it"}:
+        return None
+    facts = context.values.get("canonical_facts")
+    focus = facts.get("event") if isinstance(facts, dict) else None
+    if not isinstance(focus, dict) or not isinstance(focus.get("title"), str):
+        return None
+    events = snapshot.get("events")
+    current = tuple(events) if isinstance(events, (list, tuple)) else ()
+    event_id = focus.get("event_id")
+    matches = [
+        event for event in current if isinstance(event_id, str) and str(event.event_id) == event_id
+    ]
+    if not matches:
+        title = focus["title"].casefold()
+        matches = [event for event in current if event.title.casefold() == title]
+    if len(matches) != 1:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I can no longer find one unambiguous canonical event for that reference.",
+            correlation_id=intent.correlation_id,
+        )
+    event = matches[0]
+    starts_at = event.starts_at
+    if starts_at.tzinfo is None:
+        starts_at = starts_at.replace(tzinfo=timezone.utc)
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Event: {event.title}; starts {_display_due_at(starts_at.isoformat())}",
+        evidence={
+            "collection": "events",
+            "authorized_event_focus": {
+                "event_id": str(event.event_id),
+                "title": event.title,
+                "starts_at": event.starts_at.isoformat(),
+            },
+            "event": {
+                "event_id": str(event.event_id),
+                "title": event.title,
+                "starts_at": event.starts_at.isoformat(),
+            },
         },
         correlation_id=intent.correlation_id,
     )
