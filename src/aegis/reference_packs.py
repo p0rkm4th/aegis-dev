@@ -34,7 +34,7 @@ from .devices import (
     HomeAssistantRestGateway,
     device_states_evidence,
 )
-from .documents import FixtureDocumentProvider, documents_evidence
+from .documents import configured_document_provider, documents_evidence
 from .gateway_rpc import (
     CorrelatedRpcClient,
     OpenClawGatewayRpc,
@@ -495,7 +495,7 @@ class DocumentsExecutor:
         del request
         return Observation(
             execution_id=uuid4(),
-            evidence=documents_evidence(FixtureDocumentProvider().list_documents()),
+            evidence=documents_evidence(configured_document_provider().list_documents()),
             command_succeeded=True,
         )
 
@@ -503,7 +503,7 @@ class DocumentsExecutor:
 class DocumentWorkspaceExecutor:
     def __init__(self, principal: Principal, provider: Any | None = None) -> None:
         self.principal = principal
-        self.provider = provider or FixtureDocumentProvider()
+        self.provider = provider or configured_document_provider()
 
     def execute(self, request: ExecutionRequest) -> Observation:
         document_id = request.action.arguments.get("document_id")

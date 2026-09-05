@@ -1,0 +1,11 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "configured-document-composition-seam",
+  "source": "working-tree",
+  "provider": "explicit AEGIS_DOCUMENT_FIXTURE_JSON only",
+  "default": "empty",
+  "bounds": ["maximum 50 documents", "text capped at 20000 characters", "no host filesystem reads"],
+  "composition": "Documents -> scoped Workspace via existing typed ActionCard runtime",
+  "deterministic_tests": "814 passed, 5 skipped",
+  "live_provider": "pending; no external document provider configured"
+}
