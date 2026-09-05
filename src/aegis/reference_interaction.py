@@ -1130,6 +1130,10 @@ def resolve_reference_fast_paths(
     composed_title = next((title for title, _error in composer_results if title is not None), None)
     snapshot = household_store.read_snapshot(principal)
     if composed_title is None:
+        result = resolve_contextual_event_temporal_read(intent, context, snapshot)
+        if result is not None:
+            return result
+    if composed_title is None:
         result = resolve_contextual_remaining(intent, context)
         if result is not None:
             return result
@@ -1360,6 +1364,32 @@ def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Resul
         evidence={"collection": fact_key, **evidence},
         correlation_id=intent.correlation_id,
     )
+
+
+def resolve_contextual_event_temporal_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Apply a date-only read follow-up to the authorized event collection."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "events":
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    temporal = next(
+        (
+            term
+            for term in ("today", "tomorrow", "this weekend", "next week")
+            if text == f"what about {term}"
+        ),
+        None,
+    )
+    if temporal is None:
+        return None
+    follow_up = intent.model_copy(update={"utterance": f"What events are happening {temporal}?"})
+    return HouseholdReadFastPath(snapshot).resolve(follow_up)
 
 
 def resolve_contextual_recent_action_read(intent: IntentFrame, context: Context) -> Result | None:
