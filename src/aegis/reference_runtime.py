@@ -47,6 +47,7 @@ from .reference_packs import (
     DeviceStatesExecutor,
     DeviceStatesVerifier,
     DocumentsExecutor,
+    DocumentSummaryWorkspaceExecutor,
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
@@ -369,6 +370,15 @@ def default_runtime_registry(
             prepare=prepare_reference_action,
         )
 
+    def document_summary_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            DocumentSummaryWorkspaceExecutor(principal),
+            DocumentWorkspaceVerifier(principal),
+            {"documents.read": frozenset({Role.OWNER}), "workspace.write": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
+        )
+
     def research_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -406,6 +416,7 @@ def default_runtime_registry(
         "device-controls.devices.command.execute": device_control_runtime,
         "device-reports.devices.snapshot_to_workspace": device_snapshot_workspace_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
+        "documents.summarize_to_workspace": document_summary_workspace_runtime,
         "workspace.research_notes.create": research_workspace_runtime,
     }
     for bundle in reference_bundles():

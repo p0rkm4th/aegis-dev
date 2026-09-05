@@ -981,12 +981,18 @@ def _deterministic_composition_action(
             }
         )
     document_export = re.fullmatch(
-        r"export (?P<document>.+?) to (?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        r"(?P<operation>export|summarize) (?P<document>.+?) to "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
         text,
         flags=re.IGNORECASE,
     )
     if document_export is not None:
-        card = manager.action_card("documents", "documents.export_to_workspace")
+        action_id = (
+            "documents.summarize_to_workspace"
+            if document_export.group("operation").casefold() == "summarize"
+            else "documents.export_to_workspace"
+        )
+        card = manager.action_card("documents", action_id)
         if card is None:
             return None
         return card.model_copy(

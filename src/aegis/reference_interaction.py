@@ -3529,7 +3529,10 @@ def ground_reference_action_runtime(
     """Load reference Pack state before applying its canonical grounding rules."""
 
     principal = intent.principal
-    if card.action.action_id == "documents.export_to_workspace":
+    if card.action.action_id in {
+        "documents.export_to_workspace",
+        "documents.summarize_to_workspace",
+    }:
         documents = configured_document_provider().list_documents()
         matches = [
             document
@@ -3582,9 +3585,10 @@ def ground_reference_action_runtime(
         titles[3],
         context,
     )
-    if card.action.action_id == "documents.export_to_workspace" and not isinstance(
-        grounded, Result
-    ):
+    if card.action.action_id in {
+        "documents.export_to_workspace",
+        "documents.summarize_to_workspace",
+    } and not isinstance(grounded, Result):
         document_id = (
             next(
                 (
