@@ -1124,6 +1124,28 @@ def test_contextual_chore_focus_reports_assignee():
     assert result.message == "Chore: clean kitchen is assigned to alice"
 
 
+def test_contextual_chore_focus_reports_status_by_canonical_id():
+    chore = Chore("chore-status-1", "clean kitchen", "alice", completed=False)
+    result = resolve_contextual_chore_focus_read(
+        IntentFrame(utterance="Is it done?", principal=Principal(id="alice", vault_id="v")),
+        Context(
+            sources=("authorized_canonical_result",),
+            values={
+                "canonical_facts": {
+                    "chore": {
+                        "chore_id": str(chore.chore_id),
+                        "title": chore.title,
+                        "assignee_id": chore.assignee_id,
+                    }
+                }
+            },
+        ),
+        {"chores": (chore,)},
+    )
+    assert result is not None
+    assert result.message == "Chore: clean kitchen is open"
+
+
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
     context = Context(
         values={

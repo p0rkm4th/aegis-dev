@@ -2213,7 +2213,15 @@ def resolve_contextual_chore_focus_read(
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
-    if text not in {"who is assigned", "who is assigned to it", "who handles it"}:
+    if text not in {
+        "who is assigned",
+        "who is assigned to it",
+        "who handles it",
+        "is it done",
+        "is that done",
+        "is it complete",
+        "is that complete",
+    }:
         return None
     facts = context.values.get("canonical_facts")
     focus = facts.get("chore") if isinstance(facts, dict) else None
@@ -2240,10 +2248,15 @@ def resolve_contextual_chore_focus_read(
             correlation_id=intent.correlation_id,
         )
     chore = matches[0]
+    if text in {"is it done", "is that done", "is it complete", "is that complete"}:
+        status = "complete" if chore.completed else "open"
+        message = f"Chore: {chore.title} is {status}"
+    else:
+        message = f"Chore: {chore.title} is assigned to {chore.assignee_id}"
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
-        message=f"Chore: {chore.title} is assigned to {chore.assignee_id}",
+        message=message,
         evidence={
             "collection": "canonical_chores",
             "authorized_chore_focus": {
