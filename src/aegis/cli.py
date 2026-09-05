@@ -585,6 +585,45 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         connection.close()
 
 
+def _objectives_state(principal: Principal) -> dict[str, Any]:
+    """Project bounded canonical objective lifecycle and CapabilityNeeds."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        rows = connection.execute(
+            """SELECT id, state, payload, updated_at FROM objectives
+               WHERE principal_id = %s AND vault_id = %s
+                 AND (space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = objectives.space_id
+                     AND sm.active = TRUE
+                 ))
+               ORDER BY updated_at DESC LIMIT 50""",
+            (principal.id, principal.vault_id, principal.id),
+        ).fetchall()
+        objectives: list[dict[str, Any]] = []
+        for objective_id, state, payload, updated_at in rows:
+            data = payload if isinstance(payload, dict) else json.loads(str(payload))
+            needs = data.get("capability_needs", ()) if isinstance(data, dict) else ()
+            objectives.append(
+                {
+                    "objective_id": str(objective_id),
+                    "state": str(state),
+                    "updated_at": updated_at.isoformat()
+                    if hasattr(updated_at, "isoformat")
+                    else str(updated_at),
+                    "utterance": data.get("intent", {}).get("utterance", "")
+                    if isinstance(data, dict)
+                    else "",
+                    "capability_needs": [item for item in needs[:8] if isinstance(item, dict)],
+                }
+            )
+        return {"objectives": objectives}
+    finally:
+        connection.close()
+
+
 def _composition_state(principal: Principal) -> dict[str, Any]:
     """Expose workflow metadata without exposing execution authority."""
 
@@ -1560,6 +1599,7 @@ def main() -> int:
                 calendar_state=_calendar_state,
                 device_state=_device_state,
                 today_state=_today_state,
+                objectives_state=_objectives_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

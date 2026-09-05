@@ -3574,6 +3574,32 @@ def test_browser_app_exposes_truthful_today_projection():
     assert json.loads(payload)["canonical"]["open_tasks"] == [{"title": "Review backup"}]
 
 
+def test_browser_app_exposes_objective_capability_needs():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        objectives_state=lambda current: {
+            "objectives": [
+                {
+                    "objective_id": "objective-1",
+                    "state": "blocked",
+                    "updated_at": "2026-09-05T00:00:00+00:00",
+                    "utterance": "Set up an unsupported service",
+                    "capability_needs": [{"status": "open", "requested_effect": current.id}],
+                }
+            ]
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/objectives", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["objectives"][0]["capability_needs"][0]["status"] == "open"
+
+
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []
