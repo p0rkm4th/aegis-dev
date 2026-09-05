@@ -651,6 +651,31 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    multi_artifact = re.fullmatch(
+        r"(?:create|write) (?:a )?workspace artifact with files "
+        r"(?P<path_a>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}) containing (?P<content_a>.+?) and "
+        r"(?P<path_b>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}) containing (?P<content_b>.+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if multi_artifact is not None:
+        card = manager.action_card("workspace", "workspace.artifact.create")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "files": {
+                                multi_artifact.group("path_a"): multi_artifact.group("content_a"),
+                                multi_artifact.group("path_b"): multi_artifact.group("content_b"),
+                            }
+                        }
+                    }
+                )
+            }
+        )
     artifact = re.fullmatch(
         r"(?:create|write) (?:a )?workspace artifact at "
         r"(?P<path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}) with content (?P<content>.+)",
