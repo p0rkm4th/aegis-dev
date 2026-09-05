@@ -1495,7 +1495,7 @@ def test_cli_routes_want_to_put_task_on_list_as_mutation() -> None:
 
 
 def test_cli_carries_unambiguous_tomorrow_task_due_date():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     _domain, card = _domain_and_action(
         "Could you put a task on my list to review the restore drill tomorrow?",
@@ -3842,6 +3842,45 @@ def test_task_read_fast_path_filters_relative_due_window():
     assert result is not None
     assert result.evidence["due_filter"] == "tomorrow"
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
+
+
+def test_task_read_fast_path_orders_temporal_results_by_deadline():
+    from datetime import datetime, timedelta
+
+    local_now = datetime.now().astimezone()
+    tomorrow = (local_now + timedelta(days=1)).date()
+
+    later = Task(
+        uuid4(),
+        "apartment",
+        "later tomorrow task",
+        "alice",
+        due_at=datetime.combine(tomorrow, datetime.min.time().replace(hour=18), local_now.tzinfo),
+    )
+    earlier = Task(
+        uuid4(),
+        "apartment",
+        "earlier tomorrow task",
+        "alice",
+        due_at=datetime.combine(tomorrow, datetime.min.time().replace(hour=8), local_now.tzinfo),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (later, earlier)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Show my tasks due tomorrow",
+        )
+    )
+
+    assert result is not None
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == [
+        "earlier tomorrow task",
+        "later tomorrow task",
+    ]
 
 
 def test_task_read_fast_path_uses_owner_local_date_for_relative_due_window():
