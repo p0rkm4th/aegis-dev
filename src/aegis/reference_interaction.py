@@ -2657,6 +2657,8 @@ def resolve_contextual_event_focus_read(
         "what is its date",
         "what is the date",
         "what date is it",
+        "is it still scheduled",
+        "is that still scheduled",
     }:
         return None
     facts = context.values.get("canonical_facts")
@@ -2683,7 +2685,11 @@ def resolve_contextual_event_focus_read(
     starts_at = event.starts_at
     if starts_at.tzinfo is None:
         starts_at = starts_at.replace(tzinfo=timezone.utc)
-    status_query = text == "is that still open"
+    status_query = text in {
+        "is that still open",
+        "is it still scheduled",
+        "is that still scheduled",
+    }
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
