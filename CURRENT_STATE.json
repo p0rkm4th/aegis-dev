@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
+  "state_basis_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
-  "deterministic_green_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
-  "last_pushed_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
-  "hosted_green_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
-  "hosted_ci_green_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
+  "repository_head_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
+  "deterministic_green_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
+  "last_pushed_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
+  "hosted_green_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
+  "hosted_ci_green_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
+    "commit_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
     "conclusion": "success",
-    "run_id": "33998498230",
-    "observed_at": "2026-09-06T01:15:00Z"
+    "run_id": "33998662274",
+    "observed_at": "2026-09-06T01:30:00Z"
   },
-  "installed_release_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
-  "running_release_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
-  "live_green_sha": "87ba72ca4fe490368c64404688a8a6be95c10225",
+  "installed_release_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
+  "running_release_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
+  "live_green_sha": "433ffd0f1345a293c0e9050e972d166713ea4202",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-approved-communication-targets",
+  "active_checkpoint": "daily-driver-alpha-communications-target-ui",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "87ba72ca4fe490368c64404688a8a6be95c10225"
+    "release_sha": "433ffd0f1345a293c0e9050e972d166713ea4202"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -108,6 +108,7 @@
     ,"Homelab health → Workspace is now named in the generic owner-facing composition map with Systems/Workspace surfaces and an explicit no-restart-authority boundary"
     ,"exact hosted-green c1fac1e is promoted and authenticated owner APIs expose the Homelab health composition plus Homelab Reports/Health and Workspace Constellation nodes"
     ,"generic outbound communications now accept an optional exact owner-approved target/channel/account boundary; unset configuration preserves explicit grounded sends and configured mismatches fail before provider invocation"
+    ,"promoted Communications view surfaces the target-boundary status and preserves the distinction between provider acceptance and independently proven delivery"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Homelab health observations now compose into an independently verified scoped Workspace report; unavailable provider health remains truthful, while live OpenClaw, Google, and Home Assistant lanes remain pending.",
