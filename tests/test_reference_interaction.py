@@ -2024,6 +2024,31 @@ def test_contextual_task_focus_read_accepts_leading_connective_status_followup()
     assert result.message == "Task: inspect the air filter (open)"
 
 
+def test_contextual_task_focus_read_keeps_done_question_read_shaped():
+    task = Task(uuid4(), "home", "inspect the air filter", "alice")
+
+    class Store:
+        def list(self, _principal):
+            return (task,)
+
+    result = resolve_contextual_task_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Is it done?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"task": {"task_id": str(task.task_id), "title": task.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        Store(),
+    )
+
+    assert result is not None
+    assert result.message == "Task: inspect the air filter (open)"
+
+
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 
