@@ -1156,6 +1156,11 @@ def resolve_reference_fast_paths(
     contextual_task_focus_result = resolve_contextual_task_focus_read(intent, context, task_store)
     if contextual_task_focus_result is not None:
         return contextual_task_focus_result
+    contextual_obligation_result = resolve_contextual_obligation_focus_read(
+        intent, context, snapshot
+    )
+    if contextual_obligation_result is not None:
+        return contextual_obligation_result
     contextual_grocery_result = resolve_contextual_grocery_membership_read(
         intent, context, household_store
     )
@@ -2100,6 +2105,69 @@ def resolve_contextual_task_focus_read(
                 "task_id": str(task.task_id),
                 "title": task.title,
                 "status": task.status.value,
+            },
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_obligation_focus_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Read settled state from one authorized canonical obligation focus."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
+    if text not in {"is it settled", "is that settled", "has it been settled", "was it settled"}:
+        return None
+    facts = context.values.get("canonical_facts")
+    focus = facts.get("obligation") if isinstance(facts, dict) else None
+    if not isinstance(focus, dict) or not isinstance(focus.get("title"), str):
+        return None
+    obligations = snapshot.get("obligations")
+    current = tuple(obligations) if isinstance(obligations, (list, tuple)) else ()
+    obligation_id = focus.get("obligation_id")
+    matches = [
+        obligation
+        for obligation in current
+        if isinstance(obligation_id, str) and str(obligation.obligation_id) == obligation_id
+    ]
+    if not matches:
+        title = focus["title"].casefold()
+        matches = [
+            obligation
+            for obligation in current
+            if obligation.title.casefold() == title
+            and obligation.responsible_id == focus.get("responsible_id")
+        ]
+    if len(matches) != 1:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I can no longer find one unambiguous canonical obligation for that reference.",
+            correlation_id=intent.correlation_id,
+        )
+    obligation = matches[0]
+    state = "settled" if obligation.settled else "unsettled"
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Obligation: {obligation.title} is {state} ({obligation.responsible_id})",
+        evidence={
+            "collection": "canonical_obligations",
+            "authorized_obligation_focus": {
+                "obligation_id": str(obligation.obligation_id),
+                "title": obligation.title,
+                "responsible_id": obligation.responsible_id,
+                "settled": obligation.settled,
+            },
+            "obligation": {
+                "obligation_id": str(obligation.obligation_id),
+                "title": obligation.title,
+                "responsible_id": obligation.responsible_id,
+                "settled": obligation.settled,
             },
         },
         correlation_id=intent.correlation_id,
