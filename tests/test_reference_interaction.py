@@ -1405,6 +1405,63 @@ def test_contextual_event_focus_read_accepts_natural_when_is_it_followup():
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
+def test_contextual_ordinal_task_due_followup_reports_missing_deadline():
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is the second one due?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_tasks",
+                        "candidates": [
+                            {"task_id": "task-1", "title": "first", "status": "open"},
+                            {"task_id": "task-2", "title": "second", "status": "open"},
+                        ],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert result.message == "Task: second (open); no recorded deadline"
+
+
+def test_contextual_ordinal_task_due_followup_reports_grounded_deadline():
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is the second one due?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_tasks",
+                        "candidates": [
+                            {"task_id": "task-1", "title": "first", "status": "open"},
+                            {
+                                "task_id": "task-2",
+                                "title": "second",
+                                "status": "open",
+                                "due_at": "2026-09-10T15:00:00+00:00",
+                            },
+                        ],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert "due 2026-09-10" in result.message
+
+
 def test_contextual_event_focus_read_accepts_leading_connective():
     from aegis.household import HouseholdEvent
 

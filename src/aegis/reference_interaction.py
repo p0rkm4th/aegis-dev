@@ -1555,8 +1555,13 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         if isinstance(status, str):
             detail += f" ({status})"
         due_at = referent.get("due_at")
+        due_question = fact_key == "canonical_tasks" and "due" in text
         if isinstance(due_at, str):
             detail += f"; due {_display_due_at(due_at)}"
+        elif due_question:
+            # Answer the temporal part without manufacturing a deadline for
+            # an authorized task that has none.
+            detail += "; no recorded deadline"
         starts_at = referent.get("starts_at")
         if isinstance(starts_at, str):
             detail += f"; starts {_display_due_at(starts_at)}"
