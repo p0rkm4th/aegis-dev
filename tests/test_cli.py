@@ -562,6 +562,34 @@ def test_household_event_read_filters_current_and_next_month():
     assert following_month > next_month
 
 
+def test_household_implicit_planned_read_filters_this_week():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    now = datetime.now(timezone.utc)
+    result = HouseholdReadFastPath(
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (
+                HouseholdEvent("current", "Planned appointment", now + timedelta(hours=1)),
+                HouseholdEvent("later", "Later appointment", now + timedelta(days=10)),
+            ),
+        }
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Do I have anything planned this week?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "this_week"
+    assert [event["title"] for event in result.evidence["events"]] == ["Planned appointment"]
+    assert HouseholdReadFastPath.matches("What is on my schedule next week?")
+    assert not HouseholdReadFastPath.matches("Schedule a meeting next week")
+
+
 def test_household_implicit_happening_read_filters_this_weekend():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
