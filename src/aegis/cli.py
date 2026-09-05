@@ -86,7 +86,7 @@ from .structural import SpacyStructuralParser, StructuralParserUnavailable
 from .tasks import PostgresTaskStore
 from .utterance import is_task_destination_request
 from .web import serve
-from .workspace import WorkspaceManager
+from .workspace import ScopedWorkspace, WorkspaceError, WorkspaceManager
 
 # Backward-compatible import for callers of the alpha's legacy helper.  The
 # implementation belongs to the reference-Pack composition module; CLI is only
@@ -486,6 +486,20 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 
     root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
     return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
+
+
+def _workspace_file(principal: Principal, workspace_id: str, path: str) -> dict[str, Any]:
+    """Read one bounded owner-scoped artifact file without exposing host paths."""
+
+    try:
+        UUID(workspace_id)
+    except ValueError as exc:
+        raise WorkspaceError("workspace identity is invalid") from exc
+    root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+    workspace_root = root / principal.id / workspace_id
+    workspace = ScopedWorkspace(workspace_root)
+    content = workspace.read(path)
+    return {"workspace_id": workspace_id, "path": path, "content": content[:200_000]}
 
 
 def _calendar_state(principal: Principal) -> dict[str, Any]:
@@ -1516,6 +1530,7 @@ def main() -> int:
                 contextual_browser_handler,
                 _browser_feedback,
                 workspace_state=_workspace_state,
+                workspace_file=_workspace_file,
                 composition_state=_composition_state,
                 pack_state=_pack_state,
                 pack_enable=_pack_enable,
