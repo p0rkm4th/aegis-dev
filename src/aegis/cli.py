@@ -1003,6 +1003,20 @@ def _deterministic_composition_action(
             }
         )
 
+    send = re.fullmatch(
+        r"send (?:a )?message to (?P<target>.+?) via (?P<channel>[a-z0-9_.-]+) "
+        r"account (?P<account>[a-z0-9_.-]+) saying (?P<body>.+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if send is not None:
+        card = manager.action_card("communications", "communications.messages.send")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={"action": card.action.model_copy(update={"arguments": send.groupdict()})}
+        )
+
     draft = re.fullmatch(
         r"draft (?:a )?message to (?P<recipient>.+?) with subject (?P<subject>.+?) "
         r"saying (?P<body>.+?), save it (?:as|to) (?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",
