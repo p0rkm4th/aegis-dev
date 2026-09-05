@@ -887,6 +887,7 @@ async function loadCommunications() {
       : 'No communication drafts or sends yet.';
     panel.append(heading, renderDetailValue({
       provider_boundary: payload.provider_boundary,
+      target_boundary: payload.target_boundary,
       outcomes: messages,
     }));
   } catch (_) {

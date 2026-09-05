@@ -24,6 +24,7 @@ import psycopg
 
 from .audit import PostgresAuditLog
 from .calendar import calendar_events_evidence, configured_calendar_provider
+from .communications import configured_communication_targets
 from .compositions import available_compositions
 from .contracts import (
     ActionCard,
@@ -781,12 +782,22 @@ def _communications_state(principal: Principal) -> dict[str, Any]:
                     "delivery_proven": provider_status == "DELIVERED",
                 }
             )
+        try:
+            approved_targets = configured_communication_targets()
+            target_boundary = (
+                "owner-approved target boundary configured"
+                if approved_targets is not None
+                else "no approved target boundary configured; explicit grounded targets required"
+            )
+        except ValueError:
+            target_boundary = "approved target boundary is invalid; outbound sends fail closed"
         return {
             "messages": messages,
             "provider_boundary": (
                 "provider acceptance and delivery are distinct; "
                 "only provider evidence may claim delivery"
             ),
+            "target_boundary": target_boundary,
         }
     finally:
         connection.close()
