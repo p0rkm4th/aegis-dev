@@ -2782,7 +2782,7 @@ def resolve_contextual_event_focus_read(
 def resolve_ambiguous_event_focus_read(intent: IntentFrame, context: Context) -> Result | None:
     """Keep an event-list pronoun from being mistaken for a new event write."""
 
-    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+    if context.sources != ("authorized_canonical_result",):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
