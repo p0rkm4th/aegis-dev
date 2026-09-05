@@ -2205,6 +2205,7 @@ def resolve_contextual_event_focus_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
     if text not in {
         "when does it start",
         "when does that start",

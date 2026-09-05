@@ -1359,6 +1359,40 @@ def test_contextual_event_focus_read_accepts_natural_when_is_that_followup():
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
+def test_contextual_event_focus_read_accepts_leading_connective():
+    from aegis.household import HouseholdEvent
+
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="And when is that?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "event": {
+                        "event_id": "event-1",
+                        "title": "review",
+                        "starts_at": "2026-09-10T15:00:00+00:00",
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {
+            "events": (
+                HouseholdEvent(
+                    "event-1", "review", datetime(2026, 9, 10, 15, 0, tzinfo=timezone.utc)
+                ),
+            )
+        },
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
+
+
 def test_contextual_event_priority_preserves_focus_for_day_followup():
     result = resolve_contextual_event_priority_read(
         IntentFrame(
