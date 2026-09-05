@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-next",
+  "source_sha": "59c22e874daea576b9417077d1dceb06eed6c80f",
+  "hosted": {"workflow": "validation", "run_id": "33969352275", "conclusion": "success"},
+  "owner": {
+    "release_sha": "59c22e874daea576b9417077d1dceb06eed6c80f",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical task collection"],
+      ["Which one is due first?", "completed", "earliest authorized task"],
+      ["What about the next one?", "completed", "next canonical task with status and deadline"]
+    ]
+  },
+  "safety": "The successor is selected only from the authorized canonical task projection after the due-first focus; the follow-up is read-only and cannot execute a mutation."
+}
