@@ -1,0 +1,21 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "devices-read-owner-live",
+  "source_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "hosted_run_id": "33982045905",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "93c32f43992b799f2898c69334383a576394d472",
+    "health": "healthy",
+    "ready": true
+  },
+  "owner_proof": {
+    "packs_route": "GET /api/packs",
+    "constellation_route": "GET /api/constellation",
+    "devices_pack_visible": true,
+    "devices_status": "discovered",
+    "granted_permissions": [],
+    "live_home_assistant": "pending; no live instance claimed"
+  },
+  "result": "The promoted owner runtime exposes the new Devices family in conventional Pack metadata and Constellation while preserving discovery, permission, and live-provider boundaries."
+}
