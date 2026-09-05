@@ -1,7 +1,13 @@
+import json
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from aegis.calendar import CalendarEvent, FixtureCalendarProvider, calendar_events_evidence
+from aegis.calendar import (
+    CalendarEvent,
+    FixtureCalendarProvider,
+    calendar_events_evidence,
+    configured_calendar_provider,
+)
 from aegis.contracts import ExecutionRequest, Principal
 from aegis.documents import Document, FixtureDocumentProvider, documents_evidence
 from aegis.reference_packs import reference_bundles
@@ -14,6 +20,35 @@ def test_fixture_calendar_provider_returns_bounded_provider_neutral_events() -> 
     evidence = calendar_events_evidence(provider.list_events())
     assert evidence["source"] == "external_calendar_fixture"
     assert evidence["events"][0]["title"] == "Game night"
+
+
+def test_configured_calendar_provider_loads_bounded_snapshot(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_CALENDAR_FIXTURE_JSON",
+        json.dumps(
+            [
+                {
+                    "event_id": "event-2",
+                    "title": "Doctor",
+                    "starts_at": "2026-09-07T14:00:00+00:00",
+                }
+            ]
+        ),
+    )
+    provider = configured_calendar_provider()
+    events = provider.list_events()
+    assert events[0].event_id == "event-2"
+    assert events[0].source == "configured_calendar"
+
+
+def test_configured_calendar_provider_rejects_unbounded_snapshot(monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_CALENDAR_FIXTURE_JSON", json.dumps([{}] * 51))
+    try:
+        configured_calendar_provider()
+    except ValueError as exc:
+        assert "at most 50" in str(exc)
+    else:
+        raise AssertionError("unbounded calendar snapshot was accepted")
 
 
 def test_fixture_documents_preserve_authorized_read_provenance() -> None:

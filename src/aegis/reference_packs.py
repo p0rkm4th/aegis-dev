@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, cast
 from uuid import uuid4
 
-from .calendar import FixtureCalendarProvider, calendar_events_evidence
+from .calendar import calendar_events_evidence, configured_calendar_provider
 from .communications import FixtureCommunicationProvider, communications_evidence
 from .compositions import document_to_workspace, research_to_workspace
 from .contracts import (
@@ -464,11 +464,11 @@ class ReferenceWorld:
 
 
 class CalendarEventsExecutor:
-    """Read-only external calendar adapter using deterministic local fixtures."""
+    """Read-only external calendar adapter with a bounded configured seam."""
 
     def execute(self, request: ExecutionRequest) -> Observation:
         del request
-        events = FixtureCalendarProvider().list_events()
+        events = configured_calendar_provider().list_events()
         return Observation(
             execution_id=uuid4(),
             evidence=calendar_events_evidence(events),
