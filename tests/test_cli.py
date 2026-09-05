@@ -3334,6 +3334,24 @@ def test_browser_app_exposes_principal_scoped_workspace_inventory():
     assert json.loads(payload)["workspaces"] == [{"workspace_id": "alice", "files": ["index.html"]}]
 
 
+def test_browser_app_exposes_composition_metadata_without_execution_authority():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        composition_state=lambda current: {
+            "compositions": [{"id": "docs-workspace", "owner": current.id}]
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/compositions", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["compositions"] == [{"id": "docs-workspace", "owner": "alice"}]
+
+
 def test_browser_app_routes_workspace_creation_through_authorized_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []

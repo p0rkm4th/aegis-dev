@@ -22,6 +22,7 @@ from uuid import UUID, uuid4
 import psycopg
 
 from .audit import PostgresAuditLog
+from .compositions import available_compositions
 from .contracts import (
     ActionCard,
     Context,
@@ -485,6 +486,13 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 
     root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
     return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
+
+
+def _composition_state(principal: Principal) -> dict[str, Any]:
+    """Expose workflow metadata without exposing execution authority."""
+
+    del principal
+    return {"compositions": available_compositions()}
 
 
 def _browser_interaction(
@@ -1222,6 +1230,7 @@ def main() -> int:
                 contextual_browser_handler,
                 _browser_feedback,
                 workspace_state=_workspace_state,
+                composition_state=_composition_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
