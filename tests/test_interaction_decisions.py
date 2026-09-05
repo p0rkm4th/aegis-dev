@@ -680,6 +680,50 @@ def test_fresh_source_request_uses_answer_only_research_callback() -> None:
     assert calls == [("What changed in the latest release?", "external_evidence")]
 
 
+def test_explicit_current_public_request_cannot_fall_back_to_model_knowledge() -> None:
+    calls: list[str] = []
+
+    class Provider:
+        def decide(self, _request: ModelRequest) -> ModelResponse:
+            return ModelResponse(
+                raw={
+                    "kind": "ANSWER",
+                    "answer": "unverified model answer",
+                    "semantic_mode": "GENERATION",
+                    "knowledge_source": "general_model_knowledge",
+                }
+            )
+
+    def research_answer(intent: IntentFrame, _context: Context, source_kind: str) -> Result:
+        calls.append(source_kind)
+        return Result(
+            objective_id=uuid4(),
+            state="completed",
+            message="sourced answer",
+            evidence={"source_kind": source_kind, "authoritative": False},
+            correlation_id=intent.correlation_id,
+        )
+
+    result = decide_fallback(
+        SimpleNamespace(
+            model_provider=lambda: Provider(),
+            reuse_classification_action_reference=True,
+            decision_rewriter=None,
+            research_answer=research_answer,
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Find the current recommended public settings and cite sources.",
+        ),
+        (),
+        Context(),
+    )
+
+    assert isinstance(result, Result)
+    assert result.message == "sourced answer"
+    assert calls == ["external_evidence"]
+
+
 def test_plan_fidelity_does_not_accept_matching_plan_that_omits_human_effect() -> None:
     class Provider:
         def decide(self, request: ModelRequest) -> ModelResponse:
