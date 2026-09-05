@@ -3972,6 +3972,7 @@ def test_task_read_fast_path_filters_open_tasks_before_weekend():
 
     now = datetime.now().astimezone()
     days_until_saturday = (5 - now.weekday()) % 7 or 7
+    fixture_now = now.replace(hour=12, minute=0, second=0, microsecond=0)
     before_weekend = Task(
         # Keep the fixture on the current calendar date in every runner
         # timezone, including UTC just before midnight.
@@ -3979,21 +3980,21 @@ def test_task_read_fast_path_filters_open_tasks_before_weekend():
         "apartment",
         "before weekend task",
         "alice",
-        due_at=now - timedelta(hours=1),
+        due_at=fixture_now,
     )
     after_weekend = Task(
         uuid4(),
         "apartment",
         "after weekend task",
         "alice",
-        due_at=now + timedelta(days=days_until_saturday + 1),
+        due_at=fixture_now + timedelta(days=days_until_saturday + 1),
     )
     completed = Task(
         uuid4(),
         "apartment",
         "completed before weekend",
         "alice",
-        due_at=now - timedelta(hours=1),
+        due_at=fixture_now,
         status=TaskStatus.COMPLETED,
     )
 
