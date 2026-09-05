@@ -1116,6 +1116,11 @@ def resolve_reference_fast_paths(
     )
     if contextual_grocery_result is not None:
         return contextual_grocery_result
+    contextual_grocery_quantity_result = resolve_contextual_grocery_quantity_read(
+        intent, context, household_store
+    )
+    if contextual_grocery_quantity_result is not None:
+        return contextual_grocery_quantity_result
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
@@ -1472,6 +1477,54 @@ def resolve_contextual_grocery_membership_read(
             "collection": "groceries",
             "canonical_items": list(current_items),
             "authorized_membership": item,
+            "continuation_context": "authorized_prior_result",
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_grocery_quantity_read(
+    intent: IntentFrame, context: Context, store: PostgresHouseholdStore
+) -> Result | None:
+    """Answer a quantity question only after an authorized shopping-list read."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    text = " ".join(intent.utterance.casefold().split()).strip(".?!")
+    if not ("how much" in text or "how many" in text) or "need" not in text:
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+        return None
+    prior_items = those.get("candidates")
+    if not isinstance(prior_items, list) or not prior_items:
+        return None
+    current_items = tuple(store.list_groceries(intent.principal))
+    matches = tuple(
+        item
+        for item in dict.fromkeys(current_items)
+        if isinstance(item, str)
+        and re.search(rf"\b{re.escape(item.casefold())}\b", text) is not None
+        and any(
+            isinstance(prior_item, str) and prior_item.casefold() == item.casefold()
+            for prior_item in prior_items
+        )
+    )
+    if len(matches) != 1:
+        return None
+    item = matches[0]
+    quantity = sum(
+        1 for current_item in current_items if current_item.casefold() == item.casefold()
+    )
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Grocery item: {item} (x{quantity}) is on your list.",
+        evidence={
+            "collection": "groceries",
+            "canonical_items": list(current_items),
+            "authorized_quantity": {"item": item, "quantity": quantity},
             "continuation_context": "authorized_prior_result",
         },
         correlation_id=intent.correlation_id,
