@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-polite-grocery-read",
+  "source_sha": "c8b9ec16f1a31ff65c4be30d45e7278cd69b905c",
+  "hosted_validation": {"run_id": "33973340641", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "c8b9ec16f1a31ff65c4be30d45e7278cd69b905c",
+    "running_sha": "c8b9ec16f1a31ff65c4be30d45e7278cd69b905c",
+    "postgresql": "preserved",
+    "proof": [
+      "Can you tell me what is on my grocery list? -> Groceries: rice (x6)",
+      "Could you show me my grocery list? -> Groceries: rice (x6)",
+      "Please list my groceries. -> Groceries: rice (x6)"
+    ],
+    "mutation": "none"
+  },
+  "result": "Polite grocery-list reads now use the existing deterministic canonical read path."
+}
