@@ -1950,6 +1950,31 @@ def test_contextual_event_focus_read_reports_scheduled_status_without_inventing_
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.message.startswith("Event: review is scheduled;")
+
+
+def test_contextual_event_focus_read_accepts_scheduled_status_wording():
+    event = HouseholdEvent("event-1", "review", datetime(2026, 9, 10, 19, 0, tzinfo=timezone.utc))
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Is it still scheduled?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "event": {
+                        "event_id": "event-1",
+                        "title": "review",
+                        "starts_at": event.starts_at.isoformat(),
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"events": (event,)},
+    )
+    assert result is not None
+    assert result.message.startswith("Event: review is scheduled;")
     assert "open" not in result.message
 
 
