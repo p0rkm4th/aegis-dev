@@ -1156,6 +1156,33 @@ def test_blocked_followup_preserves_bounded_authorized_referents():
     assert enriched.evidence["canonical_tasks"] == [{"title": "check the gate", "status": "open"}]
 
 
+def test_completed_followup_does_not_overwrite_fresh_canonical_evidence():
+    context = Context(
+        values={
+            "prior_objective_id": str(uuid4()),
+            "referents": {
+                "those": {
+                    "fact_key": "events",
+                    "candidates": [{"title": "Friday event"}],
+                }
+            },
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Events: (none)",
+        evidence={"events": [], "date_filter": "tomorrow"},
+        correlation_id=uuid4(),
+    )
+
+    enriched = _with_continuation_context(result, context)
+
+    assert enriched.evidence["events"] == []
+    assert enriched.evidence["date_filter"] == "tomorrow"
+
+
 def test_context_reconstruction_preserves_original_objective_through_follow_up_result():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
