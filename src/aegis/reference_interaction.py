@@ -1136,6 +1136,9 @@ def resolve_reference_fast_paths(
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     snapshot = household_store.read_snapshot(principal)
+    direct_obligation_result = resolve_direct_obligation_ordinal_read(intent, snapshot)
+    if direct_obligation_result is not None:
+        return direct_obligation_result
     repeat_result = resolve_contextual_repeat_read(intent, context, household_store, task_store)
     if repeat_result is not None:
         return repeat_result
@@ -2278,6 +2281,69 @@ def resolve_contextual_obligation_focus_read(
                 "settled": obligation.settled,
                 "amount": obligation.amount,
             },
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_direct_obligation_ordinal_read(
+    intent: IntentFrame, snapshot: dict[str, object]
+) -> Result | None:
+    """Resolve an explicit obligation ordinal against current canonical state."""
+
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    if is_mutation_request(text) or not re.search(r"\bobligations?\b", text):
+        return None
+    ordinal = re.search(r"\b(?:the\s+)?(first|second|third|fourth|last)\b", text)
+    if ordinal is None or not re.search(r"\b(?:show|which|what|tell me about)\b", text):
+        return None
+    obligations = snapshot.get("obligations")
+    outstanding = (
+        [
+            obligation
+            for obligation in obligations
+            if hasattr(obligation, "title") and not obligation.settled
+        ]
+        if isinstance(obligations, (list, tuple))
+        else []
+    )
+    index = {"first": 0, "second": 1, "third": 2, "fourth": 3, "last": -1}[ordinal.group(1)]
+    if not outstanding or index >= len(outstanding) or index < -len(outstanding):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I found fewer outstanding obligations than that. "
+                "Please choose an available ordinal."
+            ),
+            correlation_id=intent.correlation_id,
+        )
+    obligation = outstanding[index]
+    referent = {
+        "obligation_id": str(obligation.obligation_id),
+        "title": obligation.title,
+        "responsible_id": obligation.responsible_id,
+        "settled": bool(obligation.settled),
+        "amount": obligation.amount,
+    }
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Obligation: {obligation.title} (unsettled) ({obligation.responsible_id})",
+        evidence={
+            "collection": "canonical_obligations",
+            "authorized_ordinal_referent": referent,
+            "obligation": referent,
+            "canonical_obligations": [
+                {
+                    "obligation_id": str(item.obligation_id),
+                    "title": item.title,
+                    "responsible_id": item.responsible_id,
+                    "settled": bool(item.settled),
+                    "amount": item.amount,
+                }
+                for item in outstanding
+            ],
         },
         correlation_id=intent.correlation_id,
     )
