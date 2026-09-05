@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-correction-day",
+  "source_sha": "4f1d0d2d7ac09c497bc9cdafa43786d026266151",
+  "hosted_validation": {"run_id": "33972893908", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "4f1d0d2d7ac09c497bc9cdafa43786d026266151",
+    "running_sha": "4f1d0d2d7ac09c497bc9cdafa43786d026266151",
+    "postgresql": "preserved",
+    "proof": [
+      "What is the next event? -> utility inspection",
+      "No, what day is it? -> canonical event date in 0.03s"
+    ],
+    "mutation": "none"
+  },
+  "result": "Corrected natural day wording now stays on the authorized event focus instead of falling into a slow model fallback."
+}
