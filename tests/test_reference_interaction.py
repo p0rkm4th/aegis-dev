@@ -1126,6 +1126,25 @@ def test_contextual_chore_focus_reports_assignee():
     assert result.message == "Chore: clean kitchen is assigned to alice"
 
 
+def test_contextual_chore_focus_accepts_assignee_synonym():
+    chore = Chore("chore-assignee-synonym", "clean kitchen", "alice")
+    result = resolve_contextual_chore_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is its assignee?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"chore": {"chore_id": chore.chore_id, "title": chore.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"chores": (chore,)},
+    )
+    assert result is not None
+    assert result.message == "Chore: clean kitchen is assigned to alice"
+
+
 def test_contextual_chore_focus_reports_status_by_canonical_id():
     chore = Chore("chore-status-1", "clean kitchen", "alice", completed=False)
     result = resolve_contextual_chore_focus_read(
