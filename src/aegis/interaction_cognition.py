@@ -389,7 +389,13 @@ def _repair_clarification(
         if plans_only and candidate.kind is not DecisionKind.PLAN:
             return ValidationResult(
                 valid=False,
-                failure=ProposalFailureEvidence(kind=ProposalFailureKind.CAPABILITY_MISMATCH),
+                failure=ProposalFailureEvidence(
+                    kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR,
+                    detail=(
+                        "compound repair must return a PLAN with one independently "
+                        "grounded step per requested change"
+                    ),
+                ),
             )
         if validator is not None:
             return validator(candidate)

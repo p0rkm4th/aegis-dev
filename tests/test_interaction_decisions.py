@@ -1053,6 +1053,57 @@ def test_compound_plan_repair_budget_is_one_before_generic_recovery() -> None:
     assert len(Provider.recovery_events) == 1
 
 
+def test_compound_plan_repair_preserves_structural_failure_after_clarify() -> None:
+    failures: list[ProposalFailureEvidence | None] = []
+
+    class Provider:
+        recovery_events: list[dict[str, object]] = []
+
+        def decide(self, request: ModelRequest) -> ModelResponse:
+            failures.append(request.proposal_failure)
+            if len(failures) == 1:
+                return ModelResponse(
+                    raw={
+                        "kind": "CLARIFY",
+                        "semantic_mode": "CLARIFY",
+                        "clarification": "still unclear",
+                    }
+                )
+            return ModelResponse(
+                raw=Decision(
+                    kind=DecisionKind.PLAN,
+                    semantic_mode="ACTION",
+                    objective_spec=ObjectiveSpecProposal(
+                        requirements=tuple(
+                            ObjectiveRequirementProposal(action_ref=ref) for ref in ("A", "B")
+                        )
+                    ),
+                    plan=ProposedPlan(
+                        steps=tuple(ProposedPlanStep(action_ref=ref) for ref in ("A", "B"))
+                    ),
+                ).model_dump(mode="json")
+            )
+
+    result = _repair_clarification(
+        Provider(),
+        IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance="do A and B"),
+        Context(),
+        tuple(
+            ActionCard(action=ActionSpec(action_id=ref, capability=ref), summary=ref, relevance=1)
+            for ref in ("A", "B")
+        ),
+        Decision(kind=DecisionKind.CLARIFY, semantic_mode="CLARIFY", clarification="unclear"),
+        "multiple changes",
+        ProposalFailureEvidence(kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR),
+        plans_only=True,
+        max_attempts=2,
+    )
+
+    assert result.kind is DecisionKind.PLAN
+    assert failures[1] is not None
+    assert failures[1].kind is ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR
+
+
 def test_unsupported_effect_remains_open_with_truthful_capability_evidence() -> None:
     utterance = "do the unavailable thing"
     signal = StructuralCoverageSignal(
