@@ -402,6 +402,7 @@ def test_household_read_keeps_explicit_obligation_questions():
     from aegis.household import HouseholdReadFastPath
 
     assert HouseholdReadFastPath.matches("What are my outstanding obligations?") is True
+    assert HouseholdReadFastPath.matches("No, show me what is on my calendar.") is True
 
 
 def test_household_obligation_read_returns_obligations_not_events():

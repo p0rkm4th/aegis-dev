@@ -46,7 +46,15 @@ def strip_correction_prefix(utterance: str) -> str:
 
     normalized = " ".join(utterance.split())
     lowered = normalized.casefold()
-    for prefix in ("no, i meant ", "no i meant ", "i meant ", "actually, ", "actually "):
+    for prefix in (
+        "no, i meant ",
+        "no i meant ",
+        "no, ",
+        "no ",
+        "i meant ",
+        "actually, ",
+        "actually ",
+    ):
         if lowered.startswith(prefix):
             return normalized[len(prefix) :]
     return normalized
