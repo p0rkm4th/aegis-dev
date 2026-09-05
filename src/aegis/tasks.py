@@ -864,6 +864,7 @@ class TaskPriorityFastPath:
             or "priorit" in text
             or "focus" in text
             or "attention" in text
+            or "urgent" in text
             or "next" in text
             or due_priority
         )

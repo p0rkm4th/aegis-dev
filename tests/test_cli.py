@@ -4423,6 +4423,7 @@ def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
         "what is next on my list?",
         "what is the next thing on my list?",
         "what needs my attention first?",
+        "what is the most urgent task?",
         "which one is due first?",
     ):
         assert TaskPriorityFastPath.matches(utterance)
