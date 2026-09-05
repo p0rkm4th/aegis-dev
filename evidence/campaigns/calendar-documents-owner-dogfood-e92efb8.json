@@ -1,0 +1,23 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "calendar-documents-owner-dogfood",
+  "release_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "owner_proof": [
+    {
+      "pack": "calendar",
+      "approval": "explicit owner approval for calendar.read",
+      "utterance": "Show my calendar",
+      "result": "completed",
+      "truth_boundary": "returned authorized event data; no calendar write was attempted"
+    },
+    {
+      "pack": "documents",
+      "partial_approval": "rejected because documents.write set is documents.read plus workspace.write",
+      "approval": "explicit owner approval for documents.read and workspace.write",
+      "utterance": "List my documents",
+      "result": "completed with no authorized documents available",
+      "truth_boundary": "no document was fabricated and no workspace artifact was created"
+    }
+  ],
+  "result": "Owner-controlled lifecycle and truthful empty-state behavior were verified for Calendar and Documents."
+}
