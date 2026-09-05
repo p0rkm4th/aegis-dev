@@ -73,9 +73,7 @@ def _context_contains_canonical_ref(value: Any, reference: str, *, depth: int = 
     return False
 
 
-def _context_contains_canonical_source_ref(
-    values: Any, source: str, reference: str
-) -> bool:
+def _context_contains_canonical_source_ref(values: Any, source: str, reference: str) -> bool:
     """Require canonical identity to be qualified by its declared source."""
     if not isinstance(values, dict):
         return False
@@ -734,9 +732,11 @@ class InteractionBoundary:
                 executor,
                 verifier,
                 action_preparer=(
-                    (lambda action, current_intent, objective_id: getattr(runtime, "prepare")(
-                        action, current_intent.principal, objective_id
-                    ))
+                    (
+                        lambda action, current_intent, objective_id: getattr(runtime, "prepare")(
+                            action, current_intent.principal, objective_id
+                        )
+                    )
                     if runtime is not None and callable(getattr(runtime, "prepare", None))
                     else None
                 ),
