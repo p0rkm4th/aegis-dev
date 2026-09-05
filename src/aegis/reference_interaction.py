@@ -246,6 +246,35 @@ def _ground_argument_provenance(
                     derivation="reference.device_service.v1",
                 )
                 continue
+        if card.action.action_id == "workspace.artifact.create" and key == "files":
+            if not isinstance(value, dict):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely ground the requested workspace files.",
+                    correlation_id=intent.correlation_id,
+                )
+            spans = tuple(
+                span
+                for path, content in value.items()
+                for span_group in (
+                    _utterance_spans(intent.utterance, path),
+                    _utterance_spans(intent.utterance, content),
+                )
+                for span in span_group
+            )
+            if len(spans) != len(value) * 2:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely ground the requested workspace files.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                source_spans=spans,
+            )
+            continue
         spans = _utterance_spans(intent.utterance, value)
         if not spans:
             canonical_ref: str | None = None
