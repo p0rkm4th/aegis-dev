@@ -524,6 +524,44 @@ def test_household_event_read_filters_rest_of_week():
     assert [event["title"] for event in result.evidence["events"]] == ["Later this week"]
 
 
+def test_household_event_read_filters_current_and_next_month():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    now = datetime.now(timezone.utc)
+    month_start = now.date().replace(day=1)
+    next_month = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+    following_month = (next_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+    events = (
+        HouseholdEvent(
+            "current",
+            "Current month appointment",
+            datetime.combine(month_start + timedelta(days=2), datetime.min.time()),
+        ),
+        HouseholdEvent(
+            "next",
+            "Next month appointment",
+            datetime.combine(next_month + timedelta(days=1), datetime.min.time()),
+        ),
+    )
+
+    for utterance, date_filter, expected in (
+        ("What events do I have this month?", "this_month", "Current month appointment"),
+        ("What appointments do I have next month?", "next_month", "Next month appointment"),
+    ):
+        result = HouseholdReadFastPath(
+            {"space_id": "home", "obligations": (), "chores": (), "events": events}
+        ).resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance=utterance,
+            )
+        )
+        assert result is not None
+        assert result.evidence["date_filter"] == date_filter
+        assert [event["title"] for event in result.evidence["events"]] == [expected]
+    assert following_month > next_month
+
+
 def test_household_implicit_happening_read_filters_this_weekend():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
