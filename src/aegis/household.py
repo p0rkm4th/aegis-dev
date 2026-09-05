@@ -903,6 +903,22 @@ class ContextualChorePriorityFastPath:
             or not any(term in text for term in cls._TERMS)
         ):
             return None
+        ordinal_only = (
+            re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+one\b", text) is not None
+        )
+        explicit_priority = any(
+            term in text
+            for term in (
+                "needs attention",
+                "priority",
+                "prioritize",
+                "focus",
+                "start with",
+                "begin with",
+            )
+        )
+        if ordinal_only and not explicit_priority:
+            return None
         referents = context.values.get("referents")
         those = referents.get("those") if isinstance(referents, dict) else None
         if (

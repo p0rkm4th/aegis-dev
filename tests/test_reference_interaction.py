@@ -18,6 +18,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.household import (
+    Chore,
     GroceryReadFastPath,
     HouseholdEvent,
     HouseholdObligation,
@@ -35,6 +36,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
+    resolve_contextual_chore_focus_read,
     resolve_contextual_event_focus_read,
     resolve_contextual_event_next_read,
     resolve_contextual_event_priority_read,
@@ -1068,6 +1070,58 @@ def test_contextual_obligation_focus_reports_amount():
 
     assert result is not None
     assert result.message == "Obligation: Utilities is $1.20"
+
+
+def test_contextual_ordinal_read_preserves_chore_focus_for_followup():
+    chore = Chore("chore-1", "clean kitchen", "alice")
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_chores",
+                    "candidates": [
+                        {
+                            "chore_id": chore.chore_id,
+                            "title": chore.title,
+                            "assignee_id": chore.assignee_id,
+                            "completed": chore.completed,
+                        }
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the first one?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.evidence["chore"]["chore_id"] == chore.chore_id
+
+
+def test_contextual_chore_focus_reports_assignee():
+    chore = Chore("chore-1", "clean kitchen", "alice")
+    result = resolve_contextual_chore_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Who is assigned?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"chore": {"chore_id": chore.chore_id, "title": chore.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"chores": (chore,)},
+    )
+
+    assert result is not None
+    assert result.message == "Chore: clean kitchen is assigned to alice"
 
 
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
