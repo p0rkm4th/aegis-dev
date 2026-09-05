@@ -3482,7 +3482,7 @@ def ground_reference_action_runtime(
         PersonalMemoryChoreComposer.resolve(intent.utterance, personal_state),
     )
     titles = tuple(title for title, _error in composer_results)
-    return ground_reference_action(
+    grounded = ground_reference_action(
         intent,
         card,
         task_store,
@@ -3494,3 +3494,40 @@ def ground_reference_action_runtime(
         titles[3],
         context,
     )
+    if card.action.action_id == "documents.export_to_workspace" and not isinstance(
+        grounded, Result
+    ):
+        document_id = (
+            next(
+                (
+                    candidate["document_id"]
+                    for candidate in context.values.get("referents", {})
+                    .get("those", {})
+                    .get("candidates", [])
+                    if isinstance(candidate, dict) and isinstance(candidate.get("document_id"), str)
+                ),
+                None,
+            )
+            if context is not None
+            else None
+        )
+        if document_id is not None:
+            provenance = dict(grounded.action.argument_provenance)
+            provenance["document_id"] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                canonical_ref=document_id,
+            )
+            grounded = grounded.model_copy(
+                update={
+                    "action": grounded.action.model_copy(
+                        update={
+                            "arguments": {
+                                **grounded.action.arguments,
+                                "document_id": document_id,
+                            },
+                            "argument_provenance": provenance,
+                        }
+                    )
+                }
+            )
+    return grounded
