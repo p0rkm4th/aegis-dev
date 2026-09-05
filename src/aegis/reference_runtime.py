@@ -6,6 +6,7 @@ import os
 from collections.abc import Callable
 from typing import Any
 
+from .communications import FixtureCommunicationSendProvider
 from .contracts import Principal
 from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
 from .gateway_rpc import OpenClawWebSocketChannel
@@ -25,6 +26,8 @@ from .reference_packs import (
     CommunicationDraftExecutor,
     CommunicationDraftVerifier,
     CommunicationsExecutor,
+    CommunicationsSendExecutor,
+    CommunicationsSendVerifier,
     CommunicationsVerifier,
     DeviceControlExecutor,
     DeviceControlVerifier,
@@ -205,6 +208,15 @@ def default_runtime_registry(
             {"communications.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def communications_send_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        provider = FixtureCommunicationSendProvider()
+        return ActionRuntime(
+            CommunicationsSendExecutor(provider),
+            CommunicationsSendVerifier(),
+            {"communications.send": frozenset({Role.OWNER})},
+        )
+
     def communication_draft_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -288,6 +300,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "documents.list": documents_runtime,
         "communications.messages.list": communications_runtime,
+        "communications.messages.send": communications_send_runtime,
         "communication-drafts.messages.draft": communication_draft_runtime,
         "devices.states.list": devices_runtime,
         "device-controls.devices.command.execute": device_control_runtime,

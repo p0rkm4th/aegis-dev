@@ -1,8 +1,9 @@
-"""Provider-neutral bounded communications reads; sending is intentionally separate."""
+"""Provider-neutral bounded communications reads and outbound message contracts."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Protocol
 
 
@@ -17,6 +18,53 @@ class Message:
 
 class CommunicationProvider(Protocol):
     def list_messages(self) -> tuple[Message, ...]: ...
+
+
+class SendStatus(StrEnum):
+    DRAFTED = "DRAFTED"
+    SEND_ATTEMPTED = "SEND_ATTEMPTED"
+    PROVIDER_ACCEPTED = "PROVIDER_ACCEPTED"
+    DELIVERED = "DELIVERED"
+
+
+@dataclass(frozen=True)
+class OutboundMessage:
+    target: str
+    body: str
+    channel: str = "default"
+    account: str | None = None
+
+
+@dataclass(frozen=True)
+class SendResult:
+    status: SendStatus
+    provider_message_id: str | None = None
+    detail: str = ""
+
+
+class CommunicationSendProvider(Protocol):
+    """Provider boundary; acceptance is not delivery proof."""
+
+    def send(self, message: OutboundMessage, idempotency_key: str) -> SendResult: ...
+
+
+@dataclass
+class FixtureCommunicationSendProvider:
+    """Deterministic provider contract for tests and non-live owner acceptance."""
+
+    sent: list[tuple[OutboundMessage, str]]
+
+    def __init__(self) -> None:
+        self.sent = []
+
+    def send(self, message: OutboundMessage, idempotency_key: str) -> SendResult:
+        if not any(key == idempotency_key for _, key in self.sent):
+            self.sent.append((message, idempotency_key))
+        return SendResult(
+            status=SendStatus.PROVIDER_ACCEPTED,
+            provider_message_id=f"fixture:{idempotency_key}",
+            detail="fixture provider accepted the outbound message",
+        )
 
 
 @dataclass(frozen=True)
