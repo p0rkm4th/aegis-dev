@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.error
+import urllib.parse
+import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
@@ -24,6 +27,73 @@ class CalendarEvent:
 
 class CalendarProvider(Protocol):
     def list_events(self) -> tuple[CalendarEvent, ...]: ...
+
+
+@dataclass(frozen=True)
+class GoogleCalendarRestProvider:
+    """Bounded Google Calendar ``events.list`` read adapter."""
+
+    access_token: str
+    calendar_id: str = "primary"
+    endpoint: str = "https://www.googleapis.com/calendar/v3"
+    timeout_seconds: float = 5.0
+
+    def list_events(self) -> tuple[CalendarEvent, ...]:
+        parsed = urllib.parse.urlsplit(self.endpoint)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("Google Calendar endpoint must use HTTPS")
+        if not self.access_token or len(self.access_token) > 8_000:
+            raise ValueError("Google Calendar access token is invalid")
+        path = "/calendars/{}/events".format(urllib.parse.quote(self.calendar_id, safe=""))
+        query = urllib.parse.urlencode(
+            {"maxResults": 50, "orderBy": "startTime", "singleEvents": "true"}
+        )
+        request = urllib.request.Request(
+            urllib.parse.urlunsplit(
+                (parsed.scheme, parsed.netloc, parsed.path.rstrip("/") + path, query, "")
+            ),
+            headers={"Authorization": f"Bearer {self.access_token}", "Accept": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                payload = json.loads(response.read(1_000_001))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise RuntimeError("Google Calendar read failed") from exc
+        if not isinstance(payload, dict) or not isinstance(payload.get("items"), list):
+            raise RuntimeError("Google Calendar response was invalid")
+        events: list[CalendarEvent] = []
+        for item in payload["items"][:50]:
+            if not isinstance(item, dict):
+                continue
+            event_id = item.get("id")
+            title = item.get("summary") or "(untitled event)"
+            start = item.get("start")
+            end = item.get("end")
+            if (
+                not isinstance(event_id, str)
+                or not isinstance(title, str)
+                or not isinstance(start, dict)
+            ):
+                continue
+            starts_at = _google_timestamp(start)
+            ends_at = _google_timestamp(end) if isinstance(end, dict) else None
+            if starts_at is None:
+                continue
+            events.append(
+                CalendarEvent(event_id[:200], title[:2_000], starts_at, ends_at, "google_calendar")
+            )
+        return tuple(events)
+
+
+def _google_timestamp(value: dict[str, object]) -> datetime | None:
+    timestamp = value.get("dateTime") or value.get("date")
+    if not isinstance(timestamp, str):
+        return None
+    try:
+        parsed = datetime.fromisoformat(timestamp)
+    except ValueError:
+        return None
+    return parsed
 
 
 @dataclass(frozen=True)
@@ -44,6 +114,16 @@ def configured_calendar_provider() -> CalendarProvider:
     A live provider can implement ``CalendarProvider`` without changing Core.
     """
 
+    token = os.environ.get("AEGIS_GOOGLE_CALENDAR_TOKEN")
+    if token:
+        return GoogleCalendarRestProvider(
+            token,
+            calendar_id=os.environ.get("AEGIS_GOOGLE_CALENDAR_ID", "primary"),
+            endpoint=os.environ.get(
+                "AEGIS_GOOGLE_CALENDAR_ENDPOINT",
+                "https://www.googleapis.com/calendar/v3",
+            ),
+        )
     raw = os.environ.get("AEGIS_CALENDAR_FIXTURE_JSON")
     if not raw:
         return FixtureCalendarProvider()
