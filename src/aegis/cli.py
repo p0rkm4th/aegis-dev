@@ -980,6 +980,27 @@ def _deterministic_composition_action(
                 )
             }
         )
+    document_export = re.fullmatch(
+        r"export (?P<document>.+?) to (?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if document_export is not None:
+        card = manager.action_card("documents", "documents.export_to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "document_id": document_export.group("document"),
+                            "target_path": document_export.group("target_path"),
+                        }
+                    }
+                )
+            }
+        )
     calendar_create = re.fullmatch(
         r"create a calendar event titled (?P<title>.+?) from "
         r"(?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)(?: at [^ ]+(?: [^ ]+)?)?",
