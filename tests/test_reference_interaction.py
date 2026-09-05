@@ -1382,6 +1382,29 @@ def test_contextual_event_focus_read_accepts_natural_when_is_that_followup():
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
+def test_contextual_event_focus_read_accepts_natural_when_is_it_followup():
+    event = HouseholdEvent(
+        "event-1", "next event", datetime(2026, 9, 10, 10, 0, tzinfo=timezone.utc)
+    )
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is it?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"event": {"event_id": event.event_id, "title": event.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home", "events": (event,)},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
+
+
 def test_contextual_event_focus_read_accepts_leading_connective():
     from aegis.household import HouseholdEvent
 
