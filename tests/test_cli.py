@@ -4297,6 +4297,7 @@ def test_task_read_fast_path_filters_open_tasks_before_weekend():
 
     utterance = "What tasks should I worry about before the weekend?"
     assert TaskReadFastPath.matches(utterance)
+    assert TaskReadFastPath.matches("What should I get done before the weekend?")
     result = TaskReadFastPath(Store()).resolve(
         IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance=utterance)
     )
