@@ -528,7 +528,12 @@ class HouseholdReadFastPath:
             "what is the earliest event",
             "which is the earliest event",
         }
-        next_event = normalized in {"when is the next event", "what is the next event"}
+        next_event = normalized in {
+            "when is the next event",
+            "what is the next event",
+            "what is next on my calendar",
+            "what's next on my calendar",
+        }
         if next_event:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             now = datetime.now(timezone.utc)
