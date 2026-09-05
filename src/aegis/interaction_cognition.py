@@ -51,6 +51,19 @@ from .objective_fidelity import (
 from .utterance import is_question_request
 
 
+def _requires_external_research(utterance: str) -> bool:
+    """Require provenance for explicit current/public research requests."""
+
+    folded = " ".join(utterance.casefold().split())
+    if "research" in folded or "sources" in folded or "source" in folded:
+        return True
+    current_markers = ("current", "currently", "latest", "recent", "today", "now")
+    public_markers = ("public", "recommended", "documented", "official", "according to")
+    return any(marker in folded for marker in current_markers) and any(
+        marker in folded for marker in public_markers
+    )
+
+
 def _scope_plan_by_capability(
     provider: Any,
     decoder: StrictDecisionDecoder,
@@ -574,14 +587,16 @@ def decide_fallback(
                         )
                     )
                     source_raw = source_response.raw
-                    if isinstance(source_raw, dict):
-                        selected_source = source_raw.get("knowledge_source")
-                        if selected_source in {
-                            "general_model_knowledge",
-                            "external_evidence",
-                            "mixed_evidence",
-                        }:
-                            knowledge_source = selected_source
+                if isinstance(source_raw, dict):
+                    selected_source = source_raw.get("knowledge_source")
+                    if selected_source in {
+                        "general_model_knowledge",
+                        "external_evidence",
+                        "mixed_evidence",
+                    }:
+                        knowledge_source = selected_source
+                if _requires_external_research(intent.utterance):
+                    knowledge_source = "external_evidence"
                 if knowledge_source in {"external_evidence", "mixed_evidence"}:
                     if research_answer is None:
                         return Result(
@@ -805,6 +820,8 @@ def decide_fallback(
                     plans_only=True,
                     max_attempts=2,
                 )
+        if decision.kind is DecisionKind.ANSWER and _requires_external_research(intent.utterance):
+            decision = decision.model_copy(update={"knowledge_source": "external_evidence"})
         if decision.kind is DecisionKind.ANSWER and decision.knowledge_source in {
             "external_evidence",
             "mixed_evidence",

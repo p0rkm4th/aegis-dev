@@ -85,6 +85,7 @@
     ,"Calendar owner view now offers an explicit timed-event form routed through Core; fixture/provider create still requires the Calendar Pack write permission and separate readback"
     ,"Pack lifecycle now surfaces pending permission upgrades and routes explicit owner approval through the existing Pack upgrade contract"
     ,"owner Calendar timed-event form completed a fixture-provider create with independent provider readback; live Google acceptance remains pending credentials"
+    ,"explicit current/public/research requests now force bounded external-evidence routing; model-only fallback is regression-tested and truthful provider failure remains non-authoritative"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
