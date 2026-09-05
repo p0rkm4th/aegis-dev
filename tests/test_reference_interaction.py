@@ -53,6 +53,7 @@ from aegis.reference_interaction import (
     resolve_contextual_repeat_read,
     resolve_contextual_task_focus_read,
     resolve_direct_obligation_ordinal_read,
+    resolve_named_obligation_read,
     resolve_reference_fast_paths,
     resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
@@ -1136,6 +1137,35 @@ def test_direct_obligation_ordinal_read_uses_current_canonical_snapshot():
     assert result.message == "Obligation: Utilities (unsettled) (bob)"
     assert result.evidence["obligation"]["obligation_id"] == "obligation-first"
     assert result.evidence["canonical_obligations"][0]["title"] == "Utilities"
+
+
+def test_named_obligation_read_uses_unique_canonical_title():
+    obligation = HouseholdObligation("obligation-named", "Utilities", 120, "bob", False)
+    result = resolve_named_obligation_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="How much does Utilities owe?",
+        ),
+        {"obligations": (obligation,)},
+    )
+    assert result is not None
+    assert result.message == "Obligation: Utilities is $1.20"
+    assert result.evidence["obligation"]["obligation_id"] == "obligation-named"
+
+
+def test_named_obligation_read_leaves_duplicate_titles_unresolved():
+    obligations = (
+        HouseholdObligation("obligation-a", "Utilities", 120, "bob", False),
+        HouseholdObligation("obligation-b", "Utilities", 120, "alice", False),
+    )
+    result = resolve_named_obligation_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Who is responsible for Utilities?",
+        ),
+        {"obligations": obligations},
+    )
+    assert result is None
 
 
 def test_contextual_obligation_focus_accepts_natural_amount_wording():
