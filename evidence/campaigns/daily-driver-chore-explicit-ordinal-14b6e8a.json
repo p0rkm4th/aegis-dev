@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-chore-explicit-ordinal",
+  "source_sha": "14b6e8aec8b3c543f62a8b510314f31ff8a6649d",
+  "hosted": {"workflow": "validation", "run_id": "33970887173", "conclusion": "success"},
+  "owner": {
+    "release_sha": "14b6e8aec8b3c543f62a8b510314f31ff8a6649d",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What chores are open?", "completed", "canonical chore collection"],
+      ["Show me the first chore.", "completed", "first displayed canonical chore"],
+      ["Is it done?", "completed", "Chore: clean the kitchen is open"]
+    ]
+  },
+  "safety": "Plain chore ordinal language no longer enters the no-deadline priority guard; explicit attention-priority requests remain fail-closed."
+}
