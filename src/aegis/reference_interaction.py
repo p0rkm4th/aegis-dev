@@ -1799,6 +1799,45 @@ def resolve_contextual_repeat_read(
         return GroceryReadFastPath(store).resolve(
             intent.model_copy(update={"utterance": "What groceries do we need?"})
         )
+    if fact_key == "events":
+        prior_events = those.get("candidates")
+        if not isinstance(prior_events, list) or not prior_events:
+            return None
+        snapshot = store.read_snapshot(intent.principal)
+        current_events = snapshot.get("events")
+        if not isinstance(current_events, (list, tuple)):
+            return None
+        grounded_events = []
+        for candidate in prior_events:
+            if not isinstance(candidate, dict):
+                return None
+            title = candidate.get("title")
+            starts_at = candidate.get("starts_at")
+            if not isinstance(title, str) or not isinstance(starts_at, str):
+                return None
+            matches = [
+                event
+                for event in current_events
+                if event.title.casefold() == title.casefold()
+                and event.starts_at.isoformat() == starts_at
+            ]
+            if len(matches) != 1:
+                return None
+            event = matches[0]
+            grounded_events.append(
+                {
+                    "event_id": str(event.event_id),
+                    "title": event.title,
+                    "starts_at": event.starts_at.isoformat(),
+                }
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Shared household state read",
+            evidence={"collection": "events", "events": grounded_events},
+            correlation_id=intent.correlation_id,
+        )
     if fact_key != "canonical_tasks" or task_store is None:
         if fact_key != "canonical_chores":
             return None
