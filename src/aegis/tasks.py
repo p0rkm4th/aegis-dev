@@ -957,6 +957,27 @@ class ContextualTaskPriorityFastPath:
         # task referent into a chore/event/grocery answer.
         if re.search(r"\b(?:chore|chores|event|events|calendar|grocery|groceries)\b", text):
             return None
+        ordinal_only = (
+            re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+one\b", text) is not None
+        )
+        explicit_priority = any(
+            term in text
+            for term in (
+                "due",
+                "earliest",
+                "soonest",
+                "latest",
+                "priority",
+                "prioritize",
+                "focus",
+                "urgent",
+                "important",
+                "start with",
+                "begin with",
+            )
+        )
+        if ordinal_only and not explicit_priority:
+            return None
         referents = context.values.get("referents")
         if not isinstance(referents, dict) or not referents:
             # A priority result is a scalar canonical recommendation, not an
