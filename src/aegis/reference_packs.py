@@ -31,7 +31,11 @@ from .communications import (
     SendStatus,
     communications_evidence,
 )
-from .compositions import document_to_workspace, research_to_workspace
+from .compositions import (
+    document_summary_to_workspace,
+    document_to_workspace,
+    research_to_workspace,
+)
 from .contracts import (
     ActionCard,
     ActionSpec,
@@ -265,6 +269,21 @@ def prepare_reference_action(
             )
             if document is not None:
                 files = {document_target_path: f"# {document.title}\n\n{document.text}"}
+    elif action.action_id == "documents.summarize_to_workspace":
+        document_id = args.get("document_id")
+        document_target_path = args.get("target_path")
+        if isinstance(document_id, str) and isinstance(document_target_path, str):
+            document = next(
+                (
+                    item
+                    for item in configured_document_provider().list_documents()
+                    if item.document_id == document_id
+                ),
+                None,
+            )
+            if document is not None:
+                summary = " ".join(document.text.split())[:500]
+                files = {document_target_path: f"# Summary: {document.title}\n\n{summary}\n"}
     if files is None:
         return action
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
@@ -737,6 +756,30 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary=(
                         "Export one authorized document into a verified scoped workspace artifact"
+                    ),
+                    relevance=1,
+                    argument_keys=("document_id", "target_path"),
+                    argument_grounding={
+                        "document_id": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                            ),
+                            canonical_source="authorized_documents",
+                        ),
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="documents.summarize_to_workspace",
+                        capability="documents.summarize_to_workspace",
+                        required_permissions=("documents.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Create a bounded summary of one authorized document in a verified artifact"
                     ),
                     relevance=1,
                     argument_keys=("document_id", "target_path"),
@@ -1706,6 +1749,49 @@ class DocumentWorkspaceExecutor:
             execution_id=uuid4(),
             evidence={
                 "composition": "document_to_workspace",
+                "document_id": result.document_id,
+                "target_path": result.target_path,
+                "files": list(result.files),
+                "executor_local_validated": result.validated,
+                "source": result.source,
+            },
+            command_succeeded=True,
+        )
+
+
+class DocumentSummaryWorkspaceExecutor(DocumentWorkspaceExecutor):
+    """Create a deterministic summary artifact from an authorized document."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        document_id = request.action.arguments.get("document_id")
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(document_id, str) or not isinstance(target_path, str):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"documents": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        try:
+            result = document_summary_to_workspace(
+                self.provider,
+                WorkspaceManager(root),
+                principal_id=self.principal.id,
+                objective_id=request.objective_id,
+                document_id=document_id,
+                target_path=target_path,
+                correlation_id=request.action_id,
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"documents": "summary_rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "document_summary_to_workspace",
                 "document_id": result.document_id,
                 "target_path": result.target_path,
                 "files": list(result.files),

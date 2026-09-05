@@ -179,6 +179,43 @@ def document_to_workspace(
     )
 
 
+def document_summary_to_workspace(
+    provider: DocumentProvider,
+    workspaces: WorkspaceManager,
+    *,
+    principal_id: str,
+    objective_id: UUID,
+    document_id: str,
+    target_path: str,
+    correlation_id: UUID,
+) -> DocumentWorkspaceResult:
+    """Write a bounded deterministic summary of one authorized document."""
+
+    document = next(
+        (item for item in provider.list_documents() if item.document_id == document_id), None
+    )
+    if document is None:
+        raise ValueError("authorized document is unavailable")
+    summary = " ".join(document.text.split())[:500]
+    content = f"# Summary: {document.title}\n\n{summary}\n"
+    workspace = workspaces.for_objective(principal_id, objective_id)
+    artifact = workspace.write_artifact(
+        {target_path: content},
+        correlation_id,
+        lambda current: (
+            None if current.read(target_path) == content else "document summary readback mismatch"
+        ),
+    )
+    return DocumentWorkspaceResult(
+        correlation_id=correlation_id,
+        document_id=document.document_id,
+        target_path=target_path,
+        files=artifact.files,
+        validated=artifact.validated,
+        source=document.source,
+    )
+
+
 def research_to_workspace(
     answer: ResearchAnswer,
     workspaces: WorkspaceManager,
