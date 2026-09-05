@@ -353,6 +353,33 @@ def test_out_of_range_grocery_ordinal_does_not_fall_through_to_model():
     assert "fewer grocery items" in result.message
 
 
+def test_grocery_quantity_rows_do_not_create_fake_ordinal_referents():
+    from aegis.interaction_context import context_from_prior_result
+
+    class ObjectiveStore:
+        def get_objective_by_correlation(self, _correlation_id, _principal):
+            return type(
+                "Objective",
+                (),
+                {"id": uuid4(), "intent": type("Intent", (), {"utterance": "groceries"})()},
+            )()
+
+        def get_result_for_correlation(self, _correlation_id, _principal):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message="Canonical grocery list read",
+                evidence={"canonical_items": ["rice", "rice", "rice"]},
+                correlation_id=uuid4(),
+            )
+
+    context = context_from_prior_result(
+        ObjectiveStore(), uuid4(), Principal(id="alice", vault_id="alice-vault")
+    )
+
+    assert context.values["referents"]["those"]["candidates"] == ["rice"]
+
+
 def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
     context = Context(
         values={
