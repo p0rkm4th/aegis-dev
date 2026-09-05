@@ -1,0 +1,28 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "communication-draft-owner-live",
+  "source_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": "33984914911",
+    "conclusion": "success"
+  },
+  "runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+    "health": "healthy",
+    "ready": true,
+    "identity": "alice",
+    "space": "apartment"
+  },
+  "owner_proof": {
+    "pack_enablement": "communication-drafts enabled with exact declared permissions: communications.draft, workspace.write",
+    "utterance": "Draft a message to Maya with subject Weekend plan saying We should meet Saturday, save it as drafts/weekend-plan.md",
+    "state": "completed",
+    "message": "unsent communication draft readback verified",
+    "sent": false,
+    "artifact": "drafts/weekend-plan.md",
+    "workspace_inventory": "f22dc6b8-9b40-534e-9eff-02008707a71f",
+    "authority_invariant": "explicit owner approval and normal Core authorization; no send capability"
+  }
+}
