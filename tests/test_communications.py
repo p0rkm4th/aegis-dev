@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+import pytest
+
 from aegis.communications import (
     FixtureCommunicationProvider,
     FixtureCommunicationSendProvider,
@@ -8,10 +10,53 @@ from aegis.communications import (
     OutboundMessage,
     SendStatus,
     communications_evidence,
+    configured_communication_targets,
 )
-from aegis.contracts import ExecutionRequest, Principal
-from aegis.reference_packs import reference_bundles
+from aegis.contracts import ActionSpec, ExecutionRequest, Principal
+from aegis.reference_packs import CommunicationsSendExecutor, reference_bundles
 from aegis.reference_runtime import default_runtime_registry
+
+
+def test_approved_communication_targets_are_exact_and_fail_closed(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"sms:+15555550123","channel":"sms","account":"personal"}]',
+    )
+    assert configured_communication_targets() == frozenset(
+        {("sms:+15555550123", "sms", "personal")}
+    )
+    monkeypatch.setenv("AEGIS_APPROVED_COMMUNICATION_TARGETS", "not-json")
+    with pytest.raises(ValueError):
+        configured_communication_targets()
+
+
+def test_send_executor_rejects_target_outside_approved_boundary() -> None:
+    provider = FixtureCommunicationSendProvider()
+    executor = CommunicationsSendExecutor(
+        provider,
+        frozenset({("sms:+15555550123", "sms", "personal")}),
+    )
+    action = {
+        "target": "sms:+15555550124",
+        "body": "Milk",
+        "channel": "sms",
+        "account": "personal",
+    }
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=ActionSpec(
+                action_id="communications.messages.send",
+                capability="communications.messages.send",
+                arguments=action,
+            ),
+            idempotency_key="blocked-target",
+        )
+    )
+    assert observation.command_succeeded is False
+    assert observation.evidence["communication_send"] == "target_not_approved"
+    assert provider.sent == []
 
 
 def test_fixture_communications_are_bounded_and_read_only() -> None:
