@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
+  "state_basis_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
-  "deterministic_green_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
-  "last_pushed_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
-  "hosted_green_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
-  "hosted_ci_green_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
+  "repository_head_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
+  "deterministic_green_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
+  "last_pushed_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
+  "hosted_green_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
+  "hosted_ci_green_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
+    "commit_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
     "conclusion": "success",
-    "run_id": "33989011050",
+    "run_id": "33989394973",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
-  "running_release_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
-  "live_green_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382",
+  "installed_release_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
+  "running_release_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
+  "live_green_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-communications-contract-green",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8caa26a62cbb63f029c0b65249943df1e8aaf382"
+    "release_sha": "d85c66873dbe4d2b8aaa6fe7c3001bb5af128cf9"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
