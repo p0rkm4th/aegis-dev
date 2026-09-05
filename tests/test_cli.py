@@ -81,6 +81,24 @@ def test_deterministic_workspace_artifact_action_preserves_explicit_file_content
     assert card.action.arguments == {"path": "owner-proof.html", "content": "owner proof"}
 
 
+def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "calendar-reports"
+    )
+    manager.discover(bundle)
+    manager.install("calendar-reports", frozenset({"calendar.read", "workspace.write"}))
+    manager.enable("calendar-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save my calendar snapshot to workspace as agenda.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar-reports.events.snapshot_to_workspace"
+    assert card.action.arguments["target_path"] == "agenda.md"
+
+
 def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
     manager = PackManager()
     bundle = next(
@@ -5460,6 +5478,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
 
     assert {bundle.manifest.ui.label for bundle in bundles if bundle.manifest.ui} == {
         "Calendar",
+        "Calendar Reports",
         "Communications",
         "Documents",
         "Tasks",

@@ -19,6 +19,7 @@ from .calendar import (
     CalendarEvent,
     CalendarWriteProvider,
     calendar_events_evidence,
+    calendar_snapshot_content,
     configured_calendar_provider,
 )
 from .communications import (
@@ -157,6 +158,22 @@ def prepare_reference_action(
                 .evidence.get("states", [])
             )
             content = _device_snapshot_content(snapshot)
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": workspace_expected_postcondition(
+                                principal.id, objective_id, {snapshot_path: content}
+                            )
+                        }
+                    )
+                }
+            )
+    elif action.action_id == "calendar-reports.events.snapshot_to_workspace":
+        snapshot_path = args.get("target_path")
+        if isinstance(snapshot_path, str) and snapshot_path.strip():
+            content = calendar_snapshot_content(configured_calendar_provider().list_events())
             verification = action.verification or VerificationContract(kind="custom")
             return action.model_copy(
                 update={
@@ -617,6 +634,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "calendar-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar-reports.events.snapshot_to_workspace",
+                        capability="calendar-reports.events.snapshot_to_workspace",
+                        required_permissions=("calendar.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Save an authorized calendar snapshot into a verified Workspace report",
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "workspace",
             "0.1.0",
             (
@@ -674,6 +713,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "calendar": ("calendar.read", "calendar.write"),
+        "calendar-reports": ("calendar.read", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
@@ -1233,6 +1273,63 @@ class CalendarEventsVerifier:
             reason=(
                 "calendar readback is structurally valid" if verified else "calendar read failed"
             ),
+        )
+
+
+class CalendarSnapshotWorkspaceExecutor:
+    """Write a pre-authorized calendar read into an isolated Workspace."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        content = calendar_snapshot_content(configured_calendar_provider().list_events())
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "calendar_snapshot_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarSnapshotWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"calendar_snapshot_workspace_verified": verified, "postcondition": detail},
+            reason="calendar snapshot independently verified"
+            if verified
+            else f"calendar snapshot verification failed: {detail}",
         )
 
 
