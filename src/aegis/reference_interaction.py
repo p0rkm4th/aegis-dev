@@ -649,6 +649,8 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if isinstance(evidence.get("authorized_other_referent"), dict):
         return str(result.message)
+    if isinstance(evidence.get("authorized_relative_referent"), dict):
+        return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         counts: dict[str, int] = {}
@@ -1270,6 +1272,58 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     those = referents.get("those") if isinstance(referents, dict) else None
     candidates = those.get("candidates") if isinstance(those, dict) else None
     fact_key = those.get("fact_key") if isinstance(those, dict) else None
+    relative_match = re.search(r"\bone\s+(before|after)\s+that\b", text)
+    selected_task = context.values.get("canonical_facts", {}).get("task")
+    if (
+        relative_match is not None
+        and fact_key == "canonical_tasks"
+        and isinstance(candidates, list)
+        and isinstance(selected_task, dict)
+    ):
+        selected_indices = [
+            index
+            for index, candidate in enumerate(candidates)
+            if isinstance(candidate, dict)
+            and (
+                candidate.get("task_id") == selected_task.get("task_id")
+                or candidate.get("title") == selected_task.get("title")
+            )
+        ]
+        if len(selected_indices) == 1:
+            offset = -1 if relative_match.group(1) == "before" else 1
+            neighbor_index = selected_indices[0] + offset
+            if 0 <= neighbor_index < len(candidates):
+                neighbor = candidates[neighbor_index]
+                if isinstance(neighbor, dict) and isinstance(neighbor.get("title"), str):
+                    detail = f"Task: {neighbor['title']}"
+                    status = neighbor.get("status") or (
+                        "completed" if neighbor.get("completed") is True else "open"
+                    )
+                    if isinstance(status, str):
+                        detail += f" ({status})"
+                    due_at = neighbor.get("due_at")
+                    if isinstance(due_at, str):
+                        detail += f"; due {_display_due_at(due_at)}"
+                    return Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.COMPLETED,
+                        message=detail,
+                        evidence={
+                            "collection": "canonical_tasks",
+                            "authorized_relative_referent": neighbor,
+                            "canonical_tasks": candidates,
+                            "task": neighbor,
+                        },
+                        correlation_id=intent.correlation_id,
+                    )
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    f"There is no task {relative_match.group(1)} that one in the referenced list."
+                ),
+                correlation_id=intent.correlation_id,
+            )
     unsupported_ordinal = re.search(
         r"\b(?:fifth|sixth|seventh|eighth|ninth|tenth|\d+(?:st|nd|rd|th))\b", text
     )
@@ -1378,7 +1432,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     if isinstance(candidates, list) and ambiguous_correction:
         selected_task = context.values.get("canonical_facts", {}).get("task")
         if fact_key == "canonical_tasks" and isinstance(selected_task, dict):
-            selected_matches = [
+            selected_candidates = [
                 candidate
                 for candidate in candidates
                 if isinstance(candidate, dict)
@@ -1388,9 +1442,9 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
                 )
             ]
             other_candidates = [
-                candidate for candidate in candidates if candidate not in selected_matches
+                candidate for candidate in candidates if candidate not in selected_candidates
             ]
-            if len(selected_matches) == 1 and len(other_candidates) == 1:
+            if len(selected_candidates) == 1 and len(other_candidates) == 1:
                 other = other_candidates[0]
                 title = other.get("title") if isinstance(other, dict) else None
                 if isinstance(title, str) and title:
@@ -1411,6 +1465,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
                             "collection": "canonical_tasks",
                             "authorized_other_referent": other,
                             "canonical_tasks": candidates,
+                            "task": other,
                         },
                         correlation_id=intent.correlation_id,
                     )
