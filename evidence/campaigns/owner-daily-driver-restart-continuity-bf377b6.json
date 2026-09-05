@@ -1,0 +1,27 @@
+{
+  "source_sha": "bf377b660e27761026393d1e34c89caaeef93ba2",
+  "owner_release_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+  "session_category": "unscripted_restart_continuity",
+  "flows": [
+    "event collection read",
+    "owner service restart",
+    "event next-item follow-up after restart"
+  ],
+  "outcomes": {
+    "successful_natural_followups": 1,
+    "clarifications": 0,
+    "wrong_domain_resolutions": 0,
+    "corrections": 0,
+    "explicit_domain_switches": 0,
+    "unsupported_expectations": 0,
+    "developer_interventions": 0,
+    "new_semantic_special_cases_required": 0,
+    "duplicate_execution": false,
+    "false_completion": false
+  },
+  "notes": [
+    "The authenticated session ID persisted across service restart and session-token rotation.",
+    "The follow-up used the prior canonical event correlation and returned the chronological next event.",
+    "No production code change was required."
+  ]
+}
