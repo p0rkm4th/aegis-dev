@@ -1124,6 +1124,38 @@ def test_contextual_event_focus_read_rechecks_event_id():
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
+def test_contextual_event_priority_preserves_focus_for_day_followup():
+    result = resolve_contextual_event_priority_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which event is latest?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "events": [
+                        {
+                            "event_id": "early",
+                            "title": "early",
+                            "starts_at": "2026-09-05T10:00:00+00:00",
+                        },
+                        {
+                            "event_id": "late",
+                            "title": "late",
+                            "starts_at": "2026-09-10T10:00:00+00:00",
+                        },
+                    ]
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home"},
+    )
+
+    assert result is not None
+    assert result.evidence["event"]["event_id"] == "late"
+
+
 def test_contextual_task_focus_read_rechecks_authorized_task_id():
     task = Task(uuid4(), "home", "check the back gate", "alice")
 
