@@ -1772,6 +1772,12 @@ def resolve_contextual_event_next_read(
     those = referents.get("those") if isinstance(referents, dict) else None
     if isinstance(those, dict) and those.get("fact_key") == "events":
         candidates = those.get("candidates")
+        facts = context.values.get("canonical_facts")
+        compact_events = facts.get("events") if isinstance(facts, dict) else None
+        if isinstance(compact_events, list):
+            # Ordinal referents preserve display order, but "next" needs the
+            # separately compacted chronological candidates when available.
+            candidates = compact_events
     else:
         facts = context.values.get("canonical_facts")
         candidates = facts.get("events") if isinstance(facts, dict) else None
