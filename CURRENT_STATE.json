@@ -56,7 +56,7 @@
     "owner release 9772aa5 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
-    ,"documents.export_to_workspace is a typed two-permission composition with pre-execution expectation support; installed independent proof remains pending"
+    ,"documents.export_to_workspace is a typed two-permission composition with pre-execution expectation support; installed independent proof completed for Alpha Handbook"
     ,"live owner service now exposes Calendar/Documents/Communications Pack nodes on the promoted release; communications remains discovered until explicit enablement"
     ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
@@ -68,7 +68,7 @@
     ,"bounded Home Assistant REST read provider is promoted with deterministic fixture fallback; live endpoint acceptance remains pending"
     ,"Calendar read completed after explicit owner approval; Documents Pack is enabled with its full declared permissions and currently has no authorized data"
     ,"Documents -> Workspace completed in the promoted owner runtime with canonical document-ID grounding, scoped artifact creation, readback verification, and persisted inventory"
-    ,"Research -> Workspace preserves non-authoritative fixture evidence and sourced notes artifacts, but independent completion is downgraded pending fixed-input staging"
+    ,"Research -> Workspace preserves non-authoritative fixture evidence and sourced notes artifacts; fixed-input staging now also supports independently verified unsent communication drafts"
     ,"communication-drafts Pack is owner-enabled only with exact declared permissions; draft creation writes a scoped Workspace artifact and verifies readback without any send path"
     ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
     ,"bounded configured calendar snapshots are owner-visible through the authenticated Calendar view and /api/calendar; live provider acceptance remains pending"
@@ -115,7 +115,7 @@
     ,"owner proof exported authorized Alpha Handbook into handbook-copy.md through the natural document route with independent scoped Workspace verification"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Bounded research can now be staged into an unsent, independently verified communication draft; live OpenClaw delivery and Google/Home Assistant providers remain pending.",
+  "daily_driver_checkpoint": "Named authorized documents can be exported through the natural owner route into independently verified scoped Workspace artifacts; live external document providers remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
