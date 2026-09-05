@@ -4546,6 +4546,11 @@ def test_task_read_fast_path_accepts_implicit_temporal_task_language():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
+def test_task_read_fast_path_matches_conversational_temporal_followup():
+    assert TaskReadFastPath.matches("And what tasks are due tomorrow?")
+    assert TaskReadFastPath.matches("But what do I need to get done Friday?")
+
+
 def test_task_read_fast_path_filters_structural_get_done_today_request():
     from datetime import datetime, timedelta
 
