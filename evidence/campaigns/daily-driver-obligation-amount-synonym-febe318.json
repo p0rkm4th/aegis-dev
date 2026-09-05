@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-obligation-amount-synonym",
+  "source_sha": "febe3185f426f2a37f8a38342ab7c0d1773fbd69",
+  "hosted": {"workflow": "validation", "run_id": "33971394544", "conclusion": "success"},
+  "owner": {
+    "release_sha": "febe3185f426f2a37f8a38342ab7c0d1773fbd69",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What obligations are unsettled?", "completed", "canonical obligation collection"],
+      ["Show me the first obligation.", "completed", "first authorized obligation"],
+      ["What is its amount?", "completed", "Obligation: Utilities is $1.20"]
+    ]
+  },
+  "safety": "Amount is read from the revalidated canonical obligation ID; the natural wording does not create or alter financial state."
+}
