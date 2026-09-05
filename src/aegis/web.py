@@ -30,6 +30,7 @@ DeviceState = Callable[[Principal], dict[str, Any]]
 SystemsState = Callable[[Principal], dict[str, Any]]
 TodayState = Callable[[Principal], dict[str, Any]]
 ObjectivesState = Callable[[Principal], dict[str, Any]]
+CommunicationsState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -166,6 +167,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="devices">Devices</button>
+<button type="button" data-view="communications">Communications</button>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
@@ -545,6 +547,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     household: ['Household', 'Shared chores, groceries, and obligations.'],
     systems: ['Systems', 'Authorized hosts, services, and network state.'],
     devices: ['Devices', 'Authorized device state and bounded controls.'],
+    communications: ['Communications', 'Authorized drafts and provider outcomes; delivery is never inferred.'],
     research: ['Research', 'Ask for current public information with sources.'],
     packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
     objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
@@ -559,6 +562,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'packs') loadPacks();
   if (activeView === 'calendar') loadCalendar();
   if (activeView === 'devices') loadDevices();
+  if (activeView === 'communications') loadCommunications();
   if (activeView === 'systems') loadSystems();
   if (activeView === 'home') loadToday();
   if (activeView === 'objectives') loadObjectives();
@@ -843,6 +847,25 @@ async function loadCompositions() {
     panel.textContent = 'Composition metadata is unavailable; no action state was changed.';
   }
 }
+async function loadCommunications() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/communications');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Communications unavailable.');
+    const messages = payload.messages || [];
+    const heading = document.createElement('p');
+    heading.textContent = messages.length
+      ? `${messages.length} authorized communication outcome(s)`
+      : 'No communication drafts or sends yet.';
+    panel.append(heading, renderDetailValue({
+      provider_boundary: payload.provider_boundary,
+      outcomes: messages,
+    }));
+  } catch (_) {
+    panel.textContent = 'Communications state is unavailable; no message was sent.';
+  }
+}
 async function loadPacks() {
   const panel = document.getElementById('detail');
   panel.replaceChildren();
@@ -1072,6 +1095,7 @@ class BrowserApp:
         systems_state: SystemsState | None = None,
         today_state: TodayState | None = None,
         objectives_state: ObjectivesState | None = None,
+        communications_state: CommunicationsState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -1092,6 +1116,7 @@ class BrowserApp:
         self.systems_state = systems_state
         self.today_state = today_state
         self.objectives_state = objectives_state
+        self.communications_state = communications_state
 
     def dispatch(
         self,
@@ -1318,6 +1343,24 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "objectives unavailable"
                 )
             return self._json(HTTPStatus.OK, objectives_projection)
+        if method == "GET" and route == "/api/communications":
+            if self.communications_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                communications_projection = self.communications_state(principal)
+                if not isinstance(communications_projection, dict):
+                    raise ValueError("communications state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "communications unavailable",
+                )
+            return self._json(HTTPStatus.OK, communications_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1557,6 +1600,7 @@ def serve(
     systems_state: SystemsState | None = None,
     today_state: TodayState | None = None,
     objectives_state: ObjectivesState | None = None,
+    communications_state: CommunicationsState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1580,6 +1624,7 @@ def serve(
         systems_state=systems_state,
         today_state=today_state,
         objectives_state=objectives_state,
+        communications_state=communications_state,
     )
 
     class Handler(BaseHTTPRequestHandler):
