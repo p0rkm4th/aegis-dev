@@ -1044,6 +1044,32 @@ def test_contextual_obligation_focus_reports_responsible_party():
     assert result.message == "Obligation: Utilities is assigned to bob"
 
 
+def test_contextual_obligation_focus_reports_amount():
+    obligation = HouseholdObligation("obligation-1", "Utilities", 120, "bob", False)
+    result = resolve_contextual_obligation_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="How much is it?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "obligation": {
+                        "obligation_id": obligation.obligation_id,
+                        "title": obligation.title,
+                        "responsible_id": obligation.responsible_id,
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"obligations": (obligation,)},
+    )
+
+    assert result is not None
+    assert result.message == "Obligation: Utilities is $1.20"
+
+
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
     context = Context(
         values={
