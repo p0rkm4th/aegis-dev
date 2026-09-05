@@ -1,0 +1,15 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-obligation-referent",
+  "source_sha": "9c9e7a869d85e2703ab38d73d7c5b70203ed43e6",
+  "hosted": {"workflow": "validation", "run_id": "33967450357", "conclusion": "success"},
+  "owner": {
+    "release_sha": "9c9e7a869d85e2703ab38d73d7c5b70203ed43e6",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What obligations are unsettled?", "completed", "Utilities (bob)"],
+      ["What about the first one?", "completed", "Utilities (unsettled) (bob)"]
+    ]
+  },
+  "safety": "Obligation evidence survives compaction through the existing canonical referent seam; no mutation or authority widening occurs."
+}
