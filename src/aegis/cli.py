@@ -532,6 +532,61 @@ def _device_state(principal: Principal) -> dict[str, Any]:
     return observation.evidence
 
 
+class _InventoryOnlyHomelabRuntime:
+    def restart(self, _service: Any) -> bool:
+        return False
+
+    def health(self, _service: Any) -> bool:
+        return False
+
+
+def _systems_state(principal: Principal) -> dict[str, Any]:
+    """Expose authorized Homelab and Network inventory without action authority."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        network = PostgresNetworkStore(connection).load(principal)
+        homelab = PostgresHomelabStore(connection).load(principal, _InventoryOnlyHomelabRuntime())
+        return {
+            "source": "canonical_postgresql_inventory",
+            "hosts": [
+                {
+                    "host_id": host.host_id,
+                    "hostname": host.hostname,
+                    "address": host.address,
+                    "resources": host.resources,
+                }
+                for host in homelab.hosts.values()
+            ],
+            "services": [
+                {
+                    "service_id": service.service_id,
+                    "host_id": service.host_id,
+                    "name": service.name,
+                    "health_endpoint_configured": bool(service.health_endpoint),
+                }
+                for service in homelab.services.values()
+            ],
+            "authorized_network_devices": [
+                {"address": device.address, "hostname": device.hostname}
+                for device in network.devices.values()
+            ],
+            "active_network_scopes": [
+                {
+                    "scope_id": scope.scope_id,
+                    "purpose": scope.purpose,
+                    "cidrs": list(scope.cidrs),
+                }
+                for scope in network.scopes.values()
+                if scope.active
+            ],
+            "action_authority": "read-only inventory; no restart or probe authority",
+        }
+    finally:
+        connection.close()
+
+
 def _today_state(principal: Principal) -> dict[str, Any]:
     """Build a truthful bounded owner dashboard from authorized canonical stores."""
 
@@ -1658,6 +1713,7 @@ def main() -> int:
                 pack_enable=_pack_enable,
                 calendar_state=_calendar_state,
                 device_state=_device_state,
+                systems_state=_systems_state,
                 today_state=_today_state,
                 objectives_state=_objectives_state,
             )

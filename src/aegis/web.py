@@ -27,6 +27,7 @@ PackState = Callable[[Principal], dict[str, Any]]
 PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CalendarState = Callable[[Principal], dict[str, Any]]
 DeviceState = Callable[[Principal], dict[str, Any]]
+SystemsState = Callable[[Principal], dict[str, Any]]
 TodayState = Callable[[Principal], dict[str, Any]]
 ObjectivesState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
@@ -558,6 +559,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'packs') loadPacks();
   if (activeView === 'calendar') loadCalendar();
   if (activeView === 'devices') loadDevices();
+  if (activeView === 'systems') loadSystems();
   if (activeView === 'home') loadToday();
   if (activeView === 'objectives') loadObjectives();
   renderResearchSummary();
@@ -774,6 +776,20 @@ async function loadDevices() {
     panel.append(heading, renderDetailValue(payload));
   } catch (_) {
     panel.textContent = 'Device state is unavailable; no device action was attempted.';
+  }
+}
+async function loadSystems() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/systems');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Systems unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = 'Authorized systems inventory (read-only view)';
+    panel.append(heading, renderDetailValue(payload));
+  } catch (_) {
+    panel.textContent = 'Systems inventory is unavailable; no system action was attempted.';
   }
 }
 async function loadToday() {
@@ -1053,6 +1069,7 @@ class BrowserApp:
         pack_enable: PackEnable | None = None,
         calendar_state: CalendarState | None = None,
         device_state: DeviceState | None = None,
+        systems_state: SystemsState | None = None,
         today_state: TodayState | None = None,
         objectives_state: ObjectivesState | None = None,
     ) -> None:
@@ -1072,6 +1089,7 @@ class BrowserApp:
         self.pack_enable = pack_enable
         self.calendar_state = calendar_state
         self.device_state = device_state
+        self.systems_state = systems_state
         self.today_state = today_state
         self.objectives_state = objectives_state
 
@@ -1248,6 +1266,24 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "device state unavailable"
                 )
             return self._json(HTTPStatus.OK, device_projection)
+        if method == "GET" and route == "/api/systems":
+            if self.systems_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                systems_projection = self.systems_state(principal)
+                if not isinstance(systems_projection, dict):
+                    raise ValueError("systems state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "systems state unavailable",
+                )
+            return self._json(HTTPStatus.OK, systems_projection)
         if method == "GET" and route == "/api/today":
             if self.today_state is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1518,6 +1554,7 @@ def serve(
     pack_enable: PackEnable | None = None,
     calendar_state: CalendarState | None = None,
     device_state: DeviceState | None = None,
+    systems_state: SystemsState | None = None,
     today_state: TodayState | None = None,
     objectives_state: ObjectivesState | None = None,
 ) -> None:
@@ -1540,6 +1577,7 @@ def serve(
         pack_enable=pack_enable,
         calendar_state=calendar_state,
         device_state=device_state,
+        systems_state=systems_state,
         today_state=today_state,
         objectives_state=objectives_state,
     )
