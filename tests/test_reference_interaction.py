@@ -19,6 +19,7 @@ from aegis.contracts import (
 )
 from aegis.household import (
     Chore,
+    ContextualChorePriorityFastPath,
     GroceryReadFastPath,
     HouseholdEvent,
     HouseholdObligation,
@@ -1145,6 +1146,31 @@ def test_contextual_chore_focus_reports_status_by_canonical_id():
     )
     assert result is not None
     assert result.message == "Chore: clean kitchen is open"
+
+
+def test_chore_priority_does_not_capture_explicit_plain_ordinal_read():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_chores",
+                    "candidates": [
+                        {"title": "clean kitchen", "completed": False},
+                        {"title": "wash dishes", "completed": False},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualChorePriorityFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Show me the first chore.",
+        ),
+        context,
+    )
+    assert result is None
 
 
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
