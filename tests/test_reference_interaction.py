@@ -2469,6 +2469,33 @@ def test_contextual_next_task_read_uses_successor_of_authorized_focus():
     assert result.message == "Task: next task (open)"
 
 
+def test_contextual_next_grocery_read_does_not_invent_list_order():
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the next one?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_items",
+                        "candidates": ["rice", "beans"],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.message == (
+        "The grocery list has no canonical next item. "
+        "Please name a grocery item or choose an ordinal."
+    )
+
+
 def test_contextual_task_after_that_accepts_explicit_noun():
     first = {"task_id": "one", "title": "first task", "status": "open"}
     second = {"task_id": "two", "title": "next task", "status": "open"}
