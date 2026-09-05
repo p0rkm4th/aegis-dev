@@ -644,9 +644,7 @@ class CalendarEventsVerifier:
             verified=verified,
             evidence={"event_count": len(evidence.get("events", [])) if verified else 0},
             reason=(
-                "fixture calendar readback is structurally valid"
-                if verified
-                else "calendar read failed"
+                "calendar readback is structurally valid" if verified else "calendar read failed"
             ),
         )
 

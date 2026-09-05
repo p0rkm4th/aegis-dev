@@ -5,6 +5,7 @@ from uuid import uuid4
 from aegis.calendar import (
     CalendarEvent,
     FixtureCalendarProvider,
+    GoogleCalendarRestProvider,
     calendar_events_evidence,
     configured_calendar_provider,
 )
@@ -49,6 +50,32 @@ def test_configured_calendar_provider_rejects_unbounded_snapshot(monkeypatch) ->
         assert "at most 50" in str(exc)
     else:
         raise AssertionError("unbounded calendar snapshot was accepted")
+
+
+def test_google_calendar_provider_reads_bounded_events(monkeypatch) -> None:
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self, _limit):
+            return (
+                b'{"items":[{"id":"g-1","summary":"Dentist","start":'
+                b'{"dateTime":"2026-09-08T15:00:00+00:00"}}]}'
+            )
+
+    seen = []
+    monkeypatch.setattr(
+        "aegis.calendar.urllib.request.urlopen",
+        lambda request, timeout: seen.append((request, timeout)) or Response(),
+    )
+    events = GoogleCalendarRestProvider("token").list_events()
+    assert events[0].title == "Dentist"
+    assert events[0].source == "google_calendar"
+    assert "singleEvents=true" in seen[0][0].full_url
+    assert seen[0][0].get_header("Authorization") == "Bearer token"
 
 
 def test_fixture_documents_preserve_authorized_read_provenance() -> None:
