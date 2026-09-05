@@ -554,7 +554,14 @@ def _pack_enable(principal: Principal, request: dict[str, Any]) -> dict[str, Any
         if row is None or str(row[0]) != Role.OWNER.value:
             raise PermissionError("only the canonical Space owner may enable a Pack")
         manager = PackManager(store=PostgresPackStore(connection))
-        declared = manager.declared_permissions(pack_id)
+        # The UI may be the first caller to request lifecycle state after a
+        # release adds a Pack. Reconcile the declared reference bundles before
+        # resolving permissions; discovery is not enablement or approval.
+        try:
+            manager.reconcile(tuple(reference_bundles()))
+            declared = manager.declared_permissions(pack_id)
+        except KeyError as exc:
+            raise ValueError(f"unknown Pack: {pack_id}") from exc
         approved = frozenset(item for item in permissions if isinstance(item, str))
         if approved != declared:
             raise PermissionError("explicit approval must name every declared Pack permission")
