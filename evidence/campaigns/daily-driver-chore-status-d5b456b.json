@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-chore-status",
+  "source_sha": "d5b456b1b9b76d2328ef265c5e25f00c6032190f",
+  "hosted": {"workflow": "validation", "run_id": "33968949894", "conclusion": "success"},
+  "owner": {
+    "release_sha": "d5b456b1b9b76d2328ef265c5e25f00c6032190f",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What chores are open?", "completed", "canonical chore collection"],
+      ["What about the first one?", "completed", "Chore: clean the kitchen (open)"],
+      ["Is it done?", "completed", "Chore: clean the kitchen is open"]
+    ]
+  },
+  "safety": "Status is read from the revalidated canonical chore ID selected by the prior ordinal result. Duplicate titles cannot trigger a mutation or widen authority; no mutation occurred."
+}
