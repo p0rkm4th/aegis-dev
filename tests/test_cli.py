@@ -404,12 +404,17 @@ def test_household_read_keeps_explicit_obligation_questions():
     assert HouseholdReadFastPath.matches("What are my outstanding obligations?") is True
     assert HouseholdReadFastPath.matches("No, show me what is on my calendar.") is True
     assert HouseholdReadFastPath.matches("Can you tell me about my calendar?") is True
+    assert HouseholdReadFastPath.matches("Can you tell me what chores are open?") is True
+    assert (
+        HouseholdReadFastPath.matches("Could you tell me what obligations are outstanding?") is True
+    )
 
 
 def test_grocery_read_accepts_polite_read_prefix():
     from aegis.household import GroceryReadFastPath
 
     assert GroceryReadFastPath.matches("Can you tell me what is on my grocery list?") is True
+    assert GroceryReadFastPath.matches("Can you tell me what groceries are on my list?") is True
 
 
 def test_household_read_does_not_invent_chore_ordinal_order():
@@ -4312,6 +4317,7 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     assert not TaskReadFastPath.matches("I'd like to put a task on my list to verify the drill")
     assert not TaskReadFastPath.matches("Mark the task Verify backup retention as done")
     assert not TaskReadFastPath.matches("Which task should I do first?")
+    assert TaskReadFastPath.matches("Can you tell me what tasks are open")
 
 
 def test_task_read_fast_path_resolves_explicit_ordinal_from_canonical_order():

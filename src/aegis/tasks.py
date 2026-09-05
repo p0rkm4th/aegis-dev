@@ -579,7 +579,9 @@ class TaskReadFastPath:
         # with a leading connective. Normalize only that connective; the
         # task vocabulary and read-prefix checks remain authoritative.
         text = re.sub(r"^(?:and|but)\s+", "", text)
-        read_text = re.sub(r"^(?:could you|can you|please)\s+", "", text)
+        read_text = re.sub(
+            r"^(?:could you tell me|can you tell me|could you|can you|please)\s+", "", text
+        )
         if is_mutation_request(text):
             return False
         if (
