@@ -698,6 +698,80 @@ def _objectives_state(principal: Principal) -> dict[str, Any]:
         connection.close()
 
 
+def _communications_state(principal: Principal) -> dict[str, Any]:
+    """Project recent authorized communication outcomes without delivery inflation."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        rows = connection.execute(
+            """SELECT o.id, o.state, o.payload, o.updated_at,
+                      r.state, r.evidence, r.message
+               FROM objectives o
+               LEFT JOIN results r ON r.objective_id = o.id
+               WHERE o.principal_id = %s AND o.vault_id = %s
+                 AND (o.space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = o.space_id
+                     AND sm.active = TRUE
+                 ))
+                 AND o.payload->'action'->>'action_id' IN
+                     ('communications.messages.send', 'communication-drafts.messages.draft',
+                      'calendar-communications.events.draft')
+               ORDER BY o.updated_at DESC LIMIT 25""",
+            (principal.id, principal.vault_id, principal.id),
+        ).fetchall()
+        messages: list[dict[str, Any]] = []
+        for (
+            objective_id,
+            objective_state,
+            payload,
+            updated_at,
+            result_state,
+            evidence,
+            message,
+        ) in rows:
+            data = payload if isinstance(payload, dict) else json.loads(str(payload))
+            action = data.get("action", {}) if isinstance(data, dict) else {}
+            arguments = action.get("arguments", {}) if isinstance(action, dict) else {}
+            result_evidence = evidence if isinstance(evidence, dict) else {}
+            send_evidence = result_evidence.get("communication_send")
+            action_id = action.get("action_id", "") if isinstance(action, dict) else ""
+            messages.append(
+                {
+                    "objective_id": str(objective_id),
+                    "state": str(result_state or objective_state),
+                    "updated_at": updated_at.isoformat()
+                    if hasattr(updated_at, "isoformat")
+                    else str(updated_at),
+                    "action_id": action_id,
+                    "target": arguments.get("target") if isinstance(arguments, dict) else None,
+                    "channel": arguments.get("channel") if isinstance(arguments, dict) else None,
+                    "provider_status": send_evidence.get("status")
+                    if isinstance(send_evidence, dict)
+                    else ("DRAFTED" if "draft" in str(action_id) else None),
+                    "provider_message_id": send_evidence.get("provider_message_id")
+                    if isinstance(send_evidence, dict)
+                    else None,
+                    "detail": str(message or ""),
+                    "delivery_proven": (
+                        send_evidence.get("status") == "DELIVERED"
+                        if isinstance(send_evidence, dict)
+                        else False
+                    ),
+                }
+            )
+        return {
+            "messages": messages,
+            "provider_boundary": (
+                "provider acceptance and delivery are distinct; "
+                "only provider evidence may claim delivery"
+            ),
+        }
+    finally:
+        connection.close()
+
+
 def _composition_state(principal: Principal) -> dict[str, Any]:
     """Expose workflow metadata without exposing execution authority."""
 
@@ -1836,6 +1910,7 @@ def main() -> int:
                 systems_state=_systems_state,
                 today_state=_today_state,
                 objectives_state=_objectives_state,
+                communications_state=_communications_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
