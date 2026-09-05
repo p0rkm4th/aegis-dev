@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "state_basis_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
-  "deterministic_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
-  "last_pushed_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
-  "hosted_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
-  "hosted_ci_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "repository_head_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "deterministic_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "last_pushed_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "hosted_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "hosted_ci_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+    "commit_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
     "conclusion": "success",
-    "run_id": "33980982501",
-    "observed_at": "2026-09-05T17:31:00Z"
+    "run_id": "33981337000",
+    "observed_at": "2026-09-05T17:35:00Z"
   },
-  "installed_release_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
-  "running_release_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
-  "live_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "installed_release_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "running_release_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "live_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "promoted-owner-composition-dogfood",
+  "active_checkpoint": "communications-owner-controlled-failure",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "promoted-owner-composition-dogfood",
+  "current_checkpoint": "communications-owner-controlled-failure",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -52,11 +52,11 @@
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
     "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation",
-    "owner release 96f93f3 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
+    "owner release 9772aa5 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"documents.export_to_workspace is a typed two-permission composition with deterministic verification; live owner proof remains pending"
-    ,"live owner service was inspected successfully but remains on the prior promoted release and does not yet expose Calendar/Documents additions"
+    ,"live owner service now exposes Calendar/Documents/Communications Pack nodes on the promoted release; communications remains discovered until explicit enablement"
     ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"

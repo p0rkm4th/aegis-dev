@@ -1,0 +1,23 @@
+{
+  "source_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "hosted_run_id": "33981337000",
+  "installed_release_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "running_release_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "live_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "session_kind": "communications-owner-controlled-failure",
+  "flow": {
+    "utterance": "Show my messages",
+    "outcome": "blocked",
+    "reason": "Communications Pack is discovered but not enabled; no ActionCard was available",
+    "mutation": 0
+  },
+  "runtime": {
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy",
+    "identity": "authenticated owner principal",
+    "constellation": "Communications node and Messages capability visible"
+  },
+  "safety": "discovery did not grant permission or enablement",
+  "remaining_gap": "owner-approved enablement and provider-backed read proof"
+}
