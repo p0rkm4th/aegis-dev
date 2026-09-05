@@ -23,6 +23,7 @@ WorkspaceState = Callable[[Principal], dict[str, Any]]
 WorkspaceCreate = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CompositionState = Callable[[Principal], dict[str, Any]]
 PackState = Callable[[Principal], dict[str, Any]]
+PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -125,6 +126,13 @@ class PackProjection(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     packs: tuple[dict[str, Any], ...] = Field(default=(), max_length=50)
+
+
+class PackEnableRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    pack_id: str = Field(min_length=1, max_length=100)
+    permissions: tuple[str, ...] = Field(default=(), max_length=50)
+    confirm: bool
 
 
 _INDEX_HTML = """<!doctype html>
@@ -684,7 +692,36 @@ async function loadPacks() {
       ? `${payload.packs.length} Pack(s) in the lifecycle registry`
       : 'No Pack metadata is currently available.';
     panel.append(heading);
-    panel.append(renderDetailValue(payload.packs || []));
+    (payload.packs || []).forEach(pack => {
+      const card = document.createElement('section');
+      card.className = 'detail-card';
+      const title = document.createElement('h2');
+      title.textContent = `${pack.label || pack.pack_id} · ${pack.status || 'unknown'}`;
+      card.append(title, renderDetailValue(pack));
+      if (pack.status !== 'enabled' && Array.isArray(pack.permissions)) {
+        const enable = document.createElement('button');
+        enable.type = 'button';
+        enable.textContent = 'Approve & enable';
+        enable.addEventListener('click', async () => {
+          enable.disabled = true;
+          try {
+            const response = await apiFetch('/api/packs/enable', {
+              method: 'POST', headers: {'content-type': 'application/json'},
+              body: JSON.stringify({pack_id: pack.pack_id, permissions: pack.permissions, confirm: true})
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Pack enablement was denied.');
+            await loadPacks();
+            await loadState();
+          } catch (_) {
+            enable.disabled = false;
+            enable.textContent = 'Enablement denied';
+          }
+        });
+        card.append(enable);
+      }
+      panel.append(card);
+    });
   } catch (_) {
     panel.textContent = 'Pack state is unavailable; no lifecycle or permission state was changed.';
   }
@@ -865,6 +902,7 @@ class BrowserApp:
         workspace_create: WorkspaceCreate | None = None,
         composition_state: CompositionState | None = None,
         pack_state: PackState | None = None,
+        pack_enable: PackEnable | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -878,6 +916,7 @@ class BrowserApp:
         self.workspace_create = workspace_create
         self.composition_state = composition_state
         self.pack_state = pack_state
+        self.pack_enable = pack_enable
 
     def dispatch(
         self,
@@ -997,6 +1036,29 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "Pack state unavailable"
                 )
             return self._json(HTTPStatus.OK, pack_projection.model_dump(mode="json"))
+        if method == "POST" and route == "/api/packs/enable":
+            if self.pack_enable is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                request = PackEnableRequest.model_validate(json.loads(body.decode("utf-8")))
+                if request.confirm is not True:
+                    raise PermissionError("explicit Pack enablement confirmation is required")
+                result = self.pack_enable(principal, request.model_dump(mode="json"))
+                if not isinstance(result, dict):
+                    raise ValueError("Pack enablement result must be an object")
+            except PermissionError as exc:
+                return self._error(HTTPStatus.FORBIDDEN, "action_denied", str(exc))
+            except (
+                UnicodeDecodeError,
+                json.JSONDecodeError,
+                TypeError,
+                ValueError,
+                ValidationError,
+            ):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid Pack enablement request"
+                )
+            return self._json(HTTPStatus.OK, result)
         if method == "POST" and route == "/api/workspace":
             if self.workspace_create is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1205,6 +1267,7 @@ def serve(
     workspace_create: WorkspaceCreate | None = None,
     composition_state: CompositionState | None = None,
     pack_state: PackState | None = None,
+    pack_enable: PackEnable | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1221,6 +1284,7 @@ def serve(
         workspace_create=workspace_create,
         composition_state=composition_state,
         pack_state=pack_state,
+        pack_enable=pack_enable,
     )
 
     class Handler(BaseHTTPRequestHandler):

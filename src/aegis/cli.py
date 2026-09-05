@@ -48,6 +48,7 @@ from .identity import (
     KeycloakIdentityProvider,
     KeycloakOIDCClient,
     PostgresExternalPrincipalResolver,
+    Role,
 )
 from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
@@ -532,6 +533,47 @@ def _pack_state(principal: Principal) -> dict[str, Any]:
                 }
             )
         return {"packs": projection}
+    finally:
+        connection.close()
+
+
+def _pack_enable(principal: Principal, request: dict[str, Any]) -> dict[str, Any]:
+    """Apply only an explicit owner-approved Pack lifecycle transition."""
+
+    pack_id = request.get("pack_id")
+    permissions = request.get("permissions")
+    if not isinstance(pack_id, str) or not isinstance(permissions, list):
+        raise ValueError("Pack enablement request is malformed")
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        if not principal.space_ids:
+            raise PermissionError("Pack enablement requires an explicit Space")
+        row = connection.execute(
+            "SELECT role FROM space_memberships WHERE principal_id = %s "
+            "AND space_id = %s AND active = TRUE",
+            (principal.id, principal.space_ids[0]),
+        ).fetchone()
+        if row is None or str(row[0]) != Role.OWNER.value:
+            raise PermissionError("only the canonical Space owner may enable a Pack")
+        manager = PackManager(store=PostgresPackStore(connection))
+        declared = manager.declared_permissions(pack_id)
+        approved = frozenset(item for item in permissions if isinstance(item, str))
+        if approved != declared:
+            raise PermissionError("explicit approval must name every declared Pack permission")
+        status = manager.status(pack_id)
+        if status is PackStatus.DISCOVERED:
+            manager.install(pack_id, approved, actor_id=principal.id)
+            status = PackStatus.INSTALLED
+        if status in {PackStatus.INSTALLED, PackStatus.DISABLED}:
+            manager.enable(pack_id, actor_id=principal.id)
+        return {
+            "pack_id": pack_id,
+            "status": manager.status(pack_id).value,
+            "approved_permissions": sorted(approved),
+            "actor_id": principal.id,
+            "authority": "explicit owner approval",
+        }
     finally:
         connection.close()
 
@@ -1273,6 +1315,7 @@ def main() -> int:
                 workspace_state=_workspace_state,
                 composition_state=_composition_state,
                 pack_state=_pack_state,
+                pack_enable=_pack_enable,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

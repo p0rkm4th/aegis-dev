@@ -1,0 +1,14 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "pack-enable-owner-approved",
+  "source": "working-tree",
+  "proof": {
+    "route": "POST /api/packs/enable",
+    "approval": "explicit confirmation plus exact declared permissions",
+    "authorization": "canonical active Space owner",
+    "transition": "discovered -> installed -> enabled",
+    "safety": "no model-controlled enablement; no permission superset accepted",
+    "deterministic_tests": "809 passed, 5 skipped"
+  },
+  "result": "Pack lifecycle can be advanced by an explicit authorized owner request while discovery, installation, enablement, and permission grants remain distinct."
+}
