@@ -839,7 +839,8 @@ class TaskPriorityFastPath:
             dated = tuple(
                 task
                 for task in dated
-                if task.due_at is not None and _aware_datetime(task.due_at).date() == target_date
+                if task.due_at is not None
+                and _aware_datetime(task.due_at).astimezone().date() == target_date
             )
         weekend = None
         next_week = None

@@ -4241,6 +4241,38 @@ def test_task_priority_fast_path_filters_temporal_should_do_request():
     assert result.evidence["task"]["title"] == "call the dentist"
 
 
+def test_task_priority_fast_path_uses_owner_local_date_at_utc_boundary():
+    from zoneinfo import ZoneInfo
+
+    owner_zone = ZoneInfo("America/Chicago")
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=owner_zone)
+    tomorrow_evening = datetime(2026, 9, 6, 19, 11, tzinfo=owner_zone)
+    later = Task(
+        uuid4(),
+        "apartment",
+        "check the patio latch",
+        "alice",
+        due_at=tomorrow_evening.astimezone(timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (later,)
+
+    result = TaskPriorityFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which task is due first tomorrow?",
+        ),
+        now=now,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["priority_basis"] == "earliest_due_at_on_tomorrow"
+    assert result.evidence["task"]["title"] == "check the patio latch"
+
+
 def test_task_read_fast_path_exposes_canonical_due_at():
     from datetime import datetime, timezone
 
