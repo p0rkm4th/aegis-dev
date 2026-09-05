@@ -28,6 +28,14 @@ class WorkspaceRun:
     timed_out: bool = False
 
 
+def _bounded_output(value: str | bytes | None, limit: int) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value[:limit].decode("utf-8", errors="replace")
+    return value[:limit]
+
+
 class ScopedWorkspace:
     """A confined workspace with bounded file and process operations."""
 
@@ -142,8 +150,8 @@ class ScopedWorkspace:
             return WorkspaceRun(
                 correlation_id,
                 124,
-                (exc.stdout or "")[: self.max_output_bytes],
-                (exc.stderr or "")[: self.max_output_bytes],
+                _bounded_output(exc.stdout, self.max_output_bytes),
+                _bounded_output(exc.stderr, self.max_output_bytes),
                 True,
             )
         return WorkspaceRun(
