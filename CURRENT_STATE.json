@@ -60,6 +60,7 @@
     ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
+    ,"communications read capability is deterministic-green through a generic Pack runtime; owner promotion and live provider proof remain pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -88,7 +89,7 @@
     "owner_workflows_completed": 3,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood Research and CapabilityNeed investigation through the promoted UI, then begin the next breadth tranche with a live-provider or communications slice while preserving the promoted release.",
+  "next_action": "Obtain hosted validation for the communications slice, promote it through the existing release path, then dogfood authenticated communications read and begin approval-gated drafting.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
