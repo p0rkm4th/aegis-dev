@@ -666,6 +666,12 @@ class TaskReadFastPath:
                 if task.due_at is not None
                 and due_start <= _aware_datetime(task.due_at).astimezone().date() < due_end
             )
+
+            def temporal_key(task: Task) -> datetime:
+                assert task.due_at is not None
+                return _aware_datetime(task.due_at)
+
+            tasks = tuple(sorted(tasks, key=temporal_key))
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
