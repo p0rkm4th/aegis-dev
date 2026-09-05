@@ -3749,6 +3749,55 @@ def test_browser_app_exposes_bounded_calendar_projection():
     assert json.loads(payload)["events"] == [{"event_id": "event-1", "title": "alice"}]
 
 
+def test_browser_app_exposes_authorized_documents_and_scoped_read():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        documents_state=lambda current: {
+            "source": "authorized_document_fixture",
+            "documents": [{"document_id": "doc-1", "title": current.id}],
+        },
+        document_file=lambda current, document_id: {
+            "document_id": document_id,
+            "title": current.id,
+            "text": "scoped content",
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/documents", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["documents"][0]["title"] == "alice"
+
+    status, _, payload = app.dispatch(
+        "GET",
+        "/api/documents/file?document_id=doc-1",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload)["text"] == "scoped content"
+
+
+def test_browser_app_rejects_malformed_document_read_query():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        document_file=lambda *_: {"text": "must not be called"},
+        session_token="session-secret",
+    )
+    status, _, _ = app.dispatch(
+        "GET",
+        "/api/documents/file?document_id=doc-1&extra=x",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 400
+
+
 def test_browser_app_exposes_bounded_device_projection():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
@@ -4706,9 +4755,20 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "let initialTheme = 'dark';" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
     assert '<nav class="product-nav" aria-label="AEGIS views">' in _INDEX_HTML
-    for view in ("Today", "Tasks", "Calendar", "Household", "Systems", "Research", "Packs"):
+    for view in (
+        "Today",
+        "Tasks",
+        "Calendar",
+        "Household",
+        "Systems",
+        "Research",
+        "Packs",
+        "Documents",
+    ):
         assert f">{view}</button>" in _INDEX_HTML
     assert "Research is available through conversation" in _INDEX_HTML
+    assert "async function loadDocuments()" in _INDEX_HTML
+    assert "Read document" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
     assert "setOutcomeStatus(result.state)" in _INDEX_HTML

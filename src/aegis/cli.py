@@ -39,6 +39,7 @@ from .contracts import (
     Result,
     WorkingSet,
 )
+from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
 from .finance import PostgresFinanceSnapshotStore
@@ -510,6 +511,45 @@ def _calendar_state(principal: Principal) -> dict[str, Any]:
 
     del principal
     return calendar_events_evidence(configured_calendar_provider().list_events())
+
+
+def _documents_state(principal: Principal) -> dict[str, Any]:
+    """Expose bounded authorized document inventory without granting write authority."""
+
+    del principal
+    evidence = documents_evidence(configured_document_provider().list_documents())
+    documents = cast(list[dict[str, Any]], evidence["documents"])
+    return {
+        "source": evidence["source"],
+        "documents": [
+            {
+                "document_id": item["document_id"],
+                "title": item["title"],
+                "source": item["source"],
+                "preview": str(item["text"])[:500],
+            }
+            for item in documents[:50]
+        ],
+        "transformation_boundary": (
+            "Document export and summary remain separate Core-authorized Workspace actions; "
+            "reading a document does not grant mutation authority."
+        ),
+    }
+
+
+def _document_file(principal: Principal, document_id: str) -> dict[str, Any]:
+    """Read one authorized document through the configured provider boundary."""
+
+    del principal
+    for document in configured_document_provider().list_documents():
+        if document.document_id == document_id:
+            return {
+                "document_id": document.document_id,
+                "title": document.title,
+                "source": document.source,
+                "text": document.text[:20_000],
+            }
+    raise KeyError(document_id)
 
 
 def _device_state(principal: Principal) -> dict[str, Any]:
@@ -2070,6 +2110,8 @@ def main() -> int:
                 today_state=_today_state,
                 objectives_state=_objectives_state,
                 communications_state=_communications_state,
+                documents_state=_documents_state,
+                document_file=_document_file,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

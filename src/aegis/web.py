@@ -31,6 +31,8 @@ SystemsState = Callable[[Principal], dict[str, Any]]
 TodayState = Callable[[Principal], dict[str, Any]]
 ObjectivesState = Callable[[Principal], dict[str, Any]]
 CommunicationsState = Callable[[Principal], dict[str, Any]]
+DocumentsState = Callable[[Principal], dict[str, Any]]
+DocumentFile = Callable[[Principal, str], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -168,6 +170,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="devices">Devices</button>
 <button type="button" data-view="communications">Communications</button>
+<button type="button" data-view="documents">Documents</button>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
@@ -548,6 +551,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     systems: ['Systems', 'Authorized hosts, services, and network state.'],
     devices: ['Devices', 'Authorized device state and bounded controls.'],
     communications: ['Communications', 'Authorized drafts and provider outcomes; delivery is never inferred.'],
+    documents: ['Documents', 'Authorized documents and bounded transformations.'],
     research: ['Research', 'Ask for current public information with sources.'],
     packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
     objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
@@ -563,6 +567,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'calendar') loadCalendar();
   if (activeView === 'devices') loadDevices();
   if (activeView === 'communications') loadCommunications();
+  if (activeView === 'documents') loadDocuments();
   if (activeView === 'systems') loadSystems();
   if (activeView === 'home') loadToday();
   if (activeView === 'objectives') loadObjectives();
@@ -645,6 +650,7 @@ async function loadState() {
     if (node.id.startsWith('pack-')) views.push('packs');
     if (/objective|capability|need/.test(searchable)) views.push('objectives');
     if (/workspace|artifact|file/.test(searchable)) views.push('workspace');
+    if (/document/.test(searchable)) views.push('documents');
     renderedNodeViews.set(node.id, views);
     card.append(title, detail); return card;
   }));
@@ -894,6 +900,46 @@ async function loadCommunications() {
     panel.textContent = 'Communications state is unavailable; no message was sent.';
   }
 }
+async function loadDocuments() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/documents');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Documents unavailable.');
+    const documents = payload.documents || [];
+    const heading = document.createElement('p');
+    heading.textContent = documents.length
+      ? `${documents.length} authorized document(s)`
+      : 'No authorized documents are currently visible.';
+    panel.append(heading);
+    documents.forEach(documentRecord => {
+      const card = document.createElement('section'); card.className = 'detail-card';
+      const title = document.createElement('h3');
+      title.textContent = documentRecord.title || documentRecord.document_id || 'Document';
+      const metadata = document.createElement('p'); metadata.className = 'muted';
+      metadata.textContent = `${documentRecord.source || 'authorized source'} · ${documentRecord.document_id || 'unknown id'}`;
+      const button = document.createElement('button'); button.type = 'button';
+      button.textContent = 'Read document';
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        try {
+          const result = await fetchWithTimeout(`/api/documents/file?document_id=${encodeURIComponent(documentRecord.document_id)}`);
+          const file = await result.json();
+          if (!result.ok) throw new Error(file.error || 'Document unavailable.');
+          const pre = document.createElement('pre'); pre.className = 'detail-card';
+          pre.textContent = file.text || '';
+          card.append(pre);
+        } catch (_) { button.textContent = 'Document unavailable'; }
+        finally { button.disabled = false; }
+      });
+      card.append(title, metadata, button); panel.append(card);
+    });
+    if (payload.transformation_boundary) {
+      const boundary = document.createElement('p'); boundary.className = 'muted';
+      boundary.textContent = payload.transformation_boundary; panel.append(boundary);
+    }
+  } catch (_) { panel.textContent = 'Documents are unavailable; no document state was changed.'; }
+}
 async function loadPacks() {
   const panel = document.getElementById('detail');
   panel.replaceChildren();
@@ -1124,6 +1170,8 @@ class BrowserApp:
         today_state: TodayState | None = None,
         objectives_state: ObjectivesState | None = None,
         communications_state: CommunicationsState | None = None,
+        documents_state: DocumentsState | None = None,
+        document_file: DocumentFile | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -1145,6 +1193,8 @@ class BrowserApp:
         self.today_state = today_state
         self.objectives_state = objectives_state
         self.communications_state = communications_state
+        self.documents_state = documents_state
+        self.document_file = document_file
 
     def dispatch(
         self,
@@ -1389,6 +1439,43 @@ class BrowserApp:
                     "communications unavailable",
                 )
             return self._json(HTTPStatus.OK, communications_projection)
+        if method == "GET" and route == "/api/documents":
+            if self.documents_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                documents_projection = self.documents_state(principal)
+                if not isinstance(documents_projection, dict):
+                    raise ValueError("documents state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "documents unavailable",
+                )
+            return self._json(HTTPStatus.OK, documents_projection)
+        if method == "GET" and route == "/api/documents/file":
+            if self.document_file is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            query = parse_qs(urlparse(path).query, keep_blank_values=True)
+            if set(query) != {"document_id"} or len(query["document_id"]) != 1:
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid document request"
+                )
+            try:
+                payload = self.document_file(principal, query["document_id"][0])
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (KeyError, TypeError, ValueError, OSError):
+                return self._error(
+                    HTTPStatus.NOT_FOUND, "document_unavailable", "document unavailable"
+                )
+            return self._json(HTTPStatus.OK, payload)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1629,6 +1716,8 @@ def serve(
     today_state: TodayState | None = None,
     objectives_state: ObjectivesState | None = None,
     communications_state: CommunicationsState | None = None,
+    documents_state: DocumentsState | None = None,
+    document_file: DocumentFile | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1653,6 +1742,8 @@ def serve(
         today_state=today_state,
         objectives_state=objectives_state,
         communications_state=communications_state,
+        documents_state=documents_state,
+        document_file=document_file,
     )
 
     class Handler(BaseHTTPRequestHandler):
