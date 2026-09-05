@@ -2079,6 +2079,30 @@ def test_reference_ordinal_domain_reads_do_not_render_as_mutations() -> None:
         assert not rendered.startswith("Done —")
 
 
+def test_reference_scalar_priority_and_focus_reads_do_not_render_as_mutations():
+    for evidence in (
+        {
+            "collection": "events",
+            "priority_basis": "authorized_prior_result_latest_starts_at",
+            "authorized_event_priority": {"title": "inspection"},
+        },
+        {"collection": "events", "authorized_event_focus": {"title": "inspection"}},
+        {"collection": "canonical_tasks", "authorized_task_focus": {"title": "check gate"}},
+    ):
+        result = Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Canonical contextual read",
+            correlation_id=uuid4(),
+            evidence=evidence,
+        )
+
+        rendered = reference_format_result(result)
+
+        assert rendered == result.message
+        assert not rendered.startswith("Done —")
+
+
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     memory = MemoryRecord(
         uuid4(),
