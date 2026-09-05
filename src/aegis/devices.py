@@ -40,6 +40,26 @@ class DeviceGateway(Protocol):
     def call_service(self, command: dict[str, Any]) -> None: ...
 
 
+class FixtureDeviceGateway:
+    """Deterministic Home Assistant-shaped gateway for contract acceptance."""
+
+    def __init__(self, states: dict[str, dict[str, Any]] | None = None) -> None:
+        self.states = states or {}
+
+    def get_state(self, entity_id: str) -> dict[str, Any]:
+        return dict(self.states.get(entity_id, {"state": "unknown", "attributes": {}}))
+
+    def call_service(self, command: dict[str, Any]) -> None:
+        del command
+
+
+def device_states_evidence(states: tuple[DeviceState, ...]) -> dict[str, Any]:
+    return {
+        "source": "home_assistant_fixture",
+        "states": [state.model_dump(mode="json") for state in states[:50]],
+    }
+
+
 class DevicePolicy(Protocol):
     def allow_command(self, command: DeviceCommand) -> bool: ...
 

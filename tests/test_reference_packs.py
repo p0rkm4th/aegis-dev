@@ -27,6 +27,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "homelab",
         "network",
         "workspace",
+        "devices",
     }
 
 
@@ -49,6 +50,25 @@ def test_workspace_pack_uses_generic_runtime_and_readback(tmp_path, monkeypatch)
         )
     )
     assert observation.command_succeeded is True
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_devices_pack_reads_authorized_entity_state_through_generic_runtime() -> None:
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "devices.states.list"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=card.action, idempotency_key="device-1"
+        )
+    )
+    assert observation.command_succeeded is True
+    assert observation.evidence["source"] == "home_assistant_fixture"
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 

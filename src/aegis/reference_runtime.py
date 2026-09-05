@@ -23,6 +23,8 @@ from .reference_packs import (
     CalendarEventsVerifier,
     CommunicationsExecutor,
     CommunicationsVerifier,
+    DeviceStatesExecutor,
+    DeviceStatesVerifier,
     DocumentsExecutor,
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
@@ -192,6 +194,14 @@ def default_runtime_registry(
             {"communications.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def devices_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            DeviceStatesExecutor(),
+            DeviceStatesVerifier(),
+            {"devices.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
     def document_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -217,6 +227,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "documents.list": documents_runtime,
         "communications.messages.list": communications_runtime,
+        "devices.states.list": devices_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
     }
     for bundle in reference_bundles():

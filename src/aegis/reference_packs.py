@@ -9,6 +9,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 from uuid import uuid4
@@ -27,6 +28,7 @@ from .contracts import (
     VerificationContract,
     VerificationResult,
 )
+from .devices import FixtureDeviceGateway, HomeAssistantAdapter, device_states_evidence
 from .documents import FixtureDocumentProvider, documents_evidence
 from .gateway_rpc import (
     CorrelatedRpcClient,
@@ -256,6 +258,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "devices",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="devices.states.list",
+                        capability="devices.states.list",
+                        required_permissions=("devices.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read authorized Home Assistant entity states",
+                    relevance=1,
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "documents",
             "0.1.0",
             (
@@ -344,6 +362,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     permissions = {
         "calendar": ("calendar.read",),
         "communications": ("communications.read",),
+        "devices": ("devices.read",),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
@@ -417,6 +436,42 @@ class CommunicationsVerifier:
             reason="communications readback is structurally valid"
             if verified
             else "communications read failed",
+        )
+
+
+class DeviceStatesExecutor:
+    """Read-only device provider adapter; no service call is exposed here."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        gateway = FixtureDeviceGateway()
+        adapter = HomeAssistantAdapter(gateway, policy=_ReadOnlyDevicePolicy())
+        states = (adapter.read_state("homeassistant.status", datetime.now(timezone.utc)),)
+        return Observation(
+            execution_id=uuid4(),
+            evidence=device_states_evidence(states),
+            command_succeeded=True,
+        )
+
+
+class _ReadOnlyDevicePolicy:
+    def allow_command(self, command: Any) -> bool:
+        del command
+        return False
+
+
+class DeviceStatesVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        states = observation.evidence.get("states")
+        verified = observation.command_succeeded and isinstance(states, list)
+        return VerificationResult(
+            verified=verified,
+            evidence={"entity_count": len(cast(list[Any], states)) if verified else 0},
+            reason="device state readback is structurally valid"
+            if verified
+            else "device state read failed",
         )
 
 
