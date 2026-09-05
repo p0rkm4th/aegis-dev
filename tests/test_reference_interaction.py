@@ -137,6 +137,17 @@ def test_grocery_read_fast_path_accepts_left_to_buy_wording() -> None:
     )
 
 
+def test_shopping_list_wording_bypasses_domainless_collection_clarification() -> None:
+    result = DomainClarificationFastPath.resolve_ambiguous_collection_status(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is left on the shopping list?",
+        )
+    )
+
+    assert result is None
+
+
 def test_contextual_grocery_membership_rechecks_current_canonical_list() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:

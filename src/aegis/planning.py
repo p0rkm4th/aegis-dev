@@ -548,6 +548,7 @@ class DomainClarificationFastPath:
         "event",
         "grocery",
         "groceries",
+        "shopping list",
         "left to buy",
         "food",
         "household",
