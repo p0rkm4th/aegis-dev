@@ -3334,6 +3334,32 @@ def test_browser_app_exposes_principal_scoped_workspace_inventory():
     assert json.loads(payload)["workspaces"] == [{"workspace_id": "alice", "files": ["index.html"]}]
 
 
+def test_browser_app_routes_workspace_creation_through_authorized_callback():
+    principal = Principal(id="alice", vault_id="vault")
+    seen: list[tuple[str, dict[str, object]]] = []
+
+    def create(current, request):
+        seen.append((current.id, request))
+        return {"status": "verified", "artifact": "index.html"}
+
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        workspace_create=create,
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/workspace",
+        b'{"operation":"create_artifact"}',
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload) == {"status": "verified", "artifact": "index.html"}
+    assert seen == [("alice", {"operation": "create_artifact"})]
+
+
 def test_browser_app_session_gate_rejects_unauthenticated_api_requests():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     app = BrowserApp(

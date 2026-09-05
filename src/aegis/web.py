@@ -20,6 +20,7 @@ Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
 ContextualInteraction = Callable[[str, Principal, UUID, UUID | None], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 WorkspaceState = Callable[[Principal], dict[str, Any]]
+WorkspaceCreate = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -787,6 +788,7 @@ class BrowserApp:
         feedback: FeedbackRecorder | None = None,
         session_token: str | None = None,
         workspace_state: WorkspaceState | None = None,
+        workspace_create: WorkspaceCreate | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -797,6 +799,7 @@ class BrowserApp:
         self.feedback = feedback
         self.session_token = session_token
         self.workspace_state = workspace_state
+        self.workspace_create = workspace_create
 
     def dispatch(
         self,
@@ -884,6 +887,23 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "workspace_unavailable", "workspace unavailable"
                 )
             return self._json(HTTPStatus.OK, projection.model_dump(mode="json"))
+        if method == "POST" and route == "/api/workspace":
+            if self.workspace_create is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                request = json.loads(body.decode("utf-8"))
+                if not isinstance(request, dict) or not request:
+                    raise ValueError("workspace request must be an object")
+                result = self.workspace_create(principal, request)
+                if not isinstance(result, dict):
+                    raise ValueError("workspace result must be an object")
+            except PermissionError:
+                return self._error(HTTPStatus.FORBIDDEN, "action_denied", "workspace action denied")
+            except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid workspace request"
+                )
+            return self._json(HTTPStatus.OK, result)
         if method == "GET" and route == "/api/request-status":
             if self.request_status is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1072,6 +1092,7 @@ def serve(
     contextual_interaction: ContextualInteraction | None = None,
     feedback: FeedbackRecorder | None = None,
     workspace_state: WorkspaceState | None = None,
+    workspace_create: WorkspaceCreate | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1085,6 +1106,7 @@ def serve(
         feedback,
         session_token=secrets.token_urlsafe(32),
         workspace_state=workspace_state,
+        workspace_create=workspace_create,
     )
 
     class Handler(BaseHTTPRequestHandler):
