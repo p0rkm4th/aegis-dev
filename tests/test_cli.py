@@ -493,6 +493,37 @@ def test_household_event_read_filters_this_week():
     assert [event["title"] for event in result.evidence["events"]] == ["This week appointment"]
 
 
+def test_household_event_read_filters_rest_of_week():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    now = datetime.now(timezone.utc)
+    week_end = now.date() + timedelta(days=7 - now.weekday())
+    result = HouseholdReadFastPath(
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (
+                HouseholdEvent("current", "Later this week", now + timedelta(hours=1)),
+                HouseholdEvent(
+                    "later",
+                    "Next week appointment",
+                    datetime.combine(week_end + timedelta(days=1), datetime.min.time()),
+                ),
+            ),
+        }
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is on my calendar for the rest of the week?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "rest_of_week"
+    assert [event["title"] for event in result.evidence["events"]] == ["Later this week"]
+
+
 def test_household_implicit_happening_read_filters_this_weekend():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
