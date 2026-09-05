@@ -21,7 +21,7 @@
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "home-assistant-rest-owner-release",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "communications-owner-controlled-failure",
+  "current_checkpoint": "home-assistant-rest-owner-release",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
