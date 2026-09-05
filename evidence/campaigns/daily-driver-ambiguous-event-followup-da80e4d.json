@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-ambiguous-event-followup",
+  "source_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "hosted_validation": {"run_id": "33974707563", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+    "running_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+    "postgresql": "preserved",
+    "proof": [
+      "What about events? -> canonical event collection read",
+      "When is it? -> Which event did you mean? Please name the event or choose an ordinal."
+    ],
+    "mutation": "none"
+  },
+  "result": "An ambiguous temporal pronoun after a multi-event read now clarifies the missing referent instead of entering event creation or inventing timing."
+}

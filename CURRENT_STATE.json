@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+  "state_basis_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
-  "deterministic_green_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
-  "last_pushed_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
-  "hosted_green_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
-  "hosted_ci_green_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+  "repository_head_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "deterministic_green_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "last_pushed_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "hosted_green_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "hosted_ci_green_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+    "commit_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
     "conclusion": "success",
-    "run_id": "33974254374",
+    "run_id": "33974707563",
     "observed_at": "2026-09-05T14:27:00Z"
   },
-  "installed_release_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
-  "running_release_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
-  "live_green_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+  "installed_release_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "running_release_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "live_green_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-personal-obligation-read",
+  "active_checkpoint": "daily-driver-ambiguous-event-followup",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "personal-obligation-read",
+  "current_checkpoint": "ambiguous-event-followup",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on 63b6478 resolved owner-scoped 'What do I owe?' and 'How much do I owe?' as canonical reads, while preserving named responsibility reads; no mutation occurred.",
+  "daily_driver_checkpoint": "Installed-owner proof on da80e4d preserved a canonical event list and clarified ambiguous 'When is it?' without entering event creation or mutating state.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -63,6 +63,6 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "next_action": "Refresh origin/aegis-dev and select the next distinct owner-visible daily-driver continuity gap. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
-  "history_artifact": "evidence/campaigns/daily-driver-personal-obligation-read-63b6478.json",
+  "history_artifact": "evidence/campaigns/daily-driver-ambiguous-event-followup-da80e4d.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
