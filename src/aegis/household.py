@@ -603,6 +603,21 @@ class ContextualChorePriorityFastPath:
             return None
         referents = context.values.get("referents")
         those = referents.get("those") if isinstance(referents, dict) else None
+        if (
+            isinstance(those, dict)
+            and those.get("fact_key") == "canonical_tasks"
+            and re.search(r"\b(?:chore|chores)\b", text)
+        ):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "That follow-up asks about chores, but the preceding result was a task "
+                    "list. I can show the chores separately, but I cannot infer a chore "
+                    "deadline from the task list."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         if not isinstance(those, dict) or those.get("fact_key") != "canonical_chores":
             return None
         return Result(

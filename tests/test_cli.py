@@ -775,6 +775,33 @@ def test_contextual_task_priority_does_not_cross_into_chore_follow_up():
     assert result is None
 
 
+def test_chore_priority_followup_does_not_substitute_task_projection():
+    from aegis.household import ContextualChorePriorityFastPath
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [{"title": "check the gate", "status": "open"}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualChorePriorityFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which chore is due first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "preceding result was a task list" in result.message
+
+
 def test_contextual_task_priority_accepts_start_with_follow_up():
     from aegis.tasks import ContextualTaskPriorityFastPath
 
