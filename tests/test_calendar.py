@@ -7,6 +7,7 @@ from aegis.calendar import (
     FixtureCalendarProvider,
     FixtureCalendarWriteProvider,
     GoogleCalendarRestProvider,
+    GoogleCalendarWriteProvider,
     calendar_events_evidence,
     configured_calendar_provider,
 )
@@ -77,6 +78,47 @@ def test_google_calendar_provider_reads_bounded_events(monkeypatch) -> None:
     assert events[0].source == "google_calendar"
     assert "singleEvents=true" in seen[0][0].full_url
     assert seen[0][0].get_header("Authorization") == "Bearer token"
+
+
+def test_google_calendar_write_creates_then_separately_reads_back(monkeypatch) -> None:
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self, _limit):
+            return json.dumps(self.payload).encode("utf-8")
+
+    item = {
+        "id": "g-created",
+        "summary": "Dinner",
+        "start": {"dateTime": "2026-09-08T19:00:00+00:00"},
+        "end": {"dateTime": "2026-09-08T20:00:00+00:00"},
+    }
+    seen = []
+    monkeypatch.setattr(
+        "aegis.calendar.urllib.request.urlopen",
+        lambda request, timeout: seen.append((request, timeout)) or Response(item),
+    )
+    provider = GoogleCalendarWriteProvider("token")
+    event = CalendarEvent(
+        "pending",
+        "Dinner",
+        datetime(2026, 9, 8, 19, tzinfo=timezone.utc),
+        datetime(2026, 9, 8, 20, tzinfo=timezone.utc),
+    )
+    created = provider.create_event(event, "calendar-1")
+    read_back = provider.get_event(created.event_id)
+    assert created.event_id == "g-created"
+    assert read_back is not None and read_back.title == "Dinner"
+    assert seen[0][0].method == "POST"
+    assert seen[1][0].get_method() == "GET"
+    assert b"calendar-1" in seen[0][0].data
 
 
 def test_fixture_documents_preserve_authorized_read_provenance() -> None:
