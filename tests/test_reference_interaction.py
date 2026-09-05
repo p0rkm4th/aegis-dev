@@ -1096,6 +1096,31 @@ def test_contextual_obligation_focus_reports_amount():
     assert result.message == "Obligation: Utilities is $1.20"
 
 
+def test_contextual_obligation_focus_accepts_natural_amount_wording():
+    obligation = HouseholdObligation("obligation-amount-synonym", "Utilities", 120, "bob", False)
+    result = resolve_contextual_obligation_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is its amount?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "obligation": {
+                        "obligation_id": obligation.obligation_id,
+                        "title": obligation.title,
+                        "responsible_id": obligation.responsible_id,
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"obligations": (obligation,)},
+    )
+    assert result is not None
+    assert result.message == "Obligation: Utilities is $1.20"
+
+
 def test_contextual_ordinal_read_preserves_chore_focus_for_followup():
     chore = Chore("chore-1", "clean kitchen", "alice")
     context = Context(
