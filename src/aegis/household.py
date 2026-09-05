@@ -512,6 +512,46 @@ class HouseholdReadFastPath:
         if not self.matches(intent.utterance):
             return None
         text = intent.utterance.casefold()
+        normalized = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(
+            ".!?"
+        )
+        latest = normalized in {"which event is latest", "what event is latest"}
+        earliest = normalized in {"which event is earliest", "what event is earliest"}
+        if latest or earliest:
+            events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
+            if not events:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I cannot order the calendar because it has no events.",
+                    correlation_id=intent.correlation_id,
+                )
+
+            def event_time(event: HouseholdEvent) -> datetime:
+                value = event.starts_at
+                return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+            selected = (max if latest else min)(events, key=event_time)
+            starts_at = event_time(selected).astimezone()
+            label = "latest" if latest else "earliest"
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message=(
+                    f"Based on the {label} recorded time: {selected.title}; "
+                    f"starts {starts_at.strftime('%Y-%m-%d %H:%M %Z').strip()}"
+                ),
+                evidence={
+                    "collection": "events",
+                    "priority_basis": f"canonical_{label}_event_starts_at",
+                    "event": {
+                        "event_id": selected.event_id,
+                        "title": selected.title,
+                        "starts_at": selected.starts_at.isoformat(),
+                    },
+                },
+                correlation_id=intent.correlation_id,
+            )
         if re.search(r"\b(?:due|deadline|priority|prioritize)\b", text) and (
             "first" in text or "earliest" in text or "soonest" in text
         ):
