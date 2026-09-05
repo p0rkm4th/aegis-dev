@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Fresh installed-owner proof on 254e99a: a task list followed by 'Which chore is due first?' returned a truthful blocked clarification instead of laundering the task referent into a chore answer. No mutation, cross-domain leakage, provider failure, or false completion observed; session evidence captured in owner runtime logs.",
+  "daily_driver_checkpoint": "Fresh installed-owner proof on 254e99a: after a service restart and fresh session authentication, the same session's authorized task-list correlation remained usable and 'Which one is due first?' returned the earliest canonical task. No duplicate mutation, lost context, cross-domain leakage, provider failure, or false completion observed.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -62,7 +62,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Reproduce one novel natural correction, referent, or restart follow-up through the promoted owner surface, identify its responsible layer, and make the smallest durable fix if evidence shows a defect. Preserve provenance safety and do not start another broad model campaign.",
+  "next_action": "Reproduce one novel natural correction after restart or an authorized referent change through the promoted owner surface, identify its responsible layer, and make the smallest durable fix if evidence shows a defect. Preserve provenance safety and do not start another broad model campaign.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
