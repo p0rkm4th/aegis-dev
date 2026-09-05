@@ -1,0 +1,19 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-research-communication-draft",
+  "source_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "hosted_validation": {"run_id": "33999230759", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+    "running_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+    "postgresql": "preserved",
+    "request": "Draft researched message to scotty with subject Server tips about casual settings, save it as research.md",
+    "objective_id": "812e27d2-6301-4aeb-a47c-a740d1aad73a",
+    "correlation_id": "378ce701-9b35-42b5-a356-ab383cafb015",
+    "workspace_id": "cea7dccc-1e61-5c9c-bbdc-7e114bc0aa1a",
+    "artifact": "research.md",
+    "source": "bounded external research fixture",
+    "sent": false,
+    "result": "unsent communication draft independently verified"
+  }
+}

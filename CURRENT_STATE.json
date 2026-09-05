@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "state_basis_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
-  "deterministic_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
-  "last_pushed_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
-  "hosted_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
-  "hosted_ci_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "repository_head_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "deterministic_green_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "last_pushed_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "hosted_green_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "hosted_ci_green_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+    "commit_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
     "conclusion": "success",
-    "run_id": "33999006513",
+    "run_id": "33999230759",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
-  "running_release_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
-  "live_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "installed_release_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "running_release_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
+  "live_green_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-natural-calendar-create",
+  "active_checkpoint": "daily-driver-alpha-research-communication-draft",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633"
+    "release_sha": "3642c5f697ab58e0b8d65486a7d2c9285374d5a9"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -111,9 +111,10 @@
     ,"promoted Communications view surfaces the target-boundary status and preserves the distinction between provider acceptance and independently proven delivery"
     ,"owner proof sent authorized canonical grocery content through the generic communications action to the exact approved scotty/sms/household target; result was PROVIDER_ACCEPTED with delivery_proven=false"
     ,"owner proof accepted a natural timed calendar request through the fixture provider with independent readback; live Google integration remains unconfigured"
+    ,"owner proof composed bounded research into an unsent communication draft with sourced content and independent Workspace verification"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Homelab health observations now compose into an independently verified scoped Workspace report; unavailable provider health remains truthful, while live OpenClaw, Google, and Home Assistant lanes remain pending.",
+  "daily_driver_checkpoint": "Bounded research can now be staged into an unsent, independently verified communication draft; live OpenClaw delivery and Google/Home Assistant providers remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -148,22 +149,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 24,
+  "voluntarily_useful_owner_workflows": 25,
   "owner_visible_capability_surfaces": 16,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 13,
+  "cross_capability_workflows": 14,
   "breadth_scoreboard": {
     "owner_visible_views": 14,
     "usable_capability_families": 7,
     "verified_write_capabilities": 7,
     "external_integrations": 0,
-    "cross_domain_compositions": 13,
+    "cross_domain_compositions": 14,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 23,
+    "owner_workflows_completed": 24,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Continue daily-driver breadth with the next highest-value functional device, calendar, communications, or document composition; live OpenClaw, Google, and Home Assistant remain pending.",
-  "history_artifact": "evidence/campaigns/calendar-natural-create-owner-60c547f.json",
+  "history_artifact": "evidence/campaigns/research-communication-draft-owner-3642c5f.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
