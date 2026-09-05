@@ -11,7 +11,7 @@ import sqlite3
 import urllib.error
 import urllib.request
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
@@ -986,6 +986,39 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    natural_calendar = re.fullmatch(
+        r"(?:put|add) (?P<title>.+?) on my calendar (?P<day>today|tomorrow) at "
+        r"(?P<hour>\d{1,2})(?::(?P<minute>\d{2}))?\s*(?P<ampm>am|pm)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if natural_calendar is not None:
+        card = manager.action_card("calendar", "calendar.events.create")
+        if card is None:
+            return None
+        values = natural_calendar.groupdict()
+        hour = int(values["hour"]) % 12
+        if values["ampm"].casefold() == "pm":
+            hour += 12
+        minute = int(values["minute"] or 0)
+        day = datetime.now(timezone.utc).date() + timedelta(
+            days=1 if values["day"].casefold() == "tomorrow" else 0
+        )
+        starts_at = datetime(day.year, day.month, day.day, hour, minute, tzinfo=timezone.utc)
+        ends_at = starts_at + timedelta(hours=1)
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "title": values["title"],
+                            "starts_at": starts_at.isoformat(),
+                            "ends_at": ends_at.isoformat(),
+                        }
+                    }
+                )
+            }
+        )
     if calendar_create is not None:
         card = manager.action_card("calendar", "calendar.events.create")
         if card is None:
