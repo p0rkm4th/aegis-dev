@@ -1111,6 +1111,11 @@ def resolve_reference_fast_paths(
         return contextual_ordinal_result
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
+    contextual_grocery_result = resolve_contextual_grocery_membership_read(
+        intent, context, household_store
+    )
+    if contextual_grocery_result is not None:
+        return contextual_grocery_result
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
@@ -1424,6 +1429,52 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             correlation_id=intent.correlation_id,
         )
     return None
+
+
+def resolve_contextual_grocery_membership_read(
+    intent: IntentFrame, context: Context, store: PostgresHouseholdStore
+) -> Result | None:
+    """Answer a grocery membership follow-up only from authorized grocery context."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    text = " ".join(intent.utterance.casefold().split()).strip(".?!")
+    if "list" not in text or "still" not in text:
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+        return None
+    prior_items = those.get("candidates")
+    if not isinstance(prior_items, list) or not prior_items:
+        return None
+    current_items = tuple(store.list_groceries(intent.principal))
+    matches = tuple(
+        item
+        for item in current_items
+        if isinstance(item, str)
+        and re.search(rf"\b{re.escape(item.casefold())}\b", text) is not None
+    )
+    if len(matches) != 1:
+        return None
+    item = matches[0]
+    if not any(
+        isinstance(prior_item, str) and prior_item.casefold() == item.casefold()
+        for prior_item in prior_items
+    ):
+        return None
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Grocery item: {item} is still on your list.",
+        evidence={
+            "collection": "groceries",
+            "canonical_items": list(current_items),
+            "authorized_membership": item,
+            "continuation_context": "authorized_prior_result",
+        },
+        correlation_id=intent.correlation_id,
+    )
 
 
 def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Result | None:

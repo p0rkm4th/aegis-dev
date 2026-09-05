@@ -31,6 +31,7 @@ from aegis.reference_interaction import (
     reference_fallback_cards,
     reference_format_result,
     resolve_contextual_event_temporal_read,
+    resolve_contextual_grocery_membership_read,
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
     resolve_contextual_remaining,
@@ -134,6 +135,29 @@ def test_grocery_read_fast_path_accepts_left_to_buy_wording() -> None:
         )
         is None
     )
+
+
+def test_contextual_grocery_membership_rechecks_current_canonical_list() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "milk")
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_grocery_membership_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Is rice still on the list?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, GroceryStore()),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_membership"] == "rice"
 
 
 def test_grocery_read_fast_path_accepts_store_pickup_wording() -> None:
