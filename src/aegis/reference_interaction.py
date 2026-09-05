@@ -1100,6 +1100,13 @@ def resolve_reference_fast_paths(
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
+    snapshot = household_store.read_snapshot(principal)
+    # Resolve an authorized event temporal follow-up before broad personal
+    # composers can reinterpret a short correction such as "No, tomorrow."
+    # The resolver remains read-only and requires the prior event projection.
+    result = resolve_contextual_event_temporal_read(intent, context, snapshot)
+    if result is not None:
+        return result
     if FinanceReadFastPath.unsupported_balance_read(utterance):
         return Result(
             objective_id=uuid4(),
@@ -1128,11 +1135,6 @@ def resolve_reference_fast_paths(
             correlation_id=intent.correlation_id,
         )
     composed_title = next((title for title, _error in composer_results if title is not None), None)
-    snapshot = household_store.read_snapshot(principal)
-    if composed_title is None:
-        result = resolve_contextual_event_temporal_read(intent, context, snapshot)
-        if result is not None:
-            return result
     if composed_title is None:
         result = resolve_contextual_remaining(intent, context)
         if result is not None:
