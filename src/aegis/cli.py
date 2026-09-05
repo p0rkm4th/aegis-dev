@@ -529,7 +529,24 @@ def _device_state(principal: Principal) -> dict[str, Any]:
             idempotency_key=f"owner-device-read-{uuid4()}",
         )
     )
-    return observation.evidence
+    evidence = dict(observation.evidence)
+    configured = bool(
+        os.environ.get("AEGIS_HOME_ASSISTANT_URL") and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
+    )
+    authorized_entities = tuple(
+        item.strip()
+        for item in os.environ.get("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "").split(",")
+        if item.strip()
+    )
+    evidence["control_surface"] = {
+        "capability": "device-controls.devices.command.execute",
+        "provider_state": "live_configured" if configured else "fixture",
+        "authorized_entities": list(authorized_entities[:50]),
+        "requires_explicit_owner_approval": True,
+        "verification": "separate provider state readback is required",
+        "authority": "UI visibility and selection do not grant control permission",
+    }
+    return evidence
 
 
 class _InventoryOnlyHomelabRuntime:
