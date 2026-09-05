@@ -14,6 +14,7 @@ from typing import Any, cast
 from uuid import uuid4
 
 from .calendar import FixtureCalendarProvider, calendar_events_evidence
+from .communications import FixtureCommunicationProvider, communications_evidence
 from .compositions import document_to_workspace
 from .contracts import (
     ActionCard,
@@ -239,6 +240,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "communications",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="communications.messages.list",
+                        capability="communications.messages.list",
+                        required_permissions=("communications.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read authorized messages without sending or mutating communications",
+                    relevance=1,
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "documents",
             "0.1.0",
             (
@@ -326,6 +343,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "calendar": ("calendar.read",),
+        "communications": ("communications.read",),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
@@ -374,6 +392,31 @@ class CalendarEventsExecutor:
             execution_id=uuid4(),
             evidence=calendar_events_evidence(events),
             command_succeeded=True,
+        )
+
+
+class CommunicationsExecutor:
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        return Observation(
+            execution_id=uuid4(),
+            evidence=communications_evidence(FixtureCommunicationProvider().list_messages()),
+            command_succeeded=True,
+        )
+
+
+class CommunicationsVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        messages = observation.evidence.get("messages")
+        verified = observation.command_succeeded and isinstance(messages, list)
+        return VerificationResult(
+            verified=verified,
+            evidence={"message_count": len(cast(list[Any], messages)) if verified else 0},
+            reason="communications readback is structurally valid"
+            if verified
+            else "communications read failed",
         )
 
 

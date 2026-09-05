@@ -21,6 +21,8 @@ from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
     CalendarEventsExecutor,
     CalendarEventsVerifier,
+    CommunicationsExecutor,
+    CommunicationsVerifier,
     DocumentsExecutor,
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
@@ -182,6 +184,14 @@ def default_runtime_registry(
             {"documents.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def communications_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            CommunicationsExecutor(),
+            CommunicationsVerifier(),
+            {"communications.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
     def document_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -206,6 +216,7 @@ def default_runtime_registry(
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
         "documents.list": documents_runtime,
+        "communications.messages.list": communications_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
     }
     for bundle in reference_bundles():

@@ -1,0 +1,15 @@
+{
+  "source_basis": "25849bd13db6208ee97ace46e8402c358746bdd3",
+  "checkpoint": "provider-neutral communications read slice",
+  "capability_family": "communications",
+  "owner_surface": ["Packs", "Constellation", "Conversation target"],
+  "provider": "deterministic authorized-message fixture; live provider acceptance pending",
+  "flow": "communications.messages.list -> generic ActionRuntime -> bounded observation -> structural readback verification",
+  "safety": {
+    "permission": "communications.read",
+    "send_or_mutation": false,
+    "draft_or_submit": "not implemented"
+  },
+  "verification": "806 passed, 5 skipped; all checks passed",
+  "remaining_gap": "hosted validation, owner promotion, live read proof, then approval-gated draft/send progression"
+}
