@@ -2002,6 +2002,7 @@ def resolve_contextual_task_focus_read(
         or text
         in {
             "what about that one",
+            "is that still open",
             "is that one still open",
             "is it still open",
             "when is that due",
