@@ -317,6 +317,23 @@ def test_grocery_due_priority_followup_does_not_select_an_ordinal_item():
     assert "no canonical priority order" in result.message
 
 
+def test_grocery_direct_due_priority_request_fails_closed():
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which grocery is due first?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no canonical deadline" in result.message
+
+
 def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
     context = Context(
         values={

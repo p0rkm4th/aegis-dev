@@ -667,6 +667,17 @@ class GroceryReadFastPath:
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):
             return None
+        if re.search(r"\b(?:due|urgent|priority|prioritize)\b", intent.utterance.casefold()) and (
+            "first" in intent.utterance.casefold()
+            or "earliest" in intent.utterance.casefold()
+            or "soonest" in intent.utterance.casefold()
+        ):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="The grocery list has no canonical deadline or priority order.",
+                correlation_id=intent.correlation_id,
+            )
         applicability = assess_read_applicability(intent.utterance, "kitchen.shopping_list")
         if applicability is ReadApplicability.NO_MATCH:
             return Result(
