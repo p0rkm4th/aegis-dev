@@ -1334,7 +1334,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     those = referents.get("those") if isinstance(referents, dict) else None
     candidates = those.get("candidates") if isinstance(those, dict) else None
     fact_key = those.get("fact_key") if isinstance(those, dict) else None
-    relative_match = re.search(r"\bone\s+(before|after)\s+that\b", text)
+    relative_match = re.search(r"\b(?:one|task)\s+(before|after)\s+that\b", text)
     next_match = re.search(r"\b(?:the\s+)?next\s+one\b", text)
     selected_task = context.values.get("canonical_facts", {}).get("task")
     if (
