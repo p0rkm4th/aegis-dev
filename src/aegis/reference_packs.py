@@ -28,7 +28,12 @@ from .contracts import (
     VerificationContract,
     VerificationResult,
 )
-from .devices import FixtureDeviceGateway, HomeAssistantAdapter, device_states_evidence
+from .devices import (
+    FixtureDeviceGateway,
+    HomeAssistantAdapter,
+    HomeAssistantRestGateway,
+    device_states_evidence,
+)
 from .documents import FixtureDocumentProvider, documents_evidence
 from .gateway_rpc import (
     CorrelatedRpcClient,
@@ -444,9 +449,19 @@ class DeviceStatesExecutor:
 
     def execute(self, request: ExecutionRequest) -> Observation:
         del request
-        gateway = FixtureDeviceGateway()
+        gateway = (
+            HomeAssistantRestGateway(
+                os.environ["AEGIS_HOME_ASSISTANT_URL"],
+                os.environ["AEGIS_HOME_ASSISTANT_TOKEN"],
+            )
+            if os.environ.get("AEGIS_HOME_ASSISTANT_URL")
+            and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
+            else FixtureDeviceGateway(
+                {"homeassistant.status": {"state": "ready", "attributes": {}}}
+            )
+        )
         adapter = HomeAssistantAdapter(gateway, policy=_ReadOnlyDevicePolicy())
-        states = (adapter.read_state("homeassistant.status", datetime.now(timezone.utc)),)
+        states = adapter.read_states(datetime.now(timezone.utc))
         return Observation(
             execution_id=uuid4(),
             evidence=device_states_evidence(states),

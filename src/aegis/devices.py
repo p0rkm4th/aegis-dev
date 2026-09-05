@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Protocol
+from urllib.parse import urljoin, urlparse
+from urllib.request import Request, urlopen
 
 from pydantic import Field
 
@@ -37,6 +39,8 @@ class DeviceExecution(StrictModel):
 class DeviceGateway(Protocol):
     def get_state(self, entity_id: str) -> dict[str, Any]: ...
 
+    def list_states(self) -> tuple[dict[str, Any], ...]: ...
+
     def call_service(self, command: dict[str, Any]) -> None: ...
 
 
@@ -49,8 +53,56 @@ class FixtureDeviceGateway:
     def get_state(self, entity_id: str) -> dict[str, Any]:
         return dict(self.states.get(entity_id, {"state": "unknown", "attributes": {}}))
 
+    def list_states(self) -> tuple[dict[str, Any], ...]:
+        return tuple({"entity_id": entity_id, **value} for entity_id, value in self.states.items())
+
     def call_service(self, command: dict[str, Any]) -> None:
         del command
+
+
+class HomeAssistantRestGateway:
+    """Bounded read-only Home Assistant REST client.
+
+    The token is accepted only through construction by the configured runtime;
+    it is never included in errors or evidence.  Mutation endpoints are not
+    implemented by this gateway.
+    """
+
+    def __init__(self, base_url: str, token: str, timeout: float = 5.0) -> None:
+        parsed = urlparse(base_url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("Home Assistant URL must be an absolute HTTP(S) URL")
+        self.base_url = base_url.rstrip("/") + "/"
+        self.token = token
+        self.timeout = timeout
+
+    def _get_json(self, path: str) -> Any:
+        request = Request(
+            urljoin(self.base_url, path.lstrip("/")),
+            headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
+        )
+        with urlopen(request, timeout=self.timeout) as response:
+            return response.read(1_000_001)
+
+    def list_states(self) -> tuple[dict[str, Any], ...]:
+        import json
+
+        payload = json.loads(self._get_json("api/states"))
+        if not isinstance(payload, list):
+            raise ValueError("Home Assistant states response is not a list")
+        return tuple(item for item in payload[:50] if isinstance(item, dict))
+
+    def get_state(self, entity_id: str) -> dict[str, Any]:
+        import json
+
+        payload = json.loads(self._get_json(f"api/states/{entity_id}"))
+        if not isinstance(payload, dict):
+            raise ValueError("Home Assistant state response is not an object")
+        return payload
+
+    def call_service(self, command: dict[str, Any]) -> None:
+        del command
+        raise PermissionError("Home Assistant REST gateway is read-only")
 
 
 def device_states_evidence(states: tuple[DeviceState, ...]) -> dict[str, Any]:
@@ -79,6 +131,21 @@ class HomeAssistantAdapter:
             attributes=dict(raw.get("attributes", {})),
             observed_at=observed_at,
         )
+
+    def read_states(self, observed_at: datetime) -> tuple[DeviceState, ...]:
+        states: list[DeviceState] = []
+        for raw in self.gateway.list_states()[:50]:
+            entity_id = raw.get("entity_id")
+            if isinstance(entity_id, str) and entity_id:
+                states.append(
+                    DeviceState(
+                        entity_id=entity_id,
+                        state=str(raw.get("state", "unknown")),
+                        attributes=dict(raw.get("attributes", {})),
+                        observed_at=observed_at,
+                    )
+                )
+        return tuple(states)
 
     def execute(self, command: DeviceCommand, observed_at: datetime) -> DeviceExecution:
         if not self.policy.allow_command(command):

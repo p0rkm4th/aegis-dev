@@ -1,0 +1,16 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "home-assistant-rest-read-seam",
+  "source": "working-tree",
+  "provider_contract": "Home Assistant REST GET /api/states",
+  "authentication": "Bearer token supplied only at runtime construction",
+  "bounds": [
+    "HTTP(S) URL validation",
+    "5 second default timeout",
+    "maximum 50 returned states",
+    "read-only gateway; mutation raises PermissionError"
+  ],
+  "fallback": "deterministic FixtureDeviceGateway when endpoint/token are absent",
+  "deterministic_tests": "811 passed, 5 skipped",
+  "live_proof": "pending; no Home Assistant instance configured"
+}
