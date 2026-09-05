@@ -664,8 +664,12 @@ def _pack_state(principal: Principal) -> dict[str, Any]:
                     "status": display_status.value,
                     "permissions": sorted(manifest.permissions),
                     "granted_permissions": sorted(grants),
-                    "capabilities": sorted({card.action.capability for card in bundle.cards}),
-                    "available_actions": sorted({card.action.action_id for card in bundle.cards}),
+                    "capabilities": sorted(
+                        {card.action.capability for card in display_bundle.cards}
+                    ),
+                    "available_actions": sorted(
+                        {card.action.action_id for card in display_bundle.cards}
+                    ),
                     "health": "enabled" if status is PackStatus.ENABLED else "lifecycle-ready",
                     "owner_next_step": (
                         "explicit owner approval is required for this Pack permission upgrade"
