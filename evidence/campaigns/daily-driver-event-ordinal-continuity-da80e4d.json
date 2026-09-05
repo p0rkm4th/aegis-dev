@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-ordinal-continuity",
+  "source_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+  "hosted_validation": {"run_id": "33974850201", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+    "running_sha": "da80e4d5ad4c3bed2b1ad6725983c6a0d31afdcc",
+    "postgresql": "preserved",
+    "proof": [
+      "What about events? -> canonical event collection read",
+      "What about the first one? -> first canonical event with its recorded start time"
+    ],
+    "mutation": "none"
+  },
+  "result": "Event-list ordinal follow-up resolves against the authorized canonical collection and preserves event identity."
+}
