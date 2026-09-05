@@ -19,7 +19,7 @@
   "running_release_sha": "ca345b5709352069000835bda81ecfcd0c28fb92",
   "live_green_sha": "ca345b5709352069000835bda81ecfcd0c28fb92",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-homelab-workspace-default",
+  "active_checkpoint": "daily-driver-alpha-documents-workspace-fixture",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -96,9 +96,10 @@
     ,"Homelab Reports Pack exposes a generic Homelab to Workspace composition; owner approval created index.html and style.css from authorized PostgreSQL inventory and independently verified both files; live deployment remains outside scope"
     ,"communications.messages.send is owner-enabled with explicit target/channel/account grounding and truthful fixture PROVIDER_ACCEPTED evidence; no OpenClaw outbound channel is configured, so DELIVERED is not claimed"
     ,"the default Homelab webpage request now derives index.html through an approved deterministic target rule and completes with independent verification; arbitrary paths still require explicit utterance"
+    ,"owner-configured authorized document fixture Alpha Handbook exported to handbook.md through Documents -> Workspace with independent scoped verification; external document provider remains unconfigured"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Owner explicitly approved communications.send and received truthful PROVIDER_ACCEPTED fixture evidence; external delivery remains unconfigured.",
+  "daily_driver_checkpoint": "Owner exported the authorized Alpha Handbook fixture to handbook.md and received independent Workspace verification.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -131,21 +132,21 @@
     "homelab_action": "PARTIAL",
     "constellation": "INSTALLED"
   },
-  "independently_verified_write_capabilities": 4,
+  "independently_verified_write_capabilities": 5,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 18,
+  "voluntarily_useful_owner_workflows": 19,
   "owner_visible_capability_surfaces": 12,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 10,
   "breadth_scoreboard": {
     "owner_visible_views": 10,
     "usable_capability_families": 7,
-    "verified_write_capabilities": 4,
+    "verified_write_capabilities": 5,
     "external_integrations": 0,
     "cross_domain_compositions": 10,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 18,
+    "owner_workflows_completed": 19,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Continue Daily-Driver Alpha with the next cheapest owner utility slice: communications remains blocked on OpenClaw outbound configuration, while richer Documents or another verified provider composition is available.",
