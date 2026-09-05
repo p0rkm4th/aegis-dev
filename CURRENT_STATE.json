@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "state_basis_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
-  "deterministic_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
-  "last_pushed_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
-  "hosted_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
-  "hosted_ci_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "repository_head_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "deterministic_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "last_pushed_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "hosted_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "hosted_ci_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+    "commit_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
     "conclusion": "success",
-    "run_id": "33984240640",
-    "observed_at": "2026-09-05T18:30:41Z"
+    "run_id": "33984914911",
+    "observed_at": "2026-09-05T18:45:00Z"
   },
-  "installed_release_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
-  "running_release_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
-  "live_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "installed_release_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "running_release_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "live_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "research-workspace-owner-live",
+  "active_checkpoint": "communication-draft-owner-live",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "home-assistant-rest-owner-release",
+  "current_checkpoint": "communication-draft-owner-live",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -68,6 +68,8 @@
     ,"Calendar read completed after explicit owner approval; Documents Pack is enabled with its full declared permissions and currently has no authorized data"
     ,"Documents -> Workspace completed in the promoted owner runtime with canonical document-ID grounding, scoped artifact creation, readback verification, and persisted inventory"
     ,"Research -> Workspace completed in the promoted owner runtime with non-authoritative fixture evidence, sourced notes artifact creation, readback verification, and persisted inventory"
+    ,"communication-drafts Pack is owner-enabled only with exact declared permissions; draft creation writes a scoped Workspace artifact and verifies readback without any send path"
+    ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -88,15 +90,15 @@
   "breadth_scoreboard": {
     "owner_visible_views": 8,
     "usable_capability_families": 6,
-    "verified_write_capabilities": 1,
+    "verified_write_capabilities": 2,
     "external_integrations": 0,
-    "cross_domain_compositions": 5,
+    "cross_domain_compositions": 6,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 9,
+    "owner_workflows_completed": 10,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the next breadth tranche with an approval-gated communications draft or another verified consequential capability outside task/event/grocery domains; then render and prove the accumulated compositions through the owner UI.",
+  "next_action": "Begin the next breadth tranche: render the accumulated compositions through the actual owner UI, then add the next replaceable external integration or verified consequential capability and rearm breadth proofs.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
