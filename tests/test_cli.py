@@ -175,6 +175,24 @@ def test_deterministic_homelab_page_action_uses_explicit_workspace_path():
     assert card.action.arguments == {"target_path": "homelab.html"}
 
 
+def test_deterministic_homelab_health_report_uses_bounded_workspace_action():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab-reports"
+    )
+    manager.discover(bundle)
+    manager.install("homelab-reports", frozenset({"homelab.read", "workspace.write"}))
+    manager.enable("homelab-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Create a homelab health report as health.html",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "homelab-reports.health.to_workspace"
+    assert card.action.arguments == {"target_path": "health.html"}
+
+
 def test_deterministic_message_send_requires_explicit_destination_and_channel():
     manager = PackManager()
     bundle = next(

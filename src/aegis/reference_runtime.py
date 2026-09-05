@@ -48,6 +48,7 @@ from .reference_packs import (
     DocumentWorkspaceVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
+    HomelabHealthWorkspaceExecutor,
     HomelabWorkspaceExecutor,
     HomelabWorkspaceVerifier,
     OpenClawGroceryExecutor,
@@ -184,6 +185,19 @@ def default_runtime_registry(
     def homelab_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         return ActionRuntime(
             HomelabWorkspaceExecutor(connection, principal),
+            HomelabWorkspaceVerifier(principal),
+            {
+                "homelab.read": frozenset({Role.OWNER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
+        )
+
+    def homelab_health_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            HomelabHealthWorkspaceExecutor(connection, principal),
             HomelabWorkspaceVerifier(principal),
             {
                 "homelab.read": frozenset({Role.OWNER}),
@@ -370,6 +384,7 @@ def default_runtime_registry(
         "homelab.service.restart": homelab_runtime,
         "homelab.service.health": homelab_health_runtime,
         "homelab-reports.inventory.to_workspace": homelab_workspace_runtime,
+        "homelab-reports.health.to_workspace": homelab_health_workspace_runtime,
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,

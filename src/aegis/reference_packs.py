@@ -12,6 +12,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 from typing import Any, cast
 from uuid import UUID, uuid4
@@ -192,6 +193,11 @@ def prepare_reference_action(
         report_target = args.get("target_path")
         if isinstance(report_target, str) and report_target.strip() and connection is not None:
             page = _homelab_page_files(connection, principal)
+            files = {report_target: page["index.html"], "style.css": page["style.css"]}
+    elif action.action_id == "homelab-reports.health.to_workspace":
+        report_target = args.get("target_path")
+        if isinstance(report_target, str) and report_target.strip() and connection is not None:
+            page = _homelab_health_report_files(connection, principal)
             files = {report_target: page["index.html"], "style.css": page["style.css"]}
     elif action.action_id == "calendar-communications.events.draft":
         draft_recipient, draft_target = args.get("recipient"), args.get("target_path")
@@ -465,6 +471,26 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         verification=VerificationContract(kind="custom"),
                     ),
                     summary="Create a verified static page from authorized Homelab inventory",
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                            ),
+                            approved_derivations=("reference.homelab_page_target.v1",),
+                        )
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="homelab-reports.health.to_workspace",
+                        capability="homelab-reports.health.to_workspace",
+                        required_permissions=("homelab.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Create a verified Workspace health snapshot from authorized services",
                     relevance=1,
                     argument_keys=("target_path",),
                     argument_grounding={
@@ -924,6 +950,38 @@ def _homelab_page_files(connection: Any, principal: Principal) -> dict[str, str]
     return {"index.html": html, "style.css": css}
 
 
+def _homelab_health_report_files(connection: Any, principal: Principal) -> dict[str, str]:
+    """Render a bounded health snapshot from authorized canonical services."""
+
+    pack = PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
+    services = sorted(pack.services.values(), key=lambda item: item.service_id)
+    rows = []
+    for service in services:
+        healthy, status = _health_read(service.health_endpoint)
+        state = "healthy" if healthy else status
+        rows.append(
+            f"<li><strong>{escape(service.name)}</strong> "
+            f"<code>{escape(service.service_id)}</code> "
+            f"<span>{escape(state)}</span></li>"
+        )
+    html = (
+        "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>Homelab health</title><link rel='stylesheet' href='style.css'></head>"
+        "<body><main><p class='eyebrow'>AEGIS · authorized observation</p>"
+        "<h1>Homelab health</h1><p>Bounded service health snapshot.</p><ul>"
+        f"{''.join(rows) or '<li>No authorized services are configured.</li>'}"
+        "</ul></main></body></html>"
+    )
+    css = (
+        ":root{color-scheme:dark;font:16px system-ui,sans-serif;background:#10141c;"
+        "color:#edf2f7}body{margin:0;padding:3rem}main{max-width:52rem;margin:auto}"
+        ".eyebrow{color:#8cc8ff;letter-spacing:.12em;text-transform:uppercase;font-size:.75rem}"
+        "li{margin:.7rem 0}code{color:#9fddae}span{margin-left:.5rem;color:#f5c97a}"
+    )
+    return {"index.html": html, "style.css": css}
+
+
 def _health_read(endpoint: str) -> tuple[bool, str]:
     try:
         parsed = urllib.parse.urlsplit(endpoint)
@@ -1073,6 +1131,44 @@ class HomelabWorkspaceVerifier:
             reason="Homelab page independently verified"
             if verified
             else f"Homelab page verification failed: {detail}",
+        )
+
+
+class HomelabHealthWorkspaceExecutor(HomelabWorkspaceExecutor):
+    """Write a pre-execution-fixed authorized health snapshot to Workspace."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_health_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            page = _homelab_health_report_files(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: page["index.html"], "style.css": page["style.css"]},
+                request.action_id,
+                lambda current: None,
+            )
+        except (PermissionError, ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_health_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "homelab_health_workspace": "artifact",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
         )
 
 

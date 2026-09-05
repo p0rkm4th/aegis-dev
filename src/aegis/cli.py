@@ -1050,6 +1050,28 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": health_request.groupdict()})
             }
         )
+    homelab_health_report = re.fullmatch(
+        r"(?:create|make) (?:a )?homelab health report"
+        r"(?: (?:as|to) (?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}))?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if homelab_health_report is not None:
+        card = manager.action_card("homelab-reports", "homelab-reports.health.to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "target_path": homelab_health_report.group("target_path")
+                            or "health.html"
+                        }
+                    }
+                )
+            }
+        )
     homelab_page = re.fullmatch(
         r"make me (?:a )?(?:little )?(?:static )?webpage showing my homelab"
         r"(?: (?:as|to) (?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}))?",
