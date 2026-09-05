@@ -1251,7 +1251,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     if (
         isinstance(those, dict)
         and those.get("fact_key") == "canonical_items"
-        and re.search(r"\b(?:handle|take care of|urgent|priority)\b", text)
+        and re.search(r"\b(?:due|handle|take care of|urgent|priority)\b", text)
         and re.search(r"\b(?:first|next|most)\b", text)
     ):
         return Result(

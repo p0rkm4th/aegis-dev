@@ -291,6 +291,32 @@ def test_grocery_ordinal_preserves_collection_for_correction():
     assert correction.evidence["authorized_ordinal_item"] == "rice"
 
 
+def test_grocery_due_priority_followup_does_not_select_an_ordinal_item():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_items",
+                    "candidates": ["rice", "beans"],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one is due first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no canonical priority order" in result.message
+
+
 def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
     context = Context(
         values={
