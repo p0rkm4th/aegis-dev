@@ -1,0 +1,16 @@
+{
+  "source_basis": "2f7feddb3430b825168c65219aa3079d0adb07d9",
+  "checkpoint": "document export to workspace as normal typed Pack action",
+  "action": "documents.export_to_workspace",
+  "required_permissions": ["documents.read", "workspace.write"],
+  "arguments": ["document_id", "target_path"],
+  "proof": "tests/test_reference_packs.py::test_document_export_pack_composes_authorized_read_with_workspace",
+  "verification": "801 passed, 5 skipped; all checks passed",
+  "safety": {
+    "explicit_owner_grounding": true,
+    "principal_objective_scoped_workspace": true,
+    "source_provenance_retained": true,
+    "deployment_authority": false
+  },
+  "remaining_gap": "live owner runtime proof and rendered Workspace inventory after this action"
+}

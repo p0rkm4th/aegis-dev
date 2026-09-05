@@ -14,6 +14,7 @@ from typing import Any, cast
 from uuid import uuid4
 
 from .calendar import FixtureCalendarProvider, calendar_events_evidence
+from .compositions import document_to_workspace
 from .contracts import (
     ActionCard,
     ActionSpec,
@@ -251,6 +252,27 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     summary="Read authorized documents and their bounded text",
                     relevance=1,
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="documents.export_to_workspace",
+                        capability="documents.export_to_workspace",
+                        required_permissions=("documents.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Export one authorized document into a verified scoped workspace artifact"
+                    ),
+                    relevance=1,
+                    argument_keys=("document_id", "target_path"),
+                    argument_grounding={
+                        "document_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -304,7 +326,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "calendar": ("calendar.read",),
-        "documents": ("documents.read",),
+        "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart",),
@@ -362,6 +384,67 @@ class DocumentsExecutor:
             execution_id=uuid4(),
             evidence=documents_evidence(FixtureDocumentProvider().list_documents()),
             command_succeeded=True,
+        )
+
+
+class DocumentWorkspaceExecutor:
+    def __init__(self, principal: Principal, provider: Any | None = None) -> None:
+        self.principal = principal
+        self.provider = provider or FixtureDocumentProvider()
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        document_id = request.action.arguments.get("document_id")
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(document_id, str) or not isinstance(target_path, str):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"documents": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        try:
+            result = document_to_workspace(
+                self.provider,
+                WorkspaceManager(root),
+                principal_id=self.principal.id,
+                objective_id=request.objective_id,
+                document_id=document_id,
+                target_path=target_path,
+                correlation_id=request.action_id,
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"documents": "export_rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "document_to_workspace",
+                "document_id": result.document_id,
+                "target_path": result.target_path,
+                "files": list(result.files),
+                "validated": result.validated,
+                "source": result.source,
+            },
+            command_succeeded=True,
+        )
+
+
+class DocumentWorkspaceVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        verified = (
+            observation.command_succeeded
+            and observation.evidence.get("composition") == "document_to_workspace"
+            and observation.evidence.get("validated") is True
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"composition_verified": verified},
+            reason="document export readback verified" if verified else "document export failed",
         )
 
 
