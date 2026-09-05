@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import os
 import socket
 from dataclasses import dataclass
 from datetime import datetime
@@ -58,9 +59,21 @@ class SearchCandidate:
 
 
 class SearchProvider(Protocol):
-    provider_id: str
+    @property
+    def provider_id(self) -> str: ...
 
     def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]: ...
+
+
+@dataclass(frozen=True)
+class FixtureSearchProvider:
+    """Explicit deterministic search provider for bounded owner acceptance."""
+
+    candidates: tuple[SearchCandidate, ...]
+    provider_id: str = "fixture-research"
+
+    def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]:
+        return self.candidates[: request.limit]
 
 
 @dataclass(frozen=True)
@@ -123,8 +136,26 @@ class FetchedDocument:
     body: bytes
 
 
+@dataclass(frozen=True)
+class FixtureDocumentFetcher:
+    """Fetch only configured fixture bodies; never reaches the network."""
+
+    bodies: dict[str, str]
+
+    def fetch(self, url: str) -> FetchedDocument:
+        try:
+            body = self.bodies[url]
+        except KeyError as exc:
+            raise ResearchUnavailable("fixture research source is unavailable") from exc
+        return FetchedDocument(url, "text/plain", body.encode("utf-8")[:MAX_EXTRACTED_TEXT])
+
+
 class ContentExtractor(Protocol):
     def extract(self, document: FetchedDocument) -> str: ...
+
+
+class DocumentFetcherPort(Protocol):
+    def fetch(self, url: str) -> FetchedDocument: ...
 
 
 class TrafilaturaContentExtractor:
@@ -141,6 +172,14 @@ class TrafilaturaContentExtractor:
         text = extracted if isinstance(extracted, str) else ""
         if not text:
             raise ValueError("research source contained no readable text")
+        return text[:MAX_EXTRACTED_TEXT]
+
+
+class FixtureContentExtractor:
+    def extract(self, document: FetchedDocument) -> str:
+        text = document.body.decode("utf-8", errors="replace").strip()
+        if not text:
+            raise ValueError("fixture research source is empty")
         return text[:MAX_EXTRACTED_TEXT]
 
 
@@ -320,7 +359,7 @@ class ResearchService:
     """Collect bounded public evidence for an answer-only caller."""
 
     def __init__(
-        self, provider: SearchProvider, fetcher: DocumentFetcher, extractor: ContentExtractor
+        self, provider: SearchProvider, fetcher: DocumentFetcherPort, extractor: ContentExtractor
     ) -> None:
         self.provider = provider
         self.fetcher = fetcher
@@ -375,3 +414,53 @@ class ResearchService:
         text = synthesizer.synthesize(question, evidence, local_context)
         source_kind = KnowledgeSource.MIXED if local_context else KnowledgeSource.EXTERNAL
         return ResearchAnswer(text=text, source_kind=source_kind, evidence=evidence)
+
+
+def configured_research_service() -> ResearchService:
+    """Select an explicitly configured bounded provider without widening authority."""
+
+    fixture = os.environ.get("AEGIS_RESEARCH_FIXTURE_JSON")
+    if fixture:
+        try:
+            values = json.loads(fixture)
+        except json.JSONDecodeError as exc:
+            raise ResearchUnavailable("research fixture configuration is invalid") from exc
+        if not isinstance(values, list) or not 1 <= len(values) <= MAX_CANDIDATES:
+            raise ResearchUnavailable("research fixture must contain 1-5 sources")
+        candidates: list[SearchCandidate] = []
+        bodies: dict[str, str] = {}
+        for value in values:
+            if not isinstance(value, dict):
+                raise ResearchUnavailable("research fixture entries must be objects")
+            url = value.get("url")
+            title = value.get("title")
+            text = value.get("text")
+            if (
+                not isinstance(url, str)
+                or not url.startswith(("https://", "http://"))
+                or not isinstance(title, str)
+                or not isinstance(text, str)
+                or not text.strip()
+            ):
+                raise ResearchUnavailable("research fixture source is invalid")
+            candidates.append(
+                SearchCandidate(
+                    title=title[:500],
+                    url=url,
+                    snippet=str(value.get("snippet", ""))[:2_000],
+                )
+            )
+            bodies[url] = text[:MAX_EXTRACTED_TEXT]
+        return ResearchService(
+            FixtureSearchProvider(tuple(candidates)),
+            FixtureDocumentFetcher(bodies),
+            FixtureContentExtractor(),
+        )
+    endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
+    if not endpoint:
+        raise ResearchUnavailable("research provider is not configured")
+    return ResearchService(
+        SearxngSearchProvider(endpoint),
+        DocumentFetcher(),
+        TrafilaturaContentExtractor(),
+    )

@@ -10,11 +10,13 @@ from aegis.research import (
     EvidenceSet,
     FetchedDocument,
     ResearchService,
+    ResearchUnavailable,
     SearchCandidate,
     SearchRequest,
     SearxngSearchProvider,
     TrafilaturaContentExtractor,
     _validated_url,
+    configured_research_service,
     resolve_public,
 )
 
@@ -26,6 +28,20 @@ def test_research_request_is_bounded() -> None:
         SearchRequest("x", limit=6)
     with pytest.raises(ValueError):
         SearchRequest("x" * 501)
+
+
+def test_configured_fixture_research_is_answer_only_and_bounded(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_RESEARCH_FIXTURE_JSON",
+        '[{"title":"Guide","url":"https://fixture.test/guide",'
+        '"text":"Use the approved staging workflow."}]',
+    )
+    evidence = configured_research_service().collect(SearchRequest("staging workflow"))
+    assert evidence.provider_id == "fixture-research"
+    assert evidence.evidence[0].final_url == "https://fixture.test/guide"
+    monkeypatch.setenv("AEGIS_RESEARCH_FIXTURE_JSON", "[]")
+    with pytest.raises(ResearchUnavailable):
+        configured_research_service()
 
 
 @pytest.mark.parametrize(

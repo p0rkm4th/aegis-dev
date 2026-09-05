@@ -75,12 +75,9 @@ from .reference_packs import (
 from .reference_runtime import default_runtime_registry, legacy_runtime
 from .release_truth import runtime_release_sha
 from .research import (
-    DocumentFetcher,
-    ResearchService,
     ResearchUnavailable,
     SearchRequest,
-    SearxngSearchProvider,
-    TrafilaturaContentExtractor,
+    configured_research_service,
 )
 from .store import PostgresObjectiveStore
 from .structural import SpacyStructuralParser, StructuralParserUnavailable
@@ -910,8 +907,9 @@ def run_interaction(
         runtime_registry = _default_runtime_registry(_openclaw_channel)
 
     def research_answer(intent: IntentFrame, context: Context, source_kind: str) -> Result:
-        endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
-        if not endpoint:
+        if not os.environ.get("AEGIS_SEARCH_ENDPOINT") and not os.environ.get(
+            "AEGIS_RESEARCH_FIXTURE_JSON"
+        ):
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.FAILED,
@@ -925,11 +923,7 @@ def run_interaction(
             )
 
         try:
-            service = ResearchService(
-                SearxngSearchProvider(endpoint),
-                DocumentFetcher(),
-                TrafilaturaContentExtractor(),
-            )
+            service = configured_research_service()
             evidence = service.collect(SearchRequest(intent.utterance))
             evidence_values = {
                 "query": evidence.query,
@@ -1010,7 +1004,7 @@ def run_interaction(
                 correlation_id=intent.correlation_id,
                 retryable=True,
             )
-        if not endpoint:
+        if not endpoint and not os.environ.get("AEGIS_RESEARCH_FIXTURE_JSON"):
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
@@ -1037,11 +1031,7 @@ def run_interaction(
                 correlation_id=intent.correlation_id,
             )
         try:
-            evidence = ResearchService(
-                SearxngSearchProvider(endpoint),
-                DocumentFetcher(),
-                TrafilaturaContentExtractor(),
-            ).collect(SearchRequest(query))
+            evidence = configured_research_service().collect(SearchRequest(query))
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,

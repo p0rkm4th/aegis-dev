@@ -1,0 +1,15 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "research-workspace-action",
+  "source": "working-tree",
+  "action_id": "workspace.research_notes.create",
+  "required_permission": "workspace.write",
+  "flow": "bounded research -> non-authoritative evidence -> scoped workspace artifact -> readback verification",
+  "safety": [
+    "ResearchAnswer remains answer-only and non-authoritative",
+    "workspace is principal/objective scoped",
+    "no deployment or external mutation authority is granted"
+  ],
+  "deterministic_tests": "816 passed, 5 skipped",
+  "live_provider": "fixture acceptance only; public provider acceptance remains pending"
+}
