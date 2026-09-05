@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-personal-obligation-read",
+  "source_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+  "hosted_validation": {"run_id": "33974254374", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+    "running_sha": "63b6478d018d73e04cd3abb706227ec304eaae2a",
+    "postgresql": "preserved",
+    "proof": [
+      "What do I owe? -> You have no outstanding obligations assigned to you.",
+      "How much do I owe? -> You have no outstanding obligations assigned to you.",
+      "Who owes the utilities? -> Obligation: Utilities is assigned to bob"
+    ],
+    "mutation": "none"
+  },
+  "result": "Personal obligation reads are owner-scoped canonical reads and no longer render as mutation-shaped completion messages."
+}
