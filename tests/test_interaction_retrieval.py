@@ -113,6 +113,8 @@ def test_model_fallback_reuses_one_bounded_retrieval_working_set(monkeypatch):
 def test_unknown_pack_grounding_runs_through_boundary_and_replay_is_idempotent(monkeypatch):
     state = {"level": 0}
     executions = 0
+    proposal_level = 40
+    policy_allowed = True
     utterance = "Set the test light level to 40"
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("home",))
     card = ActionCard(
@@ -160,7 +162,7 @@ def test_unknown_pack_grounding_runs_through_boundary_and_replay_is_idempotent(m
         def authorize(self, _request):
             from aegis.contracts import PolicyDecision
 
-            return PolicyDecision(allowed=True, reason="test permission allowed")
+            return PolicyDecision(allowed=policy_allowed, reason="test permission allowed")
 
     def ground(intent, proposed, _connection, _context):
         value = proposed.action.arguments["level"]
@@ -198,7 +200,7 @@ def test_unknown_pack_grounding_runs_through_boundary_and_replay_is_idempotent(m
                     "kind": "ACTION",
                     "semantic_mode": "ACTION",
                     "action_ref": card.action.action_id,
-                    "action_arguments": {"level": 40},
+                    "action_arguments": {"level": proposal_level},
                 }
             )
 
@@ -250,6 +252,17 @@ def test_unknown_pack_grounding_runs_through_boundary_and_replay_is_idempotent(m
         ),
     )
     assert plan_result.state is ObjectiveState.COMPLETED
+    assert executions == 2
+
+    proposal_level = 41
+    forged = boundary.run(utterance, principal, correlation_id=uuid4())
+    assert forged.state is ObjectiveState.BLOCKED
+    assert executions == 2
+
+    proposal_level = 40
+    policy_allowed = False
+    revoked = boundary.run(utterance, principal, correlation_id=uuid4())
+    assert revoked.state is ObjectiveState.BLOCKED
     assert executions == 2
 
 
