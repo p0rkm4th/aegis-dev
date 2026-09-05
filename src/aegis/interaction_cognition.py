@@ -234,6 +234,57 @@ def _structural_plurality_failure(dependencies: Any, utterance: str) -> Proposal
     )
 
 
+def _effect_first_repair_context(
+    provider: Any,
+    dependencies: Any,
+    intent: IntentFrame,
+    context: Context,
+    cards: tuple[ActionCard, ...],
+) -> Context | None:
+    """Collect bounded effect evidence before repairing a compound clarification.
+
+    This is deliberately evidence-only. The resulting context does not grant
+    capability or execution authority; the normal PLAN path re-runs effect,
+    fidelity, policy, and Kernel validation after repair.
+    """
+
+    structural_parser = getattr(dependencies, "structural_parser", None)
+    if structural_parser is None:
+        return None
+    try:
+        signal = structural_parser(intent.utterance)
+        response = provider.decide(
+            ModelRequest(
+                working_set=WorkingSet(intent=intent, context=context),
+                action_cards=cards,
+                objective_effect_only=True,
+                allow_plan_proposals=False,
+                allow_argument_proposals=False,
+            )
+        )
+        raw_effects = response.raw.get("effects") if isinstance(response.raw, dict) else None
+        if not isinstance(raw_effects, list):
+            return None
+        effects = tuple(RequestedEffectProposal.model_validate(item) for item in raw_effects)
+        materialized = materialize_requested_effects(intent.utterance, effects)
+        if materialized is None or not validate_structural_coverage(
+            intent.utterance, materialized, signal
+        ):
+            return None
+    except Exception:
+        return None
+    values = dict(context.values)
+    values["grounded_requested_effects"] = [
+        {
+            "effect_text": effect.effect_text,
+            "source_span": list(effect.source_span),
+            "polarity": effect.polarity,
+        }
+        for effect in effects
+    ]
+    return context.model_copy(update={"values": values})
+
+
 def _bounded_decision_repair(
     provider: Any,
     intent: IntentFrame,
@@ -632,16 +683,19 @@ def decide_fallback(
             # conservatively clarified has two bounded opportunities to produce
             # a complete PLAN. The resulting proposal immediately re-enters
             # requested-effect coverage and objective-fidelity validation.
+            effect_first_context = _effect_first_repair_context(
+                repair_provider, dependencies, intent, context, cards
+            )
             decision = _repair_clarification(
                 repair_provider,
                 intent,
-                context,
+                effect_first_context or context,
                 cards,
                 decision,
                 "the request contains multiple independently requested changes",
                 _structural_plurality_failure(dependencies, intent.utterance),
                 plans_only=True,
-                max_attempts=2,
+                max_attempts=1 if effect_first_context is not None else 2,
             )
         if (
             decision.kind in {DecisionKind.CLARIFY, DecisionKind.NEED_CONTEXT}
