@@ -836,13 +836,23 @@ class TaskPriorityFastPath:
         )
         priority_language = temporal_priority or any(
             term in text
-            for term in ("first", "latest", "last", "priorit", "focus", "next", "urgent")
+            for term in (
+                "first",
+                "latest",
+                "last",
+                "priorit",
+                "focus",
+                "next",
+                "urgent",
+                "attention",
+            )
         )
         if not priority_language:
             return False
         explicit_task = "task" in text
         implicit_task = text.startswith(("what", "which")) and any(
-            term in text for term in ("should", "take care", "focus", "work", "on my list")
+            term in text
+            for term in ("should", "take care", "focus", "work", "attention", "on my list")
         )
         due_priority = (
             text.startswith("which")
@@ -853,6 +863,7 @@ class TaskPriorityFastPath:
             "should" in text
             or "priorit" in text
             or "focus" in text
+            or "attention" in text
             or "next" in text
             or due_priority
         )
