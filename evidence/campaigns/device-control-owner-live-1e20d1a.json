@@ -1,0 +1,28 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "device-control-owner-live",
+  "source_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": "33986491983",
+    "conclusion": "success"
+  },
+  "runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+    "health": "healthy",
+    "ready": true,
+    "identity": "alice",
+    "space": "apartment",
+    "authorized_device_entities": ["light.desk"]
+  },
+  "owner_proof": {
+    "pack": "device-controls",
+    "approval": "explicit owner approval for devices.control",
+    "allowed_utterance": "Turn on light.desk and verify it",
+    "allowed_outcome": "completed; device command readback verified",
+    "denied_utterance": "Turn on light.garage and verify it",
+    "denied_outcome": "failed; device entity is outside the authorized device scope",
+    "mutation_boundary": "out-of-scope entity was not mutated"
+  }
+}

@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "state_basis_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
-  "deterministic_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
-  "last_pushed_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
-  "hosted_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
-  "hosted_ci_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "repository_head_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "deterministic_green_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "last_pushed_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "hosted_green_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "hosted_ci_green_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+    "commit_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
     "conclusion": "success",
-    "run_id": "33985555254",
-    "observed_at": "2026-09-05T19:15:00Z"
+    "run_id": "33986491983",
+    "observed_at": "2026-09-05T19:35:00Z"
   },
-  "installed_release_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
-  "running_release_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
-  "live_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "installed_release_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "running_release_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
+  "live_green_sha": "1e20d1a780520c88e2151e09915e9f8598f92ae2",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "communication-draft-owner-live",
+  "active_checkpoint": "device-control-owner-live",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "communication-draft-owner-live",
+  "current_checkpoint": "device-control-owner-live",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -72,6 +72,7 @@
     ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
     ,"bounded configured calendar snapshots are owner-visible through the authenticated Calendar view and /api/calendar; live provider acceptance remains pending"
     ,"Google Calendar events.list is available through a bounded HTTPS bearer-token adapter with fixture fallback; no live credential is configured"
+    ,"device-controls Pack requires explicit owner approval, authorized entity scope, and typed low-risk service/postcondition arguments; promoted fixture proof verified light.desk readback and rejected light.garage"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -92,15 +93,15 @@
   "breadth_scoreboard": {
     "owner_visible_views": 8,
     "usable_capability_families": 6,
-    "verified_write_capabilities": 2,
+    "verified_write_capabilities": 3,
     "external_integrations": 0,
     "cross_domain_compositions": 6,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 10,
+    "owner_workflows_completed": 11,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the next breadth tranche with a verified consequential capability outside task/event/grocery domains, or prove the Google Calendar adapter with owner-supplied credentials if they become available.",
+  "next_action": "Continue the next breadth tranche with a second materially distinct integration or cross-capability composition; live Google Calendar and Home Assistant provider acceptance remain pending.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
