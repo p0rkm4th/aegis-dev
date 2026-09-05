@@ -12,6 +12,7 @@ import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 from uuid import UUID, uuid5
 
 
@@ -26,6 +27,16 @@ class WorkspaceRun:
     stdout: str
     stderr: str
     timed_out: bool = False
+
+
+@dataclass(frozen=True)
+class WorkspaceArtifact:
+    """Verified inventory returned after a bounded artifact operation."""
+
+    correlation_id: UUID
+    files: tuple[str, ...]
+    validated: bool
+    validation_detail: str
 
 
 def _bounded_output(value: str | bytes | None, limit: int) -> str:
@@ -160,6 +171,27 @@ class ScopedWorkspace:
             completed.stdout[: self.max_output_bytes],
             completed.stderr[: self.max_output_bytes],
             timed_out,
+        )
+
+    def write_artifact(
+        self,
+        files: dict[str, str],
+        correlation_id: UUID,
+        validator: Callable[["ScopedWorkspace"], str | None],
+    ) -> WorkspaceArtifact:
+        """Materialize files, then require an independent bounded validator."""
+        if not files or len(files) > 50:
+            raise WorkspaceError("artifact file count is outside bounds")
+        for relative, content in files.items():
+            self.write(relative, content)
+        detail = validator(self)
+        if detail is not None:
+            raise WorkspaceError(f"artifact validation failed: {detail}")
+        return WorkspaceArtifact(
+            correlation_id=correlation_id,
+            files=self.list_files(),
+            validated=True,
+            validation_detail="bounded validator accepted artifact",
         )
 
 
