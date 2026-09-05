@@ -248,6 +248,22 @@ def with_continuation_context(result: Result, context: Context) -> Result:
     evidence = dict(result.evidence)
     evidence["continuation_of_objective_id"] = prior_objective_id
     evidence["continuation_context"] = "authorized_prior_result"
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if isinstance(those, dict):
+        fact_key = those.get("fact_key")
+        candidates = those.get("candidates")
+        if fact_key in {
+            "canonical_items",
+            "canonical_tasks",
+            "canonical_chores",
+            "events",
+            "canonical_obligations",
+        } and isinstance(candidates, list):
+            # A blocked clarification may carry forward only the bounded
+            # canonical referents already authorized on the prior turn.  It
+            # does not create new facts or broaden authority.
+            evidence[str(fact_key)] = candidates[:_MAX_CONTEXT_CANDIDATES]
     return result.model_copy(update={"evidence": evidence})
 
 

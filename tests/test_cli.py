@@ -1130,6 +1130,32 @@ def test_follow_up_result_can_trace_authorized_prior_objective_without_reusing_i
     assert enriched.evidence["continuation_of_objective_id"] == prior_id
 
 
+def test_blocked_followup_preserves_bounded_authorized_referents():
+    prior_id = str(uuid4())
+    context = Context(
+        values={
+            "prior_objective_id": prior_id,
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [{"title": "check the gate", "status": "open"}],
+                }
+            },
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.BLOCKED,
+        message="Please choose an available ordinal.",
+        correlation_id=uuid4(),
+    )
+
+    enriched = _with_continuation_context(result, context)
+
+    assert enriched.evidence["canonical_tasks"] == [{"title": "check the gate", "status": "open"}]
+
+
 def test_context_reconstruction_preserves_original_objective_through_follow_up_result():
     principal = Principal(id="alice", vault_id="alice-vault")
     correlation_id = uuid4()
