@@ -1,0 +1,20 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-polite-canonical-reads",
+  "source_sha": "acae4e23f842ed86a021a9bca145fbb2368f8322",
+  "hosted_validation": {"run_id": "33973721907", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "acae4e23f842ed86a021a9bca145fbb2368f8322",
+    "running_sha": "acae4e23f842ed86a021a9bca145fbb2368f8322",
+    "postgresql": "preserved",
+    "proof": [
+      "Can you tell me what tasks are open? -> canonical task list",
+      "Can you tell me what chores are open? -> canonical chore list",
+      "Could you tell me what obligations are outstanding? -> canonical obligation list",
+      "Please tell me what events are coming up? -> canonical event list",
+      "Can you tell me what groceries are on my list? -> canonical grocery list"
+    ],
+    "mutation": "none"
+  },
+  "result": "Polite what-reads now normalize across the existing canonical domain fast paths."
+}
