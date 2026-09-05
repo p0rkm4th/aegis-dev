@@ -37,7 +37,8 @@
     "model": "qwen3:8b",
     "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
     "postgresql": "healthy; persistent owner acceptance volume preserved",
-    "structural_provider": "en_core_web_sm"
+    "structural_provider": "en_core_web_sm",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -51,7 +52,7 @@
     "browser UI has capability-oriented navigation and Pack-derived Constellation areas; owner runtime promotion remains pending",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
     "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation",
-    "owner release 54edd9d is live with authenticated Workspace inventory; artifact creation proof remains pending"
+    "owner release 54edd9d is live with authenticated Workspace inventory; installed-provider artifact smoke passed, normal objective composition remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
