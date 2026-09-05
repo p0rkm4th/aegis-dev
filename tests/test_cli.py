@@ -3671,6 +3671,34 @@ def test_browser_app_exposes_bounded_device_projection():
     assert json.loads(payload)["devices"][0]["state"] == "off"
 
 
+def test_browser_app_exposes_communications_outcome_projection():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        communications_state=lambda current: {
+            "messages": [
+                {
+                    "target": current.id,
+                    "provider_status": "PROVIDER_ACCEPTED",
+                    "delivery_proven": False,
+                }
+            ],
+            "provider_boundary": "acceptance is not delivery",
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/communications", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    outcome = json.loads(payload)["messages"][0]
+    assert outcome["target"] == "alice"
+    assert outcome["provider_status"] == "PROVIDER_ACCEPTED"
+    assert outcome["delivery_proven"] is False
+
+
 def test_browser_app_exposes_truthful_today_projection():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(

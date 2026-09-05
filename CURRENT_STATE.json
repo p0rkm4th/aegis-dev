@@ -15,9 +15,9 @@
     "run_id": "33996658097",
     "observed_at": "2026-09-05T22:43:00Z"
   },
-  "installed_release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
-  "running_release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
-  "live_green_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "installed_release_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "running_release_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "live_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-communications-provider-adapter",
   "checkpoint_status": "complete",
