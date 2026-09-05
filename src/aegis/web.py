@@ -19,6 +19,7 @@ from .health import HealthReport
 Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
 ContextualInteraction = Callable[[str, Principal, UUID, UUID | None], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
+WorkspaceState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -104,6 +105,11 @@ class ConstellationProjection(BaseModel):
         if any(edge.source not in node_ids or edge.target not in node_ids for edge in self.edges):
             raise ValueError("Constellation edge references an unknown node")
         return self
+
+
+class WorkspaceProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    workspaces: tuple[dict[str, Any], ...] = Field(default=(), max_length=20)
 
 
 _INDEX_HTML = """<!doctype html>
@@ -500,6 +506,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   document.getElementById('view-title').textContent = viewCopy[0];
   document.getElementById('view-description').textContent = viewCopy[1];
   if (activeView === 'research') input.focus();
+  if (activeView === 'workspace') loadWorkspace();
   applyNodeFilter();
 }));
 async function apiFetch(resource, options = {}) {
@@ -599,6 +606,23 @@ async function loadState() {
     return item;
   }));
   applyNodeFilter();
+}
+async function loadWorkspace() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/workspace');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Workspace unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = payload.workspaces?.length
+      ? `${payload.workspaces.length} scoped workspace(s)`
+      : 'No scoped workspaces yet. Ask AEGIS to create a bounded artifact.';
+    panel.append(heading);
+    panel.append(renderDetailValue(payload.workspaces || []));
+  } catch (_) {
+    panel.textContent = 'Workspace inventory is unavailable; no artifact state was changed.';
+  }
 }
 async function refreshState() {
   refresh.disabled = true;
@@ -762,6 +786,7 @@ class BrowserApp:
         contextual_interaction: ContextualInteraction | None = None,
         feedback: FeedbackRecorder | None = None,
         session_token: str | None = None,
+        workspace_state: WorkspaceState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -771,6 +796,7 @@ class BrowserApp:
         self.contextual_interaction = contextual_interaction
         self.feedback = feedback
         self.session_token = session_token
+        self.workspace_state = workspace_state
 
     def dispatch(
         self,
@@ -844,6 +870,20 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "state unavailable"
                 )
             return self._json(HTTPStatus.OK, payload)
+        if method == "GET" and route == "/api/workspace":
+            if self.workspace_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                projection = WorkspaceProjection.model_validate(self.workspace_state(principal))
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError, ValidationError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "workspace_unavailable", "workspace unavailable"
+                )
+            return self._json(HTTPStatus.OK, projection.model_dump(mode="json"))
         if method == "GET" and route == "/api/request-status":
             if self.request_status is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1031,6 +1071,7 @@ def serve(
     request_status: RequestStatusProvider | None = None,
     contextual_interaction: ContextualInteraction | None = None,
     feedback: FeedbackRecorder | None = None,
+    workspace_state: WorkspaceState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1043,6 +1084,7 @@ def serve(
         contextual_interaction,
         feedback,
         session_token=secrets.token_urlsafe(32),
+        workspace_state=workspace_state,
     )
 
     class Handler(BaseHTTPRequestHandler):

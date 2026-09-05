@@ -85,6 +85,7 @@ from .structural import SpacyStructuralParser, StructuralParserUnavailable
 from .tasks import PostgresTaskStore
 from .utterance import is_task_destination_request
 from .web import serve
+from .workspace import WorkspaceManager
 
 # Backward-compatible import for callers of the alpha's legacy helper.  The
 # implementation belongs to the reference-Pack composition module; CLI is only
@@ -477,6 +478,13 @@ def _constellation_state(principal: Principal) -> dict[str, Any]:
         homelab_store_factory=PostgresHomelabStore,
         pack_store_factory=PostgresPackStore,
     )
+
+
+def _workspace_state(principal: Principal) -> dict[str, Any]:
+    """Expose only the principal's bounded artifact inventory to the browser."""
+
+    root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+    return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
 
 
 def _browser_interaction(
@@ -1213,6 +1221,7 @@ def main() -> int:
                 _browser_request_status,
                 contextual_browser_handler,
                 _browser_feedback,
+                workspace_state=_workspace_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

@@ -2945,7 +2945,7 @@ def test_cli_web_reports_bootstrap_failure(monkeypatch, capsys):
         "_prepare_local_web_runtime",
         lambda _principal: (_ for _ in ()).throw(RuntimeError("missing database")),
     )
-    monkeypatch.setattr(cli, "serve", lambda *_args: None)
+    monkeypatch.setattr(cli, "serve", lambda *_args, **_kwargs: None)
 
     assert cli.main() == 0
     assert capsys.readouterr().out == (
@@ -2968,7 +2968,9 @@ def test_cli_web_reports_port_conflict_with_remediation(monkeypatch, capsys):
     monkeypatch.setattr(
         cli,
         "serve",
-        lambda *_args: (_ for _ in ()).throw(OSError(cli.errno.EADDRINUSE, "address occupied")),
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            OSError(cli.errno.EADDRINUSE, "address occupied")
+        ),
     )
 
     assert cli.main() == 1
@@ -2994,7 +2996,7 @@ def test_cli_web_hides_database_failure_details(monkeypatch, capsys):
             cli.psycopg.OperationalError("password=private-secret")
         ),
     )
-    monkeypatch.setattr(cli, "serve", lambda *_args: None)
+    monkeypatch.setattr(cli, "serve", lambda *_args, **_kwargs: None)
 
     assert cli.main() == 0
     output = capsys.readouterr().out
@@ -3312,6 +3314,24 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     assert response["correlation_id"] == "00000000-0000-4000-8000-000000000001"
     assert UUID(response["session_id"])
     assert seen == [("Show my tasks.", "alice")]
+
+
+def test_browser_app_exposes_principal_scoped_workspace_inventory():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        workspace_state=lambda current: {
+            "workspaces": [{"workspace_id": current.id, "files": ["index.html"]}]
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/workspace", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["workspaces"] == [{"workspace_id": "alice", "files": ["index.html"]}]
 
 
 def test_browser_app_session_gate_rejects_unauthenticated_api_requests():
