@@ -390,6 +390,13 @@ function renderDetailValue(value) {
       const row = document.createElement('li');
       row.append(renderDetailValue(item)); list.append(row);
     });
+    if (value.length > 12) {
+      const disclosure = document.createElement('details');
+      const summary = document.createElement('summary');
+      summary.textContent = `Show ${value.length} canonical records`;
+      disclosure.append(summary, list);
+      return disclosure;
+    }
     return list;
   }
   if (typeof value === 'object') {
