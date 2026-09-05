@@ -62,6 +62,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         "chores",
         "events",
         "canonical_events",
+        "obligations",
         "canonical_obligations",
         "memories",
         "title",
