@@ -167,6 +167,28 @@ def test_pack_grounding_rule_rejects_unapproved_derivation_and_forged_referent()
     assert "unavailable canonical" in (
         _argument_provenance_error(forged.action, card=forged, context=Context()) or ""
     )
+    authorized = Context(
+        values={"referents": {"those": {"candidates": [{"light_id": "light-1"}]}}},
+        sources=("authorized_canonical_result",),
+    )
+    grounded_ref = forged.model_copy(
+        update={
+            "action": forged.action.model_copy(
+                update={
+                    "argument_provenance": {
+                        "level": ArgumentProvenance(
+                            kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                            canonical_ref="light-1",
+                        )
+                    }
+                }
+            )
+        }
+    )
+    assert (
+        _argument_provenance_error(grounded_ref.action, card=grounded_ref, context=authorized)
+        is None
+    )
 
 
 def test_unknown_pack_runtime_returns_typed_evidence_for_action_and_plan_contract() -> None:
