@@ -3487,6 +3487,26 @@ def test_browser_app_exposes_bounded_calendar_projection():
     assert json.loads(payload)["events"] == [{"event_id": "event-1", "title": "alice"}]
 
 
+def test_browser_app_exposes_truthful_today_projection():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        today_state=lambda _current: {
+            "canonical": {"open_tasks": [{"title": "Review backup"}]},
+            "external_calendar": {"source": "external_calendar_fixture", "events": []},
+            "truth_boundary": "canonical state is distinct from external evidence",
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/today", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["canonical"]["open_tasks"] == [{"title": "Review backup"}]
+
+
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []

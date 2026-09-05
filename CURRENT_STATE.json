@@ -2,7 +2,7 @@
   "schema_version": 2,
   "state_basis_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+  "repository_head_sha": "2c72b65047d8fccc0d79fa4b4ddd97b431ac4da7",
   "deterministic_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
   "last_pushed_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
   "hosted_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
@@ -19,10 +19,10 @@
   "running_release_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
   "live_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "device-workspace-owner-live",
+  "active_checkpoint": "trust-repair-workspace-device",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "device-workspace-owner-live",
-  "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
+  "current_checkpoint": "trust-repair-workspace-device",
+  "active_campaign": "AEGIS LONG AUTONOMOUS TRUST-REPAIR → BREADTH CONTINUATION CAMPAIGN",
   "current_model": {
     "provider": "ollama",
     "model": "qwen3:8b",
@@ -51,11 +51,11 @@
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
-    "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation",
+    "scoped workspace supports principal/objective isolation, bounded commands, and executor-local artifact sanity checks; independent postcondition repair is in progress",
     "owner release 9772aa5 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
-    ,"documents.export_to_workspace is a typed two-permission composition with deterministic verification; live owner proof remains pending"
+    ,"documents.export_to_workspace is a typed two-permission composition with pre-execution expectation support; installed independent proof remains pending"
     ,"live owner service now exposes Calendar/Documents/Communications Pack nodes on the promoted release; communications remains discovered until explicit enablement"
     ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
@@ -67,13 +67,13 @@
     ,"bounded Home Assistant REST read provider is promoted with deterministic fixture fallback; live endpoint acceptance remains pending"
     ,"Calendar read completed after explicit owner approval; Documents Pack is enabled with its full declared permissions and currently has no authorized data"
     ,"Documents -> Workspace completed in the promoted owner runtime with canonical document-ID grounding, scoped artifact creation, readback verification, and persisted inventory"
-    ,"Research -> Workspace completed in the promoted owner runtime with non-authoritative fixture evidence, sourced notes artifact creation, readback verification, and persisted inventory"
+    ,"Research -> Workspace preserves non-authoritative fixture evidence and sourced notes artifacts, but independent completion is downgraded pending fixed-input staging"
     ,"communication-drafts Pack is owner-enabled only with exact declared permissions; draft creation writes a scoped Workspace artifact and verifies readback without any send path"
     ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
     ,"bounded configured calendar snapshots are owner-visible through the authenticated Calendar view and /api/calendar; live provider acceptance remains pending"
     ,"Google Calendar events.list is available through a bounded HTTPS bearer-token adapter with fixture fallback; no live credential is configured"
-    ,"device-controls Pack requires explicit owner approval, authorized entity scope, and typed low-risk service/postcondition arguments; promoted fixture proof verified light.desk readback and rejected light.garage"
-    ,"device-reports Pack composes authorized device reads with scoped Workspace writes; promoted owner proof created devices.md with artifact readback verification"
+    ,"device-controls Pack requires explicit owner approval and authorized entity scope; independent provider readback repair is in progress"
+    ,"device-reports Pack composes authorized device reads with scoped Workspace writes; independent completion is downgraded pending fixed-input staging"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -83,7 +83,8 @@
     "OpenClaw HTTP tools/invoke health is reachable, but its HTTP surface does not expose exec even with the disposable gateway.tools override",
     "PostgreSQL backup/restore requires client tools compatible with the pinned server: host PostgreSQL 18 tools cannot restore a dump to PostgreSQL 16; pinned container PostgreSQL 16 pg_dump/pg_restore round-trip is green",
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
-    "Home Assistant/device live acceptance was not performed",
+    "Home Assistant/device live acceptance was not performed; device fixture verification is under trust repair",
+    "Workspace.run has confinement and network namespace isolation but no proven CPU/memory/process ceilings; resource-limit proof is a future general-execution gate",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
@@ -94,7 +95,7 @@
   "breadth_scoreboard": {
     "owner_visible_views": 8,
     "usable_capability_families": 6,
-    "verified_write_capabilities": 4,
+    "verified_write_capabilities": 0,
     "external_integrations": 0,
     "cross_domain_compositions": 7,
     "capability_need_resolutions": 1,
@@ -102,7 +103,7 @@
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the next breadth tranche with another materially distinct integration or owner-visible surface; live Google Calendar and Home Assistant provider acceptance remain pending.",
+  "next_action": "Complete adversarial independent Workspace/device verification, exact hosted proof, and installed owner restart/multi-file proof; then resume breadth with a new owner capability.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

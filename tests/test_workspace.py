@@ -1,4 +1,5 @@
 import shutil
+import socket
 from pathlib import Path
 from uuid import uuid4
 
@@ -32,6 +33,26 @@ def test_workspace_runs_allowlisted_command_without_network(tmp_path: Path) -> N
     )
     assert result.returncode == 0
     assert "<h1>ok</h1>" in result.stdout
+
+
+@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
+def test_workspace_network_namespace_cannot_reach_parent_loopback(tmp_path: Path) -> None:
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(1)
+    port = listener.getsockname()[1]
+    workspace = ScopedWorkspace(tmp_path / "owner", allowed_commands=("python3",))
+    script = (
+        "import socket; s=socket.socket(); s.settimeout(1); "
+        f"\ntry: s.connect(('127.0.0.1', {port})); print('connected') "
+        "\nexcept OSError: print('blocked')"
+    )
+    try:
+        result = workspace.run(("python3", "-c", script), uuid4())
+    finally:
+        listener.close()
+    assert result.returncode == 0
+    assert result.stdout.strip() == "blocked"
 
 
 def test_workspace_rejects_unallowlisted_command_and_symlink(tmp_path: Path) -> None:

@@ -73,6 +73,16 @@ def _context_contains_canonical_ref(value: Any, reference: str, *, depth: int = 
     return False
 
 
+def _context_contains_canonical_source_ref(
+    values: Any, source: str, reference: str
+) -> bool:
+    """Require canonical identity to be qualified by its declared source."""
+    if not isinstance(values, dict):
+        return False
+    scoped = values.get(source)
+    return scoped is not None and _context_contains_canonical_ref(scoped, reference)
+
+
 def _argument_provenance_error(
     action: Any,
     utterance: str | None = None,
@@ -127,7 +137,19 @@ def _argument_provenance_error(
                         rule.canonical_source != "authorized_documents"
                         and context.sources != ("authorized_canonical_result",)
                     )
-                    or not _context_contains_canonical_ref(context.values, evidence.canonical_ref)
+                    or not (
+                        _context_contains_canonical_ref(context.values, evidence.canonical_ref)
+                        if rule.canonical_source == "authorized_documents"
+                        else (
+                            _context_contains_canonical_source_ref(
+                                context.values, rule.canonical_source or "", evidence.canonical_ref
+                            )
+                            if rule.canonical_source in context.values
+                            else _context_contains_canonical_ref(
+                                context.values, evidence.canonical_ref
+                            )
+                        )
+                    )
                 )
             ):
                 return f"argument {key!r} references unavailable canonical evidence"
@@ -711,6 +733,13 @@ class InteractionBoundary:
                 PostgresSpacePolicy(connection, permissions),
                 executor,
                 verifier,
+                action_preparer=(
+                    (lambda action, current_intent, objective_id: getattr(runtime, "prepare")(
+                        action, current_intent.principal, objective_id
+                    ))
+                    if runtime is not None and runtime.prepare is not None
+                    else None
+                ),
                 store=PostgresObjectiveStore(connection),
                 audit=PostgresAuditLog(connection),
             )

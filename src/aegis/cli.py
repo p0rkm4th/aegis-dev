@@ -11,6 +11,7 @@ import sqlite3
 import urllib.error
 import urllib.request
 from collections.abc import Callable
+from datetime import datetime, timezone
 from functools import lru_cache
 from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
@@ -492,6 +493,59 @@ def _calendar_state(principal: Principal) -> dict[str, Any]:
 
     del principal
     return calendar_events_evidence(configured_calendar_provider().list_events())
+
+
+def _today_state(principal: Principal) -> dict[str, Any]:
+    """Build a truthful bounded owner dashboard from authorized canonical stores."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        now = datetime.now(timezone.utc)
+        tasks = PostgresTaskStore(connection).list(principal)
+        household = PostgresHouseholdStore(connection).read_snapshot(principal)
+        open_tasks = [
+            {
+                "title": task.title,
+                "due_at": task.due_at.isoformat() if task.due_at else None,
+                "status": task.status.value,
+            }
+            for task in tasks
+            if task.status.value == "open"
+        ][:20]
+        chores = [
+            {
+                "title": chore.title,
+                "assignee_id": chore.assignee_id,
+                "completed": chore.completed,
+            }
+            for chore in cast(tuple[Any, ...], household.get("chores", ()))
+            if not chore.completed
+        ][:20]
+        events = []
+        for event in cast(tuple[Any, ...], household.get("events", ())):
+            starts_at = event.starts_at
+            if starts_at.tzinfo is None:
+                starts_at = starts_at.replace(tzinfo=timezone.utc)
+            if starts_at >= now:
+                events.append({"title": event.title, "starts_at": starts_at.isoformat()})
+        events = events[:20]
+        external = calendar_events_evidence(configured_calendar_provider().list_events())
+        return {
+            "generated_at": now.isoformat(),
+            "canonical": {
+                "open_tasks": open_tasks,
+                "open_chores": chores,
+                "upcoming_shared_events": events,
+                "groceries": list(cast(tuple[Any, ...], household.get("groceries", ())))[:50],
+            },
+            "external_calendar": external,
+            "truth_boundary": (
+                "canonical personal/household state is distinct from external calendar evidence"
+            ),
+        }
+    finally:
+        connection.close()
 
 
 def _composition_state(principal: Principal) -> dict[str, Any]:
@@ -1419,6 +1473,7 @@ def main() -> int:
                 pack_state=_pack_state,
                 pack_enable=_pack_enable,
                 calendar_state=_calendar_state,
+                today_state=_today_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

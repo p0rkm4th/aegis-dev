@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from uuid import UUID, uuid4, uuid5
 
 from .audit import AuditLog
@@ -62,6 +63,7 @@ class Kernel:
         fast_path: DeterministicFastPath | None = None,
         store: ObjectiveStore | None = None,
         audit: AuditLog | None = None,
+        action_preparer: Callable[[ActionSpec, IntentFrame, UUID], ActionSpec] | None = None,
     ) -> None:
         self.model = model
         self.decoder = decoder
@@ -71,6 +73,7 @@ class Kernel:
         self.fast_path = fast_path or NoopFastPath()
         self.store: ObjectiveStore = store or InMemoryObjectiveStore()
         self.audit = audit or AuditLog()
+        self.action_preparer = action_preparer
         self.objectives: dict[UUID, Objective] = {}
         self._results: dict[str, Result] = {}
 
@@ -216,9 +219,25 @@ class Kernel:
                 message=policy.reason,
                 correlation_id=intent.correlation_id,
             )
+        assert decision.action is not None
+        if self.action_preparer is not None and not (
+            recovered is not None and recovered.action is not None
+        ):
+            try:
+                prepared = self.action_preparer(decision.action, intent, objective.id)
+            except (ValueError, TypeError) as exc:
+                return Result(
+                    objective_id=objective.id,
+                    state=ObjectiveState.BLOCKED,
+                    message=f"Action postcondition could not be established: {exc}",
+                    correlation_id=intent.correlation_id,
+                )
+            decision = decision.model_copy(update={"action": prepared})
+        assert decision.action is not None
+        action = decision.action
         # Correlation is stable across a recovered/replayed turn; objective IDs
         # are intentionally not used as the idempotency key.
-        key = f"{intent.correlation_id}:{decision.action.action_id}"
+        key = f"{intent.correlation_id}:{action.action_id}"
         prior = self._results.get(key) or self.store.get_result(key)
         if prior is not None:
             prior_observation = self.store.get_observation(key)
@@ -232,7 +251,7 @@ class Kernel:
         proposed_request = ExecutionRequest(
             objective_id=objective.id,
             action_id=uuid4(),
-            action=decision.action,
+            action=action,
             idempotency_key=key,
         )
         claim = self.store.claim_action(proposed_request)
