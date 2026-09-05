@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "0637353d535c610da0f04673ba60471a461bf2be",
+  "state_basis_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "0637353d535c610da0f04673ba60471a461bf2be",
-  "deterministic_green_sha": "0637353d535c610da0f04673ba60471a461bf2be",
-  "last_pushed_sha": "0637353d535c610da0f04673ba60471a461bf2be",
-  "hosted_green_sha": "0637353d535c610da0f04673ba60471a461bf2be",
-  "hosted_ci_green_sha": "0637353d535c610da0f04673ba60471a461bf2be",
+  "repository_head_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "deterministic_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "last_pushed_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "hosted_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "hosted_ci_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "0637353d535c610da0f04673ba60471a461bf2be",
+    "commit_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
     "conclusion": "success",
-    "run_id": "33990076341",
+    "run_id": "33990252768",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "0637353d535c610da0f04673ba60471a461bf2be",
-  "running_release_sha": "0637353d535c610da0f04673ba60471a461bf2be",
-  "live_green_sha": "0637353d535c610da0f04673ba60471a461bf2be",
+  "installed_release_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "running_release_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "live_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-device-workspace-composition",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "0637353d535c610da0f04673ba60471a461bf2be"
+    "release_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -79,7 +79,7 @@
     ,"generic communications.messages.send is contract-green with explicit target/channel/account grounding, idempotent fixture acceptance, and truthful PROVIDER_ACCEPTED state; no OpenClaw outbound channel is configured for live delivery"
     ,"Workspace owner surface now exposes bounded file-detail reads and rendered View file controls while preserving principal scope and host-path privacy"
     ,"owner Devices view is live through the existing bounded Home Assistant fixture/read adapter; live device hardware remains unconfigured and no control authority is implied"
-    ,"calendar.events.create is contract-green with Core-prepared title/time expectation, fixture idempotency, and separate provider readback; live Google write acceptance remains pending credentials"
+    ,"calendar.events.create is installed with Core-prepared title/time expectation, fixture idempotency, and separate Google/fixture provider readback; live Google write acceptance remains pending credentials"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -103,7 +103,7 @@
     "tasks": "VERIFIED_LIVE",
     "groceries": "VERIFIED_LIVE",
     "calendar_read": "INSTALLED",
-    "calendar_write": "CONTRACT_GREEN",
+  "calendar_write": "INSTALLED",
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
     "communications_send": "CONTRACT_GREEN",
@@ -132,7 +132,7 @@
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Select the next highest-utility breadth slice after device→Workspace: live provider enablement if credentials exist, otherwise communications/calendar provider adapter or homelab health workflow; keep UI and Constellation coverage generic.",
+  "next_action": "Advance a new communications/calendar/device composition through the normal Core path and generic UI/Constellation; use live provider credentials if configured, otherwise keep fixture and contract states truthful.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
