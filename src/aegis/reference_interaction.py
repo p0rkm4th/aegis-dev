@@ -1382,7 +1382,7 @@ def resolve_contextual_event_temporal_read(
         (
             term
             for term in ("today", "tomorrow", "this weekend", "next week")
-            if text == f"what about {term}"
+            if text in {f"what about {term}", term}
         ),
         None,
     )
