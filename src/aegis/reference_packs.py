@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from .calendar import FixtureCalendarProvider, calendar_events_evidence
 from .communications import FixtureCommunicationProvider, communications_evidence
-from .compositions import document_to_workspace
+from .compositions import document_to_workspace, research_to_workspace
 from .contracts import (
     ActionCard,
     ActionSpec,
@@ -43,6 +43,13 @@ from .gateway_rpc import (
 )
 from .household import PostgresHouseholdStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
+from .research import (
+    KnowledgeSource,
+    ResearchAnswer,
+    ResearchUnavailable,
+    SearchRequest,
+    configured_research_service,
+)
 from .workspace import WorkspaceManager
 
 
@@ -360,6 +367,29 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         ),
                     },
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="workspace.research_notes.create",
+                        capability="workspace.research_notes.create",
+                        required_permissions=("workspace.write",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Research a public question with bounded evidence and save "
+                        "non-authoritative "
+                        "sourced notes into a scoped workspace artifact"
+                    ),
+                    relevance=1,
+                    argument_keys=("query", "target_path"),
+                    argument_grounding={
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
             ),
         ),
     )
@@ -655,6 +685,79 @@ class WorkspaceArtifactExecutor:
                 "validated": artifact.validated,
             },
             command_succeeded=True,
+        )
+
+
+class ResearchWorkspaceExecutor:
+    """Compose bounded answer-only research with scoped artifact creation."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        query = request.action.arguments.get("query")
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(query, str) or not isinstance(target_path, str):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"research_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            evidence = configured_research_service().collect(SearchRequest(query))
+            answer = ResearchAnswer(
+                text="\n\n".join(item.text[:4_000] for item in evidence.evidence),
+                source_kind=KnowledgeSource.EXTERNAL,
+                evidence=evidence,
+            )
+            result = research_to_workspace(
+                answer,
+                WorkspaceManager(
+                    Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+                ),
+                principal_id=self.principal.id,
+                objective_id=request.objective_id,
+                target_path=target_path,
+                correlation_id=request.action_id,
+            )
+        except (ResearchUnavailable, ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"research_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "research_to_workspace",
+                "query": evidence.query,
+                "provider_id": evidence.provider_id,
+                "source_ids": list(result.source_ids),
+                "files": list(result.files),
+                "validated": result.validated,
+                "authoritative": result.authoritative,
+            },
+            command_succeeded=True,
+        )
+
+
+class ResearchWorkspaceVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        verified = (
+            observation.command_succeeded
+            and observation.evidence.get("composition") == "research_to_workspace"
+            and observation.evidence.get("validated") is True
+            and observation.evidence.get("authoritative") is False
+            and isinstance(observation.evidence.get("source_ids"), list)
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"research_workspace_verified": verified},
+            reason="research notes artifact readback verified"
+            if verified
+            else "research notes artifact verification failed",
         )
 
 

@@ -53,6 +53,34 @@ def test_workspace_pack_uses_generic_runtime_and_readback(tmp_path, monkeypatch)
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 
+def test_research_workspace_composition_preserves_sources_and_non_authority(tmp_path, monkeypatch):
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    monkeypatch.setenv(
+        "AEGIS_RESEARCH_FIXTURE_JSON",
+        '[{"title":"Config guide","url":"https://fixture.test/config","text":"Use mode=casual."}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "workspace.research_notes.create"
+    )
+    action = card.action.model_copy(
+        update={"arguments": {"query": "configuration mode", "target_path": "notes.md"}}
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="research-1"
+        )
+    )
+    assert observation.command_succeeded is True
+    assert observation.evidence["authoritative"] is False
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
 def test_devices_pack_reads_authorized_entity_state_through_generic_runtime() -> None:
     card = next(
         card

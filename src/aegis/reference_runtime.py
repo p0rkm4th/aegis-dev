@@ -37,6 +37,8 @@ from .reference_packs import (
     OpenClawNetworkProbeVerifier,
     PostgresGroceryListExecutor,
     PostgresGroceryListVerifier,
+    ResearchWorkspaceExecutor,
+    ResearchWorkspaceVerifier,
     WorkspaceArtifactExecutor,
     WorkspaceArtifactVerifier,
 )
@@ -210,6 +212,14 @@ def default_runtime_registry(
             {"documents.read": frozenset({Role.OWNER}), "workspace.write": frozenset({Role.OWNER})},
         )
 
+    def research_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            ResearchWorkspaceExecutor(principal),
+            ResearchWorkspaceVerifier(),
+            {"workspace.write": frozenset({Role.OWNER})},
+        )
+
     from .reference_packs import reference_bundles
 
     factories: dict[str, Callable[[Any, Principal], ActionRuntime]] = {
@@ -229,6 +239,7 @@ def default_runtime_registry(
         "communications.messages.list": communications_runtime,
         "devices.states.list": devices_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
+        "workspace.research_notes.create": research_workspace_runtime,
     }
     for bundle in reference_bundles():
         card_factories = {
