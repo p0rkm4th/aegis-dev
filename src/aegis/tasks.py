@@ -807,10 +807,13 @@ class TaskPriorityFastPath:
                 if task.due_at is not None and _aware_datetime(task.due_at).date() == target_date
             )
         weekend = None
+        next_week = None
         text = intent.utterance.casefold()
         if "this weekend" in text or "next weekend" in text:
             current = (now or datetime.now().astimezone()).astimezone()
-            days_until_saturday = (5 - current.weekday()) % 7
+            days_until_saturday = (
+                5 - current.weekday() if current.weekday() < 5 else -(current.weekday() - 5)
+            )
             if "next weekend" in text:
                 days_until_saturday += 7
             weekend_start = (current + timedelta(days=days_until_saturday)).date()
@@ -820,6 +823,16 @@ class TaskPriorityFastPath:
                 for task in dated
                 if task.due_at is not None
                 and weekend[0] <= _aware_datetime(task.due_at).astimezone().date() < weekend[1]
+            )
+        elif "next week" in text:
+            current = (now or datetime.now().astimezone()).astimezone()
+            week_start = current.date() - timedelta(days=current.weekday()) + timedelta(days=7)
+            next_week = (week_start, week_start + timedelta(days=7))
+            dated = tuple(
+                task
+                for task in dated
+                if task.due_at is not None
+                and next_week[0] <= _aware_datetime(task.due_at).astimezone().date() < next_week[1]
             )
         if not dated:
             return Result(
@@ -848,6 +861,8 @@ class TaskPriorityFastPath:
                     if requested is not None and "tomorrow" in intent.utterance.casefold()
                     else "earliest_due_at_on_weekend"
                     if weekend is not None
+                    else "earliest_due_at_on_next_week"
+                    if next_week is not None
                     else "earliest_due_at"
                 ),
                 "task": _task_projection(selected),
