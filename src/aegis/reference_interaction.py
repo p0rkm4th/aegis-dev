@@ -1940,7 +1940,13 @@ def resolve_contextual_event_next_read(
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
-    if text not in {"when is the next one", "what is the next one", "which is next"}:
+    if text not in {
+        "when is the next one",
+        "what is the next one",
+        "which is next",
+        "what is happening next",
+        "what's happening next",
+    }:
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
