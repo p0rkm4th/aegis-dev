@@ -641,6 +641,8 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("priority_basis") and evidence.get("authorized_event_priority") is not None:
         return str(result.message)
+    if isinstance(evidence.get("authorized_next_referent"), dict):
+        return str(result.message)
     if any(
         evidence.get(key) is not None for key in ("authorized_task_focus", "authorized_event_focus")
     ):
