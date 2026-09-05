@@ -8,6 +8,7 @@ import shlex
 import socket
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -56,6 +57,7 @@ from .gateway_rpc import (
     OpenClawWebSocketChannel,
     RpcProtocolError,
 )
+from .homelab import PostgresHomelabStore
 from .household import PostgresHouseholdStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
 from .research import (
@@ -413,6 +415,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     relevance=1,
                     argument_keys=("service",),
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="homelab.service.health",
+                        capability="homelab.service.health",
+                        required_permissions=("homelab.read",),
+                        verification=VerificationContract(kind="health"),
+                    ),
+                    summary="Read and independently verify an authorized service health endpoint",
+                    relevance=1,
+                    argument_keys=("service",),
+                    argument_grounding={
+                        "service": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -728,7 +746,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
-        "homelab": ("homelab.service.restart",),
+        "homelab": ("homelab.service.restart", "homelab.read"),
         "network": ("network.read",),
         "workspace": ("workspace.write",),
     }
@@ -773,6 +791,117 @@ class CalendarEventsExecutor:
             execution_id=uuid4(),
             evidence=calendar_events_evidence(events),
             command_succeeded=True,
+        )
+
+
+class _NoopHomelabRuntime:
+    def restart(self, _service: Any) -> bool:
+        return False
+
+    def health(self, _service: Any) -> bool:
+        return False
+
+
+def _canonical_homelab_service(connection: Any, principal: Principal, service_id: str) -> Any:
+    pack = PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
+    try:
+        return pack.services[service_id]
+    except KeyError as exc:
+        raise ValueError("authorized Homelab service is unavailable") from exc
+
+
+def _health_read(endpoint: str) -> tuple[bool, str]:
+    try:
+        parsed = urllib.parse.urlsplit(endpoint)
+    except ValueError:
+        return False, "invalid_endpoint"
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return False, "invalid_endpoint"
+    try:
+        with urllib.request.urlopen(endpoint, timeout=2.0) as response:
+            response.read(4_096)
+            return response.status == 200, f"http_{response.status}"
+    except urllib.error.HTTPError as exc:
+        return False, f"http_{exc.code}"
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return False, "unavailable"
+
+
+class HomelabHealthExecutor:
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        service_id = request.action.arguments.get("service")
+        if not isinstance(service_id, str) or not service_id.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_health": "invalid_service"},
+                command_succeeded=False,
+            )
+        try:
+            service = _canonical_homelab_service(self.connection, self.principal, service_id)
+            healthy, status = _health_read(service.health_endpoint)
+        except (PermissionError, ValueError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_health": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "homelab_health": {
+                    "service": service.service_id,
+                    "attempt_status": status,
+                    "attempt_healthy": healthy,
+                }
+            },
+            command_succeeded=True,
+        )
+
+
+class HomelabHealthVerifier:
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("homelab_health")
+        if not observation.command_succeeded or not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="Homelab health read failed"
+            )
+        service_id = evidence.get("service")
+        if not isinstance(service_id, str):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab service identity missing",
+            )
+        try:
+            service = _canonical_homelab_service(self.connection, self.principal, service_id)
+            healthy, status = _health_read(service.health_endpoint)
+        except (PermissionError, ValueError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "reason": str(exc)},
+                reason="Homelab service scope failed",
+            )
+        verified = healthy and status == "http_200"
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "independent_status": status,
+                "independent_healthy": healthy,
+            },
+            reason="Homelab health independently verified"
+            if verified
+            else "Homelab health readback failed",
         )
 
 

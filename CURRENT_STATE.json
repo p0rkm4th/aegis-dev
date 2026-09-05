@@ -19,7 +19,7 @@
   "running_release_sha": "3703ba316388a2d72d1c2e712574671c10aa21f5",
   "live_green_sha": "3703ba316388a2d72d1c2e712574671c10aa21f5",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-systems-health",
+  "active_checkpoint": "daily-driver-alpha-homelab-health-action",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -90,6 +90,7 @@
     ,"Systems owner view now exposes bounded authorized Homelab hosts/services and Network devices/scopes from PostgreSQL; projection is read-only and does not imply operational authority"
     ,"installed owner Systems proof returned canonical acceptance-atlas/Plex inventory and alpha-lab network scope without exposing action authority"
     ,"Systems projection now performs bounded independent HTTP health observation for canonical service endpoints and reports status without restart or mutation authority"
+    ,"homelab.service.health is a typed Core action with Principal/Space-scoped service lookup and independent second HTTP readback; restart remains separately gated"
     ,"installed owner Systems proof reports acceptance-plex health as unavailable through the bounded observer; no false recovery or restart claim was made"
   ],
   "current_blockers": [],
@@ -143,7 +144,7 @@
     "owner_workflows_completed": 15,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Add the next typed consequential device or homelab action with independent state/health readback; preserve live-provider blockers and continue communications preparation in parallel.",
+  "next_action": "Prove the typed Homelab health action through the installed owner path, then add the next independently verified device or provider-backed communications capability.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
