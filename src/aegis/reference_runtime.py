@@ -21,6 +21,8 @@ from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
     CalendarEventsExecutor,
     CalendarEventsVerifier,
+    DocumentsExecutor,
+    DocumentsVerifier,
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
     OpenClawHomelabExecutor,
@@ -170,6 +172,14 @@ def default_runtime_registry(
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def documents_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            DocumentsExecutor(),
+            DocumentsVerifier(),
+            {"documents.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
     from .reference_packs import reference_bundles
 
     factories: dict[str, Callable[[Any, Principal], ActionRuntime]] = {
@@ -185,6 +195,7 @@ def default_runtime_registry(
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
+        "documents.list": documents_runtime,
     }
     for bundle in reference_bundles():
         card_factories = {

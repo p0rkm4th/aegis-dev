@@ -1,0 +1,15 @@
+{
+  "source_basis": "a356bcf6f7ba",
+  "checkpoint": "authorized documents read slice",
+  "capability_family": "documents",
+  "owner_surface": ["Packs", "Constellation", "Workspace composition target"],
+  "provider": "deterministic authorized-document fixture; live document provider pending",
+  "flow": "documents.list -> generic ActionRuntime -> bounded observation -> structural readback verification",
+  "safety": {
+    "permission": "documents.read",
+    "mutation": false,
+    "host_filesystem_access": false
+  },
+  "verification": "799 passed, 5 skipped; all checks passed",
+  "remaining_gap": "compose authorized document read with scoped Workspace artifact creation"
+}
