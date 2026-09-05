@@ -1139,6 +1139,9 @@ def resolve_reference_fast_paths(
     direct_obligation_result = resolve_direct_obligation_ordinal_read(intent, snapshot)
     if direct_obligation_result is not None:
         return direct_obligation_result
+    named_obligation_result = resolve_named_obligation_read(intent, snapshot)
+    if named_obligation_result is not None:
+        return named_obligation_result
     repeat_result = resolve_contextual_repeat_read(intent, context, household_store, task_store)
     if repeat_result is not None:
         return repeat_result
@@ -2344,6 +2347,54 @@ def resolve_direct_obligation_ordinal_read(
                 }
                 for item in outstanding
             ],
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_named_obligation_read(
+    intent: IntentFrame, snapshot: dict[str, object]
+) -> Result | None:
+    """Resolve a read about one uniquely named canonical obligation."""
+
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    if is_mutation_request(text):
+        return None
+    obligations = snapshot.get("obligations")
+    current = tuple(obligations) if isinstance(obligations, (list, tuple)) else ()
+    matches = [
+        obligation
+        for obligation in current
+        if hasattr(obligation, "title")
+        and re.search(rf"\b{re.escape(obligation.title.casefold())}\b", text)
+    ]
+    if len(matches) != 1:
+        return None
+    if not re.search(r"\b(?:amount|owe|owed|settled|paid|responsible|assigned|handles)\b", text):
+        return None
+    obligation = matches[0]
+    if re.search(r"\b(?:amount|owe|owed)\b", text):
+        message = f"Obligation: {obligation.title} is ${obligation.amount / 100:.2f}"
+    elif re.search(r"\b(?:responsible|assigned|handles)\b", text):
+        message = f"Obligation: {obligation.title} is assigned to {obligation.responsible_id}"
+    else:
+        state = "settled" if obligation.settled else "unsettled"
+        message = f"Obligation: {obligation.title} is {state} ({obligation.responsible_id})"
+    referent = {
+        "obligation_id": str(obligation.obligation_id),
+        "title": obligation.title,
+        "responsible_id": obligation.responsible_id,
+        "settled": bool(obligation.settled),
+        "amount": obligation.amount,
+    }
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=message,
+        evidence={
+            "collection": "canonical_obligations",
+            "authorized_obligation_focus": referent,
+            "obligation": referent,
         },
         correlation_id=intent.correlation_id,
     )
