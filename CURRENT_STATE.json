@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
+  "state_basis_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
-  "deterministic_green_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
-  "last_pushed_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
-  "hosted_green_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
-  "hosted_ci_green_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
+  "repository_head_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
+  "deterministic_green_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
+  "last_pushed_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
+  "hosted_green_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
+  "hosted_ci_green_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
+    "commit_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
     "conclusion": "success",
-    "run_id": "33993301367",
+    "run_id": "33993964370",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
-  "running_release_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
-  "live_green_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1",
+  "installed_release_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
+  "running_release_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
+  "live_green_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-homelab-health-action",
+  "active_checkpoint": "daily-driver-alpha-homelab-workspace-page",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "570bb987fb59b0c39017afd4da49693a4531fbe1"
+    "release_sha": "78f492441b2bd74f2d7959cfeaf90e4d3b3112a0"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -93,9 +93,10 @@
     ,"homelab.service.health is a typed Core action with Principal/Space-scoped service lookup and independent second HTTP readback; restart remains separately gated"
     ,"installed owner Systems proof reports acceptance-plex health as unavailable through the bounded observer; no false recovery or restart claim was made"
     ,"installed owner fixture proof completed Turn on light.desk with independent provider readback; restart preserved the completed objective without replay; live Home Assistant hardware remains unconfigured"
+    ,"Homelab Reports Pack exposes a generic Homelab to Workspace composition; owner approval created index.html and style.css from authorized PostgreSQL inventory and independently verified both files; live deployment remains outside scope"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
+  "daily_driver_checkpoint": "Owner created and independently verified a Homelab inventory webpage in a scoped Workspace after explicit Homelab Reports Pack approval.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -128,24 +129,24 @@
     "homelab_action": "PARTIAL",
     "constellation": "INSTALLED"
   },
-  "independently_verified_write_capabilities": 3,
+  "independently_verified_write_capabilities": 4,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 16,
-  "owner_visible_capability_surfaces": 11,
+  "voluntarily_useful_owner_workflows": 17,
+  "owner_visible_capability_surfaces": 12,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 9,
+  "cross_capability_workflows": 10,
   "breadth_scoreboard": {
-    "owner_visible_views": 9,
+    "owner_visible_views": 10,
     "usable_capability_families": 7,
-    "verified_write_capabilities": 3,
+    "verified_write_capabilities": 4,
     "external_integrations": 0,
-    "cross_domain_compositions": 9,
+    "cross_domain_compositions": 10,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 16,
+    "owner_workflows_completed": 17,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next provider-backed or document utility slice; communications/OpenClaw, Google Calendar, and live Home Assistant remain pending external configuration.",
+  "next_action": "Continue Daily-Driver Alpha with the next cheapest owner utility slice: communications remains blocked on OpenClaw outbound configuration, while richer Documents or another verified provider composition is available.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
