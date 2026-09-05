@@ -981,7 +981,11 @@ def decide_fallback(
                 if materialized_effects is None:
                     raise InvalidDecision("objective effect repair was not grounded")
             independent_spec: ObjectiveSpecProposal | None
-            if any(effect.action_ref is None for effect in effects):
+            # Keep effect segmentation and capability mapping independent even
+            # when the effect model volunteers action references. Those refs
+            # remain untrusted; every grounded effect goes through the existing
+            # candidate-bound mapping validator before fidelity comparison.
+            if effects:
                 mapping_values = dict(context.values)
                 mapping_values["grounded_requested_effects"] = [
                     {
