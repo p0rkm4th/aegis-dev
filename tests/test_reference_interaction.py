@@ -334,6 +334,25 @@ def test_grocery_direct_due_priority_request_fails_closed():
     assert "no canonical deadline" in result.message
 
 
+def test_out_of_range_grocery_ordinal_does_not_fall_through_to_model():
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, the second one.",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "fewer grocery items" in result.message
+
+
 def test_contextual_remaining_returns_open_tasks_from_authorized_prior_list():
     context = Context(
         values={

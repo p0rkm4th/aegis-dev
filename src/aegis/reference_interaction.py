@@ -1248,6 +1248,25 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         # An ordinal word such as "first" is not permission to reinterpret a
         # prior collection in a different domain.
         return None
+    ordinal_match = re.search(r"\b(?:the\s+)?(first|second|third|fourth|last)\b", text)
+    if isinstance(candidates, list) and candidates and ordinal_match is not None:
+        ordinal_index = {"first": 0, "second": 1, "third": 2, "fourth": 3, "last": -1}[
+            ordinal_match.group(1)
+        ]
+        if ordinal_index >= len(candidates) or ordinal_index < -len(candidates):
+            labels = {
+                "canonical_items": "grocery items",
+                "canonical_tasks": "tasks",
+                "canonical_chores": "chores",
+                "events": "events",
+            }
+            label = labels.get(str(fact_key), "items")
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=f"I found fewer {label} than that. Please choose an available ordinal.",
+                correlation_id=intent.correlation_id,
+            )
     if (
         isinstance(those, dict)
         and those.get("fact_key") == "canonical_items"
