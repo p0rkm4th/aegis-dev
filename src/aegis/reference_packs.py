@@ -1811,12 +1811,14 @@ class DocumentWorkspaceVerifier:
     ) -> VerificationResult:
         verified, detail = _verify_workspace_expectation(self.principal, contract)
         verified = observation.command_succeeded and verified
+        summary = observation.evidence.get("composition") == "document_summary_to_workspace"
+        operation = "document summary" if summary else "document export"
         return VerificationResult(
             verified=verified,
             evidence={"composition_verified": verified, "postcondition": detail},
-            reason="document export independently verified"
+            reason=f"{operation} independently verified"
             if verified
-            else f"document export verification failed: {detail}",
+            else f"{operation} verification failed: {detail}",
         )
 
 
