@@ -2,18 +2,18 @@
   "schema_version": 2,
   "state_basis_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "6cf24556baff06b4c17b111bcf610d611473f451",
+  "repository_head_sha": "c1fac1e4384ae0af1d62471bf36f6430697cb8d2",
   "deterministic_green_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
-  "last_pushed_sha": "6cf24556baff06b4c17b111bcf610d611473f451",
-  "hosted_green_sha": "6cf24556baff06b4c17b111bcf610d611473f451",
-  "hosted_ci_green_sha": "6cf24556baff06b4c17b111bcf610d611473f451",
+  "last_pushed_sha": "c1fac1e4384ae0af1d62471bf36f6430697cb8d2",
+  "hosted_green_sha": "c1fac1e4384ae0af1d62471bf36f6430697cb8d2",
+  "hosted_ci_green_sha": "c1fac1e4384ae0af1d62471bf36f6430697cb8d2",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "6cf24556baff06b4c17b111bcf610d611473f451",
+    "commit_sha": "c1fac1e4384ae0af1d62471bf36f6430697cb8d2",
     "conclusion": "success",
-    "run_id": "33997886852",
-    "observed_at": "2026-09-06T00:35:00Z"
+    "run_id": "33998095542",
+    "observed_at": "2026-09-06T00:45:00Z"
   },
   "installed_release_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
   "running_release_sha": "617f857d8803633b5df3f7538986ac887fd44b3e",
@@ -105,6 +105,7 @@
     ,"owner Devices view now exposes bounded control readiness, authorized entity scope, fixture/live provider mode, explicit approval, and independent state-readback requirements; no UI authority was added"
     ,"promoted Devices view exposes Turn on/Turn off requests for only authorized entities and routes them through the existing chat/Core authorization and independent verification path; UI mutation authority was not added"
     ,"owner Homelab health report proof created health-report.html and style.css from authorized service observations with pre-execution-fixed Workspace expectations and independent verification; unavailable Plex health remained unavailable truthfully"
+    ,"Homelab health → Workspace is now named in the generic owner-facing composition map with Systems/Workspace surfaces and an explicit no-restart-authority boundary"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Homelab health observations now compose into an independently verified scoped Workspace report; unavailable provider health remains truthful, while live OpenClaw, Google, and Home Assistant lanes remain pending.",
