@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Fresh installed-owner proof on 5ccba7d: direct task read for this weekend returned only tasks due during the bounded weekend window; corrected follow-up 'No, next weekend.' returned only next-weekend tasks. No mutation, stale domain reuse, unnecessary clarification, provider failure, or false completion observed; session evidence captured in owner runtime logs.",
+  "daily_driver_checkpoint": "Fresh installed-owner proof on 5ccba7d: temporal task read plus 'Which one is due first?' returned the earliest canonical task; temporal event read plus 'Which one is first?' returned the first canonical event. No cross-domain leakage, unnecessary clarification, mutation, provider failure, or false completion observed; sessions captured in owner runtime logs.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
