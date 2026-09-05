@@ -1213,6 +1213,13 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     ordinal_reference = (
         re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+one\b", text) is not None
     )
+    unsupported_ordinal_reference = (
+        re.search(
+            r"\b(?:the\s+)?(?:fifth|sixth|seventh|eighth|ninth|tenth|\d+(?:st|nd|rd|th))\b",
+            text,
+        )
+        is not None
+    )
     if (
         is_mutation_request(text)
         or not any(
@@ -1225,12 +1232,31 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         )
         and not ambiguous_correction
         and not ordinal_reference
+        and not unsupported_ordinal_reference
     ):
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
     candidates = those.get("candidates") if isinstance(those, dict) else None
     fact_key = those.get("fact_key") if isinstance(those, dict) else None
+    unsupported_ordinal = re.search(
+        r"\b(?:fifth|sixth|seventh|eighth|ninth|tenth|\d+(?:st|nd|rd|th))\b", text
+    )
+    if (
+        unsupported_ordinal is not None
+        and isinstance(those, dict)
+        and isinstance(candidates, list)
+        and candidates
+    ):
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=(
+                "I can resolve the first four or last item from that list. "
+                "Please choose an available ordinal."
+            ),
+            correlation_id=intent.correlation_id,
+        )
     requested_domain = next(
         (
             key

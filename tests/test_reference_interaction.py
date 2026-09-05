@@ -353,6 +353,32 @@ def test_out_of_range_grocery_ordinal_does_not_fall_through_to_model():
     assert "fewer grocery items" in result.message
 
 
+def test_unsupported_task_ordinal_does_not_fall_through_to_model():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [{"title": "check the gate", "status": "open"}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, the fifth one.",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "first four or last" in result.message
+
+
 def test_grocery_quantity_rows_do_not_create_fake_ordinal_referents():
     from aegis.interaction_context import context_from_prior_result
 
