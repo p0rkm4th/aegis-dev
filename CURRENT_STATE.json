@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+  "state_basis_sha": "a4babc85068c060a53b3397703979663784be21b",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
-  "deterministic_green_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
-  "last_pushed_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
-  "hosted_green_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
-  "hosted_ci_green_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+  "repository_head_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "deterministic_green_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "last_pushed_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "hosted_green_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "hosted_ci_green_sha": "a4babc85068c060a53b3397703979663784be21b",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+    "commit_sha": "a4babc85068c060a53b3397703979663784be21b",
     "conclusion": "success",
-    "run_id": "33975926961",
-    "observed_at": "2026-09-05T14:27:00Z"
+    "run_id": "33976791244",
+    "observed_at": "2026-09-05T15:10:00Z"
   },
-  "installed_release_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
-  "running_release_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
-  "live_green_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+  "installed_release_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "running_release_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "live_green_sha": "a4babc85068c060a53b3397703979663784be21b",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-task-detail-followup",
+  "active_checkpoint": "pack-neutral-grounding-owner-dogfood",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "task-detail-followup",
+  "current_checkpoint": "pack-neutral-grounding-owner-dogfood",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -40,7 +40,7 @@
     "structural_provider": "en_core_web_sm"
   },
   "current_capability_claims": {
-    "provenance_boundary": "production ACTION and bounded PLAN arguments are grounded before authorization",
+    "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "owner_provenance_proof": "explicit ACTION, temporal ACTION, and task+chore PLAN verified on 25846cd",
     "compound_cognition": "bounded research evidence only; not capability-green",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f"
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on 83e4f19 preserved a canonical task recommendation into a natural detail follow-up with status and deadline; no mutation occurred.",
+  "daily_driver_checkpoint": "Owner write on a4babc8 completed with canonical task readback verification; unscripted Pack-neutral follow-up dogfood is next.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -62,7 +62,11 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Refresh origin/aegis-dev and select the next distinct owner-visible daily-driver continuity gap. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
+  "active_checkpoint_blockers": [],
+  "project_architecture_blockers": [],
+  "release_blockers": [],
+  "research_non_green": ["compound cognition remains bounded research evidence only"],
+  "next_action": "Run unscripted owner daily-driver sessions across events, tasks, groceries, follow-ups, corrections, and unsupported expectations; record convergence metrics and repair only reproduced generic defects.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
