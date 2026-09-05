@@ -1484,7 +1484,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             for key, terms in {
                 "canonical_tasks": ("task", "tasks"),
                 "canonical_chores": ("chore", "chores"),
-                "events": ("event", "events", "calendar"),
+                "events": ("event", "events", "calendar", "appointment", "appointments"),
                 "canonical_items": ("grocery", "groceries"),
             }.items()
             if re.search(rf"\b(?:{'|'.join(terms)})\b", text)
