@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "owner-missing-event-time",
+  "source_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+  "hosted_validation": {"run_id": "33975292374", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+    "running_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+    "postgresql": "preserved",
+    "proof": [
+      "Schedule the review for Friday. -> blocked because the requested date or time could not be safely grounded",
+      "What tasks are due tomorrow? -> canonical task read"
+    ],
+    "mutation": "none"
+  },
+  "result": "Missing consequential event timing remains missing at the owner boundary; no event is created from an invented time."
+}
