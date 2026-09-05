@@ -427,6 +427,41 @@ def test_household_obligation_read_returns_obligations_not_events():
     assert "events" not in result.evidence
 
 
+def test_household_event_read_filters_this_weekend():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    now = datetime.now(timezone.utc)
+    saturday = now.date() + timedelta(
+        days=5 - now.weekday() if now.weekday() < 5 else -(now.weekday() - 5)
+    )
+    result = HouseholdReadFastPath(
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (
+                HouseholdEvent(
+                    "weekend", "Weekend inspection", datetime.combine(saturday, datetime.min.time())
+                ),
+                HouseholdEvent(
+                    "later",
+                    "Next weekend inspection",
+                    datetime.combine(saturday + timedelta(days=7), datetime.min.time()),
+                ),
+            ),
+        }
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What events are happening this weekend?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "this_weekend"
+    assert [event["title"] for event in result.evidence["events"]] == ["Weekend inspection"]
+
+
 def test_domainless_today_priority_is_grounded_in_open_task_deadlines():
     from aegis.tasks import TaskPriorityFastPath
 

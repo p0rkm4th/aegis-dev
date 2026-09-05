@@ -516,6 +516,24 @@ class HouseholdReadFastPath:
                     ).date()
                     == target_date
                 )
+            elif "this weekend" in text or "next weekend" in text:
+                saturday_offset = 5 - now.weekday() if now.weekday() < 5 else -(now.weekday() - 5)
+                if "next weekend" in text:
+                    saturday_offset += 7
+                weekend_start = (now + timedelta(days=saturday_offset)).date()
+                weekend_end = weekend_start + timedelta(days=2)
+                date_filter = "next_weekend" if "next weekend" in text else "this_weekend"
+                events = tuple(
+                    event
+                    for event in events
+                    if weekend_start
+                    <= (
+                        event.starts_at.replace(tzinfo=timezone.utc)
+                        if event.starts_at.tzinfo is None
+                        else event.starts_at.astimezone(timezone.utc)
+                    ).date()
+                    < weekend_end
+                )
             elif "next week" in text:
                 week_start = (now + timedelta(days=7)).date()
                 week_end = week_start + timedelta(days=7)
