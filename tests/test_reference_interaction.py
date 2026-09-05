@@ -1546,6 +1546,38 @@ def test_contextual_task_focus_read_accepts_natural_due_followup():
     assert "due" in result.message
 
 
+def test_contextual_task_focus_read_accepts_leading_connective_due_followup():
+    task = Task(
+        uuid4(),
+        "home",
+        "check the back gate",
+        "alice",
+        due_at=datetime(2026, 9, 10, 10, 0, tzinfo=timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (task,)
+
+    result = resolve_contextual_task_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="And when is that due?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"task": {"task_id": str(task.task_id), "title": task.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        Store(),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert "due" in result.message
+
+
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 
