@@ -1,0 +1,33 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "communications-devices-owner-readback",
+  "source_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "hosted_run_id": "33982486200",
+  "runtime": {
+    "release_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+    "health": "healthy",
+    "ready": true
+  },
+  "owner_proof": [
+    {
+      "pack": "communications",
+      "approval": "explicit owner approval",
+      "permission": "communications.read",
+      "utterance": "Show my messages",
+      "result": "completed",
+      "verification": "communications readback is structurally valid"
+    },
+    {
+      "pack": "devices",
+      "approval": "explicit owner approval",
+      "permission": "devices.read",
+      "utterance": "Show my device states",
+      "result": "completed",
+      "verification": "device state readback is structurally valid"
+    }
+  ],
+  "limits": [
+    "fixture-backed reads; live provider acceptance remains pending",
+    "no device mutation or message send capability was introduced"
+  ]
+}
