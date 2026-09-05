@@ -4116,6 +4116,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "color-scheme:dark" in _INDEX_HTML
     assert "let initialTheme = 'dark';" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
+    assert '<nav class="product-nav" aria-label="AEGIS views">' in _INDEX_HTML
+    for view in ("Today", "Tasks", "Calendar", "Household", "Systems", "Research", "Packs"):
+        assert f">{view}</button>" in _INDEX_HTML
+    assert "Research is available through conversation" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
     assert "setOutcomeStatus(result.state)" in _INDEX_HTML
