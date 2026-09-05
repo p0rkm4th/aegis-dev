@@ -2448,6 +2448,22 @@ def test_reference_scalar_priority_and_focus_reads_do_not_render_as_mutations():
         assert not rendered.startswith("Done —")
 
 
+def test_reference_direct_event_priority_read_does_not_render_as_mutation():
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Based on the latest recorded time: inspection; starts 2026-09-19 09:00 CDT",
+        correlation_id=uuid4(),
+        evidence={
+            "collection": "events",
+            "priority_basis": "canonical_latest_event_starts_at",
+            "event": {"title": "inspection"},
+        },
+    )
+
+    assert reference_format_result(result) == result.message
+
+
 def test_memory_read_fast_path_handles_ordinary_remember_language() -> None:
     memory = MemoryRecord(
         uuid4(),
