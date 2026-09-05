@@ -123,7 +123,10 @@ def _argument_provenance_error(
                 rule is not None
                 and context is not None
                 and (
-                    context.sources != ("authorized_canonical_result",)
+                    (
+                        rule.canonical_source != "authorized_documents"
+                        and context.sources != ("authorized_canonical_result",)
+                    )
                     or not _context_contains_canonical_ref(context.values, evidence.canonical_ref)
                 )
             ):

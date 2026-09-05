@@ -1,0 +1,9 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "document-context-handoff-repair",
+  "source": "working-tree",
+  "problem": "The document grounder enriched a temporary context, while the outer Core provenance check inspected the original context and rejected the authorized referent.",
+  "repair": "The bounded authorized_documents referent is preserved in the Core context inspected by provenance validation.",
+  "safety": "The special case applies only to the declared authorized_documents source contract; other canonical referents retain the existing authorized_canonical_result requirement.",
+  "deterministic_tests": "814 passed, 5 skipped"
+}
