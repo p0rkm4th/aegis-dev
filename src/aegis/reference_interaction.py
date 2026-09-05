@@ -2370,12 +2370,14 @@ def resolve_named_obligation_read(
     ]
     if len(matches) != 1:
         return None
-    if not re.search(r"\b(?:amount|owe|owed|settled|paid|responsible|assigned|handles)\b", text):
+    if not re.search(
+        r"\b(?:amount|owe|owes|owed|settled|paid|responsible|assigned|handles)\b", text
+    ):
         return None
     obligation = matches[0]
     if re.search(r"\b(?:amount|owe|owed)\b", text):
         message = f"Obligation: {obligation.title} is ${obligation.amount / 100:.2f}"
-    elif re.search(r"\b(?:responsible|assigned|handles)\b", text):
+    elif re.search(r"\b(?:responsible|assigned|handles|owes)\b", text):
         message = f"Obligation: {obligation.title} is assigned to {obligation.responsible_id}"
     else:
         state = "settled" if obligation.settled else "unsettled"

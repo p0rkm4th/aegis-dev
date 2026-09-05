@@ -1153,6 +1153,19 @@ def test_named_obligation_read_uses_unique_canonical_title():
     assert result.evidence["obligation"]["obligation_id"] == "obligation-named"
 
 
+def test_named_obligation_read_accepts_owes_responsibility_wording():
+    obligation = HouseholdObligation("obligation-owes", "Utilities", 120, "bob", False)
+    result = resolve_named_obligation_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Who owes the utilities?",
+        ),
+        {"obligations": (obligation,)},
+    )
+    assert result is not None
+    assert result.message == "Obligation: Utilities is assigned to bob"
+
+
 def test_named_obligation_read_leaves_duplicate_titles_unresolved():
     obligations = (
         HouseholdObligation("obligation-a", "Utilities", 120, "bob", False),
