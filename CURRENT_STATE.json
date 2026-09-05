@@ -15,13 +15,13 @@
     "run_id": "33978566154",
     "observed_at": "2026-09-05T15:35:00Z"
   },
-  "installed_release_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
-  "running_release_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
-  "live_green_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+  "installed_release_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
+  "running_release_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
+  "live_green_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "workspace-artifact-validation",
+  "active_checkpoint": "owner-workspace-surface-promotion",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "workspace-artifact-validation",
+  "current_checkpoint": "owner-workspace-surface-promotion",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -50,7 +50,8 @@
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation and Pack-derived Constellation areas; owner runtime promotion remains pending",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
-    "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation"
+    "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation",
+    "owner release 54edd9d is live with authenticated Workspace inventory; artifact creation proof remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -79,7 +80,7 @@
     "owner_workflows_completed": 0,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Verify hosted green, then compose authorized artifact creation with the normal objective path and prove the owner-visible static-site workflow.",
+  "next_action": "Compose authorized artifact creation with the normal objective path and prove the owner-visible static-site workflow; then add the next distinct capability family.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
