@@ -20,6 +20,7 @@ Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
 ContextualInteraction = Callable[[str, Principal, UUID, UUID | None], str | dict[str, Any]]
 ConstellationState = Callable[[Principal], dict[str, Any]]
 WorkspaceState = Callable[[Principal], dict[str, Any]]
+WorkspaceFile = Callable[[Principal, str, str], dict[str, Any]]
 WorkspaceCreate = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CompositionState = Callable[[Principal], dict[str, Any]]
 PackState = Callable[[Principal], dict[str, Any]]
@@ -667,7 +668,34 @@ async function loadWorkspace() {
       ? `${payload.workspaces.length} scoped workspace(s)`
       : 'No scoped workspaces yet. Ask AEGIS to create a bounded artifact.';
     panel.append(heading);
-    panel.append(renderDetailValue(payload.workspaces || []));
+    (payload.workspaces || []).forEach(workspace => {
+      const card = document.createElement('section');
+      card.className = 'detail-card';
+      const title = document.createElement('h3');
+      title.textContent = `Workspace ${workspace.workspace_id || 'unknown'}`;
+      card.append(title);
+      (workspace.files || []).forEach(path => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = `View ${path}`;
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          try {
+            const response = await fetchWithTimeout(`/api/workspace/file?workspace_id=${encodeURIComponent(workspace.workspace_id)}&path=${encodeURIComponent(path)}`);
+            const file = await response.json();
+            if (!response.ok) throw new Error(file.error || 'File unavailable.');
+            const pre = document.createElement('pre');
+            pre.className = 'detail-card';
+            pre.textContent = file.content || '';
+            card.append(pre);
+          } catch (_) {
+            button.textContent = 'File unavailable';
+          } finally { button.disabled = false; }
+        });
+        card.append(button);
+      });
+      panel.append(card);
+    });
   } catch (_) {
     panel.textContent = 'Workspace inventory is unavailable; no artifact state was changed.';
   }
@@ -936,6 +964,7 @@ class BrowserApp:
         feedback: FeedbackRecorder | None = None,
         session_token: str | None = None,
         workspace_state: WorkspaceState | None = None,
+        workspace_file: WorkspaceFile | None = None,
         workspace_create: WorkspaceCreate | None = None,
         composition_state: CompositionState | None = None,
         pack_state: PackState | None = None,
@@ -952,6 +981,7 @@ class BrowserApp:
         self.feedback = feedback
         self.session_token = session_token
         self.workspace_state = workspace_state
+        self.workspace_file = workspace_file
         self.workspace_create = workspace_create
         self.composition_state = composition_state
         self.pack_state = pack_state
@@ -1045,6 +1075,27 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "workspace_unavailable", "workspace unavailable"
                 )
             return self._json(HTTPStatus.OK, projection.model_dump(mode="json"))
+        if method == "GET" and route == "/api/workspace/file":
+            if self.workspace_file is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            query = parse_qs(urlparse(path).query, keep_blank_values=True)
+            if set(query) != {"workspace_id", "path"} or any(
+                len(values) != 1 for values in query.values()
+            ):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid workspace file request"
+                )
+            try:
+                payload = self.workspace_file(principal, query["workspace_id"][0], query["path"][0])
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (KeyError, TypeError, ValueError, OSError):
+                return self._error(
+                    HTTPStatus.NOT_FOUND, "file_unavailable", "workspace file unavailable"
+                )
+            return self._json(HTTPStatus.OK, payload)
         if method == "GET" and route == "/api/compositions":
             if self.composition_state is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1342,6 +1393,7 @@ def serve(
     contextual_interaction: ContextualInteraction | None = None,
     feedback: FeedbackRecorder | None = None,
     workspace_state: WorkspaceState | None = None,
+    workspace_file: WorkspaceFile | None = None,
     workspace_create: WorkspaceCreate | None = None,
     composition_state: CompositionState | None = None,
     pack_state: PackState | None = None,
@@ -1361,6 +1413,7 @@ def serve(
         feedback,
         session_token=secrets.token_urlsafe(32),
         workspace_state=workspace_state,
+        workspace_file=workspace_file,
         workspace_create=workspace_create,
         composition_state=composition_state,
         pack_state=pack_state,
