@@ -1144,6 +1144,12 @@ def resolve_reference_fast_paths(
     result = ContextualTaskPriorityFastPath().resolve(intent, context)
     if result is not None:
         return result
+    # Chores have no canonical deadline order. Resolve their priority guard
+    # before the generic ordinal path so "which one needs attention first"
+    # cannot be laundered into selecting the first displayed chore.
+    result = ContextualChorePriorityFastPath.resolve(intent, context)
+    if result is not None:
+        return result
     contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
     if contextual_ordinal_result is not None:
         return contextual_ordinal_result
