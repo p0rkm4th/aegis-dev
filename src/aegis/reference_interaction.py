@@ -2205,6 +2205,8 @@ def resolve_contextual_obligation_focus_read(
         "how much is it",
         "how much is owed",
         "what is the amount",
+        "what is its amount",
+        "what is owed for it",
     }:
         return None
     facts = context.values.get("canonical_facts")
@@ -2237,7 +2239,13 @@ def resolve_contextual_obligation_focus_read(
     obligation = matches[0]
     if text in {"who is responsible", "who is responsible for it", "who handles it"}:
         message = f"Obligation: {obligation.title} is assigned to {obligation.responsible_id}"
-    elif text in {"how much is it", "how much is owed", "what is the amount"}:
+    elif text in {
+        "how much is it",
+        "how much is owed",
+        "what is the amount",
+        "what is its amount",
+        "what is owed for it",
+    }:
         message = f"Obligation: {obligation.title} is ${obligation.amount / 100:.2f}"
     else:
         state = "settled" if obligation.settled else "unsettled"
