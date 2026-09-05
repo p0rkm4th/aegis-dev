@@ -597,6 +597,23 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    report_paths = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", folded)
+    if (
+        report_paths
+        and "device" in folded
+        and any(term in folded for term in ("snapshot", "states", "state", "report"))
+        and "workspace" in folded
+    ):
+        card = manager.action_card("device-reports", "device-reports.devices.snapshot_to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": {"target_path": report_paths[-1]}}
+                )
+            }
+        )
     device = re.fullmatch(
         r"(?:turn|switch) (?P<state>on|off) (?P<entity_id>"
         r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?",

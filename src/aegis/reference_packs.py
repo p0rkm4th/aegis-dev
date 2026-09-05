@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shlex
 import socket
@@ -343,6 +344,30 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "device-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="device-reports.devices.snapshot_to_workspace",
+                        capability="device-reports.devices.snapshot_to_workspace",
+                        required_permissions=("devices.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save an authorized device-state snapshot into a scoped Workspace artifact"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "documents",
             "0.1.0",
             (
@@ -460,6 +485,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
         "device-controls": ("devices.control",),
+        "device-reports": ("devices.read", "workspace.write"),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
@@ -646,6 +672,72 @@ class DeviceControlVerifier:
             reason="device command readback verified"
             if verified
             else "device command readback failed",
+        )
+
+
+class DeviceSnapshotWorkspaceExecutor:
+    """Compose authorized device observation into a scoped Workspace artifact."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"device_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        states = DeviceStatesExecutor().execute(request).evidence.get("states", [])
+        content = "# Authorized device snapshot\n\n" + json.dumps(states, indent=2) + "\n"
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {target_path: content},
+                request.action_id,
+                lambda current: (
+                    None
+                    if current.read(target_path) == content
+                    else "device snapshot readback mismatch"
+                ),
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"device_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "device_snapshot_to_workspace",
+                "device_count": len(states) if isinstance(states, list) else 0,
+                "files": list(artifact.files),
+                "validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class DeviceSnapshotWorkspaceVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        verified = (
+            observation.command_succeeded
+            and observation.evidence.get("composition") == "device_snapshot_to_workspace"
+            and observation.evidence.get("validated") is True
+            and isinstance(observation.evidence.get("files"), list)
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"device_snapshot_workspace_verified": verified},
+            reason="device snapshot artifact readback verified"
+            if verified
+            else "device snapshot artifact verification failed",
         )
 
 
