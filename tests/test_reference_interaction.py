@@ -809,6 +809,37 @@ def test_event_temporal_weekday_correction_targets_the_new_date():
     assert [event["title"] for event in result.evidence["events"]] == ["tomorrow event"]
 
 
+def test_event_temporal_weekday_followup_targets_the_requested_day():
+    from aegis.household import HouseholdEvent
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {"fact_key": "events", "candidates": [{"title": "friday event"}]}
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    saturday = datetime.now(timezone.utc) + timedelta(days=(5 - datetime.now().weekday()) % 7)
+    result = resolve_contextual_event_temporal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, Saturday.",
+        ),
+        context,
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (HouseholdEvent("saturday", "saturday event", saturday),),
+        },
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "weekday:saturday"
+    assert [event["title"] for event in result.evidence["events"]] == ["saturday event"]
+
+
 def test_bounded_task_event_plan_owns_its_dependent_reference():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
