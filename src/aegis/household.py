@@ -847,11 +847,27 @@ class HouseholdReadFastPath:
             evidence["events"] = [
                 {"title": event.title, "starts_at": event.starts_at.isoformat()} for event in events
             ]
+            evidence["canonical_events"] = [
+                {
+                    "event_id": str(event.event_id),
+                    "title": event.title,
+                    "starts_at": event.starts_at.isoformat(),
+                }
+                for event in events
+            ]
             evidence["date_filter"] = date_filter
         else:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             evidence["events"] = [
                 {"title": event.title, "starts_at": event.starts_at.isoformat()} for event in events
+            ]
+            evidence["canonical_events"] = [
+                {
+                    "event_id": str(event.event_id),
+                    "title": event.title,
+                    "starts_at": event.starts_at.isoformat(),
+                }
+                for event in events
             ]
         return Result(
             objective_id=uuid4(),
