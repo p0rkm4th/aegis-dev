@@ -585,24 +585,43 @@ def _pack_enable(principal: Principal, request: dict[str, Any]) -> dict[str, Any
 def _deterministic_composition_action(
     intent: IntentFrame, manager: PackManager, _context: Context
 ) -> ActionCard | None:
-    """Recognize one explicit Research -> Workspace composition without model authority."""
+    """Recognize explicit bounded compositions without granting model authority."""
 
-    text = " ".join(intent.utterance.casefold().split())
-    if "research" not in text or not any(marker in text for marker in ("workspace", "notes")):
+    text = " ".join(intent.utterance.split())
+    folded = text.casefold()
+    if "research" in folded and any(marker in folded for marker in ("workspace", "notes")):
+        matches = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", folded)
+        if not matches:
+            return None
+        card = manager.action_card("workspace", "workspace.research_notes.create")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "query": intent.utterance,
+                            "target_path": matches[-1],
+                        }
+                    }
+                )
+            }
+        )
+
+    draft = re.fullmatch(
+        r"draft (?:a )?message to (?P<recipient>.+?) with subject (?P<subject>.+?) "
+        r"saying (?P<body>.+?), save it (?:as|to) (?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if draft is None:
         return None
-    matches = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", text)
-    if not matches:
-        return None
-    card = manager.action_card("workspace", "workspace.research_notes.create")
+    card = manager.action_card("communication-drafts", "communication-drafts.messages.draft")
     if card is None:
         return None
-    target_path = matches[-1]
     return card.model_copy(
-        update={
-            "action": card.action.model_copy(
-                update={"arguments": {"query": intent.utterance, "target_path": target_path}}
-            )
-        }
+        update={"action": card.action.model_copy(update={"arguments": draft.groupdict()})}
     )
 
 
