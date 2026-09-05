@@ -1,0 +1,22 @@
+[
+  {"id":"provenance-01","family":"explicit_task","utterance":"Add a task to inspect the water heater.","expected":"explicit_title"},
+  {"id":"provenance-02","family":"explicit_event_time","utterance":"Schedule an event for the inspection on 2026-09-11 at 3 PM.","expected":"explicit_datetime"},
+  {"id":"provenance-03","family":"derived_task_date","utterance":"Put the backup review on my task list Friday.","expected":"derived_date"},
+  {"id":"provenance-04","family":"invented_event_time","utterance":"Schedule the review tomorrow.","expected":"reject_invented_time"},
+  {"id":"provenance-05","family":"invented_task_deadline","utterance":"Add a task to check the valve.","expected":"omit_deadline"},
+  {"id":"provenance-06","family":"missing_target","utterance":"Complete the nonexistent inspection.","expected":"reject_missing_canonical_target"},
+  {"id":"provenance-07","family":"authorized_referent","utterance":"Complete the first task from the list.","expected":"accept_canonical_referent"},
+  {"id":"provenance-08","family":"unauthorized_referent","utterance":"Complete the task with id from another vault.","expected":"reject_unauthorized_referent"},
+  {"id":"provenance-09","family":"stale_referent","utterance":"Complete the task I showed you before it was removed.","expected":"reject_stale_referent"},
+  {"id":"provenance-10","family":"ambiguous_referent","utterance":"Complete the second review.","expected":"clarify_ambiguous_referent"},
+  {"id":"provenance-11","family":"plan_hallucinated_date","utterance":"Create a task to call the plumber and schedule an appointment for the boiler check.","expected":"reject_missing_event_time"},
+  {"id":"provenance-12","family":"plan_hallucinated_middle_argument","utterance":"Add a task to inspect the roof, add rice to groceries, and schedule the review.","expected":"reject_unproven_middle_argument"},
+  {"id":"provenance-13","family":"grounded_cross_pack","utterance":"Add a task to check the alarm and put rice on my grocery list.","expected":"accept_all_explicit"},
+  {"id":"provenance-14","family":"cross_pack_model_only","utterance":"Add a task to check the alarm and schedule it at a convenient time.","expected":"reject_model_only_time"},
+  {"id":"provenance-15","family":"negation","utterance":"Add rice to groceries, but do not create a task for it.","expected":"reject_negated_effect"},
+  {"id":"provenance-16","family":"correction","utterance":"Schedule the boiler review—no, create a task to call the plumber.","expected":"reject_superseded_event"},
+  {"id":"provenance-17","family":"unsupported","utterance":"Provision a private Minecraft server for the family.","expected":"preserve_unresolved_requirement"},
+  {"id":"provenance-18","family":"declared_default","utterance":"Add the standard weekly backup reminder.","expected":"only_accept_declared_default"},
+  {"id":"provenance-19","family":"model_default","utterance":"Schedule the review at the usual time.","expected":"reject_undeclared_default"},
+  {"id":"provenance-20","family":"unrelated_context","utterance":"Add a task to inspect the valve.","expected":"ignore_unrelated_canonical_date"}
+]

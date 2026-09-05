@@ -408,6 +408,7 @@ def _repair_clarification(
         validate,
         validator_stage="proposal_repair",
         max_attempts=max_attempts,
+        telemetry=lambda: dict(getattr(provider, "last_response_metrics", {})),
     )
     return result.proposal if result.proposal is not None else decision
 
@@ -978,6 +979,7 @@ def decide_fallback(
                     validate_effect_proposal,
                     validator_stage="requested_effect_structural_coverage",
                     max_attempts=2,
+                    telemetry=lambda: dict(getattr(repair_provider, "last_response_metrics", {})),
                 )
                 recovery_events = getattr(provider, "recovery_events", None)
                 if isinstance(recovery_events, list):
@@ -1153,6 +1155,9 @@ def decide_fallback(
                         validate_mapping,
                         validator_stage="objective_capability_mapping",
                         max_attempts=2,
+                        telemetry=lambda: dict(
+                            getattr(repair_provider, "last_response_metrics", {})
+                        ),
                     )
                     recovery_events = getattr(provider, "recovery_events", None)
                     if isinstance(recovery_events, list):
