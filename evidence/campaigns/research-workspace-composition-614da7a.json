@@ -1,0 +1,14 @@
+{
+  "source_basis": "614da7a4580df79ed99cd8f22ee0c1aa103c0817",
+  "checkpoint": "research evidence to scoped workspace notes",
+  "composition": "bounded non-authoritative ResearchAnswer -> sourced markdown artifact -> Workspace readback validation",
+  "proof": "tests/test_compositions.py::test_research_answer_can_be_preserved_as_non_authoritative_workspace_notes",
+  "verification": "802 passed, 5 skipped; all checks passed",
+  "safety": {
+    "canonical_truth": false,
+    "source_links_preserved": true,
+    "workspace_scope": "principal and objective scoped",
+    "deployment_authority": false
+  },
+  "remaining_gap": "owner-visible live proof and one additional composition outside Workspace"
+}

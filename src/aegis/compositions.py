@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from .documents import DocumentProvider
+from .research import ResearchAnswer
 from .workspace import WorkspaceManager
 
 
@@ -19,6 +20,16 @@ class DocumentWorkspaceResult:
     files: tuple[str, ...]
     validated: bool
     source: str
+
+
+@dataclass(frozen=True)
+class ResearchWorkspaceResult:
+    correlation_id: UUID
+    target_path: str
+    files: tuple[str, ...]
+    validated: bool
+    source_ids: tuple[str, ...]
+    authoritative: bool = False
 
 
 def document_to_workspace(
@@ -59,4 +70,34 @@ def document_to_workspace(
         files=artifact.files,
         validated=artifact.validated,
         source=document.source,
+    )
+
+
+def research_to_workspace(
+    answer: ResearchAnswer,
+    workspaces: WorkspaceManager,
+    *,
+    principal_id: str,
+    objective_id: UUID,
+    target_path: str,
+    correlation_id: UUID,
+) -> ResearchWorkspaceResult:
+    """Preserve a bounded sourced answer as a non-authoritative artifact."""
+
+    sources = "\n".join(f"- [{item.title}]({item.final_url})" for item in answer.evidence.evidence)
+    content = f"# Research notes\n\n{answer.text}\n\n## Sources\n{sources}\n"
+    workspace = workspaces.for_objective(principal_id, objective_id)
+    artifact = workspace.write_artifact(
+        {target_path: content},
+        correlation_id,
+        lambda current: (
+            None if current.read(target_path) == content else "research artifact readback mismatch"
+        ),
+    )
+    return ResearchWorkspaceResult(
+        correlation_id=correlation_id,
+        target_path=target_path,
+        files=artifact.files,
+        validated=artifact.validated,
+        source_ids=tuple(item.source_id for item in answer.evidence.evidence),
     )
