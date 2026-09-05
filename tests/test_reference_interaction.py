@@ -54,6 +54,7 @@ from aegis.reference_interaction import (
     resolve_contextual_task_focus_read,
     resolve_direct_obligation_ordinal_read,
     resolve_named_obligation_read,
+    resolve_personal_obligation_read,
     resolve_reference_fast_paths,
     resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
@@ -1164,6 +1165,38 @@ def test_named_obligation_read_accepts_owes_responsibility_wording():
     )
     assert result is not None
     assert result.message == "Obligation: Utilities is assigned to bob"
+
+
+def test_personal_obligation_read_scopes_to_authenticated_owner():
+    owned = HouseholdObligation("obligation-owned", "Utilities", 120, "alice", False)
+    unrelated = HouseholdObligation("obligation-unrelated", "Rent", 500, "bob", False)
+    result = resolve_personal_obligation_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="How much do I owe?",
+        ),
+        {"obligations": (owned, unrelated)},
+    )
+    assert result is not None
+    assert result.message == "You owe $1.20 for Utilities."
+    assert result.evidence["authorized_owned_obligations"][0]["obligation_id"] == "obligation-owned"
+
+
+def test_personal_obligation_read_reports_no_owned_outstanding_obligation():
+    result = resolve_personal_obligation_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What do I owe?",
+        ),
+        {
+            "obligations": (
+                HouseholdObligation("obligation-bob", "Utilities", 120, "bob", False),
+                HouseholdObligation("obligation-paid", "Rent", 500, "alice", True),
+            )
+        },
+    )
+    assert result is not None
+    assert result.message == "You have no outstanding obligations assigned to you."
 
 
 def test_named_obligation_read_leaves_duplicate_titles_unresolved():

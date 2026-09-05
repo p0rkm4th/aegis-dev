@@ -1136,6 +1136,9 @@ def resolve_reference_fast_paths(
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     snapshot = household_store.read_snapshot(principal)
+    personal_obligation_result = resolve_personal_obligation_read(intent, snapshot)
+    if personal_obligation_result is not None:
+        return personal_obligation_result
     direct_obligation_result = resolve_direct_obligation_ordinal_read(intent, snapshot)
     if direct_obligation_result is not None:
         return direct_obligation_result
@@ -2346,6 +2349,59 @@ def resolve_direct_obligation_ordinal_read(
                     "amount": item.amount,
                 }
                 for item in outstanding
+            ],
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_personal_obligation_read(
+    intent: IntentFrame, snapshot: dict[str, object]
+) -> Result | None:
+    """Read the authenticated owner's outstanding canonical obligations."""
+
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    if is_mutation_request(text) or text not in {"what do i owe", "how much do i owe"}:
+        return None
+    obligations = snapshot.get("obligations")
+    owned = (
+        [
+            obligation
+            for obligation in obligations
+            if hasattr(obligation, "responsible_id")
+            and obligation.responsible_id == intent.principal.id
+            and not obligation.settled
+        ]
+        if isinstance(obligations, (list, tuple))
+        else []
+    )
+    if not owned:
+        message = "You have no outstanding obligations assigned to you."
+    elif len(owned) == 1:
+        obligation = owned[0]
+        message = f"You owe ${obligation.amount / 100:.2f} for {obligation.title}."
+    else:
+        total = sum(obligation.amount for obligation in owned)
+        details = "; ".join(
+            f"{obligation.title} (${obligation.amount / 100:.2f})" for obligation in owned
+        )
+        message = f"You owe ${total / 100:.2f} across: {details}."
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=message,
+        evidence={
+            "collection": "canonical_obligations",
+            "authorized_owner": intent.principal.id,
+            "authorized_owned_obligations": [
+                {
+                    "obligation_id": str(obligation.obligation_id),
+                    "title": obligation.title,
+                    "amount": obligation.amount,
+                    "responsible_id": obligation.responsible_id,
+                    "settled": bool(obligation.settled),
+                }
+                for obligation in owned
             ],
         },
         correlation_id=intent.correlation_id,
