@@ -1617,7 +1617,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             responsible_id = referent.get("responsible_id")
             if isinstance(responsible_id, str) and responsible_id:
                 detail += f" ({responsible_id})"
-        else:
+        elif fact_key != "events":
             status = referent.get("status") or (
                 "completed" if referent.get("completed") is True else "open"
             )
