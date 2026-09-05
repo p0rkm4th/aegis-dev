@@ -21,6 +21,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.interaction import (
+    _argument_provenance_error,
     _authorized_context_evidence,
     _context_from_prior_result,
     _with_continuation_context,
@@ -78,6 +79,35 @@ def test_deterministic_workspace_artifact_action_preserves_explicit_file_content
     assert card is not None
     assert card.action.action_id == "workspace.artifact.create"
     assert card.action.arguments == {"path": "owner-proof.html", "content": "owner proof"}
+
+
+def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(bundle)
+    manager.install("workspace", frozenset({"workspace.write"}))
+    manager.enable("workspace")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=(
+            "Create a workspace artifact with files index.html containing home and "
+            "style.css containing body"
+        ),
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounded = _ground_argument_provenance(intent, card, Context())
+    assert not isinstance(grounded, Result)
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
 
 
 def test_deterministic_device_control_action_requires_explicit_entity_and_postcondition():
