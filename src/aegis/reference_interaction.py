@@ -1321,6 +1321,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             marker in text
             for marker in ("what about", "tell me about", "which one", "what is", "meant")
         )
+        and not re.search(r"\bshow(?: me)? the task (?:before|after) that\b", text)
         and not (
             "which" in text
             and re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\b", text)
