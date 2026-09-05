@@ -4152,6 +4152,33 @@ def test_domainless_pending_read_clarifies_collection_without_guessing():
     )
 
 
+def test_domainless_work_recommendation_clarifies_without_guessing():
+    for utterance in ("What should I work on?", "What should I tackle?"):
+        result = DomainClarificationFastPath.resolve_ambiguous_collection_status(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance=utterance,
+            )
+        )
+
+        assert result is not None
+        assert result.state is ObjectiveState.BLOCKED
+        assert result.message == (
+            "What should I check: open tasks, household chores, groceries, or memories?"
+        )
+
+
+def test_prioritized_work_recommendation_remains_outside_collection_clarification():
+    result = DomainClarificationFastPath.resolve_ambiguous_collection_status(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What should I work on next?",
+        )
+    )
+
+    assert result is None
+
+
 def test_implicit_ordinal_mutation_reference_blocks_before_model_selection():
     result = ContextualMutationGuard.resolve(
         IntentFrame(
