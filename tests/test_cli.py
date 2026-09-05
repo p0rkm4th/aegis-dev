@@ -835,7 +835,7 @@ def test_household_obligation_read_returns_obligations_not_events():
 def test_household_event_read_filters_this_weekend():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     saturday = now.date() + timedelta(
         days=5 - now.weekday() if now.weekday() < 5 else -(now.weekday() - 5)
     )
@@ -870,7 +870,7 @@ def test_household_event_read_filters_this_weekend():
 def test_household_event_read_filters_this_week():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     week_end = now.date() + timedelta(days=7 - now.weekday())
     result = HouseholdReadFastPath(
         {
@@ -901,7 +901,7 @@ def test_household_event_read_filters_this_week():
 def test_household_event_read_filters_rest_of_week():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     week_end = now.date() + timedelta(days=7 - now.weekday())
     result = HouseholdReadFastPath(
         {
@@ -932,7 +932,7 @@ def test_household_event_read_filters_rest_of_week():
 def test_household_event_read_filters_current_and_next_month():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     month_start = now.date().replace(day=1)
     next_month = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
     following_month = (next_month.replace(day=28) + timedelta(days=4)).replace(day=1)
@@ -1033,7 +1033,7 @@ def test_household_implicit_happening_read_filters_this_weekend():
 def test_household_implicit_going_on_read_filters_today():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     result = HouseholdReadFastPath(
         {
             "space_id": "home",
@@ -1059,7 +1059,7 @@ def test_household_implicit_going_on_read_filters_today():
 def test_household_implicit_plans_read_filters_today():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     result = HouseholdReadFastPath(
         {
             "space_id": "home",
@@ -1085,7 +1085,7 @@ def test_household_implicit_plans_read_filters_today():
 def test_household_implicit_coming_up_read_filters_today():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     result = HouseholdReadFastPath(
         {
             "space_id": "home",
@@ -1137,7 +1137,7 @@ def test_household_coming_up_read_excludes_past_events():
 def test_household_implicit_meeting_read_filters_today():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     result = HouseholdReadFastPath(
         {
             "space_id": "home",
