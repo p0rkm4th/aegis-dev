@@ -97,6 +97,16 @@ from .utterance import (
     strip_correction_prefix,
 )
 
+_WEEKDAYS = (
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+)
+
 
 def _event_time_is_explicit(utterance: str) -> bool:
     """Require a user-supplied time before creating a calendar event."""
@@ -1482,12 +1492,9 @@ def resolve_contextual_event_temporal_read(
             return None
         those = {"fact_key": "events", "candidates": facts["events"]}
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    temporal_terms = ("today", "tomorrow", "this weekend", "next week", *_WEEKDAYS)
     temporal = next(
-        (
-            term
-            for term in ("today", "tomorrow", "this weekend", "next week")
-            if text in {f"what about {term}", term}
-        ),
+        (term for term in temporal_terms if text in {f"what about {term}", term}),
         None,
     )
     if temporal is None:
