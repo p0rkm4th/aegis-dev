@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
+  "state_basis_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
-  "deterministic_green_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
-  "last_pushed_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
-  "hosted_green_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
-  "hosted_ci_green_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
+  "repository_head_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "deterministic_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "last_pushed_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "hosted_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "hosted_ci_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
+    "commit_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
     "conclusion": "success",
-    "run_id": "33983587249",
-    "observed_at": "2026-09-05T18:18:10Z"
+    "run_id": "33984240640",
+    "observed_at": "2026-09-05T18:30:41Z"
   },
-  "installed_release_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
-  "running_release_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
-  "live_green_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
+  "installed_release_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "running_release_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "live_green_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "document-workspace-owner-live",
+  "active_checkpoint": "research-workspace-owner-live",
   "checkpoint_status": "in_progress",
   "current_checkpoint": "home-assistant-rest-owner-release",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
@@ -67,6 +67,7 @@
     ,"bounded Home Assistant REST read provider is promoted with deterministic fixture fallback; live endpoint acceptance remains pending"
     ,"Calendar read completed after explicit owner approval; Documents Pack is enabled with its full declared permissions and currently has no authorized data"
     ,"Documents -> Workspace completed in the promoted owner runtime with canonical document-ID grounding, scoped artifact creation, readback verification, and persisted inventory"
+    ,"Research -> Workspace completed in the promoted owner runtime with non-authoritative fixture evidence, sourced notes artifact creation, readback verification, and persisted inventory"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -89,13 +90,13 @@
     "usable_capability_families": 6,
     "verified_write_capabilities": 1,
     "external_integrations": 0,
-    "cross_domain_compositions": 4,
+    "cross_domain_compositions": 5,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 8,
+    "owner_workflows_completed": 9,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the next breadth tranche with Research -> Workspace using a bounded configured evidence provider or truthful unavailable path, then add an approval-gated communications draft or another verified consequential capability outside task/event/grocery domains.",
+  "next_action": "Continue the next breadth tranche with an approval-gated communications draft or another verified consequential capability outside task/event/grocery domains; then render and prove the accumulated compositions through the owner UI.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
