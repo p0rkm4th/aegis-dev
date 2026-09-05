@@ -21,7 +21,12 @@ from .contracts import (
     VerificationResult,
 )
 from .read_applicability import ReadApplicability, assess_read_applicability
-from .utterance import is_correction_request, is_mutation_request, strip_correction_prefix
+from .utterance import (
+    is_correction_request,
+    is_mutation_request,
+    is_question_request,
+    strip_correction_prefix,
+)
 
 _WEEKDAYS = (
     "monday",
@@ -408,6 +413,7 @@ class HouseholdReadFastPath:
         "calendar",
         "scheduled",
         "appointment",
+        "schedule",
         "appointments",
     )
     _READ_PREFIXES = (
@@ -446,7 +452,15 @@ class HouseholdReadFastPath:
             term in text for term in ("need to", "take care of", "prepare", "before")
         )
         explicit_event = any(
-            term in text for term in ("event", "events", "calendar", "scheduled", "appointment")
+            term in text
+            for term in (
+                "event",
+                "events",
+                "calendar",
+                "scheduled",
+                "schedule",
+                "appointment",
+            )
         )
         implicit_event = "happening" in text and any(
             term in text
@@ -455,24 +469,31 @@ class HouseholdReadFastPath:
                 "tomorrow",
                 "this weekend",
                 "next weekend",
+                "this week",
                 "next week",
                 "this month",
                 "next month",
             )
         )
-        implicit_schedule = any(
-            term in text for term in ("going on", "plans", "coming up", "meeting", "meetings")
-        ) and any(
-            term in text
-            for term in (
-                "today",
-                "tomorrow",
-                "this weekend",
-                "next weekend",
-                "next week",
-                "this month",
-                "next month",
+        implicit_schedule = (
+            any(
+                term in text
+                for term in ("going on", "plans", "planned", "coming up", "meeting", "meetings")
             )
+            and any(
+                term in text
+                for term in (
+                    "today",
+                    "tomorrow",
+                    "this weekend",
+                    "next weekend",
+                    "this week",
+                    "next week",
+                    "this month",
+                    "next month",
+                )
+            )
+            and is_question_request(text)
         )
         if task_objective and not explicit_event:
             return False
@@ -533,7 +554,15 @@ class HouseholdReadFastPath:
             evidence["status_filter"] = status_filter
         elif (
             any(
-                word in text for word in ("event", "events", "calendar", "scheduled", "appointment")
+                word in text
+                for word in (
+                    "event",
+                    "events",
+                    "calendar",
+                    "scheduled",
+                    "schedule",
+                    "appointment",
+                )
             )
             or (
                 "happening" in text
@@ -544,6 +573,7 @@ class HouseholdReadFastPath:
                         "tomorrow",
                         "this weekend",
                         "next weekend",
+                        "this week",
                         "next week",
                         "this month",
                         "next month",
@@ -553,7 +583,14 @@ class HouseholdReadFastPath:
             or (
                 any(
                     term in text
-                    for term in ("going on", "plans", "coming up", "meeting", "meetings")
+                    for term in (
+                        "going on",
+                        "plans",
+                        "planned",
+                        "coming up",
+                        "meeting",
+                        "meetings",
+                    )
                 )
                 and any(
                     term in text
@@ -562,6 +599,7 @@ class HouseholdReadFastPath:
                         "tomorrow",
                         "this weekend",
                         "next weekend",
+                        "this week",
                         "next week",
                         "this month",
                         "next month",
