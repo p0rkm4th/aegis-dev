@@ -705,6 +705,34 @@ class TaskReadFastPath:
                 return _aware_datetime(task.due_at)
 
             tasks = tuple(sorted(tasks, key=temporal_key))
+        ordinal_match = re.fullmatch(
+            r"(?:what is|what's|show me|which is) the "
+            r"(first|second|third|fourth|last) task",
+            text.strip(".!?"),
+        )
+        if ordinal_match is not None and due_filter == "all":
+            ordinal = {"first": 0, "second": 1, "third": 2, "fourth": 3, "last": -1}[
+                ordinal_match.group(1)
+            ]
+            if not tasks or ordinal >= len(tasks) or ordinal < -len(tasks):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I found fewer tasks than that. Please choose an available ordinal.",
+                    correlation_id=intent.correlation_id,
+                )
+            selected = tasks[ordinal]
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message=f"Task: {selected.title} ({selected.status.value})",
+                evidence={
+                    "collection": "tasks",
+                    "authorized_ordinal_referent": _task_projection(selected),
+                    "canonical_tasks": [_task_projection(task) for task in tasks],
+                },
+                correlation_id=intent.correlation_id,
+            )
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,

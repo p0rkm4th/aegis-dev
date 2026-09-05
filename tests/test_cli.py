@@ -4285,6 +4285,30 @@ def test_task_read_fast_path_returns_membership_checked_canonical_tasks():
     assert not TaskReadFastPath.matches("Which task should I do first?")
 
 
+def test_task_read_fast_path_resolves_explicit_ordinal_from_canonical_order():
+    first = Task(uuid4(), "apartment", "replace filter", "alice", status=TaskStatus.OPEN)
+    second = Task(uuid4(), "apartment", "inspect latch", "alice", status=TaskStatus.COMPLETED)
+
+    class Store:
+        def list(self, _principal):
+            return (first, second)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+            utterance="Show me the second task.",
+        )
+    )
+
+    assert result is not None
+    assert result.message == "Task: inspect latch (completed)"
+    assert result.evidence["authorized_ordinal_referent"]["task_id"] == str(second.task_id)
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == [
+        "replace filter",
+        "inspect latch",
+    ]
+
+
 def test_task_priority_fast_path_uses_earliest_open_deadline():
     soon = Task(
         uuid4(),
