@@ -1631,6 +1631,7 @@ def test_contextual_event_next_followup_uses_authorized_future_event():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_next_referent"]["title"] == "next event"
+    assert result.evidence["event"]["title"] == "next event"
 
 
 def test_contextual_event_next_followup_accepts_leading_connective():
