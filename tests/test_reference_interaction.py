@@ -30,6 +30,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
+    resolve_contextual_event_focus_read,
     resolve_contextual_event_next_read,
     resolve_contextual_event_priority_read,
     resolve_contextual_event_temporal_read,
@@ -1022,6 +1023,36 @@ def test_contextual_event_priority_selects_latest_authorized_event():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_event_priority"]["title"] == "latest event"
+
+
+def test_contextual_event_focus_read_rechecks_event_id():
+    from aegis.household import HouseholdEvent
+
+    event = HouseholdEvent(
+        "event-1", "latest event", datetime(2026, 9, 10, 10, 0, tzinfo=timezone.utc)
+    )
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When does it start?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "event": {
+                        "event_id": event.event_id,
+                        "title": event.title,
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home", "events": (event,)},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
 def test_contextual_task_focus_read_rechecks_authorized_task_id():
