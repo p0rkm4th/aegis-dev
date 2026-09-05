@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-correction-after-that",
+  "source_sha": "c4983fab356e330c0a151ebfdd183953abaabce8",
+  "hosted": {"workflow": "validation", "run_id": "33969771681", "conclusion": "success"},
+  "owner": {
+    "release_sha": "c4983fab356e330c0a151ebfdd183953abaabce8",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What is on my calendar?", "completed", "canonical event collection"],
+      ["What about the first one?", "completed", "first authorized event"],
+      ["Actually, show the event after that.", "completed", "next canonical event with start time"]
+    ]
+  },
+  "safety": "Correction-prefix normalization remains within the authorized event-relative read seam; no mutation or authority widening occurred."
+}
