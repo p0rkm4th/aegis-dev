@@ -737,7 +737,7 @@ class InteractionBoundary:
                     (lambda action, current_intent, objective_id: getattr(runtime, "prepare")(
                         action, current_intent.principal, objective_id
                     ))
-                    if runtime is not None and runtime.prepare is not None
+                    if runtime is not None and callable(getattr(runtime, "prepare", None))
                     else None
                 ),
                 store=PostgresObjectiveStore(connection),
