@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from aegis.workspace import ScopedWorkspace, WorkspaceError
+from aegis.workspace import ScopedWorkspace, WorkspaceError, WorkspaceManager
 
 
 def test_workspace_writes_reads_and_lists_only_scoped_files(tmp_path: Path) -> None:
@@ -40,3 +40,15 @@ def test_workspace_rejects_unallowlisted_command_and_symlink(tmp_path: Path) -> 
     link.symlink_to("/etc/passwd")
     with pytest.raises(WorkspaceError):
         workspace.read("secret")
+
+
+def test_workspace_manager_is_stable_and_principal_scoped(tmp_path: Path) -> None:
+    objective_id = uuid4()
+    manager = WorkspaceManager(tmp_path / "work")
+    first = manager.for_objective("alice", objective_id)
+    second = manager.for_objective("alice", objective_id)
+    other = manager.for_objective("bob", objective_id)
+    assert first.root == second.root
+    assert first.root != other.root
+    with pytest.raises(WorkspaceError):
+        manager.for_objective("alice/other", objective_id)
