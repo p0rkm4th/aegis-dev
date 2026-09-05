@@ -468,6 +468,25 @@ def test_household_read_selects_latest_event_from_inverted_natural_wording():
     assert result.evidence["event"]["title"] == "latest event"
 
 
+def test_household_read_selects_next_event_from_natural_wording():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    upcoming = datetime.now(timezone.utc) + timedelta(days=1)
+    events = (HouseholdEvent("next", "next event", upcoming),)
+    result = HouseholdReadFastPath(
+        {"space_id": "home", "obligations": (), "chores": (), "events": events}
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="And when is the next event?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_next_referent"]["title"] == "next event"
+
+
 def test_household_obligation_read_returns_obligations_not_events():
     from aegis.household import HouseholdReadFastPath
 
