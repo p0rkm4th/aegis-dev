@@ -323,7 +323,8 @@ class InteractionBoundary:
             objective_store = PostgresObjectiveStore(connection)
             context = _context_from_prior_result(objective_store, context_correlation_id, principal)
             normalized_utterance = strip_context_reset(utterance)
-            if normalized_utterance != " ".join(utterance.casefold().split()):
+            normalized_input = " ".join(utterance.casefold().split())
+            if normalized_utterance != normalized_input:
                 # An explicit conversational reset revokes only the prior-turn
                 # working context; canonical state remains available to the new
                 # independent request through normal read paths.

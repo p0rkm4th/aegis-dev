@@ -4814,6 +4814,14 @@ def test_context_reset_strips_dash_before_new_objective():
     )
 
 
+def test_context_reset_normalization_does_not_revoke_context_for_capitalization():
+    from aegis.utterance import strip_context_reset
+
+    utterance = "When is it?"
+    assert strip_context_reset(utterance) == "when is it?"
+    assert strip_context_reset(utterance) == " ".join(utterance.casefold().split())
+
+
 def test_task_read_fast_path_filters_open_tasks_before_weekend():
     from datetime import datetime, timedelta
 
