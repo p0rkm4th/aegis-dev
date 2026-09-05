@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from aegis import InteractionBoundary, InteractionDependencies, InteractionInputError
-from aegis.cli import _domain_and_action, _ensure_local_identity
+from aegis.cli import _deterministic_composition_action, _domain_and_action, _ensure_local_identity
 from aegis.contracts import (
     ActionSpec,
     Context,
@@ -42,6 +42,24 @@ from aegis.web import BrowserApp
 def test_interaction_boundary_is_public_without_live_runtime():
     assert InteractionBoundary.__module__ == "aegis.interaction"
     assert InteractionDependencies.__module__ == "aegis.interaction"
+
+
+def test_deterministic_research_workspace_action_requires_enabled_pack():
+    manager = PackManager()
+    workspace = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(workspace)
+    manager.install("workspace", frozenset({"workspace.write"}))
+    manager.enable("workspace")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Research the guide and save sourced notes to workspace as notes.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.research_notes.create"
+    assert card.action.arguments["target_path"] == "notes.md"
 
 
 def test_bounded_model_fallback_accepts_non_authoritative_answer():
