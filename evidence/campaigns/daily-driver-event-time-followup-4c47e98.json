@@ -1,0 +1,29 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-time-followup",
+  "source_sha": "4c47e982741df23068c54017bc9db293193202ac",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": "33965568844",
+    "conclusion": "success"
+  },
+  "owner": {
+    "release_sha": "4c47e982741df23068c54017bc9db293193202ac",
+    "service": "aegis-owner.service",
+    "postgresql_preserved": true,
+    "workflow": [
+      {
+        "utterance": "What's next on my calendar?",
+        "state": "completed",
+        "result": "utility inspection; starts 2026-09-09 19:00 CDT"
+      },
+      {
+        "utterance": "When is it?",
+        "state": "completed",
+        "result": "utility inspection; starts 2026-09-09 19:00 CDT"
+      }
+    ]
+  },
+  "finding": "Capitalized follow-ups retain authorized context, and event focus accepts natural 'when is it' phrasing.",
+  "safety": "Read-only canonical event projection; no mutation or authorization widening."
+}
