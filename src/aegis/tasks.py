@@ -919,6 +919,10 @@ class TaskPriorityFastPath:
                     else "earliest_due_at"
                 ),
                 "task": _task_projection(selected),
+                # Preserve only the already-grounded deadline candidates so a
+                # later correction can resolve against the same authorized
+                # set instead of asking cognition to rediscover it.
+                "canonical_tasks": [_task_projection(task) for task in dated],
             },
             correlation_id=intent.correlation_id,
         )
