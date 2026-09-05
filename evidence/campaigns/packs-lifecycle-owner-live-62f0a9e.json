@@ -1,0 +1,22 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "packs-lifecycle-owner-live",
+  "source_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "hosted_run_id": "33981727940",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+    "health": "healthy",
+    "ready": true,
+    "session_boundary": "unauthenticated /api/packs returned 401"
+  },
+  "owner_proof": {
+    "route": "GET /api/packs",
+    "pack_count": 9,
+    "communications_status": "discovered",
+    "communications_granted_permissions": [],
+    "communications_next_step": "explicit owner approval is required before installation or enablement",
+    "authority_change": false
+  },
+  "result": "Promoted owner runtime makes Pack readiness and approval boundaries inspectable without silently enabling or granting any Pack."
+}

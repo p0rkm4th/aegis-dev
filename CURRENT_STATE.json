@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "state_basis_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
-  "deterministic_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
-  "last_pushed_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
-  "hosted_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
-  "hosted_ci_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "repository_head_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "deterministic_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "last_pushed_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "hosted_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "hosted_ci_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+    "commit_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
     "conclusion": "success",
-    "run_id": "33981337000",
-    "observed_at": "2026-09-05T17:35:00Z"
+    "run_id": "33981727940",
+    "observed_at": "2026-09-05T17:42:02Z"
   },
-  "installed_release_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
-  "running_release_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
-  "live_green_sha": "9772aa501e2b7aaa0663cab2415a314591d522e8",
+  "installed_release_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "running_release_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
+  "live_green_sha": "62f0a9ed5cca1ef3a38f30aadc53083005ac366e",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "communications-owner-controlled-failure",
+  "active_checkpoint": "packs-lifecycle-owner-surface",
   "checkpoint_status": "in_progress",
   "current_checkpoint": "communications-owner-controlled-failure",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
@@ -60,7 +60,8 @@
     ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
-    ,"communications read capability is deterministic-green through a generic Pack runtime; owner promotion and live provider proof remain pending"
+    ,"communications read capability is deterministic-green through a generic Pack runtime; live owner request is correctly blocked while the Pack remains discovered"
+    ,"authenticated owner Packs view exposes lifecycle, permissions, capabilities, actions, health, and explicit approval next steps without changing authority"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -79,7 +80,7 @@
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "breadth_scoreboard": {
-    "owner_visible_views": 7,
+    "owner_visible_views": 8,
     "usable_capability_families": 4,
     "verified_write_capabilities": 0,
     "external_integrations": 0,
@@ -89,7 +90,7 @@
     "owner_workflows_completed": 3,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Obtain hosted validation for the communications slice, promote it through the existing release path, then dogfood authenticated communications read and begin approval-gated drafting.",
+  "next_action": "Begin the next breadth vertical: implement a provider-neutral Home Assistant or equivalent authorized device-state read slice, expose it in conventional UI and Constellation, and preserve live-proof-pending status if no instance is available.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
