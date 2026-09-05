@@ -568,6 +568,13 @@ class DeviceControlExecutor:
             raise ValueError("device control requires explicit entity, service, and postcondition")
         if service not in {"turn_on", "turn_off"}:
             raise PermissionError("device service is not in the bounded control allowlist")
+        authorized_entities = {
+            item.strip()
+            for item in os.environ.get("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "").split(",")
+            if item.strip()
+        }
+        if entity_id not in authorized_entities or len(authorized_entities) > 50:
+            raise PermissionError("device entity is outside the authorized device scope")
         gateway = (
             HomeAssistantRestControlGateway(
                 os.environ["AEGIS_HOME_ASSISTANT_URL"],
