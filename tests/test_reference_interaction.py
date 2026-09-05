@@ -38,6 +38,7 @@ from aegis.reference_interaction import (
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
     resolve_contextual_remaining,
+    resolve_contextual_task_focus_read,
     resolve_reference_fast_paths,
     resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
@@ -994,6 +995,32 @@ def test_contextual_event_next_followup_prefers_compact_future_candidates():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_next_referent"]["title"] == "upcoming event"
+
+
+def test_contextual_task_focus_read_rechecks_authorized_task_id():
+    task = Task(uuid4(), "home", "check the back gate", "alice")
+
+    class Store:
+        def list(self, _principal):
+            return (task,)
+
+    result = resolve_contextual_task_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Can you show me that one?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"task": {"task_id": str(task.task_id), "title": task.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        Store(),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Task: check the back gate (open)"
 
 
 def test_event_temporal_correction_reuses_authorized_event_collection():
