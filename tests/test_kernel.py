@@ -4122,6 +4122,21 @@ def test_domainless_collection_status_clarifies_without_guessing():
     )
 
 
+def test_domainless_take_care_read_clarifies_collection_without_guessing():
+    result = DomainClarificationFastPath.resolve_ambiguous_collection_status(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Anything I need to take care of today?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.message == (
+        "What should I check: open tasks, household chores, groceries, or memories?"
+    )
+
+
 def test_implicit_ordinal_mutation_reference_blocks_before_model_selection():
     result = ContextualMutationGuard.resolve(
         IntentFrame(
