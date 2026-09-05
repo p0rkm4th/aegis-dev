@@ -47,7 +47,7 @@ from aegis.reference_interaction import (
     resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
 )
-from aegis.tasks import Task, requested_task_due_at
+from aegis.tasks import PostgresTaskStore, Task, requested_task_due_at
 
 
 def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> None:
@@ -306,6 +306,40 @@ def test_contextual_repeat_read_accepts_grocery_pronoun_followup() -> None:
 
     assert result is not None
     assert result.evidence["canonical_items"] == ["rice"]
+
+
+def test_contextual_repeat_read_rechecks_authorized_task_projection() -> None:
+    task_id = uuid4()
+
+    class TaskStore:
+        def list(self, _principal: object) -> tuple[Task, ...]:
+            return (Task(task_id, "home", "check the gate", "alice"),)
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"task_id": str(task_id), "title": "check the gate", "status": "open"}
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_repeat_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Can you show me that?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, object()),
+        cast(PostgresTaskStore, TaskStore()),
+    )
+
+    assert result is not None
+    assert result.evidence["canonical_tasks"][0]["task_id"] == str(task_id)
 
 
 def test_contextual_grocery_other_singleton_followup_is_grounded() -> None:
