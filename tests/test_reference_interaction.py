@@ -3241,6 +3241,23 @@ def test_recent_canonical_action_result_can_answer_follow_up_without_model() -> 
     assert result.evidence["referent"] == "prior_result"
 
 
+def test_recent_canonical_action_result_is_not_rendered_as_new_mutation() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Task: inspect the shed latch",
+        correlation_id=uuid4(),
+        evidence={
+            "collection": "tasks",
+            "title": "inspect the shed latch",
+            "status": "open",
+            "referent": "prior_result",
+        },
+    )
+
+    assert reference_format_result(result) == "Task: inspect the shed latch"
+
+
 def test_compact_planning_context_preserves_open_chores() -> None:
     chores = [{"chore_id": "chore-1", "title": "clean the kitchen"}]
 
