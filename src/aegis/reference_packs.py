@@ -107,8 +107,11 @@ def prepare_reference_action(
         document_target_path = args.get("target_path")
         if isinstance(document_id, str) and isinstance(document_target_path, str):
             document = next(
-                (item for item in configured_document_provider().list_documents()
-                 if item.document_id == document_id),
+                (
+                    item
+                    for item in configured_document_provider().list_documents()
+                    if item.document_id == document_id
+                ),
                 None,
             )
             if document is not None:
@@ -134,8 +137,7 @@ def _verify_workspace_expectation(
         objective_id = UUID(str(expected["objective_id"]))
         files = expected["files"]
         if not isinstance(files, dict) or not all(
-            isinstance(path, str) and isinstance(digest, str)
-            for path, digest in files.items()
+            isinstance(path, str) and isinstance(digest, str) for path, digest in files.items()
         ):
             return False, "workspace postcondition files are invalid"
         workspace = WorkspaceManager(
@@ -768,10 +770,7 @@ class DeviceControlVerifier:
             observation.command_succeeded
             and isinstance(execution, dict)
             and isinstance(expected, dict)
-            and (
-                self.principal is None
-                or expected.get("principal_id") == self.principal.id
-            )
+            and (self.principal is None or expected.get("principal_id") == self.principal.id)
             and isinstance(expected.get("entity_id"), str)
             and isinstance(expected.get("expected_state"), str)
         ):
@@ -1171,9 +1170,7 @@ class CommunicationDraftVerifier:
     ) -> VerificationResult:
         verified, detail = _verify_workspace_expectation(self.principal, contract)
         verified = (
-            observation.command_succeeded
-            and verified
-            and observation.evidence.get("sent") is False
+            observation.command_succeeded and verified and observation.evidence.get("sent") is False
         )
         return VerificationResult(
             verified=verified,

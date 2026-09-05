@@ -445,6 +445,7 @@ def test_document_export_pack_composes_authorized_read_with_workspace(
     )
     assert observation.command_succeeded is True
     assert observation.evidence["source"] == "authorized_document"
-    assert DocumentWorkspaceVerifier(principal).verify(
-        observation, card.action.verification
-    ).verified is False
+    assert (
+        DocumentWorkspaceVerifier(principal).verify(observation, card.action.verification).verified
+        is False
+    )
