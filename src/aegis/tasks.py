@@ -585,6 +585,7 @@ class TaskReadFastPath:
                         "this weekend",
                         "next weekend",
                         "before weekend",
+                        "before the weekend",
                     )
                 )
                 or re.search(
