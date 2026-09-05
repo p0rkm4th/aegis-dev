@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "6f34e75d789cf64c421e55484d302d4cdeb9a7a7",
+  "state_basis_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d085d2323253737da14a1ba9a70666d78e6d7695",
-  "deterministic_green_sha": "6f34e75d789cf64c421e55484d302d4cdeb9a7a7",
-  "last_pushed_sha": "d085d2323253737da14a1ba9a70666d78e6d7695",
-  "hosted_green_sha": "d085d2323253737da14a1ba9a70666d78e6d7695",
-  "hosted_ci_green_sha": "d085d2323253737da14a1ba9a70666d78e6d7695",
+  "repository_head_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "deterministic_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "last_pushed_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "hosted_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "hosted_ci_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "d085d2323253737da14a1ba9a70666d78e6d7695",
+    "commit_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
     "conclusion": "success",
-    "run_id": "33992302894",
+    "run_id": "33992547519",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "6f34e75d789cf64c421e55484d302d4cdeb9a7a7",
-  "running_release_sha": "6f34e75d789cf64c421e55484d302d4cdeb9a7a7",
-  "live_green_sha": "6f34e75d789cf64c421e55484d302d4cdeb9a7a7",
+  "installed_release_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "running_release_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "live_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-calendar-write-surface",
+  "active_checkpoint": "daily-driver-alpha-research-routing",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "6f34e75d789cf64c421e55484d302d4cdeb9a7a7"
+    "release_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -86,6 +86,7 @@
     ,"Pack lifecycle now surfaces pending permission upgrades and routes explicit owner approval through the existing Pack upgrade contract"
     ,"owner Calendar timed-event form completed a fixture-provider create with independent provider readback; live Google acceptance remains pending credentials"
     ,"explicit current/public/research requests now force bounded external-evidence routing; model-only fallback is regression-tested and truthful provider failure remains non-authoritative"
+    ,"installed owner dogfood confirms current/public research fails truthfully when no provider is configured; positive live provider synthesis remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -138,7 +139,7 @@
     "owner_workflows_completed": 13,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next daily-driver vertical: prepare a provider-backed communications or calendar write proof, or add a useful device-state explanation composition while live credentials remain pending.",
+  "next_action": "Continue breadth with a new owner-visible device/homelab or communications slice; preserve Research as evidence-gated until a provider-backed positive owner proof is available.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
