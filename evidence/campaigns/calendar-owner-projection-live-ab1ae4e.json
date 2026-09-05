@@ -1,0 +1,28 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "calendar-owner-projection-live",
+  "source_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": "33985357720",
+    "conclusion": "success"
+  },
+  "runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+    "health": "healthy",
+    "ready": true,
+    "identity": "alice",
+    "space": "apartment"
+  },
+  "owner_proof": {
+    "route": "/api/calendar",
+    "source": "external_calendar_fixture",
+    "event_id": "calendar-live-1",
+    "title": "Palworld planning",
+    "starts_at": "2026-09-07T19:00:00+00:00",
+    "ends_at": "2026-09-07T20:00:00+00:00",
+    "provider_status": "configured fixture; live external provider pending",
+    "mutation": 0
+  }
+}

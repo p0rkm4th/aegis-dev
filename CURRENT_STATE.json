@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "state_basis_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "868f66829c0208377b132105959c9f5af682f7a2",
-  "deterministic_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
-  "last_pushed_sha": "868f66829c0208377b132105959c9f5af682f7a2",
-  "hosted_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
-  "hosted_ci_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "repository_head_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "deterministic_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "last_pushed_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "hosted_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "hosted_ci_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+    "commit_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
     "conclusion": "success",
-    "run_id": "33984914911",
-    "observed_at": "2026-09-05T18:45:00Z"
+    "run_id": "33985357720",
+    "observed_at": "2026-09-05T19:00:00Z"
   },
-  "installed_release_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
-  "running_release_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
-  "live_green_sha": "04f202ce7f95d417ee4c8acaea8d0cb2ceb05ef2",
+  "installed_release_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "running_release_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "live_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "communication-draft-owner-live",
   "checkpoint_status": "in_progress",
@@ -70,6 +70,7 @@
     ,"Research -> Workspace completed in the promoted owner runtime with non-authoritative fixture evidence, sourced notes artifact creation, readback verification, and persisted inventory"
     ,"communication-drafts Pack is owner-enabled only with exact declared permissions; draft creation writes a scoped Workspace artifact and verifies readback without any send path"
     ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
+    ,"bounded configured calendar snapshots are owner-visible through the authenticated Calendar view and /api/calendar; live provider acceptance remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -98,7 +99,7 @@
     "owner_workflows_completed": 10,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Begin the next breadth tranche: render the accumulated compositions through the actual owner UI, then add the next replaceable external integration or verified consequential capability and rearm breadth proofs.",
+  "next_action": "Continue the next breadth tranche with a real replaceable external provider or verified consequential capability; retain the Calendar view as fixture-backed until live provider acceptance is proven.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
