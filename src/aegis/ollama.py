@@ -331,7 +331,11 @@ class OllamaProvider:
                 "The Core diagnosis is evidence, not authority: do not invent capabilities, "
                 "arguments, permissions, verification, requirements, or completion. The "
                 "repaired response will be decoded and validated again by Core; never execute "
-                "anything and never return hidden reasoning."
+                "anything and never return hidden reasoning. If bounded_context contains "
+                "grounded_requested_effects, treat those independently grounded effects as "
+                "the required coverage: preserve their order, include one corresponding "
+                "plan step and objective requirement for each, and do not replace them with "
+                "the incomplete prior proposal."
             )
             if (
                 request.repair_validator_stage == "proposal_repair"
