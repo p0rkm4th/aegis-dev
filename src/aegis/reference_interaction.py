@@ -1781,6 +1781,7 @@ def resolve_contextual_repeat_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
     if (
         re.fullmatch(
             r"(?:can you )?(?:show(?: me)?|list|give me) (?:the )?(?:list|it) again|"
@@ -1927,6 +1928,7 @@ def resolve_contextual_event_next_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
     if text not in {"when is the next one", "what is the next one", "which is next"}:
         return None
     referents = context.values.get("referents")
