@@ -1209,6 +1209,9 @@ def resolve_reference_fast_paths(
     result = resolve_contextual_event_focus_read(intent, context, snapshot)
     if result is not None:
         return result
+    result = resolve_ambiguous_event_focus_read(intent, context)
+    if result is not None:
+        return result
     # Resolve an authorized event temporal follow-up before broad personal
     # composers can reinterpret a short correction such as "No, tomorrow."
     # The resolver remains read-only and requires the prior event projection.
@@ -2772,6 +2775,41 @@ def resolve_contextual_event_focus_read(
                 "starts_at": event.starts_at.isoformat(),
             },
         },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_ambiguous_event_focus_read(intent: IntentFrame, context: Context) -> Result | None:
+    """Keep an event-list pronoun from being mistaken for a new event write."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
+    if text not in {
+        "when is it",
+        "when is that",
+        "what time is it",
+        "what day is it",
+        "what date is it",
+        "is it still scheduled",
+        "is that still scheduled",
+    }:
+        return None
+    facts = context.values.get("canonical_facts")
+    if isinstance(facts, dict) and isinstance(facts.get("event"), dict):
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "events":
+        return None
+    candidates = those.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        return None
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.BLOCKED,
+        message="Which event did you mean? Please name the event or choose an ordinal.",
         correlation_id=intent.correlation_id,
     )
 
