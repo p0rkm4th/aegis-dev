@@ -13,6 +13,7 @@ from .capability_retrieval import retrieve_action_cards
 from .contracts import (
     ActionCard,
     ArgumentProvenanceKind,
+    CapabilityInvestigationState,
     CapabilityNeed,
     Context,
     Decision,
@@ -472,9 +473,55 @@ class InteractionBoundary:
 
             def persist_fast_result(result: Result) -> Result:
                 result = _with_continuation_context(result, context)
+                evidence = dict(result.evidence)
+                if (
+                    result.state in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}
+                    and not evidence.get("capability_needs")
+                    and isinstance(evidence.get("unsatisfied_requirements"), list)
+                ):
+                    durable_needs: list[dict[str, Any]] = []
+                    for item in evidence["unsatisfied_requirements"]:
+                        if not isinstance(item, dict):
+                            continue
+                        requested_effect = item.get("normalized_effect")
+                        if not isinstance(requested_effect, str) or not requested_effect.strip():
+                            continue
+                        requirement_id: UUID | None = None
+                        raw_requirement_id = item.get("effect_id")
+                        if isinstance(raw_requirement_id, str):
+                            try:
+                                requirement_id = UUID(raw_requirement_id)
+                            except ValueError:
+                                requirement_id = None
+                        durable_needs.append(
+                            CapabilityNeed(
+                                requirement_id=requirement_id,
+                                requested_effect=requested_effect,
+                                reason=(
+                                    "No enabled ActionCard currently satisfies this "
+                                    "requested effect."
+                                ),
+                                permitted_scope=(
+                                    "installed_capabilities",
+                                    "authorized_canonical_state",
+                                    "public_research",
+                                ),
+                                investigation=CapabilityInvestigationState.COMPLETE,
+                                candidate_resolutions=(
+                                    {
+                                        "kind": "available_action_ids",
+                                        "action_ids": evidence.get("available_action_ids", []),
+                                    },
+                                ),
+                                parent_objective_id=result.objective_id,
+                            ).model_dump(mode="json")
+                        )
+                    if durable_needs:
+                        evidence["capability_needs"] = durable_needs
+                        result = result.model_copy(update={"evidence": evidence})
                 capability_needs = tuple(
                     CapabilityNeed.model_validate(item)
-                    for item in result.evidence.get("capability_needs", ())
+                    for item in evidence.get("capability_needs", ())
                     if isinstance(item, dict)
                 )
                 objective_store.save_objective(
