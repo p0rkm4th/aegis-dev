@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 from .calendar import FixtureCalendarProvider, calendar_events_evidence
@@ -25,6 +25,7 @@ from .contracts import (
     VerificationContract,
     VerificationResult,
 )
+from .documents import FixtureDocumentProvider, documents_evidence
 from .gateway_rpc import (
     CorrelatedRpcClient,
     OpenClawGatewayRpc,
@@ -237,6 +238,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "documents",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="documents.list",
+                        capability="documents.list",
+                        required_permissions=("documents.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read authorized documents and their bounded text",
+                    relevance=1,
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "calendar",
             "0.1.0",
             (
@@ -287,6 +304,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "calendar": ("calendar.read",),
+        "documents": ("documents.read",),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart",),
@@ -334,6 +352,32 @@ class CalendarEventsExecutor:
             execution_id=uuid4(),
             evidence=calendar_events_evidence(events),
             command_succeeded=True,
+        )
+
+
+class DocumentsExecutor:
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        return Observation(
+            execution_id=uuid4(),
+            evidence=documents_evidence(FixtureDocumentProvider().list_documents()),
+            command_succeeded=True,
+        )
+
+
+class DocumentsVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        documents = observation.evidence.get("documents")
+        verified = observation.command_succeeded and isinstance(documents, list)
+        document_rows = cast(list[Any], documents) if verified else []
+        return VerificationResult(
+            verified=verified,
+            evidence={"document_count": len(document_rows)},
+            reason=(
+                "document readback is structurally valid" if verified else "document read failed"
+            ),
         )
 
 
