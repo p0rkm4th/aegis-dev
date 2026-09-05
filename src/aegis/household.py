@@ -610,6 +610,7 @@ class GroceryReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = strip_correction_prefix(utterance).casefold()
+        text = re.sub(r"^only\s+", "", text)
         if is_mutation_request(text):
             return False
         grocery_noun = re.search(r"\b(?:grocery|groceries)\b", text) is not None
