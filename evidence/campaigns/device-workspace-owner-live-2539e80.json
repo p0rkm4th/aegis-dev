@@ -1,0 +1,27 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "device-workspace-owner-live",
+  "source_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": "33986764774",
+    "conclusion": "success"
+  },
+  "runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+    "health": "healthy",
+    "ready": true,
+    "identity": "alice",
+    "space": "apartment"
+  },
+  "owner_proof": {
+    "pack": "device-reports",
+    "approval": "explicit owner approval for devices.read and workspace.write",
+    "utterance": "Save authorized device states to workspace as devices.md",
+    "outcome": "completed; device snapshot artifact readback verified",
+    "artifact": "devices.md",
+    "workspace_inventory": "7fc04bbf-f86c-5dbd-bc52-e13f09879e77",
+    "mutation_boundary": "device provider was read-only; only scoped Workspace artifact was created"
+  }
+}
