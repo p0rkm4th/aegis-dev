@@ -1429,6 +1429,10 @@ def test_unresolved_investigation_requires_explicit_non_authoritative_result() -
     assert result is not None
     assert result.evidence["objective_open"] is True
     assert result.evidence["unsatisfied_requirements"][0]["resolution"] == "UNSUPPORTED"
+    need = result.evidence["capability_needs"][0]
+    assert need["requirement_id"] == str(effect.effect_id)
+    assert need["status"] == "open"
+    assert need["investigation"] == "complete"
 
 
 def test_plan_fidelity_provider_failure_fails_closed() -> None:
