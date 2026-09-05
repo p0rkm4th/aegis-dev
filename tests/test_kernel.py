@@ -353,6 +353,31 @@ def test_contextual_chore_priority_never_invents_deadline_order():
     assert "no canonical deadlines" in result.message
 
 
+def test_contextual_chore_priority_blocks_attention_wording():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_chores",
+                    "candidates": [{"title": "clean kitchen", "completed": False}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualChorePriorityFastPath.resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one needs attention first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no canonical deadlines" in result.message
+
+
 def test_contextual_chore_next_never_invents_deadline_order():
     context = Context(
         values={
