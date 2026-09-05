@@ -450,13 +450,29 @@ class HouseholdReadFastPath:
         )
         implicit_event = "happening" in text and any(
             term in text
-            for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+            for term in (
+                "today",
+                "tomorrow",
+                "this weekend",
+                "next weekend",
+                "next week",
+                "this month",
+                "next month",
+            )
         )
         implicit_schedule = any(
             term in text for term in ("going on", "plans", "coming up", "meeting", "meetings")
         ) and any(
             term in text
-            for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+            for term in (
+                "today",
+                "tomorrow",
+                "this weekend",
+                "next weekend",
+                "next week",
+                "this month",
+                "next month",
+            )
         )
         if task_objective and not explicit_event:
             return False
@@ -523,7 +539,15 @@ class HouseholdReadFastPath:
                 "happening" in text
                 and any(
                     term in text
-                    for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+                    for term in (
+                        "today",
+                        "tomorrow",
+                        "this weekend",
+                        "next weekend",
+                        "next week",
+                        "this month",
+                        "next month",
+                    )
                 )
             )
             or (
@@ -533,7 +557,15 @@ class HouseholdReadFastPath:
                 )
                 and any(
                     term in text
-                    for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+                    for term in (
+                        "today",
+                        "tomorrow",
+                        "this weekend",
+                        "next weekend",
+                        "next week",
+                        "this month",
+                        "next month",
+                    )
                 )
             )
         ):
@@ -547,6 +579,27 @@ class HouseholdReadFastPath:
             elif "today" in text:
                 target_date = now.date()
                 date_filter = "today"
+            elif "this month" in text or "next month" in text:
+                month_start = now.date().replace(day=1)
+                following_month = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+                month_end = (
+                    (following_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+                    if "next month" in text
+                    else following_month
+                )
+                range_start = following_month if "next month" in text else month_start
+                date_filter = "next_month" if "next month" in text else "this_month"
+                events = tuple(
+                    event
+                    for event in events
+                    if range_start
+                    <= (
+                        event.starts_at.replace(tzinfo=timezone.utc)
+                        if event.starts_at.tzinfo is None
+                        else event.starts_at.astimezone(timezone.utc)
+                    ).date()
+                    < month_end
+                )
             elif "rest of the week" in text or "rest of week" in text:
                 week_end = now.date() + timedelta(days=7 - now.weekday())
                 date_filter = "rest_of_week"
