@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "state_basis_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
-  "deterministic_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
-  "last_pushed_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
-  "hosted_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
-  "hosted_ci_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "repository_head_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
+  "deterministic_green_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
+  "last_pushed_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
+  "hosted_green_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
+  "hosted_ci_green_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+    "commit_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
     "conclusion": "success",
-    "run_id": "33996658097",
-    "observed_at": "2026-09-05T22:43:00Z"
+    "run_id": "33996977270",
+    "observed_at": "2026-09-05T23:05:00Z"
   },
-  "installed_release_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
-  "running_release_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
-  "live_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "installed_release_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
+  "running_release_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
+  "live_green_sha": "170e86460117438f1c117e721a37fb0b15f506dc",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-communications-provider-adapter",
+  "active_checkpoint": "daily-driver-alpha-device-control-readiness",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -102,9 +102,10 @@
     ,"unsupported Palworld owner objective remains open and now persists a CapabilityNeed with requirement identity, parent objective, permitted investigation scope, typed workspace candidate resolution requiring owner input, and bounded research provenance; no permission or capability was added"
     ,"OpenClaw message send now has a provider-neutral argv-based adapter with explicit channel/account/target, structured acceptance parsing, and truthful SEND_ATTEMPTED fallback; no live channel is configured and delivery is not claimed"
     ,"owner Communications view is promoted and displays persisted provider status and delivery proof separately; fresh owner acceptance reports PROVIDER_ACCEPTED with delivery_proven=false"
+    ,"owner Devices view now exposes bounded control readiness, authorized entity scope, fixture/live provider mode, explicit approval, and independent state-readback requirements; no UI authority was added"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "OpenClaw outbound messaging adapter and owner Communications outcome surface are promoted; fixture acceptance is explicit, delivery is unproven, and live channel configuration remains pending.",
+  "daily_driver_checkpoint": "Bounded device control readiness is promoted and owner-visible; fixture control remains distinct from live hardware, and independent provider readback plus explicit approval remain required.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -140,11 +141,11 @@
   "independently_verified_write_capabilities": 6,
   "live_external_integrations": 0,
   "voluntarily_useful_owner_workflows": 21,
-  "owner_visible_capability_surfaces": 14,
+  "owner_visible_capability_surfaces": 15,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 11,
   "breadth_scoreboard": {
-    "owner_visible_views": 12,
+    "owner_visible_views": 13,
     "usable_capability_families": 7,
     "verified_write_capabilities": 6,
     "external_integrations": 0,
@@ -154,7 +155,7 @@
     "owner_workflows_completed": 21,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue daily-driver breadth with calendar provider/live-write readiness or a new independently verified homelab/device composition; live OpenClaw, Google, and Home Assistant remain pending.",
+  "next_action": "Continue daily-driver breadth with a functional independently verified device or homelab composition; live OpenClaw, Google, and Home Assistant remain pending.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
