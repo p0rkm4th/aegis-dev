@@ -2404,6 +2404,8 @@ def resolve_contextual_event_relative_read(
         "what about the event before that",
         "what about the one before that",
         "what about an event before that",
+        "show the event before that",
+        "show me the event before that",
     }
     after_query = text in {
         "what about the event after that",
