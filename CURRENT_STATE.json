@@ -87,6 +87,7 @@
     ,"owner Calendar timed-event form completed a fixture-provider create with independent provider readback; live Google acceptance remains pending credentials"
     ,"explicit current/public/research requests now force bounded external-evidence routing; model-only fallback is regression-tested and truthful provider failure remains non-authoritative"
     ,"installed owner dogfood confirms current/public research fails truthfully when no provider is configured; positive live provider synthesis remains pending"
+    ,"Systems owner view now exposes bounded authorized Homelab hosts/services and Network devices/scopes from PostgreSQL; projection is read-only and does not imply operational authority"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
