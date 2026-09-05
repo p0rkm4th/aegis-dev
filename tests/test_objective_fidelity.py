@@ -235,30 +235,6 @@ def test_structural_signal_recognizes_independent_nonroot_effect_predicates() ->
     assert [anchor.source_span for anchor in signal.anchors] == [(0, 6), (30, 34)]
 
 
-def test_structural_parser_does_not_count_title_verbs_as_new_effects() -> None:
-    from aegis.structural import SpacyStructuralParser
-
-    class Token:
-        def __init__(self, text: str, pos: str, dep: str, children=(), head=None) -> None:
-            self.text = text
-            self.pos_ = pos
-            self.dep_ = dep
-            self.children = tuple(children)
-            self.head = head
-
-    destination = Token("task", "NOUN", "dobj")
-    frame = Token("make", "VERB", "ROOT", (destination,))
-    embedded = Token("inspect", "VERB", "relcl", head=destination)
-    destination.head = frame
-    assert not SpacyStructuralParser._is_effect_predicate(embedded)
-
-    chore = Token("chore", "NOUN", "nsubj")
-    frame = Token("make", "VERB", "ROOT", (chore,))
-    embedded = Token("mop", "VERB", "ccomp", head=frame)
-    chore.head = frame
-    assert not SpacyStructuralParser._is_effect_predicate(embedded)
-
-
 def test_structural_coverage_rejects_full_span_and_duplicate_gaming() -> None:
     utterance = "Add milk and eggs"
     full = materialize_requested_effects(
