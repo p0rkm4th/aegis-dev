@@ -3,7 +3,11 @@ from datetime import datetime, timezone
 
 import pytest
 
-from aegis.devices import HomeAssistantAdapter, HomeAssistantRestGateway
+from aegis.devices import (
+    HomeAssistantAdapter,
+    HomeAssistantRestControlGateway,
+    HomeAssistantRestGateway,
+)
 
 
 class _Response:
@@ -48,3 +52,26 @@ def test_home_assistant_rest_gateway_is_bounded_and_read_only(monkeypatch):
 def test_home_assistant_rest_gateway_rejects_non_http_urls():
     with pytest.raises(ValueError):
         HomeAssistantRestGateway("file:///tmp/ha", "secret")
+
+
+def test_home_assistant_control_gateway_posts_only_allowlisted_service(monkeypatch):
+    seen = {}
+
+    def fake_urlopen(request, timeout):
+        seen["url"] = request.full_url
+        seen["method"] = request.method
+        seen["body"] = json.loads(request.data)
+        seen["authorization"] = request.get_header("Authorization")
+        seen["timeout"] = timeout
+        return _Response([])
+
+    monkeypatch.setattr("aegis.devices.urlopen", fake_urlopen)
+    gateway = HomeAssistantRestControlGateway("https://ha.test:8123", "secret", timeout=2)
+    gateway.call_service({"entity_id": "light.lamp", "service": "turn_on"})
+    assert seen == {
+        "url": "https://ha.test:8123/api/services/light/turn_on",
+        "method": "POST",
+        "body": {"entity_id": "light.lamp"},
+        "authorization": "Bearer secret",
+        "timeout": 2,
+    }

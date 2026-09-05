@@ -29,6 +29,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "workspace",
         "devices",
         "communication-drafts",
+        "device-controls",
     }
 
 
@@ -129,6 +130,37 @@ def test_devices_pack_reads_authorized_entity_state_through_generic_runtime() ->
     )
     assert observation.command_succeeded is True
     assert observation.evidence["source"] == "home_assistant_fixture"
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_device_controls_pack_verifies_low_risk_fixture_readback() -> None:
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "device-controls.devices.command.execute"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "entity_id": "light.desk",
+                "service": "turn_on",
+                "expected_state": "on",
+            }
+        }
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="device-control-1",
+        )
+    )
+    assert observation.command_succeeded is True
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
@@ -57,7 +58,13 @@ class FixtureDeviceGateway:
         return tuple({"entity_id": entity_id, **value} for entity_id, value in self.states.items())
 
     def call_service(self, command: dict[str, Any]) -> None:
-        del command
+        entity_id = command.get("entity_id")
+        service = command.get("service")
+        if isinstance(entity_id, str) and isinstance(service, str):
+            if service == "turn_on":
+                self.states.setdefault(entity_id, {"attributes": {}})["state"] = "on"
+            elif service == "turn_off":
+                self.states.setdefault(entity_id, {"attributes": {}})["state"] = "off"
 
 
 class HomeAssistantRestGateway:
@@ -103,6 +110,36 @@ class HomeAssistantRestGateway:
     def call_service(self, command: dict[str, Any]) -> None:
         del command
         raise PermissionError("Home Assistant REST gateway is read-only")
+
+
+class HomeAssistantRestControlGateway(HomeAssistantRestGateway):
+    """Separate, explicitly selected low-risk service-call adapter."""
+
+    def call_service(self, command: dict[str, Any]) -> None:
+        entity_id = command.get("entity_id")
+        service = command.get("service")
+        if not isinstance(entity_id, str) or not isinstance(service, str):
+            raise ValueError("Home Assistant service command is invalid")
+        if "." in service:
+            domain, service_name = service.split(".", 1)
+        else:
+            domain, service_name = entity_id.split(".", 1)[0], service
+        if domain not in {"light", "switch", "input_boolean"} or service_name not in {
+            "turn_on",
+            "turn_off",
+        }:
+            raise PermissionError("Home Assistant service is outside the bounded control policy")
+        request = Request(
+            urljoin(self.base_url, f"api/services/{domain}/{service_name}"),
+            data=json.dumps({"entity_id": entity_id}).encode(),
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        with urlopen(request, timeout=self.timeout) as response:
+            response.read(1_000_001)
 
 
 def device_states_evidence(states: tuple[DeviceState, ...]) -> dict[str, Any]:
