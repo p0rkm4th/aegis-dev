@@ -874,10 +874,8 @@ def decide_fallback(
                                 "structural/effect coverage mismatch; "
                                 f"anchor_count={len(structural_signal.anchors)} "
                                 f"effect_count={len(candidate_materialized)} "
-                                f"anchor_spans={anchor_spans} "
-                                f"effect_spans={effect_spans} "
-                                f"unmatched_anchors={unmatched_anchors} "
-                                f"unmatched_effects={unmatched_effects}"
+                                f"unmatched_anchors={unmatched_anchors[:5]} "
+                                f"unmatched_effects={unmatched_effects[:5]}"
                             ),
                             related_source_spans=tuple(
                                 unmatched_anchors[:5] + unmatched_effects[:5]
