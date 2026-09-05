@@ -3467,6 +3467,8 @@ def ground_reference_action_runtime(
                 ],
             }
         }
+        if context is not None:
+            context.values["referents"] = base_values["referents"]
         context = Context(values=base_values, sources=("authorized_canonical_result",))
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
