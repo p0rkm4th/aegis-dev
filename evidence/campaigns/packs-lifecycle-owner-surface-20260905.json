@@ -1,0 +1,26 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "packs-lifecycle-owner-surface",
+  "source": "working-tree",
+  "proof": {
+    "route": "GET /api/packs",
+    "owner_surface": "Packs & capabilities",
+    "exposes": [
+      "lifecycle status",
+      "declared permissions",
+      "granted permissions",
+      "capabilities",
+      "available actions",
+      "health",
+      "owner next step"
+    ],
+    "safety": [
+      "read-only projection",
+      "discovery does not install",
+      "installation does not enable",
+      "viewing does not grant permissions"
+    ],
+    "deterministic_tests": "807 passed, 5 skipped"
+  },
+  "result": "Owner can inspect Pack readiness and approval requirements through a conventional view while lifecycle authority remains unchanged."
+}

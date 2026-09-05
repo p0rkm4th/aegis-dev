@@ -52,7 +52,7 @@ from .identity import (
 from .interaction import InteractionBoundary, InteractionDependencies
 from .network import PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
-from .pack_lifecycle import PostgresPackStore
+from .pack_lifecycle import PackManager, PackStatus, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
 from .reference_interaction import (
@@ -493,6 +493,47 @@ def _composition_state(principal: Principal) -> dict[str, Any]:
 
     del principal
     return {"compositions": available_compositions()}
+
+
+def _pack_state(principal: Principal) -> dict[str, Any]:
+    """Expose Pack lifecycle and bounded declarations without granting authority."""
+
+    del principal
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        lifecycle = PackManager(store=PostgresPackStore(connection)).lifecycle_snapshot()
+        packs = {
+            bundle.manifest.pack_id: (bundle, status, grants)
+            for bundle, status, grants in lifecycle
+        }
+        for bundle in reference_bundles():
+            packs.setdefault(bundle.manifest.pack_id, (bundle, PackStatus.DISCOVERED, frozenset()))
+        projection: list[dict[str, Any]] = []
+        for pack_id, (bundle, status, grants) in sorted(packs.items()):
+            manifest = bundle.manifest
+            projection.append(
+                {
+                    "pack_id": pack_id,
+                    "label": manifest.ui.label if manifest.ui else pack_id,
+                    "category": manifest.ui.category if manifest.ui else "capability",
+                    "detail_view": manifest.ui.detail_view if manifest.ui else None,
+                    "status": status.value,
+                    "permissions": sorted(manifest.permissions),
+                    "granted_permissions": sorted(grants),
+                    "capabilities": sorted({card.action.capability for card in bundle.cards}),
+                    "available_actions": sorted({card.action.action_id for card in bundle.cards}),
+                    "health": "enabled" if status is PackStatus.ENABLED else "lifecycle-ready",
+                    "owner_next_step": (
+                        "available through enabled capabilities"
+                        if status is PackStatus.ENABLED
+                        else "explicit owner approval is required before installation or enablement"
+                    ),
+                }
+            )
+        return {"packs": projection}
+    finally:
+        connection.close()
 
 
 def _browser_interaction(
@@ -1231,6 +1272,7 @@ def main() -> int:
                 _browser_feedback,
                 workspace_state=_workspace_state,
                 composition_state=_composition_state,
+                pack_state=_pack_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
