@@ -1,19 +1,19 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e594582319b9f117b6a8c16012abfa245c344472",
+  "state_basis_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e594582319b9f117b6a8c16012abfa245c344472",
-  "deterministic_green_sha": "e594582319b9f117b6a8c16012abfa245c344472",
-  "last_pushed_sha": "e594582319b9f117b6a8c16012abfa245c344472",
-  "hosted_green_sha": "e594582319b9f117b6a8c16012abfa245c344472",
-  "hosted_ci_green_sha": "e594582319b9f117b6a8c16012abfa245c344472",
+  "repository_head_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "deterministic_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "last_pushed_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "hosted_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
+  "hosted_ci_green_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e594582319b9f117b6a8c16012abfa245c344472",
+    "commit_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912",
     "conclusion": "success",
-    "run_id": "33996299588",
-    "observed_at": "2026-09-05T22:35:00Z"
+    "run_id": "33996658097",
+    "observed_at": "2026-09-05T22:43:00Z"
   },
   "installed_release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
   "running_release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "e594582319b9f117b6a8c16012abfa245c344472"
+    "release_sha": "a57867008ad48df153b5e8a34f098ebd3e6f5912"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -101,9 +101,10 @@
     ,"owner research fixture completed a sourced Alpha Guide answer with source ID, title, link, and retrieval timestamp; this is fixture evidence, not a live external integration"
     ,"unsupported Palworld owner objective remains open and now persists a CapabilityNeed with requirement identity, parent objective, permitted investigation scope, typed workspace candidate resolution requiring owner input, and bounded research provenance; no permission or capability was added"
     ,"OpenClaw message send now has a provider-neutral argv-based adapter with explicit channel/account/target, structured acceptance parsing, and truthful SEND_ATTEMPTED fallback; no live channel is configured and delivery is not claimed"
+    ,"owner Communications view is promoted and displays persisted provider status and delivery proof separately; fresh owner acceptance reports PROVIDER_ACCEPTED with delivery_proven=false"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "OpenClaw outbound messaging adapter is installed and owner-tested through the fixture fallback; provider acceptance is distinguished from delivery and live channel configuration remains pending.",
+  "daily_driver_checkpoint": "OpenClaw outbound messaging adapter and owner Communications outcome surface are promoted; fixture acceptance is explicit, delivery is unproven, and live channel configuration remains pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -139,11 +140,11 @@
   "independently_verified_write_capabilities": 6,
   "live_external_integrations": 0,
   "voluntarily_useful_owner_workflows": 21,
-  "owner_visible_capability_surfaces": 13,
+  "owner_visible_capability_surfaces": 14,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 11,
   "breadth_scoreboard": {
-    "owner_visible_views": 11,
+    "owner_visible_views": 12,
     "usable_capability_families": 7,
     "verified_write_capabilities": 6,
     "external_integrations": 0,
@@ -153,7 +154,7 @@
     "owner_workflows_completed": 21,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue daily-driver breadth with the highest-value available utility slice; prioritize generic owner-visible communications/calendar provider progress or a new independently verified homelab/device composition while live OpenClaw, Google, and Home Assistant remain pending.",
+  "next_action": "Continue daily-driver breadth with calendar provider/live-write readiness or a new independently verified homelab/device composition; live OpenClaw, Google, and Home Assistant remain pending.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
