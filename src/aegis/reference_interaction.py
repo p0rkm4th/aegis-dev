@@ -1970,6 +1970,7 @@ def resolve_contextual_event_priority_read(
             "collection": "events",
             "priority_basis": f"authorized_prior_result_{label}_starts_at",
             "authorized_event_priority": event,
+            "event": event,
             "canonical_events": candidates,
             "snapshot_space_id": snapshot.get("space_id"),
         },
@@ -1985,7 +1986,13 @@ def resolve_contextual_event_focus_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
-    if text not in {"when does it start", "when does that start", "what time is it"}:
+    if text not in {
+        "when does it start",
+        "when does that start",
+        "what time is it",
+        "what day is that",
+        "what date is that",
+    }:
         return None
     facts = context.values.get("canonical_facts")
     focus = facts.get("event") if isinstance(facts, dict) else None
