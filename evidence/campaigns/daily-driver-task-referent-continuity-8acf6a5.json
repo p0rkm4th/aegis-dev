@@ -1,0 +1,15 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-referent-continuity",
+  "source_sha": "8acf6a5ab0a01e1ded2bcd6d10a1285f483ab06a",
+  "owner": {
+    "release_sha": "4c47e982741df23068c54017bc9db293193202ac",
+    "postgresql_preserved": true,
+    "workflows": [
+      ["What tasks are open?", "completed", "canonical open task collection"],
+      ["What about the second one?", "completed", "prepare for the apartment inspection"],
+      ["Actually, which one is due first?", "completed", "inspect the air filter"]
+    ]
+  },
+  "safety": "Read-only authorized task projection and deterministic deadline ordering; no mutation."
+}

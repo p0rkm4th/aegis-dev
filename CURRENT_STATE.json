@@ -19,9 +19,9 @@
   "running_release_sha": "4c47e982741df23068c54017bc9db293193202ac",
   "live_green_sha": "4c47e982741df23068c54017bc9db293193202ac",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-event-time-followup",
+  "active_checkpoint": "daily-driver-task-referent-continuity",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "event-time-followup",
+  "current_checkpoint": "task-referent-continuity",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on 4c47e98 resolved calendar-next → natural capitalized 'When is it?' through the authorized event focus. It returned utility inspection's canonical start time; no mutation occurred.",
+  "daily_driver_checkpoint": "Installed-owner proof on 4c47e98 resolved open task collection → ordinal 'What about the second one?' and correction-priority 'Actually, which one is due first?' through authorized task projections. No mutation occurred.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -63,6 +63,6 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "next_action": "Refresh origin/aegis-dev and select the next distinct owner-visible daily-driver continuity gap. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
-  "history_artifact": "evidence/campaigns/daily-driver-event-time-followup-4c47e98.json",
+  "history_artifact": "evidence/campaigns/daily-driver-task-referent-continuity-8acf6a5.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
