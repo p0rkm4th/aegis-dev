@@ -81,6 +81,7 @@
     ,"owner Devices view is live through the existing bounded Home Assistant fixture/read adapter; live device hardware remains unconfigured and no control authority is implied"
     ,"calendar.events.create is installed with Core-prepared title/time expectation, fixture idempotency, and separate Google/fixture provider readback; live Google write acceptance remains pending credentials"
     ,"calendar snapshot to scoped Workspace is owner-proven independently verified after restart; reusable composition metadata exposes Calendar → Workspace and Device → Workspace"
+    ,"Workspace.run now applies bounded CPU, address-space, process, descriptor, per-file, total-file-count, total-byte, timeout-cleanup, and network-isolation limits inside the allowlisted sandbox"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -91,7 +92,7 @@
     "PostgreSQL backup/restore requires client tools compatible with the pinned server: host PostgreSQL 18 tools cannot restore a dump to PostgreSQL 16; pinned container PostgreSQL 16 pg_dump/pg_restore round-trip is green",
     "No OpenClaw channel is configured in the disposable runtime; live notification evidence proves system-event queue acceptance, not external mobile/chat delivery",
     "Home Assistant/device live acceptance was not performed; device fixture verification is under trust repair",
-    "Workspace.run has confinement and network namespace isolation but no proven CPU/memory/process ceilings; resource-limit proof is a future general-execution gate",
+    "Workspace.run remains intentionally allowlisted and bounded; broad model-addressable execution still requires a separate product decision despite deterministic resource-limit coverage",
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],

@@ -10,7 +10,9 @@ from __future__ import annotations
 import hashlib
 import os
 import shutil
+import signal
 import subprocess
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -59,8 +61,24 @@ class ScopedWorkspace:
         max_file_bytes: int = 200_000,
         max_output_bytes: int = 100_000,
         timeout_seconds: float = 10.0,
+        max_cpu_seconds: int = 5,
+        max_memory_bytes: int = 256 * 1024 * 1024,
+        max_processes: int = 32,
+        max_open_files: int = 64,
+        max_workspace_files: int = 50,
+        max_workspace_bytes: int = 10_000_000,
     ) -> None:
-        if max_file_bytes <= 0 or max_output_bytes <= 0 or timeout_seconds <= 0:
+        if (
+            max_file_bytes <= 0
+            or max_output_bytes <= 0
+            or timeout_seconds <= 0
+            or max_cpu_seconds <= 0
+            or max_memory_bytes <= 0
+            or max_processes <= 0
+            or max_open_files <= 0
+            or max_workspace_files <= 0
+            or max_workspace_bytes <= 0
+        ):
             raise WorkspaceError("workspace bounds must be positive")
         self.root = root.resolve()
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -69,6 +87,12 @@ class ScopedWorkspace:
         self.max_file_bytes = max_file_bytes
         self.max_output_bytes = max_output_bytes
         self.timeout_seconds = timeout_seconds
+        self.max_cpu_seconds = max_cpu_seconds
+        self.max_memory_bytes = max_memory_bytes
+        self.max_processes = max_processes
+        self.max_open_files = max_open_files
+        self.max_workspace_files = max_workspace_files
+        self.max_workspace_bytes = max_workspace_bytes
 
     def _path(self, relative: str) -> Path:
         candidate = (self.root / relative).resolve()
@@ -130,6 +154,19 @@ class ScopedWorkspace:
             )
         )
 
+    def _workspace_usage(self) -> tuple[int, int]:
+        file_count = 0
+        byte_count = 0
+        for path in self.root.rglob("*"):
+            if path.is_symlink() or not path.is_file():
+                continue
+            file_count += 1
+            try:
+                byte_count += path.stat().st_size
+            except OSError:
+                return self.max_workspace_files + 1, self.max_workspace_bytes + 1
+        return file_count, byte_count
+
     def run(self, argv: tuple[str, ...], correlation_id: UUID) -> WorkspaceRun:
         if (
             not argv
@@ -142,6 +179,9 @@ class ScopedWorkspace:
         bubblewrap = shutil.which("bwrap")
         if bubblewrap is None:
             raise WorkspaceError("workspace sandbox is unavailable")
+        prlimit = shutil.which("prlimit")
+        if prlimit is None:
+            raise WorkspaceError("workspace resource limiter is unavailable")
         command = [
             bubblewrap,
             "--die-with-parent",
@@ -174,32 +214,100 @@ class ScopedWorkspace:
             "PATH",
             "/usr/bin:/bin",
             "--",
+            prlimit,
+            f"--cpu={self.max_cpu_seconds}",
+            f"--as={self.max_memory_bytes}",
+            f"--nproc={self.max_processes}",
+            f"--nofile={self.max_open_files}",
+            f"--fsize={self.max_file_bytes}",
+            "--",
             *argv,
         ]
+
+        def establish_process_group() -> None:
+            """Give timeout cleanup a process-group boundary around bwrap."""
+
+            os.setsid()
+
         timed_out = False
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env={},
+            preexec_fn=establish_process_group,
+            start_new_session=False,
+        )
+        deadline = time.monotonic() + self.timeout_seconds
+        resource_exceeded = False
+        resource_detail = ""
         try:
-            completed = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout_seconds,
-                check=False,
-                env={},
-            )
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(command, self.timeout_seconds)
+                try:
+                    stdout, stderr = process.communicate(timeout=min(0.1, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    files, bytes_used = self._workspace_usage()
+                    if files > self.max_workspace_files:
+                        resource_exceeded = True
+                        resource_detail = "workspace file-count limit exceeded"
+                        break
+                    if bytes_used > self.max_workspace_bytes:
+                        resource_exceeded = True
+                        resource_detail = "workspace byte limit exceeded"
+                        break
         except subprocess.TimeoutExpired as exc:
             timed_out = True
+            # The bwrap process is the process-group leader; make timeout
+            # cleanup include children that may have been forked by the tool.
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except (OSError, ProcessLookupError):
+                process.kill()
+            stdout, stderr = process.communicate()
             return WorkspaceRun(
                 correlation_id,
                 124,
-                _bounded_output(exc.stdout, self.max_output_bytes),
-                _bounded_output(exc.stderr, self.max_output_bytes),
+                _bounded_output(stdout or exc.stdout, self.max_output_bytes),
+                _bounded_output(stderr or exc.stderr, self.max_output_bytes),
                 True,
+            )
+        if resource_exceeded:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except (OSError, ProcessLookupError):
+                process.kill()
+            stdout, stderr = process.communicate()
+            return WorkspaceRun(
+                correlation_id,
+                122,
+                _bounded_output(stdout, self.max_output_bytes),
+                _bounded_output(f"{stderr or ''}{resource_detail}\n", self.max_output_bytes),
+                False,
+            )
+        files, bytes_used = self._workspace_usage()
+        if files > self.max_workspace_files or bytes_used > self.max_workspace_bytes:
+            detail = (
+                "workspace file-count limit exceeded"
+                if files > self.max_workspace_files
+                else "workspace byte limit exceeded"
+            )
+            return WorkspaceRun(
+                correlation_id,
+                122,
+                _bounded_output(stdout, self.max_output_bytes),
+                _bounded_output(f"{detail}\n", self.max_output_bytes),
+                False,
             )
         return WorkspaceRun(
             correlation_id,
-            completed.returncode,
-            completed.stdout[: self.max_output_bytes],
-            completed.stderr[: self.max_output_bytes],
+            process.returncode,
+            _bounded_output(stdout, self.max_output_bytes),
+            _bounded_output(stderr, self.max_output_bytes),
             timed_out,
         )
 
