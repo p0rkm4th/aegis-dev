@@ -1,0 +1,21 @@
+{
+  "source_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+  "hosted_run_id": "33977197185",
+  "owner_release_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+  "session_category": "daily_driver_recent_action_followup",
+  "flow": "What did I just add? after a verified task creation",
+  "result": {
+    "state": "completed",
+    "message": "Task: Inspect the shed latch",
+    "detail": "Task: Inspect the shed latch",
+    "duplicate_execution": false,
+    "false_mutation_claim": false,
+    "developer_intervention": false
+  },
+  "defect": "The prior release rendered canonical prior-result evidence as a new task creation.",
+  "fix": "The generic reference result formatter now preserves prior-result reads before mutation-shaped title formatting.",
+  "convergence": {
+    "new_semantic_special_cases_required": 0,
+    "owner_success_increased": true
+  }
+}
