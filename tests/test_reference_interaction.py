@@ -965,6 +965,37 @@ def test_contextual_event_next_followup_uses_compact_canonical_facts():
     assert result.evidence["authorized_next_referent"]["title"] == "future event"
 
 
+def test_contextual_event_next_followup_prefers_compact_future_candidates():
+    future = (datetime.now(timezone.utc) + timedelta(days=1)).replace(microsecond=0)
+    result = resolve_contextual_event_next_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is the next one?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "events",
+                        "candidates": [
+                            {"title": "old event", "starts_at": "2020-01-01T00:00:00+00:00"}
+                        ],
+                    }
+                },
+                "canonical_facts": {
+                    "events": [{"title": "upcoming event", "starts_at": future.isoformat()}]
+                },
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home"},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_next_referent"]["title"] == "upcoming event"
+
+
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 
@@ -1532,6 +1563,25 @@ def test_compact_task_context_prioritizes_deadlines_for_model_working_set() -> N
         tasks[1],
         tasks[0],
     ]
+
+
+def test_compact_event_context_retains_earliest_future_events() -> None:
+    past = [
+        {
+            "title": f"past event {index}",
+            "starts_at": (datetime.now(timezone.utc) - timedelta(days=index + 1)).isoformat(),
+        }
+        for index in range(21)
+    ]
+    future = {
+        "title": "upcoming event",
+        "starts_at": (datetime.now(timezone.utc) + timedelta(days=1)).isoformat(),
+    }
+
+    compacted = compact_context_evidence({"events": past + [future]})["events"]
+
+    assert future in compacted
+    assert len(compacted) == 20
 
 
 def test_recent_canonical_action_result_can_answer_follow_up_without_model() -> None:
