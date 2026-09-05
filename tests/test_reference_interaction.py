@@ -31,6 +31,7 @@ from aegis.reference_interaction import (
     reference_fallback_cards,
     reference_format_result,
     resolve_contextual_event_next_read,
+    resolve_contextual_event_priority_read,
     resolve_contextual_event_temporal_read,
     resolve_contextual_grocery_membership_read,
     resolve_contextual_grocery_other_read,
@@ -995,6 +996,32 @@ def test_contextual_event_next_followup_prefers_compact_future_candidates():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_next_referent"]["title"] == "upcoming event"
+
+
+def test_contextual_event_priority_selects_latest_authorized_event():
+    context = Context(
+        values={
+            "canonical_facts": {
+                "events": [
+                    {"title": "early event", "starts_at": "2026-09-05T10:00:00+00:00"},
+                    {"title": "latest event", "starts_at": "2026-09-10T10:00:00+00:00"},
+                ]
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_event_priority_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which event is latest?",
+        ),
+        context,
+        {"space_id": "home"},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_event_priority"]["title"] == "latest event"
 
 
 def test_contextual_task_focus_read_rechecks_authorized_task_id():
