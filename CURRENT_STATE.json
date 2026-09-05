@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "state_basis_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "93c32f43992b799f2898c69334383a576394d472",
-  "deterministic_green_sha": "93c32f43992b799f2898c69334383a576394d472",
-  "last_pushed_sha": "93c32f43992b799f2898c69334383a576394d472",
-  "hosted_green_sha": "93c32f43992b799f2898c69334383a576394d472",
-  "hosted_ci_green_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "repository_head_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "deterministic_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "last_pushed_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "hosted_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "hosted_ci_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "93c32f43992b799f2898c69334383a576394d472",
+    "commit_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
     "conclusion": "success",
-    "run_id": "33982045905",
-    "observed_at": "2026-09-05T17:48:21Z"
+    "run_id": "33982486200",
+    "observed_at": "2026-09-05T17:57:00Z"
   },
-  "installed_release_sha": "93c32f43992b799f2898c69334383a576394d472",
-  "running_release_sha": "93c32f43992b799f2898c69334383a576394d472",
-  "live_green_sha": "93c32f43992b799f2898c69334383a576394d472",
+  "installed_release_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "running_release_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "live_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "devices-read-slice",
+  "active_checkpoint": "communications-devices-owner-readback",
   "checkpoint_status": "in_progress",
   "current_checkpoint": "communications-owner-controlled-failure",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
@@ -62,7 +62,8 @@
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
     ,"communications read capability is deterministic-green through a generic Pack runtime; live owner request is correctly blocked while the Pack remains discovered"
     ,"authenticated owner Packs view exposes lifecycle, permissions, capabilities, actions, health, and explicit approval next steps without changing authority"
-    ,"devices.states.list is deterministic-green through the existing HomeAssistantAdapter seam; live HA acceptance is pending and the Pack remains discovered"
+    ,"devices.states.list is deterministic-green through the existing HomeAssistantAdapter seam and completed a promoted owner readback through explicit Pack enablement; live HA acceptance remains pending"
+    ,"communications.messages.list completed a promoted owner readback after explicit owner-approved enablement; sending remains unavailable"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -82,16 +83,16 @@
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "breadth_scoreboard": {
     "owner_visible_views": 8,
-    "usable_capability_families": 4,
+    "usable_capability_families": 5,
     "verified_write_capabilities": 0,
     "external_integrations": 0,
     "cross_domain_compositions": 3,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 3,
+    "owner_workflows_completed": 5,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the next breadth tranche by selecting the cheapest remaining owner-usable family: add a provider-neutral document search/read composition or approval-gated Pack enablement request, then prove it through conventional UI, Constellation, and one cross-capability workflow.",
+  "next_action": "Continue the next breadth tranche with a real cross-capability owner workflow: connect an authorized Documents read to Research or Workspace through the owner UI, then pursue one verified consequential path outside task/event/grocery domains.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
