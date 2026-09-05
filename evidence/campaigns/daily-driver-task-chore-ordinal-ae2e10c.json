@@ -1,0 +1,20 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-chore-ordinal",
+  "source_sha": "ae2e10c411d48ea10dbb06c78b1ea727aa18f05b",
+  "hosted_validation": {"run_id": "33972390305", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "ae2e10c411d48ea10dbb06c78b1ea727aa18f05b",
+    "running_sha": "ae2e10c411d48ea10dbb06c78b1ea727aa18f05b",
+    "postgresql": "preserved",
+    "model": "qwen3:8b",
+    "proof": [
+      "What is the first task? -> Task: Inspect backups (completed)",
+      "Show me the second task. -> Task: Review backup architecture (completed)",
+      "Which chore is first? -> blocked: chores have no canonical priority order",
+      "Show me the first chore. -> blocked: chores have no canonical priority order"
+    ],
+    "mutation": "none"
+  },
+  "result": "Task ordinals now resolve against canonical order; chore ordinals fail closed because chores have no canonical priority order."
+}
