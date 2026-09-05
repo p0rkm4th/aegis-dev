@@ -3068,6 +3068,28 @@ def test_ollama_structural_repair_prompt_requires_plan_attempt():
     assert "Do not return CLARIFY merely" in payload["instruction"]
 
 
+def test_ollama_structural_repair_prompt_exposes_grounded_effect_contract():
+    request = ModelRequest(
+        working_set=WorkingSet(
+            intent=intent(),
+            context=Context(values={"grounded_requested_effects": [{"effect_text": "do A"}]}),
+        ),
+        action_cards=(),
+        proposal_repair_only=True,
+        repair_validator_stage="proposal_repair",
+        proposal_failure=ProposalFailureEvidence(
+            kind=ProposalFailureKind.UNACCOUNTED_STRUCTURAL_ANCHOR
+        ),
+    )
+
+    payload = json.loads(OllamaProvider("qwen3:8b", object())._prompt(request))
+
+    assert "grounded_requested_effects" in payload["instruction"]
+    assert (
+        "one corresponding plan step and objective requirement for each" in payload["instruction"]
+    )
+
+
 def test_ollama_mapping_repair_schema_is_objective_spec():
     schema = OllamaProvider._decision_schema(
         ModelRequest(
