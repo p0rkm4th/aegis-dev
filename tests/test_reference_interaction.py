@@ -30,6 +30,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
+    resolve_contextual_event_next_read,
     resolve_contextual_event_temporal_read,
     resolve_contextual_grocery_membership_read,
     resolve_contextual_grocery_other_read,
@@ -910,6 +911,35 @@ def test_event_temporal_follow_up_reuses_authorized_event_collection():
     assert result is not None
     assert result.evidence["date_filter"] == "tomorrow"
     assert result.evidence["events"][0]["title"] == "tomorrow event"
+
+
+def test_contextual_event_next_followup_uses_authorized_future_event():
+    future = (datetime.now(timezone.utc) + timedelta(days=1)).replace(microsecond=0)
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "events",
+                    "candidates": [
+                        {"title": "next event", "starts_at": future.isoformat()},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_event_next_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="When is the next one?",
+        ),
+        context,
+        {"space_id": "home"},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_next_referent"]["title"] == "next event"
 
 
 def test_event_temporal_correction_reuses_authorized_event_collection():

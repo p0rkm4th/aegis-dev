@@ -1136,6 +1136,9 @@ def resolve_reference_fast_paths(
         principal
     )
     snapshot = household_store.read_snapshot(principal)
+    result = resolve_contextual_event_next_read(intent, context, snapshot)
+    if result is not None:
+        return result
     # Resolve an authorized event temporal follow-up before broad personal
     # composers can reinterpret a short correction such as "No, tomorrow."
     # The resolver remains read-only and requires the prior event projection.
@@ -1753,6 +1756,62 @@ def resolve_contextual_event_temporal_read(
         return None
     follow_up = intent.model_copy(update={"utterance": f"What events are happening {temporal}?"})
     return HouseholdReadFastPath(snapshot).resolve(follow_up)
+
+
+def resolve_contextual_event_next_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Answer a bounded next-event question from an authorized event list."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    if text not in {"when is the next one", "what is the next one", "which is next"}:
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "events":
+        return None
+    candidates = those.get("candidates")
+    if not isinstance(candidates, list):
+        return None
+    now = datetime.now(timezone.utc)
+    upcoming: list[tuple[datetime, dict[str, Any]]] = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict) or not isinstance(candidate.get("starts_at"), str):
+            continue
+        try:
+            starts_at = datetime.fromisoformat(candidate["starts_at"])
+        except ValueError:
+            continue
+        if starts_at.tzinfo is None:
+            starts_at = starts_at.replace(tzinfo=timezone.utc)
+        starts_at = starts_at.astimezone(timezone.utc)
+        if starts_at >= now:
+            upcoming.append((starts_at, candidate))
+    if not upcoming:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I cannot find an upcoming event in the referenced calendar.",
+            correlation_id=intent.correlation_id,
+        )
+    starts_at, event = min(upcoming, key=lambda item: item[0])
+    title = event.get("title")
+    if not isinstance(title, str) or not title.strip():
+        return None
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Event: {title}; starts {_display_due_at(starts_at.isoformat())}",
+        evidence={
+            "collection": "events",
+            "authorized_next_referent": event,
+            "canonical_events": candidates,
+            "snapshot_space_id": snapshot.get("space_id"),
+        },
+        correlation_id=intent.correlation_id,
+    )
 
 
 def resolve_contextual_recent_action_read(intent: IntentFrame, context: Context) -> Result | None:
