@@ -4002,6 +4002,7 @@ def test_task_read_fast_path_accepts_informal_temporal_work_terms():
         "What's on my plate tomorrow?",
         "What am I supposed to do tomorrow?",
         "What needs doing tomorrow?",
+        "What do I have to do tomorrow?",
     ):
         result = TaskReadFastPath(Store()).resolve(
             IntentFrame(
