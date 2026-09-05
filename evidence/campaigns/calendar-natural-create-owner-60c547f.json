@@ -1,0 +1,24 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-natural-calendar-create",
+  "source_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "hosted_validation": {
+    "run_id": "33999006513",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "installed_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+    "running_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+    "postgresql": "preserved",
+    "request": "Put dinner on my calendar tomorrow at 7 pm",
+    "objective_id": "929d0e46-e146-4538-a538-57af99ff21bc",
+    "correlation_id": "e1e85d30-3a6d-4554-a1d6-f84fdc90e66e",
+    "provider": "external_calendar_fixture",
+    "result": "calendar event independently read back",
+    "proof": [
+      "natural day/time request was converted to a bounded one-hour event",
+      "normal Core authorization and calendar provider readback completed",
+      "live Google acceptance is not claimed"
+    ]
+  }
+}

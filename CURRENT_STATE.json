@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+  "state_basis_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
-  "deterministic_green_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
-  "last_pushed_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
-  "hosted_green_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
-  "hosted_ci_green_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+  "repository_head_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "deterministic_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "last_pushed_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "hosted_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "hosted_ci_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+    "commit_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
     "conclusion": "success",
-    "run_id": "33998817865",
-    "observed_at": "2026-09-06T02:00:00Z"
+    "run_id": "33999006513",
+    "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
-  "running_release_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
-  "live_green_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+  "installed_release_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "running_release_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
+  "live_green_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-authorized-grocery-message",
+  "active_checkpoint": "daily-driver-alpha-natural-calendar-create",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "d772eb2aab7d443165a270b24b4905d432c529c3"
+    "release_sha": "60c547f7064d887c4a7d3df42d750cd8d574a633"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -110,6 +110,7 @@
     ,"generic outbound communications now accept an optional exact owner-approved target/channel/account boundary; unset configuration preserves explicit grounded sends and configured mismatches fail before provider invocation"
     ,"promoted Communications view surfaces the target-boundary status and preserves the distinction between provider acceptance and independently proven delivery"
     ,"owner proof sent authorized canonical grocery content through the generic communications action to the exact approved scotty/sms/household target; result was PROVIDER_ACCEPTED with delivery_proven=false"
+    ,"owner proof accepted a natural timed calendar request through the fixture provider with independent readback; live Google integration remains unconfigured"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Homelab health observations now compose into an independently verified scoped Workspace report; unavailable provider health remains truthful, while live OpenClaw, Google, and Home Assistant lanes remain pending.",
@@ -147,7 +148,7 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 23,
+  "voluntarily_useful_owner_workflows": 24,
   "owner_visible_capability_surfaces": 16,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 13,
@@ -163,6 +164,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Continue daily-driver breadth with the next highest-value functional device, calendar, communications, or document composition; live OpenClaw, Google, and Home Assistant remain pending.",
-  "history_artifact": "evidence/campaigns/communications-grocery-source-owner-d772eb2.json",
+  "history_artifact": "evidence/campaigns/calendar-natural-create-owner-60c547f.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
