@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
+  "state_basis_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
-  "deterministic_green_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
-  "last_pushed_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
-  "hosted_green_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
-  "hosted_ci_green_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
+  "repository_head_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
+  "deterministic_green_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
+  "last_pushed_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
+  "hosted_green_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
+  "hosted_ci_green_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
+    "commit_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
     "conclusion": "success",
-    "run_id": "33989542569",
+    "run_id": "33989811645",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
-  "running_release_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
-  "live_green_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b",
+  "installed_release_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
+  "running_release_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
+  "live_green_sha": "be3c3019501bef7be4007adfc2862193e590ee8c",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-communications-contract-green",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "72d7483d6146fa9152c088f86bea8042b74fe68b"
+    "release_sha": "be3c3019501bef7be4007adfc2862193e590ee8c"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -78,6 +78,7 @@
     ,"installed owner proof on 812ce80 created and independently verified owner-proof.html, then created and independently verified index.html + style.css; restart preserved one workspace and no duplicate mutation"
     ,"generic communications.messages.send is contract-green with explicit target/channel/account grounding, idempotent fixture acceptance, and truthful PROVIDER_ACCEPTED state; no OpenClaw outbound channel is configured for live delivery"
     ,"Workspace owner surface now exposes bounded file-detail reads and rendered View file controls while preserving principal scope and host-path privacy"
+    ,"owner Devices view is live through the existing bounded Home Assistant fixture/read adapter; live device hardware remains unconfigured and no control authority is implied"
     ,"calendar.events.create is contract-green with Core-prepared title/time expectation, fixture idempotency, and separate provider readback; live Google write acceptance remains pending credentials"
   ],
   "current_blockers": [],
@@ -131,7 +132,7 @@
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Productize Workspace file detail/preview and prepare a verified device or homelab action; keep live communications/calendar provider claims bounded by credentials.",
+  "next_action": "Add a new cross-capability owner workflow, preferably an authorized device-state explanation via Research or a homelab health report, then expose it through generic UI/Constellation metadata.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
