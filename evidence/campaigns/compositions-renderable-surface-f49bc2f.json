@@ -1,0 +1,13 @@
+{
+  "source_basis": "f49bc2f2fe558c067f87eeab42d508ea85a62c56",
+  "checkpoint": "renderable owner composition surface",
+  "surface": "/api/compositions plus authenticated browser Compositions navigation",
+  "workflows": [
+    "Document -> Workspace",
+    "Research -> Workspace",
+    "Calendar + Tasks attention"
+  ],
+  "proof": "tests/test_cli.py::test_browser_app_exposes_composition_metadata_without_execution_authority",
+  "verification": "804 passed, 5 skipped; all checks passed",
+  "remaining_gap": "promote this release and perform actual rendered live dogfood"
+}
