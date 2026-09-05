@@ -3986,6 +3986,29 @@ def test_task_read_fast_path_filters_relative_due_window():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
 
 
+def test_task_read_fast_path_accepts_informal_temporal_work_terms():
+    from datetime import datetime, timedelta
+
+    now = datetime.now().astimezone()
+    tomorrow = Task(uuid4(), "apartment", "tomorrow task", "alice", due_at=now + timedelta(days=1))
+    later = Task(uuid4(), "apartment", "later task", "alice", due_at=now + timedelta(days=3))
+
+    class Store:
+        def list(self, _principal):
+            return (tomorrow, later)
+
+    for utterance in ("What do I need to knock out tomorrow?", "What's on my plate tomorrow?"):
+        result = TaskReadFastPath(Store()).resolve(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance=utterance,
+            )
+        )
+        assert result is not None
+        assert result.evidence["due_filter"] == "tomorrow"
+        assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["tomorrow task"]
+
+
 def test_task_read_fast_path_orders_temporal_results_by_deadline():
     from datetime import datetime, timedelta
 

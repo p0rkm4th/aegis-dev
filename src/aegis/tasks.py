@@ -555,6 +555,7 @@ class TaskReadFastPath:
         "what do i need to get done",
     )
     _READ_PREFIXES = ("what", "show", "list", "which", "see", "display", "give me")
+    _TEMPORAL_WORK_TERMS = ("due", "get done", "finish", "knock out", "on my plate")
 
     def __init__(self, store: PostgresTaskStore) -> None:
         self.store = store
@@ -593,7 +594,7 @@ class TaskReadFastPath:
                     text,
                 )
                 is not None
-            ) and any(term in text for term in ("due", "get done", "finish"))
+            ) and any(term in text for term in cls._TEMPORAL_WORK_TERMS)
             if not temporal_task_read:
                 return False
         # A domain noun alone is not evidence of a read. Keep this fast path
@@ -633,15 +634,15 @@ class TaskReadFastPath:
             due_start = now.date()
             due_end = due_start + timedelta(days=days_until_saturday)
             due_filter = "before_weekend"
-        elif "today" in text and any(term in text for term in ("due", "get done", "finish")):
+        elif "today" in text and any(term in text for term in self._TEMPORAL_WORK_TERMS):
             due_start = now.date()
             due_end = due_start + timedelta(days=1)
             due_filter = "today"
-        elif "tomorrow" in text and any(term in text for term in ("due", "get done", "finish")):
+        elif "tomorrow" in text and any(term in text for term in self._TEMPORAL_WORK_TERMS):
             due_start = (now + timedelta(days=1)).date()
             due_end = due_start + timedelta(days=1)
             due_filter = "tomorrow"
-        elif "next week" in text and any(term in text for term in ("due", "get done", "finish")):
+        elif "next week" in text and any(term in text for term in self._TEMPORAL_WORK_TERMS):
             due_start = (now + timedelta(days=7 - now.weekday())).date()
             due_end = due_start + timedelta(days=7)
             due_filter = "next_week"
@@ -652,7 +653,7 @@ class TaskReadFastPath:
             due_start = (now + timedelta(days=saturday_offset)).date()
             due_end = due_start + timedelta(days=2)
             due_filter = "next_weekend" if "next weekend" in text else "this_weekend"
-        elif "this week" in text and any(term in text for term in ("due", "get done", "finish")):
+        elif "this week" in text and any(term in text for term in self._TEMPORAL_WORK_TERMS):
             due_start = now.date()
             due_end = due_start + timedelta(days=7 - now.weekday())
             due_filter = "this_week"
