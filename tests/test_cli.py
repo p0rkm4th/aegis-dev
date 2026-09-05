@@ -599,6 +599,8 @@ def test_household_implicit_meeting_read_filters_today():
     assert result is not None
     assert result.evidence["date_filter"] == "today"
     assert [event["title"] for event in result.evidence["events"]] == ["Today meeting"]
+    assert not HouseholdReadFastPath.matches("Schedule a meeting today")
+    assert not HouseholdReadFastPath.matches("Could you book a meeting today?")
 
 
 def test_domainless_today_priority_is_grounded_in_open_task_deadlines():
