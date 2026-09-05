@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-detail-followup",
+  "source_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+  "hosted_validation": {"run_id": "33975926961", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+    "running_sha": "83e4f19955a092611fdd769de26d9ca755edeae5",
+    "postgresql": "preserved",
+    "proof": [
+      "What is the next thing I should take care of? -> canonical earliest-deadline task recommendation",
+      "Tell me more about that. -> canonical task detail with status and deadline"
+    ],
+    "mutation": "none"
+  },
+  "result": "A natural detail follow-up now preserves the authorized scalar task focus from a priority recommendation."
+}
