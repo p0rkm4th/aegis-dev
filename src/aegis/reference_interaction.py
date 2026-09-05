@@ -275,6 +275,19 @@ def _ground_argument_provenance(
                 source_spans=spans,
             )
             continue
+        if (
+            card.action.action_id == "homelab-reports.inventory.to_workspace"
+            and key == "target_path"
+            and value == "index.html"
+        ):
+            span = _utterance_spans(intent.utterance, "homelab")
+            if span:
+                provenance[key] = ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                    source_spans=span,
+                    derivation="reference.homelab_page_target.v1",
+                )
+                continue
         spans = _utterance_spans(intent.utterance, value)
         if not spans:
             canonical_ref: str | None = None

@@ -454,7 +454,11 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     argument_keys=("target_path",),
                     argument_grounding={
                         "target_path": ArgumentGroundingRule(
-                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                            ),
+                            approved_derivations=("reference.homelab_page_target.v1",),
                         )
                     },
                 ),
