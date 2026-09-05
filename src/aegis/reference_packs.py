@@ -270,6 +270,29 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "communication-drafts",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="communication-drafts.messages.draft",
+                        capability="communication-drafts.messages.draft",
+                        required_permissions=("communications.draft", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Draft a message into a scoped workspace artifact without sending it",
+                    relevance=1,
+                    argument_keys=("recipient", "subject", "body", "target_path"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("recipient", "subject", "body", "target_path")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "devices",
             "0.1.0",
             (
@@ -400,6 +423,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     permissions = {
         "calendar": ("calendar.read",),
         "communications": ("communications.read",),
+        "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
@@ -758,6 +782,84 @@ class ResearchWorkspaceVerifier:
             reason="research notes artifact readback verified"
             if verified
             else "research notes artifact verification failed",
+        )
+
+
+class CommunicationDraftExecutor:
+    """Create an unsent, owner-scoped message draft with readback."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        recipient, subject, body, target_path = (
+            args.get("recipient"),
+            args.get("subject"),
+            args.get("body"),
+            args.get("target_path"),
+        )
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (recipient, subject, body, target_path)
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"communication_draft": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        assert isinstance(recipient, str)
+        assert isinstance(subject, str)
+        assert isinstance(body, str)
+        assert isinstance(target_path, str)
+        content = f"# Draft message\n\nTo: {recipient}\nSubject: {subject}\n\n{body}\n"
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {target_path: content},
+                request.action_id,
+                lambda current: (
+                    None
+                    if current.read(target_path) == content
+                    else "communication draft readback mismatch"
+                ),
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"communication_draft": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "communication_draft",
+                "files": list(artifact.files),
+                "validated": artifact.validated,
+                "sent": False,
+            },
+            command_succeeded=True,
+        )
+
+
+class CommunicationDraftVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        verified = (
+            observation.command_succeeded
+            and observation.evidence.get("composition") == "communication_draft"
+            and observation.evidence.get("validated") is True
+            and observation.evidence.get("sent") is False
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"communication_draft_verified": verified},
+            reason="unsent communication draft readback verified"
+            if verified
+            else "communication draft verification failed",
         )
 
 

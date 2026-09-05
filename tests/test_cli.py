@@ -5267,6 +5267,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Network",
         "Workspace",
         "Devices",
+        "Communication Drafts",
     }
     assert all(bundle.manifest.permissions for bundle in bundles)
 

@@ -1,0 +1,15 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "communication-draft-pack",
+  "source": "working-tree",
+  "pack": "communication-drafts",
+  "action_id": "communication-drafts.messages.draft",
+  "permissions": ["communications.draft", "workspace.write"],
+  "behavior": "create an unsent owner-scoped draft artifact and verify readback",
+  "safety": [
+    "explicit owner enablement required",
+    "draft is not sent",
+    "no external communication mutation path"
+  ],
+  "deterministic_tests": "818 passed, 5 skipped"
+}

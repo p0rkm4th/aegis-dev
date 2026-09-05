@@ -21,6 +21,8 @@ from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
     CalendarEventsExecutor,
     CalendarEventsVerifier,
+    CommunicationDraftExecutor,
+    CommunicationDraftVerifier,
     CommunicationsExecutor,
     CommunicationsVerifier,
     DeviceStatesExecutor,
@@ -196,6 +198,17 @@ def default_runtime_registry(
             {"communications.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def communication_draft_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            CommunicationDraftExecutor(principal),
+            CommunicationDraftVerifier(),
+            {
+                "communications.draft": frozenset({Role.OWNER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+        )
+
     def devices_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -237,6 +250,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "documents.list": documents_runtime,
         "communications.messages.list": communications_runtime,
+        "communication-drafts.messages.draft": communication_draft_runtime,
         "devices.states.list": devices_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
         "workspace.research_notes.create": research_workspace_runtime,
