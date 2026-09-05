@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import cast
 from uuid import uuid4
 
@@ -30,6 +30,7 @@ from aegis.reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
+    resolve_contextual_event_temporal_read,
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
     resolve_contextual_remaining,
@@ -483,6 +484,40 @@ def test_bare_ordinal_correction_reads_authorized_task_projection():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
+
+
+def test_event_temporal_follow_up_reuses_authorized_event_collection():
+    from aegis.household import HouseholdEvent
+
+    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "events",
+                    "candidates": [{"title": "tomorrow event"}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_event_temporal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about tomorrow?",
+        ),
+        context,
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (HouseholdEvent("tomorrow", "tomorrow event", tomorrow),),
+        },
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "tomorrow"
+    assert result.evidence["events"][0]["title"] == "tomorrow event"
 
 
 def test_bounded_task_event_plan_owns_its_dependent_reference():
