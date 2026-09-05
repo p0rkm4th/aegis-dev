@@ -1306,8 +1306,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         re.search(r"\b(?:other|another)\s+(?:one|item|task|chore|event)\b", text) is not None
     )
     ordinal_reference = (
-        re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last|next)\s+one\b", text)
-        is not None
+        re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last|next)\s+one\b", text) is not None
     )
     unsupported_ordinal_reference = (
         re.search(
