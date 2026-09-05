@@ -515,8 +515,17 @@ class HouseholdReadFastPath:
         normalized = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(
             ".!?"
         )
-        latest = normalized in {"which event is latest", "what event is latest"}
-        earliest = normalized in {"which event is earliest", "what event is earliest"}
+        normalized = re.sub(r"^(?:and|but)\s+", "", normalized)
+        latest = normalized in {
+            "which event is latest",
+            "what event is latest",
+            "what is the latest event",
+        }
+        earliest = normalized in {
+            "which event is earliest",
+            "what event is earliest",
+            "what is the earliest event",
+        }
         if latest or earliest:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             if not events:
