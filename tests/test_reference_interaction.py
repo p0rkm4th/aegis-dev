@@ -931,7 +931,8 @@ def test_contextual_ordinal_read_stays_in_authorized_event_domain():
 
     assert result is not None
     local_date = datetime.fromisoformat("2026-09-03T10:00:00+00:00").astimezone().date().isoformat()
-    assert result.message.startswith(f"Event: Apartment inspection (open); starts {local_date}")
+    assert result.message.startswith(f"Event: Apartment inspection; starts {local_date}")
+    assert "(open)" not in result.message
     assert result.evidence["event"]["title"] == "Apartment inspection"
 
 
@@ -2957,7 +2958,8 @@ def test_contextual_ordinal_event_display_shortens_canonical_start_timestamp() -
 
     assert result is not None
     local_date = datetime.fromisoformat(starts_at).astimezone().date().isoformat()
-    assert result.message.startswith(f"Event: inspection (open); starts {local_date}")
+    assert result.message.startswith(f"Event: inspection; starts {local_date}")
+    assert "(open)" not in result.message
     assert "+00:00" not in result.message
     assert ".956546" not in result.message
     assert starts_at not in result.message
