@@ -1800,7 +1800,38 @@ def resolve_contextual_repeat_read(
             intent.model_copy(update={"utterance": "What groceries do we need?"})
         )
     if fact_key != "canonical_tasks" or task_store is None:
-        return None
+        if fact_key != "canonical_chores":
+            return None
+        prior_chores = those.get("candidates")
+        if not isinstance(prior_chores, list) or not prior_chores:
+            return None
+        snapshot = store.read_snapshot(intent.principal)
+        current_chores = snapshot.get("chores")
+        if not isinstance(current_chores, (list, tuple)):
+            return None
+        current_by_id = {str(chore.chore_id): chore for chore in current_chores}
+        grounded_chores = []
+        for candidate in prior_chores:
+            if not isinstance(candidate, dict) or not isinstance(candidate.get("chore_id"), str):
+                return None
+            chore = current_by_id.get(candidate["chore_id"])
+            if chore is None:
+                return None
+            grounded_chores.append(
+                {
+                    "chore_id": str(chore.chore_id),
+                    "title": chore.title,
+                    "assignee_id": chore.assignee_id,
+                    "completed": chore.completed,
+                }
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="Shared household state read",
+            evidence={"collection": "canonical_chores", "chores": grounded_chores},
+            correlation_id=intent.correlation_id,
+        )
     prior_tasks = those.get("candidates")
     if not isinstance(prior_tasks, list) or not prior_tasks:
         return None

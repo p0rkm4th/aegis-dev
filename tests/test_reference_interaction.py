@@ -342,6 +342,48 @@ def test_contextual_repeat_read_rechecks_authorized_task_projection() -> None:
     assert result.evidence["canonical_tasks"][0]["task_id"] == str(task_id)
 
 
+def test_contextual_repeat_read_rechecks_authorized_chore_projection() -> None:
+    class Chore:
+        chore_id = "chore-1"
+        title = "clean the kitchen"
+        assignee_id = "alice"
+        completed = False
+
+    class HouseholdStore:
+        def read_snapshot(self, _principal: object) -> dict[str, object]:
+            return {"chores": (Chore(),)}
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_chores",
+                    "candidates": [
+                        {
+                            "chore_id": "chore-1",
+                            "title": "clean the kitchen",
+                            "assignee_id": "alice",
+                            "completed": False,
+                        }
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_repeat_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Can you show me that?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, HouseholdStore()),
+    )
+
+    assert result is not None
+    assert result.evidence["chores"][0]["chore_id"] == "chore-1"
+
+
 def test_contextual_grocery_other_singleton_followup_is_grounded() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
