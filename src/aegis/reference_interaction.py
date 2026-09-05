@@ -1124,6 +1124,9 @@ def resolve_reference_fast_paths(
     result = resolve_contextual_event_priority_read(intent, context, snapshot)
     if result is not None:
         return result
+    result = resolve_contextual_event_relative_read(intent, context, snapshot)
+    if result is not None:
+        return result
     contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
     if contextual_ordinal_result is not None:
         return contextual_ordinal_result
@@ -2002,6 +2005,76 @@ def resolve_contextual_event_priority_read(
             "event": event,
             "canonical_events": candidates,
             "snapshot_space_id": snapshot.get("space_id"),
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_event_relative_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Resolve an earlier-event follow-up from an authorized scalar event focus."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    if text not in {"earlier one", "what about the earlier one", "what about an earlier one"}:
+        return None
+    facts = context.values.get("canonical_facts")
+    focus = facts.get("event") if isinstance(facts, dict) else None
+    if not isinstance(focus, dict) or not isinstance(focus.get("event_id"), str):
+        return None
+    events = snapshot.get("events")
+    current = tuple(events) if isinstance(events, (list, tuple)) else ()
+    anchor_matches = [event for event in current if str(event.event_id) == focus["event_id"]]
+    if len(anchor_matches) != 1:
+        return None
+    anchor = anchor_matches[0]
+    anchor_time = anchor.starts_at
+    if anchor_time.tzinfo is None:
+        anchor_time = anchor_time.replace(tzinfo=timezone.utc)
+    earlier = []
+    for event in current:
+        event_time = event.starts_at
+        if event_time.tzinfo is None:
+            event_time = event_time.replace(tzinfo=timezone.utc)
+        if event_time < anchor_time:
+            earlier.append((event_time, event))
+    if not earlier:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I cannot find an earlier canonical event for that reference.",
+            correlation_id=intent.correlation_id,
+        )
+    earlier.sort(key=lambda item: item[0], reverse=True)
+    if len(earlier) > 1 and earlier[0][0] == earlier[1][0]:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I found multiple equally earlier canonical events; please name the event.",
+            correlation_id=intent.correlation_id,
+        )
+    _event_time, selected = earlier[0]
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=(
+            f"Event: {selected.title}; starts {_display_due_at(selected.starts_at.isoformat())}"
+        ),
+        evidence={
+            "collection": "events",
+            "authorized_relative_referent": {
+                "relation": "earlier",
+                "event_id": str(selected.event_id),
+                "title": selected.title,
+                "starts_at": selected.starts_at.isoformat(),
+            },
+            "event": {
+                "event_id": str(selected.event_id),
+                "title": selected.title,
+                "starts_at": selected.starts_at.isoformat(),
+            },
         },
         correlation_id=intent.correlation_id,
     )
