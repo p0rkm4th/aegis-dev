@@ -403,6 +403,7 @@ def test_household_read_keeps_explicit_obligation_questions():
 
     assert HouseholdReadFastPath.matches("What are my outstanding obligations?") is True
     assert HouseholdReadFastPath.matches("No, show me what is on my calendar.") is True
+    assert HouseholdReadFastPath.matches("Can you tell me about my calendar?") is True
 
 
 def test_grocery_read_accepts_polite_read_prefix():
