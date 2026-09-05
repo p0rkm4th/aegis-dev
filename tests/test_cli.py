@@ -405,6 +405,28 @@ def test_household_read_keeps_explicit_obligation_questions():
     assert HouseholdReadFastPath.matches("No, show me what is on my calendar.") is True
 
 
+def test_household_read_does_not_invent_chore_ordinal_order():
+    from aegis.household import Chore, HouseholdReadFastPath
+
+    result = HouseholdReadFastPath(
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (Chore("chore-1", "Dishes", "alice", False),),
+            "events": (),
+        }
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which chore is first?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no canonical priority order" in result.message
+
+
 def test_household_read_selects_latest_event_without_prior_context():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 

@@ -516,6 +516,24 @@ class HouseholdReadFastPath:
             ".!?"
         )
         normalized = re.sub(r"^(?:and|but)\s+", "", normalized)
+        if (
+            re.fullmatch(
+                r"(?:what is|what's|show me|which is) the "
+                r"(first|second|third|fourth|last) chore|"
+                r"which chore is (first|second|third|fourth|last)",
+                normalized,
+            )
+            is not None
+        ):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I cannot determine which chore comes first because chores have "
+                    "no canonical priority order."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         latest = normalized in {
             "which event is latest",
             "what event is latest",
