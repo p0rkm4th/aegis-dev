@@ -2397,7 +2397,17 @@ def resolve_contextual_event_relative_read(
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
-    if text not in {"earlier one", "what about the earlier one", "what about an earlier one"}:
+    earlier_query = text in {
+        "earlier one",
+        "what about the earlier one",
+        "what about an earlier one",
+    }
+    after_query = text in {
+        "what about the event after that",
+        "what about the one after that",
+        "what about an event after that",
+    }
+    if not earlier_query and not after_query:
         return None
     facts = context.values.get("canonical_facts")
     focus = facts.get("event") if isinstance(facts, dict) else None
@@ -2412,29 +2422,35 @@ def resolve_contextual_event_relative_read(
     anchor_time = anchor.starts_at
     if anchor_time.tzinfo is None:
         anchor_time = anchor_time.replace(tzinfo=timezone.utc)
-    earlier = []
+    related = []
     for event in current:
         event_time = event.starts_at
         if event_time.tzinfo is None:
             event_time = event_time.replace(tzinfo=timezone.utc)
-        if event_time < anchor_time:
-            earlier.append((event_time, event))
-    if not earlier:
+        if (earlier_query and event_time < anchor_time) or (
+            after_query and event_time > anchor_time
+        ):
+            related.append((event_time, event))
+    if not related:
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.BLOCKED,
-            message="I cannot find an earlier canonical event for that reference.",
+            message=(
+                "I cannot find an earlier canonical event for that reference."
+                if earlier_query
+                else "I cannot find a later canonical event for that reference."
+            ),
             correlation_id=intent.correlation_id,
         )
-    earlier.sort(key=lambda item: item[0], reverse=True)
-    if len(earlier) > 1 and earlier[0][0] == earlier[1][0]:
+    related.sort(key=lambda item: item[0], reverse=earlier_query)
+    if len(related) > 1 and related[0][0] == related[1][0]:
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.BLOCKED,
             message="I found multiple equally earlier canonical events; please name the event.",
             correlation_id=intent.correlation_id,
         )
-    _event_time, selected = earlier[0]
+    _event_time, selected = related[0]
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
@@ -2444,7 +2460,7 @@ def resolve_contextual_event_relative_read(
         evidence={
             "collection": "events",
             "authorized_relative_referent": {
-                "relation": "earlier",
+                "relation": "earlier" if earlier_query else "later",
                 "event_id": str(selected.event_id),
                 "title": selected.title,
                 "starts_at": selected.starts_at.isoformat(),
