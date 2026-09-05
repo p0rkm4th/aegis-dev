@@ -651,6 +651,7 @@ def reference_format_result(result: Any) -> str:
             "authorized_task_focus",
             "authorized_event_focus",
             "authorized_obligation_focus",
+            "authorized_chore_focus",
         )
     ):
         return str(result.message)
