@@ -452,11 +452,16 @@ class HouseholdReadFastPath:
             term in text
             for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
         )
+        implicit_schedule = "going on" in text and any(
+            term in text
+            for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+        )
         if task_objective and not explicit_event:
             return False
         return (
             collection_correction
             or implicit_event
+            or implicit_schedule
             or any(re.search(rf"\b{re.escape(trigger)}\b", text) for trigger in cls._TRIGGERS)
             and (text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS)
         )
@@ -508,13 +513,23 @@ class HouseholdReadFastPath:
                 for chore in chores
             ]
             evidence["status_filter"] = status_filter
-        elif any(
-            word in text for word in ("event", "events", "calendar", "scheduled", "appointment")
-        ) or (
-            "happening" in text
-            and any(
-                term in text
-                for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+        elif (
+            any(
+                word in text for word in ("event", "events", "calendar", "scheduled", "appointment")
+            )
+            or (
+                "happening" in text
+                and any(
+                    term in text
+                    for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+                )
+            )
+            or (
+                "going on" in text
+                and any(
+                    term in text
+                    for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
+                )
             )
         ):
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
