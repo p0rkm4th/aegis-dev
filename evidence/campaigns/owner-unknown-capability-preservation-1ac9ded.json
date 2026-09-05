@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "owner-unknown-capability-preservation",
+  "source_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+  "hosted_validation": {"run_id": "33975292374", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+    "running_sha": "1ac9ded73308527d0ac4bb44b1378705b5a6f660",
+    "postgresql": "preserved",
+    "proof": [
+      "Set up a Palworld server for the girls and me on easy mode. -> objective remains open; no installed capability or permission was added",
+      "What tasks are due tomorrow? -> canonical task read"
+    ],
+    "mutation": "none"
+  },
+  "result": "Unknown capability requests remain explicit and unresolved while supported controls continue through their normal canonical path."
+}
