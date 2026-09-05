@@ -1,7 +1,12 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from aegis.compositions import document_to_workspace, research_to_workspace
+from aegis.calendar import CalendarEvent
+from aegis.compositions import (
+    calendar_to_task_attention,
+    document_to_workspace,
+    research_to_workspace,
+)
 from aegis.documents import Document, FixtureDocumentProvider
 from aegis.research import Evidence, EvidenceSet, KnowledgeSource, ResearchAnswer
 from aegis.workspace import WorkspaceManager
@@ -54,3 +59,16 @@ def test_research_answer_can_be_preserved_as_non_authoritative_workspace_notes(t
     assert result.validated is True
     assert result.authoritative is False
     assert result.source_ids == ("source-1",)
+
+
+def test_calendar_and_tasks_compose_into_read_only_attention() -> None:
+    start = datetime(2026, 9, 10, tzinfo=timezone.utc)
+    result = calendar_to_task_attention(
+        (CalendarEvent("event-1", "Leave town", start),),
+        (
+            {"title": "Pack bags", "due_at": datetime(2026, 9, 9, tzinfo=timezone.utc)},
+            {"title": "Later task", "due_at": datetime(2026, 9, 12, tzinfo=timezone.utc)},
+        ),
+        until=start,
+    )
+    assert result[0].task_titles == ("Pack bags",)
