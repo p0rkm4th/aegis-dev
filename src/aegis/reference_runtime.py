@@ -272,11 +272,12 @@ def default_runtime_registry(
         del connection
         return ActionRuntime(
             DeviceSnapshotWorkspaceExecutor(principal),
-            DeviceSnapshotWorkspaceVerifier(),
+            DeviceSnapshotWorkspaceVerifier(principal),
             {
                 "devices.read": frozenset({Role.OWNER, Role.MEMBER}),
                 "workspace.write": frozenset({Role.OWNER}),
             },
+            prepare=prepare_reference_action,
         )
 
     def document_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
