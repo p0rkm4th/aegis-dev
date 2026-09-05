@@ -1,0 +1,14 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "research-workspace-deterministic-selection",
+  "source": "working-tree",
+  "resolver": "explicit Research -> Workspace composition action",
+  "requirements": [
+    "Research wording",
+    "Workspace or notes destination",
+    "explicit final artifact path",
+    "Workspace Pack already enabled"
+  ],
+  "authority": "selection only; normal Core grounding, authorization, execution, observation, and verification remain in force",
+  "deterministic_tests": "817 passed, 5 skipped"
+}

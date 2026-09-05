@@ -575,6 +575,30 @@ def _pack_enable(principal: Principal, request: dict[str, Any]) -> dict[str, Any
         connection.close()
 
 
+def _deterministic_composition_action(
+    intent: IntentFrame, manager: PackManager, _context: Context
+) -> ActionCard | None:
+    """Recognize one explicit Research -> Workspace composition without model authority."""
+
+    text = " ".join(intent.utterance.casefold().split())
+    if "research" not in text or not any(marker in text for marker in ("workspace", "notes")):
+        return None
+    matches = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", text)
+    if not matches:
+        return None
+    card = manager.action_card("workspace", "workspace.research_notes.create")
+    if card is None:
+        return None
+    target_path = matches[-1]
+    return card.model_copy(
+        update={
+            "action": card.action.model_copy(
+                update={"arguments": {"query": intent.utterance, "target_path": target_path}}
+            )
+        }
+    )
+
+
 def _browser_interaction(
     utterance: str,
     principal: Principal,
@@ -1147,6 +1171,7 @@ def run_interaction(
             research_answer=research_answer,
             unresolved_requirement_investigator=investigate_unresolved,
             structural_parser=structural_parser,
+            deterministic_action_resolver=_deterministic_composition_action,
         )
     )
     return boundary.run(

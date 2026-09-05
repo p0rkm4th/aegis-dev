@@ -200,6 +200,7 @@ class InteractionDependencies:
         unresolved_requirement_investigator: Callable[..., Result | None] | None = None,
         structural_parser: Callable[[str], StructuralCoverageSignal] | None = None,
         reuse_classification_action_reference: bool = True,
+        deterministic_action_resolver: Callable[..., ActionCard | Result | None] | None = None,
     ) -> None:
         self.connect = connect
         self.required = required
@@ -227,6 +228,7 @@ class InteractionDependencies:
         self.unresolved_requirement_investigator = unresolved_requirement_investigator
         self.structural_parser = structural_parser
         self.reuse_classification_action_reference = reuse_classification_action_reference
+        self.deterministic_action_resolver = deterministic_action_resolver
 
 
 class InteractionBoundary:
@@ -523,6 +525,12 @@ class InteractionBoundary:
                     tuple(self.dependencies.pack_bundles()),
                     self.dependencies.auto_enable_pack_ids,
                 )
+            deterministic_card: ActionCard | None = None
+            if self.dependencies.deterministic_action_resolver is not None:
+                resolved = self.dependencies.deterministic_action_resolver(intent, manager, context)
+                if isinstance(resolved, Result):
+                    return persist_fast_result(resolved)
+                deterministic_card = resolved
             if self.dependencies.plan_runner is not None:
                 # The runner is also the deterministic production seam for
                 # bounded plans. Let it claim recognized plans before model
@@ -543,9 +551,12 @@ class InteractionBoundary:
                 if plan_result is not None:
                     return plan_result
             try:
-                if self.dependencies.model_provider is not None:
+                if deterministic_card is not None:
+                    card = deterministic_card
+                elif self.dependencies.model_provider is not None:
                     raise InteractionInputError("semantic action resolution required")
-                _domain, card = self.dependencies.select_action(utterance, manager)
+                else:
+                    _domain, card = self.dependencies.select_action(utterance, manager)
             except InteractionInputError as exc:
                 fallback_context = (
                     self.dependencies.fallback_context_builder(
