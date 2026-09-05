@@ -575,6 +575,10 @@ class TaskReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = strip_correction_prefix(utterance).casefold()
+        # A conversational continuation may introduce an explicit task read
+        # with a leading connective. Normalize only that connective; the
+        # task vocabulary and read-prefix checks remain authoritative.
+        text = re.sub(r"^(?:and|but)\s+", "", text)
         read_text = re.sub(r"^(?:could you|can you|please)\s+", "", text)
         if is_mutation_request(text):
             return False
