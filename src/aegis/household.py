@@ -453,7 +453,7 @@ class HouseholdReadFastPath:
             for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
         )
         implicit_schedule = any(
-            term in text for term in ("going on", "plans", "coming up")
+            term in text for term in ("going on", "plans", "coming up", "meeting", "meetings")
         ) and any(
             term in text
             for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")
@@ -527,7 +527,10 @@ class HouseholdReadFastPath:
                 )
             )
             or (
-                any(term in text for term in ("going on", "plans", "coming up"))
+                any(
+                    term in text
+                    for term in ("going on", "plans", "coming up", "meeting", "meetings")
+                )
                 and any(
                     term in text
                     for term in ("today", "tomorrow", "this weekend", "next weekend", "next week")

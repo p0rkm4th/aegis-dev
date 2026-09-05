@@ -575,6 +575,32 @@ def test_household_implicit_coming_up_read_filters_today():
     assert [event["title"] for event in result.evidence["events"]] == ["Today appointment"]
 
 
+def test_household_implicit_meeting_read_filters_today():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    now = datetime.now(timezone.utc)
+    result = HouseholdReadFastPath(
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (
+                HouseholdEvent("today", "Today meeting", now + timedelta(hours=1)),
+                HouseholdEvent("tomorrow", "Tomorrow meeting", now + timedelta(days=1)),
+            ),
+        }
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Do I have any meetings today?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "today"
+    assert [event["title"] for event in result.evidence["events"]] == ["Today meeting"]
+
+
 def test_domainless_today_priority_is_grounded_in_open_task_deadlines():
     from aegis.tasks import TaskPriorityFastPath
 
