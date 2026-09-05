@@ -25,7 +25,7 @@ from aegis.interaction_context import (
     resolve_obvious_ordinal_item,
 )
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
-from aegis.planning import MultiActionFastPath
+from aegis.planning import DomainClarificationFastPath, MultiActionFastPath
 from aegis.reference_interaction import (
     ground_reference_action,
     reference_fallback_cards,
@@ -125,6 +125,15 @@ def test_grocery_read_fast_path_accepts_left_to_buy_wording() -> None:
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.evidence["canonical_items"] == ["rice"]
+    assert (
+        DomainClarificationFastPath.resolve_ambiguous_collection_status(
+            IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="What is left to buy?",
+            )
+        )
+        is None
+    )
 
 
 def test_grocery_read_fast_path_accepts_store_pickup_wording() -> None:
