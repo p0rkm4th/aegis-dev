@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "state_basis_sha": "7b1fe1caebe341d93e70f7e7f229d239e6f6222d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
-  "deterministic_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
-  "last_pushed_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
-  "hosted_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
-  "hosted_ci_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "repository_head_sha": "a5a97b496d2df8e71c3a4a3d7e0e49c1a87601b5",
+  "deterministic_green_sha": "a5a97b496d2df8e71c3a4a3d7e0e49c1a87601b5",
+  "last_pushed_sha": "a5a97b496d2df8e71c3a4a3d7e0e49c1a87601b5",
+  "hosted_green_sha": "a5a97b496d2df8e71c3a4a3d7e0e49c1a87601b5",
+  "hosted_ci_green_sha": "a5a97b496d2df8e71c3a4a3d7e0e49c1a87601b5",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+    "commit_sha": "a5a97b496d2df8e71c3a4a3d7e0e49c1a87601b5",
     "conclusion": "success",
-    "run_id": "33990488564",
+    "run_id": "33990980687",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
-  "running_release_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
-  "live_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "installed_release_sha": "7b1fe1caebe341d93e70f7e7f229d239e6f6222d",
+  "running_release_sha": "7b1fe1caebe341d93e70f7e7f229d239e6f6222d",
+  "live_green_sha": "7b1fe1caebe341d93e70f7e7f229d239e6f6222d",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-capability-need-surface",
+  "active_checkpoint": "daily-driver-alpha-calendar-workspace-composition",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197"
+    "release_sha": "7b1fe1caebe341d93e70f7e7f229d239e6f6222d"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -80,6 +80,7 @@
     ,"Workspace owner surface now exposes bounded file-detail reads and rendered View file controls while preserving principal scope and host-path privacy"
     ,"owner Devices view is live through the existing bounded Home Assistant fixture/read adapter; live device hardware remains unconfigured and no control authority is implied"
     ,"calendar.events.create is installed with Core-prepared title/time expectation, fixture idempotency, and separate Google/fixture provider readback; live Google write acceptance remains pending credentials"
+    ,"calendar snapshot to scoped Workspace is owner-proven independently verified after restart; reusable composition metadata exposes Calendar → Workspace and Device → Workspace"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -120,19 +121,19 @@
   "voluntarily_useful_owner_workflows": 13,
   "owner_visible_capability_surfaces": 10,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 8,
+  "cross_capability_workflows": 9,
   "breadth_scoreboard": {
     "owner_visible_views": 8,
     "usable_capability_families": 6,
     "verified_write_capabilities": 1,
     "external_integrations": 0,
-    "cross_domain_compositions": 8,
+    "cross_domain_compositions": 9,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Add the next cross-capability owner workflow through Core and generic UI/Constellation; prioritize a useful communications/calendar/device composition, then continue to the next vertical.",
+  "next_action": "Advance the next daily-driver vertical: prepare a provider-backed communications or calendar write proof, or add a useful device-state explanation composition while live credentials remain pending.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
