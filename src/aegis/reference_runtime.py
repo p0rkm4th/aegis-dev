@@ -295,7 +295,7 @@ def default_runtime_registry(
         )
 
     def communications_send_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        del connection, principal
+        del principal
         provider = (
             OpenClawCliCommunicationSendProvider(os.environ["AEGIS_OPENCLAW_MESSAGE_BIN"])
             if os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
@@ -305,6 +305,9 @@ def default_runtime_registry(
             CommunicationsSendExecutor(provider, configured_communication_targets()),
             CommunicationsSendVerifier(),
             {"communications.send": frozenset({Role.OWNER})},
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
         )
 
     def communication_draft_runtime(connection: Any, principal: Principal) -> ActionRuntime:

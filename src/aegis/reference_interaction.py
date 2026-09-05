@@ -143,6 +143,21 @@ def _ground_argument_provenance(
 
     provenance: dict[str, ArgumentProvenance] = {}
     for key, value in card.action.arguments.items():
+        if key == "body_source" and value == "canonical.groceries":
+            spans = _utterance_spans(intent.utterance, "grocery list")
+            if not spans:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely identify the canonical message source.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                source_spans=spans,
+                derivation="reference.communication_body_from_groceries.v1",
+            )
+            continue
         if key.endswith("_id"):
             if not isinstance(value, str) or not value.strip():
                 return Result(

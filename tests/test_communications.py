@@ -2,6 +2,7 @@ from uuid import uuid4
 
 import pytest
 
+import aegis.reference_packs as reference_packs_module
 from aegis.communications import (
     FixtureCommunicationProvider,
     FixtureCommunicationSendProvider,
@@ -13,7 +14,11 @@ from aegis.communications import (
     configured_communication_targets,
 )
 from aegis.contracts import ActionSpec, ExecutionRequest, Principal
-from aegis.reference_packs import CommunicationsSendExecutor, reference_bundles
+from aegis.reference_packs import (
+    CommunicationsSendExecutor,
+    prepare_reference_action,
+    reference_bundles,
+)
 from aegis.reference_runtime import default_runtime_registry
 
 
@@ -57,6 +62,35 @@ def test_send_executor_rejects_target_outside_approved_boundary() -> None:
     assert observation.command_succeeded is False
     assert observation.evidence["communication_send"] == "target_not_approved"
     assert provider.sent == []
+
+
+def test_canonical_grocery_source_is_fixed_before_generic_send(monkeypatch) -> None:
+    class FakeHouseholdStore:
+        def __init__(self, _connection):
+            pass
+
+        def list_groceries(self, _principal):
+            return ("milk", "rice")
+
+    monkeypatch.setattr(reference_packs_module, "PostgresHouseholdStore", FakeHouseholdStore)
+    from aegis.contracts import ActionSpec
+
+    prepared = prepare_reference_action(
+        ActionSpec(
+            action_id="communications.messages.send",
+            capability="communications.messages.send",
+            arguments={
+                "target": "scotty",
+                "channel": "sms",
+                "account": "personal",
+                "body_source": "canonical.groceries",
+            },
+        ),
+        Principal(id="alice", vault_id="vault"),
+        uuid4(),
+        object(),
+    )
+    assert prepared.arguments["body"] == "Grocery list:\n- milk\n- rice"
 
 
 def test_fixture_communications_are_bounded_and_read_only() -> None:
