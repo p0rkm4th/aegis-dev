@@ -99,6 +99,25 @@ def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
     assert card.action.arguments["target_path"] == "agenda.md"
 
 
+def test_deterministic_calendar_create_action_requires_explicit_times():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "calendar")
+    manager.discover(bundle)
+    manager.install("calendar", frozenset({"calendar.read", "calendar.write"}))
+    manager.enable("calendar")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=(
+            "Create a calendar event titled Dinner from "
+            "2026-09-07T19:00:00+00:00 to 2026-09-07T20:00:00+00:00"
+        ),
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar.events.create"
+    assert card.action.arguments["title"] == "Dinner"
+
+
 def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
     manager = PackManager()
     bundle = next(
