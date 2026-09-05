@@ -1,0 +1,14 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-obligation-owes",
+  "source_sha": "15cd806bd005b89acd3fa799008b2df30e051e0d",
+  "hosted_validation": {"run_id": "33974005553", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "15cd806bd005b89acd3fa799008b2df30e051e0d",
+    "running_sha": "15cd806bd005b89acd3fa799008b2df30e051e0d",
+    "postgresql": "preserved",
+    "proof": ["Who owes the utilities? -> Obligation: Utilities is assigned to bob"],
+    "mutation": "none"
+  },
+  "result": "Named obligation responsibility reads accept natural 'owes' wording while preserving canonical identity."
+}
