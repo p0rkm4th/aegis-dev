@@ -440,6 +440,7 @@ class HouseholdReadFastPath:
         # Preserve an explicit event/household topic when it is introduced as
         # a conversational continuation after another authorized domain.
         text = re.sub(r"^(?:and|but)\s+", "", text)
+        text = re.sub(r"^(?:can you|could you|please) tell me about\s+", "what is ", text)
         if is_mutation_request(text):
             return False
         collection_correction = is_correction_request(utterance) and text.strip(".!?") in {
@@ -516,6 +517,9 @@ class HouseholdReadFastPath:
             ".!?"
         )
         normalized = re.sub(r"^(?:and|but)\s+", "", normalized)
+        normalized = re.sub(
+            r"^(?:can you|could you|please) tell me about\s+", "what is ", normalized
+        )
         if (
             re.fullmatch(
                 r"(?:what is|what's|show me|which is) the "
