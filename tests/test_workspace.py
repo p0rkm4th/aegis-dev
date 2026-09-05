@@ -57,3 +57,16 @@ def test_workspace_manager_is_stable_and_principal_scoped(tmp_path: Path) -> Non
     assert manager.list_for_principal("bob")[0]["files"] == ()
     with pytest.raises(WorkspaceError):
         manager.for_objective("alice/other", objective_id)
+
+
+def test_workspace_artifact_requires_independent_validation(tmp_path: Path) -> None:
+    workspace = ScopedWorkspace(tmp_path / "owner")
+    result = workspace.write_artifact(
+        {"index.html": "<!doctype html><html><body>HckrSlsh</body></html>"},
+        uuid4(),
+        lambda current: None if "<html" in current.read("index.html") else "missing html",
+    )
+    assert result.validated is True
+    assert result.files == ("index.html",)
+    with pytest.raises(WorkspaceError, match="validation failed"):
+        workspace.write_artifact({"bad.txt": "not a site"}, uuid4(), lambda _: "bad output")
