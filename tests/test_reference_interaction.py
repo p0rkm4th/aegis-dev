@@ -286,6 +286,28 @@ def test_contextual_repeat_read_reuses_authorized_grocery_domain() -> None:
     assert result.evidence["canonical_items"] == ["rice", "rice"]
 
 
+def test_contextual_repeat_read_accepts_grocery_pronoun_followup() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_repeat_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Can you show me that?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, GroceryStore()),
+    )
+
+    assert result is not None
+    assert result.evidence["canonical_items"] == ["rice"]
+
+
 def test_contextual_grocery_other_singleton_followup_is_grounded() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:

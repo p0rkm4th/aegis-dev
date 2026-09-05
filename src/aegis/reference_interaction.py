@@ -1777,7 +1777,14 @@ def resolve_contextual_repeat_read(
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
-    if re.fullmatch(r"(?:show(?: me)?|list|give me) (?:the )?(?:list|it) again", text) is None:
+    if (
+        re.fullmatch(
+            r"(?:can you )?(?:show(?: me)?|list|give me) (?:the )?(?:list|it) again|"
+            r"(?:can you )?show(?: me)? that",
+            text,
+        )
+        is None
+    ):
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
