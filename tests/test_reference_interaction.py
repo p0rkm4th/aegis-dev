@@ -695,6 +695,37 @@ def test_event_temporal_correction_reuses_authorized_event_collection():
     assert result.evidence["events"][0]["title"] == "weekend event"
 
 
+def test_event_temporal_followup_uses_authorized_canonical_facts_fallback():
+    from aegis.household import HouseholdEvent
+
+    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    context = Context(
+        values={
+            "canonical_facts": {
+                "events": [{"title": "tomorrow event"}],
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_event_temporal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, tomorrow.",
+        ),
+        context,
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (HouseholdEvent("tomorrow", "tomorrow event", tomorrow),),
+        },
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "tomorrow"
+    assert result.evidence["events"][0]["title"] == "tomorrow event"
+
+
 def test_bounded_task_event_plan_owns_its_dependent_reference():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),

@@ -1439,7 +1439,10 @@ def resolve_contextual_event_temporal_read(
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
     if not isinstance(those, dict) or those.get("fact_key") != "events":
-        return None
+        facts = context.values.get("canonical_facts")
+        if not isinstance(facts, dict) or not isinstance(facts.get("events"), list):
+            return None
+        those = {"fact_key": "events", "candidates": facts["events"]}
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     temporal = next(
         (
