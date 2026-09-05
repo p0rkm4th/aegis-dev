@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-chore-assignee-synonym",
+  "source_sha": "803c7b7e41b990a42d9049d122b4886c0ae83aff",
+  "hosted": {"workflow": "validation", "run_id": "33971061316", "conclusion": "success"},
+  "owner": {
+    "release_sha": "803c7b7e41b990a42d9049d122b4886c0ae83aff",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What chores are open?", "completed", "canonical chore collection"],
+      ["Show me the first chore.", "completed", "first canonical chore"],
+      ["What is its assignee?", "completed", "Chore: clean the kitchen is assigned to alice"]
+    ]
+  },
+  "safety": "The assignee synonym is resolved only from the revalidated authorized chore ID and remains read-only."
+}
