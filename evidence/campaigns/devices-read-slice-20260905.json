@@ -1,0 +1,15 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "devices-read-slice",
+  "source": "working-tree",
+  "proof": {
+    "action_id": "devices.states.list",
+    "permission": "devices.read",
+    "provider_seam": "HomeAssistantAdapter",
+    "provider": "FixtureDeviceGateway",
+    "verification": "bounded entity-state readback",
+    "mutation": false,
+    "deterministic_tests": "808 passed, 5 skipped"
+  },
+  "result": "A provider-neutral authorized device-state read family is available through the generic Pack runtime; live Home Assistant acceptance remains pending."
+}
