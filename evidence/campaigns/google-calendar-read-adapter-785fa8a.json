@@ -1,0 +1,22 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "google-calendar-read-adapter",
+  "source_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": "33985555254",
+    "conclusion": "success"
+  },
+  "implementation": {
+    "provider": "GoogleCalendarRestProvider",
+    "operation": "events.list read-only",
+    "authorization": "Bearer token supplied by deployment configuration",
+    "bounds": "HTTPS only, 5-second timeout, 50 events, 1 MB response"
+  },
+  "owner_runtime": {
+    "release_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+    "health": "healthy",
+    "fixture_projection": "verified through /api/calendar",
+    "live_provider_acceptance": "pending; no Google credential configured"
+  }
+}
