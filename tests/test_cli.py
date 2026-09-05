@@ -405,6 +405,27 @@ def test_household_read_keeps_explicit_obligation_questions():
     assert HouseholdReadFastPath.matches("No, show me what is on my calendar.") is True
 
 
+def test_household_read_selects_latest_event_without_prior_context():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    events = (
+        HouseholdEvent("early", "early event", datetime(2026, 9, 5, 10, 0, tzinfo=timezone.utc)),
+        HouseholdEvent("late", "latest event", datetime(2026, 9, 10, 10, 0, tzinfo=timezone.utc)),
+    )
+    result = HouseholdReadFastPath(
+        {"space_id": "home", "obligations": (), "chores": (), "events": events}
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which event is latest?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["event"]["title"] == "latest event"
+
+
 def test_household_obligation_read_returns_obligations_not_events():
     from aegis.household import HouseholdReadFastPath
 
