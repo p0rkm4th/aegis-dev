@@ -1117,6 +1117,9 @@ def resolve_reference_fast_paths(
         return contextual_ordinal_result
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
+    contextual_task_focus_result = resolve_contextual_task_focus_read(intent, context, task_store)
+    if contextual_task_focus_result is not None:
+        return contextual_task_focus_result
     contextual_grocery_result = resolve_contextual_grocery_membership_read(
         intent, context, household_store
     )
@@ -1817,6 +1820,63 @@ def resolve_contextual_event_next_read(
             "authorized_next_referent": event,
             "canonical_events": candidates,
             "snapshot_space_id": snapshot.get("space_id"),
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_task_focus_read(
+    intent: IntentFrame, context: Context, store: PostgresTaskStore
+) -> Result | None:
+    """Read back one task focus from an authorized scalar result."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    if not (
+        (text.startswith(("show ", "can you show ", "tell me about ")) and "that" in text)
+        or text in {"what about that one", "is that one still open", "is it still open"}
+    ):
+        return None
+    facts = context.values.get("canonical_facts")
+    focus = facts.get("task") if isinstance(facts, dict) else None
+    if not isinstance(focus, dict) or not isinstance(focus.get("title"), str):
+        return None
+    current = tuple(store.list(intent.principal))
+    task_id = focus.get("task_id")
+    matches = [
+        task for task in current if isinstance(task_id, str) and str(task.task_id) == task_id
+    ]
+    if not matches:
+        title = focus["title"].casefold()
+        matches = [task for task in current if task.title.casefold() == title]
+    if len(matches) != 1:
+        message = (
+            "I can no longer find that canonical task."
+            if not matches
+            else "I found multiple canonical tasks with that title; please name the task."
+        )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message=message,
+            correlation_id=intent.correlation_id,
+        )
+    task = matches[0]
+    detail = f"Task: {task.title} ({task.status.value})"
+    if task.due_at is not None:
+        detail += f"; due {_display_due_at(task.due_at.isoformat())}"
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=detail,
+        evidence={
+            "collection": "canonical_tasks",
+            "authorized_task_focus": {
+                "task_id": str(task.task_id),
+                "title": task.title,
+                "status": task.status.value,
+            },
         },
         correlation_id=intent.correlation_id,
     )
