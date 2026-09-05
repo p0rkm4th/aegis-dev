@@ -303,3 +303,13 @@ def calendar_events_evidence(events: tuple[CalendarEvent, ...]) -> dict[str, obj
             for event in events[:50]
         ],
     }
+
+
+def calendar_snapshot_content(events: tuple[CalendarEvent, ...]) -> str:
+    """Create stable, bounded report bytes for a Calendar → Workspace snapshot."""
+
+    return (
+        "# Authorized calendar snapshot\n\n"
+        + json.dumps(calendar_events_evidence(events)["events"], indent=2)
+        + "\n"
+    )

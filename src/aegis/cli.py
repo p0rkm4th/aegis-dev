@@ -791,6 +791,24 @@ def _deterministic_composition_action(
                 )
             }
         )
+    if (
+        report_paths
+        and "calendar" in folded
+        and "workspace" in folded
+        and any(term in folded for term in ("snapshot", "report", "save"))
+    ):
+        card = manager.action_card(
+            "calendar-reports", "calendar-reports.events.snapshot_to_workspace"
+        )
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": {"target_path": report_paths[-1]}}
+                )
+            }
+        )
     device = re.fullmatch(
         r"(?:turn|switch) (?P<state>on|off) (?P<entity_id>"
         r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?",
