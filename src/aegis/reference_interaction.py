@@ -1112,11 +1112,18 @@ def resolve_reference_fast_paths(
             ),
             correlation_id=intent.correlation_id,
         )
+    task_store = PostgresTaskStore(connection)
+    household_store = PostgresHouseholdStore(connection)
+    snapshot = household_store.read_snapshot(principal)
+    # Priority language such as "which one is latest" is a semantic event
+    # read when the immediately authorized collection is events. Resolve it
+    # before the generic ordinal guard, which cannot identify the domain.
+    result = resolve_contextual_event_priority_read(intent, context, snapshot)
+    if result is not None:
+        return result
     contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
     if contextual_ordinal_result is not None:
         return contextual_ordinal_result
-    task_store = PostgresTaskStore(connection)
-    household_store = PostgresHouseholdStore(connection)
     contextual_task_focus_result = resolve_contextual_task_focus_read(intent, context, task_store)
     if contextual_task_focus_result is not None:
         return contextual_task_focus_result
@@ -1138,11 +1145,7 @@ def resolve_reference_fast_paths(
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
-    snapshot = household_store.read_snapshot(principal)
     result = resolve_contextual_event_next_read(intent, context, snapshot)
-    if result is not None:
-        return result
-    result = resolve_contextual_event_priority_read(intent, context, snapshot)
     if result is not None:
         return result
     result = resolve_contextual_event_focus_read(intent, context, snapshot)
