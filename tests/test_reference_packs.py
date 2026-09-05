@@ -288,16 +288,46 @@ def test_device_reports_pack_verifies_workspace_composition(tmp_path, monkeypatc
     runtime = default_runtime_registry(lambda: None).resolve(
         card, None, Principal(id="alice", vault_id="alice-vault")
     )
-    observation = runtime.executor.execute(
-        ExecutionRequest(
-            objective_id=uuid4(),
-            action_id=uuid4(),
-            action=action,
-            idempotency_key="device-report-1",
-        )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    objective_id = uuid4()
+    request = ExecutionRequest(
+        objective_id=objective_id,
+        action_id=uuid4(),
+        action=action,
+        idempotency_key="device-report-1",
     )
+    assert runtime.prepare is not None
+    prepared = runtime.prepare(action, principal, objective_id)
+    observation = runtime.executor.execute(request.model_copy(update={"action": prepared}))
     assert observation.command_succeeded is True
-    assert runtime.verifier.verify(observation, card.action.verification).verified is False
+    assert runtime.verifier.verify(observation, prepared.verification).verified is True
+
+
+def test_device_report_fails_if_snapshot_is_mutated_before_verification(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "device-reports.devices.snapshot_to_workspace"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    action = card.action.model_copy(update={"arguments": {"target_path": "devices.md"}})
+    objective_id = uuid4()
+    prepared = runtime.prepare(action, principal, objective_id)
+    request = ExecutionRequest(
+        objective_id=objective_id,
+        action_id=uuid4(),
+        action=prepared,
+        idempotency_key="device-report-mutate-1",
+    )
+    observation = runtime.executor.execute(request)
+    workspace = WorkspaceManager(tmp_path).for_objective(principal.id, objective_id)
+    workspace.write("devices.md", "tampered")
+    assert runtime.verifier.verify(observation, prepared.verification).verified is False
 
 
 def test_workspace_pack_verifies_a_multi_file_artifact(tmp_path, monkeypatch) -> None:

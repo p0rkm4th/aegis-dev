@@ -141,6 +141,34 @@ def prepare_reference_action(
                     )
                 }
             )
+    elif action.action_id == "device-reports.devices.snapshot_to_workspace":
+        snapshot_path = args.get("target_path")
+        if isinstance(snapshot_path, str) and snapshot_path.strip():
+            snapshot = (
+                DeviceStatesExecutor()
+                .execute(
+                    ExecutionRequest(
+                        objective_id=objective_id,
+                        action_id=uuid4(),
+                        action=action,
+                        idempotency_key=f"prepare-device-snapshot-{objective_id}",
+                    )
+                )
+                .evidence.get("states", [])
+            )
+            content = _device_snapshot_content(snapshot)
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": workspace_expected_postcondition(
+                                principal.id, objective_id, {snapshot_path: content}
+                            )
+                        }
+                    )
+                }
+            )
     elif action.action_id == "documents.export_to_workspace":
         document_id = args.get("document_id")
         document_target_path = args.get("target_path")
@@ -1017,7 +1045,7 @@ class DeviceSnapshotWorkspaceExecutor:
                 command_succeeded=False,
             )
         states = DeviceStatesExecutor().execute(request).evidence.get("states", [])
-        content = "# Authorized device snapshot\n\n" + json.dumps(states, indent=2) + "\n"
+        content = _device_snapshot_content(states)
         workspace = WorkspaceManager(
             Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
         ).for_objective(self.principal.id, request.objective_id)
@@ -1049,20 +1077,37 @@ class DeviceSnapshotWorkspaceExecutor:
         )
 
 
+def _device_snapshot_content(states: object) -> str:
+    """Serialize stable device facts; observation timestamps are not artifact input."""
+
+    if not isinstance(states, list):
+        states = []
+    stable = [
+        {key: value for key, value in item.items() if key != "observed_at"}
+        for item in states
+        if isinstance(item, dict)
+    ]
+    return "# Authorized device snapshot\n\n" + json.dumps(stable, indent=2) + "\n"
+
+
 class DeviceSnapshotWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
     def verify(
-        self, observation: Observation, _contract: VerificationContract
+        self, observation: Observation, contract: VerificationContract
     ) -> VerificationResult:
-        # The snapshot is assembled from provider state during execution; it
-        # needs a fixed-input phase before it can claim independent completion.
-        verified = False
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
         return VerificationResult(
             verified=verified,
             evidence={
                 "device_snapshot_workspace_verified": verified,
-                "postcondition": "not established",
+                "postcondition": detail,
             },
-            reason="device snapshot verification is pending a fixed-input workspace step",
+            reason="device snapshot independently verified"
+            if verified
+            else f"device snapshot verification failed: {detail}",
         )
 
 
