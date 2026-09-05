@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "4a93e3baa0609480299a3d9e590756980de9c493",
+  "state_basis_sha": "505f3e69b9bae420b0cefa1e1b06ab48406bdb22",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "4a93e3baa0609480299a3d9e590756980de9c493",
-  "deterministic_green_sha": "4a93e3baa0609480299a3d9e590756980de9c493",
-  "last_pushed_sha": "4a93e3baa0609480299a3d9e590756980de9c493",
+  "repository_head_sha": "505f3e69b9bae420b0cefa1e1b06ab48406bdb22",
+  "deterministic_green_sha": "505f3e69b9bae420b0cefa1e1b06ab48406bdb22",
+  "last_pushed_sha": "505f3e69b9bae420b0cefa1e1b06ab48406bdb22",
   "hosted_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_ci_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_ci_attestation": {
@@ -19,9 +19,9 @@
   "running_release_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "live_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "workspace-research-constellation-breadth",
+  "active_checkpoint": "owner-action-composition-wiring",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "workspace-research-constellation-breadth",
+  "current_checkpoint": "owner-action-composition-wiring",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -56,6 +56,7 @@
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"documents.export_to_workspace is a typed two-permission composition with deterministic verification; live owner proof remains pending"
+    ,"live owner service was inspected successfully but remains on the prior promoted release and does not yet expose Calendar/Documents additions"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -84,7 +85,7 @@
     "owner_workflows_completed": 2,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Run live owner proof for documents.export_to_workspace and render the resulting artifact in Workspace, then prove Research-to-Workspace and Calendar-to-Task compositions.",
+  "next_action": "Obtain hosted validation for the coherent breadth release, promote it through the existing release path, then run live owner proof for documents.export_to_workspace and render the artifact in Workspace.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
