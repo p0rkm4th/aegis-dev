@@ -413,6 +413,7 @@ def test_contextual_ordinal_read_stays_in_authorized_task_domain():
     assert result.state is ObjectiveState.COMPLETED
     assert result.message == "Task: second task (open); due 2026-09-03"
     assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
+    assert result.evidence["task"]["title"] == "second task"
 
 
 def test_grocery_ordinal_preserves_collection_for_correction():
