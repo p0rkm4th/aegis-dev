@@ -2406,6 +2406,8 @@ def resolve_contextual_event_relative_read(
         "what about the event after that",
         "what about the one after that",
         "what about an event after that",
+        "show the event after that",
+        "show me the event after that",
     }
     if not earlier_query and not after_query:
         return None
