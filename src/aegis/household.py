@@ -825,6 +825,10 @@ class GroceryReadFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = strip_correction_prefix(utterance).casefold()
+        # A short conversational continuation can introduce an explicit
+        # household-domain read with a conjunction.  Normalize only the
+        # leading connective; the domain noun and read prefix remain required.
+        text = re.sub(r"^(?:and|but)\s+", "", text)
         text = re.sub(r"^only\s+", "", text)
         if is_mutation_request(text):
             return False
