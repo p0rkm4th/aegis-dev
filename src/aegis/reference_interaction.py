@@ -1142,6 +1142,9 @@ def resolve_reference_fast_paths(
     result = resolve_contextual_event_next_read(intent, context, snapshot)
     if result is not None:
         return result
+    result = resolve_contextual_event_priority_read(intent, context, snapshot)
+    if result is not None:
+        return result
     # Resolve an authorized event temporal follow-up before broad personal
     # composers can reinterpret a short correction such as "No, tomorrow."
     # The resolver remains read-only and requires the prior event projection.
@@ -1884,6 +1887,71 @@ def resolve_contextual_task_focus_read(
                 "title": task.title,
                 "status": task.status.value,
             },
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_event_priority_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Select the earliest/latest event from an authorized calendar result."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    latest = text in {"which event is latest", "what event is latest", "which one is latest"}
+    earliest = text in {
+        "which event is earliest",
+        "what event is earliest",
+        "which one is earliest",
+    }
+    if not latest and not earliest:
+        return None
+    facts = context.values.get("canonical_facts")
+    candidates = facts.get("events") if isinstance(facts, dict) else None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(candidates, list) and isinstance(those, dict):
+        candidates = those.get("candidates") if those.get("fact_key") == "events" else None
+    if not isinstance(candidates, list):
+        return None
+    dated: list[tuple[datetime, dict[str, Any]]] = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict) or not isinstance(candidate.get("starts_at"), str):
+            continue
+        try:
+            starts_at = datetime.fromisoformat(candidate["starts_at"])
+        except ValueError:
+            continue
+        if starts_at.tzinfo is None:
+            starts_at = starts_at.replace(tzinfo=timezone.utc)
+        dated.append((starts_at.astimezone(timezone.utc), candidate))
+    if not dated:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I cannot order the referenced events because they have no valid times.",
+            correlation_id=intent.correlation_id,
+        )
+    starts_at, event = (max if latest else min)(dated, key=lambda item: item[0])
+    title = event.get("title")
+    if not isinstance(title, str) or not title.strip():
+        return None
+    label = "latest" if latest else "earliest"
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=(
+            f"Based on the {label} recorded time: {title}; "
+            f"starts {_display_due_at(starts_at.isoformat())}"
+        ),
+        evidence={
+            "collection": "events",
+            "priority_basis": f"authorized_prior_result_{label}_starts_at",
+            "authorized_event_priority": event,
+            "canonical_events": candidates,
+            "snapshot_space_id": snapshot.get("space_id"),
         },
         correlation_id=intent.correlation_id,
     )
