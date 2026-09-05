@@ -528,7 +528,14 @@ class DomainClarificationFastPath:
     """Give unsupported or underspecified alpha requests a useful next step."""
 
     _REMINDER_TERMS = ("remind me", "remember to", "make sure i remember")
-    _COLLECTION_STATUS_TERMS = ("open", "remaining", "remains", "left", "still need")
+    _COLLECTION_STATUS_TERMS = (
+        "open",
+        "remaining",
+        "remains",
+        "left",
+        "still need",
+        "take care of",
+    )
     _COLLECTION_READ_PREFIXES = (
         "what",
         "which",
@@ -538,6 +545,7 @@ class DomainClarificationFastPath:
         "could you",
         "can you",
         "please",
+        "anything",
     )
 
     _KNOWN_TERMS = (
