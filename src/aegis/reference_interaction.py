@@ -84,6 +84,7 @@ from .tasks import (
     TaskIntentClarificationFastPath,
     TaskPriorityFastPath,
     TaskReadFastPath,
+    _task_projection,
     ground_task_due_at,
     requested_task_due_at,
 )
@@ -1121,7 +1122,7 @@ def resolve_reference_fast_paths(
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     snapshot = household_store.read_snapshot(principal)
-    repeat_result = resolve_contextual_repeat_read(intent, context, household_store)
+    repeat_result = resolve_contextual_repeat_read(intent, context, household_store, task_store)
     if repeat_result is not None:
         return repeat_result
     # Priority language such as "which one is latest" is a semantic event
@@ -1770,9 +1771,12 @@ def resolve_contextual_remaining(intent: IntentFrame, context: Context) -> Resul
 
 
 def resolve_contextual_repeat_read(
-    intent: IntentFrame, context: Context, store: PostgresHouseholdStore
+    intent: IntentFrame,
+    context: Context,
+    store: PostgresHouseholdStore,
+    task_store: PostgresTaskStore | None = None,
 ) -> Result | None:
-    """Repeat an authorized grocery collection read against current state."""
+    """Repeat an authorized grocery or task collection read against current state."""
 
     if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
         return None
@@ -1788,10 +1792,34 @@ def resolve_contextual_repeat_read(
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None
-    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+    if not isinstance(those, dict):
         return None
-    return GroceryReadFastPath(store).resolve(
-        intent.model_copy(update={"utterance": "What groceries do we need?"})
+    fact_key = those.get("fact_key")
+    if fact_key == "canonical_items":
+        return GroceryReadFastPath(store).resolve(
+            intent.model_copy(update={"utterance": "What groceries do we need?"})
+        )
+    if fact_key != "canonical_tasks" or task_store is None:
+        return None
+    prior_tasks = those.get("candidates")
+    if not isinstance(prior_tasks, list) or not prior_tasks:
+        return None
+    current_tasks = tuple(task_store.list(intent.principal))
+    current_by_id = {str(task.task_id): task for task in current_tasks}
+    grounded_tasks = []
+    for candidate in prior_tasks:
+        if not isinstance(candidate, dict) or not isinstance(candidate.get("task_id"), str):
+            return None
+        task = current_by_id.get(candidate["task_id"])
+        if task is None:
+            return None
+        grounded_tasks.append(_task_projection(task))
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Canonical task list read",
+        evidence={"collection": "canonical_tasks", "canonical_tasks": grounded_tasks},
+        correlation_id=intent.correlation_id,
     )
 
 
