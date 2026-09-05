@@ -586,12 +586,13 @@ class DeviceControlExecutor:
             return Observation(
                 execution_id=uuid4(),
                 evidence={
+                    "failure_reason": "device entity is outside the authorized device scope",
                     "device_execution": {
                         "accepted": False,
                         "verified": False,
                         "reason": "device entity is outside the authorized device scope",
                         "entity_id": entity_id,
-                    }
+                    },
                 },
                 command_succeeded=False,
             )
