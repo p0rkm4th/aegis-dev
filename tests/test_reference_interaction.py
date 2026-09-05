@@ -747,6 +747,7 @@ def test_other_task_followup_uses_selected_priority_and_authorized_candidates():
     assert result.state is ObjectiveState.COMPLETED
     assert result.message == "Task: second task (open); due 2026-09-07"
     assert result.evidence["authorized_other_referent"] == candidates[1]
+    assert reference_format_result(result) == result.message
 
 
 def test_contextual_correction_reaches_domain_specific_referent_guard():
