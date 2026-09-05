@@ -536,6 +536,8 @@ class DomainClarificationFastPath:
         "still need",
         "take care of",
         "pending",
+        "work on",
+        "tackle",
     )
     _COLLECTION_READ_PREFIXES = (
         "what",
@@ -612,6 +614,8 @@ class DomainClarificationFastPath:
 
         text = " ".join(intent.utterance.casefold().split()).strip(".!?")
         if any(term in text for term in cls._KNOWN_TERMS):
+            return None
+        if any(term in text for term in ("next", "first", "priority", "prioritize")):
             return None
         if not text.startswith(cls._COLLECTION_READ_PREFIXES) or not any(
             term in text for term in cls._COLLECTION_STATUS_TERMS
