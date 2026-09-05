@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-attention-urgent",
+  "source_sha": "70f593ff657bb2ffa700ce2b6e02f5162b1130e4",
+  "hosted_validation": {"run_id": "33973175968", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "70f593ff657bb2ffa700ce2b6e02f5162b1130e4",
+    "running_sha": "70f593ff657bb2ffa700ce2b6e02f5162b1130e4",
+    "postgresql": "preserved",
+    "proof": [
+      "What needs my attention first? -> grounded earliest-deadline task",
+      "What is the most urgent task? -> grounded earliest-deadline task"
+    ],
+    "mutation": "none"
+  },
+  "result": "Natural attention and urgent recommendation wording now uses the existing deterministic task-priority path."
+}
