@@ -325,10 +325,19 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     relevance=1,
                     argument_keys=("entity_id", "service", "expected_state"),
                     argument_grounding={
-                        key: ArgumentGroundingRule(
+                        "entity_id": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
-                        )
-                        for key in ("entity_id", "service", "expected_state")
+                        ),
+                        "service": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                            ),
+                            approved_derivations=("reference.device_service.v1",),
+                        ),
+                        "expected_state": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
                     },
                 ),
             ),
