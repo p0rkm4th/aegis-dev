@@ -141,6 +141,23 @@ def test_deterministic_calendar_create_action_requires_explicit_times():
     assert card.action.arguments["title"] == "Dinner"
 
 
+def test_deterministic_calendar_create_accepts_bounded_natural_timed_request():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "calendar")
+    manager.discover(bundle)
+    manager.install("calendar", frozenset({"calendar.read", "calendar.write"}))
+    manager.enable("calendar")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Put dinner on my calendar tomorrow at 7 pm",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar.events.create"
+    assert card.action.arguments["title"] == "dinner"
+    assert card.action.arguments["starts_at"].endswith("T19:00:00+00:00")
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
