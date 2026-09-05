@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "edb24172c0d99d731a041e565232856d86a44b25",
+  "state_basis_sha": "504e20a9d34370c672e974de991fba23446fd02d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "edb24172c0d99d731a041e565232856d86a44b25",
-  "deterministic_green_sha": "edb24172c0d99d731a041e565232856d86a44b25",
-  "last_pushed_sha": "edb24172c0d99d731a041e565232856d86a44b25",
-  "hosted_green_sha": "edb24172c0d99d731a041e565232856d86a44b25",
-  "hosted_ci_green_sha": "edb24172c0d99d731a041e565232856d86a44b25",
+  "repository_head_sha": "504e20a9d34370c672e974de991fba23446fd02d",
+  "deterministic_green_sha": "504e20a9d34370c672e974de991fba23446fd02d",
+  "last_pushed_sha": "504e20a9d34370c672e974de991fba23446fd02d",
+  "hosted_green_sha": "504e20a9d34370c672e974de991fba23446fd02d",
+  "hosted_ci_green_sha": "504e20a9d34370c672e974de991fba23446fd02d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "edb24172c0d99d731a041e565232856d86a44b25",
+    "commit_sha": "504e20a9d34370c672e974de991fba23446fd02d",
     "conclusion": "success",
-    "run_id": "33954232244",
-    "observed_at": "2026-09-05T08:45:00Z"
+    "run_id": "33954465208",
+    "observed_at": "2026-09-05T09:00:00Z"
   },
-  "installed_release_sha": "edb24172c0d99d731a041e565232856d86a44b25",
-  "running_release_sha": "edb24172c0d99d731a041e565232856d86a44b25",
-  "live_green_sha": "edb24172c0d99d731a041e565232856d86a44b25",
+  "installed_release_sha": "504e20a9d34370c672e974de991fba23446fd02d",
+  "running_release_sha": "504e20a9d34370c672e974de991fba23446fd02d",
+  "live_green_sha": "504e20a9d34370c672e974de991fba23446fd02d",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-unscoped-work-clarification",
+  "active_checkpoint": "daily-driver-next-task-list-recommendation",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "unscoped-work-clarification",
+  "current_checkpoint": "next-task-list-recommendation",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on edb2417 clarified unscoped 'What should I work on?' while preserving the existing canonical priority result for 'What should I work on next?'. No mutation occurred.",
+  "daily_driver_checkpoint": "Installed-owner proof on 504e20a answered 'What is next on my list?' with the canonical earliest-deadline task while keeping broad 'What is next for me?' fail-closed. No mutation occurred.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -62,7 +62,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Refresh origin/aegis-dev and inspect the next distinct owner-visible daily-driver read or follow-up gap after unscoped work clarification. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
+  "next_action": "Refresh origin/aegis-dev and inspect the next distinct owner-visible daily-driver read or follow-up gap after next-task-list recommendation. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
