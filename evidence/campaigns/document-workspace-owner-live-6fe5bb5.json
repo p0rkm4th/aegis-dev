@@ -1,0 +1,22 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "document-workspace-owner-live",
+  "source_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
+  "hosted_run_id": "33983587249",
+  "runtime": {
+    "release_sha": "6fe5bb57d24e7e994477285cb0dc7c29325d395b",
+    "health": "healthy",
+    "ready": true,
+    "fixture_cleanup": "AEGIS_DOCUMENT_FIXTURE_JSON removed after acceptance"
+  },
+  "owner_proof": {
+    "utterance": "Export the Safe Deployment Guide to workspace as deployment-guide.md",
+    "result": "completed",
+    "verification": "document export readback verified",
+    "workspace_artifact": "deployment-guide.md",
+    "workspace_inventory_observed": true,
+    "objective_state": "completed",
+    "authority": "Core ActionCard grounding, authorization, execution, observation, and verification"
+  },
+  "result": "A real owner-visible Documents -> scoped Workspace composition completed safely with preserved artifact inventory."
+}
