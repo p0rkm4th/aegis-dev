@@ -27,6 +27,8 @@ from .reference_packs import (
     OpenClawNetworkProbeVerifier,
     PostgresGroceryListExecutor,
     PostgresGroceryListVerifier,
+    WorkspaceArtifactExecutor,
+    WorkspaceArtifactVerifier,
 )
 from .tasks import (
     PostgresTaskExecutor,
@@ -150,6 +152,14 @@ def default_runtime_registry(
             cleanup=channel.close,
         )
 
+    def workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            WorkspaceArtifactExecutor(principal),
+            WorkspaceArtifactVerifier(principal),
+            {"workspace.write": frozenset({Role.OWNER})},
+        )
+
     from .reference_packs import reference_bundles
 
     factories: dict[str, Callable[[Any, Principal], ActionRuntime]] = {
@@ -163,6 +173,7 @@ def default_runtime_registry(
         "kitchen.groceries.add": grocery_add_runtime,
         "homelab.service.restart": homelab_runtime,
         "network.probe": network_runtime,
+        "workspace.artifact.create": workspace_runtime,
     }
     for bundle in reference_bundles():
         card_factories = {

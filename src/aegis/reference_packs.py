@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import shlex
 import socket
 import time
@@ -15,8 +16,11 @@ from uuid import uuid4
 from .contracts import (
     ActionCard,
     ActionSpec,
+    ArgumentGroundingRule,
+    ArgumentProvenanceKind,
     ExecutionRequest,
     Observation,
+    Principal,
     VerificationContract,
     VerificationResult,
 )
@@ -28,6 +32,7 @@ from .gateway_rpc import (
 )
 from .household import PostgresHouseholdStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
+from .workspace import WorkspaceManager
 
 
 @dataclass(frozen=True)
@@ -230,6 +235,31 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
             ),
         ),
+        _ReferencePackSpec(
+            "workspace",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="workspace.artifact.create",
+                        capability="workspace.artifact.create",
+                        required_permissions=("workspace.write",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Create files in a bounded owner-scoped workspace and verify them",
+                    relevance=1,
+                    argument_keys=("path", "content"),
+                    argument_grounding={
+                        "path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "content": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+            ),
+        ),
     )
 
 
@@ -240,6 +270,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart",),
         "network": ("network.read",),
+        "workspace": ("workspace.write",),
     }
     return tuple(
         PackBundle(
@@ -270,6 +301,66 @@ class ReferenceWorld:
     tasks: list[dict[str, Any]] = field(default_factory=list)
     groceries: list[str] = field(default_factory=list)
     services: dict[str, str] = field(default_factory=lambda: {"test-service": "healthy"})
+
+
+class WorkspaceArtifactExecutor:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        path, content = args.get("path"), args.get("content")
+        if not isinstance(path, str) or not isinstance(content, str):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        workspace = WorkspaceManager(root).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {path: content},
+                request.action_id,
+                lambda current: None if current.read(path) == content else "readback mismatch",
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "workspace": "artifact",
+                "files": list(artifact.files),
+                "validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence
+        verified = bool(
+            observation.command_succeeded
+            and evidence.get("workspace") == "artifact"
+            and evidence.get("validated")
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence=evidence,
+            reason="workspace artifact readback verified"
+            if verified
+            else "workspace artifact verification failed",
+        )
 
 
 class ReferenceExecutor:
