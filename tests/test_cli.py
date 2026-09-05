@@ -675,6 +675,32 @@ def test_household_implicit_coming_up_read_filters_today():
     assert [event["title"] for event in result.evidence["events"]] == ["Today appointment"]
 
 
+def test_household_coming_up_read_excludes_past_events():
+    from aegis.household import HouseholdEvent, HouseholdReadFastPath
+
+    now = datetime.now(timezone.utc)
+    result = HouseholdReadFastPath(
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (
+                HouseholdEvent("past", "Past appointment", now - timedelta(hours=1)),
+                HouseholdEvent("future", "Future appointment", now + timedelta(hours=1)),
+            ),
+        }
+    ).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What appointments do I have coming up?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["date_filter"] == "upcoming"
+    assert [event["title"] for event in result.evidence["events"]] == ["Future appointment"]
+
+
 def test_household_implicit_meeting_read_filters_today():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
