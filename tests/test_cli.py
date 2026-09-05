@@ -5158,6 +5158,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
     bundles = reference_bundles()
 
     assert {bundle.manifest.ui.label for bundle in bundles if bundle.manifest.ui} == {
+        "Calendar",
         "Tasks",
         "Kitchen",
         "Homelab",

@@ -19,6 +19,8 @@ from .identity import Role
 from .openclaw import OpenClawExecutor
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
+    CalendarEventsExecutor,
+    CalendarEventsVerifier,
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
     OpenClawHomelabExecutor,
@@ -160,6 +162,14 @@ def default_runtime_registry(
             {"workspace.write": frozenset({Role.OWNER})},
         )
 
+    def calendar_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            CalendarEventsExecutor(),
+            CalendarEventsVerifier(),
+            {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
     from .reference_packs import reference_bundles
 
     factories: dict[str, Callable[[Any, Principal], ActionRuntime]] = {
@@ -174,6 +184,7 @@ def default_runtime_registry(
         "homelab.service.restart": homelab_runtime,
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
+        "calendar.events.list": calendar_runtime,
     }
     for bundle in reference_bundles():
         card_factories = {

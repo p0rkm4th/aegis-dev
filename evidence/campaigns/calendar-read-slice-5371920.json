@@ -1,0 +1,15 @@
+{
+  "source_basis": "537192081267cfdb856774b550b7b8bd687e7850",
+  "checkpoint": "provider-neutral external calendar read slice",
+  "capability_family": "external_calendar",
+  "owner_surface": ["Calendar", "Packs", "Constellation"],
+  "provider": "deterministic fixture; live provider acceptance pending",
+  "flow": "calendar.events.list -> generic ActionRuntime -> bounded observation -> structural readback verification",
+  "safety": {
+    "permission": "calendar.read",
+    "mutation": false,
+    "authority_expansion": false
+  },
+  "verification": "798 passed, 5 skipped; all checks passed",
+  "remaining_gap": "connect a replaceable live provider and prove one cross-capability composition"
+}
