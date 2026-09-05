@@ -20,6 +20,7 @@ class ActionRuntime:
     verifier: Any
     permissions: dict[str, frozenset[Any]]
     cleanup: Callable[[], None] | None = None
+    grounder: Callable[..., Any] | None = None
 
 
 RuntimeFactory = Callable[[Any, Principal], ActionRuntime]

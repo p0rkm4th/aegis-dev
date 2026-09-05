@@ -16,6 +16,7 @@ from .contracts import (
     Context,
     Decision,
     DecisionKind,
+    GroundingProposal,
     IntentFrame,
     Objective,
     ObjectiveSpec,
@@ -52,14 +53,59 @@ class InteractionInputError(ValueError):
     """A safe, actionable request-shape error from a client-facing selector."""
 
 
-def _argument_provenance_error(action: Any, utterance: str | None = None) -> str | None:
+def _context_contains_canonical_ref(value: Any, reference: str, *, depth: int = 0) -> bool:
+    """Find a bounded canonical identity in already-authorized context only."""
+
+    if depth > 5:
+        return False
+    if isinstance(value, str):
+        return value == reference
+    if isinstance(value, dict):
+        return any(
+            _context_contains_canonical_ref(item, reference, depth=depth + 1)
+            for item in value.values()
+        )
+    if isinstance(value, (list, tuple)):
+        return any(
+            _context_contains_canonical_ref(item, reference, depth=depth + 1) for item in value[:20]
+        )
+    return False
+
+
+def _argument_provenance_error(
+    action: Any,
+    utterance: str | None = None,
+    *,
+    card: ActionCard | None = None,
+    context: Context | None = None,
+) -> str | None:
     """Reject consequential arguments without Core-admissible provenance."""
 
     provenance = getattr(action, "argument_provenance", {})
+    rules = getattr(card, "argument_grounding", {}) if card is not None else {}
     for key in action.arguments:
         evidence = provenance.get(key)
         if evidence is None:
             return f"argument {key!r} has no admissible provenance"
+        rule = rules.get(key)
+        if rule is not None:
+            if evidence.kind not in rule.permitted_provenance:
+                return f"argument {key!r} uses undeclared provenance {evidence.kind.value}"
+            if (
+                evidence.kind is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT
+                and rule.canonical_source is None
+            ):
+                return f"argument {key!r} lacks a canonical source contract"
+            if (
+                evidence.kind is ArgumentProvenanceKind.DETERMINISTIC_DERIVATION
+                and evidence.derivation not in rule.approved_derivations
+            ):
+                return f"argument {key!r} uses an unapproved deterministic derivation"
+            if (
+                evidence.kind is ArgumentProvenanceKind.APPROVED_DEFAULT
+                and evidence.default_contract != rule.approved_default
+            ):
+                return f"argument {key!r} uses an unapproved default contract"
         if evidence.kind is ArgumentProvenanceKind.EXPLICIT_UTTERANCE:
             if not evidence.source_spans:
                 return f"argument {key!r} lacks utterance evidence"
@@ -72,6 +118,12 @@ def _argument_provenance_error(action: Any, utterance: str | None = None) -> str
         elif evidence.kind is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT:
             if not evidence.canonical_ref:
                 return f"argument {key!r} lacks a canonical referent"
+            if (
+                rule is not None
+                and context is not None
+                and not _context_contains_canonical_ref(context.values, evidence.canonical_ref)
+            ):
+                return f"argument {key!r} references unavailable canonical evidence"
         elif evidence.kind is ArgumentProvenanceKind.DETERMINISTIC_DERIVATION:
             if not evidence.source_spans or not evidence.derivation:
                 return f"argument {key!r} lacks deterministic derivation evidence"
@@ -79,6 +131,29 @@ def _argument_provenance_error(action: Any, utterance: str | None = None) -> str
             if not evidence.default_contract:
                 return f"argument {key!r} lacks an approved default contract"
     return None
+
+
+def _apply_grounding_proposals(
+    card: ActionCard, grounded: ActionCard | GroundingProposal | tuple[GroundingProposal, ...]
+) -> ActionCard:
+    """Apply Pack evidence without allowing a Pack to change the proposal value."""
+
+    if isinstance(grounded, ActionCard):
+        return grounded
+    proposals = (grounded,) if isinstance(grounded, GroundingProposal) else grounded
+    action = card.action
+    provenance = dict(action.argument_provenance)
+    for proposal in proposals:
+        if proposal.argument_key not in action.arguments:
+            raise ValueError(
+                f"grounding proposal names undeclared argument {proposal.argument_key!r}"
+            )
+        if proposal.proposed_value != action.arguments[proposal.argument_key]:
+            raise ValueError(f"grounding proposal changes argument {proposal.argument_key!r}")
+        provenance[proposal.argument_key] = proposal.provenance
+    return card.model_copy(
+        update={"action": action.model_copy(update={"argument_provenance": provenance})}
+    )
 
 
 def _authorized_context_evidence(context: Context) -> dict[str, Any]:
@@ -219,6 +294,11 @@ class InteractionBoundary:
         try:
             grounded_steps = []
             for step, card in zip(proposal.steps, plan_cards, strict=True):
+                runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
+                runtimes[card.action.action_id] = runtime
+                permissions.update(runtime.permissions)
+                if runtime.cleanup is not None:
+                    cleanups.append(runtime.cleanup)
                 proposed_card = card.model_copy(
                     update={
                         "action": card.action.model_copy(
@@ -226,14 +306,25 @@ class InteractionBoundary:
                         )
                     }
                 )
+                grounder = (
+                    getattr(runtime, "grounder", None)
+                    if runtime is not None and getattr(runtime, "grounder", None) is not None
+                    else self.dependencies.action_grounder
+                )
                 grounded = (
-                    self.dependencies.action_grounder(intent, proposed_card, connection, context)
-                    if self.dependencies.action_grounder is not None
+                    grounder(intent, proposed_card, connection, context)
+                    if grounder is not None
                     else proposed_card
                 )
                 if isinstance(grounded, Result):
                     return grounded
-                provenance_error = _argument_provenance_error(grounded.action, intent.utterance)
+                grounded = _apply_grounding_proposals(proposed_card, grounded)
+                provenance_error = _argument_provenance_error(
+                    grounded.action,
+                    intent.utterance,
+                    card=card,
+                    context=context,
+                )
                 if provenance_error is not None:
                     return Result(
                         objective_id=uuid4(),
@@ -256,12 +347,6 @@ class InteractionBoundary:
                 }
                 grounded_steps.append(step.model_copy(update={"arguments": grounded_arguments}))
             proposal = proposal.model_copy(update={"steps": tuple(grounded_steps)})
-            for card in plan_cards:
-                runtime = self.dependencies.runtime_registry.resolve(card, connection, principal)
-                runtimes[card.action.action_id] = runtime
-                permissions.update(runtime.permissions)
-                if runtime.cleanup is not None:
-                    cleanups.append(runtime.cleanup)
             kernel = Kernel(
                 self._model(),
                 StrictDecisionDecoder(),
@@ -507,15 +592,45 @@ class InteractionBoundary:
                             correlation_id=intent.correlation_id,
                         )
                     )
-            if self.dependencies.action_grounder is not None:
+            runtime = None
+            if self.dependencies.runtime_registry is not None:
+                try:
+                    runtime = self.dependencies.runtime_registry.resolve(
+                        card, connection, principal
+                    )
+                    runtime_cleanup = runtime.cleanup
+                except (LookupError, PermissionError, RuntimeError):
+                    return persist_fast_result(
+                        Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.FAILED,
+                            message=(
+                                "This action is temporarily unavailable because its execution "
+                                "provider is not configured. You can retry it later."
+                            ),
+                            correlation_id=intent.correlation_id,
+                            retryable=True,
+                        )
+                    )
+            grounder = (
+                getattr(runtime, "grounder", None)
+                if runtime is not None and getattr(runtime, "grounder", None) is not None
+                else self.dependencies.action_grounder
+            )
+            if grounder is not None:
                 card = card.model_copy(
                     update={"action": card.action.model_copy(update={"argument_provenance": {}})}
                 )
-                grounded = self.dependencies.action_grounder(intent, card, connection, context)
+                grounded = grounder(intent, card, connection, context)
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
-                card = grounded
-            provenance_error = _argument_provenance_error(card.action, intent.utterance)
+                card = _apply_grounding_proposals(card, grounded)
+            provenance_error = _argument_provenance_error(
+                card.action,
+                intent.utterance,
+                card=card,
+                context=context,
+            )
             if provenance_error is not None:
                 return persist_fast_result(
                     Result(
@@ -531,9 +646,7 @@ class InteractionBoundary:
                 )
             try:
                 if self.dependencies.runtime_registry is not None:
-                    runtime = self.dependencies.runtime_registry.resolve(
-                        card, connection, principal
-                    )
+                    assert runtime is not None
                     executor = runtime.executor
                     verifier = runtime.verifier
                     permissions = runtime.permissions

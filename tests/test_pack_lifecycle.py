@@ -3,8 +3,14 @@ from __future__ import annotations
 import pytest
 
 from aegis.audit import AuditLog
-from aegis.contracts import ActionCard, ActionSpec, VerificationContract
-from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest
+from aegis.contracts import (
+    ActionCard,
+    ActionSpec,
+    ArgumentGroundingRule,
+    ArgumentProvenanceKind,
+    VerificationContract,
+)
+from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, validate_pack_bundle
 
 
 def bundle(version: str, permissions: tuple[str, ...]) -> PackBundle:
@@ -33,6 +39,46 @@ def installed_manager() -> PackManager:
     manager.install("driver", frozenset({"driver.read"}))
     manager.enable("driver")
     return manager
+
+
+def test_pack_grounding_rules_must_match_declared_arguments():
+    card = ActionCard(
+        action=ActionSpec(action_id="driver.write", capability="driver.write"),
+        summary="Write a driver value",
+        relevance=1,
+        argument_grounding={
+            "value": ArgumentGroundingRule(
+                permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+            )
+        },
+    )
+    candidate = PackBundle(
+        manifest=PackManifest(pack_id="driver", version="1", permissions=()), cards=(card,)
+    )
+
+    with pytest.raises(ValueError, match="declared ActionCard arguments"):
+        validate_pack_bundle(candidate)
+
+
+def test_pack_grounding_rules_require_declared_canonical_and_default_contracts():
+    canonical = ActionCard(
+        action=ActionSpec(action_id="driver.read", capability="driver.read"),
+        summary="Read a driver value",
+        relevance=1,
+        argument_keys=("value",),
+        argument_grounding={
+            "value": ArgumentGroundingRule(
+                permitted_provenance=(ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,)
+            )
+        },
+    )
+    candidate = PackBundle(
+        manifest=PackManifest(pack_id="driver", version="1", permissions=()),
+        cards=(canonical,),
+    )
+
+    with pytest.raises(ValueError, match="canonical source"):
+        validate_pack_bundle(candidate)
 
 
 def test_upgrade_permission_expansion_keeps_active_pack_and_requires_approval():
