@@ -6,7 +6,7 @@ import os
 from collections.abc import Callable
 from typing import Any
 
-from .calendar import FixtureCalendarWriteProvider
+from .calendar import configured_calendar_write_provider
 from .communications import FixtureCommunicationSendProvider
 from .contracts import Principal
 from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
@@ -197,7 +197,7 @@ def default_runtime_registry(
 
     def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
-        provider = FixtureCalendarWriteProvider()
+        provider = configured_calendar_write_provider()
         return ActionRuntime(
             CalendarCreateExecutor(provider),
             CalendarCreateVerifier(provider),

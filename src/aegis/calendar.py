@@ -35,6 +35,72 @@ class CalendarWriteProvider(Protocol):
     def get_event(self, event_id: str) -> CalendarEvent | None: ...
 
 
+@dataclass(frozen=True)
+class GoogleCalendarWriteProvider:
+    """Bounded Google Calendar create/readback adapter."""
+
+    access_token: str
+    calendar_id: str = "primary"
+    endpoint: str = "https://www.googleapis.com/calendar/v3"
+    timeout_seconds: float = 5.0
+
+    def _url(self, event_id: str | None = None) -> str:
+        parsed = urllib.parse.urlsplit(self.endpoint)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("Google Calendar endpoint must use HTTPS")
+        if not self.access_token or len(self.access_token) > 8_000:
+            raise ValueError("Google Calendar access token is invalid")
+        path = "/calendars/{}/events".format(urllib.parse.quote(self.calendar_id, safe=""))
+        if event_id is not None:
+            path += "/" + urllib.parse.quote(event_id, safe="")
+        return urllib.parse.urlunsplit(
+            (parsed.scheme, parsed.netloc, parsed.path.rstrip("/") + path, "", "")
+        )
+
+    def create_event(self, event: CalendarEvent, idempotency_key: str) -> CalendarEvent:
+        payload = {
+            "summary": event.title,
+            "start": {"dateTime": event.starts_at.isoformat()},
+            "end": {"dateTime": (event.ends_at or event.starts_at).isoformat()},
+            "extendedProperties": {"private": {"aegis_idempotency_key": idempotency_key}},
+        }
+        request = urllib.request.Request(
+            self._url(),
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                item = json.loads(response.read(1_000_001))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise RuntimeError("Google Calendar create failed") from exc
+        parsed = _google_event(item)
+        if parsed is None:
+            raise RuntimeError("Google Calendar create response was invalid")
+        return parsed
+
+    def get_event(self, event_id: str) -> CalendarEvent | None:
+        request = urllib.request.Request(
+            self._url(event_id),
+            headers={"Authorization": f"Bearer {self.access_token}", "Accept": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                item = json.loads(response.read(1_000_001))
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return None
+            raise RuntimeError("Google Calendar readback failed") from exc
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise RuntimeError("Google Calendar readback failed") from exc
+        return _google_event(item)
+
+
 @dataclass
 class FixtureCalendarWriteProvider:
     """Deterministic create/readback provider; live credentials remain separate."""
@@ -191,6 +257,34 @@ def configured_calendar_provider() -> CalendarProvider:
             raise ValueError("calendar fixture timestamps must be ISO-8601") from exc
         events.append(CalendarEvent(event_id, title, start, end, source="configured_calendar"))
     return FixtureCalendarProvider(tuple(events))
+
+
+def configured_calendar_write_provider() -> CalendarWriteProvider:
+    token = os.environ.get("AEGIS_GOOGLE_CALENDAR_TOKEN")
+    if token:
+        return GoogleCalendarWriteProvider(
+            token,
+            calendar_id=os.environ.get("AEGIS_GOOGLE_CALENDAR_ID", "primary"),
+            endpoint=os.environ.get(
+                "AEGIS_GOOGLE_CALENDAR_ENDPOINT", "https://www.googleapis.com/calendar/v3"
+            ),
+        )
+    return FixtureCalendarWriteProvider()
+
+
+def _google_event(item: object) -> CalendarEvent | None:
+    if not isinstance(item, dict):
+        return None
+    event_id = item.get("id")
+    title = item.get("summary") or "(untitled event)"
+    start, end = item.get("start"), item.get("end")
+    if not isinstance(event_id, str) or not isinstance(title, str) or not isinstance(start, dict):
+        return None
+    starts_at = _google_timestamp(start)
+    ends_at = _google_timestamp(end) if isinstance(end, dict) else None
+    if starts_at is None:
+        return None
+    return CalendarEvent(event_id[:200], title[:2_000], starts_at, ends_at, "google_calendar")
 
 
 def calendar_events_evidence(events: tuple[CalendarEvent, ...]) -> dict[str, object]:
