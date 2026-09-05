@@ -28,6 +28,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "network",
         "workspace",
         "devices",
+        "communication-drafts",
     }
 
 
@@ -78,6 +79,37 @@ def test_research_workspace_composition_preserves_sources_and_non_authority(tmp_
     )
     assert observation.command_succeeded is True
     assert observation.evidence["authoritative"] is False
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_communication_draft_is_scoped_and_unsent(tmp_path, monkeypatch):
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communication-drafts.messages.draft"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "recipient": "owner@example.test",
+                "subject": "Staging update",
+                "body": "The staging check is complete.",
+                "target_path": "drafts/staging-update.md",
+            }
+        }
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="draft-1"
+        )
+    )
+    assert observation.command_succeeded is True
+    assert observation.evidence["sent"] is False
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 
