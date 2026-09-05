@@ -958,7 +958,8 @@ class ContextualTaskPriorityFastPath:
         if re.search(r"\b(?:chore|chores|event|events|calendar|grocery|groceries)\b", text):
             return None
         ordinal_only = (
-            re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+one\b", text) is not None
+            re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+(?:one|task)\b", text)
+            is not None
         )
         explicit_priority = any(
             term in text
