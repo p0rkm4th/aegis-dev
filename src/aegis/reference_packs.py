@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from .calendar import FixtureCalendarProvider, calendar_events_evidence
 from .contracts import (
     ActionCard,
     ActionSpec,
@@ -236,6 +237,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "calendar",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar.events.list",
+                        capability="calendar.events.list",
+                        required_permissions=("calendar.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read events from the connected external calendar",
+                    relevance=1,
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "workspace",
             "0.1.0",
             (
@@ -269,6 +286,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
 def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
+        "calendar": ("calendar.read",),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart",),
@@ -304,6 +322,36 @@ class ReferenceWorld:
     tasks: list[dict[str, Any]] = field(default_factory=list)
     groceries: list[str] = field(default_factory=list)
     services: dict[str, str] = field(default_factory=lambda: {"test-service": "healthy"})
+
+
+class CalendarEventsExecutor:
+    """Read-only external calendar adapter using deterministic local fixtures."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        events = FixtureCalendarProvider().list_events()
+        return Observation(
+            execution_id=uuid4(),
+            evidence=calendar_events_evidence(events),
+            command_succeeded=True,
+        )
+
+
+class CalendarEventsVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence
+        verified = observation.command_succeeded and isinstance(evidence.get("events"), list)
+        return VerificationResult(
+            verified=verified,
+            evidence={"event_count": len(evidence.get("events", [])) if verified else 0},
+            reason=(
+                "fixture calendar readback is structurally valid"
+                if verified
+                else "calendar read failed"
+            ),
+        )
 
 
 class WorkspaceArtifactExecutor:

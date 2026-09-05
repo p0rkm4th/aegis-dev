@@ -13,6 +13,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
     assert all(isinstance(pack, PackBundle) for pack in packs)
     assert reference_bundles() == packs
     assert {pack.manifest.pack_id for pack in packs} == {
+        "calendar",
         "tasks",
         "kitchen",
         "homelab",
