@@ -1648,7 +1648,10 @@ def resolve_contextual_grocery_quantity_read(
     if context.sources != ("authorized_canonical_result",):
         return None
     text = " ".join(intent.utterance.casefold().split()).strip(".?!")
-    if not ("how much" in text or "how many" in text) or "need" not in text:
+    quantity_question = "how much" in text or "how many" in text
+    if not quantity_question or (
+        "need" not in text and text not in {"how much is it", "how many is it"}
+    ):
         return None
     referents = context.values.get("referents")
     those = referents.get("those") if isinstance(referents, dict) else None

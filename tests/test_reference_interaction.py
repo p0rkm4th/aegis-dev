@@ -242,6 +242,28 @@ def test_contextual_grocery_quantity_resolves_singleton_implicit_followup() -> N
     assert result.evidence["authorized_quantity"] == {"item": "rice", "quantity": 2}
 
 
+def test_contextual_grocery_quantity_resolves_implicit_how_much_followup() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "rice", "rice")
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_grocery_quantity_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="How much is it?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, GroceryStore()),
+    )
+
+    assert result is not None
+    assert result.message == "Grocery item: rice (x3) is on your list."
+
+
 def test_contextual_grocery_quantity_does_not_guess_after_list_changes() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
