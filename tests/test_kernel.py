@@ -3602,6 +3602,20 @@ def test_household_read_fast_path_filters_natural_event_date_requests():
     ]
 
 
+def test_household_chore_priority_request_does_not_return_the_whole_list():
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {alice.id})
+    space.add_chore(alice, Chore("kitchen", "clean the kitchen", "alice"))
+
+    result = HouseholdReadFastPath(space.snapshot(alice)).resolve(
+        IntentFrame(principal=alice, utterance="Which chore is due first?")
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "no deadlines" in result.message
+
+
 def test_household_read_fast_path_filters_events_in_next_week_window():
     from datetime import timedelta
 

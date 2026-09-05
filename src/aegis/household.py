@@ -460,6 +460,17 @@ class HouseholdReadFastPath:
         if not self.matches(intent.utterance):
             return None
         text = intent.utterance.casefold()
+        if re.search(r"\b(?:due|deadline|priority|prioritize)\b", text) and (
+            "first" in text or "earliest" in text or "soonest" in text
+        ):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "Chores in the canonical household list have no deadlines or priority order."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         evidence: dict[str, object] = {"space_id": self.snapshot["space_id"]}
         if any(
             word in text for word in ("utility", "utilities", "rent", "obligation", "obligations")
