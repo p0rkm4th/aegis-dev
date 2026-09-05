@@ -19,7 +19,7 @@
   "running_release_sha": "15796c4d39206ba51ac4593e37f61bed297ed0a1",
   "live_green_sha": "15796c4d39206ba51ac4593e37f61bed297ed0a1",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-calendar-communications-draft",
+  "active_checkpoint": "daily-driver-alpha-research-fixture-owner-proof",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -98,9 +98,10 @@
     ,"the default Homelab webpage request now derives index.html through an approved deterministic target rule and completes with independent verification; arbitrary paths still require explicit utterance"
     ,"owner-configured authorized document fixture Alpha Handbook exported to handbook.md through Documents -> Workspace with independent scoped verification; external document provider remains unconfigured"
     ,"Calendar Communications Pack owner proof created schedule.md from the configured calendar snapshot for an explicit recipient; independent Workspace verification passed and sent=false was preserved"
+    ,"owner research fixture completed a sourced Alpha Guide answer with source ID, title, link, and retrieval timestamp; this is fixture evidence, not a live external integration"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Owner drafted the calendar snapshot for alice into schedule.md with independent verification; no message send occurred.",
+  "daily_driver_checkpoint": "Owner research fixture returned a sourced Alpha Guide answer with provenance; ambiguous research remains safely blocked.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -125,7 +126,7 @@
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
     "communications_send": "FIXTURE",
-    "research": "INSTALLED",
+    "research": "FIXTURE",
     "workspace_artifact": "VERIFIED_LIVE",
     "workspace_execute": "CONTRACT_GREEN",
     "device_read": "INSTALLED",
@@ -135,7 +136,7 @@
   },
   "independently_verified_write_capabilities": 6,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 20,
+  "voluntarily_useful_owner_workflows": 21,
   "owner_visible_capability_surfaces": 13,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 11,
@@ -147,7 +148,7 @@
     "cross_domain_compositions": 11,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 20,
+    "owner_workflows_completed": 21,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Continue Daily-Driver Alpha with the next cheapest owner utility slice: communications remains blocked on OpenClaw outbound configuration, while richer Documents or another verified provider composition is available.",
