@@ -802,7 +802,8 @@ class TaskPriorityFastPath:
             and any(term in text for term in ("should", "take care", "work on"))
         )
         priority_language = temporal_priority or any(
-            term in text for term in ("first", "priorit", "focus", "next", "urgent")
+            term in text
+            for term in ("first", "latest", "last", "priorit", "focus", "next", "urgent")
         )
         if not priority_language:
             return False
@@ -813,7 +814,7 @@ class TaskPriorityFastPath:
         due_priority = (
             text.startswith("which")
             and "due" in text
-            and any(term in text for term in ("first", "earliest", "soonest"))
+            and any(term in text for term in ("first", "earliest", "soonest", "latest", "last"))
         )
         return (explicit_task or implicit_task or due_priority) and (
             "should" in text
@@ -886,15 +887,26 @@ class TaskPriorityFastPath:
             assert task.due_at is not None
             return _aware_datetime(task.due_at)
 
-        selected = min(dated, key=due_key)
+        latest = any(term in intent.utterance.casefold() for term in ("latest", "last"))
+        selected = max(dated, key=due_key) if latest else min(dated, key=due_key)
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
-            message=f"Based on the earliest recorded deadline, start with: {selected.title}",
+            message=(
+                f"Based on the latest recorded deadline, the last task is: {selected.title}"
+                if latest
+                else f"Based on the earliest recorded deadline, start with: {selected.title}"
+            ),
             evidence={
                 "collection": "tasks",
                 "priority_basis": (
-                    "earliest_due_at_on_tomorrow"
+                    "latest_due_at_on_tomorrow"
+                    if latest
+                    and requested is not None
+                    and "tomorrow" in intent.utterance.casefold()
+                    else "latest_due_at"
+                    if latest
+                    else "earliest_due_at_on_tomorrow"
                     if requested is not None and "tomorrow" in intent.utterance.casefold()
                     else "earliest_due_at_on_weekend"
                     if weekend is not None
@@ -919,6 +931,8 @@ class ContextualTaskPriorityFastPath:
                 "first",
                 "earliest",
                 "soonest",
+                "latest",
+                "last",
                 "priority",
                 "prioritize",
                 "focus",
@@ -979,22 +993,37 @@ class ContextualTaskPriorityFastPath:
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
                 message=(
-                    "I cannot ground a first priority because none of the referenced "
+                    "I cannot ground a latest priority because none of the referenced "
+                    if any(term in text for term in ("latest", "last"))
+                    else "I cannot ground a first priority because none of the referenced "
                     "open tasks has a deadline."
                 ),
                 correlation_id=intent.correlation_id,
             )
-        selected = min(dated, key=lambda item: str(item["due_at"]))
+        latest = any(term in text for term in ("latest", "last"))
+        selected = (
+            max(dated, key=lambda item: str(item["due_at"]))
+            if latest
+            else min(dated, key=lambda item: str(item["due_at"]))
+        )
         title = selected.get("title")
         if not isinstance(title, str) or not title:
             return None
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
-            message=f"Based on the earliest recorded deadline, start with: {title}",
+            message=(
+                f"Based on the latest recorded deadline, the last task is: {title}"
+                if latest
+                else f"Based on the earliest recorded deadline, start with: {title}"
+            ),
             evidence={
                 "collection": "tasks",
-                "priority_basis": "authorized_prior_result_earliest_due_at",
+                "priority_basis": (
+                    "authorized_prior_result_latest_due_at"
+                    if latest
+                    else "authorized_prior_result_earliest_due_at"
+                ),
                 "task": selected,
                 # Preserve the authorized ordered projection so a later
                 # "what's left?" or correction can continue the same thread.

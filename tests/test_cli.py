@@ -4164,6 +4164,39 @@ def test_task_priority_fast_path_uses_earliest_open_deadline():
     assert result.evidence["task"]["title"] == "renew insurance"
 
 
+def test_task_priority_fast_path_uses_latest_open_deadline():
+    soon = Task(
+        uuid4(),
+        "apartment",
+        "renew insurance",
+        "alice",
+        due_at=datetime(2026, 9, 2, 12, 0, tzinfo=timezone.utc),
+    )
+    later = Task(
+        uuid4(),
+        "apartment",
+        "review the porch lights",
+        "alice",
+        due_at=datetime(2026, 9, 4, 12, 0, tzinfo=timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (soon, later)
+
+    result = TaskPriorityFastPath(Store()).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which task is due latest?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["priority_basis"] == "latest_due_at"
+    assert result.evidence["task"]["title"] == "review the porch lights"
+
+
 def test_task_priority_fast_path_accepts_implicit_daily_priority_language():
     soon = Task(
         uuid4(),
