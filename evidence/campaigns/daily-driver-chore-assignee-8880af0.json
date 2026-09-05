@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-chore-assignee",
+  "source_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+  "hosted": {"workflow": "validation", "run_id": "33968788512", "conclusion": "success"},
+  "owner": {
+    "release_sha": "8880af04509cd6754d331f342654b23dc6c04718",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What chores are open?", "completed", "canonical chore collection"],
+      ["What about the first one?", "completed", "Chore: clean the kitchen (open)"],
+      ["Who is assigned?", "completed", "Chore: clean the kitchen is assigned to alice"]
+    ]
+  },
+  "safety": "The ordinal chore referent is revalidated against current authorized canonical state; assignee reporting is a read-only canonical follow-up and is not presented as a mutation. No duplicate mutation or authority widening occurred."
+}
