@@ -1573,6 +1573,10 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             collection_evidence[fact_key] = candidates
         if fact_key == "canonical_tasks":
             collection_evidence["task"] = referent
+        elif fact_key == "events":
+            # Preserve the selected scalar event focus for a subsequent
+            # authorized temporal/date follow-up.
+            collection_evidence["event"] = referent
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,

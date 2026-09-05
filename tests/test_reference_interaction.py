@@ -902,6 +902,7 @@ def test_contextual_ordinal_read_stays_in_authorized_event_domain():
     assert result is not None
     local_date = datetime.fromisoformat("2026-09-03T10:00:00+00:00").astimezone().date().isoformat()
     assert result.message.startswith(f"Event: Apartment inspection (open); starts {local_date}")
+    assert result.evidence["event"]["title"] == "Apartment inspection"
 
 
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
