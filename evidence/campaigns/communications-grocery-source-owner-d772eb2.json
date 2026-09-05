@@ -1,0 +1,27 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-authorized-grocery-message",
+  "source_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+  "hosted_validation": {
+    "run_id": "33998817865",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "installed_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+    "running_sha": "d772eb2aab7d443165a270b24b4905d432c529c3",
+    "postgresql": "preserved",
+    "request": "Send my grocery list to scotty via sms account household",
+    "objective_id": "bc13c64a-dee3-486c-999c-d7d146bebf7c",
+    "correlation_id": "6b03e973-c7a3-4228-b412-c2fb7e96f5fe",
+    "source": "authorized canonical grocery collection",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "delivery_proven": false,
+    "target_boundary": "exact approved scotty/sms/household tuple",
+    "proof": [
+      "canonical grocery content was fixed before the generic communications executor",
+      "provider acceptance was recorded through the normal Core path",
+      "delivery was not claimed because no independent delivery evidence exists"
+    ]
+  },
+  "result": "Authorized grocery data can feed the generic outbound message action with truthful provider status."
+}
