@@ -2202,6 +2202,8 @@ def resolve_contextual_obligation_focus_read(
         "who is responsible",
         "who is responsible for it",
         "who handles it",
+        "who is it assigned to",
+        "who is assigned to it",
         "how much is it",
         "how much is owed",
         "what is the amount",
@@ -2237,7 +2239,13 @@ def resolve_contextual_obligation_focus_read(
             correlation_id=intent.correlation_id,
         )
     obligation = matches[0]
-    if text in {"who is responsible", "who is responsible for it", "who handles it"}:
+    if text in {
+        "who is responsible",
+        "who is responsible for it",
+        "who handles it",
+        "who is it assigned to",
+        "who is assigned to it",
+    }:
         message = f"Obligation: {obligation.title} is assigned to {obligation.responsible_id}"
     elif text in {
         "how much is it",
