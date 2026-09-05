@@ -1021,6 +1021,7 @@ def test_contextual_task_focus_read_rechecks_authorized_task_id():
     assert result is not None
     assert result.state is ObjectiveState.COMPLETED
     assert result.message == "Task: check the back gate (open)"
+    assert result.evidence["task"]["task_id"] == str(task.task_id)
 
 
 def test_event_temporal_correction_reuses_authorized_event_collection():

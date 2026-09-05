@@ -1877,6 +1877,13 @@ def resolve_contextual_task_focus_read(
                 "title": task.title,
                 "status": task.status.value,
             },
+            # Preserve the conventional scalar focus key so a further
+            # authorized follow-up can continue the same referent.
+            "task": {
+                "task_id": str(task.task_id),
+                "title": task.title,
+                "status": task.status.value,
+            },
         },
         correlation_id=intent.correlation_id,
     )
