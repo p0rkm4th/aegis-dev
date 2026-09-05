@@ -3381,6 +3381,41 @@ def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
     assert pack["owner"] == "alice"
 
 
+def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
+    principal = Principal(id="alice", vault_id="vault")
+    seen: list[tuple[str, dict[str, object]]] = []
+
+    def enable(current, request):
+        seen.append((current.id, request))
+        return {"pack_id": request["pack_id"], "status": "enabled"}
+
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        pack_enable=enable,
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/packs/enable",
+        b'{"pack_id":"communications","permissions":["communications.read"],"confirm":true}',
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload) == {"pack_id": "communications", "status": "enabled"}
+    assert seen == [
+        (
+            "alice",
+            {
+                "pack_id": "communications",
+                "permissions": ["communications.read"],
+                "confirm": True,
+            },
+        )
+    ]
+
+
 def test_browser_app_routes_workspace_creation_through_authorized_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []
