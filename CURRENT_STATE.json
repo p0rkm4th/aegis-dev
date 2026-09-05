@@ -77,6 +77,7 @@
     ,"device-reports Pack composes authorized device reads with scoped Workspace writes; independent completion remains truthfully downgraded pending fixed-input staging"
     ,"installed owner proof on 812ce80 created and independently verified owner-proof.html, then created and independently verified index.html + style.css; restart preserved one workspace and no duplicate mutation"
     ,"generic communications.messages.send is contract-green with explicit target/channel/account grounding, idempotent fixture acceptance, and truthful PROVIDER_ACCEPTED state; no OpenClaw outbound channel is configured for live delivery"
+    ,"calendar.events.create is contract-green with Core-prepared title/time expectation, fixture idempotency, and separate provider readback; live Google write acceptance remains pending credentials"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -100,7 +101,7 @@
     "tasks": "VERIFIED_LIVE",
     "groceries": "VERIFIED_LIVE",
     "calendar_read": "INSTALLED",
-    "calendar_write": "PARTIAL",
+    "calendar_write": "CONTRACT_GREEN",
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
     "communications_send": "CONTRACT_GREEN",
@@ -129,7 +130,7 @@
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Prepare Calendar create/readback and productize Workspace file detail/preview; keep communications send at contract-green until an explicit OpenClaw outbound channel is paired.",
+  "next_action": "Productize Workspace file detail/preview and prepare a verified device or homelab action; keep live communications/calendar provider claims bounded by credentials."
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
