@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from uuid import UUID
 
+from .calendar import CalendarEvent
 from .documents import DocumentProvider
 from .research import ResearchAnswer
 from .workspace import WorkspaceManager
@@ -30,6 +32,39 @@ class ResearchWorkspaceResult:
     validated: bool
     source_ids: tuple[str, ...]
     authoritative: bool = False
+
+
+@dataclass(frozen=True)
+class CalendarTaskAttention:
+    event_id: str
+    event_title: str
+    task_titles: tuple[str, ...]
+
+
+def calendar_to_task_attention(
+    events: tuple[CalendarEvent, ...], tasks: tuple[dict[str, object], ...], *, until: datetime
+) -> tuple[CalendarTaskAttention, ...]:
+    """Join external agenda windows with canonical task deadlines read-only.
+
+    This narrows attention only; it never creates, completes, or authorizes a task.
+    """
+
+    attention: list[CalendarTaskAttention] = []
+    for event in events:
+        if event.starts_at > until:
+            continue
+        titles: list[str] = []
+        for task in tasks:
+            title = task.get("title")
+            due_at = task.get("due_at")
+            if (
+                isinstance(title, str)
+                and isinstance(due_at, datetime)
+                and due_at <= event.starts_at
+            ):
+                titles.append(title)
+        attention.append(CalendarTaskAttention(event.event_id, event.title, tuple(titles)))
+    return tuple(attention)
 
 
 def document_to_workspace(

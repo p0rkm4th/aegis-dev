@@ -1,0 +1,14 @@
+{
+  "source_basis": "29ca56669b43984312a5a9099f71180f4cce5684",
+  "checkpoint": "calendar and task attention composition",
+  "composition": "external calendar agenda window + canonical task deadlines -> read-only attention list",
+  "proof": "tests/test_compositions.py::test_calendar_and_tasks_compose_into_read_only_attention",
+  "verification": "803 passed, 5 skipped; all checks passed",
+  "safety": {
+    "calendar_use": "read-only",
+    "task_use": "read-only",
+    "mutation": false,
+    "authorization": "unchanged"
+  },
+  "remaining_gap": "render this composition through the owner UI and prove live provider-backed behavior"
+}
