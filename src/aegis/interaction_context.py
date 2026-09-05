@@ -61,6 +61,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         "canonical_chores",
         "chores",
         "events",
+        "canonical_events",
         "canonical_obligations",
         "memories",
         "title",
@@ -81,7 +82,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
                 ]
                 remaining = [item for item in tasks if item not in dated_open]
                 compact[key] = (dated_open + remaining)[:20]
-            elif key == "events":
+            elif key in {"events", "canonical_events"}:
                 now = datetime.now(timezone.utc)
 
                 def event_time(item: Any) -> datetime | None:
@@ -362,6 +363,7 @@ def context_from_prior_result(
         "canonical_items",
         "canonical_tasks",
         "canonical_chores",
+        "canonical_events",
         "events",
         "canonical_obligations",
     ):
@@ -387,7 +389,7 @@ def context_from_prior_result(
                     )
             referents["those"] = {
                 "source": "canonical_facts",
-                "fact_key": fact_key,
+                "fact_key": "events" if fact_key == "canonical_events" else fact_key,
                 "candidates": selected,
             }
             break
