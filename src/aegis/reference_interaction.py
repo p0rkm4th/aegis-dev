@@ -1276,6 +1276,42 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         # An ordinal word such as "first" is not permission to reinterpret a
         # prior collection in a different domain.
         return None
+    if (
+        isinstance(candidates, list)
+        and len(candidates) == 1
+        and " ".join(text.split()).strip(".!?") == "which one"
+    ):
+        candidate = candidates[0]
+        if fact_key == "canonical_items" and isinstance(candidate, str) and candidate.strip():
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message=f"Grocery item: {candidate}",
+                evidence={
+                    "collection": "groceries",
+                    "authorized_unique_referent": candidate,
+                    "canonical_items": candidates,
+                },
+                correlation_id=intent.correlation_id,
+            )
+        if isinstance(candidate, dict) and isinstance(candidate.get("title"), str):
+            label = {
+                "canonical_tasks": "Task",
+                "canonical_chores": "Chore",
+                "events": "Event",
+            }.get(str(fact_key))
+            if label is not None:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.COMPLETED,
+                    message=f"{label}: {candidate['title']}",
+                    evidence={
+                        "collection": fact_key,
+                        "authorized_unique_referent": candidate,
+                        str(fact_key): candidates,
+                    },
+                    correlation_id=intent.correlation_id,
+                )
     ordinal_match = re.search(r"\b(?:the\s+)?(first|second|third|fourth|last)\b", text)
     if isinstance(candidates, list) and candidates and ordinal_match is not None:
         ordinal_index = {"first": 0, "second": 1, "third": 2, "fourth": 3, "last": -1}[

@@ -111,6 +111,31 @@ def test_grocery_read_fast_path_accepts_punctuated_topic_follow_up() -> None:
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_singleton_grocery_followup_resolves_its_only_authorized_item() -> None:
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one?",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_items",
+                        "candidates": ["rice"],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Grocery item: rice"
+    assert result.evidence["authorized_unique_referent"] == "rice"
+
+
 def test_grocery_read_fast_path_accepts_explicit_read_correction() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
