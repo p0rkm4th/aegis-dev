@@ -29,8 +29,10 @@ from .contracts import (
     VerificationResult,
 )
 from .devices import (
+    DeviceCommand,
     FixtureDeviceGateway,
     HomeAssistantAdapter,
+    HomeAssistantRestControlGateway,
     HomeAssistantRestGateway,
     device_states_evidence,
 )
@@ -309,6 +311,29 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "device-controls",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="device-controls.devices.command.execute",
+                        capability="device-controls.devices.command.execute",
+                        required_permissions=("devices.control",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Run one bounded low-risk Home Assistant command and verify readback",
+                    relevance=1,
+                    argument_keys=("entity_id", "service", "expected_state"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("entity_id", "service", "expected_state")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "documents",
             "0.1.0",
             (
@@ -425,6 +450,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "communications": ("communications.read",),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
+        "device-controls": ("devices.control",),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
@@ -523,6 +549,75 @@ class DeviceStatesExecutor:
             execution_id=uuid4(),
             evidence=device_states_evidence(states),
             command_succeeded=True,
+        )
+
+
+class DeviceControlExecutor:
+    """Execute only the typed low-risk device command contract."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        entity_id = args.get("entity_id")
+        service = args.get("service")
+        expected_state = args.get("expected_state")
+        if (
+            not isinstance(entity_id, str)
+            or not isinstance(service, str)
+            or not isinstance(expected_state, str)
+        ):
+            raise ValueError("device control requires explicit entity, service, and postcondition")
+        if service not in {"turn_on", "turn_off"}:
+            raise PermissionError("device service is not in the bounded control allowlist")
+        gateway = (
+            HomeAssistantRestControlGateway(
+                os.environ["AEGIS_HOME_ASSISTANT_URL"],
+                os.environ["AEGIS_HOME_ASSISTANT_TOKEN"],
+            )
+            if os.environ.get("AEGIS_HOME_ASSISTANT_URL")
+            and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
+            else FixtureDeviceGateway({entity_id: {"state": "off", "attributes": {}}})
+        )
+        adapter = HomeAssistantAdapter(gateway, policy=_LowRiskDevicePolicy())
+        execution = adapter.execute(
+            DeviceCommand(
+                entity_id=entity_id,
+                service=service,
+                expected_state=expected_state,
+            ),
+            datetime.now(timezone.utc),
+        )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"device_execution": execution.model_dump(mode="json")},
+            command_succeeded=execution.accepted,
+        )
+
+
+class _LowRiskDevicePolicy:
+    def allow_command(self, command: Any) -> bool:
+        return (
+            command.entity_id.startswith(("light.", "switch.", "input_boolean."))
+            and command.service in {"turn_on", "turn_off"}
+            and command.expected_state in {"on", "off"}
+        )
+
+
+class DeviceControlVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        execution = observation.evidence.get("device_execution")
+        verified = (
+            observation.command_succeeded
+            and isinstance(execution, dict)
+            and execution.get("verified") is True
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"readback_verified": verified},
+            reason="device command readback verified"
+            if verified
+            else "device command readback failed",
         )
 
 

@@ -597,6 +597,29 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    device = re.fullmatch(
+        r"(?:turn|switch) (?P<state>on|off) (?P<entity_id>"
+        r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?",
+        folded,
+    )
+    if device is not None:
+        card = manager.action_card("device-controls", "device-controls.devices.command.execute")
+        if card is None:
+            return None
+        state = device.group("state")
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "entity_id": device.group("entity_id"),
+                            "service": f"turn_{state}",
+                            "expected_state": state,
+                        }
+                    }
+                )
+            }
+        )
     if "research" in folded and any(marker in folded for marker in ("workspace", "notes")):
         matches = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", folded)
         if not matches:
