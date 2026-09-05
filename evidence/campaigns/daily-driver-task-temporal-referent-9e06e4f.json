@@ -1,0 +1,15 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-temporal-referent",
+  "source_sha": "9e06e4fdb299fdd4e2e233ee3d9fe554519a4863",
+  "hosted": {"workflow": "validation", "run_id": "33965900849", "conclusion": "success"},
+  "owner": {
+    "release_sha": "9e06e4fdb299fdd4e2e233ee3d9fe554519a4863",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical open task collection"],
+      ["When is the second one due?", "completed", "prepare for the apartment inspection; no recorded deadline"]
+    ]
+  },
+  "safety": "Ordinal selection remains authorized canonical context; missing deadlines remain missing and no mutation occurs."
+}
