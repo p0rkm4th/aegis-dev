@@ -2,9 +2,9 @@
   "schema_version": 2,
   "state_basis_sha": "f61c23fbb1e2",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f61c23fbb1e2",
+  "repository_head_sha": "fd5c1bc",
   "deterministic_green_sha": "f61c23fbb1e2",
-  "last_pushed_sha": "f61c23fbb1e2",
+  "last_pushed_sha": "fd5c1bc",
   "hosted_green_sha": "f61c23fbb1e2",
   "hosted_ci_green_sha": "f61c23fbb1e2",
   "hosted_ci_attestation": {
@@ -19,9 +19,9 @@
   "running_release_sha": "f61c23f",
   "live_green_sha": "f61c23f",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-frontier-selection",
+  "active_checkpoint": "daily-driver-continuity-correction",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "showable-alpha-owner-proof",
+  "current_checkpoint": "natural-follow-up-continuity",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -62,7 +62,7 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "next_action": "Dogfood natural daily-driver reads and follow-ups through the promoted browser, then choose one concrete owner-visible M09 frontier from evidence. Preserve provenance safety regressions and do not start another broad model campaign.",
+  "next_action": "Reproduce one novel natural correction or cross-domain follow-up through the promoted owner surface, identify its responsible layer, and make the smallest durable fix if evidence shows a defect. Preserve provenance safety and do not start another broad model campaign.",
   "history_artifact": "evidence/campaigns/current-state-ledger-d6459c7a2073.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
