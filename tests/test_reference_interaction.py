@@ -486,6 +486,32 @@ def test_bare_ordinal_correction_reads_authorized_task_projection():
     assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
 
 
+def test_ordinal_priority_word_cannot_cross_from_tasks_into_chores():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "check the gate", "status": "open", "due_at": "2026-09-05"}
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which chore is due first?",
+        ),
+        context,
+    )
+
+    assert result is None
+
+
 def test_event_temporal_follow_up_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 
