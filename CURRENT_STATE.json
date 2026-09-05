@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
+  "state_basis_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
-  "deterministic_green_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
-  "last_pushed_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
-  "hosted_green_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
-  "hosted_ci_green_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
+  "repository_head_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "deterministic_green_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "last_pushed_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "hosted_green_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "hosted_ci_green_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
+    "commit_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
     "conclusion": "success",
-    "run_id": "33995643035",
-    "observed_at": "2026-09-05T19:55:00Z"
+    "run_id": "33995957744",
+    "observed_at": "2026-09-05T22:27:00Z"
   },
-  "installed_release_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
-  "running_release_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
-  "live_green_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c",
+  "installed_release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "running_release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
+  "live_green_sha": "ac403982cba46daddffb5c94a5b58809b58aa079",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-capability-need-investigation",
+  "active_checkpoint": "daily-driver-alpha-capability-need-candidate-resolution",
   "checkpoint_status": "complete",
-  "current_checkpoint": "daily-driver-alpha-next-vertical",
+  "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "d4a3f93995e887cd30bd45ef5278d32f604d6e1c"
+    "release_sha": "ac403982cba46daddffb5c94a5b58809b58aa079"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -99,7 +99,7 @@
     ,"owner-configured authorized document fixture Alpha Handbook exported to handbook.md through Documents -> Workspace with independent scoped verification; external document provider remains unconfigured"
     ,"Calendar Communications Pack owner proof created schedule.md from the configured calendar snapshot for an explicit recipient; independent Workspace verification passed and sent=false was preserved"
     ,"owner research fixture completed a sourced Alpha Guide answer with source ID, title, link, and retrieval timestamp; this is fixture evidence, not a live external integration"
-    ,"unsupported Palworld owner objective remains open and now persists a CapabilityNeed with requirement identity, parent objective, permitted investigation scope, candidate action IDs, and bounded research provenance; no permission or capability was added"
+    ,"unsupported Palworld owner objective remains open and now persists a CapabilityNeed with requirement identity, parent objective, permitted investigation scope, typed workspace candidate resolution requiring owner input, and bounded research provenance; no permission or capability was added"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Unsupported Palworld objective persisted a durable open CapabilityNeed after bounded capability inventory and fixture research investigation.",
@@ -147,12 +147,12 @@
     "verified_write_capabilities": 6,
     "external_integrations": 0,
     "cross_domain_compositions": 11,
-    "capability_need_resolutions": 2,
+    "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
     "owner_workflows_completed": 21,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Connect the durable CapabilityNeed to a bounded candidate-resolution or Workspace planning artifact, then continue provider-backed breadth; live OpenClaw, Google, and Home Assistant remain pending.",
+  "next_action": "Continue daily-driver breadth with the highest-value available utility slice; prioritize generic owner-visible communications/calendar provider progress or a new independently verified homelab/device composition while live OpenClaw, Google, and Home Assistant remain pending.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
