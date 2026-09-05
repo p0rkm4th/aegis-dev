@@ -829,6 +829,7 @@ class TaskPriorityFastPath:
     def resolve(self, intent: IntentFrame, now: datetime | None = None) -> Result | None:
         if not self.matches(intent.utterance):
             return None
+        comparison_zone = (now or datetime.now().astimezone()).tzinfo
         open_tasks = tuple(
             task for task in self.store.list(intent.principal) if task.status is TaskStatus.OPEN
         )
@@ -840,7 +841,7 @@ class TaskPriorityFastPath:
                 task
                 for task in dated
                 if task.due_at is not None
-                and _aware_datetime(task.due_at).astimezone().date() == target_date
+                and _aware_datetime(task.due_at).astimezone(comparison_zone).date() == target_date
             )
         weekend = None
         next_week = None
