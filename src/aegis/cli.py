@@ -1519,6 +1519,16 @@ def run_interaction(
                     "authoritative": False,
                     "query": evidence.query,
                     "provider_id": evidence.provider_id,
+                    "available_action_ids": list(runtime_registry.action_ids()),
+                    "unsatisfied_requirements": [
+                        {
+                            "effect_id": str(effect.effect_id),
+                            "normalized_effect": effect.normalized_effect,
+                            "source_spans": [list(span) for span in effect.source_spans],
+                            "resolution": "UNSUPPORTED",
+                        }
+                        for effect in effects
+                    ],
                     "sources": [
                         {
                             "source_id": item.source_id,
