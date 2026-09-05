@@ -1,0 +1,28 @@
+{
+  "source_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "hosted_run_id": "33979057599",
+  "installed_release_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "session_kind": "owner-workspace-action",
+  "provider": "ollama",
+  "model": "qwen3:8b",
+  "flows": [
+    {
+      "shape": "workspace wording without explicit workspace intent",
+      "outcome": "safe task interpretation; no workspace artifact mutation"
+    },
+    {
+      "shape": "Write hello to index.html in my workspace",
+      "outcome": "completed",
+      "state": "completed",
+      "verification": "workspace artifact readback verified",
+      "artifact": "index.html"
+    }
+  ],
+  "safety": {
+    "authorization_path": "normal Core authorization and ActionRuntime",
+    "owner_scoped_inventory": true,
+    "postgresql": "healthy",
+    "unsafe_executed_mutation": 0
+  },
+  "remaining_gap": "static-site objective composition and richer artifact iteration are not yet proven"
+}
