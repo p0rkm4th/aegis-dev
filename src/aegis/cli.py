@@ -22,6 +22,7 @@ from uuid import UUID, uuid4
 import psycopg
 
 from .audit import PostgresAuditLog
+from .calendar import calendar_events_evidence, configured_calendar_provider
 from .compositions import available_compositions
 from .contracts import (
     ActionCard,
@@ -484,6 +485,13 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 
     root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
     return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
+
+
+def _calendar_state(principal: Principal) -> dict[str, Any]:
+    """Expose only bounded configured calendar evidence to the owner UI."""
+
+    del principal
+    return calendar_events_evidence(configured_calendar_provider().list_events())
 
 
 def _composition_state(principal: Principal) -> dict[str, Any]:
@@ -1370,6 +1378,7 @@ def main() -> int:
                 composition_state=_composition_state,
                 pack_state=_pack_state,
                 pack_enable=_pack_enable,
+                calendar_state=_calendar_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
