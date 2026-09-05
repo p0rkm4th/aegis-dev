@@ -94,8 +94,39 @@ class SpacyStructuralParser:
             return True
         if token.dep_ not in {"advcl", "ccomp", "dep", "relcl", "xcomp"}:
             return False
+        # Verbs embedded under a destination noun usually describe the item
+        # being recorded, not another requested mutation: "make a task to
+        # inspect ..." and "make a chore to mop ..." each have one effect.
+        # Keep this dependency-only and conservative; Core still validates the
+        # resulting effect spans independently.
+        destination_terms = {
+            "appointment",
+            "chore",
+            "event",
+            "reminder",
+            "task",
+            "todo",
+        }
+        head = getattr(token, "head", None)
+        if token.dep_ == "relcl" and str(getattr(head, "text", "")).casefold() in destination_terms:
+            return False
+        head_children = tuple(getattr(head, "children", ()))
+        if token.dep_ in {"advcl", "ccomp", "xcomp", "relcl"} and any(
+            child.dep_ in {"dobj", "obj", "nsubj", "csubj"}
+            and str(getattr(child, "text", "")).casefold() in destination_terms
+            for child in head_children
+        ):
+            return False
         children = tuple(getattr(token, "children", ()))
-        if any(child.dep_ == "cc" for child in children):
+        if token.dep_ in {"ccomp", "xcomp"} and any(
+            child.dep_ in {"nsubj", "csubj"}
+            and str(getattr(child, "text", "")).casefold() in destination_terms
+            for child in children
+        ):
+            return False
+        if token.dep_ in {"advcl", "ccomp", "relcl", "xcomp"} and any(
+            child.dep_ == "cc" for child in children
+        ):
             return False
         if any(child.dep_ in {"dobj", "obj", "obl", "iobj"} for child in children):
             return True
