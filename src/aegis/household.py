@@ -547,6 +547,20 @@ class HouseholdReadFastPath:
             elif "today" in text:
                 target_date = now.date()
                 date_filter = "today"
+            elif "rest of the week" in text or "rest of week" in text:
+                week_end = now.date() + timedelta(days=7 - now.weekday())
+                date_filter = "rest_of_week"
+                events = tuple(
+                    event
+                    for event in events
+                    if now.date()
+                    <= (
+                        event.starts_at.replace(tzinfo=timezone.utc)
+                        if event.starts_at.tzinfo is None
+                        else event.starts_at.astimezone(timezone.utc)
+                    ).date()
+                    < week_end
+                )
             elif "this week" in text:
                 week_end = now.date() + timedelta(days=7 - now.weekday())
                 date_filter = "this_week"
