@@ -477,6 +477,32 @@ def test_contextual_remaining_preserves_grocery_and_chore_collections():
         assert result.evidence[evidence_key] == candidates
 
 
+def test_contextual_remaining_precedes_domainless_safety_clarification():
+    result = resolve_reference_safety_fast_paths(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What is left?",
+        ),
+        None,
+        True,
+        Context(
+            values={
+                "referents": {
+                    "those": {
+                        "fact_key": "canonical_items",
+                        "candidates": ["rice"],
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["canonical_items"] == ["rice"]
+
+
 def test_contextual_ordinal_read_stays_in_authorized_grocery_domain():
     context = Context(
         values={

@@ -801,6 +801,10 @@ def resolve_reference_safety_fast_paths(
             or MultiActionFastPath.task_event_details(intent.utterance) is not None
         ):
             return None
+    if context is not None:
+        result = resolve_contextual_remaining(intent, context)
+        if result is not None:
+            return result
     if not model_enabled:
         result = DomainClarificationFastPath.resolve(intent)
         if result is not None:
@@ -1135,10 +1139,6 @@ def resolve_reference_fast_paths(
             correlation_id=intent.correlation_id,
         )
     composed_title = next((title for title, _error in composer_results if title is not None), None)
-    if composed_title is None:
-        result = resolve_contextual_remaining(intent, context)
-        if result is not None:
-            return result
     if composed_title is None:
         result = ContextualChorePriorityFastPath.resolve(intent, context)
         if result is not None:
