@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "704323f5f262c7dce83663ad268dc52b6b63d1da",
+  "state_basis_sha": "9ca1523effdd8e9f29c8fc4f75c77db676c102b8",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "704323f5f262c7dce83663ad268dc52b6b63d1da",
-  "deterministic_green_sha": "704323f5f262c7dce83663ad268dc52b6b63d1da",
-  "last_pushed_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "repository_head_sha": "9ca1523effdd8e9f29c8fc4f75c77db676c102b8",
+  "deterministic_green_sha": "9ca1523effdd8e9f29c8fc4f75c77db676c102b8",
+  "last_pushed_sha": "9ca1523effdd8e9f29c8fc4f75c77db676c102b8",
   "hosted_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_ci_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_ci_attestation": {
@@ -77,13 +77,13 @@
     "usable_capability_families": 4,
     "verified_write_capabilities": 0,
     "external_integrations": 0,
-    "cross_domain_compositions": 0,
+    "cross_domain_compositions": 1,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
     "owner_workflows_completed": 2,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Prove the first cross-capability composition: authorized document read into a scoped Workspace starter artifact, then add a second composition and render the workflows through the owner UI.",
+  "next_action": "Wire document-to-Workspace composition into a normal owner objective/UI path, then prove Research-to-Workspace and Calendar-to-Task compositions.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
