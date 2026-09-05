@@ -424,9 +424,13 @@ class InteractionBoundary:
                     tuple(self.dependencies.pack_bundles()),
                     self.dependencies.auto_enable_pack_ids,
                 )
-            if self.dependencies.plan_runner is not None and (
-                recovered_plan_actions is not None or self.dependencies.model_provider is None
-            ):
+            if self.dependencies.plan_runner is not None:
+                # The runner is also the deterministic production seam for
+                # bounded plans. Let it claim recognized plans before model
+                # cognition, even when a model is configured; arbitrary
+                # requests still fall through because the runner returns
+                # None. This keeps ACTION and PLAN on the same grounding,
+                # authorization, and Kernel path without adding a model call.
                 plan_result = self.dependencies.plan_runner(
                     intent,
                     connection,

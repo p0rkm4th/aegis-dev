@@ -1478,6 +1478,22 @@ def run_reference_plan(
             message="A plan step is no longer an available capability",
             correlation_id=intent.correlation_id,
         )
+    grounded_plan_actions: list[ActionSpec] = []
+    for action, card in zip(plan_actions, plan_cards, strict=True):
+        grounded = ground_reference_action_runtime(
+            intent,
+            card.model_copy(update={"action": action}),
+            connection,
+            context,
+        )
+        if isinstance(grounded, Result):
+            return grounded
+        grounded_plan_actions.append(grounded.action)
+    plan_actions = tuple(grounded_plan_actions)
+    plan_cards = tuple(
+        card.model_copy(update={"action": action})
+        for card, action in zip(plan_cards, plan_actions, strict=True)
+    )
     proposal = ProposedPlan(
         steps=tuple(
             ProposedPlanStep(
