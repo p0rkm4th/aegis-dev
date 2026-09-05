@@ -37,7 +37,24 @@ class SpacyStructuralParser:
     def parse(self, utterance: str) -> StructuralCoverageSignal:
         doc = self._model(utterance)
         predicates = [token for token in doc if token.pos_ in {"VERB", "AUX"}]
-        coordinated_predicates = [token for token in predicates if self._is_effect_predicate(token)]
+        embedded_effect_heads = {
+            id(token.head)
+            for token in predicates
+            if token.dep_ in {"relcl", "ccomp", "xcomp"}
+            and getattr(getattr(token, "head", None), "dep_", None) in {"dobj", "obj"}
+        }
+        coordinated_predicates = [
+            token
+            for token in predicates
+            if self._is_effect_predicate(token)
+            and not (
+                token.dep_ == "ROOT"
+                and token.text.casefold() in {"add", "create", "put", "place", "make"}
+                and any(
+                    id(child) in embedded_effect_heads for child in getattr(token, "children", ())
+                )
+            )
+        ]
         anchors: list[StructuralAnchor]
         if len(coordinated_predicates) > 1:
             anchors = [
@@ -45,6 +62,13 @@ class SpacyStructuralParser:
                     source_span=(token.idx, token.idx + len(token.text)), kind="predicate"
                 )
                 for token in coordinated_predicates
+            ]
+        elif len(coordinated_predicates) == 1:
+            token = coordinated_predicates[0]
+            anchors = [
+                StructuralAnchor(
+                    source_span=(token.idx, token.idx + len(token.text)), kind="predicate"
+                )
             ]
         else:
             objects = [

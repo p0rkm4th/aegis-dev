@@ -235,6 +235,33 @@ def test_structural_signal_recognizes_independent_nonroot_effect_predicates() ->
     assert [anchor.source_span for anchor in signal.anchors] == [(0, 6), (30, 34)]
 
 
+def test_structural_signal_ignores_framing_verb_for_embedded_single_effect() -> None:
+    from aegis.structural import SpacyStructuralParser
+
+    class Token:
+        def __init__(self, idx: int, text: str, pos: str, dep: str, head=None, children=()):
+            self.idx = idx
+            self.text = text
+            self.pos_ = pos
+            self.dep_ = dep
+            self.head = head or self
+            self.children = tuple(children)
+
+    alarm = Token(28, "valve", "NOUN", "dobj")
+    task = Token(6, "task", "NOUN", "dobj")
+    inspect = Token(14, "inspect", "VERB", "relcl", task, (alarm,))
+    add = Token(0, "Add", "VERB", "ROOT", children=(task,))
+    task.head = add
+
+    class Model:
+        def __call__(self, _utterance: str) -> tuple[Token, ...]:
+            return (add, task, inspect, alarm)
+
+    signal = SpacyStructuralParser(model=Model()).parse("Add a task to inspect the valve.")
+
+    assert [anchor.source_span for anchor in signal.anchors] == [(14, 21)]
+
+
 def test_structural_coverage_rejects_full_span_and_duplicate_gaming() -> None:
     utterance = "Add milk and eggs"
     full = materialize_requested_effects(
