@@ -3376,6 +3376,8 @@ def test_personal_memory_fast_path_yields_to_explicit_mutation_requests():
 
 def test_mutation_request_recognizes_jot_down_action_language():
     assert is_mutation_request("Could you jot down replace the porch bulb on my to-do list?")
+    assert is_mutation_request("Schedule a meeting for Friday.")
+    assert is_mutation_request("Could you book a meeting for Friday?")
 
 
 def test_context_reset_prefix_preserves_the_new_objective():

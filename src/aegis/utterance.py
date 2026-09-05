@@ -7,7 +7,7 @@ import re
 _MUTATION_PREFIX = re.compile(
     r"^(?:(?:actually[,:;\s]+)?(?:please|kindly)\s+|(?:actually[,:;\s]+)?(?:(?:could|would|can)\s+you\s+)|(?:actually[,:;\s]+)?(?:i\s+need\s+you\s+to\s+)|actually[,:;\s]+)?"
     r"(?:(?:i\s+want|i\s+would\s+like|i'd\s+like)\s+to\s+)*"
-    r"(?:add|create|update|complete|remove|put|place|jot\s+down)\b"
+    r"(?:add|create|update|complete|remove|put|place|jot\s+down|schedule|book|reserve|arrange)\b"
 )
 _MARK_DONE = re.compile(
     r"^mark\s+(?:the\s+)?(?:task|chore)\s+.+?\s+as\s+"
