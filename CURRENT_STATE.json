@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "state_basis_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
-  "deterministic_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
-  "last_pushed_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
-  "hosted_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
-  "hosted_ci_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "repository_head_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "deterministic_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "last_pushed_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "hosted_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "hosted_ci_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+    "commit_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
     "conclusion": "success",
-    "run_id": "33990252768",
+    "run_id": "33990488564",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
-  "running_release_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
-  "live_green_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1",
+  "installed_release_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "running_release_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
+  "live_green_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-device-workspace-composition",
+  "active_checkpoint": "daily-driver-alpha-capability-need-surface",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "9a3b5ac1bafe20732c9a94cde7ef5db8044bfbd1"
+    "release_sha": "d3542a66440f92fe68f32f638f1bcb1883dae197"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -118,7 +118,7 @@
   "independently_verified_write_capabilities": 1,
   "live_external_integrations": 0,
   "voluntarily_useful_owner_workflows": 13,
-  "owner_visible_capability_surfaces": 9,
+  "owner_visible_capability_surfaces": 10,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 8,
   "breadth_scoreboard": {
@@ -132,7 +132,7 @@
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance a new communications/calendar/device composition through the normal Core path and generic UI/Constellation; use live provider credentials if configured, otherwise keep fixture and contract states truthful.",
+  "next_action": "Add the next cross-capability owner workflow through Core and generic UI/Constellation; prioritize a useful communications/calendar/device composition, then continue to the next vertical.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
