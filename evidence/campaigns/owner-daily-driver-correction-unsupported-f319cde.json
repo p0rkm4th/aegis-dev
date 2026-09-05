@@ -1,0 +1,27 @@
+{
+  "source_sha": "f319cde967eeee6e71a16a62b225f3357d3e0ba0",
+  "owner_release_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "session_category": "unscripted_correction_and_capability_gap",
+  "flows": [
+    "natural task creation with tomorrow deadline",
+    "correction after verified task creation",
+    "unknown Palworld server objective"
+  ],
+  "outcomes": {
+    "successful_natural_followups": 0,
+    "clarifications": 1,
+    "wrong_domain_resolutions": 0,
+    "corrections": 1,
+    "unsupported_expectations": 1,
+    "developer_interventions": 0,
+    "new_semantic_special_cases_required": 0,
+    "unsafe_mutations": 0,
+    "false_completions": 0
+  },
+  "notes": [
+    "Task creation completed with canonical readback verification.",
+    "Correction was blocked after the verified mutation instead of rewriting history or creating an unrequested compensating mutation.",
+    "Palworld capability remained unresolved and owner-facing clarification preserved the objective meaning.",
+    "The initial probe exceeded its shell timeout; replay returned the same safe blocked behavior without duplicate execution."
+  ]
+}
