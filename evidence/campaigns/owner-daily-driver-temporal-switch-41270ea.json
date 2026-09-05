@@ -1,0 +1,27 @@
+{
+  "source_sha": "41270ea",
+  "owner_release_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+  "session_category": "unscripted_temporal_followup_domain_switch",
+  "flows": [
+    "tasks due tomorrow",
+    "Which one is due first?",
+    "appointments next week"
+  ],
+  "outcomes": {
+    "successful_natural_followups": 1,
+    "clarifications": 0,
+    "wrong_domain_resolutions": 0,
+    "corrections": 0,
+    "explicit_domain_switches": 1,
+    "unsupported_expectations": 0,
+    "developer_interventions": 0,
+    "new_semantic_special_cases_required": 0,
+    "unsafe_mutations": 0,
+    "false_completions": 0
+  },
+  "notes": [
+    "Earliest-deadline recommendation used canonical task deadlines.",
+    "Event switch returned the event collection rather than retaining task context.",
+    "No code change was required."
+  ]
+}
