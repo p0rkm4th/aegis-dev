@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-deadline-wording",
+  "source_sha": "b395b42c7f8dcb9ebf7c5f343066f5af6679185a",
+  "hosted": {"workflow": "validation", "run_id": "33966150204", "conclusion": "success"},
+  "owner": {
+    "release_sha": "b395b42c7f8dcb9ebf7c5f343066f5af6679185a",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical open task collection"],
+      ["What about the second one?", "completed", "prepare for the apartment inspection"],
+      ["What is its deadline?", "completed", "no recorded deadline"]
+    ]
+  },
+  "safety": "Deadline wording uses authorized task focus; missing timing remains missing and no mutation occurs."
+}
