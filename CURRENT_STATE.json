@@ -1,28 +1,28 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+  "state_basis_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "2c72b65047d8fccc0d79fa4b4ddd97b431ac4da7",
-  "deterministic_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
-  "last_pushed_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
-  "hosted_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
-  "hosted_ci_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+  "repository_head_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
+  "deterministic_green_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
+  "last_pushed_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
+  "hosted_green_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
+  "hosted_ci_green_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+    "commit_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
     "conclusion": "success",
-    "run_id": "33986764774",
+    "run_id": "33988609398",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
-  "running_release_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
-  "live_green_sha": "2539e8077c00b62cc696580b59189b17e7ec356c",
+  "installed_release_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
+  "running_release_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
+  "live_green_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "trust-repair-workspace-device",
-  "checkpoint_status": "in_progress",
-  "current_checkpoint": "trust-repair-workspace-device",
-  "active_campaign": "AEGIS LONG AUTONOMOUS TRUST-REPAIR → BREADTH CONTINUATION CAMPAIGN",
+  "active_checkpoint": "trust-repair-workspace-device-closed",
+  "checkpoint_status": "complete",
+  "current_checkpoint": "daily-driver-alpha-communications",
+  "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
     "model": "qwen3:8b",
@@ -38,7 +38,8 @@
     "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
-    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "release_sha": "812ce8067fa7c27c0f92288a42d651328ae2969b"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -51,7 +52,7 @@
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
-    "scoped workspace supports principal/objective isolation, bounded commands, and executor-local artifact sanity checks; independent postcondition repair is in progress",
+    "scoped workspace independently verifies pre-execution principal/objective-scoped file hashes; delete, mutation, forgery, wrong-scope, symlink, multi-file, restart, and network-isolation regressions are frozen",
     "owner release 9772aa5 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
@@ -72,8 +73,9 @@
     ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
     ,"bounded configured calendar snapshots are owner-visible through the authenticated Calendar view and /api/calendar; live provider acceptance remains pending"
     ,"Google Calendar events.list is available through a bounded HTTPS bearer-token adapter with fixture fallback; no live credential is configured"
-    ,"device-controls Pack requires explicit owner approval and authorized entity scope; independent provider readback repair is in progress"
-    ,"device-reports Pack composes authorized device reads with scoped Workspace writes; independent completion is downgraded pending fixed-input staging"
+    ,"device-controls Pack requires explicit owner approval and authorized entity scope; verifier performs separate provider state readback against Core expected state"
+    ,"device-reports Pack composes authorized device reads with scoped Workspace writes; independent completion remains truthfully downgraded pending fixed-input staging"
+    ,"installed owner proof on 812ce80 created and independently verified owner-proof.html, then created and independently verified index.html + style.css; restart preserved one workspace and no duplicate mutation"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -92,10 +94,33 @@
   "project_architecture_blockers": [],
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
+  "daily_driver_scoreboard": {
+    "conversation": "VERIFIED_LIVE",
+    "tasks": "VERIFIED_LIVE",
+    "groceries": "VERIFIED_LIVE",
+    "calendar_read": "INSTALLED",
+    "calendar_write": "PARTIAL",
+    "documents": "INSTALLED",
+    "communications_read": "INSTALLED",
+    "communications_send": "PARTIAL",
+    "research": "INSTALLED",
+    "workspace_artifact": "VERIFIED_LIVE",
+    "workspace_execute": "CONTRACT_GREEN",
+    "device_read": "INSTALLED",
+    "device_control": "CONTRACT_GREEN",
+    "homelab_action": "PARTIAL",
+    "constellation": "INSTALLED"
+  },
+  "independently_verified_write_capabilities": 1,
+  "live_external_integrations": 0,
+  "voluntarily_useful_owner_workflows": 13,
+  "owner_visible_capability_surfaces": 9,
+  "general_purpose_primitives": 1,
+  "cross_capability_workflows": 7,
   "breadth_scoreboard": {
     "owner_visible_views": 8,
     "usable_capability_families": 6,
-    "verified_write_capabilities": 0,
+    "verified_write_capabilities": 1,
     "external_integrations": 0,
     "cross_domain_compositions": 7,
     "capability_need_resolutions": 1,
@@ -103,7 +128,7 @@
     "owner_workflows_completed": 12,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Complete adversarial independent Workspace/device verification, exact hosted proof, and installed owner restart/multi-file proof; then resume breadth with a new owner capability.",
+  "next_action": "Advance generic communications send using configured provider/channel inspection; in parallel prepare Calendar write and productize Workspace preview without reopening the closed trust campaign.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
