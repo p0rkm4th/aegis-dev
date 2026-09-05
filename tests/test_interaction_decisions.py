@@ -150,6 +150,7 @@ def test_pack_grounding_rule_rejects_unapproved_derivation_and_forged_referent()
     assert "unapproved deterministic" in (
         _argument_provenance_error(card.action, "Set the test light level to 40", card=card) or ""
     )
+
     forged = card.model_copy(
         update={
             "action": card.action.model_copy(
@@ -188,6 +189,41 @@ def test_pack_grounding_rule_rejects_unapproved_derivation_and_forged_referent()
     assert (
         _argument_provenance_error(grounded_ref.action, card=grounded_ref, context=authorized)
         is None
+    )
+
+
+def test_canonical_referent_collision_cannot_cross_source_classes() -> None:
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="collision.test",
+            capability="collision.test",
+            arguments={"target_id": "shared-id"},
+            argument_provenance={
+                "target_id": ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                    canonical_ref="shared-id",
+                )
+            },
+        ),
+        summary="Use a canonical target",
+        relevance=1,
+        argument_keys=("target_id",),
+        argument_grounding={
+            "target_id": ArgumentGroundingRule(
+                permitted_provenance=(ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,),
+                canonical_source="source_A",
+            )
+        },
+    )
+    context = Context(
+        values={
+            "source_A": {"id": "not-shared"},
+            "source_B": {"id": "shared-id"},
+        },
+        sources=("authorized_canonical_result",),
+    )
+    assert "unavailable canonical evidence" in (
+        _argument_provenance_error(card.action, card=card, context=context) or ""
     )
 
 

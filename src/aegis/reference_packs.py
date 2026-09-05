@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from .calendar import calendar_events_evidence, configured_calendar_provider
 from .communications import FixtureCommunicationProvider, communications_evidence
@@ -53,7 +53,97 @@ from .research import (
     SearchRequest,
     configured_research_service,
 )
-from .workspace import WorkspaceManager
+from .workspace import WorkspaceManager, workspace_expected_postcondition
+
+
+def prepare_reference_action(
+    action: ActionSpec, principal: Principal, objective_id: Any
+) -> ActionSpec:
+    """Bind invocation-specific postconditions before a consequential write."""
+    args = action.arguments
+    files: dict[str, str] | None = None
+    if action.action_id == "workspace.artifact.create":
+        candidate = args.get("files")
+        if isinstance(candidate, dict):
+            files = candidate
+        elif isinstance(args.get("path"), str) and isinstance(args.get("content"), str):
+            files = {args["path"]: args["content"]}
+    elif action.action_id == "communication-drafts.messages.draft":
+        values = (
+            args.get("recipient"),
+            args.get("subject"),
+            args.get("body"),
+            args.get("target_path"),
+        )
+        if all(isinstance(value, str) and value.strip() for value in values):
+            recipient, subject, body, target_path = cast(tuple[str, str, str, str], values)
+            files = {
+                str(target_path): (
+                    f"# Draft message\n\nTo: {recipient}\nSubject: {subject}\n\n{body}\n"
+                )
+            }
+    elif action.action_id == "device-controls.devices.command.execute":
+        entity_id = args.get("entity_id")
+        expected_state = args.get("expected_state")
+        if isinstance(entity_id, str) and isinstance(expected_state, str):
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": {
+                                "version": 1,
+                                "principal_id": principal.id,
+                                "objective_id": str(objective_id),
+                                "entity_id": entity_id,
+                                "expected_state": expected_state,
+                            }
+                        }
+                    )
+                }
+            )
+    elif action.action_id == "documents.export_to_workspace":
+        document_id = args.get("document_id")
+        document_target_path = args.get("target_path")
+        if isinstance(document_id, str) and isinstance(document_target_path, str):
+            document = next(
+                (item for item in configured_document_provider().list_documents()
+                 if item.document_id == document_id),
+                None,
+            )
+            if document is not None:
+                files = {document_target_path: f"# {document.title}\n\n{document.text}"}
+    if files is None:
+        return action
+    expectation = workspace_expected_postcondition(principal.id, objective_id, files)
+    verification = action.verification or VerificationContract(kind="custom")
+    return action.model_copy(
+        update={"verification": verification.model_copy(update={"expected": expectation})}
+    )
+
+
+def _verify_workspace_expectation(
+    principal: Principal, contract: VerificationContract
+) -> tuple[bool, str]:
+    expected = contract.expected
+    if not isinstance(expected, dict):
+        return False, "workspace postcondition is missing"
+    if expected.get("principal_id") != principal.id:
+        return False, "workspace principal scope does not match"
+    try:
+        objective_id = UUID(str(expected["objective_id"]))
+        files = expected["files"]
+        if not isinstance(files, dict) or not all(
+            isinstance(path, str) and isinstance(digest, str)
+            for path, digest in files.items()
+        ):
+            return False, "workspace postcondition files are invalid"
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(principal.id, objective_id)
+        return workspace.verify_expected_files(cast(dict[str, str], files))
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        return False, f"workspace postcondition unavailable: {exc}"
 
 
 @dataclass(frozen=True)
@@ -590,6 +680,9 @@ class DeviceStatesExecutor:
 class DeviceControlExecutor:
     """Execute only the typed low-risk device command contract."""
 
+    def __init__(self, gateway: Any | None = None) -> None:
+        self.gateway = gateway
+
     def execute(self, request: ExecutionRequest) -> Observation:
         args = request.action.arguments
         entity_id = args.get("entity_id")
@@ -622,7 +715,7 @@ class DeviceControlExecutor:
                 },
                 command_succeeded=False,
             )
-        gateway = (
+        gateway = self.gateway or (
             HomeAssistantRestControlGateway(
                 os.environ["AEGIS_HOME_ASSISTANT_URL"],
                 os.environ["AEGIS_HOME_ASSISTANT_TOKEN"],
@@ -631,19 +724,22 @@ class DeviceControlExecutor:
             and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
             else FixtureDeviceGateway({entity_id: {"state": "off", "attributes": {}}})
         )
-        adapter = HomeAssistantAdapter(gateway, policy=_LowRiskDevicePolicy())
-        execution = adapter.execute(
-            DeviceCommand(
-                entity_id=entity_id,
-                service=service,
-                expected_state=expected_state,
-            ),
-            datetime.now(timezone.utc),
-        )
+        command = DeviceCommand(entity_id=entity_id, service=service, expected_state=expected_state)
+        if not _LowRiskDevicePolicy().allow_command(command):
+            raise PermissionError("Home Assistant command denied by policy")
+        gateway.call_service(command.model_dump(mode="json"))
         return Observation(
             execution_id=uuid4(),
-            evidence={"device_execution": execution.model_dump(mode="json")},
-            command_succeeded=execution.accepted,
+            evidence={
+                "device_execution": {
+                    "accepted": True,
+                    "entity_id": entity_id,
+                    "service": service,
+                    "expected_state": expected_state,
+                    "readback": "deferred_to_independent_verifier",
+                }
+            },
+            command_succeeded=True,
         )
 
 
@@ -657,21 +753,36 @@ class _LowRiskDevicePolicy:
 
 
 class DeviceControlVerifier:
+    def __init__(self, gateway: Any | None = None, principal: Principal | None = None) -> None:
+        self.gateway = gateway
+        self.principal = principal
+
     def verify(
-        self, observation: Observation, _contract: VerificationContract
+        self, observation: Observation, contract: VerificationContract
     ) -> VerificationResult:
+        expected = contract.expected
         execution = observation.evidence.get("device_execution")
-        verified = (
+        verified = False
+        reason = "device postcondition is unavailable"
+        if (
             observation.command_succeeded
             and isinstance(execution, dict)
-            and execution.get("verified") is True
-        )
+            and isinstance(expected, dict)
+            and (
+                self.principal is None
+                or expected.get("principal_id") == self.principal.id
+            )
+            and isinstance(expected.get("entity_id"), str)
+            and isinstance(expected.get("expected_state"), str)
+        ):
+            gateway = self.gateway or FixtureDeviceGateway({})
+            actual = gateway.get_state(expected["entity_id"])
+            verified = actual.get("state") == expected["expected_state"]
+            reason = "device state independently verified" if verified else "device state mismatch"
         return VerificationResult(
             verified=verified,
-            evidence={"readback_verified": verified},
-            reason="device command readback verified"
-            if verified
-            else "device command readback failed",
+            evidence={"readback_verified": verified, "verification": "independent_provider_read"},
+            reason=reason,
         )
 
 
@@ -716,7 +827,7 @@ class DeviceSnapshotWorkspaceExecutor:
                 "composition": "device_snapshot_to_workspace",
                 "device_count": len(states) if isinstance(states, list) else 0,
                 "files": list(artifact.files),
-                "validated": artifact.validated,
+                "executor_local_validated": artifact.validated,
             },
             command_succeeded=True,
         )
@@ -726,18 +837,16 @@ class DeviceSnapshotWorkspaceVerifier:
     def verify(
         self, observation: Observation, _contract: VerificationContract
     ) -> VerificationResult:
-        verified = (
-            observation.command_succeeded
-            and observation.evidence.get("composition") == "device_snapshot_to_workspace"
-            and observation.evidence.get("validated") is True
-            and isinstance(observation.evidence.get("files"), list)
-        )
+        # The snapshot is assembled from provider state during execution; it
+        # needs a fixed-input phase before it can claim independent completion.
+        verified = False
         return VerificationResult(
             verified=verified,
-            evidence={"device_snapshot_workspace_verified": verified},
-            reason="device snapshot artifact readback verified"
-            if verified
-            else "device snapshot artifact verification failed",
+            evidence={
+                "device_snapshot_workspace_verified": verified,
+                "postcondition": "not established",
+            },
+            reason="device snapshot verification is pending a fixed-input workspace step",
         )
 
 
@@ -810,7 +919,7 @@ class DocumentWorkspaceExecutor:
                 "document_id": result.document_id,
                 "target_path": result.target_path,
                 "files": list(result.files),
-                "validated": result.validated,
+                "executor_local_validated": result.validated,
                 "source": result.source,
             },
             command_succeeded=True,
@@ -818,18 +927,20 @@ class DocumentWorkspaceExecutor:
 
 
 class DocumentWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
     def verify(
-        self, observation: Observation, _contract: VerificationContract
+        self, observation: Observation, contract: VerificationContract
     ) -> VerificationResult:
-        verified = (
-            observation.command_succeeded
-            and observation.evidence.get("composition") == "document_to_workspace"
-            and observation.evidence.get("validated") is True
-        )
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
         return VerificationResult(
             verified=verified,
-            evidence={"composition_verified": verified},
-            reason="document export readback verified" if verified else "document export failed",
+            evidence={"composition_verified": verified, "postcondition": detail},
+            reason="document export independently verified"
+            if verified
+            else f"document export verification failed: {detail}",
         )
 
 
@@ -919,7 +1030,7 @@ class WorkspaceArtifactExecutor:
             evidence={
                 "workspace": "artifact",
                 "files": list(artifact.files),
-                "validated": artifact.validated,
+                "executor_local_validated": artifact.validated,
             },
             command_succeeded=True,
         )
@@ -971,7 +1082,7 @@ class ResearchWorkspaceExecutor:
                 "provider_id": evidence.provider_id,
                 "source_ids": list(result.source_ids),
                 "files": list(result.files),
-                "validated": result.validated,
+                "executor_local_validated": result.validated,
                 "authoritative": result.authoritative,
             },
             command_succeeded=True,
@@ -982,19 +1093,13 @@ class ResearchWorkspaceVerifier:
     def verify(
         self, observation: Observation, _contract: VerificationContract
     ) -> VerificationResult:
-        verified = (
-            observation.command_succeeded
-            and observation.evidence.get("composition") == "research_to_workspace"
-            and observation.evidence.get("validated") is True
-            and observation.evidence.get("authoritative") is False
-            and isinstance(observation.evidence.get("source_ids"), list)
-        )
+        # Research output is produced during execution, so its final bytes
+        # are not a trusted pre-execution expectation.
+        verified = False
         return VerificationResult(
             verified=verified,
-            evidence={"research_workspace_verified": verified},
-            reason="research notes artifact readback verified"
-            if verified
-            else "research notes artifact verification failed",
+            evidence={"research_workspace_verified": verified, "postcondition": "not established"},
+            reason="research notes verification is pending a fixed-input workspace step",
         )
 
 
@@ -1050,7 +1155,7 @@ class CommunicationDraftExecutor:
             evidence={
                 "composition": "communication_draft",
                 "files": list(artifact.files),
-                "validated": artifact.validated,
+                "executor_local_validated": artifact.validated,
                 "sent": False,
             },
             command_succeeded=True,
@@ -1058,21 +1163,24 @@ class CommunicationDraftExecutor:
 
 
 class CommunicationDraftVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
     def verify(
-        self, observation: Observation, _contract: VerificationContract
+        self, observation: Observation, contract: VerificationContract
     ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
         verified = (
             observation.command_succeeded
-            and observation.evidence.get("composition") == "communication_draft"
-            and observation.evidence.get("validated") is True
+            and verified
             and observation.evidence.get("sent") is False
         )
         return VerificationResult(
             verified=verified,
-            evidence={"communication_draft_verified": verified},
-            reason="unsent communication draft readback verified"
+            evidence={"communication_draft_verified": verified, "postcondition": detail},
+            reason="unsent communication draft independently verified"
             if verified
-            else "communication draft verification failed",
+            else f"communication draft verification failed: {detail}",
         )
 
 
@@ -1081,20 +1189,16 @@ class WorkspaceArtifactVerifier:
         self.principal = principal
 
     def verify(
-        self, observation: Observation, _contract: VerificationContract
+        self, observation: Observation, contract: VerificationContract
     ) -> VerificationResult:
-        evidence = observation.evidence
-        verified = bool(
-            observation.command_succeeded
-            and evidence.get("workspace") == "artifact"
-            and evidence.get("validated")
-        )
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
         return VerificationResult(
             verified=verified,
-            evidence=evidence,
-            reason="workspace artifact readback verified"
+            evidence={"workspace_artifact_verified": verified, "postcondition": detail},
+            reason="workspace artifact independently verified"
             if verified
-            else "workspace artifact verification failed",
+            else f"workspace artifact verification failed: {detail}",
         )
 
 

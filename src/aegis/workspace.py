@@ -7,6 +7,7 @@ intent, authorization, observation, and verification around consequential work.
 
 from __future__ import annotations
 
+import hashlib
 import os
 import shutil
 import subprocess
@@ -31,7 +32,7 @@ class WorkspaceRun:
 
 @dataclass(frozen=True)
 class WorkspaceArtifact:
-    """Verified inventory returned after a bounded artifact operation."""
+    """Executor-local artifact sanity evidence, not Core postcondition truth."""
 
     correlation_id: UUID
     files: tuple[str, ...]
@@ -74,6 +75,35 @@ class ScopedWorkspace:
         if candidate != self.root and self.root not in candidate.parents:
             raise WorkspaceError("workspace path escapes the scoped root")
         return candidate
+
+    def verify_expected_files(self, expected: dict[str, str]) -> tuple[bool, str]:
+        """Independently inspect promised bytes in this already-scoped workspace."""
+        if not expected or len(expected) > 50:
+            return False, "expected workspace file set is outside bounds"
+        for relative, expected_hash in expected.items():
+            if not isinstance(relative, str) or not isinstance(expected_hash, str):
+                return False, "invalid workspace postcondition"
+            try:
+                resolved = self._path(relative)
+            except WorkspaceError as exc:
+                return False, str(exc)
+            candidate = self.root / relative
+            # Check the lexical path as well as the resolved path: resolve()
+            # alone would make a symlink look like an ordinary file.
+            current = self.root
+            for part in candidate.relative_to(self.root).parts:
+                current = current / part
+                if current.is_symlink():
+                    return False, f"workspace path is a symlink: {relative}"
+            if resolved != candidate or not candidate.is_file():
+                return False, f"workspace file is unavailable: {relative}"
+            try:
+                actual_hash = hashlib.sha256(candidate.read_bytes()).hexdigest()
+            except OSError:
+                return False, f"workspace file cannot be read: {relative}"
+            if actual_hash != expected_hash:
+                return False, f"workspace hash mismatch: {relative}"
+        return True, "independent workspace postcondition matched"
 
     def write(self, relative: str, content: str) -> None:
         data = content.encode("utf-8")
@@ -179,7 +209,7 @@ class ScopedWorkspace:
         correlation_id: UUID,
         validator: Callable[["ScopedWorkspace"], str | None],
     ) -> WorkspaceArtifact:
-        """Materialize files, then require an independent bounded validator."""
+        """Materialize files, then run an executor-local bounded sanity check."""
         if not files or len(files) > 50:
             raise WorkspaceError("artifact file count is outside bounds")
         for relative, content in files.items():
@@ -249,3 +279,22 @@ class WorkspaceManager:
             )
             workspaces.append({"workspace_id": path.name, "files": files})
         return tuple(workspaces)
+
+
+def workspace_expected_postcondition(
+    principal_id: str, objective_id: UUID, files: dict[str, str]
+) -> dict[str, object]:
+    """Create a durable, content-minimal expectation before workspace mutation."""
+    if not files or len(files) > 50:
+        raise WorkspaceError("expected workspace file set is outside bounds")
+    hashes: dict[str, str] = {}
+    for relative, content in files.items():
+        if not isinstance(relative, str) or not isinstance(content, str):
+            raise WorkspaceError("workspace postcondition requires text files")
+        hashes[relative] = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    return {
+        "version": 1,
+        "principal_id": principal_id,
+        "objective_id": str(objective_id),
+        "files": hashes,
+    }

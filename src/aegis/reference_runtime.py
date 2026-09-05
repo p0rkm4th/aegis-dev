@@ -7,6 +7,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .contracts import Principal
+from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
 from .gateway_rpc import OpenClawWebSocketChannel
 from .household import (
     PostgresChoreExecutor,
@@ -47,6 +48,7 @@ from .reference_packs import (
     ResearchWorkspaceVerifier,
     WorkspaceArtifactExecutor,
     WorkspaceArtifactVerifier,
+    prepare_reference_action,
 )
 from .tasks import (
     PostgresTaskExecutor,
@@ -176,6 +178,7 @@ def default_runtime_registry(
             WorkspaceArtifactExecutor(principal),
             WorkspaceArtifactVerifier(principal),
             {"workspace.write": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
         )
 
     def calendar_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -206,11 +209,12 @@ def default_runtime_registry(
         del connection
         return ActionRuntime(
             CommunicationDraftExecutor(principal),
-            CommunicationDraftVerifier(),
+            CommunicationDraftVerifier(principal),
             {
                 "communications.draft": frozenset({Role.OWNER}),
                 "workspace.write": frozenset({Role.OWNER}),
             },
+            prepare=prepare_reference_action,
         )
 
     def devices_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -222,11 +226,21 @@ def default_runtime_registry(
         )
 
     def device_control_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        del connection, principal
+        del connection
+        gateway = (
+            HomeAssistantRestControlGateway(
+                os.environ["AEGIS_HOME_ASSISTANT_URL"],
+                os.environ["AEGIS_HOME_ASSISTANT_TOKEN"],
+            )
+            if os.environ.get("AEGIS_HOME_ASSISTANT_URL")
+            and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
+            else FixtureDeviceGateway({})
+        )
         return ActionRuntime(
-            DeviceControlExecutor(),
-            DeviceControlVerifier(),
+            DeviceControlExecutor(gateway),
+            DeviceControlVerifier(gateway, principal),
             {"devices.control": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
         )
 
     def device_snapshot_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -244,8 +258,9 @@ def default_runtime_registry(
         del connection
         return ActionRuntime(
             DocumentWorkspaceExecutor(principal),
-            DocumentWorkspaceVerifier(),
+            DocumentWorkspaceVerifier(principal),
             {"documents.read": frozenset({Role.OWNER}), "workspace.write": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
         )
 
     def research_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:

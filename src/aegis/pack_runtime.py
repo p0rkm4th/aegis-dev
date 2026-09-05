@@ -11,7 +11,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from .contracts import ActionCard, Principal
+from .contracts import ActionCard, ActionSpec, Principal
 
 
 @dataclass(frozen=True)
@@ -21,6 +21,7 @@ class ActionRuntime:
     permissions: dict[str, frozenset[Any]]
     cleanup: Callable[[], None] | None = None
     grounder: Callable[..., Any] | None = None
+    prepare: Callable[[ActionSpec, Principal, Any], ActionSpec] | None = None
 
 
 RuntimeFactory = Callable[[Any, Principal], ActionRuntime]

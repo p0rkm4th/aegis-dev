@@ -25,6 +25,7 @@ CompositionState = Callable[[Principal], dict[str, Any]]
 PackState = Callable[[Principal], dict[str, Any]]
 PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CalendarState = Callable[[Principal], dict[str, Any]]
+TodayState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -551,6 +552,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'compositions') loadCompositions();
   if (activeView === 'packs') loadPacks();
   if (activeView === 'calendar') loadCalendar();
+  if (activeView === 'home') loadToday();
   renderResearchSummary();
   applyNodeFilter();
 }));
@@ -686,6 +688,21 @@ async function loadCalendar() {
     panel.append(renderDetailValue(events));
   } catch (_) {
     panel.textContent = 'Calendar state is unavailable; no event state was changed.';
+  }
+}
+async function loadToday() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/today');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Today unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = 'Authorized state requiring attention today';
+    panel.append(heading);
+    panel.append(renderDetailValue(payload));
+  } catch (_) {
+    panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
 }
 async function loadCompositions() {
@@ -924,6 +941,7 @@ class BrowserApp:
         pack_state: PackState | None = None,
         pack_enable: PackEnable | None = None,
         calendar_state: CalendarState | None = None,
+        today_state: TodayState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -939,6 +957,7 @@ class BrowserApp:
         self.pack_state = pack_state
         self.pack_enable = pack_enable
         self.calendar_state = calendar_state
+        self.today_state = today_state
 
     def dispatch(
         self,
@@ -1076,6 +1095,24 @@ class BrowserApp:
                     "calendar state unavailable",
                 )
             return self._json(HTTPStatus.OK, calendar_projection)
+        if method == "GET" and route == "/api/today":
+            if self.today_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                today_projection = self.today_state(principal)
+                if not isinstance(today_projection, dict):
+                    raise ValueError("Today state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "Today state unavailable",
+                )
+            return self._json(HTTPStatus.OK, today_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1310,6 +1347,7 @@ def serve(
     pack_state: PackState | None = None,
     pack_enable: PackEnable | None = None,
     calendar_state: CalendarState | None = None,
+    today_state: TodayState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1328,6 +1366,7 @@ def serve(
         pack_state=pack_state,
         pack_enable=pack_enable,
         calendar_state=calendar_state,
+        today_state=today_state,
     )
 
     class Handler(BaseHTTPRequestHandler):
