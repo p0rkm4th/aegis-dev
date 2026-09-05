@@ -2232,6 +2232,27 @@ def test_contextual_task_after_that_accepts_show_form():
     assert result.message == "Task: later task (open)"
 
 
+def test_contextual_explicit_task_ordinal_accepts_show_form():
+    first = {"task_id": "one", "title": "first task", "status": "open"}
+    second = {"task_id": "two", "title": "second task", "status": "open"}
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Show me the second task.",
+        ),
+        Context(
+            values={
+                "referents": {
+                    "those": {"fact_key": "canonical_tasks", "candidates": [first, second]}
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+    assert result is not None
+    assert result.message == "Task: second task (open)"
+
+
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 

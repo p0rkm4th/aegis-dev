@@ -1306,7 +1306,12 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         re.search(r"\b(?:other|another)\s+(?:one|item|task|chore|event)\b", text) is not None
     )
     ordinal_reference = (
-        re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last|next)\s+one\b", text) is not None
+        re.search(
+            r"\b(?:the\s+)?(?:first|second|third|fourth|last|next)\s+"
+            r"(?:one|task|chore|event)\b",
+            text,
+        )
+        is not None
     )
     unsupported_ordinal_reference = (
         re.search(
@@ -1319,7 +1324,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         is_mutation_request(text)
         or not any(
             marker in text
-            for marker in ("what about", "tell me about", "which one", "what is", "meant")
+            for marker in ("what about", "tell me about", "which one", "what is", "show", "meant")
         )
         and not re.search(r"\bshow(?: me)? the task (?:before|after) that\b", text)
         and not (
