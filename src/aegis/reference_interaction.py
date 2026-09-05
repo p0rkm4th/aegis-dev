@@ -2026,6 +2026,8 @@ def resolve_contextual_task_focus_read(
             "is it still open",
             "when is that due",
             "when is it due",
+            "what is its deadline",
+            "what is the deadline",
         }
     ):
         return None
@@ -2057,6 +2059,8 @@ def resolve_contextual_task_focus_read(
     detail = f"Task: {task.title} ({task.status.value})"
     if task.due_at is not None:
         detail += f"; due {_display_due_at(task.due_at.isoformat())}"
+    elif "deadline" in text or "due" in text:
+        detail += "; no recorded deadline"
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
