@@ -3041,6 +3041,15 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
     assert "optional or 'if clearly stated'" in payload["argument_proposal_rule"]
 
 
+def test_ollama_schema_does_not_accept_model_provenance_metadata():
+    schema = OllamaProvider._decision_schema(
+        ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=())
+    )
+
+    action_schema = schema["$defs"]["ActionSpec"]
+    assert "argument_provenance" not in action_schema["properties"]
+
+
 def test_ollama_repair_prompt_exposes_validator_stage_only_as_context():
     request = ModelRequest(
         working_set=WorkingSet(intent=intent()),

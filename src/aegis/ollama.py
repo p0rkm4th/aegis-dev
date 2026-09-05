@@ -223,6 +223,7 @@ class OllamaProvider:
             schema = deepcopy(Decision.model_json_schema())
             action_schema = schema.get("$defs", {}).get("ActionSpec")
             if isinstance(action_schema, dict):
+                action_schema.get("properties", {}).pop("argument_provenance", None)
                 action_schema["required"] = [
                     "action_id",
                     "capability",
@@ -289,6 +290,7 @@ class OllamaProvider:
         schema = deepcopy(Decision.model_json_schema())
         action_schema = schema.get("$defs", {}).get("ActionSpec")
         if isinstance(action_schema, dict):
+            action_schema.get("properties", {}).pop("argument_provenance", None)
             action_schema["required"] = [
                 "action_id",
                 "capability",

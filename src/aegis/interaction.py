@@ -220,7 +220,11 @@ class InteractionBoundary:
             grounded_steps = []
             for step, card in zip(proposal.steps, plan_cards, strict=True):
                 proposed_card = card.model_copy(
-                    update={"action": card.action.model_copy(update={"arguments": step.arguments})}
+                    update={
+                        "action": card.action.model_copy(
+                            update={"arguments": step.arguments, "argument_provenance": {}}
+                        )
+                    }
                 )
                 grounded = (
                     self.dependencies.action_grounder(intent, proposed_card, connection, context)
@@ -499,6 +503,9 @@ class InteractionBoundary:
                         )
                     )
             if self.dependencies.action_grounder is not None:
+                card = card.model_copy(
+                    update={"action": card.action.model_copy(update={"argument_provenance": {}})}
+                )
                 grounded = self.dependencies.action_grounder(intent, card, connection, context)
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
