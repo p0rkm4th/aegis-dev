@@ -2227,6 +2227,7 @@ def resolve_contextual_event_focus_read(
         "when does it start",
         "when does that start",
         "when is that",
+        "when is it",
         "what time is it",
         "what day is that",
         "what date is that",
