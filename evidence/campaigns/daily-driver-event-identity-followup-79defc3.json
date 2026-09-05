@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-identity-followup",
+  "source_sha": "79defc3efd568d3a3a52e02997631d0240a6800a",
+  "hosted": {"workflow": "validation", "run_id": "33966655526", "conclusion": "success"},
+  "owner": {
+    "release_sha": "79defc3efd568d3a3a52e02997631d0240a6800a",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What's on my calendar?", "completed", "canonical event collection"],
+      ["What about the second one?", "completed", "Apartment inspection"],
+      ["What is its date?", "completed", "Apartment inspection; starts 2026-09-02 22:33 CDT"]
+    ]
+  },
+  "safety": "Stable canonical event identity survives ordinal follow-up; duplicate titles remain revalidated and no mutation occurs."
+}
