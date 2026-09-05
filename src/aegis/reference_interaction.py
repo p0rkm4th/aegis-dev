@@ -1166,6 +1166,9 @@ def resolve_reference_fast_paths(
     )
     if contextual_obligation_result is not None:
         return contextual_obligation_result
+    contextual_chore_result = resolve_contextual_chore_focus_read(intent, context, snapshot)
+    if contextual_chore_result is not None:
+        return contextual_chore_result
     contextual_grocery_result = resolve_contextual_grocery_membership_read(
         intent, context, household_store
     )
@@ -1602,6 +1605,8 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             collection_evidence["event"] = referent
         elif fact_key == "canonical_obligations":
             collection_evidence["obligation"] = referent
+        elif fact_key == "canonical_chores":
+            collection_evidence["chore"] = referent
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
@@ -2192,6 +2197,65 @@ def resolve_contextual_obligation_focus_read(
                 "responsible_id": obligation.responsible_id,
                 "settled": obligation.settled,
                 "amount": obligation.amount,
+            },
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_chore_focus_read(
+    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+) -> Result | None:
+    """Read assignee from one authorized canonical chore focus."""
+
+    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+        return None
+    text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
+    if text not in {"who is assigned", "who is assigned to it", "who handles it"}:
+        return None
+    facts = context.values.get("canonical_facts")
+    focus = facts.get("chore") if isinstance(facts, dict) else None
+    if not isinstance(focus, dict) or not isinstance(focus.get("title"), str):
+        return None
+    chores = snapshot.get("chores")
+    current = tuple(chores) if isinstance(chores, (list, tuple)) else ()
+    chore_id = focus.get("chore_id")
+    matches = [
+        chore for chore in current if isinstance(chore_id, str) and str(chore.chore_id) == chore_id
+    ]
+    if not matches:
+        title = focus["title"].casefold()
+        matches = [
+            chore
+            for chore in current
+            if chore.title.casefold() == title and chore.assignee_id == focus.get("assignee_id")
+        ]
+    if len(matches) != 1:
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I can no longer find one unambiguous canonical chore for that reference.",
+            correlation_id=intent.correlation_id,
+        )
+    chore = matches[0]
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=f"Chore: {chore.title} is assigned to {chore.assignee_id}",
+        evidence={
+            "collection": "canonical_chores",
+            "authorized_chore_focus": {
+                "chore_id": str(chore.chore_id),
+                "title": chore.title,
+                "assignee_id": chore.assignee_id,
+                "completed": chore.completed,
+            },
+            "chore": {
+                "chore_id": str(chore.chore_id),
+                "title": chore.title,
+                "assignee_id": chore.assignee_id,
+                "completed": chore.completed,
             },
         },
         correlation_id=intent.correlation_id,
