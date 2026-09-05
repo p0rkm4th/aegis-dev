@@ -197,6 +197,34 @@ def test_contextual_task_priority_uses_only_authorized_prior_tasks():
     assert result.evidence["priority_basis"] == "authorized_prior_result_earliest_due_at"
 
 
+def test_contextual_task_priority_uses_latest_authorized_prior_task():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "soon task", "status": "open", "due_at": "2026-09-02"},
+                        {"title": "latest task", "status": "open", "due_at": "2026-09-05"},
+                    ],
+                }
+            }
+        }
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which task is due latest?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message.endswith("latest task")
+    assert result.evidence["priority_basis"] == "authorized_prior_result_latest_due_at"
+
+
 def test_contextual_task_temporal_followup_uses_authorized_task_domain():
     class Store:
         def list(self, _principal):
