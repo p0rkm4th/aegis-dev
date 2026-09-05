@@ -721,6 +721,33 @@ def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correctio
     assert "choose an ordinal" in correction.message
 
 
+def test_other_task_followup_uses_selected_priority_and_authorized_candidates():
+    candidates = [
+        {"task_id": "one", "title": "first task", "status": "open", "due_at": "2026-09-06"},
+        {"task_id": "two", "title": "second task", "status": "open", "due_at": "2026-09-07"},
+    ]
+    context = Context(
+        values={
+            "referents": {"those": {"fact_key": "canonical_tasks", "candidates": candidates}},
+            "canonical_facts": {"task": candidates[0]},
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the other one?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Task: second task (open); due 2026-09-07"
+    assert result.evidence["authorized_other_referent"] == candidates[1]
+
+
 def test_contextual_correction_reaches_domain_specific_referent_guard():
     context = Context(
         values={

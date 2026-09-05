@@ -1374,6 +1374,44 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             correlation_id=intent.correlation_id,
         )
     if isinstance(candidates, list) and ambiguous_correction:
+        selected_task = context.values.get("canonical_facts", {}).get("task")
+        if fact_key == "canonical_tasks" and isinstance(selected_task, dict):
+            selected_matches = [
+                candidate
+                for candidate in candidates
+                if isinstance(candidate, dict)
+                and (
+                    candidate.get("task_id") == selected_task.get("task_id")
+                    or candidate.get("title") == selected_task.get("title")
+                )
+            ]
+            other_candidates = [
+                candidate for candidate in candidates if candidate not in selected_matches
+            ]
+            if len(selected_matches) == 1 and len(other_candidates) == 1:
+                other = other_candidates[0]
+                title = other.get("title") if isinstance(other, dict) else None
+                if isinstance(title, str) and title:
+                    detail = f"Task: {title}"
+                    status = other.get("status") or (
+                        "completed" if other.get("completed") is True else "open"
+                    )
+                    if isinstance(status, str):
+                        detail += f" ({status})"
+                    due_at = other.get("due_at")
+                    if isinstance(due_at, str):
+                        detail += f"; due {_display_due_at(due_at)}"
+                    return Result(
+                        objective_id=uuid4(),
+                        state=ObjectiveState.COMPLETED,
+                        message=detail,
+                        evidence={
+                            "collection": "canonical_tasks",
+                            "authorized_other_referent": other,
+                            "canonical_tasks": candidates,
+                        },
+                        correlation_id=intent.correlation_id,
+                    )
         # A correction without a unique structural target must not fall
         # through to semantic action selection.  Keep it in the same
         # authorized collection and ask for the missing identity.
