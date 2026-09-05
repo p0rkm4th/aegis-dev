@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "state_basis_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
-  "deterministic_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
-  "last_pushed_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
-  "hosted_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
-  "hosted_ci_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "repository_head_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
+  "deterministic_green_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
+  "last_pushed_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
+  "hosted_green_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
+  "hosted_ci_green_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+    "commit_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
     "conclusion": "success",
-    "run_id": "33992547519",
+    "run_id": "33992807952",
     "observed_at": "2026-09-05T19:55:00Z"
   },
-  "installed_release_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
-  "running_release_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
-  "live_green_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55",
+  "installed_release_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
+  "running_release_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
+  "live_green_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-research-routing",
+  "active_checkpoint": "daily-driver-alpha-systems-inventory",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-vertical",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "d779591dd7d00adcbf342424aec9adda29f8ae55"
+    "release_sha": "7af64758cb9fae60174fb9bb1c5fe2a7c57bb4aa"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -88,6 +88,7 @@
     ,"explicit current/public/research requests now force bounded external-evidence routing; model-only fallback is regression-tested and truthful provider failure remains non-authoritative"
     ,"installed owner dogfood confirms current/public research fails truthfully when no provider is configured; positive live provider synthesis remains pending"
     ,"Systems owner view now exposes bounded authorized Homelab hosts/services and Network devices/scopes from PostgreSQL; projection is read-only and does not imply operational authority"
+    ,"installed owner Systems proof returned canonical acceptance-atlas/Plex inventory and alpha-lab network scope without exposing action authority"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -126,21 +127,21 @@
   "independently_verified_write_capabilities": 2,
   "live_external_integrations": 0,
   "voluntarily_useful_owner_workflows": 14,
-  "owner_visible_capability_surfaces": 10,
+  "owner_visible_capability_surfaces": 11,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 9,
   "breadth_scoreboard": {
-    "owner_visible_views": 8,
-    "usable_capability_families": 6,
+    "owner_visible_views": 9,
+    "usable_capability_families": 7,
     "verified_write_capabilities": 2,
     "external_integrations": 0,
     "cross_domain_compositions": 9,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 13,
+    "owner_workflows_completed": 14,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue breadth with a new owner-visible device/homelab or communications slice; preserve Research as evidence-gated until a provider-backed positive owner proof is available.",
+  "next_action": "Add the next functional systems/device action with independent health readback, or advance provider-backed communications while preserving explicit authority and truthful live/fixture states.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
