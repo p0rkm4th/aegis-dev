@@ -645,6 +645,8 @@ def reference_format_result(result: Any) -> str:
     # mutation-shaped title formatter ("Done — ...").
     if isinstance(evidence.get("authorized_ordinal_referent"), dict):
         return str(result.message)
+    if "authorized_other_items" in evidence:
+        return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         counts: dict[str, int] = {}
@@ -1121,6 +1123,11 @@ def resolve_reference_fast_paths(
     )
     if contextual_grocery_quantity_result is not None:
         return contextual_grocery_quantity_result
+    contextual_grocery_other_result = resolve_contextual_grocery_other_read(
+        intent, context, household_store
+    )
+    if contextual_grocery_other_result is not None:
+        return contextual_grocery_other_result
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
@@ -1525,6 +1532,49 @@ def resolve_contextual_grocery_quantity_read(
             "collection": "groceries",
             "canonical_items": list(current_items),
             "authorized_quantity": {"item": item, "quantity": quantity},
+            "continuation_context": "authorized_prior_result",
+        },
+        correlation_id=intent.correlation_id,
+    )
+
+
+def resolve_contextual_grocery_other_read(
+    intent: IntentFrame, context: Context, store: PostgresHouseholdStore
+) -> Result | None:
+    """Answer a singleton-list ``what else`` follow-up without guessing an anchor."""
+
+    if context.sources != ("authorized_canonical_result",):
+        return None
+    text = " ".join(intent.utterance.casefold().split()).strip(".?!")
+    if "what else" not in text or not ("on it" in text or "on the list" in text):
+        return None
+    referents = context.values.get("referents")
+    those = referents.get("those") if isinstance(referents, dict) else None
+    if not isinstance(those, dict) or those.get("fact_key") != "canonical_items":
+        return None
+    prior_items = those.get("candidates")
+    if not isinstance(prior_items, list) or len(prior_items) != 1:
+        return None
+    anchor = prior_items[0]
+    if not isinstance(anchor, str):
+        return None
+    current_items = tuple(store.list_groceries(intent.principal))
+    other_items = tuple(
+        item for item in dict.fromkeys(current_items) if item.casefold() != anchor.casefold()
+    )
+    detail = (
+        "No other grocery items are on your list."
+        if not other_items
+        else "Other groceries: " + ", ".join(other_items)
+    )
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=detail,
+        evidence={
+            "collection": "groceries",
+            "canonical_items": list(current_items),
+            "authorized_other_items": list(other_items),
             "continuation_context": "authorized_prior_result",
         },
         correlation_id=intent.correlation_id,
