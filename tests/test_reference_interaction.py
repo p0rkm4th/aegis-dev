@@ -1835,6 +1835,31 @@ def test_contextual_event_focus_read_accepts_natural_date_wording():
     assert result.evidence["authorized_event_focus"]["event_id"] == "event-1"
 
 
+def test_contextual_event_focus_read_accepts_corrected_what_day_is_it_wording():
+    event = HouseholdEvent("event-1", "review", datetime(2026, 9, 10, 19, 0, tzinfo=timezone.utc))
+    result = resolve_contextual_event_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, what day is it?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "event": {
+                        "event_id": "event-1",
+                        "title": "review",
+                        "starts_at": event.starts_at.isoformat(),
+                    }
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"events": (event,)},
+    )
+    assert result is not None
+    assert result.message.startswith("Event: review; starts ")
+
+
 def test_contextual_ordinal_task_due_followup_reports_missing_deadline():
     result = resolve_contextual_ordinal_read(
         IntentFrame(
