@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "state_basis_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
-  "deterministic_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
-  "last_pushed_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
-  "hosted_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
-  "hosted_ci_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "repository_head_sha": "27ae10f7bc00c850a050712565c69a2cbec6087d",
+  "deterministic_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "last_pushed_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "hosted_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "hosted_ci_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+    "commit_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
     "conclusion": "success",
-    "run_id": "33985357720",
-    "observed_at": "2026-09-05T19:00:00Z"
+    "run_id": "33985555254",
+    "observed_at": "2026-09-05T19:15:00Z"
   },
-  "installed_release_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
-  "running_release_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
-  "live_green_sha": "ab1ae4e685083f40206e13cf2324f78c7892826f",
+  "installed_release_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "running_release_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
+  "live_green_sha": "785fa8a7f6ed78eaf71d2307cf73ce77c6d9942a",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "communication-draft-owner-live",
   "checkpoint_status": "in_progress",
@@ -71,6 +71,7 @@
     ,"communication-drafts Pack is owner-enabled only with exact declared permissions; draft creation writes a scoped Workspace artifact and verifies readback without any send path"
     ,"communication draft owner proof completed on the promoted runtime with drafts/weekend-plan.md persisted in the isolated Workspace inventory"
     ,"bounded configured calendar snapshots are owner-visible through the authenticated Calendar view and /api/calendar; live provider acceptance remains pending"
+    ,"Google Calendar events.list is available through a bounded HTTPS bearer-token adapter with fixture fallback; no live credential is configured"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -99,7 +100,7 @@
     "owner_workflows_completed": 10,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the next breadth tranche with a real replaceable external provider or verified consequential capability; retain the Calendar view as fixture-backed until live provider acceptance is proven.",
+  "next_action": "Continue the next breadth tranche with a verified consequential capability outside task/event/grocery domains, or prove the Google Calendar adapter with owner-supplied credentials if they become available.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
