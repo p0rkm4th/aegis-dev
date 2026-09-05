@@ -507,11 +507,15 @@ class InteractionBoundary:
                                     "public_research",
                                 ),
                                 investigation=CapabilityInvestigationState.COMPLETE,
-                                candidate_resolutions=(
-                                    {
-                                        "kind": "available_action_ids",
-                                        "action_ids": evidence.get("available_action_ids", []),
-                                    },
+                                candidate_resolutions=tuple(
+                                    evidence.get("candidate_resolutions", [])
+                                    if isinstance(evidence.get("candidate_resolutions"), list)
+                                    else (
+                                        {
+                                            "kind": "available_action_ids",
+                                            "action_ids": evidence.get("available_action_ids", []),
+                                        },
+                                    )
                                 ),
                                 parent_objective_id=result.objective_id,
                             ).model_dump(mode="json")
