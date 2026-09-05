@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from uuid import uuid4
 
@@ -21,6 +22,7 @@ def test_workspace_rejects_host_path_escape(tmp_path: Path, relative: str) -> No
         workspace.write(relative, "no")
 
 
+@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
 def test_workspace_runs_allowlisted_command_without_network(tmp_path: Path) -> None:
     workspace = ScopedWorkspace(tmp_path / "owner", allowed_commands=("python3",))
     workspace.write("index.html", "<h1>ok</h1>")
