@@ -830,12 +830,17 @@ class GroceryReadFastPath:
             return False
         grocery_noun = re.search(r"\b(?:grocery|groceries)\b", text) is not None
         shopping_list = "shopping list" in text
+        natural_shopping = "left to buy" in text
         store_pickup = re.search(r"\bpick\s+up\b.*\bstore\b", text) is not None
         unsupported_inventory = (
             assess_read_applicability(text, "kitchen.shopping_list") is ReadApplicability.NO_MATCH
         )
         return (
-            grocery_noun or shopping_list or store_pickup or unsupported_inventory
+            grocery_noun
+            or shopping_list
+            or natural_shopping
+            or store_pickup
+            or unsupported_inventory
         ) and text.startswith(cls._READ_PREFIXES)
 
     def resolve(self, intent: IntentFrame) -> Result | None:
