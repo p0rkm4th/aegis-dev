@@ -808,7 +808,7 @@ class TaskPriorityFastPath:
             return False
         explicit_task = "task" in text
         implicit_task = text.startswith(("what", "which")) and any(
-            term in text for term in ("should", "take care", "focus", "work")
+            term in text for term in ("should", "take care", "focus", "work", "on my list")
         )
         due_priority = (
             text.startswith("which")
