@@ -2209,6 +2209,7 @@ def resolve_contextual_event_focus_read(
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
     if text not in {
+        "is that still open",
         "when does it start",
         "when does that start",
         "when is that",
@@ -2241,10 +2242,15 @@ def resolve_contextual_event_focus_read(
     starts_at = event.starts_at
     if starts_at.tzinfo is None:
         starts_at = starts_at.replace(tzinfo=timezone.utc)
+    status_query = text == "is that still open"
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.COMPLETED,
-        message=f"Event: {event.title}; starts {_display_due_at(starts_at.isoformat())}",
+        message=(
+            f"Event: {event.title} is scheduled; starts {_display_due_at(starts_at.isoformat())}"
+            if status_query
+            else f"Event: {event.title}; starts {_display_due_at(starts_at.isoformat())}"
+        ),
         evidence={
             "collection": "events",
             "authorized_event_focus": {
