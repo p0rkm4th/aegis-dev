@@ -134,6 +134,24 @@ def test_deterministic_homelab_health_action_uses_explicit_service():
     assert card.action.arguments == {"service": "acceptance-plex"}
 
 
+def test_deterministic_homelab_page_action_uses_explicit_workspace_path():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab-reports"
+    )
+    manager.discover(bundle)
+    manager.install("homelab-reports", frozenset({"homelab.read", "workspace.write"}))
+    manager.enable("homelab-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Make me a little webpage showing my homelab as homelab.html",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "homelab-reports.inventory.to_workspace"
+    assert card.action.arguments == {"target_path": "homelab.html"}
+
+
 def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
     manager = PackManager()
     bundle = next(
@@ -5519,6 +5537,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Tasks",
         "Kitchen",
         "Homelab",
+        "Homelab Reports",
         "Network",
         "Workspace",
         "Devices",
