@@ -306,7 +306,10 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     argument_keys=("document_id", "target_path"),
                     argument_grounding={
                         "document_id": ArgumentGroundingRule(
-                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                            ),
+                            canonical_source="authorized_documents",
                         ),
                         "target_path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
