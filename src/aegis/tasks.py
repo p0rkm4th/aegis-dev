@@ -762,6 +762,10 @@ class TaskPriorityFastPath:
         temporal_priority = any(day in text for day in ("today", "tomorrow")) and any(
             term in text for term in ("should", "take care", "work on")
         )
+        temporal_priority = temporal_priority or (
+            any(term in text for term in ("this weekend", "next weekend"))
+            and any(term in text for term in ("should", "take care", "work on"))
+        )
         priority_language = temporal_priority or any(
             term in text for term in ("first", "priorit", "focus", "next", "urgent")
         )
@@ -802,6 +806,21 @@ class TaskPriorityFastPath:
                 for task in dated
                 if task.due_at is not None and _aware_datetime(task.due_at).date() == target_date
             )
+        weekend = None
+        text = intent.utterance.casefold()
+        if "this weekend" in text or "next weekend" in text:
+            current = (now or datetime.now().astimezone()).astimezone()
+            days_until_saturday = (5 - current.weekday()) % 7
+            if "next weekend" in text:
+                days_until_saturday += 7
+            weekend_start = (current + timedelta(days=days_until_saturday)).date()
+            weekend = (weekend_start, weekend_start + timedelta(days=2))
+            dated = tuple(
+                task
+                for task in dated
+                if task.due_at is not None
+                and weekend[0] <= _aware_datetime(task.due_at).astimezone().date() < weekend[1]
+            )
         if not dated:
             return Result(
                 objective_id=uuid4(),
@@ -827,6 +846,8 @@ class TaskPriorityFastPath:
                 "priority_basis": (
                     "earliest_due_at_on_tomorrow"
                     if requested is not None and "tomorrow" in intent.utterance.casefold()
+                    else "earliest_due_at_on_weekend"
+                    if weekend is not None
                     else "earliest_due_at"
                 ),
                 "task": _task_projection(selected),
