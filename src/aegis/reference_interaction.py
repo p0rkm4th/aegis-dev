@@ -1911,6 +1911,7 @@ def resolve_contextual_event_temporal_read(
             return None
         those = {"fact_key": "events", "candidates": facts["events"]}
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
+    text = re.sub(r"^(?:and|but)\s+", "", text)
     temporal_terms = ("today", "tomorrow", "this weekend", "next week", *_WEEKDAYS)
     temporal = next(
         (term for term in temporal_terms if text in {f"what about {term}", term}),

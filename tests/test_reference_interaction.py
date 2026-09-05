@@ -1115,6 +1115,36 @@ def test_event_temporal_follow_up_reuses_authorized_event_collection():
 
     assert result is not None
     assert result.evidence["date_filter"] == "tomorrow"
+
+
+def test_event_temporal_follow_up_accepts_leading_connective():
+    from aegis.household import HouseholdEvent
+
+    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    result = resolve_contextual_event_temporal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="And what about tomorrow?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "events": [{"title": "tomorrow event", "starts_at": tomorrow.isoformat()}]
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {
+            "space_id": "home",
+            "obligations": (),
+            "chores": (),
+            "events": (HouseholdEvent("tomorrow", "tomorrow event", tomorrow),),
+        },
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["date_filter"] == "tomorrow"
     assert result.evidence["events"][0]["title"] == "tomorrow event"
 
 
