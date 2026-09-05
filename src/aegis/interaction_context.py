@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from typing import Any, Literal, cast
 from uuid import UUID
 
@@ -80,6 +81,44 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
                 ]
                 remaining = [item for item in tasks if item not in dated_open]
                 compact[key] = (dated_open + remaining)[:20]
+            elif key == "events":
+                now = datetime.now(timezone.utc)
+
+                def event_time(item: Any) -> datetime | None:
+                    if not isinstance(item, dict) or not isinstance(item.get("starts_at"), str):
+                        return None
+                    try:
+                        parsed = datetime.fromisoformat(item["starts_at"])
+                    except ValueError:
+                        return None
+                    if parsed.tzinfo is None:
+                        parsed = parsed.replace(tzinfo=timezone.utc)
+                    return parsed.astimezone(timezone.utc)
+
+                timed_events: list[tuple[Any, datetime]] = []
+                untimed_events: list[Any] = []
+                for item in value:
+                    starts_at = event_time(item)
+                    if starts_at is None:
+                        untimed_events.append(item)
+                    else:
+                        timed_events.append((item, starts_at))
+                future = [
+                    item
+                    for item, _starts_at in sorted(
+                        (entry for entry in timed_events if entry[1] >= now),
+                        key=lambda entry: entry[1],
+                    )
+                ]
+                past = [
+                    item
+                    for item, _starts_at in sorted(
+                        (entry for entry in timed_events if entry[1] < now),
+                        key=lambda entry: entry[1],
+                        reverse=True,
+                    )
+                ]
+                compact[key] = (future + past + untimed_events)[:20]
             elif key == "chores":
                 compact["canonical_chores"] = list(value[:20])
             else:
