@@ -651,6 +651,28 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    artifact = re.fullmatch(
+        r"(?:create|write) (?:a )?workspace artifact at "
+        r"(?P<path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}) with content (?P<content>.+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if artifact is not None:
+        card = manager.action_card("workspace", "workspace.artifact.create")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "path": artifact.group("path"),
+                            "content": artifact.group("content"),
+                        }
+                    }
+                )
+            }
+        )
     report_paths = re.findall(r"\b(?:as|to)\s+([a-z0-9][a-z0-9_./-]{0,120})\b", folded)
     if (
         report_paths
