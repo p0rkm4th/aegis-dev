@@ -2355,6 +2355,38 @@ def test_contextual_task_focus_read_accepts_deadline_wording_without_invention()
     assert result.message == "Task: check the back gate (open); no recorded deadline"
 
 
+def test_contextual_task_focus_read_accepts_tell_me_more_wording():
+    task = Task(
+        uuid4(),
+        "home",
+        "check the back gate",
+        "alice",
+        due_at=datetime(2026, 9, 6, 19, 11, tzinfo=timezone.utc),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (task,)
+
+    result = resolve_contextual_task_focus_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Tell me more about that.",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"task": {"task_id": str(task.task_id), "title": task.title}}
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        Store(),
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Task: check the back gate (open); due 2026-09-06 14:11 CDT"
+
+
 def test_contextual_task_focus_read_accepts_natural_due_followup():
     task = Task(
         uuid4(),
