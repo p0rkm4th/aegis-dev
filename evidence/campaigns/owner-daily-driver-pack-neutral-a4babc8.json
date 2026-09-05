@@ -1,0 +1,29 @@
+{
+  "source_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "owner_release_sha": "a4babc85068c060a53b3397703979663784be21b",
+  "session_category": "unscripted_daily_driver_pack_neutral",
+  "flows": [
+    "grocery collection read",
+    "grocery bare next-item follow-up",
+    "event collection read",
+    "event next-item follow-up",
+    "task collection read for tomorrow"
+  ],
+  "outcomes": {
+    "successful_natural_followups": 1,
+    "clarifications": 0,
+    "truthful_blocked_expectations": 1,
+    "wrong_domain_resolutions": 0,
+    "corrections": 0,
+    "explicit_domain_switches": 0,
+    "unsupported_expectations": 0,
+    "developer_interventions": 0,
+    "new_semantic_special_cases_required": 0
+  },
+  "notes": [
+    "Grocery follow-up correctly reported that no canonical next item existed.",
+    "Event follow-up resolved chronologically from the authorized event collection.",
+    "Task read returned canonical open tasks with deadlines.",
+    "No production code change was required from this session."
+  ]
+}
