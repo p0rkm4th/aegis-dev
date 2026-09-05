@@ -1532,6 +1532,18 @@ def run_interaction(
                     "query": evidence.query,
                     "provider_id": evidence.provider_id,
                     "available_action_ids": list(runtime_registry.action_ids()),
+                    "candidate_resolutions": [
+                        {
+                            "kind": "workspace_solution",
+                            "capability": "workspace.artifact.create",
+                            "status": "candidate",
+                            "requires_owner_input": True,
+                            "description": (
+                                "Prepare a bounded candidate artifact after the missing "
+                                "server execution capability is resolved."
+                            ),
+                        }
+                    ],
                     "unsatisfied_requirements": [
                         {
                             "effect_id": str(effect.effect_id),
