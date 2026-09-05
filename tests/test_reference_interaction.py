@@ -33,6 +33,7 @@ from aegis.reference_interaction import (
     resolve_contextual_event_focus_read,
     resolve_contextual_event_next_read,
     resolve_contextual_event_priority_read,
+    resolve_contextual_event_relative_read,
     resolve_contextual_event_temporal_read,
     resolve_contextual_grocery_membership_read,
     resolve_contextual_grocery_other_read,
@@ -1200,6 +1201,30 @@ def test_contextual_event_priority_preserves_focus_for_day_followup():
 
     assert result is not None
     assert result.evidence["event"]["event_id"] == "late"
+
+
+def test_contextual_event_relative_read_selects_unique_earlier_event():
+    earlier = HouseholdEvent(
+        "early", "earlier event", datetime(2026, 9, 5, 10, 0, tzinfo=timezone.utc)
+    )
+    latest = HouseholdEvent(
+        "latest", "latest event", datetime(2026, 9, 10, 10, 0, tzinfo=timezone.utc)
+    )
+    result = resolve_contextual_event_relative_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Actually, what about the earlier one?",
+        ),
+        Context(
+            values={"canonical_facts": {"event": {"event_id": "latest", "title": "latest event"}}},
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home", "events": (earlier, latest)},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_relative_referent"]["event_id"] == "early"
 
 
 def test_contextual_task_focus_read_rechecks_authorized_task_id():
