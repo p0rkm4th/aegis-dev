@@ -668,6 +668,8 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if isinstance(evidence.get("authorized_relative_referent"), dict):
         return str(result.message)
+    if evidence.get("authorized_owned_obligations") is not None:
+        return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         counts: dict[str, int] = {}

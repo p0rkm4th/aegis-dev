@@ -1197,6 +1197,7 @@ def test_personal_obligation_read_reports_no_owned_outstanding_obligation():
     )
     assert result is not None
     assert result.message == "You have no outstanding obligations assigned to you."
+    assert reference_format_result(result) == result.message
 
 
 def test_named_obligation_read_leaves_duplicate_titles_unresolved():
