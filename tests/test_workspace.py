@@ -50,5 +50,8 @@ def test_workspace_manager_is_stable_and_principal_scoped(tmp_path: Path) -> Non
     other = manager.for_objective("bob", objective_id)
     assert first.root == second.root
     assert first.root != other.root
+    first.write("index.html", "ok")
+    assert manager.list_for_principal("alice")[0]["files"] == ("index.html",)
+    assert manager.list_for_principal("bob")[0]["files"] == ()
     with pytest.raises(WorkspaceError):
         manager.for_objective("alice/other", objective_id)
