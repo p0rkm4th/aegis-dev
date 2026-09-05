@@ -736,6 +736,16 @@ def _communications_state(principal: Principal) -> dict[str, Any]:
             arguments = action.get("arguments", {}) if isinstance(action, dict) else {}
             result_evidence = evidence if isinstance(evidence, dict) else {}
             send_evidence = result_evidence.get("communication_send")
+            provider_status = (
+                send_evidence.get("status")
+                if isinstance(send_evidence, dict)
+                else result_evidence.get("communication_send_status")
+            )
+            provider_message_id = (
+                send_evidence.get("provider_message_id")
+                if isinstance(send_evidence, dict)
+                else None
+            )
             action_id = action.get("action_id", "") if isinstance(action, dict) else ""
             messages.append(
                 {
@@ -747,18 +757,11 @@ def _communications_state(principal: Principal) -> dict[str, Any]:
                     "action_id": action_id,
                     "target": arguments.get("target") if isinstance(arguments, dict) else None,
                     "channel": arguments.get("channel") if isinstance(arguments, dict) else None,
-                    "provider_status": send_evidence.get("status")
-                    if isinstance(send_evidence, dict)
-                    else ("DRAFTED" if "draft" in str(action_id) else None),
-                    "provider_message_id": send_evidence.get("provider_message_id")
-                    if isinstance(send_evidence, dict)
-                    else None,
+                    "provider_status": provider_status
+                    or ("DRAFTED" if "draft" in str(action_id) else None),
+                    "provider_message_id": provider_message_id,
                     "detail": str(message or ""),
-                    "delivery_proven": (
-                        send_evidence.get("status") == "DELIVERED"
-                        if isinstance(send_evidence, dict)
-                        else False
-                    ),
+                    "delivery_proven": provider_status == "DELIVERED",
                 }
             )
         return {
