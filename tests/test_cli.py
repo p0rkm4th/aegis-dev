@@ -152,6 +152,29 @@ def test_deterministic_homelab_page_action_uses_explicit_workspace_path():
     assert card.action.arguments == {"target_path": "homelab.html"}
 
 
+def test_deterministic_message_send_requires_explicit_destination_and_channel():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "communications"
+    )
+    manager.discover(bundle)
+    manager.install("communications", frozenset({"communications.read", "communications.send"}))
+    manager.enable("communications")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Send a message to alice via sms account personal saying hello",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "communications.messages.send"
+    assert card.action.arguments == {
+        "target": "alice",
+        "channel": "sms",
+        "account": "personal",
+        "body": "hello",
+    }
+
+
 def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
     manager = PackManager()
     bundle = next(
