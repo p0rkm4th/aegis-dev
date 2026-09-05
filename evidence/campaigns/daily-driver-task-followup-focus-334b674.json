@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-followup-focus",
+  "source_sha": "334b674996e8632029bf85fed0f60ab4ff0e51e1",
+  "hosted_validation": {"run_id": "33972558654", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "334b674996e8632029bf85fed0f60ab4ff0e51e1",
+    "running_sha": "334b674996e8632029bf85fed0f60ab4ff0e51e1",
+    "postgresql": "preserved",
+    "proof": [
+      "What is the first task? -> Task: Inspect backups (completed)",
+      "Is it complete? -> canonical task status in 0.03s",
+      "When is it due? -> canonical deadline in 0.03s"
+    ],
+    "mutation": "none"
+  },
+  "result": "Direct task ordinal results now preserve the scalar task focus consumed by deterministic contextual follow-up reads."
+}
