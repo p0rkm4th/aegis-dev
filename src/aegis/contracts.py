@@ -74,12 +74,32 @@ class VerificationContract(StrictModel):
     expected: dict[str, Any] = {}
 
 
+class ArgumentProvenanceKind(StrEnum):
+    """Admissible origins for consequential ActionSpec arguments."""
+
+    EXPLICIT_UTTERANCE = "EXPLICIT_UTTERANCE"
+    AUTHORIZED_CANONICAL_REFERENT = "AUTHORIZED_CANONICAL_REFERENT"
+    DETERMINISTIC_DERIVATION = "DETERMINISTIC_DERIVATION"
+    APPROVED_DEFAULT = "APPROVED_DEFAULT"
+
+
+class ArgumentProvenance(StrictModel):
+    """Privacy-minimal evidence for one grounded consequential argument."""
+
+    kind: ArgumentProvenanceKind
+    source_spans: tuple[tuple[int, int], ...] = ()
+    canonical_ref: str | None = None
+    derivation: str | None = None
+    default_contract: str | None = None
+
+
 class ActionSpec(StrictModel):
     action_id: str = Field(min_length=1)
     capability: str = Field(min_length=1)
     arguments: dict[str, Any] = {}
     required_permissions: tuple[str, ...] = ()
     verification: VerificationContract | None = None
+    argument_provenance: dict[str, ArgumentProvenance] = {}
 
 
 class ActionCard(StrictModel):
@@ -356,3 +376,7 @@ class ModelRequest(StrictModel):
 
 class ModelResponse(StrictModel):
     raw: Any
+    model_calls: int = Field(default=1, ge=1, le=2)
+    latency_ms: float | None = Field(default=None, ge=0)
+    prompt_tokens: int | None = Field(default=None, ge=0)
+    output_tokens: int | None = Field(default=None, ge=0)

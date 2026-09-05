@@ -2885,6 +2885,9 @@ def test_ollama_provider_repairs_malformed_json_once():
         ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=())
     )
     assert response.raw == {"kind": "ANSWER", "answer": "ok"}
+    assert response.model_calls == 2
+    assert response.latency_ms is not None
+    assert provider.last_response_metrics["model_calls"] == 2
     assert len(transport.calls) == 2
     assert provider.request_mode_counts == {"ordinary_decision": 1}
     assert "invalid" in transport.calls[1]["messages"][0]["content"]

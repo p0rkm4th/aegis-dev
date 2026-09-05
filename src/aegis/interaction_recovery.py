@@ -59,6 +59,10 @@ class ProposalRepairEvent:
     output_failure_kind: ProposalFailureKind | None = None
     output_failure_fingerprint: str | None = None
     stop_reason: str | None = None
+    model_calls: int = 0
+    latency_ms: float | None = None
+    prompt_tokens: int | None = None
+    output_tokens: int | None = None
 
 
 def proposal_repair_event_record(event: ProposalRepairEvent) -> dict[str, Any]:
@@ -77,6 +81,10 @@ def proposal_repair_event_record(event: ProposalRepairEvent) -> dict[str, Any]:
         ),
         "output_failure_fingerprint": event.output_failure_fingerprint,
         "stop_reason": event.stop_reason,
+        "model_calls": event.model_calls,
+        "latency_ms": event.latency_ms,
+        "prompt_tokens": event.prompt_tokens,
+        "output_tokens": event.output_tokens,
     }
 
 
@@ -95,6 +103,7 @@ def bounded_proposal_repair(
     *,
     validator_stage: str,
     max_attempts: int = 2,
+    telemetry: Callable[[], dict[str, Any]] | None = None,
 ) -> ProposalRepairResult[T]:
     """Run a finite repair loop where every candidate returns to the validator."""
 
@@ -106,6 +115,7 @@ def bounded_proposal_repair(
     events: list[ProposalRepairEvent] = []
     for attempt in range(1, max_attempts + 1):
         candidate, decode_failure = repair(current, current_failure)
+        metrics = telemetry() if telemetry is not None else {}
         next_failure: ProposalFailureEvidence | None
         if candidate is None:
             next_failure = decode_failure
@@ -118,6 +128,10 @@ def bounded_proposal_repair(
                 validation_outcome="not_run",
                 output_failure_kind=next_failure.kind,
                 output_failure_fingerprint=proposal_failure_fingerprint(next_failure),
+                model_calls=int(metrics.get("model_calls", 0)),
+                latency_ms=metrics.get("latency_ms"),
+                prompt_tokens=metrics.get("prompt_tokens"),
+                output_tokens=metrics.get("output_tokens"),
             )
         else:
             result = validate(candidate)
@@ -133,6 +147,10 @@ def bounded_proposal_repair(
                 output_failure_fingerprint=(
                     proposal_failure_fingerprint(next_failure) if next_failure else None
                 ),
+                model_calls=int(metrics.get("model_calls", 0)),
+                latency_ms=metrics.get("latency_ms"),
+                prompt_tokens=metrics.get("prompt_tokens"),
+                output_tokens=metrics.get("output_tokens"),
             )
             if result.valid:
                 events.append(event)
@@ -250,6 +268,10 @@ def repair_invalid_decision_once_with_evidence(
                     proposal_failure_fingerprint(next_evidence) if repaired is None else None
                 ),
                 "stop_reason": None,
+                "model_calls": getattr(response, "model_calls", 0),
+                "latency_ms": getattr(response, "latency_ms", None),
+                "prompt_tokens": getattr(response, "prompt_tokens", None),
+                "output_tokens": getattr(response, "output_tokens", None),
             }
         )
     return repaired, next_evidence, response.raw if isinstance(response.raw, dict) else None
