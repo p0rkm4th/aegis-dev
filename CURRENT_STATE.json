@@ -5,14 +5,14 @@
   "repository_head_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
   "deterministic_green_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
   "last_pushed_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
-  "hosted_green_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
-  "hosted_ci_green_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+  "hosted_green_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
+  "hosted_ci_green_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
+    "commit_sha": "54edd9dec3691e666160b1269fe979a87d63e305",
     "conclusion": "success",
-    "run_id": "33977197185",
+    "run_id": "33978566154",
     "observed_at": "2026-09-05T15:35:00Z"
   },
   "installed_release_sha": "50cfe43532339910384e82bcb69961d2bf8adc85",
