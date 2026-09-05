@@ -491,6 +491,7 @@ def reference_constellation_state(
             },
         ]
         edges: list[dict[str, str]] = []
+        area_details: dict[str, dict[str, Any]] = {}
         available = {bundle.manifest.pack_id: bundle for bundle in reference_bundles()}
         available.update(
             {pack_id: item[0] for pack_id, item in persisted.items() if pack_id not in available}
@@ -516,6 +517,35 @@ def reference_constellation_state(
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
+            # Pack metadata is the source of truth for the bounded second
+            # level of the Constellation.  The browser receives capability
+            # labels, never executable semantics or authority.
+            areas: dict[str, list[str]] = {}
+            for card in bundle.cards:
+                capability = card.action.capability
+                area = capability.removeprefix(f"{pack_id}.").split(".", 1)[0]
+                areas.setdefault(area, []).append(capability)
+            for area, capabilities in sorted(areas.items()):
+                area_id = f"{node_id}-area-{area}"
+                nodes.append(
+                    {
+                        "id": area_id,
+                        "label": area.replace("-", " ").title(),
+                        "detail": (
+                            f"{len(capabilities)} capability"
+                            if len(capabilities) == 1
+                            else f"{len(capabilities)} capabilities"
+                        ),
+                        "category": "capability",
+                        "detail_view": ui.detail_view if ui else None,
+                    }
+                )
+                area_details[area_id] = {
+                    "pack": label,
+                    "capabilities": sorted(capabilities),
+                    "authority": "Core authorization remains required",
+                }
+                edges.append({"source": node_id, "target": area_id})
         domain_summaries = (
             (
                 "personal",
@@ -609,6 +639,7 @@ def reference_constellation_state(
             },
             "pack-kitchen": {"groceries": list(groceries)},
         }
+        details.update(area_details)
         return {"nodes": nodes, "edges": edges, "details": details}
     finally:
         connection.close()
