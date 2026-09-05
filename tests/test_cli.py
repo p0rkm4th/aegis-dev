@@ -4325,6 +4325,7 @@ def test_task_read_fast_path_resolves_explicit_ordinal_from_canonical_order():
     assert result is not None
     assert result.message == "Task: inspect latch (completed)"
     assert result.evidence["authorized_ordinal_referent"]["task_id"] == str(second.task_id)
+    assert result.evidence["task"]["task_id"] == str(second.task_id)
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == [
         "replace filter",
         "inspect latch",

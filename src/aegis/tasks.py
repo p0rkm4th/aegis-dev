@@ -729,6 +729,7 @@ class TaskReadFastPath:
                 evidence={
                     "collection": "tasks",
                     "authorized_ordinal_referent": _task_projection(selected),
+                    "task": _task_projection(selected),
                     "canonical_tasks": [_task_projection(task) for task in tasks],
                 },
                 correlation_id=intent.correlation_id,
