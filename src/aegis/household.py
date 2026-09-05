@@ -520,11 +520,13 @@ class HouseholdReadFastPath:
             "which event is latest",
             "what event is latest",
             "what is the latest event",
+            "which is the latest event",
         }
         earliest = normalized in {
             "which event is earliest",
             "what event is earliest",
             "what is the earliest event",
+            "which is the earliest event",
         }
         if latest or earliest:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
