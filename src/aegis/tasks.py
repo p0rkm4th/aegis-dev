@@ -555,7 +555,15 @@ class TaskReadFastPath:
         "what do i need to get done",
     )
     _READ_PREFIXES = ("what", "show", "list", "which", "see", "display", "give me")
-    _TEMPORAL_WORK_TERMS = ("due", "get done", "finish", "knock out", "on my plate")
+    _TEMPORAL_WORK_TERMS = (
+        "due",
+        "get done",
+        "finish",
+        "knock out",
+        "on my plate",
+        "supposed to do",
+        "needs doing",
+    )
 
     def __init__(self, store: PostgresTaskStore) -> None:
         self.store = store
