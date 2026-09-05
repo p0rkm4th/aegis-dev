@@ -1219,6 +1219,35 @@ def test_contextual_task_priority_accepts_begin_with_follow_up():
     assert result.message.endswith("first task")
 
 
+def test_contextual_task_priority_accepts_handle_first_follow_up():
+    from aegis.tasks import ContextualTaskPriorityFastPath
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "later task", "status": "open", "due_at": "2026-09-05"},
+                        {"title": "first task", "status": "open", "due_at": "2026-09-02"},
+                    ],
+                }
+            }
+        }
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which one should I handle first?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message.endswith("first task")
+
+
 def test_contextual_task_priority_accepts_earliest_from_planning_referents():
     from aegis.tasks import ContextualTaskPriorityFastPath
 
