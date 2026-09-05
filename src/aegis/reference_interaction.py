@@ -1138,6 +1138,12 @@ def resolve_reference_fast_paths(
     result = resolve_contextual_event_relative_read(intent, context, snapshot)
     if result is not None:
         return result
+    # Explicit task-priority language such as "handle first" must win over
+    # the generic ordinal resolver; both paths still use the same authorized
+    # task candidate set and deterministic deadline ordering.
+    result = ContextualTaskPriorityFastPath().resolve(intent, context)
+    if result is not None:
+        return result
     contextual_ordinal_result = resolve_contextual_ordinal_read(intent, context)
     if contextual_ordinal_result is not None:
         return contextual_ordinal_result
