@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "04d8e60b3fbdddc9ef0eb4260360433f18bdb9b9",
+  "state_basis_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "04d8e60b3fbdddc9ef0eb4260360433f18bdb9b9",
-  "deterministic_green_sha": "04d8e60b3fbdddc9ef0eb4260360433f18bdb9b9",
-  "last_pushed_sha": "04d8e60b3fbdddc9ef0eb4260360433f18bdb9b9",
-  "hosted_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
-  "hosted_ci_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "repository_head_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "deterministic_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "last_pushed_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "hosted_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "hosted_ci_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+    "commit_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
     "conclusion": "success",
-    "run_id": "33979057599",
-    "observed_at": "2026-09-05T15:35:00Z"
+    "run_id": "33980982501",
+    "observed_at": "2026-09-05T17:31:00Z"
   },
-  "installed_release_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
-  "running_release_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
-  "live_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "installed_release_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "running_release_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
+  "live_green_sha": "96f93f375d4d03efe0e2694263c36327bd39274a",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "owner-action-composition-wiring",
+  "active_checkpoint": "promoted-owner-composition-dogfood",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-action-composition-wiring",
+  "current_checkpoint": "promoted-owner-composition-dogfood",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -49,16 +49,17 @@
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
     "detailed historical checkpoints moved to evidence/campaigns",
-    "browser UI has capability-oriented navigation and Pack-derived Constellation areas; owner runtime promotion remains pending",
+    "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation",
     "scoped workspace supports principal/objective isolation, bounded commands, artifact inventory, and independent validation",
-    "owner release f54cfb2 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed for a minimal artifact"
+    "owner release 96f93f3 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"documents.export_to_workspace is a typed two-permission composition with deterministic verification; live owner proof remains pending"
     ,"live owner service was inspected successfully but remains on the prior promoted release and does not yet expose Calendar/Documents additions"
     ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
+    ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
@@ -84,10 +85,10 @@
     "cross_domain_compositions": 3,
     "capability_need_resolutions": 1,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 2,
+    "owner_workflows_completed": 3,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Obtain hosted validation for the coherent breadth release, promote through the existing release path, then dogfood the Compositions and Workspace views against the promoted runtime.",
+  "next_action": "Dogfood Research and CapabilityNeed investigation through the promoted UI, then begin the next breadth tranche with a live-provider or communications slice while preserving the promoted release.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
