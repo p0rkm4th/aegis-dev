@@ -22,6 +22,7 @@ ConstellationState = Callable[[Principal], dict[str, Any]]
 WorkspaceState = Callable[[Principal], dict[str, Any]]
 WorkspaceCreate = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CompositionState = Callable[[Principal], dict[str, Any]]
+PackState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -117,6 +118,13 @@ class WorkspaceProjection(BaseModel):
 class CompositionProjection(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     compositions: tuple[dict[str, Any], ...] = Field(default=(), max_length=20)
+
+
+class PackProjection(BaseModel):
+    """Bounded owner view of Pack lifecycle and declared capability metadata."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    packs: tuple[dict[str, Any], ...] = Field(default=(), max_length=50)
 
 
 _INDEX_HTML = """<!doctype html>
@@ -532,6 +540,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'research') input.focus();
   if (activeView === 'workspace') loadWorkspace();
   if (activeView === 'compositions') loadCompositions();
+  if (activeView === 'packs') loadPacks();
   renderResearchSummary();
   applyNodeFilter();
 }));
@@ -661,6 +670,23 @@ async function loadCompositions() {
     panel.append(renderDetailValue(payload.compositions || []));
   } catch (_) {
     panel.textContent = 'Composition metadata is unavailable; no action state was changed.';
+  }
+}
+async function loadPacks() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/packs');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Packs unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = payload.packs?.length
+      ? `${payload.packs.length} Pack(s) in the lifecycle registry`
+      : 'No Pack metadata is currently available.';
+    panel.append(heading);
+    panel.append(renderDetailValue(payload.packs || []));
+  } catch (_) {
+    panel.textContent = 'Pack state is unavailable; no lifecycle or permission state was changed.';
   }
 }
 async function refreshState() {
@@ -838,6 +864,7 @@ class BrowserApp:
         workspace_state: WorkspaceState | None = None,
         workspace_create: WorkspaceCreate | None = None,
         composition_state: CompositionState | None = None,
+        pack_state: PackState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -850,6 +877,7 @@ class BrowserApp:
         self.workspace_state = workspace_state
         self.workspace_create = workspace_create
         self.composition_state = composition_state
+        self.pack_state = pack_state
 
     def dispatch(
         self,
@@ -955,6 +983,20 @@ class BrowserApp:
                     "composition state unavailable",
                 )
             return self._json(HTTPStatus.OK, composition_projection.model_dump(mode="json"))
+        if method == "GET" and route == "/api/packs":
+            if self.pack_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                pack_projection = PackProjection.model_validate(self.pack_state(principal))
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError, ValidationError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "Pack state unavailable"
+                )
+            return self._json(HTTPStatus.OK, pack_projection.model_dump(mode="json"))
         if method == "POST" and route == "/api/workspace":
             if self.workspace_create is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1162,6 +1204,7 @@ def serve(
     workspace_state: WorkspaceState | None = None,
     workspace_create: WorkspaceCreate | None = None,
     composition_state: CompositionState | None = None,
+    pack_state: PackState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1177,6 +1220,7 @@ def serve(
         workspace_state=workspace_state,
         workspace_create=workspace_create,
         composition_state=composition_state,
+        pack_state=pack_state,
     )
 
     class Handler(BaseHTTPRequestHandler):

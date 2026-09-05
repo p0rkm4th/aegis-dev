@@ -3352,6 +3352,35 @@ def test_browser_app_exposes_composition_metadata_without_execution_authority():
     assert json.loads(payload)["compositions"] == [{"id": "docs-workspace", "owner": "alice"}]
 
 
+def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        pack_state=lambda current: {
+            "packs": [
+                {
+                    "pack_id": "communications",
+                    "status": "discovered",
+                    "granted_permissions": [],
+                    "owner_next_step": "explicit owner approval is required",
+                    "owner": current.id,
+                }
+            ]
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/packs", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    pack = json.loads(payload)["packs"][0]
+    assert pack["status"] == "discovered"
+    assert pack["granted_permissions"] == []
+    assert pack["owner"] == "alice"
+
+
 def test_browser_app_routes_workspace_creation_through_authorized_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []
