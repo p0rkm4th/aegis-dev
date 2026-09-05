@@ -24,6 +24,7 @@ WorkspaceCreate = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CompositionState = Callable[[Principal], dict[str, Any]]
 PackState = Callable[[Principal], dict[str, Any]]
 PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
+CalendarState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -549,6 +550,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'workspace') loadWorkspace();
   if (activeView === 'compositions') loadCompositions();
   if (activeView === 'packs') loadPacks();
+  if (activeView === 'calendar') loadCalendar();
   renderResearchSummary();
   applyNodeFilter();
 }));
@@ -666,6 +668,24 @@ async function loadWorkspace() {
     panel.append(renderDetailValue(payload.workspaces || []));
   } catch (_) {
     panel.textContent = 'Workspace inventory is unavailable; no artifact state was changed.';
+  }
+}
+async function loadCalendar() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/calendar');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Calendar unavailable.');
+    const events = payload.events || [];
+    const heading = document.createElement('p');
+    heading.textContent = events.length
+      ? `${events.length} authorized calendar event(s)`
+      : 'No authorized calendar events are currently visible.';
+    panel.append(heading);
+    panel.append(renderDetailValue(events));
+  } catch (_) {
+    panel.textContent = 'Calendar state is unavailable; no event state was changed.';
   }
 }
 async function loadCompositions() {
@@ -903,6 +923,7 @@ class BrowserApp:
         composition_state: CompositionState | None = None,
         pack_state: PackState | None = None,
         pack_enable: PackEnable | None = None,
+        calendar_state: CalendarState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -917,6 +938,7 @@ class BrowserApp:
         self.composition_state = composition_state
         self.pack_state = pack_state
         self.pack_enable = pack_enable
+        self.calendar_state = calendar_state
 
     def dispatch(
         self,
@@ -1036,6 +1058,24 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "Pack state unavailable"
                 )
             return self._json(HTTPStatus.OK, pack_projection.model_dump(mode="json"))
+        if method == "GET" and route == "/api/calendar":
+            if self.calendar_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                calendar_projection = self.calendar_state(principal)
+                if not isinstance(calendar_projection, dict):
+                    raise ValueError("calendar state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "calendar state unavailable",
+                )
+            return self._json(HTTPStatus.OK, calendar_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1269,6 +1309,7 @@ def serve(
     composition_state: CompositionState | None = None,
     pack_state: PackState | None = None,
     pack_enable: PackEnable | None = None,
+    calendar_state: CalendarState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1286,6 +1327,7 @@ def serve(
         composition_state=composition_state,
         pack_state=pack_state,
         pack_enable=pack_enable,
+        calendar_state=calendar_state,
     )
 
     class Handler(BaseHTTPRequestHandler):

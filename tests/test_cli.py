@@ -3428,6 +3428,25 @@ def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
     assert pack["owner"] == "alice"
 
 
+def test_browser_app_exposes_bounded_calendar_projection():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        calendar_state=lambda current: {
+            "source": "configured_calendar",
+            "events": [{"event_id": "event-1", "title": current.id}],
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/calendar", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["events"] == [{"event_id": "event-1", "title": "alice"}]
+
+
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []
