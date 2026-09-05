@@ -1301,11 +1301,15 @@ class CommunicationsSendExecutor:
                 evidence={"communication_send": "invalid_arguments"},
                 command_succeeded=False,
             )
-        if self.approved_targets is not None and (
-            target,
-            channel,
-            account,
-        ) not in self.approved_targets:
+        if (
+            self.approved_targets is not None
+            and (
+                target,
+                channel,
+                account,
+            )
+            not in self.approved_targets
+        ):
             return Observation(
                 execution_id=uuid4(),
                 evidence={
