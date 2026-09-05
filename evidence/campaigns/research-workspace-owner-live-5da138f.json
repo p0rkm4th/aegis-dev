@@ -1,0 +1,22 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "research-workspace-owner-live",
+  "source_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+  "hosted_run_id": "33984240640",
+  "runtime": {
+    "release_sha": "5da138f866e008b8eb74992ed4148fd017d3c793",
+    "health": "healthy",
+    "ready": true,
+    "fixture_cleanup": "AEGIS_RESEARCH_FIXTURE_JSON removed after acceptance"
+  },
+  "owner_proof": {
+    "utterance": "Research the staging configuration guide and save sourced notes to workspace as research-notes.md",
+    "result": "completed",
+    "verification": "research notes artifact readback verified",
+    "workspace_artifact": "research-notes.md",
+    "workspace_inventory_observed": true,
+    "objective_state": "completed",
+    "evidence_authority": "non-authoritative external evidence preserved as notes"
+  },
+  "result": "A real owner-visible Research -> scoped Workspace composition completed through deterministic selection, Core grounding, authorization, execution, observation, and verification."
+}
