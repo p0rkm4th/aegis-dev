@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from aegis.calendar import CalendarEvent
 from aegis.compositions import (
+    available_compositions,
     calendar_to_task_attention,
     document_to_workspace,
     research_to_workspace,
@@ -10,6 +11,14 @@ from aegis.compositions import (
 from aegis.documents import Document, FixtureDocumentProvider
 from aegis.research import Evidence, EvidenceSet, KnowledgeSource, ResearchAnswer
 from aegis.workspace import WorkspaceManager
+
+
+def test_homelab_health_workspace_composition_is_owner_visible() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "homelab-health-to-workspace"
+    )
+    assert composition["surfaces"] == ("Systems", "Workspace")
+    assert "no restart authority" in composition["authority"]
 
 
 def test_authorized_document_can_be_exported_to_verified_scoped_workspace(tmp_path) -> None:
