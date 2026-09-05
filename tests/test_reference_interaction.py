@@ -3258,6 +3258,30 @@ def test_recent_canonical_action_result_is_not_rendered_as_new_mutation() -> Non
     assert reference_format_result(result) == "Task: inspect the shed latch"
 
 
+def test_task_context_correction_to_appointments_leaves_task_guard() -> None:
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [{"task_id": "task-1", "title": "check the gate"}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, I meant my appointments",
+        ),
+        context,
+    )
+
+    assert result is None
+
+
 def test_compact_planning_context_preserves_open_chores() -> None:
     chores = [{"chore_id": "chore-1", "title": "clean the kitchen"}]
 
