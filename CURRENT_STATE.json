@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
+  "state_basis_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
-  "deterministic_green_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
-  "last_pushed_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
-  "hosted_green_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
-  "hosted_ci_green_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
+  "repository_head_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "deterministic_green_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "last_pushed_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "hosted_green_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "hosted_ci_green_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
+    "commit_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
     "conclusion": "success",
-    "run_id": "33970584436",
+    "run_id": "33970731539",
     "observed_at": "2026-09-05T14:27:00Z"
   },
-  "installed_release_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
-  "running_release_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
-  "live_green_sha": "77937970bda80adad47ea136c60fcc656a4d5d46",
+  "installed_release_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "running_release_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "live_green_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
   "active_milestone": "STAGE-4",
-  "active_checkpoint": "daily-driver-task-ordinal-priority",
+  "active_checkpoint": "daily-driver-task-explicit-ordinal",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "task-ordinal-priority",
+  "current_checkpoint": "task-explicit-ordinal",
   "active_campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -51,7 +51,7 @@
     "browser UI polish is green for the initial alpha slice; daily-driver dogfood remains open"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Installed-owner proof on 7793797 separated plain task ordinal selection from explicit deadline priority; the first displayed task and its missing deadline remained truthful and read-only.",
+  "daily_driver_checkpoint": "Installed-owner proof on 86f78d0 resolved explicit 'show me the second task' wording through the authorized ordinal seam; missing deadline remained truthful and read-only.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -63,6 +63,6 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "next_action": "Refresh origin/aegis-dev and select the next distinct owner-visible daily-driver continuity gap. Preserve canonical scope and fail-closed ambiguity; change code only for a reproduced generic defect and avoid broad cognition campaigns.",
-  "history_artifact": "evidence/campaigns/daily-driver-task-ordinal-priority-7793797.json",
+  "history_artifact": "evidence/campaigns/daily-driver-task-explicit-ordinal-86f78d0.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

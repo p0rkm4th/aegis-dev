@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-task-explicit-ordinal",
+  "source_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+  "hosted": {"workflow": "validation", "run_id": "33970731539", "conclusion": "success"},
+  "owner": {
+    "release_sha": "86f78d0ee8e8f34f3527623440fb90d09436bb85",
+    "postgresql_preserved": true,
+    "workflow": [
+      ["What tasks are open?", "completed", "canonical task collection"],
+      ["Show me the second task.", "completed", "second displayed canonical task"],
+      ["What is its deadline?", "completed", "no recorded deadline; no invention"]
+    ]
+  },
+  "safety": "Explicit task-noun ordinals use the same authorized canonical collection and do not enter deadline priority unless priority language is present."
+}
