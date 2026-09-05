@@ -1449,9 +1449,10 @@ def resolve_contextual_grocery_membership_read(
     if not isinstance(prior_items, list) or not prior_items:
         return None
     current_items = tuple(store.list_groceries(intent.principal))
+    unique_current_items = tuple(dict.fromkeys(current_items))
     matches = tuple(
         item
-        for item in current_items
+        for item in unique_current_items
         if isinstance(item, str)
         and re.search(rf"\b{re.escape(item.casefold())}\b", text) is not None
     )

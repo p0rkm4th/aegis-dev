@@ -140,7 +140,7 @@ def test_grocery_read_fast_path_accepts_left_to_buy_wording() -> None:
 def test_contextual_grocery_membership_rechecks_current_canonical_list() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
-            return ("rice", "milk")
+            return ("rice", "rice", "milk")
 
     context = Context(
         values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
