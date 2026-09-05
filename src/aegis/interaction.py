@@ -52,7 +52,7 @@ class InteractionInputError(ValueError):
     """A safe, actionable request-shape error from a client-facing selector."""
 
 
-def _argument_provenance_error(action: Any) -> str | None:
+def _argument_provenance_error(action: Any, utterance: str | None = None) -> str | None:
     """Reject consequential arguments without Core-admissible provenance."""
 
     provenance = getattr(action, "argument_provenance", {})
@@ -63,6 +63,12 @@ def _argument_provenance_error(action: Any) -> str | None:
         if evidence.kind is ArgumentProvenanceKind.EXPLICIT_UTTERANCE:
             if not evidence.source_spans:
                 return f"argument {key!r} lacks utterance evidence"
+            if utterance is not None and not any(
+                0 <= start < end <= len(utterance)
+                and utterance[start:end].casefold() == str(action.arguments[key]).casefold()
+                for start, end in evidence.source_spans
+            ):
+                return f"argument {key!r} does not match its utterance evidence"
         elif evidence.kind is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT:
             if not evidence.canonical_ref:
                 return f"argument {key!r} lacks a canonical referent"
@@ -223,7 +229,7 @@ class InteractionBoundary:
                 )
                 if isinstance(grounded, Result):
                     return grounded
-                provenance_error = _argument_provenance_error(grounded.action)
+                provenance_error = _argument_provenance_error(grounded.action, intent.utterance)
                 if provenance_error is not None:
                     return Result(
                         objective_id=uuid4(),
@@ -497,7 +503,7 @@ class InteractionBoundary:
                 if isinstance(grounded, Result):
                     return persist_fast_result(grounded)
                 card = grounded
-            provenance_error = _argument_provenance_error(card.action)
+            provenance_error = _argument_provenance_error(card.action, intent.utterance)
             if provenance_error is not None:
                 return persist_fast_result(
                     Result(

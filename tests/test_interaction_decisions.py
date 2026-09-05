@@ -4,6 +4,8 @@ from uuid import uuid4
 from aegis.contracts import (
     ActionCard,
     ActionSpec,
+    ArgumentProvenance,
+    ArgumentProvenanceKind,
     Context,
     Decision,
     DecisionKind,
@@ -25,6 +27,7 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.decoding import StrictDecisionDecoder
+from aegis.interaction import _argument_provenance_error
 from aegis.interaction_cognition import (
     _repair_clarification,
     _scope_plan_by_capability,
@@ -32,6 +35,42 @@ from aegis.interaction_cognition import (
     decide_fallback,
 )
 from aegis.interaction_decisions import resolve_fallback_decision
+
+
+def test_consequential_argument_provenance_accepts_explicit_and_rejects_invention() -> None:
+    explicit = ActionSpec(
+        action_id="tasks.create",
+        capability="tasks.create",
+        arguments={"title": "inspect the valve"},
+        argument_provenance={
+            "title": ArgumentProvenance(
+                kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                source_spans=((4, 21),),
+            )
+        },
+    )
+    invented = explicit.model_copy(update={"argument_provenance": {}})
+
+    assert _argument_provenance_error(explicit, "add inspect the valve") is None
+    assert "no admissible provenance" in (_argument_provenance_error(invented) or "")
+
+
+def test_consequential_argument_provenance_requires_evidence_for_every_plan_step() -> None:
+    grounded = ActionSpec(
+        action_id="tasks.create",
+        capability="tasks.create",
+        arguments={"title": "inspect the valve"},
+        argument_provenance={
+            "title": ArgumentProvenance(
+                kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                source_spans=((4, 21),),
+            )
+        },
+    )
+    ungrounded = grounded.model_copy(update={"arguments": {"title": "invented date"}})
+
+    assert _argument_provenance_error(grounded, "add inspect the valve") is None
+    assert _argument_provenance_error(ungrounded, "add inspect the valve") is not None
 
 
 def test_clarification_proposal_gets_bounded_repair_before_returning_blocked() -> None:
