@@ -925,6 +925,23 @@ def _deterministic_composition_action(
                 )
             }
         )
+    calendar_draft = re.fullmatch(
+        r"draft my calendar for (?P<recipient>.+?) (?:as|to) "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_draft is not None:
+        card = manager.action_card(
+            "calendar-communications", "calendar-communications.events.draft"
+        )
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": calendar_draft.groupdict()})
+            }
+        )
     health_request = re.fullmatch(
         r"(?:check|show) health of (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})",
         text,

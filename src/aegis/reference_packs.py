@@ -193,6 +193,21 @@ def prepare_reference_action(
         if isinstance(report_target, str) and report_target.strip() and connection is not None:
             page = _homelab_page_files(connection, principal)
             files = {report_target: page["index.html"], "style.css": page["style.css"]}
+    elif action.action_id == "calendar-communications.events.draft":
+        draft_recipient, draft_target = args.get("recipient"), args.get("target_path")
+        if (
+            isinstance(draft_recipient, str)
+            and draft_recipient.strip()
+            and isinstance(draft_target, str)
+            and draft_target.strip()
+        ):
+            body = calendar_snapshot_content(configured_calendar_provider().list_events())
+            files = {
+                draft_target: (
+                    f"# Draft message\n\nTo: {draft_recipient}\n"
+                    f"Subject: Calendar snapshot\n\n{body}"
+                )
+            }
     elif action.action_id == "documents.export_to_workspace":
         document_id = args.get("document_id")
         document_target_path = args.get("target_path")
@@ -711,6 +726,33 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "calendar-communications",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar-communications.events.draft",
+                        capability="calendar-communications.events.draft",
+                        required_permissions=(
+                            "calendar.read",
+                            "communications.draft",
+                            "workspace.write",
+                        ),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Draft an unsent calendar snapshot for an explicit recipient",
+                    relevance=1,
+                    argument_keys=("recipient", "target_path"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("recipient", "target_path")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "workspace",
             "0.1.0",
             (
@@ -769,6 +811,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     permissions = {
         "calendar": ("calendar.read", "calendar.write"),
         "calendar-reports": ("calendar.read", "workspace.write"),
+        "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
@@ -1593,6 +1636,68 @@ class CalendarSnapshotWorkspaceVerifier:
             reason="calendar snapshot independently verified"
             if verified
             else f"calendar snapshot verification failed: {detail}",
+        )
+
+
+class CalendarCommunicationDraftExecutor:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        recipient = request.action.arguments.get("recipient")
+        target_path = request.action.arguments.get("target_path")
+        if not all(isinstance(value, str) and value.strip() for value in (recipient, target_path)):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_communication": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        assert isinstance(recipient, str)
+        assert isinstance(target_path, str)
+        body = calendar_snapshot_content(configured_calendar_provider().list_events())
+        content = f"# Draft message\n\nTo: {recipient}\nSubject: Calendar snapshot\n\n{body}"
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_communication": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "calendar_to_communication_draft",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+                "sent": False,
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarCommunicationDraftVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = (
+            observation.command_succeeded and verified and observation.evidence.get("sent") is False
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"calendar_communication_verified": verified, "postcondition": detail},
+            reason="calendar communication draft independently verified"
+            if verified
+            else f"calendar communication draft verification failed: {detail}",
         )
 
 
