@@ -32,6 +32,7 @@ from aegis.reference_interaction import (
     reference_format_result,
     resolve_contextual_event_temporal_read,
     resolve_contextual_grocery_membership_read,
+    resolve_contextual_grocery_other_read,
     resolve_contextual_grocery_quantity_read,
     resolve_contextual_ordinal_read,
     resolve_contextual_recent_action_read,
@@ -194,6 +195,29 @@ def test_contextual_grocery_quantity_uses_authorized_list_and_current_rows() -> 
     assert result.state is ObjectiveState.COMPLETED
     assert result.message == "Grocery item: rice (x2) is on your list."
     assert result.evidence["authorized_quantity"] == {"item": "rice", "quantity": 2}
+
+
+def test_contextual_grocery_other_singleton_followup_is_grounded() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice", "rice")
+
+    context = Context(
+        values={"referents": {"those": {"fact_key": "canonical_items", "candidates": ["rice"]}}},
+        sources=("authorized_canonical_result",),
+    )
+    result = resolve_contextual_grocery_other_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What else is on it?",
+        ),
+        context,
+        cast(PostgresHouseholdStore, GroceryStore()),
+    )
+
+    assert result is not None
+    assert result.message == "No other grocery items are on your list."
+    assert reference_format_result(result) == "No other grocery items are on your list."
 
 
 def test_grocery_read_fast_path_accepts_store_pickup_wording() -> None:
