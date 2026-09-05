@@ -748,6 +748,33 @@ def test_contextual_task_priority_does_not_capture_mutation_follow_up():
     assert result is None
 
 
+def test_contextual_task_priority_does_not_cross_into_chore_follow_up():
+    from aegis.tasks import ContextualTaskPriorityFastPath
+
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "check the gate", "status": "open", "due_at": "2026-09-05"}
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    result = ContextualTaskPriorityFastPath().resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Which chore is due first?",
+        ),
+        context,
+    )
+
+    assert result is None
+
+
 def test_contextual_task_priority_accepts_start_with_follow_up():
     from aegis.tasks import ContextualTaskPriorityFastPath
 

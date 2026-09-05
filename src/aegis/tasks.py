@@ -913,6 +913,12 @@ class ContextualTaskPriorityFastPath:
             )
         ):
             return None
+        # A prior task projection cannot answer an explicitly different
+        # household-domain question.  Let that domain's own fast path or the
+        # normal clarification boundary handle it instead of laundering the
+        # task referent into a chore/event/grocery answer.
+        if re.search(r"\b(?:chore|chores|event|events|calendar|grocery|groceries)\b", text):
+            return None
         referents = context.values.get("referents")
         if not isinstance(referents, dict) or not referents:
             # A priority result is a scalar canonical recommendation, not an
