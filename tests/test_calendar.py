@@ -5,6 +5,7 @@ from uuid import uuid4
 from aegis.calendar import (
     CalendarEvent,
     FixtureCalendarProvider,
+    FixtureCalendarWriteProvider,
     GoogleCalendarRestProvider,
     calendar_events_evidence,
     configured_calendar_provider,
@@ -107,3 +108,35 @@ def test_calendar_pack_uses_generic_verified_read_runtime() -> None:
     verification = runtime.verifier.verify(observation, card.action.verification)
     assert observation.command_succeeded is True
     assert verification.verified is True
+
+
+def test_calendar_create_reads_back_the_provider_event_and_is_idempotent() -> None:
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "calendar.events.create"
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="vault")
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "title": "Dinner",
+                "starts_at": "2026-09-07T19:00:00+00:00",
+                "ends_at": "2026-09-07T20:00:00+00:00",
+            }
+        }
+    )
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="calendar-1"
+    )
+    prepared = runtime.prepare(
+        action, Principal(id="alice", vault_id="vault"), request.objective_id
+    )
+    observation = runtime.executor.execute(request.model_copy(update={"action": prepared}))
+    verification = runtime.verifier.verify(observation, prepared.verification)
+    assert verification.verified is True
+    assert verification.evidence["provider_readback"] is True
+    assert isinstance(runtime.executor.provider, FixtureCalendarWriteProvider)

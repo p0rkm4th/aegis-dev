@@ -6,6 +6,7 @@ import os
 from collections.abc import Callable
 from typing import Any
 
+from .calendar import FixtureCalendarWriteProvider
 from .communications import FixtureCommunicationSendProvider
 from .contracts import Principal
 from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
@@ -21,6 +22,8 @@ from .identity import Role
 from .openclaw import OpenClawExecutor
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
+    CalendarCreateExecutor,
+    CalendarCreateVerifier,
     CalendarEventsExecutor,
     CalendarEventsVerifier,
     CommunicationDraftExecutor,
@@ -192,6 +195,16 @@ def default_runtime_registry(
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        provider = FixtureCalendarWriteProvider()
+        return ActionRuntime(
+            CalendarCreateExecutor(provider),
+            CalendarCreateVerifier(provider),
+            {"calendar.write": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
+        )
+
     def documents_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -298,6 +311,7 @@ def default_runtime_registry(
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
+        "calendar.events.create": calendar_create_runtime,
         "documents.list": documents_runtime,
         "communications.messages.list": communications_runtime,
         "communications.messages.send": communications_send_runtime,

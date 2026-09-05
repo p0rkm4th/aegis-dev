@@ -15,7 +15,12 @@ from pathlib import Path
 from typing import Any, cast
 from uuid import UUID, uuid4
 
-from .calendar import calendar_events_evidence, configured_calendar_provider
+from .calendar import (
+    CalendarEvent,
+    CalendarWriteProvider,
+    calendar_events_evidence,
+    configured_calendar_provider,
+)
 from .communications import (
     CommunicationSendProvider,
     FixtureCommunicationProvider,
@@ -88,6 +93,34 @@ def prepare_reference_action(
                     f"# Draft message\n\nTo: {recipient}\nSubject: {subject}\n\n{body}\n"
                 )
             }
+    elif action.action_id == "calendar.events.create":
+        title, starts_at, ends_at = (
+            args.get("title"),
+            args.get("starts_at"),
+            args.get("ends_at"),
+        )
+        if (
+            isinstance(title, str)
+            and isinstance(starts_at, str)
+            and (ends_at is None or isinstance(ends_at, str))
+        ):
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": {
+                                "version": 1,
+                                "principal_id": principal.id,
+                                "objective_id": str(objective_id),
+                                "title": title,
+                                "starts_at": starts_at,
+                                "ends_at": ends_at,
+                            }
+                        }
+                    )
+                }
+            )
     elif action.action_id == "device-controls.devices.command.execute":
         entity_id = args.get("entity_id")
         expected_state = args.get("expected_state")
@@ -536,6 +569,23 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     summary="Read events from the connected external calendar",
                     relevance=1,
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar.events.create",
+                        capability="calendar.events.create",
+                        required_permissions=("calendar.write",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Create an explicitly timed calendar event and read it back",
+                    relevance=1,
+                    argument_keys=("title", "starts_at", "ends_at"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("title", "starts_at", "ends_at")
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -595,7 +645,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
 def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
-        "calendar": ("calendar.read",),
+        "calendar": ("calendar.read", "calendar.write"),
         "communications": ("communications.read", "communications.send"),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
@@ -649,6 +699,81 @@ class CalendarEventsExecutor:
             execution_id=uuid4(),
             evidence=calendar_events_evidence(events),
             command_succeeded=True,
+        )
+
+
+class CalendarCreateExecutor:
+    def __init__(self, provider: CalendarWriteProvider) -> None:
+        self.provider = provider
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        title, starts_at, ends_at = args.get("title"), args.get("starts_at"), args.get("ends_at")
+        if not (
+            isinstance(title, str)
+            and title.strip()
+            and isinstance(starts_at, str)
+            and starts_at.strip()
+            and (ends_at is None or isinstance(ends_at, str))
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_create": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            start = datetime.fromisoformat(starts_at)
+            end = datetime.fromisoformat(ends_at) if ends_at else None
+        except ValueError:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_create": "invalid_timestamp"},
+                command_succeeded=False,
+            )
+        created = self.provider.create_event(
+            CalendarEvent("pending", title, start, end), request.idempotency_key
+        )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "calendar_create": {
+                    "event_id": created.event_id,
+                    "title": created.title,
+                    "starts_at": created.starts_at.isoformat(),
+                    "ends_at": created.ends_at.isoformat() if created.ends_at else None,
+                }
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarCreateVerifier:
+    def __init__(self, provider: CalendarWriteProvider) -> None:
+        self.provider = provider
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("calendar_create")
+        if not observation.command_succeeded or not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False, evidence={}, reason="calendar create did not execute"
+            )
+        event_id = evidence.get("event_id")
+        actual = self.provider.get_event(event_id) if isinstance(event_id, str) else None
+        expected = contract.expected
+        verified = (
+            actual is not None
+            and actual.title == expected.get("title")
+            and actual.starts_at.isoformat() == expected.get("starts_at")
+            and (actual.ends_at.isoformat() if actual.ends_at else None) == expected.get("ends_at")
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"calendar_event_id": event_id, "provider_readback": actual is not None},
+            reason="calendar event independently read back"
+            if verified
+            else "calendar event readback did not match the expected event",
         )
 
 

@@ -29,6 +29,40 @@ class CalendarProvider(Protocol):
     def list_events(self) -> tuple[CalendarEvent, ...]: ...
 
 
+class CalendarWriteProvider(Protocol):
+    def create_event(self, event: CalendarEvent, idempotency_key: str) -> CalendarEvent: ...
+
+    def get_event(self, event_id: str) -> CalendarEvent | None: ...
+
+
+@dataclass
+class FixtureCalendarWriteProvider:
+    """Deterministic create/readback provider; live credentials remain separate."""
+
+    events: dict[str, CalendarEvent]
+
+    def __init__(self) -> None:
+        self.events = {}
+
+    def create_event(self, event: CalendarEvent, idempotency_key: str) -> CalendarEvent:
+        event_id = f"fixture:{idempotency_key}"
+        existing = self.events.get(event_id)
+        if existing is not None:
+            return existing
+        created = CalendarEvent(
+            event_id=event_id,
+            title=event.title,
+            starts_at=event.starts_at,
+            ends_at=event.ends_at,
+            source="fixture_calendar",
+        )
+        self.events[event_id] = created
+        return created
+
+    def get_event(self, event_id: str) -> CalendarEvent | None:
+        return self.events.get(event_id)
+
+
 @dataclass(frozen=True)
 class GoogleCalendarRestProvider:
     """Bounded Google Calendar ``events.list`` read adapter."""
