@@ -196,3 +196,24 @@ class WorkspaceManager:
             max_output_bytes=self.max_output_bytes,
             timeout_seconds=self.timeout_seconds,
         )
+
+    def list_for_principal(self, principal_id: str) -> tuple[dict[str, object], ...]:
+        """Return bounded artifact metadata without exposing host paths."""
+        if not principal_id or "/" in principal_id or "\\" in principal_id:
+            raise WorkspaceError("principal identity is not a valid workspace scope")
+        owner_root = self.root / principal_id
+        if not owner_root.is_dir() or owner_root.is_symlink():
+            return ()
+        workspaces: list[dict[str, object]] = []
+        for path in sorted(owner_root.iterdir()):
+            if not path.is_dir() or path.is_symlink():
+                continue
+            files = tuple(
+                sorted(
+                    str(item.relative_to(path))
+                    for item in path.rglob("*")
+                    if item.is_file() and not item.is_symlink()
+                )
+            )
+            workspaces.append({"workspace_id": path.name, "files": files})
+        return tuple(workspaces)
