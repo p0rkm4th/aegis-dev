@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "d766949624bf04b116abb1bee2a39c003b49bde5",
+  "state_basis_sha": "fb1987b6cd9d3d4e02a0f7b82d5e157a582a21b2",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "d766949624bf04b116abb1bee2a39c003b49bde5",
-  "deterministic_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
+  "repository_head_sha": "fb1987b6cd9d3d4e02a0f7b82d5e157a582a21b2",
+  "deterministic_green_sha": "fb1987b6cd9d3d4e02a0f7b82d5e157a582a21b2",
   "last_pushed_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "hosted_ci_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
@@ -19,9 +19,9 @@
   "running_release_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "live_green_sha": "f54cfb26866ff80c9b5d4905f7c65d4ced960cf7",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "breadth-expansion-reconciled",
+  "active_checkpoint": "workspace-research-constellation-breadth",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "breadth-expansion-reconciled",
+  "current_checkpoint": "workspace-research-constellation-breadth",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
   "current_model": {
     "provider": "ollama",
@@ -81,7 +81,7 @@
     "owner_workflows_completed": 2,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Promote Research into a reusable owner-visible surface, then add the next distinct capability family while extending Constellation from actual Pack metadata.",
+  "next_action": "Add the next materially distinct capability family, preferably a provider-neutral external calendar read slice, then compose it with Research or Tasks.",
   "history_artifact": "evidence/campaigns/daily-driver-task-detail-followup-83e4f19.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
