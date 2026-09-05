@@ -7,7 +7,11 @@ from collections.abc import Callable
 from typing import Any
 
 from .calendar import configured_calendar_write_provider
-from .communications import FixtureCommunicationSendProvider, OpenClawCliCommunicationSendProvider
+from .communications import (
+    FixtureCommunicationSendProvider,
+    OpenClawCliCommunicationSendProvider,
+    configured_communication_targets,
+)
 from .contracts import Principal
 from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
 from .gateway_rpc import OpenClawWebSocketChannel
@@ -298,7 +302,7 @@ def default_runtime_registry(
             else FixtureCommunicationSendProvider()
         )
         return ActionRuntime(
-            CommunicationsSendExecutor(provider),
+            CommunicationsSendExecutor(provider, configured_communication_targets()),
             CommunicationsSendVerifier(),
             {"communications.send": frozenset({Role.OWNER})},
         )

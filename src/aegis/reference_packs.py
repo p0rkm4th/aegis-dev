@@ -1275,8 +1275,13 @@ class CommunicationsVerifier:
 class CommunicationsSendExecutor:
     """Send an explicitly grounded message through a replaceable provider."""
 
-    def __init__(self, provider: CommunicationSendProvider) -> None:
+    def __init__(
+        self,
+        provider: CommunicationSendProvider,
+        approved_targets: frozenset[tuple[str, str, str | None]] | None = None,
+    ) -> None:
         self.provider = provider
+        self.approved_targets = approved_targets
 
     def execute(self, request: ExecutionRequest) -> Observation:
         args = request.action.arguments
@@ -1294,6 +1299,20 @@ class CommunicationsSendExecutor:
             return Observation(
                 execution_id=uuid4(),
                 evidence={"communication_send": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        if self.approved_targets is not None and (
+            target,
+            channel,
+            account,
+        ) not in self.approved_targets:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={
+                    "communication_send": "target_not_approved",
+                    "target": target,
+                    "channel": channel,
+                },
                 command_succeeded=False,
             )
         result = self.provider.send(

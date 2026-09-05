@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from enum import StrEnum
@@ -48,6 +49,42 @@ class CommunicationSendProvider(Protocol):
     """Provider boundary; acceptance is not delivery proof."""
 
     def send(self, message: OutboundMessage, idempotency_key: str) -> SendResult: ...
+
+
+def configured_communication_targets() -> frozenset[tuple[str, str, str | None]] | None:
+    """Load the optional owner-approved target boundary.
+
+    An absent setting preserves the explicit-grounding contract. When present,
+    every outbound target must match one exact ``target``/``channel``/``account``
+    tuple; malformed configuration fails closed rather than widening authority.
+    """
+
+    raw = os.environ.get("AEGIS_APPROVED_COMMUNICATION_TARGETS")
+    if raw is None:
+        return None
+    try:
+        values = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError("approved communication targets must be valid JSON") from exc
+    if not isinstance(values, list) or not values or len(values) > 20:
+        raise ValueError("approved communication targets must contain 1-20 entries")
+    targets: set[tuple[str, str, str | None]] = set()
+    for value in values:
+        if not isinstance(value, dict):
+            raise ValueError("approved communication target must be an object")
+        target = value.get("target")
+        channel = value.get("channel", "default")
+        account = value.get("account")
+        if (
+            not isinstance(target, str)
+            or not target.strip()
+            or not isinstance(channel, str)
+            or not channel.strip()
+            or (account is not None and not isinstance(account, str))
+        ):
+            raise ValueError("approved communication target fields are invalid")
+        targets.add((target.strip(), channel.strip(), account))
+    return frozenset(targets)
 
 
 @dataclass
