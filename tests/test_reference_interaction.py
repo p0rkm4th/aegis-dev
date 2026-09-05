@@ -125,6 +125,22 @@ def test_grocery_read_fast_path_accepts_explicit_read_correction() -> None:
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_grocery_read_fast_path_accepts_only_read_correction() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Actually, only show groceries on my list.",
+        )
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["canonical_items"] == ["rice"]
+
+
 def test_grocery_read_fast_path_does_not_claim_undated_temporal_scope() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
