@@ -2067,13 +2067,14 @@ def resolve_contextual_event_next_read(
 ) -> Result | None:
     """Answer a bounded next-event question from an authorized event list."""
 
-    if context.sources != ("authorized_canonical_result",) or is_mutation_request(intent.utterance):
+    if context.sources != ("authorized_canonical_result",):
         return None
     text = " ".join(strip_correction_prefix(intent.utterance).casefold().split()).strip(".!?")
     text = re.sub(r"^(?:and|but)\s+", "", text)
     if text not in {
         "when is the next one",
         "what is the next one",
+        "what about the next one",
         "which is next",
         "what is happening next",
         "what's happening next",

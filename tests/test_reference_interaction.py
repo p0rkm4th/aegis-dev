@@ -1656,6 +1656,29 @@ def test_contextual_event_next_followup_accepts_leading_connective():
     assert reference_format_result(result) == result.message
 
 
+def test_contextual_event_next_followup_accepts_what_about_wording():
+    future = (datetime.now(timezone.utc) + timedelta(days=1)).replace(microsecond=0)
+    result = resolve_contextual_event_next_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the next one?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {
+                    "events": [{"title": "next event", "starts_at": future.isoformat()}]
+                }
+            },
+            sources=("authorized_canonical_result",),
+        ),
+        {"space_id": "home"},
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_next_referent"]["title"] == "next event"
+
+
 def test_contextual_event_next_followup_accepts_happening_next_wording():
     future = (datetime.now(timezone.utc) + timedelta(days=1)).replace(microsecond=0)
     result = resolve_contextual_event_next_read(
