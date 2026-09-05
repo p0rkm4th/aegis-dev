@@ -2049,6 +2049,28 @@ def test_contextual_task_focus_read_keeps_done_question_read_shaped():
     assert result.message == "Task: inspect the air filter (open)"
 
 
+def test_contextual_next_task_read_uses_successor_of_authorized_focus():
+    first = {"task_id": "one", "title": "first task", "status": "open"}
+    second = {"task_id": "two", "title": "next task", "status": "open"}
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the next one?",
+        ),
+        Context(
+            values={
+                "canonical_facts": {"task": first},
+                "referents": {
+                    "those": {"fact_key": "canonical_tasks", "candidates": [first, second]}
+                },
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+    assert result is not None
+    assert result.message == "Task: next task (open)"
+
+
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 

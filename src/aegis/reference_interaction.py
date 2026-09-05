@@ -1090,6 +1090,10 @@ def resolve_reference_fast_paths(
     utterance = strip_context_reset(intent.utterance)
     if utterance != intent.utterance:
         intent = intent.model_copy(update={"utterance": utterance})
+    if re.search(r"\bnext\s+one\b", intent.utterance.casefold()):
+        next_result = resolve_contextual_ordinal_read(intent, context)
+        if next_result is not None:
+            return next_result
     modification_result = PlanModificationFastPath.resolve(intent, context)
     if modification_result is not None:
         return modification_result
@@ -1302,7 +1306,8 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         re.search(r"\b(?:other|another)\s+(?:one|item|task|chore|event)\b", text) is not None
     )
     ordinal_reference = (
-        re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+one\b", text) is not None
+        re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last|next)\s+one\b", text)
+        is not None
     )
     unsupported_ordinal_reference = (
         re.search(
@@ -1331,7 +1336,44 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     candidates = those.get("candidates") if isinstance(those, dict) else None
     fact_key = those.get("fact_key") if isinstance(those, dict) else None
     relative_match = re.search(r"\bone\s+(before|after)\s+that\b", text)
+    next_match = re.search(r"\b(?:the\s+)?next\s+one\b", text)
     selected_task = context.values.get("canonical_facts", {}).get("task")
+    if (
+        next_match is not None
+        and fact_key == "canonical_tasks"
+        and isinstance(candidates, list)
+        and isinstance(selected_task, dict)
+    ):
+        selected_indices = [
+            index
+            for index, candidate in enumerate(candidates)
+            if isinstance(candidate, dict)
+            and candidate.get("task_id") == selected_task.get("task_id")
+        ]
+        if len(selected_indices) == 1 and selected_indices[0] + 1 < len(candidates):
+            neighbor = candidates[selected_indices[0] + 1]
+            if isinstance(neighbor, dict) and isinstance(neighbor.get("title"), str):
+                detail = f"Task: {neighbor['title']}"
+                status = neighbor.get("status") or (
+                    "completed" if neighbor.get("completed") is True else "open"
+                )
+                if isinstance(status, str):
+                    detail += f" ({status})"
+                due_at = neighbor.get("due_at")
+                if isinstance(due_at, str):
+                    detail += f"; due {_display_due_at(due_at)}"
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.COMPLETED,
+                    message=detail,
+                    evidence={
+                        "collection": "canonical_tasks",
+                        "authorized_relative_referent": neighbor,
+                        "canonical_tasks": candidates,
+                        "task": neighbor,
+                    },
+                    correlation_id=intent.correlation_id,
+                )
     if (
         relative_match is not None
         and fact_key == "canonical_tasks"
