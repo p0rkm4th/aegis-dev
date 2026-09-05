@@ -1,0 +1,19 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "home-assistant-rest-owner-release",
+  "source_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "hosted_run_id": "33982732596",
+  "runtime": {
+    "release_sha": "e92efb866581ff822fa541a73074eceded799422",
+    "health": "healthy",
+    "ready": true
+  },
+  "owner_proof": {
+    "route": "GET /api/packs",
+    "devices_pack": "enabled",
+    "permission": "devices.read",
+    "rest_provider": "configured by endpoint/token only; not configured in this runtime",
+    "live_home_assistant": "pending"
+  },
+  "result": "The promoted owner release contains a bounded real Home Assistant REST read seam with deterministic fallback and no device mutation path."
+}

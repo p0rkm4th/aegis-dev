@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "state_basis_sha": "e92efb866581ff822fa541a73074eceded799422",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
-  "deterministic_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
-  "last_pushed_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
-  "hosted_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
-  "hosted_ci_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "repository_head_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "deterministic_green_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "last_pushed_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "hosted_green_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "hosted_ci_green_sha": "e92efb866581ff822fa541a73074eceded799422",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+    "commit_sha": "e92efb866581ff822fa541a73074eceded799422",
     "conclusion": "success",
-    "run_id": "33982486200",
-    "observed_at": "2026-09-05T17:57:00Z"
+    "run_id": "33982732596",
+    "observed_at": "2026-09-05T18:01:55Z"
   },
-  "installed_release_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
-  "running_release_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
-  "live_green_sha": "94ae320618930371e7cb9924a1ce2312eb0131f0",
+  "installed_release_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "running_release_sha": "e92efb866581ff822fa541a73074eceded799422",
+  "live_green_sha": "e92efb866581ff822fa541a73074eceded799422",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "communications-devices-owner-readback",
+  "active_checkpoint": "home-assistant-rest-owner-release",
   "checkpoint_status": "in_progress",
   "current_checkpoint": "communications-owner-controlled-failure",
   "active_campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION + CONSTELLATION + GENERAL-PURPOSE INTELLIGENCE CAMPAIGN",
@@ -64,6 +64,7 @@
     ,"authenticated owner Packs view exposes lifecycle, permissions, capabilities, actions, health, and explicit approval next steps without changing authority"
     ,"devices.states.list is deterministic-green through the existing HomeAssistantAdapter seam and completed a promoted owner readback through explicit Pack enablement; live HA acceptance remains pending"
     ,"communications.messages.list completed a promoted owner readback after explicit owner-approved enablement; sending remains unavailable"
+    ,"bounded Home Assistant REST read provider is promoted with deterministic fixture fallback; live endpoint acceptance remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Owner recent-action follow-up on 50cfe43 rendered as a canonical task read without a false creation claim or duplicate execution.",
