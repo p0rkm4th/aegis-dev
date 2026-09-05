@@ -4164,6 +4164,43 @@ def test_task_read_fast_path_filters_open_tasks_before_weekend():
     assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["before weekend task"]
 
 
+def test_task_read_fast_path_filters_open_tasks_this_weekend():
+    from datetime import timedelta
+
+    alice = Principal(id="alice", vault_id="alice-vault")
+    now = datetime.now().astimezone()
+    saturday_offset = 5 - now.weekday() if now.weekday() < 5 else -(now.weekday() - 5)
+    saturday = (now + timedelta(days=saturday_offset)).date()
+    weekend_task = Task(
+        uuid4(),
+        "apartment",
+        "weekend task",
+        "alice",
+        due_at=datetime.combine(saturday, datetime.min.time(), tzinfo=now.tzinfo),
+    )
+    later_task = Task(
+        uuid4(),
+        "apartment",
+        "later task",
+        "alice",
+        due_at=datetime.combine(
+            saturday + timedelta(days=2), datetime.min.time(), tzinfo=now.tzinfo
+        ),
+    )
+
+    class Store:
+        def list(self, _principal):
+            return (later_task, weekend_task)
+
+    result = TaskReadFastPath(Store()).resolve(
+        IntentFrame(principal=alice, utterance="What tasks do I need to get done this weekend?")
+    )
+
+    assert result is not None
+    assert result.evidence["due_filter"] == "this_weekend"
+    assert [item["title"] for item in result.evidence["canonical_tasks"]] == ["weekend task"]
+
+
 def test_task_read_fast_path_filters_this_weekday_due_window():
     from datetime import datetime, timedelta
 

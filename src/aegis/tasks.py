@@ -577,7 +577,15 @@ class TaskReadFastPath:
             temporal_task_read = (
                 any(
                     term in text
-                    for term in ("today", "tomorrow", "this week", "next week", "before weekend")
+                    for term in (
+                        "today",
+                        "tomorrow",
+                        "this week",
+                        "next week",
+                        "this weekend",
+                        "next weekend",
+                        "before weekend",
+                    )
                 )
                 or re.search(
                     r"\b(?:(?:this|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b",
@@ -636,6 +644,13 @@ class TaskReadFastPath:
             due_start = (now + timedelta(days=7 - now.weekday())).date()
             due_end = due_start + timedelta(days=7)
             due_filter = "next_week"
+        elif "this weekend" in text or "next weekend" in text:
+            saturday_offset = 5 - now.weekday() if now.weekday() < 5 else -(now.weekday() - 5)
+            if "next weekend" in text:
+                saturday_offset += 7
+            due_start = (now + timedelta(days=saturday_offset)).date()
+            due_end = due_start + timedelta(days=2)
+            due_filter = "next_weekend" if "next weekend" in text else "this_weekend"
         elif "this week" in text and any(term in text for term in ("due", "get done", "finish")):
             due_start = now.date()
             due_end = due_start + timedelta(days=7 - now.weekday())
@@ -690,7 +705,7 @@ class ContextualTaskTemporalFastPath:
     """Resolve a temporal follow-up against the previously authorized task domain."""
 
     _TEMPORAL = re.compile(
-        r"\b(?:today|tomorrow|next week|this week|"
+        r"\b(?:today|tomorrow|next week|this week|this weekend|next weekend|"
         r"(?:(?:this|next)\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday))\b"
     )
 
