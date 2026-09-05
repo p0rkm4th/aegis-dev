@@ -4258,6 +4258,7 @@ def test_task_read_fast_path_accepts_informal_temporal_work_terms():
             return (tomorrow, later)
 
     for utterance in (
+        "What do I need to do tomorrow?",
         "What do I need to knock out tomorrow?",
         "What's on my plate tomorrow?",
         "What am I supposed to do tomorrow?",
