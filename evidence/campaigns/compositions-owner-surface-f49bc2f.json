@@ -1,0 +1,13 @@
+{
+  "source_basis": "f49bc2f2fe558c067f87eeab42d508ea85a62c56",
+  "checkpoint": "owner-visible composition metadata surface",
+  "surface": "authenticated browser Compositions view and /api/compositions projection",
+  "workflows": [
+    "Document -> Workspace",
+    "Research -> Workspace",
+    "Calendar + Tasks attention"
+  ],
+  "safety": "metadata declares available workflows and authority boundaries; it does not execute or authorize actions",
+  "verification": "804 passed, 5 skipped; all checks passed",
+  "remaining_gap": "live promoted runtime proof and rendered artifact/result dogfood"
+}

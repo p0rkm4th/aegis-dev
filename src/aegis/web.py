@@ -21,6 +21,7 @@ ContextualInteraction = Callable[[str, Principal, UUID, UUID | None], str | dict
 ConstellationState = Callable[[Principal], dict[str, Any]]
 WorkspaceState = Callable[[Principal], dict[str, Any]]
 WorkspaceCreate = Callable[[Principal, dict[str, Any]], dict[str, Any]]
+CompositionState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -113,6 +114,11 @@ class WorkspaceProjection(BaseModel):
     workspaces: tuple[dict[str, Any], ...] = Field(default=(), max_length=20)
 
 
+class CompositionProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    compositions: tuple[dict[str, Any], ...] = Field(default=(), max_length=20)
+
+
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><title>AEGIS · Personal intelligence</title>
@@ -141,6 +147,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
 <button type="button" data-view="workspace">Workspace</button>
+<button type="button" data-view="compositions">Compositions</button>
 </nav>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
 <div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
@@ -518,11 +525,13 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
     objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
     workspace: ['Workspace', 'Scoped artifacts and bounded digital work will appear here.']
+    ,compositions: ['Compositions', 'Cross-capability workflows available through the trusted Core.']
   }[activeView] || ['Today', 'Your conversation and authorized world at a glance.'];
   document.getElementById('view-title').textContent = viewCopy[0];
   document.getElementById('view-description').textContent = viewCopy[1];
   if (activeView === 'research') input.focus();
   if (activeView === 'workspace') loadWorkspace();
+  if (activeView === 'compositions') loadCompositions();
   renderResearchSummary();
   applyNodeFilter();
 }));
@@ -640,6 +649,18 @@ async function loadWorkspace() {
     panel.append(renderDetailValue(payload.workspaces || []));
   } catch (_) {
     panel.textContent = 'Workspace inventory is unavailable; no artifact state was changed.';
+  }
+}
+async function loadCompositions() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/compositions');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Compositions unavailable.');
+    panel.append(renderDetailValue(payload.compositions || []));
+  } catch (_) {
+    panel.textContent = 'Composition metadata is unavailable; no action state was changed.';
   }
 }
 async function refreshState() {
@@ -816,6 +837,7 @@ class BrowserApp:
         session_token: str | None = None,
         workspace_state: WorkspaceState | None = None,
         workspace_create: WorkspaceCreate | None = None,
+        composition_state: CompositionState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -827,6 +849,7 @@ class BrowserApp:
         self.session_token = session_token
         self.workspace_state = workspace_state
         self.workspace_create = workspace_create
+        self.composition_state = composition_state
 
     def dispatch(
         self,
@@ -914,6 +937,24 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "workspace_unavailable", "workspace unavailable"
                 )
             return self._json(HTTPStatus.OK, projection.model_dump(mode="json"))
+        if method == "GET" and route == "/api/compositions":
+            if self.composition_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                composition_projection = CompositionProjection.model_validate(
+                    self.composition_state(principal)
+                )
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError, ValidationError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "composition state unavailable",
+                )
+            return self._json(HTTPStatus.OK, composition_projection.model_dump(mode="json"))
         if method == "POST" and route == "/api/workspace":
             if self.workspace_create is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1120,6 +1161,7 @@ def serve(
     feedback: FeedbackRecorder | None = None,
     workspace_state: WorkspaceState | None = None,
     workspace_create: WorkspaceCreate | None = None,
+    composition_state: CompositionState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1134,6 +1176,7 @@ def serve(
         session_token=secrets.token_urlsafe(32),
         workspace_state=workspace_state,
         workspace_create=workspace_create,
+        composition_state=composition_state,
     )
 
     class Handler(BaseHTTPRequestHandler):

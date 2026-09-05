@@ -12,6 +12,36 @@ from .research import ResearchAnswer
 from .workspace import WorkspaceManager
 
 
+def available_compositions() -> tuple[dict[str, object], ...]:
+    """Owner-facing workflow metadata; this declares no authority or execution."""
+
+    return (
+        {
+            "id": "documents-to-workspace",
+            "label": "Document → Workspace",
+            "description": "Export one authorized document into a verified scoped artifact.",
+            "surfaces": ("Documents", "Workspace"),
+            "authority": "read document + write scoped workspace; Core authorization required",
+        },
+        {
+            "id": "research-to-workspace",
+            "label": "Research → Workspace",
+            "description": "Preserve sourced public research as non-authoritative workspace notes.",
+            "surfaces": ("Research", "Workspace"),
+            "authority": "external evidence remains non-canonical; Core authorization required",
+        },
+        {
+            "id": "calendar-task-attention",
+            "label": "Calendar + Tasks attention",
+            "description": (
+                "Find canonical tasks due before an agenda event without mutating either source."
+            ),
+            "surfaces": ("Calendar", "Tasks"),
+            "authority": "read-only narrowing; no task mutation or authorization",
+        },
+    )
+
+
 @dataclass(frozen=True)
 class DocumentWorkspaceResult:
     """Provenance-preserving result for a document-to-artifact composition."""
