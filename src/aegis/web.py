@@ -26,6 +26,7 @@ CompositionState = Callable[[Principal], dict[str, Any]]
 PackState = Callable[[Principal], dict[str, Any]]
 PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CalendarState = Callable[[Principal], dict[str, Any]]
+DeviceState = Callable[[Principal], dict[str, Any]]
 TodayState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
@@ -162,6 +163,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="systems">Systems</button>
+<button type="button" data-view="devices">Devices</button>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
@@ -540,6 +542,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     calendar: ['Calendar', 'Events and appointments currently visible to you.'],
     household: ['Household', 'Shared chores, groceries, and obligations.'],
     systems: ['Systems', 'Authorized hosts, services, and network state.'],
+    devices: ['Devices', 'Authorized device state and bounded controls.'],
     research: ['Research', 'Ask for current public information with sources.'],
     packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
     objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
@@ -553,6 +556,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'compositions') loadCompositions();
   if (activeView === 'packs') loadPacks();
   if (activeView === 'calendar') loadCalendar();
+  if (activeView === 'devices') loadDevices();
   if (activeView === 'home') loadToday();
   renderResearchSummary();
   applyNodeFilter();
@@ -716,6 +720,20 @@ async function loadCalendar() {
     panel.append(renderDetailValue(events));
   } catch (_) {
     panel.textContent = 'Calendar state is unavailable; no event state was changed.';
+  }
+}
+async function loadDevices() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/devices');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Devices unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = 'Authorized device state (read-only view)';
+    panel.append(heading, renderDetailValue(payload));
+  } catch (_) {
+    panel.textContent = 'Device state is unavailable; no device action was attempted.';
   }
 }
 async function loadToday() {
@@ -970,6 +988,7 @@ class BrowserApp:
         pack_state: PackState | None = None,
         pack_enable: PackEnable | None = None,
         calendar_state: CalendarState | None = None,
+        device_state: DeviceState | None = None,
         today_state: TodayState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
@@ -987,6 +1006,7 @@ class BrowserApp:
         self.pack_state = pack_state
         self.pack_enable = pack_enable
         self.calendar_state = calendar_state
+        self.device_state = device_state
         self.today_state = today_state
 
     def dispatch(
@@ -1146,6 +1166,22 @@ class BrowserApp:
                     "calendar state unavailable",
                 )
             return self._json(HTTPStatus.OK, calendar_projection)
+        if method == "GET" and route == "/api/devices":
+            if self.device_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                device_projection = self.device_state(principal)
+                if not isinstance(device_projection, dict):
+                    raise ValueError("device state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "device state unavailable"
+                )
+            return self._json(HTTPStatus.OK, device_projection)
         if method == "GET" and route == "/api/today":
             if self.today_state is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1399,6 +1435,7 @@ def serve(
     pack_state: PackState | None = None,
     pack_enable: PackEnable | None = None,
     calendar_state: CalendarState | None = None,
+    device_state: DeviceState | None = None,
     today_state: TodayState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
@@ -1419,6 +1456,7 @@ def serve(
         pack_state=pack_state,
         pack_enable=pack_enable,
         calendar_state=calendar_state,
+        device_state=device_state,
         today_state=today_state,
     )
 
