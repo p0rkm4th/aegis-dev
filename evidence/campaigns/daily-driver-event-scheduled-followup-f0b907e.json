@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS TRUST PROJECT-TRUTH SHOWABLE-ALPHA CAMPAIGN",
+  "checkpoint": "daily-driver-event-scheduled-followup",
+  "source_sha": "f0b907e4fc6c6a432a155fd156af1892708d1456",
+  "hosted_validation": {"run_id": "33972684352", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "f0b907e4fc6c6a432a155fd156af1892708d1456",
+    "running_sha": "f0b907e4fc6c6a432a155fd156af1892708d1456",
+    "postgresql": "preserved",
+    "proof": [
+      "What is the next event? -> utility inspection",
+      "Is it still scheduled? -> canonical scheduled status",
+      "When is it? -> canonical event time"
+    ],
+    "mutation": "none"
+  },
+  "result": "Natural scheduled-status event follow-ups preserve the authorized event focus and avoid collection fallback."
+}
