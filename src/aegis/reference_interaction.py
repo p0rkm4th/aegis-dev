@@ -1547,6 +1547,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         ("canonical_tasks", "Task"),
         ("canonical_chores", "Chore"),
         ("events", "Event"),
+        ("canonical_obligations", "Obligation"),
     ):
         referent = resolve_obvious_ordinal(text, context, fact_key)
         if referent is None:
@@ -1554,12 +1555,18 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
         title = referent.get("title")
         if not isinstance(title, str) or not title.strip():
             continue
-        status = referent.get("status") or (
-            "completed" if referent.get("completed") is True else "open"
-        )
         detail = f"{label}: {title}"
-        if isinstance(status, str):
-            detail += f" ({status})"
+        if fact_key == "canonical_obligations" and isinstance(referent.get("settled"), bool):
+            detail += f" ({'settled' if referent['settled'] else 'unsettled'})"
+            responsible_id = referent.get("responsible_id")
+            if isinstance(responsible_id, str) and responsible_id:
+                detail += f" ({responsible_id})"
+        else:
+            status = referent.get("status") or (
+                "completed" if referent.get("completed") is True else "open"
+            )
+            if isinstance(status, str):
+                detail += f" ({status})"
         due_at = referent.get("due_at")
         due_question = fact_key == "canonical_tasks" and "due" in text
         if isinstance(due_at, str):
@@ -1583,6 +1590,8 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             # Preserve the selected scalar event focus for a subsequent
             # authorized temporal/date follow-up.
             collection_evidence["event"] = referent
+        elif fact_key == "canonical_obligations":
+            collection_evidence["obligation"] = referent
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,

@@ -927,6 +927,38 @@ def test_contextual_ordinal_read_stays_in_authorized_event_domain():
     assert result.evidence["event"]["title"] == "Apartment inspection"
 
 
+def test_contextual_ordinal_read_resolves_authorized_obligation():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_obligations",
+                    "candidates": [
+                        {
+                            "title": "Utilities",
+                            "responsible_id": "bob",
+                            "settled": False,
+                        }
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What about the first one?",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.message == "Obligation: Utilities (unsettled) (bob)"
+    assert result.evidence["obligation"]["responsible_id"] == "bob"
+
+
 def test_ordinal_domain_read_preserves_collection_and_blocks_ambiguous_correction():
     context = Context(
         values={

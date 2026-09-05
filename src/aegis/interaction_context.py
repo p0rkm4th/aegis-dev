@@ -365,6 +365,7 @@ def context_from_prior_result(
         "canonical_chores",
         "canonical_events",
         "events",
+        "obligations",
         "canonical_obligations",
     ):
         # Ordinals refer to the list the owner just received.  Keep this
@@ -389,7 +390,13 @@ def context_from_prior_result(
                     )
             referents["those"] = {
                 "source": "canonical_facts",
-                "fact_key": "events" if fact_key == "canonical_events" else fact_key,
+                "fact_key": (
+                    "events"
+                    if fact_key == "canonical_events"
+                    else "canonical_obligations"
+                    if fact_key == "obligations"
+                    else fact_key
+                ),
                 "candidates": selected,
             }
             break
