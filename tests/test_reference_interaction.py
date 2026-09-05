@@ -456,6 +456,35 @@ def test_contextual_correction_reaches_domain_specific_referent_guard():
     assert result is None
 
 
+def test_bare_ordinal_correction_reads_authorized_task_projection():
+    context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "canonical_tasks",
+                    "candidates": [
+                        {"title": "first task", "status": "open"},
+                        {"title": "second task", "status": "open"},
+                    ],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+
+    result = resolve_contextual_ordinal_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="No, the second one.",
+        ),
+        context,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.evidence["authorized_ordinal_referent"]["title"] == "second task"
+
+
 def test_bounded_task_event_plan_owns_its_dependent_reference():
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),

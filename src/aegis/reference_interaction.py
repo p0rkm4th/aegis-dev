@@ -1206,6 +1206,9 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
     ambiguous_correction = (
         re.search(r"\b(?:other|another)\s+(?:one|item|task|chore|event)\b", text) is not None
     )
+    ordinal_reference = (
+        re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\s+one\b", text) is not None
+    )
     if (
         is_mutation_request(text)
         or not any(
@@ -1217,6 +1220,7 @@ def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Re
             and re.search(r"\b(?:the\s+)?(?:first|second|third|fourth|last)\b", text)
         )
         and not ambiguous_correction
+        and not ordinal_reference
     ):
         return None
     referents = context.values.get("referents")
