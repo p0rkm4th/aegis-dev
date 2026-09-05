@@ -12,7 +12,7 @@ import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid5
 
 
 class WorkspaceError(ValueError):
@@ -160,4 +160,39 @@ class ScopedWorkspace:
             completed.stdout[: self.max_output_bytes],
             completed.stderr[: self.max_output_bytes],
             timed_out,
+        )
+
+
+class WorkspaceManager:
+    """Create stable workspaces scoped by principal and objective identity."""
+
+    _namespace = UUID("8b9f4b1f-2a83-4a0b-98cf-6f3d5f5c2e42")
+
+    def __init__(
+        self,
+        root: Path,
+        *,
+        allowed_commands: tuple[str, ...] = ("python3",),
+        max_file_bytes: int = 200_000,
+        max_output_bytes: int = 100_000,
+        timeout_seconds: float = 10.0,
+    ) -> None:
+        self.root = root.resolve()
+        self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        os.chmod(self.root, 0o700)
+        self.allowed_commands = allowed_commands
+        self.max_file_bytes = max_file_bytes
+        self.max_output_bytes = max_output_bytes
+        self.timeout_seconds = timeout_seconds
+
+    def for_objective(self, principal_id: str, objective_id: UUID) -> ScopedWorkspace:
+        if not principal_id or "/" in principal_id or "\\" in principal_id:
+            raise WorkspaceError("principal identity is not a valid workspace scope")
+        stable_id = uuid5(self._namespace, f"{principal_id}:{objective_id}")
+        return ScopedWorkspace(
+            self.root / principal_id / str(stable_id),
+            allowed_commands=self.allowed_commands,
+            max_file_bytes=self.max_file_bytes,
+            max_output_bytes=self.max_output_bytes,
+            timeout_seconds=self.timeout_seconds,
         )
