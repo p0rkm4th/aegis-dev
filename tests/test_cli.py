@@ -3710,9 +3710,9 @@ def test_task_read_fast_path_exposes_canonical_due_at():
 
 
 def test_task_read_fast_path_filters_relative_due_window():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now().astimezone()
     tomorrow = Task(uuid4(), "apartment", "tomorrow task", "alice", due_at=now + timedelta(days=1))
     next_month = Task(uuid4(), "apartment", "later task", "alice", due_at=now + timedelta(days=30))
 
@@ -3763,9 +3763,9 @@ def test_task_read_fast_path_uses_owner_local_date_for_relative_due_window():
 
 
 def test_task_read_fast_path_accepts_implicit_temporal_task_language():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now().astimezone()
     tomorrow = Task(
         uuid4(),
         "apartment",
@@ -3904,9 +3904,9 @@ def test_task_read_fast_path_filters_weekday_without_due_verb():
 
 
 def test_task_read_fast_path_next_same_weekday_means_next_occurrence():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now().astimezone()
     weekday = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")[
         now.weekday()
     ]
@@ -4013,9 +4013,9 @@ def test_task_read_fast_path_filters_open_tasks_before_weekend():
 
 
 def test_task_read_fast_path_filters_this_weekday_due_window():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now().astimezone()
     target = (now + timedelta(days=(4 - now.weekday()) % 7)).date()
     friday_task = Task(
         uuid4(),
