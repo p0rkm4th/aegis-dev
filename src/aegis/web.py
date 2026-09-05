@@ -776,8 +776,35 @@ async function loadDevices() {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Devices unavailable.');
     const heading = document.createElement('p');
-    heading.textContent = 'Authorized device state (read-only view)';
+    heading.textContent = 'Authorized device state and bounded controls';
     panel.append(heading, renderDetailValue(payload));
+    const control = payload.control_surface || {};
+    const entities = Array.isArray(control.authorized_entities)
+      ? control.authorized_entities : [];
+    if (entities.length) {
+      const section = document.createElement('section');
+      section.className = 'detail-card';
+      const title = document.createElement('h3'); title.textContent = 'Request a bounded control';
+      const note = document.createElement('p');
+      note.textContent = `${control.provider_state || 'unknown'} provider · explicit owner approval and independent readback required`;
+      section.append(title, note);
+      entities.forEach(entity => {
+        const row = document.createElement('p');
+        const label = document.createElement('strong'); label.textContent = entity;
+        row.append(label, ' ');
+        ['on', 'off'].forEach(state => {
+          const button = document.createElement('button');
+          button.type = 'button'; button.textContent = `Turn ${state}`;
+          button.addEventListener('click', () => {
+            document.getElementById('utterance').value = `Turn ${state} ${entity} and verify`;
+            document.getElementById('chat').requestSubmit();
+          });
+          row.append(button, ' ');
+        });
+        section.append(row);
+      });
+      panel.append(section);
+    }
   } catch (_) {
     panel.textContent = 'Device state is unavailable; no device action was attempted.';
   }
