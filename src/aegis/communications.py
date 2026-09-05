@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Protocol
@@ -65,6 +67,96 @@ class FixtureCommunicationSendProvider:
             provider_message_id=f"fixture:{idempotency_key}",
             detail="fixture provider accepted the outbound message",
         )
+
+
+class OpenClawMessageCommand(Protocol):
+    def __call__(self, args: list[str]) -> subprocess.CompletedProcess[str]: ...
+
+
+class OpenClawCliCommunicationSendProvider:
+    """Adapt OpenClaw's explicit ``message send`` command to the Core port.
+
+    OpenClaw owns channel transport and returns provider evidence. AEGIS owns
+    the grounded target, authorization, and the distinction between provider
+    acceptance and delivery. The command is argv-based: no shell or inherited
+    command string is involved.
+    """
+
+    def __init__(
+        self,
+        executable: str = "openclaw",
+        runner: OpenClawMessageCommand | None = None,
+        timeout_seconds: float = 30.0,
+    ) -> None:
+        self.executable = executable
+        self.runner = runner or self._run
+        self.timeout_seconds = timeout_seconds
+        self._accepted: dict[str, SendResult] = {}
+
+    def _run(self, args: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            args,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=self.timeout_seconds,
+            env={},
+        )
+
+    def send(self, message: OutboundMessage, idempotency_key: str) -> SendResult:
+        if cached := self._accepted.get(idempotency_key):
+            return cached
+        args = [
+            self.executable,
+            "message",
+            "send",
+            "--channel",
+            message.channel,
+            "--target",
+            message.target,
+            "--message",
+            message.body,
+            "--json",
+        ]
+        if message.account:
+            args.extend(("--account", message.account))
+        try:
+            completed = self.runner(args)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return SendResult(
+                status=SendStatus.SEND_ATTEMPTED,
+                detail=f"OpenClaw message send unavailable: {type(exc).__name__}",
+            )
+        if completed.returncode != 0:
+            return SendResult(
+                status=SendStatus.SEND_ATTEMPTED,
+                detail="OpenClaw message send was rejected by the provider",
+            )
+        try:
+            payload = json.loads(completed.stdout)
+        except (TypeError, json.JSONDecodeError):
+            return SendResult(
+                status=SendStatus.SEND_ATTEMPTED,
+                detail="OpenClaw returned no structured message acceptance",
+            )
+        if not isinstance(payload, dict):
+            return SendResult(
+                status=SendStatus.SEND_ATTEMPTED,
+                detail="OpenClaw returned an invalid message result",
+            )
+        provider_message_id = payload.get("messageId") or payload.get("message_id")
+        if not isinstance(provider_message_id, str) or not provider_message_id.strip():
+            return SendResult(
+                status=SendStatus.SEND_ATTEMPTED,
+                detail="OpenClaw did not return a provider message id",
+            )
+        result = SendResult(
+            status=SendStatus.PROVIDER_ACCEPTED,
+            provider_message_id=provider_message_id,
+            detail="OpenClaw accepted the outbound message; delivery is not independently proven",
+        )
+        self._accepted[idempotency_key] = result
+        return result
 
 
 @dataclass(frozen=True)

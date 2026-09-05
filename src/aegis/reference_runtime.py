@@ -7,7 +7,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .calendar import configured_calendar_write_provider
-from .communications import FixtureCommunicationSendProvider
+from .communications import FixtureCommunicationSendProvider, OpenClawCliCommunicationSendProvider
 from .contracts import Principal
 from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
 from .gateway_rpc import OpenClawWebSocketChannel
@@ -278,7 +278,11 @@ def default_runtime_registry(
 
     def communications_send_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
-        provider = FixtureCommunicationSendProvider()
+        provider = (
+            OpenClawCliCommunicationSendProvider(os.environ["AEGIS_OPENCLAW_MESSAGE_BIN"])
+            if os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
+            else FixtureCommunicationSendProvider()
+        )
         return ActionRuntime(
             CommunicationsSendExecutor(provider),
             CommunicationsSendVerifier(),
