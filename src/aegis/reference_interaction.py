@@ -1042,6 +1042,15 @@ def reference_format_result(result: Any) -> str:
         return f"Calendar {evidence['date']}:\n" + "\n".join(
             f"• {item['title']}" for item in events if isinstance(item, dict)
         )
+    if evidence.get("source") == "authorized_calendar_tasks":
+        attention = evidence.get("attention", [])
+        rows = [
+            f"• {item['event_title']}: "
+            + (", ".join(item["task_titles"]) if item.get("task_titles") else "no earlier tasks")
+            for item in attention
+            if isinstance(item, dict)
+        ]
+        return "Calendar + Tasks attention: " + ("\n".join(rows) if rows else "(none)")
     if evidence.get("obligations") is not None:
         obligations = evidence["obligations"]
         outstanding = [item for item in obligations if not item["settled"]]
