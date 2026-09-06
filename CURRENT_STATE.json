@@ -19,7 +19,7 @@
   "running_release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
   "live_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-document-search-workspace",
+  "active_checkpoint": "daily-driver-alpha-communications-composer",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -123,7 +123,7 @@
     ,"Communications view now provides a generic explicit target/channel/account/body composer; installed owner proof reached truthful PROVIDER_ACCEPTED without claiming delivery"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner can inspect and search authorized documents, save bounded search results into independently verified Workspace artifacts, and inspect truthful Daily driver readiness; live OpenClaw, Google, and Home Assistant providers remain pending.",
+  "daily_driver_checkpoint": "The owner can inspect documents, create verified summary artifacts, and submit explicit generic communications through the Core path; the installed provider accepts fixture sends without delivery proof, while live OpenClaw, Google, and Home Assistant providers remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
