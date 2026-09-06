@@ -56,6 +56,15 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "calendar-holidays-to-today",
+            "label": "Calendar + Public holidays → Today",
+            "description": (
+                "Bring live public-holiday context into the owner's daily planning view."
+            ),
+            "surfaces": ("Calendar", "Today"),
+            "authority": "external dates are read-only context; no personal event is created",
+        },
+        {
             "id": "calendar-to-workspace",
             "label": "Calendar → Workspace",
             "description": (

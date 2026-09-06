@@ -1156,6 +1156,12 @@ async function loadToday() {
     conflictBoundary.textContent = payload.external_calendar?.conflict_boundary
       || 'Conflict inspection is read-only.';
     panel.append(conflictBoundary);
+    const todayHolidays = payload.external_calendar?.public_holidays?.holidays || [];
+    appendTodaySection(panel, 'Public holidays', todayHolidays.length
+      ? todayHolidays : 'No configured public-holiday feed.');
+    const holidayBoundary = document.createElement('p'); holidayBoundary.className = 'muted';
+    holidayBoundary.textContent = 'Public holiday dates are external evidence, not canonical personal events.';
+    panel.append(holidayBoundary);
     if (conflicts.length) {
       const actionNote = document.createElement('p'); actionNote.className = 'muted';
       actionNote.textContent = 'Scheduling follow-up stays a normal authorized task request.';

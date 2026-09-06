@@ -940,6 +940,15 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         events = events[:20]
         external_events = configured_calendar_provider().list_events()
         external = calendar_events_evidence(external_events)
+        country_code = os.environ.get("AEGIS_HOLIDAY_COUNTRY", "").strip().upper()
+        if country_code:
+            try:
+                year = int(os.environ.get("AEGIS_HOLIDAY_YEAR", str(now.year)))
+                external["public_holidays"] = holidays_evidence(
+                    configured_holiday_provider().list_holidays(country_code, year)
+                )
+            except (RuntimeError, ValueError):
+                external["public_holidays"] = {"source": "unavailable", "holidays": []}
         external["conflicts"] = list(calendar_conflicts(external_events))
         external["conflict_boundary"] = (
             "Conflict inspection is read-only and only compares events with explicit end times."
