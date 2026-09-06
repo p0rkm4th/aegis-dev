@@ -1,0 +1,19 @@
+{
+  "kind": "pack-first-qwen3-adversarial-corpus",
+  "source_sha": "a4772e4da4f0a3013734023d09ceaa8be8a54073",
+  "observed_at": "2026-09-06T20:45:00Z",
+  "model": "qwen3:8b",
+  "cases": 10,
+  "metrics": {
+    "incumbent": {"routing_recall": 1.0, "wrong_action_rate": 0.0, "clarification_rate": 0.0, "model_calls_per_case": 0.0},
+    "pack_first": {"routing_recall": 0.3333, "wrong_action_rate": 0.3333, "clarification_rate": 0.0, "model_calls_per_case": 1.0, "prompt_bytes_per_case": 621.6, "p50_latency_ms": 597.8, "p95_latency_ms": 1482.2},
+    "retrieval_assisted_pack_first": {"routing_recall": 0.6667, "wrong_action_rate": 0.3333, "clarification_rate": 0.2, "model_calls_per_case": 1.0, "prompt_bytes_per_case": 268.4, "p50_latency_ms": 543.2, "p95_latency_ms": 592.7}
+  },
+  "adversarial_findings": [
+    "pure Pack-first missed the natural Food request 'we ran out of milk'",
+    "retrieval-assisted Pack-first selected an unrelated weather Pack for 'install this unknown Pack'",
+    "retrieval-assisted Pack-first correctly requested context for 'show me the other one' and 'restart that instead'",
+    "retrieval-assisted Pack-first did not safely reject every unsupported installation request"
+  ],
+  "decision": "No experimental route is promotable. Production incumbent remains unchanged; the next experiment must improve unsupported/authority-language rejection and follow-up context handling without exposing canonical owner data."
+}
