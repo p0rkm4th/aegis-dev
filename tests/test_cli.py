@@ -4411,6 +4411,21 @@ def test_browser_app_communications_surface_offers_core_resolved_source_choice()
     assert "Text my grocery list to" in html
 
 
+def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Bounded service actions" in html
+    assert "Request restart" in html
+    assert "independent health verification" in html
+
+
 def test_browser_app_task_and_household_views_expose_core_completion_affordances():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
