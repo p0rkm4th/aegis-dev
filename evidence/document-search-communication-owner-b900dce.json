@@ -1,0 +1,36 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "document-search-to-communication-owner-proof",
+  "source_sha": "b900dce",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34033787806",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "b900dce",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Text me the document search results for guidance.",
+  "action_id": "communications.messages.send",
+  "composition": "authorized document search → generic communication",
+  "approved_target": {
+    "target": "scotty",
+    "channel": "sms",
+    "account": "household"
+  },
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "35c11ec0-7331-49d7-a158-d3a350ca6347",
+    "correlation_id": "a7c89c0f-d3da-4fd9-ad96-fc7dda405d99",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "authorized document search was fixed before generic send; one exact owner-approved target was used; no document mutation or delivery claim was added"
+}

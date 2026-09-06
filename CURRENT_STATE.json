@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
+  "state_basis_sha": "b900dce",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
-  "deterministic_green_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
-  "last_pushed_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
-  "hosted_green_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
-  "hosted_ci_green_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
+  "repository_head_sha": "b900dce",
+  "deterministic_green_sha": "b900dce",
+  "last_pushed_sha": "b900dce",
+  "hosted_green_sha": "b900dce",
+  "hosted_ci_green_sha": "b900dce",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d",
+    "commit_sha": "b900dce",
     "conclusion": "success",
-    "run_id": "34033130528",
+    "run_id": "34033787806",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "9533a25",
-  "running_release_sha": "9533a25",
-  "live_green_sha": "9533a25",
+  "installed_release_sha": "b900dce",
+  "running_release_sha": "b900dce",
+  "live_green_sha": "b900dce",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "9533a250387421da9bef8a8d50d2fd485c8d011d"
+    "release_sha": "b900dce"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -60,6 +60,7 @@
     "today_recent_task_visibility": "Today preserves due-task priority while reserving a bounded slot for the newest open canonical task, keeping fresh owner actions discoverable",
     "today_workspace": "Today exposes the existing canonical Today → independently verified Workspace brief action as a direct owner workflow",
     "today_communication": "Today exposes a canonical brief → generic communication action; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while delivery remains unproven",
+    "document_search_communication": "Authorized document search results are fixed before generic communication; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while delivery remains unproven",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -222,6 +223,7 @@
     ,"today-reports is a canonical-only Today → Workspace Pack; installed proof fixed the brief before execution and independently verified today.md in the Principal/objective-scoped Workspace"
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
     ,"installed owner proof on 9533a25 completed 'Send me today’s brief' through the normal Core path using only scotty/sms/household; provider acceptance and exact readback were proven, delivery was not claimed"
+    ,"installed owner proof on b900dce completed 'Text me the document search results for guidance' through authorized document search and generic communication; exact provider readback was proven, delivery and document mutation were not claimed"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes the fixed canonical brief through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -264,22 +266,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 84,
-  "owner_visible_capability_surfaces": 56,
+  "voluntarily_useful_owner_workflows": 85,
+  "owner_visible_capability_surfaces": 57,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 60,
+  "cross_capability_workflows": 61,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 59,
+    "cross_domain_compositions": 60,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 81,
+    "owner_workflows_completed": 82,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/today-communication-owner-9533a25.json",
+  "history_artifact": "evidence/document-search-communication-owner-b900dce.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
