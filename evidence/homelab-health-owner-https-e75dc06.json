@@ -1,0 +1,9 @@
+{
+  "checkpoint": "homelab-health-owner-https",
+  "source_sha": "e75dc06",
+  "hosted_validation": {"run_id": "34061232447", "conclusion": "success"},
+  "owner_runtime": {"service": "aegis-owner.service", "release_sha": "e75dc06", "access": "authenticated Tailscale HTTPS", "postgresql": "healthy"},
+  "request": "Is Plex healthy?",
+  "result": {"state": "failed", "code": "failed", "message": "Not completed — Homelab health readback failed", "retryable": true, "objective_id": "a96dbec3-2689-454a-8b77-ca997de0b1c3", "correlation_id": "407c3592-7eb6-4529-8394-1a4471a8bd11"},
+  "interpretation": "The owner request reaches the typed canonical Homelab health capability and reports unavailable provider readback truthfully; it no longer falls through to generic public explanation."
+}
