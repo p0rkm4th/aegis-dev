@@ -722,6 +722,10 @@ async function loadState() {
     renderedNodeText.set(node.id, `${node.label} ${node.detail || ''}`.toLowerCase());
     const searchable = `${node.id} ${node.label} ${node.detail || ''} ${node.category || ''}`.toLowerCase();
     const views = ['home'];
+    const navigableViews = new Set(
+      [...document.querySelectorAll('[data-view]')].map(item => item.dataset.view)
+    );
+    if (node.detail_view && navigableViews.has(node.detail_view)) views.push(node.detail_view);
     if (/task/.test(searchable)) views.push('tasks');
     if (/event|calendar|appointment/.test(searchable)) views.push('calendar');
     if (/household|chore|obligation|grocery|kitchen/.test(searchable)) views.push('household');
