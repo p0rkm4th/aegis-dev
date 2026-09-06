@@ -1994,16 +1994,41 @@ async function loadDailyDriver() {
     if (!response.ok) throw new Error(payload.error || 'Daily-driver status unavailable.');
     const heading = document.createElement('p');
     heading.textContent = 'Capability status from the current release truth';
-    panel.append(heading, renderDetailValue({
+    panel.append(heading);
+    appendDailyDriverStatuses(panel, payload.statuses || {});
+    const gates = Array.isArray(payload.provider_gates) ? payload.provider_gates : [];
+    const gateSection = document.createElement('section'); gateSection.className = 'detail-card';
+    const gateTitle = document.createElement('h3'); gateTitle.textContent = 'Provider gates';
+    gateSection.append(gateTitle);
+    const gateList = document.createElement('ul');
+    if (!gates.length) {
+      const item = document.createElement('li'); item.textContent = 'No configured provider gate is currently recorded.';
+      gateList.append(item);
+    } else gates.forEach(gate => {
+      const item = document.createElement('li'); item.textContent = String(gate); gateList.append(item);
+    });
+    gateSection.append(gateList);
+    panel.append(gateSection, renderDetailValue({
       source_basis_sha: payload.source_basis_sha,
-      statuses: payload.statuses,
       metrics: payload.metrics,
-      provider_gates: payload.provider_gates,
       boundary: payload.boundary,
     }));
   } catch (_) {
     panel.textContent = 'Daily-driver status is unavailable; no capability state was changed.';
   }
+}
+function appendDailyDriverStatuses(panel, statuses) {
+  const section = document.createElement('section'); section.className = 'today-overview';
+  section.setAttribute('aria-label', 'Capability readiness');
+  Object.entries(statuses).forEach(([key, value]) => {
+    const card = document.createElement('div'); card.className = 'today-overview-card';
+    const state = String(value || 'NONE').toLowerCase();
+    card.dataset.attention = ['partial', 'fixture', 'none'].includes(state) ? 'true' : 'false';
+    const status = document.createElement('strong'); status.textContent = String(value || 'NONE');
+    const label = document.createElement('span'); label.textContent = key.replaceAll('_', ' ');
+    card.append(status, label); section.append(card);
+  });
+  panel.append(section);
 }
 async function loadPacks() {
   const panel = document.getElementById('detail');
