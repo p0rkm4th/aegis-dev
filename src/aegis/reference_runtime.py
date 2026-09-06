@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 from .calendar import configured_calendar_write_provider
 from .communications import (
+    CommunicationSendProvider,
+    FaultCommunicationSendProvider,
     FixtureCommunicationSendProvider,
     OpenClawCliCommunicationSendProvider,
     configured_communication_targets,
@@ -131,6 +134,16 @@ from .tasks import (
     PostgresTaskStore,
     PostgresTaskVerifier,
 )
+
+
+def _configured_communication_send_provider() -> CommunicationSendProvider:
+    fault_path = os.environ.get("AEGIS_COMMUNICATION_FAULT_STATE")
+    if fault_path:
+        return FaultCommunicationSendProvider(Path(fault_path))
+    executable = os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
+    if executable:
+        return OpenClawCliCommunicationSendProvider(executable)
+    return FixtureCommunicationSendProvider()
 
 
 class _RuntimePolicy:
@@ -639,11 +652,7 @@ def default_runtime_registry(
 
     def communications_send_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del principal
-        provider = (
-            OpenClawCliCommunicationSendProvider(os.environ["AEGIS_OPENCLAW_MESSAGE_BIN"])
-            if os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
-            else FixtureCommunicationSendProvider()
-        )
+        provider = _configured_communication_send_provider()
         return ActionRuntime(
             CommunicationsSendExecutor(provider, configured_communication_targets()),
             CommunicationsSendVerifier(provider),
@@ -655,11 +664,7 @@ def default_runtime_registry(
 
     def workspace_communications_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del principal
-        provider = (
-            OpenClawCliCommunicationSendProvider(os.environ["AEGIS_OPENCLAW_MESSAGE_BIN"])
-            if os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
-            else FixtureCommunicationSendProvider()
-        )
+        provider = _configured_communication_send_provider()
         return ActionRuntime(
             CommunicationsSendExecutor(provider, configured_communication_targets()),
             CommunicationsSendVerifier(provider),
@@ -674,11 +679,7 @@ def default_runtime_registry(
 
     def device_communications_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del principal
-        provider = (
-            OpenClawCliCommunicationSendProvider(os.environ["AEGIS_OPENCLAW_MESSAGE_BIN"])
-            if os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
-            else FixtureCommunicationSendProvider()
-        )
+        provider = _configured_communication_send_provider()
         return ActionRuntime(
             CommunicationsSendExecutor(provider, configured_communication_targets()),
             CommunicationsSendVerifier(provider),
