@@ -44,6 +44,45 @@ def dynamic_manager() -> PackManager:
     return manager
 
 
+def corpus_manager() -> PackManager:
+    manager = dynamic_manager()
+    for pack_id, label, capability in (
+        ("dynamic-food", "Food", "read"),
+        ("dynamic-finance", "Finance", "read"),
+        ("dynamic-homelab", "Homelab", "read"),
+        ("dynamic-forge", "Forge", "review"),
+    ):
+        manager.discover(
+            PackBundle(
+                manifest=PackManifest(
+                    pack_id=pack_id,
+                    version="0.1.0",
+                    ui=PackUI(label=label, category="owner utility"),
+                ),
+                cards=(
+                    ActionCard(
+                        action=ActionSpec(
+                            action_id=f"{pack_id}.{capability}",
+                            capability=f"{pack_id}.{capability}",
+                        ),
+                        summary=f"Bounded {label} capability",
+                        relevance=0.9,
+                    ),
+                ),
+            )
+        )
+    for pack_id in (
+        "dynamic-weather",
+        "dynamic-food",
+        "dynamic-finance",
+        "dynamic-homelab",
+        "dynamic-forge",
+    ):
+        manager.install(pack_id, frozenset())
+        manager.enable(pack_id)
+    return manager
+
+
 def test_dynamic_pack_is_discovered_and_routed_without_core_special_case():
     manager = dynamic_manager()
     catalog = compact_pack_catalog(manager)
@@ -163,3 +202,55 @@ def test_tournament_runner_reports_each_variant_without_changing_production():
     }
     assert report.metrics["pack_first"]["routing_recall"] == 1.0
     assert report.metrics["pack_first"]["context_bytes_per_case"] == 0.0
+
+
+def test_tournament_corpus_covers_owner_reality_domains_and_unsupported_requests():
+    manager = corpus_manager()
+    cases = (
+        PackCase("what groceries do we need", frozenset({"dynamic-food"})),
+        PackCase("show my spending", frozenset({"dynamic-finance"})),
+        PackCase("why is Plex down", frozenset({"dynamic-homelab"})),
+        PackCase("review a capability need", frozenset({"dynamic-forge"})),
+        PackCase("tell me a joke", frozenset()),
+    )
+
+    def route_for(text: str) -> str | None:
+        lowered = text.casefold()
+        return next(
+            (
+                pack_id
+                for term, pack_id in (
+                    ("groceries", "dynamic-food"),
+                    ("spending", "dynamic-finance"),
+                    ("plex", "dynamic-homelab"),
+                    ("capability need", "dynamic-forge"),
+                )
+                if term in lowered
+            ),
+            None,
+        )
+
+    def router(prompt: str):
+        pack_id = route_for(prompt)
+        return (
+            {"status": "SELECTED", "selected_pack_ids": [pack_id]}
+            if pack_id
+            else {"status": "NO_VALID_PACK", "selected_pack_ids": []}
+        )
+
+    def incumbent(utterance: str):
+        pack_id = route_for(utterance)
+        return selected_cards(manager, (pack_id,)) if pack_id else ()
+
+    report = run_pack_tournament(
+        cases,
+        manager,
+        incumbent,
+        router,
+        lambda utterance, _manager: (route_for(utterance) or "dynamic-weather",),
+    )
+
+    assert len(report.measurements) == 15
+    assert report.metrics["incumbent"]["routing_recall"] == 1.0
+    assert report.metrics["pack_first"]["routing_recall"] == 1.0
+    assert report.metrics["retrieval_assisted_pack_first"]["routing_recall"] == 1.0
