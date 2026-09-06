@@ -1,0 +1,10 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "research-source-surface",
+  "source_sha": "86fffdb65c851cc64e9350e0d3bd92f5351db16d",
+  "hosted_validation": {"run_id": "34003258635", "conclusion": "success"},
+  "installed_release_sha": "86fffdb65c851cc64e9350e0d3bd92f5351db16d",
+  "request": "Research the documented Alpha setting and summarize the sources",
+  "result": {"state": "completed", "provider": "fixture-research", "source_id": "source-1", "source_title": "Alpha Guide", "source_url": "https://fixture.test/alpha", "non_authoritative": true, "rendered_sources_surface": true},
+  "authority_boundary": "Public evidence is presented with provenance and remains non-canonical personal truth."
+}
