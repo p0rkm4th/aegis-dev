@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e75dc06",
+  "state_basis_sha": "83fe8fa",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e75dc06",
-  "deterministic_green_sha": "e75dc06",
-  "last_pushed_sha": "e75dc06",
-  "hosted_green_sha": "e75dc06",
-  "hosted_ci_green_sha": "e75dc06",
+  "repository_head_sha": "83fe8fa",
+  "deterministic_green_sha": "83fe8fa",
+  "last_pushed_sha": "83fe8fa",
+  "hosted_green_sha": "83fe8fa",
+  "hosted_ci_green_sha": "83fe8fa",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e75dc06",
+    "commit_sha": "83fe8fa",
     "conclusion": "success",
-    "run_id": "34061232447",
+    "run_id": "34061525077",
     "observed_at": "2026-09-06T20:50:00Z"
   },
-  "installed_release_sha": "e75dc06",
-  "running_release_sha": "e75dc06",
-  "live_green_sha": "e75dc06",
+  "installed_release_sha": "83fe8fa",
+  "running_release_sha": "83fe8fa",
+  "live_green_sha": "83fe8fa",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "pack-first-adversarial-follow-up-experiment",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "e75dc06"
+    "release_sha": "83fe8fa"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -135,6 +135,7 @@
     ,"finance_csv_import_owner": "Promoted owner Finance view accepts bounded owner-controlled CSV imports through an authenticated Principal-scoped route, records source provenance, and rejects unknown accounts as a bounded request error without changing canonical state"
     ,"homelab_host_identity": "Homelab Host records persist stable host IDs separately from observed addresses, with provider identity, known addresses, identity evidence, status, and last-observed metadata"
     ,"homelab_health_owner": "Installed owner HTTPS proof routes natural service-status language to canonical Homelab health and truthfully reports unavailable provider readback instead of returning generic public explanation"
+    ,"systems_inventory_owner": "Installed owner HTTPS proof on 83fe8fa renders bounded canonical host and service identity in the Systems view; stable IDs, observed address/status, and unavailable health remain distinct from action authority"
     ,"pack_first_owner_corpus": "Experimental Pack-first corpus now covers Food, Finance, Homelab, Forge, and unsupported owner requests across incumbent, pure Pack-first, and retrieval-assisted variants; deterministic fixture routing and compact context metrics are reported, while production cognition remains unchanged"
     ,"finance_summary_projection": "Private Finance owner projection separates balances and cash flows by currency, pending from posted transactions, and imported source coverage; no cross-currency aggregation or financial mutation is exposed"
     ,"pantry_mutation_capabilities": "Promoted Kitchen Pack exposes stable-ID Pantry add, update, and consume actions with nullable quantities and optimistic version checks; unknown quantity cannot be consumed and no financial or remote authority is added"
