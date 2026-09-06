@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
+  "state_basis_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
-  "deterministic_green_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
-  "last_pushed_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
-  "hosted_green_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
-  "hosted_ci_green_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
+  "repository_head_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "deterministic_green_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "last_pushed_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "hosted_green_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "hosted_ci_green_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
+    "commit_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
     "conclusion": "success",
-    "run_id": "34007252122",
+    "run_id": "34007380134",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
-  "running_release_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
-  "live_green_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
+  "installed_release_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "running_release_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "live_green_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-workspace-inspection-ui",
+  "active_checkpoint": "daily-driver-alpha-research-draft-ui",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79"
+    "release_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -143,9 +143,10 @@
     ,"Communications owner surface now renders explicit DRAFTED/SEND_ATTEMPTED/PROVIDER_ACCEPTED/DELIVERED semantics and delivery proof separately; no live channel is configured"
     ,"Objectives owner surface now renders durable CapabilityNeeds as readable investigation cards with requested effect, investigation state, candidate resolutions, and an explicit non-authority boundary"
     ,"Workspace owner file inspection now exposes an observed SHA-256 alongside scoped content; this is read-only observation and does not replace Core postcondition verification"
+    ,"Research owner surface now exposes a bounded Research-to-unsent-Communication-Draft workflow; evidence is fixed before the scoped draft artifact is written and no send authority is implied"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner Calendar view can update or cancel an explicitly identified event through calendar.write and independently verify provider state; Calendar and Devices expose typed independently verified Workspace snapshot workflows, Communications presents provider acceptance separately from delivery proof, Objectives makes CapabilityNeed investigation legible, and Workspace file inspection exposes observed hashes. Live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner Calendar view can update or cancel an explicitly identified event through calendar.write and independently verify provider state; Calendar and Devices expose typed independently verified Workspace snapshot workflows, Communications presents provider acceptance separately from delivery proof, Objectives makes CapabilityNeed investigation legible, Workspace file inspection exposes observed hashes, and Research can create a bounded unsent message draft from fixed external evidence. Live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -195,7 +196,7 @@
     "owner_workflows_completed": 33,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next owner-useful breadth slice after Workspace inspection UI; prioritize a configured live provider if credentials appear, otherwise add the next materially useful owner workflow through normal UI and Constellation.",
-  "history_artifact": "evidence/workspace-hash-owner-c36386a.json",
+  "next_action": "Advance the next owner-useful breadth slice after Research draft UI; prioritize a configured live provider if credentials appear, otherwise add the next materially useful owner workflow through normal UI and Constellation.",
+  "history_artifact": "evidence/research-draft-ui-owner-f86493c.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
