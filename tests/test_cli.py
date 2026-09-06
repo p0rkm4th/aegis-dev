@@ -98,6 +98,21 @@ def test_deterministic_research_workspace_action_requires_enabled_pack():
     assert card.action.arguments["target_path"] == "notes.md"
 
 
+def test_deterministic_finance_read_uses_enabled_pack_for_domain_question():
+    manager = PackManager()
+    finance = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "finance")
+    manager.discover(finance)
+    manager.install("finance", frozenset({"finance.read"}))
+    manager.enable("finance")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="What did I spend at the store?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "finance.summary.read"
+
+
 def test_deterministic_workspace_artifact_action_preserves_explicit_file_content():
     manager = PackManager()
     bundle = next(
