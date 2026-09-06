@@ -415,10 +415,17 @@ def test_document_search_message_fixes_authorized_matches_before_generic_send(mo
     )
     prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
     expected_body = prepared.verification.expected["body"]
-    assert expected_body == (
-        "Document search: guidance\n\n## Alpha Handbook (alpha-handbook)\n\n"
-        "Authorized guidance.\n"
+    expected_search_body = "\n".join(
+        [
+            "Document search: guidance",
+            "",
+            "## Alpha Handbook (alpha-handbook)",
+            "",
+            "Authorized guidance.",
+            "",
+        ]
     )
+    assert expected_body == expected_search_body
 
     provider = FixtureCommunicationSendProvider()
     observation = CommunicationsSendExecutor(provider).execute(

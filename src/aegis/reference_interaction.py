@@ -242,7 +242,7 @@ def _ground_argument_provenance(
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
-            "canonical.document": "document",
+                "canonical.document": "document",
                 "canonical.document_search": "document search results",
                 "canonical.homelab_health": "health",
                 "canonical.workspace_artifact": "workspace artifact",
