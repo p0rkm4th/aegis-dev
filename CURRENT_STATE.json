@@ -371,7 +371,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood the Pantry low-stock to grocery workflow on the promoted owner release, then advance the next bounded owner-real Finance, Homelab, or Forge slice.",
+  "next_action": "Run the owner Pantry low-stock to grocery workflow, then expand the Pack-first corpus with adversarial follow-ups and measure the isolated Qwen control before any routing decision.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }

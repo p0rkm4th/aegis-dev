@@ -1,0 +1,13 @@
+{
+  "kind": "pack-first-owner-corpus",
+  "source_sha": "34b4b6d04ea698b466948fbf61570edce82a6075",
+  "observed_at": "2026-09-06T20:36:09Z",
+  "model": "deterministic fixture router; no Qwen result claimed",
+  "corpus": ["Food", "Finance", "Homelab", "Forge", "unsupported"],
+  "variants": {
+    "incumbent": {"routing_recall": 1.0, "wrong_action_rate": 0.0, "model_calls_per_case": 0.0, "prompt_bytes_per_case": 0.0, "context_bytes_per_case": 0.0},
+    "pack_first": {"routing_recall": 1.0, "wrong_action_rate": 0.0, "model_calls_per_case": 1.0, "prompt_bytes_per_case": 619.0, "context_bytes_per_case": 0.0},
+    "retrieval_assisted_pack_first": {"routing_recall": 1.0, "wrong_action_rate": 0.0, "model_calls_per_case": 1.0, "prompt_bytes_per_case": 265.4, "context_bytes_per_case": 0.0}
+  },
+  "interpretation": "All variants pass this deterministic routing fixture. This does not establish model quality or justify production routing promotion; Qwen evaluation and adversarial corpus expansion remain open."
+}
