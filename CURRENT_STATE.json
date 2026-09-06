@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "1d24e25",
+  "state_basis_sha": "c9dd1c5",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1d24e25",
-  "deterministic_green_sha": "1d24e25",
-  "last_pushed_sha": "1d24e25",
-  "hosted_green_sha": "1d24e25",
-  "hosted_ci_green_sha": "1d24e25",
+  "repository_head_sha": "c9dd1c5",
+  "deterministic_green_sha": "c9dd1c5",
+  "last_pushed_sha": "c9dd1c5",
+  "hosted_green_sha": "c9dd1c5",
+  "hosted_ci_green_sha": "c9dd1c5",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "1d24e25",
+    "commit_sha": "c9dd1c5",
     "conclusion": "success",
-    "run_id": "34038689141",
+    "run_id": "34039269771",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "24fbdf3",
-  "running_release_sha": "24fbdf3",
-  "live_green_sha": "24fbdf3",
+  "installed_release_sha": "c9dd1c5",
+  "running_release_sha": "c9dd1c5",
+  "live_green_sha": "c9dd1c5",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "24fbdf3"
+    "release_sha": "c9dd1c5"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -77,6 +77,7 @@
     "capability_need_palworld_owner": "Fresh promoted owner proof preserves the unsupported Palworld objective as blocked with a durable owner_input_required CapabilityNeed, bounded research provenance, and a workspace candidate requiring owner input",
     "homelab_page_workspace_owner": "Promoted owner proof renders authorized Homelab hosts/services into independently verified index.html and style.css artifacts; Workspace exposes scoped file detail and sandboxed preview without deployment authority",
     "homelab_health_workspace_owner": "Promoted owner proof renders authorized service health into independently verified health-report.html and style.css artifacts, preserving unavailable provider state without mutation authority",
+    "household_obligations_workspace_contract": "Contract-green household obligations → Workspace action is Pack-neutral and independently verifies the scoped artifact; owner proof is pending explicit household-reports permission approval",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -256,6 +257,7 @@
     ,"fresh promoted owner proof preserved Palworld as blocked with owner_input_required CapabilityNeed state and no acquisition or execution authority"
     ,"promoted owner proof created and independently verified a Homelab page with index.html and style.css from authorized canonical inventory; no deployment authority was added"
     ,"promoted owner proof created and independently verified a Homelab health report with truthful unavailable Plex state; no restart or deployment authority was added"
+    ,"household obligations Workspace report is deterministic-green and Pack-registered; owner acceptance remains pending because household-reports is pending explicit permission approval, and a fallback-to-task defect was caught before claiming success"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes fixed canonical household chore snapshots through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -313,7 +315,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
+  "next_action": "Rearm the next enabled, non-credential-blocked provider-neutral owner capability; household obligations Workspace remains pending explicit household-reports permission approval, while OpenClaw delivery, Google Calendar live write, and Home Assistant live control remain pending.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
