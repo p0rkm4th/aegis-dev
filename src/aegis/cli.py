@@ -1322,6 +1322,21 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": calendar_cancel.groupdict()})
             }
         )
+    calendar_update = re.fullmatch(
+        r"update (?:the )?(?:calendar )?event (?P<event_id>[a-zA-Z0-9:._-]+) to "
+        r"(?P<title>.+?) from (?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_update is not None:
+        card = manager.action_card("calendar", "calendar.events.update")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": calendar_update.groupdict()})
+            }
+        )
     natural_calendar = re.fullmatch(
         r"(?:put|add) (?P<title>.+?) on my calendar (?P<day>today|tomorrow) at "
         r"(?P<hour>\d{1,2})(?::(?P<minute>\d{2}))?\s*(?P<ampm>am|pm)",

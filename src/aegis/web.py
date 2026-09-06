@@ -895,6 +895,40 @@ async function loadCalendar() {
       });
       panel.append(cancelSection);
     }
+    if (events.length) {
+      const updateSection = document.createElement('section'); updateSection.className = 'detail-card';
+      const updateTitle = document.createElement('h3'); updateTitle.textContent = 'Update an authorized event';
+      const updateNote = document.createElement('p'); updateNote.className = 'muted';
+      updateNote.textContent = 'The provider event ID stays bound to the selected authorized event; changed fields are independently read back.';
+      updateSection.append(updateTitle, updateNote);
+      events.forEach(eventRecord => {
+        if (!eventRecord.event_id) return;
+        const form = document.createElement('form'); form.setAttribute('aria-label', `Update ${eventRecord.title || eventRecord.event_id}`);
+        const titleInput = document.createElement('input'); titleInput.required = true; titleInput.value = eventRecord.title || '';
+        titleInput.setAttribute('aria-label', 'Updated event title');
+        const startInput = document.createElement('input'); startInput.type = 'datetime-local'; startInput.required = true;
+        const endInput = document.createElement('input'); endInput.type = 'datetime-local'; endInput.required = true;
+        const toLocalInput = value => {
+          const date = new Date(value); if (Number.isNaN(date.valueOf())) return '';
+          const pad = number => String(number).padStart(2, '0');
+          return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        };
+        startInput.value = toLocalInput(eventRecord.starts_at);
+        endInput.value = toLocalInput(eventRecord.ends_at || eventRecord.starts_at);
+        const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = `Update ${eventRecord.title || eventRecord.event_id}`;
+        form.append(titleInput, startInput, endInput, submit);
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+          const start = new Date(startInput.value); const end = new Date(endInput.value);
+          if (!titleInput.value.trim() || Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf()) || end <= start) return;
+          document.getElementById('utterance').value =
+            `Update calendar event ${eventRecord.event_id} to ${titleInput.value.trim()} from ${start.toISOString()} to ${end.toISOString()}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        updateSection.append(form);
+      });
+      panel.append(updateSection);
+    }
     const attention = payload.task_attention || [];
     const attentionSection = document.createElement('section'); attentionSection.className = 'detail-card';
     const attentionTitle = document.createElement('h3'); attentionTitle.textContent = 'Tasks before shared events';
