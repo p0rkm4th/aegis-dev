@@ -521,6 +521,7 @@ def default_runtime_registry(
                 "air_quality.read": frozenset({Role.OWNER, Role.MEMBER}),
                 "workspace.write": frozenset({Role.OWNER}),
             },
+            prepare=prepare_reference_action,
         )
 
     def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
