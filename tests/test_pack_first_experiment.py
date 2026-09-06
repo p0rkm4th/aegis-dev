@@ -5,6 +5,7 @@ import pytest
 from aegis.audit import AuditLog
 from aegis.contracts import ActionCard, ActionSpec
 from aegis.pack_first_experiment import (
+    PackCase,
     PackRouterStatus,
     compact_pack_catalog,
     measure_incumbent,
@@ -12,6 +13,7 @@ from aegis.pack_first_experiment import (
     measure_retrieval_assisted_pack_first,
     parse_router_response,
     router_prompt,
+    run_pack_tournament,
     selected_cards,
     validate_selected_packs,
 )
@@ -136,3 +138,28 @@ def test_incumbent_is_measured_as_control_without_router_call():
     assert measurement.status is PackRouterStatus.SELECTED
     assert measurement.correct
     assert measurement.model_calls == 0
+
+
+def test_tournament_runner_reports_each_variant_without_changing_production():
+    manager = dynamic_manager()
+    manager.install("dynamic-weather", frozenset())
+    manager.enable("dynamic-weather")
+
+    def router(_prompt: str):
+        return {"status": "SELECTED", "selected_pack_ids": ["dynamic-weather"]}
+
+    report = run_pack_tournament(
+        (PackCase("what is the weather", frozenset({"dynamic-weather"})),),
+        manager,
+        lambda _utterance: selected_cards(manager, ("dynamic-weather",)),
+        router,
+        lambda _utterance, _manager: ("dynamic-weather",),
+    )
+
+    assert {item.variant for item in report.measurements} == {
+        "incumbent",
+        "pack_first",
+        "retrieval_assisted_pack_first",
+    }
+    assert report.metrics["pack_first"]["routing_recall"] == 1.0
+    assert report.metrics["pack_first"]["context_bytes_per_case"] == 0.0
