@@ -171,14 +171,21 @@ def summarize_snapshot(snapshot: FinanceSnapshot) -> dict[str, object]:
         currency = account.currency.upper()
         balances[currency] = balances.get(currency, 0) + account.balance_cents
     flows: dict[str, dict[str, int]] = {}
+    spend_by_description: dict[str, dict[str, dict[str, int]]] = {}
     for transaction in snapshot.transactions:
         currency = transaction.currency.upper()
         bucket = flows.setdefault(currency, {"posted": 0, "pending": 0})
         status = "pending" if transaction.status == "pending" else "posted"
         bucket[status] += transaction.amount_cents
+        if transaction.amount_cents < 0:
+            status_totals = spend_by_description.setdefault(currency, {}).setdefault(status, {})
+            status_totals[transaction.description] = (
+                status_totals.get(transaction.description, 0) - transaction.amount_cents
+            )
     return {
         "balances_by_currency": balances,
         "cash_flow_by_currency": flows,
+        "spend_by_description": spend_by_description,
         "transaction_count": len(snapshot.transactions),
         "source_count": len(snapshot.sources),
         "coverage": [
