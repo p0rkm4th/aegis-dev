@@ -1,0 +1,25 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "calendar-communication-ui-owner-proof",
+  "source_sha": "aa494b9",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34034333214",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "aa494b9",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Calendar",
+    "control": "Send calendar snapshot",
+    "request_template": "Text me my calendar",
+    "boundary": "Uses the configured owner-approved destination; provider acceptance is not delivery proof"
+  },
+  "authority": "the UI submits the existing calendar-read → generic-communication Core route; it adds no calendar mutation or delivery authority"
+}
