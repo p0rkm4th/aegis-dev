@@ -5071,6 +5071,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Canonical inventory" in _AEGIS_JS
     assert "Canonical and observed inventory" in _AEGIS_JS
     assert "Discovered devices" in _AEGIS_JS
+    assert "health_observed_at" in _AEGIS_JS
     assert "host ${service.host_id" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS
     assert "quantity unknown" in _AEGIS_JS
