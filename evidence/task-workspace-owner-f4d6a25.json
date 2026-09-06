@@ -1,0 +1,15 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "task-list-to-workspace",
+  "source_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34023685356", "conclusion": "success"},
+  "installed_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+  "running_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+  "owner_request": "Save my open tasks to workspace as tasks.md",
+  "pack_id": "task-reports",
+  "action_id": "task-reports.to_workspace",
+  "granted_permissions": ["tasks.read", "workspace.write"],
+  "result": {"state": "completed", "message": "task Workspace artifact independently verified", "path": "tasks.md"},
+  "postcondition": "Core fixed the authorized open-task content before execution; verifier reopened the Principal/objective-scoped Workspace and compared the expected hash",
+  "authority": "read-only task source plus scoped Workspace write; no task mutation authority"
+}
