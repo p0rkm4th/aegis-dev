@@ -1,0 +1,9 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "device-control-outcome-history",
+  "source_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "hosted_validation": {"run_id": "34003969103", "conclusion": "success"},
+  "installed_release_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "owner_projection": {"successful": {"entity_id": "light.desk", "service": "turn_off", "expected_state": "off", "verified": true}, "denied": {"entity_id": "light.garage", "verified": false, "reason": "outside authorized device scope"}},
+  "authority_boundary": "The projection exposes bounded persisted outcome fields only; it grants no new control authority and keeps denied scope visible."
+}

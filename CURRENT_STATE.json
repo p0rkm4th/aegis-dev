@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "state_basis_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
-  "deterministic_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
-  "last_pushed_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
-  "hosted_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
-  "hosted_ci_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "repository_head_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "deterministic_green_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "last_pushed_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "hosted_green_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "hosted_ci_green_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+    "commit_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
     "conclusion": "success",
-    "run_id": "34003677028",
+    "run_id": "34003969103",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
-  "running_release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
-  "live_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "installed_release_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "running_release_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
+  "live_green_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-calendar-draft",
+  "active_checkpoint": "daily-driver-alpha-device-control-outcomes",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3"
+    "release_sha": "08966b68b40460be8db740638b73a7c5c3ddb93d"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -125,9 +125,10 @@
     ,"Network Pack is enabled through explicit owner approval and Systems exposes a bounded probe form; owner request failed closed because OpenClaw is unavailable, so no reachability was claimed"
     ,"Research view now presents bounded source titles and safe links alongside summary, provider, retrieval time, and non-canonical evidence status; installed owner proof completed with fixture Alpha Guide provenance"
     ,"devices.states.research is a typed read-only Device → Research composition with explicit entity/query grounding, bounded public evidence, and separate provider state reread; installed fixture proof completed for light.desk"
+    ,"owner Devices history now projects persisted device-control outcomes with entity, service, expected state, verification, and denial reason; promoted owner proof shows light.desk independently verified and light.garage denied without adding authority"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner can inspect Calendar, create an independently verified unsent agenda draft in Workspace, and keep sending as a separate authorized step; live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner can inspect persisted device-control outcomes, including independently verified light.desk state and an out-of-scope light.garage denial; live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -177,7 +178,7 @@
     "owner_workflows_completed": 33,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next owner-useful provider-backed or homelab/device workflow; live OpenClaw, Google, and Home Assistant remain pending, and the device-state research affordance remains partial.",
-  "history_artifact": "evidence/campaigns/calendar-draft-ui-owner-329a5d1.json",
+  "next_action": "Advance the next owner-useful daily-driver slice after device outcome observability; prioritize a generic provider-backed communication or calendar lane if credentials appear, otherwise productize the next existing fixture-backed composition with UI and Constellation proof.",
+  "history_artifact": "evidence/campaigns/device-control-outcomes-owner-08966b6.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
