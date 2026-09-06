@@ -537,6 +537,16 @@ function renderResearchSummary() {
     evidence_status: 'external evidence; not canonical personal truth',
     summary: latestResearch.summary,
   }));
+  const sources = document.createElement('section'); sources.className = 'detail-card';
+  const sourceHeading = document.createElement('h3'); sourceHeading.textContent = 'Sources';
+  const sourceList = document.createElement('ul');
+  latestResearch.sources.slice(0, 5).forEach(source => {
+    const item = document.createElement('li');
+    const link = document.createElement('a'); link.href = source.url; link.target = '_blank';
+    link.rel = 'noopener noreferrer'; link.textContent = source.title || source.url;
+    item.append(link); sourceList.append(item);
+  });
+  sources.append(sourceHeading, sourceList); panel.append(sources);
 }
 nodeFilter.addEventListener('input', applyNodeFilter);
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
