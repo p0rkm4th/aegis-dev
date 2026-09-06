@@ -1614,6 +1614,16 @@ def _deterministic_composition_action(
                 )
             }
         )
+    calendar_conflicts = re.fullmatch(
+        r"(?:show|find|check) (?:my )?calendar conflicts[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_conflicts is not None:
+        card = manager.action_card("calendar", "calendar.events.conflicts")
+        if card is None:
+            return None
+        return card
     calendar_create = re.fullmatch(
         r"create a calendar event titled (?P<title>.+?) from "
         r"(?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)(?: at [^ ]+(?: [^ ]+)?)?",
