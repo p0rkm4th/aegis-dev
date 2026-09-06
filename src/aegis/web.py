@@ -728,6 +728,22 @@ async function loadWorkspace() {
           } finally { button.disabled = false; }
         });
         card.append(button);
+        const download = document.createElement('button');
+        download.type = 'button'; download.textContent = `Download ${path}`;
+        download.addEventListener('click', async () => {
+          download.disabled = true;
+          try {
+            const response = await fetchWithTimeout(`/api/workspace/file?workspace_id=${encodeURIComponent(workspace.workspace_id)}&path=${encodeURIComponent(path)}`);
+            const file = await response.json();
+            if (!response.ok) throw new Error(file.error || 'Download unavailable.');
+            const blobUrl = URL.createObjectURL(new Blob([file.content || ''], {type: 'text/plain;charset=utf-8'}));
+            const anchor = document.createElement('a'); anchor.href = blobUrl;
+            anchor.download = String(path).split('/').pop() || 'artifact'; anchor.click();
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
+          } catch (_) { download.textContent = 'Download unavailable'; }
+          finally { download.disabled = false; }
+        });
+        card.append(download);
         if (path.toLowerCase().endsWith('.html') || path.toLowerCase().endsWith('.htm')) {
           const preview = document.createElement('button');
           preview.type = 'button'; preview.textContent = `Preview ${path}`;
