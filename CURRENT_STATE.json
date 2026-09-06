@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "state_basis_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
   "active_branch": "aegis-dev",
   "repository_head_sha": "42530d03687a24d2587e8ffbf85cc3857c0e92b5",
-  "deterministic_green_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "deterministic_green_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
   "last_pushed_sha": "42530d03687a24d2587e8ffbf85cc3857c0e92b5",
-  "hosted_green_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
-  "hosted_ci_green_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "hosted_green_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
+  "hosted_ci_green_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+    "commit_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
     "conclusion": "success",
-    "run_id": "34009193737",
+    "run_id": "34009547634",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
-  "running_release_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
-  "live_green_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "installed_release_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
+  "running_release_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
+  "live_green_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-weather-live",
+  "active_checkpoint": "daily-driver-alpha-weather-task",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b"
+    "release_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -151,10 +151,11 @@
     ,"Today owner projection now carries the same bounded Calendar conflict attention so scheduling risk is visible on the canonical dashboard without adding mutation authority"
     ,"Communications fixture providers with readback support now independently verify accepted target/channel/account/body; OpenClaw remains acceptance-only and delivery remains unproven"
     ,"Communications owner outcomes now project provider-readback status separately from delivery proof, so the owner can distinguish acceptance-only records from exact-readback records"
-    ,"Weather is a new provider-neutral public-read capability with explicit coordinate grounding, deterministic fixture coverage, HTTPS-only Open-Meteo adapter validation, owner Weather view, and Pack-driven Constellation representation; current owner proof is fixture-backed and not a live external integration"
+    ,"Weather is a new provider-neutral public-read capability with explicit coordinate grounding, deterministic fixture coverage, HTTPS-only Open-Meteo adapter validation, owner Weather view, Pack-driven Constellation representation, and a live Open-Meteo owner proof"
+    ,"Weather → Task follow-up is a bounded owner composition: live public weather informs only an explicit task request, which remains subject to normal Core grounding, authorization, observation, and verification"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner now has a bounded Weather view and weather.current.read capability for explicit coordinates, independently exercised against the live HTTPS Open-Meteo provider with current provenance and an explicit public-evidence boundary; deterministic fixture coverage remains available and the generic Weather Pack is represented in Constellation. Calendar conflict follow-up routes to ordinary Tasks, while live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner now has a bounded Weather view and weather.current.read capability for explicit coordinates, independently exercised against the live HTTPS Open-Meteo provider with current provenance and an explicit public-evidence boundary; Weather → Task follow-up is exposed as an explicit normal Core request and represented in generic composition metadata. Calendar conflict follow-up routes to ordinary Tasks, while live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -193,19 +194,19 @@
   "voluntarily_useful_owner_workflows": 35,
   "owner_visible_capability_surfaces": 22,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 18,
+  "cross_capability_workflows": 19,
   "breadth_scoreboard": {
     "owner_visible_views": 17,
     "usable_capability_families": 8,
     "verified_write_capabilities": 7,
     "external_integrations": 1,
-    "cross_domain_compositions": 18,
+    "cross_domain_compositions": 19,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
     "owner_workflows_completed": 34,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-useful vertical after the bounded Weather read slice; preserve truthful fixture/public-provider states and continue toward live communications, calendar, device, and homelab utility where configured.",
-  "history_artifact": "evidence/weather-live-owner-e1e28b7.json",
+  "next_action": "Rearm the next owner-useful vertical after Weather → Task; seek a second live provider or a materially useful new composition while preserving truthful OpenClaw, Google, and Home Assistant pending states.",
+  "history_artifact": "evidence/weather-task-owner-2021bae.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

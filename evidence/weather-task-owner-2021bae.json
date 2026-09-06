@@ -1,0 +1,16 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "weather-task-owner",
+  "source_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
+  "hosted_validation": {"run_id": "34009547634", "conclusion": "success"},
+  "installed_release_sha": "2021bae405cd8f7baf3886a49e7d9ca8a8b959ac",
+  "owner_runtime": {
+    "service": "active",
+    "weather_provider": "open_meteo",
+    "weather_surface": "/api/weather",
+    "composition": "weather-to-task-followup",
+    "task_action": "Add a task to check the weather before leaving"
+  },
+  "verification": "The installed owner Weather surface exposes the Weather → Task follow-up action and the authenticated composition API exposes its generic metadata. The button only submits a normal Core task request.",
+  "authority_boundary": "Public weather evidence does not create a task automatically, become canonical personal truth, or grant task authorization."
+}
