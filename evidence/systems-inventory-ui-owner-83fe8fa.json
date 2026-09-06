@@ -1,0 +1,31 @@
+{
+  "evidence_type": "owner_https_systems_ui",
+  "source_sha": "83fe8fa0a01ff9572530272cad9abe96478be20b",
+  "hosted_validation": {
+    "run_id": "34061525077",
+    "conclusion": "success"
+  },
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "installed_release_sha": "83fe8fa0a01ff9572530272cad9abe96478be20b",
+  "service_health": "healthy",
+  "proof": {
+    "static_asset": {
+      "path": "/static/aegis.js",
+      "status": 200,
+      "content_type": "text/javascript",
+      "nonempty": true,
+      "contains_systems_inventory_renderer": true
+    },
+    "systems_api": {
+      "authenticated": true,
+      "source": "canonical_postgresql_inventory",
+      "canonical_hosts": 1,
+      "services": [{
+        "service_id": "acceptance-plex",
+        "host_id": "acceptance-atlas",
+        "health": "unavailable"
+      }]
+    },
+    "presentation": "Systems now renders a bounded Canonical inventory with stable host identity, observed address/status, and service identity/host/health instead of an undifferentiated payload dump. Unavailable remains truthful and no restart authority is implied."
+  }
+}
