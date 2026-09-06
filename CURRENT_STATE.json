@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
+  "state_basis_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
-  "deterministic_green_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
-  "last_pushed_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
-  "hosted_green_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
-  "hosted_ci_green_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
+  "repository_head_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "deterministic_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "last_pushed_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "hosted_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "hosted_ci_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
+    "commit_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
     "conclusion": "success",
-    "run_id": "34027391420",
+    "run_id": "34027598518",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
-  "running_release_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
-  "live_green_sha": "76c7d4f5f644674e243a9cba4158d7dba9132a13",
+  "installed_release_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "running_release_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "live_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -53,7 +53,8 @@
     "household_chores_workspace": "installed owner proof saved chores.md from canonical open household chores with independent scoped Workspace verification; chore mutation authority was not added",
     "groceries_workspace": "installed owner proof enabled kitchen-reports explicitly, then saved groceries.md from canonical grocery state with independent scoped Workspace verification; grocery mutation and delivery authority were not added",
     "groceries_workspace_communication": "installed owner proof read groceries.md through scoped Workspace and sent it through generic communications with exact provider readback; delivery remains unproven",
-    "workspace_artifact_append": "installed owner proof appended explicit content to an existing explicit Principal-scoped Workspace artifact by ID and independently verified the resulting hash"
+    "workspace_artifact_append": "installed owner proof appended explicit content to an existing explicit Principal-scoped Workspace artifact by ID and independently verified the resulting hash",
+    "workspace_append_communication": "installed owner proof appended a note to groceries.md, then sent the updated scoped artifact through generic communications with exact provider readback; delivery remains unproven"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -208,7 +209,7 @@
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now appends explicit content to an existing Principal-scoped Workspace artifact by ID and independently verifies the resulting state.",
+  "daily_driver_checkpoint": "The installed owner now appends explicit content to a scoped Workspace artifact, independently verifies it, and sends the updated artifact through generic communications with exact provider readback; delivery remains unproven.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -246,22 +247,22 @@
   },
   "independently_verified_write_capabilities": 10,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 75,
-  "owner_visible_capability_surfaces": 42,
+  "voluntarily_useful_owner_workflows": 76,
+  "owner_visible_capability_surfaces": 43,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 49,
+  "cross_capability_workflows": 50,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 10,
     "external_integrations": 3,
-    "cross_domain_compositions": 49,
+    "cross_domain_compositions": 50,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 70,
+    "owner_workflows_completed": 71,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/workspace-append-owner-76c7d4f.json",
+  "history_artifact": "evidence/workspace-append-communication-owner-a874e04.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
