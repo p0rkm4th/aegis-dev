@@ -1796,7 +1796,8 @@ class CalendarTaskAttentionExecutor:
                     {
                         "event_id": item.event_id,
                         "event_title": item.event_title,
-                        "task_titles": list(item.task_titles),
+                        "task_titles": list(item.task_titles[:12]),
+                        "task_count": len(item.task_titles),
                     }
                     for item in attention
                 ],
