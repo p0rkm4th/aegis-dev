@@ -214,6 +214,18 @@ def prepare_reference_action(
             items = PostgresHouseholdStore(connection).list_groceries(principal)
             body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
             args = {**args, "body": body}
+        elif args.get("body_source") == "canonical.chores" and connection is not None:
+            snapshot = PostgresHouseholdStore(connection).read_snapshot(principal)
+            chores = [
+                item
+                for item in cast(tuple[Any, ...], snapshot.get("chores", ()))
+                if not item.completed
+            ]
+            lines = ["Open household chores:"]
+            lines.extend(f"- {item.title}" for item in chores[:50])
+            if not chores:
+                lines.append("- None")
+            args = {**args, "body": "\n".join(lines)}
         elif args.get("body_source") == "canonical.tasks" and connection is not None:
             tasks = PostgresTaskStore(connection).list(principal)
             open_tasks = [task for task in tasks if task.status.value == "open"]
@@ -1215,6 +1227,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
                             approved_derivations=(
                                 "reference.communication_body_from_groceries.v1",
+                                "reference.communication_body_from_chores.v1",
                                 "reference.communication_body_from_tasks.v1",
                                 "reference.communication_body_from_calendar_tasks.v1",
                                 "reference.communication_body_from_today.v1",

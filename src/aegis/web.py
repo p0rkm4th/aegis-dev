@@ -1473,6 +1473,15 @@ async function loadHousehold() {
     const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
     sendBoundary.textContent = 'Canonical groceries are fixed before communication; one approved target is required and provider acceptance is not delivery proof.';
     panel.append(sendGroceries, sendBoundary);
+    const sendChores = document.createElement('button');
+    sendChores.type = 'button'; sendChores.textContent = 'Send open chores';
+    sendChores.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Text me my open chores';
+      document.getElementById('chat').requestSubmit();
+    });
+    const choreBoundary = document.createElement('p'); choreBoundary.className = 'muted';
+    choreBoundary.textContent = 'Canonical chore state is fixed before communication; provider acceptance is not delivery proof.';
+    panel.append(sendChores, choreBoundary);
     appendTodaySection(panel, 'Upcoming shared events', canonical.upcoming_shared_events || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.truth_boundary || 'Household state is canonical authorized state.';
