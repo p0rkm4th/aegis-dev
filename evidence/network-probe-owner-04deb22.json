@@ -1,0 +1,40 @@
+{
+  "evidence_type": "owner-installed-network-probe",
+  "source_sha": "04deb225760b60b4705ece1fe0308c99fb75b12a",
+  "hosted_validation": {
+    "run_id": "34053426222",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "04deb225760b60b4705ece1fe0308c99fb75b12a",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "status": "active",
+    "provider": "direct_socket",
+    "tailscale_url": "https://hades-garuda-x1.tail8ec79a.ts.net/"
+  },
+  "authorized_success": {
+    "utterance": "Probe 127.0.0.1 in scope alpha-lab on port 18080",
+    "scope": "alpha-lab",
+    "result": "completed",
+    "message": "Done — independent network reachability verified"
+  },
+  "scope_denial": {
+    "utterance": "Probe 192.0.2.1 in scope alpha-lab on port 80",
+    "result": "failed",
+    "note": "The target is outside the persisted alpha-lab 127.0.0.0/8 scope; no owner action authority was expanded."
+  },
+  "browser_proof": {
+    "desktop_width": 1440,
+    "mobile_width": 390,
+    "systems_view": true,
+    "probe_form_visible": true,
+    "console_errors": [],
+    "computed_styles": {
+      "desktop_navigation_display": "flex",
+      "mobile_navigation_display": "grid",
+      "body_background_desktop": "rgb(244, 247, 250)",
+      "body_font": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+    }
+  },
+  "authority_boundary": "DirectNetworkProbeExecutor uses bounded socket connection and the existing Core NetworkScopePolicy plus independent provider verifier; it does not expose arbitrary shell execution."
+}
