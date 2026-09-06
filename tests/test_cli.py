@@ -4306,6 +4306,20 @@ def test_browser_app_calendar_surface_exposes_provider_readback_update():
     assert "Update calendar event ${eventRecord.event_id} to" in html
 
 
+def test_browser_app_calendar_surface_exposes_workspace_snapshot():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Save calendar snapshot to Workspace" in html
+    assert "Save my calendar snapshot to Workspace as agenda.md" in html
+
+
 def test_browser_app_devices_surface_exposes_workspace_snapshot():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
