@@ -52,6 +52,37 @@ def test_calendar_conflicts_action_reports_bounded_overlap(monkeypatch) -> None:
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
 
 
+def test_calendar_agenda_action_filters_one_bounded_day(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_CALENDAR_FIXTURE_JSON",
+        '[{"event_id":"tomorrow","title":"Breakfast","starts_at":"2026-09-07T09:00:00+00:00","ends_at":"2026-09-07T10:00:00+00:00"},'
+        '{"event_id":"later","title":"Planning","starts_at":"2026-09-08T09:00:00+00:00","ends_at":"2026-09-08T10:00:00+00:00"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "calendar.events.agenda"
+    )
+    card = card.model_copy(
+        update={"action": card.action.model_copy(update={"arguments": {"date": "2026-09-07"}})}
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=card.action,
+            idempotency_key="agenda-1",
+        )
+    )
+    assert observation.command_succeeded is True
+    assert [event["event_id"] for event in observation.evidence["events"]] == ["tomorrow"]
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
 def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
     packs = reference_packs()
 

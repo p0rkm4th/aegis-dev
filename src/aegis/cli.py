@@ -1624,6 +1624,23 @@ def _deterministic_composition_action(
         if card is None:
             return None
         return card
+    calendar_agenda = re.fullmatch(
+        r"(?:what(?:'s| is) on|show) (?:my )?calendar (?P<day>today|tomorrow)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_agenda is not None:
+        card = manager.action_card("calendar", "calendar.events.agenda")
+        if card is None:
+            return None
+        day = datetime.now(timezone.utc).date() + timedelta(
+            days=1 if calendar_agenda.group("day").casefold() == "tomorrow" else 0
+        )
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": {"date": day.isoformat()}})
+            }
+        )
     calendar_create = re.fullmatch(
         r"create a calendar event titled (?P<title>.+?) from "
         r"(?P<starts_at>[^ ]+) to (?P<ends_at>[^ ]+)(?: at [^ ]+(?: [^ ]+)?)?",
