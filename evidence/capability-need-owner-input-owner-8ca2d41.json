@@ -1,0 +1,33 @@
+{
+  "checkpoint": "capability-need-owner-input-state-owner-proof",
+  "source_sha": "8ca2d41c195299bcedfb3bc8a37d8d9b96781998",
+  "hosted": {"run_id": 34030154185, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "8ca2d41",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Set up a Palworld server for the girls and me on easy mode.",
+  "result": {
+    "code": "blocked",
+    "objective_id": "9ea110b6-1626-430a-be50-f688adb53f0d",
+    "correlation_id": "97f49daf-37b8-48e1-b74a-075259b74e76",
+    "need_id": "7e8dfaf4-7a81-4edb-9d02-adedfecfd049",
+    "status": "owner_input_required",
+    "investigation": "complete",
+    "candidate_kind": "workspace_solution",
+    "requires_owner_input": true,
+    "permitted_scope": [
+      "installed_capabilities",
+      "authorized_canonical_state",
+      "public_research"
+    ]
+  },
+  "safety": [
+    "no capability was installed or enabled",
+    "no permission or execution authority was added",
+    "the objective remains blocked/open for owner choice",
+    "candidate discovery remains non-authoritative"
+  ]
+}
