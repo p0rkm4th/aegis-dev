@@ -1639,6 +1639,21 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    workspace_append = re.fullmatch(
+        r"append (?P<content>.+?) to workspace (?:artifact|file) (?P<path>"
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if workspace_append is not None:
+        card = manager.action_card("workspace", "workspace.artifact.append")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": workspace_append.groupdict()})
+            }
+        )
     if workspace_copy is not None:
         card = manager.action_card("workspace", "workspace.artifact.copy")
         if card is None:

@@ -452,6 +452,24 @@ def test_deterministic_workspace_copy_uses_scoped_copy_action():
     assert card.action.arguments["source_path"] == "attention.md"
 
 
+def test_deterministic_workspace_append_uses_scoped_append_action():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(bundle)
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
+    manager.enable("workspace")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Append a final note to workspace file report.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.artifact.append"
+    assert card.action.arguments == {"content": "a final note", "path": "report.md"}
+
+
 def test_deterministic_homelab_research_uses_non_mutating_composition():
     manager = PackManager()
     bundle = next(

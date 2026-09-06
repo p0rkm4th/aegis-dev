@@ -76,6 +76,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "workspace-artifact-append",
+            "label": "Workspace artifact append",
+            "description": "Append explicit content to an existing scoped Workspace artifact.",
+            "surfaces": ("Workspace",),
+            "authority": (
+                "Principal-scoped Workspace read + write; content and path remain explicitly "
+                "grounded, and Core independently verifies the resulting file"
+            ),
+        },
+        {
             "id": "homelab-health-to-research",
             "label": "Homelab health → Research",
             "description": "Research likely causes for an authorized observed service condition.",
