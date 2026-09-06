@@ -6,7 +6,12 @@ from uuid import UUID, uuid4
 import pytest
 
 from aegis import InteractionBoundary, InteractionDependencies, InteractionInputError
-from aegis.cli import _deterministic_composition_action, _domain_and_action, _ensure_local_identity
+from aegis.cli import (
+    _daily_driver_state,
+    _deterministic_composition_action,
+    _domain_and_action,
+    _ensure_local_identity,
+)
 from aegis.contracts import (
     ActionSpec,
     Context,
@@ -4869,6 +4874,31 @@ def test_browser_app_exposes_daily_driver_scoreboard_without_authority():
     assert result["statuses"]["documents"] == "INSTALLED"
     assert result["metrics"]["owner_visible_capability_surfaces"] == 17
     assert result["owner"] == "alice"
+
+
+def test_daily_driver_state_uses_packaged_release_truth(monkeypatch, tmp_path):
+    state_path = tmp_path / "CURRENT_STATE.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "state_basis_sha": "release-sha",
+                "daily_driver_scoreboard": {"documents": "INSTALLED"},
+                "breadth_scoreboard": {},
+                "known_runtime_limits": [],
+                "independently_verified_write_capabilities": 1,
+                "live_external_integrations": 0,
+                "voluntarily_useful_owner_workflows": 1,
+                "owner_visible_capability_surfaces": 1,
+                "general_purpose_primitives": 1,
+                "cross_capability_workflows": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("AEGIS_CURRENT_STATE_PATH", str(state_path))
+    result = _daily_driver_state(Principal(id="alice", vault_id="vault"))
+    assert result["source_basis_sha"] == "release-sha"
+    assert result["statuses"] == {"documents": "INSTALLED"}
 
 
 def test_browser_app_exposes_bounded_device_projection():

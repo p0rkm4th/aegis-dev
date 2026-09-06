@@ -685,13 +685,22 @@ def _daily_driver_state(principal: Principal) -> dict[str, Any]:
     """Expose the bounded release scoreboard without turning it into authority."""
 
     del principal
-    state_path = Path(__file__).resolve().parents[2] / "CURRENT_STATE.json"
-    try:
-        state = json.loads(state_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError("release scoreboard is unavailable") from exc
+    configured_path = os.environ.get("AEGIS_CURRENT_STATE_PATH")
+    release_path = Path(__file__).resolve().parents[2] / "CURRENT_STATE.json"
+    candidates: tuple[Path, ...] = (Path(configured_path),) if configured_path else ()
+    candidates += (release_path,)
+    cwd_path = Path.cwd() / "CURRENT_STATE.json"
+    if cwd_path != release_path:
+        candidates += (cwd_path,)
+    state: object | None = None
+    for state_path in candidates:
+        try:
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            break
+        except (OSError, json.JSONDecodeError):
+            continue
     if not isinstance(state, dict):
-        raise ValueError("release scoreboard is invalid")
+        raise ValueError("release scoreboard is unavailable")
     statuses = state.get("daily_driver_scoreboard")
     breadth = state.get("breadth_scoreboard")
     if not isinstance(statuses, dict) or not isinstance(breadth, dict):
