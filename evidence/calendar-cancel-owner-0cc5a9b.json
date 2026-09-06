@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "calendar-cancel-owner-surface",
+  "source_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
+  "hosted_validation": {"run_id": "34006162220", "conclusion": "success"},
+  "installed_release_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_events_observed": 1,
+    "task_attention_records_observed": 81,
+    "cancel_surface": "Cancel an authorized event"
+  },
+  "verification": "Fixture provider cancellation is idempotent and CalendarCancelVerifier independently confirms provider absence via get_event.",
+  "authority_boundary": "Cancellation requires the existing calendar.write permission and Core authorization; provider absence, not executor assertion, determines verification."
+}
