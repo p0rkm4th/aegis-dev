@@ -1,0 +1,15 @@
+{
+  "checkpoint": "network-inventory-workspace-independent-verification",
+  "source_sha": "af3fd2a",
+  "hosted_validation_run": "34041590087",
+  "proof": {
+    "canonical_input": "authorized network inventory",
+    "expected_artifact": "network.md",
+    "expectation_timing": "pre-execution",
+    "executor": "NetworkInventoryWorkspaceExecutor",
+    "verifier": "NetworkInventoryWorkspaceVerifier",
+    "scope": "Principal/objective-scoped Workspace",
+    "result": "verified after independent readback"
+  },
+  "boundary": "The Pack remains approval-gated; this deterministic proof does not claim a live owner artifact or expand network authority."
+}
