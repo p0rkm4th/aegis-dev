@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, cast
 from uuid import UUID, uuid4
 
+from .air_quality import air_quality_evidence, configured_air_quality_provider
 from .calendar import (
     CalendarEvent,
     CalendarWriteProvider,
@@ -1034,6 +1035,29 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "air-quality",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="air-quality.current.read",
+                        capability="air-quality.current.read",
+                        required_permissions=("air_quality.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read current public air quality for explicit coordinates",
+                    relevance=1,
+                    argument_keys=("latitude", "longitude"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("latitude", "longitude")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "holidays",
             "0.1.0",
             (
@@ -1194,6 +1218,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "calendar": ("calendar.read", "calendar.write"),
         "weather": ("weather.read",),
         "holidays": ("calendar.read",),
+        "air-quality": ("air_quality.read",),
         "calendar-reports": ("calendar.read", "workspace.write"),
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
@@ -2522,6 +2547,42 @@ class PublicHolidayExecutor:
             )
         return Observation(
             execution_id=uuid4(), evidence=holidays_evidence(holidays), command_succeeded=True
+        )
+
+
+class AirQualityExecutor:
+    def execute(self, request: ExecutionRequest) -> Observation:
+        try:
+            latitude = float(request.action.arguments["latitude"])
+            longitude = float(request.action.arguments["longitude"])
+            if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+                raise ValueError("air-quality coordinates are out of range")
+            reading = configured_air_quality_provider().current(latitude, longitude)
+        except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"air_quality": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"air_quality": air_quality_evidence(reading)},
+            command_succeeded=True,
+        )
+
+
+class AirQualityVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("air_quality")
+        verified = observation.command_succeeded and isinstance(evidence, dict)
+        return VerificationResult(
+            verified=verified,
+            evidence={"air_quality": evidence} if verified else observation.evidence,
+            reason="air-quality readback is structurally valid"
+            if verified
+            else "air-quality read failed",
         )
 
 

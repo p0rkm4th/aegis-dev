@@ -4409,6 +4409,22 @@ def test_browser_app_exposes_weather_surface_and_public_evidence_boundary():
     assert "Weather is public evidence, not canonical personal truth." in html
 
 
+def test_browser_app_exposes_air_quality_surface_and_public_evidence_boundary():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert 'data-view="air-quality"' in html
+    assert "Current public air quality for explicit coordinates." in html
+    assert "Air quality is public evidence, not canonical personal truth." in html
+    assert "Open-Meteo / CAMS" in html
+
+
 def test_browser_app_today_surface_exposes_calendar_conflicts():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
@@ -6303,6 +6319,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Device Reports",
         "Weather",
         "Holidays",
+        "Air Quality",
     }
     assert all(bundle.manifest.permissions for bundle in bundles)
 
