@@ -75,7 +75,12 @@ from .research import (
     SearchRequest,
     configured_research_service,
 )
-from .weather import configured_weather_provider, weather_evidence
+from .weather import (
+    configured_weather_forecast_provider,
+    configured_weather_provider,
+    weather_evidence,
+    weather_forecast_evidence,
+)
 from .workspace import WorkspaceManager, workspace_expected_postcondition
 
 
@@ -1105,6 +1110,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                         for key in ("latitude", "longitude")
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="weather.forecast.read",
+                        capability="weather.forecast.read",
+                        required_permissions=("weather.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read a bounded public weather forecast for explicit coordinates",
+                    relevance=1,
+                    argument_keys=("latitude", "longitude", "days"),
+                    argument_descriptions={
+                        "latitude": "explicit latitude in decimal degrees",
+                        "longitude": "explicit longitude in decimal degrees",
+                        "days": "explicit forecast horizon from 1 to 7 days",
+                    },
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("latitude", "longitude", "days")
                     },
                 ),
             ),
@@ -2528,6 +2555,45 @@ class WeatherVerifier:
             verified=verified,
             evidence={"weather": evidence} if verified else observation.evidence,
             reason="weather readback is structurally valid" if verified else "weather read failed",
+        )
+
+
+class WeatherForecastExecutor:
+    def execute(self, request: ExecutionRequest) -> Observation:
+        try:
+            latitude = float(request.action.arguments["latitude"])
+            longitude = float(request.action.arguments["longitude"])
+            days = int(request.action.arguments["days"])
+            if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+                raise ValueError("weather coordinates are out of range")
+            forecast = configured_weather_forecast_provider().forecast(latitude, longitude, days)
+        except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"weather_forecast": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"weather_forecast": weather_forecast_evidence(forecast)},
+            command_succeeded=True,
+        )
+
+
+class WeatherForecastVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("weather_forecast")
+        verified = observation.command_succeeded and isinstance(evidence, list) and bool(evidence)
+        return VerificationResult(
+            verified=verified,
+            evidence={"weather_forecast": evidence} if verified else observation.evidence,
+            reason=(
+                "weather forecast readback is structurally valid"
+                if verified
+                else "weather forecast read failed"
+            ),
         )
 
 

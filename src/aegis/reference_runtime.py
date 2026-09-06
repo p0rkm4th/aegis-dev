@@ -78,6 +78,8 @@ from .reference_packs import (
     ResearchWorkspaceExecutor,
     ResearchWorkspaceVerifier,
     WeatherExecutor,
+    WeatherForecastExecutor,
+    WeatherForecastVerifier,
     WeatherVerifier,
     WorkspaceArtifactExecutor,
     WorkspaceArtifactVerifier,
@@ -260,6 +262,14 @@ def default_runtime_registry(
         return ActionRuntime(
             WeatherExecutor(),
             WeatherVerifier(),
+            {"weather.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def weather_forecast_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            WeatherForecastExecutor(),
+            WeatherForecastVerifier(),
             {"weather.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
@@ -480,6 +490,7 @@ def default_runtime_registry(
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
         "weather.current.read": weather_runtime,
+        "weather.forecast.read": weather_forecast_runtime,
         "holidays.public_holidays.list": holiday_runtime,
         "air-quality.current.read": air_quality_runtime,
         "calendar.events.create": calendar_create_runtime,
