@@ -2333,7 +2333,9 @@ def _deterministic_composition_action(
             }
         )
     health_request = re.fullmatch(
-        r"(?:check|show) health of (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})",
+        r"(?:check|show) health of (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})"
+        r"|is (?:service )?(?P<service_name>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120}) "
+        r"(?:healthy|up|available)[?!.,]?",
         text,
         flags=re.IGNORECASE,
     )
@@ -2341,10 +2343,9 @@ def _deterministic_composition_action(
         card = manager.action_card("homelab", "homelab.service.health")
         if card is None:
             return None
+        service = health_request.group("service") or health_request.group("service_name")
         return card.model_copy(
-            update={
-                "action": card.action.model_copy(update={"arguments": health_request.groupdict()})
-            }
+            update={"action": card.action.model_copy(update={"arguments": {"service": service}})}
         )
     restart_request = re.fullmatch(
         r"restart (?:the )?(?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120}?)[?!.,]?",

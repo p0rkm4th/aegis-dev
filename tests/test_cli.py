@@ -657,6 +657,22 @@ def test_deterministic_homelab_health_action_uses_explicit_service():
     assert card.action.arguments == {"service": "acceptance-plex"}
 
 
+def test_deterministic_homelab_health_action_accepts_natural_status_question():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
+    manager.discover(bundle)
+    manager.install("homelab", frozenset({"homelab.read", "homelab.service.restart"}))
+    manager.enable("homelab")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Is Plex healthy?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "homelab.service.health"
+    assert card.action.arguments == {"service": "Plex"}
+
+
 def test_deterministic_homelab_restart_strips_terminal_punctuation():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
