@@ -1316,6 +1316,7 @@ def _finance_import(principal: Principal, request: dict[str, Any]) -> dict[str, 
             "imported_transaction_ids": list(report.imported_transaction_ids),
             "duplicate_rows": list(report.duplicate_rows),
             "rejected_rows": [list(row) for row in report.rejected_rows],
+            "reconciliations": [item.__dict__ for item in report.reconciliations],
             "boundary": "Imported finance rows remain private Principal-scoped canonical state.",
         }
     finally:
