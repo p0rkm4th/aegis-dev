@@ -600,6 +600,17 @@ def prepare_reference_action(
         report_target = args.get("target_path")
         if isinstance(report_target, str) and report_target.strip() and connection is not None:
             files = {report_target: _network_inventory_content(connection, principal)}
+    elif action.action_id == "network-reports.probe_to_workspace":
+        report_target = args.get("target_path")
+        address, scope_id, port = args.get("address"), args.get("scope_id"), args.get("port")
+        if (
+            isinstance(report_target, str)
+            and report_target.strip()
+            and isinstance(address, str)
+            and isinstance(scope_id, str)
+            and isinstance(port, int)
+        ):
+            files = {report_target: _network_probe_report_content(address, scope_id, port)}
     elif action.action_id == "calendar-communications.events.draft":
         draft_recipient, draft_target = args.get("recipient"), args.get("target_path")
         if (
@@ -1250,6 +1261,31 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "target_path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="network-reports.probe_to_workspace",
+                        capability="network-reports.probe_to_workspace",
+                        required_permissions=("network.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Save a verified authorized network probe report to Workspace",
+                    relevance=1,
+                    argument_keys=("address", "scope_id", "port", "target_path"),
+                    argument_grounding={
+                        "address": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "scope_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "port": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
                     },
                 ),
             ),
@@ -3368,6 +3404,103 @@ class NetworkInventoryWorkspaceVerifier:
             reason="Network inventory Workspace artifact independently verified"
             if verified
             else f"Network inventory Workspace verification failed: {detail}",
+        )
+
+
+def _network_probe_report_content(address: str, scope_id: str, port: int) -> str:
+    """Build the deterministic report promised by a successful probe."""
+
+    return (
+        "# Network reachability report\n\n"
+        f"- Address: {address}\n"
+        f"- Port: {port}\n"
+        f"- Authorized scope: {scope_id}\n"
+        "- Result: reachable\n"
+        "- Provider: bounded direct socket\n"
+    )
+
+
+class NetworkProbeWorkspaceExecutor:
+    """Probe one Core-authorized endpoint, then write its fixed report."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        address, scope_id, port, target_path = (
+            args.get("address"),
+            args.get("scope_id"),
+            args.get("port"),
+            args.get("target_path"),
+        )
+        if (
+            not isinstance(address, str)
+            or not isinstance(scope_id, str)
+            or not isinstance(port, int)
+            or not isinstance(target_path, str)
+            or not 1 <= port <= 65535
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"network_probe_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        probe_action = request.action.model_copy(update={"action_id": "network.probe"})
+        probe = DirectNetworkProbeExecutor().execute(
+            request.model_copy(update={"action": probe_action})
+        )
+        if not probe.command_succeeded:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"network_probe_workspace": "probe_failed", **probe.evidence},
+                command_succeeded=False,
+            )
+        try:
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: _network_probe_report_content(address, scope_id, port)},
+                request.action_id,
+                lambda current: None,
+            )
+        except (PermissionError, ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"network_probe_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "network_probe_workspace": "artifact",
+                "provider": "direct_socket",
+                "address": address,
+                "scope_id": scope_id,
+                "port": port,
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class NetworkProbeWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"network_probe_workspace_verified": verified, "postcondition": detail},
+            reason="Network probe Workspace report independently verified"
+            if verified
+            else f"Network probe Workspace verification failed: {detail}",
         )
 
 
