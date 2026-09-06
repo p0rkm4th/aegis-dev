@@ -343,6 +343,25 @@ def test_deterministic_calendar_task_report_uses_workspace_composition():
     assert card.action.arguments["target_path"] == "attention.md"
 
 
+def test_deterministic_workspace_copy_uses_scoped_copy_action():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(bundle)
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
+    manager.enable("workspace")
+    workspace_id = "a94ad69a-c033-5ede-843a-42405d9440ec"
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=f"Copy workspace artifact {workspace_id} at attention.md to attention-copy.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.artifact.copy"
+    assert card.action.arguments["source_path"] == "attention.md"
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")

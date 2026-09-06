@@ -1488,6 +1488,14 @@ def resolve_reference_fast_paths(
         flags=re.IGNORECASE,
     ):
         return None
+    if re.fullmatch(
+        r"copy workspace artifact [0-9a-f-]{36} at "
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120} to "
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     if re.search(r"\bnext\s+one\b", intent.utterance.casefold()):
         next_result = resolve_contextual_ordinal_read(intent, context)
         if next_result is not None:

@@ -99,6 +99,22 @@ def prepare_reference_action(
             files = candidate
         elif isinstance(args.get("path"), str) and isinstance(args.get("content"), str):
             files = {args["path"]: args["content"]}
+    elif action.action_id == "workspace.artifact.copy":
+        source_workspace_id = args.get("source_workspace_id")
+        source_path = args.get("source_path")
+        target_path = args.get("target_path")
+        if (
+            isinstance(source_workspace_id, str)
+            and isinstance(source_path, str)
+            and isinstance(target_path, str)
+            and source_workspace_id.strip()
+            and source_path.strip()
+            and target_path.strip()
+        ):
+            source_workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_workspace_id(principal.id, source_workspace_id)
+            files = {target_path: source_workspace.read(source_path)}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
@@ -1602,6 +1618,23 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="workspace.artifact.copy",
+                        capability="workspace.artifact.copy",
+                        required_permissions=("workspace.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Copy one authorized Workspace file into a new scoped artifact",
+                    relevance=1,
+                    argument_keys=("source_workspace_id", "source_path", "target_path"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("source_workspace_id", "source_path", "target_path")
                     },
                 ),
                 ActionCard(
@@ -3540,6 +3573,60 @@ class WorkspaceArtifactExecutor:
             execution_id=uuid4(),
             evidence={
                 "workspace": "artifact",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactCopyExecutor:
+    """Copy a Principal-scoped source file into the current objective Workspace."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        source_workspace_id = args.get("source_workspace_id")
+        source_path = args.get("source_path")
+        target_path = args.get("target_path")
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (source_workspace_id, source_path, target_path)
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_copy": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        assert isinstance(source_workspace_id, str)
+        assert isinstance(source_path, str)
+        assert isinstance(target_path, str)
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        try:
+            source_workspace = WorkspaceManager(root).for_workspace_id(
+                self.principal.id, source_workspace_id
+            )
+            content = source_workspace.read(source_path)
+            target_workspace = WorkspaceManager(root).for_objective(
+                self.principal.id, request.objective_id
+            )
+            artifact = target_workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_copy": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "workspace_copy": "artifact",
+                "source_workspace_id": source_workspace_id,
+                "source_path": source_path,
                 "files": list(artifact.files),
                 "executor_local_validated": artifact.validated,
             },

@@ -1542,6 +1542,22 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    workspace_copy = re.fullmatch(
+        r"copy workspace artifact (?P<source_workspace_id>[0-9a-f-]{36}) at "
+        r"(?P<source_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}) to "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if workspace_copy is not None:
+        card = manager.action_card("workspace", "workspace.artifact.copy")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": workspace_copy.groupdict()})
+            }
+        )
     if workspace_file is not None:
         card = manager.action_card("workspace", "workspace.artifact.read")
         if card is None:
