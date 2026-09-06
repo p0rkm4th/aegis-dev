@@ -877,6 +877,13 @@ async function loadCalendar() {
     });
     draftSection.append(draftTitle, draftForm); panel.append(draftSection);
     panel.append(renderDetailValue(events));
+    const attention = payload.task_attention || [];
+    const attentionSection = document.createElement('section'); attentionSection.className = 'detail-card';
+    const attentionTitle = document.createElement('h3'); attentionTitle.textContent = 'Tasks before shared events';
+    attentionSection.append(attentionTitle, renderDetailValue(attention));
+    const attentionBoundary = document.createElement('p'); attentionBoundary.className = 'muted';
+    attentionBoundary.textContent = payload.attention_boundary || 'Read-only Calendar + Tasks attention.';
+    attentionSection.append(attentionBoundary); panel.append(attentionSection);
   } catch (_) {
     panel.textContent = 'Calendar state is unavailable; no event state was changed.';
   }
