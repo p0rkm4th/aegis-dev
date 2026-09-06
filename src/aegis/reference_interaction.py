@@ -150,7 +150,8 @@ def _ground_argument_provenance(
             and key in {"target", "channel", "account"}
             and isinstance(value, str)
             and re.fullmatch(
-                r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar)[?!.,]?",
+                r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar|"
+                r"(?:the )?research (?:on|about) .+)[?!.,]?",
                 intent.utterance.strip(),
                 flags=re.IGNORECASE,
             )
