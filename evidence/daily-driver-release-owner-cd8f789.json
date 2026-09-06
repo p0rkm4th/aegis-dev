@@ -1,0 +1,20 @@
+{
+  "checkpoint": "daily-driver-release-scoreboard-owner-proof",
+  "source_sha": "cd8f789",
+  "hosted_validation_run": "34040116987",
+  "installed_release_sha": "cd8f789",
+  "running_release_sha": "cd8f789",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "postgresql": "healthy",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+  },
+  "state_path": "/home/scootz/.local/share/aegis-owner/releases/cd8f789/CURRENT_STATE.json",
+  "daily_driver_projection": {
+    "source_basis_sha": "cd8f789",
+    "workspace_artifact": "VERIFIED_LIVE",
+    "boundary": "Fixture and contract states are not live integrations; provider status is descriptive release truth and grants no action authority."
+  },
+  "result": "The promoted release reads its packaged release scoreboard without requiring the source checkout."
+}
