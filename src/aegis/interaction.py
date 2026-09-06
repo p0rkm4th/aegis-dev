@@ -551,6 +551,23 @@ class InteractionBoundary:
                 if recovered_plan is not None and recovered_plan.steps
                 else None
             )
+            early_deterministic_card: ActionCard | None = None
+            if (
+                recovered_plan_actions is None
+                and self.dependencies.deterministic_action_resolver is not None
+                and self.dependencies.pack_bundles is not None
+            ):
+                early_manager = PackManager(store=PostgresPackStore(connection))
+                early_manager.reconcile(
+                    tuple(self.dependencies.pack_bundles()),
+                    self.dependencies.auto_enable_pack_ids,
+                )
+                early_resolved = self.dependencies.deterministic_action_resolver(
+                    intent, early_manager, context
+                )
+                if isinstance(early_resolved, Result):
+                    return persist_fast_result(early_resolved)
+                early_deterministic_card = early_resolved
             if self.dependencies.safety_fast_path_resolver is not None:
                 safety = self.dependencies.safety_fast_path_resolver
                 arguments = (
@@ -604,8 +621,11 @@ class InteractionBoundary:
                     tuple(self.dependencies.pack_bundles()),
                     self.dependencies.auto_enable_pack_ids,
                 )
-            deterministic_card: ActionCard | None = None
-            if self.dependencies.deterministic_action_resolver is not None:
+            deterministic_card: ActionCard | None = early_deterministic_card
+            if (
+                deterministic_card is None
+                and self.dependencies.deterministic_action_resolver is not None
+            ):
                 resolved = self.dependencies.deterministic_action_resolver(intent, manager, context)
                 if isinstance(resolved, Result):
                     return persist_fast_result(resolved)
