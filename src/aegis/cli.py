@@ -96,7 +96,7 @@ from .research import (
 from .store import PostgresObjectiveStore
 from .structural import SpacyStructuralParser, StructuralParserUnavailable
 from .tasks import PostgresTaskStore
-from .utterance import is_task_destination_request
+from .utterance import is_mutation_request, is_task_destination_request
 from .weather import (
     configured_weather_forecast_provider,
     configured_weather_provider,
@@ -1522,6 +1522,18 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    # A zero-argument read Pack should remain usable when cognition declines
+    # to emit an action proposal.  This is a generic capability fallback: it
+    # is scoped to an enabled Pack/card and a small domain vocabulary, not to
+    # a particular owner sentence.  Core still performs grounding,
+    # authorization, execution, and independent verification below.
+    if not is_mutation_request(folded) and re.search(
+        r"\b(?:finance|money|spend|spent|transaction|transactions|account|accounts|purchase)\b",
+        folded,
+    ):
+        finance_card = manager.action_card("finance", "finance.summary.read")
+        if finance_card is not None:
+            return finance_card
     network_probe_report = re.fullmatch(
         r"probe (?P<address>[a-zA-Z0-9_.:-]+) in scope (?P<scope_id>[a-zA-Z0-9_.:-]+) "
         r"on port (?P<port>[0-9]{1,5}) and save (?:the )?report as "
