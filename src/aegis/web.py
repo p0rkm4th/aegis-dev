@@ -1431,6 +1431,15 @@ async function loadTasks() {
     if (!response.ok) throw new Error(payload.error || 'Tasks unavailable.');
     const canonical = payload.canonical || {};
     appendCompletableSection(panel, 'Open and due', canonical.open_tasks || [], 'Complete the task');
+    const sendTasks = document.createElement('button');
+    sendTasks.type = 'button'; sendTasks.textContent = 'Send open tasks';
+    sendTasks.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Text me my open tasks';
+      document.getElementById('chat').requestSubmit();
+    });
+    const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
+    sendBoundary.textContent = 'Canonical task state is fixed before communication; provider acceptance is not delivery proof.';
+    panel.append(sendTasks, sendBoundary);
     appendTodaySection(panel, 'Completed', canonical.completed_tasks || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.truth_boundary || 'Task state is canonical authorized state.';

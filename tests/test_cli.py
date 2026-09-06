@@ -5406,6 +5406,21 @@ def test_browser_app_devices_surface_exposes_status_communication():
     assert "Device state is read-only context" in html
 
 
+def test_browser_app_tasks_surface_exposes_open_task_communication():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Send open tasks" in html
+    assert "Text me my open tasks" in html
+    assert "Canonical task state is fixed before communication" in html
+
+
 def test_browser_app_communications_surface_exposes_provider_outcome_distinction():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
