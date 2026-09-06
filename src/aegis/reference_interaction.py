@@ -157,6 +157,7 @@ def _ground_argument_provenance(
             and isinstance(value, str)
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|"
+                r"(?:my )?(?:open )?chores|"
                 r"(?:the )?tasks due before my calendar events|"
                 r"(?:today(?:'s)?|the) brief|"
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
@@ -1265,6 +1266,12 @@ def resolve_reference_safety_fast_paths(
     ):
         # This is an explicitly addressed communication request; let the
         # typed communication resolver perform target and send authorization.
+        return None
+    if re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?chores[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
         return None
     if re.fullmatch(
         r"save (?:my )?(?:open )?(?:tasks|to-?dos) to workspace as "
@@ -3710,6 +3717,13 @@ def resolve_reference_pre_model(
         flags=re.IGNORECASE,
     )
     if explicit_task_message is not None:
+        return None
+    explicit_chore_message = re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?chores[?!.,]?",
+        utterance.strip(),
+        flags=re.IGNORECASE,
+    )
+    if explicit_chore_message is not None:
         return None
     explicit_task_report = re.fullmatch(
         r"save (?:my )?(?:open )?(?:tasks|to-?dos) to workspace as "
