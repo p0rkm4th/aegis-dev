@@ -1640,7 +1640,8 @@ def _deterministic_composition_action(
         flags=re.IGNORECASE,
     )
     workspace_append = re.fullmatch(
-        r"append (?P<content>.+?) to workspace (?:artifact|file) (?P<path>"
+        r"append (?P<content>.+?) to workspace (?:artifact|file) "
+        r"(?P<workspace_id>[0-9a-f-]{36}) at (?P<path>"
         r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
         text,
         flags=re.IGNORECASE,

@@ -462,12 +462,19 @@ def test_deterministic_workspace_append_uses_scoped_append_action():
     manager.enable("workspace")
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="vault"),
-        utterance="Append a final note to workspace file report.md",
+        utterance=(
+            "Append a final note to workspace file "
+            "a94ad69a-c033-5ede-843a-42405d9440ec at report.md"
+        ),
     )
     card = _deterministic_composition_action(intent, manager, Context())
     assert card is not None
     assert card.action.action_id == "workspace.artifact.append"
-    assert card.action.arguments == {"content": "a final note", "path": "report.md"}
+    assert card.action.arguments == {
+        "content": "a final note",
+        "workspace_id": "a94ad69a-c033-5ede-843a-42405d9440ec",
+        "path": "report.md",
+    }
 
 
 def test_deterministic_homelab_research_uses_non_mutating_composition():
