@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from aegis.finance import import_csv_transactions
+from aegis.finance import Account, FinanceLedger, FinanceSnapshot, import_csv_transactions
 
 
 def test_csv_import_uses_minor_units_source_hash_and_deduplicates_rows():
@@ -59,3 +59,32 @@ def test_csv_import_rejects_missing_schema_and_invalid_currency():
             source_id="upload-4",
             currency="US",
         )
+
+
+def test_ledger_import_merges_once_and_preserves_prior_snapshot():
+    ledger = FinanceLedger()
+    ledger.record_snapshot(FinanceSnapshot("alice", (Account("checking", "alice", 10_000),)))
+    content = "date,amount,description,transaction_id\n2026-09-01,-12.34,Coffee,bank-1\n"
+
+    first = ledger.import_csv("alice", "checking", content, source_id="upload-1")
+    second = ledger.import_csv("alice", "checking", content, source_id="upload-1")
+    snapshot = ledger.private_snapshot(type("Principal", (), {"id": "alice"})(), "alice")
+
+    assert first.imported_transaction_ids == second.imported_transaction_ids
+    assert len(snapshot.transactions) == 1
+    assert len(snapshot.sources) == 1
+
+
+def test_ledger_import_does_not_double_count_provider_transaction_across_files():
+    ledger = FinanceLedger()
+    ledger.record_snapshot(FinanceSnapshot("alice", (Account("checking", "alice", 10_000),)))
+    row = "date,amount,description,transaction_id\n2026-09-01,-12.34,Coffee,bank-1\n"
+
+    ledger.import_csv("alice", "checking", row, source_id="upload-1")
+    ledger.import_csv(
+        "alice", "checking", row.replace("Coffee", "Coffee shop"), source_id="upload-2"
+    )
+    snapshot = ledger.private_snapshot(type("Principal", (), {"id": "alice"})(), "alice")
+
+    assert len(snapshot.transactions) == 1
+    assert len(snapshot.sources) == 2

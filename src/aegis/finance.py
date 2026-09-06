@@ -149,6 +149,7 @@ class FinanceSnapshot:
     transactions: tuple[Transaction, ...] = ()
     provider_id: str = "fixture"
     captured_at: datetime | None = None
+    sources: tuple[ImportSource, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -197,6 +198,22 @@ class PostgresFinanceSnapshotStore:
                 }
                 for transaction in snapshot.transactions
             ],
+            "sources": [
+                {
+                    "source_id": source.source_id,
+                    "source_type": source.source_type,
+                    "content_hash": source.content_hash,
+                    "imported_at": source.imported_at.isoformat(),
+                    "coverage_start": source.coverage_start.isoformat()
+                    if source.coverage_start
+                    else None,
+                    "coverage_end": source.coverage_end.isoformat()
+                    if source.coverage_end
+                    else None,
+                    "complete": source.complete,
+                }
+                for source in snapshot.sources
+            ],
         }
         self.connection.execute(
             "INSERT INTO finance_snapshots "
@@ -236,8 +253,34 @@ class PostgresFinanceSnapshotStore:
                 int(transaction["amount_cents"]),
                 datetime.fromisoformat(str(transaction["occurred_at"])),
                 str(transaction["description"]),
+                str(transaction.get("currency", "USD")),
+                str(transaction["provider_transaction_id"])
+                if transaction.get("provider_transaction_id") is not None
+                else None,
+                str(transaction.get("status", "posted")),
+                str(transaction.get("source_id", "fixture")),
             )
             for transaction in payload.get("transactions", [])
+        )
+        sources = tuple(
+            ImportSource(
+                source_id=str(source["source_id"]),
+                source_type=str(source["source_type"]),
+                content_hash=str(source["content_hash"]),
+                imported_at=datetime.fromisoformat(str(source["imported_at"])),
+                coverage_start=(
+                    datetime.fromisoformat(str(source["coverage_start"]))
+                    if source.get("coverage_start")
+                    else None
+                ),
+                coverage_end=(
+                    datetime.fromisoformat(str(source["coverage_end"]))
+                    if source.get("coverage_end")
+                    else None
+                ),
+                complete=bool(source.get("complete", True)),
+            )
+            for source in payload.get("sources", [])
         )
         return FinanceSnapshot(
             owner_id=owner_id,
@@ -245,6 +288,7 @@ class PostgresFinanceSnapshotStore:
             transactions=transactions,
             provider_id=str(row[1]),
             captured_at=cast(datetime | None, row[2]),
+            sources=sources,
         )
 
 
@@ -269,6 +313,54 @@ class FinanceLedger:
             self._snapshots[snapshot.owner_id] = snapshot
         else:
             self.store.save(snapshot)
+
+    def import_csv(
+        self,
+        owner_id: str,
+        account_id: str,
+        content: str,
+        *,
+        source_id: str,
+        currency: str = "USD",
+        imported_at: datetime | None = None,
+    ) -> FinanceImportReport:
+        """Merge one owner-controlled import without replacing prior coverage."""
+
+        snapshot = self._snapshot(owner_id)
+        if account_id not in {account.account_id for account in snapshot.accounts}:
+            raise KeyError("finance account is unavailable")
+        transactions, report = import_csv_transactions(
+            content,
+            owner_id=owner_id,
+            account_id=account_id,
+            source_id=source_id,
+            currency=currency,
+            imported_at=imported_at,
+        )
+        if any(source.content_hash == report.source.content_hash for source in snapshot.sources):
+            return report
+        existing_ids = {item.transaction_id for item in snapshot.transactions}
+        existing_provider_ids = {
+            item.provider_transaction_id
+            for item in snapshot.transactions
+            if item.provider_transaction_id is not None
+        }
+        additions = tuple(
+            item
+            for item in transactions
+            if item.transaction_id not in existing_ids
+            and item.provider_transaction_id not in existing_provider_ids
+        )
+        merged = FinanceSnapshot(
+            owner_id=snapshot.owner_id,
+            accounts=snapshot.accounts,
+            transactions=snapshot.transactions + additions,
+            provider_id=snapshot.provider_id,
+            captured_at=snapshot.captured_at,
+            sources=snapshot.sources + (report.source,),
+        )
+        self.record_snapshot(merged)
+        return report
 
     def _snapshot(self, owner_id: str) -> FinanceSnapshot:
         snapshot = (
