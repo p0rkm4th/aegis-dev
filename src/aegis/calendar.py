@@ -38,6 +38,8 @@ class CalendarWriteProvider(Protocol):
 
     def delete_event(self, event_id: str) -> None: ...
 
+    def find_event_by_idempotency_key(self, idempotency_key: str) -> CalendarEvent | None: ...
+
 
 @dataclass(frozen=True)
 class GoogleCalendarWriteProvider:
@@ -130,6 +132,36 @@ class GoogleCalendarWriteProvider:
             raise RuntimeError("Google Calendar readback failed") from exc
         return _google_event(item)
 
+    def find_event_by_idempotency_key(self, idempotency_key: str) -> CalendarEvent | None:
+        if not idempotency_key or len(idempotency_key) > 200:
+            raise ValueError("calendar idempotency key is invalid")
+        parsed = urllib.parse.urlsplit(self._url())
+        query = urllib.parse.urlencode(
+            [("privateExtendedProperty", f"aegis_idempotency_key={idempotency_key}")]
+        )
+        request = urllib.request.Request(
+            urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, "")),
+            headers={"Authorization": f"Bearer {self.access_token}", "Accept": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                payload = json.loads(response.read(1_000_001))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise RuntimeError("Google Calendar idempotency lookup failed") from exc
+        items = payload.get("items") if isinstance(payload, dict) else None
+        if not isinstance(items, list) or len(items) > 50:
+            raise RuntimeError("Google Calendar idempotency response was invalid")
+        return next(
+            (
+                event
+                for item in items
+                if isinstance(item, dict)
+                for event in [_google_event(item)]
+                if event
+            ),
+            None,
+        )
+
     def delete_event(self, event_id: str) -> None:
         request = urllib.request.Request(
             self._url(event_id),
@@ -173,6 +205,9 @@ class FixtureCalendarWriteProvider:
 
     def get_event(self, event_id: str) -> CalendarEvent | None:
         return self.events.get(event_id)
+
+    def find_event_by_idempotency_key(self, idempotency_key: str) -> CalendarEvent | None:
+        return self.events.get(f"fixture:{idempotency_key}")
 
     def update_event(self, event_id: str, event: CalendarEvent) -> CalendarEvent:
         if event_id not in self.events:

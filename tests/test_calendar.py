@@ -216,6 +216,18 @@ def test_calendar_create_reads_back_the_provider_event_and_is_idempotent() -> No
     assert isinstance(runtime.executor.provider, FixtureCalendarWriteProvider)
 
 
+def test_fixture_calendar_can_reconcile_create_by_idempotency_key() -> None:
+    provider = FixtureCalendarWriteProvider()
+    event = CalendarEvent(
+        "pending",
+        "Dinner",
+        datetime(2026, 9, 7, 19, tzinfo=timezone.utc),
+        datetime(2026, 9, 7, 20, tzinfo=timezone.utc),
+    )
+    created = provider.create_event(event, "correlation:calendar.events.create")
+    assert provider.find_event_by_idempotency_key("correlation:calendar.events.create") == created
+
+
 def test_calendar_cancel_reads_back_provider_absence_and_is_idempotent() -> None:
     provider = FixtureCalendarWriteProvider()
     created = provider.create_event(
