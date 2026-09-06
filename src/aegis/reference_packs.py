@@ -135,7 +135,10 @@ def prepare_reference_action(
                     f"# Draft message\n\nTo: {recipient}\nSubject: {subject}\n\n{body}\n"
                 )
             }
-    elif action.action_id == "communications.messages.send":
+    elif action.action_id in {
+        "communications.messages.send",
+        "workspace-communications.artifact.send",
+    }:
         if args.get("body_source") == "canonical.groceries" and connection is not None:
             items = PostgresHouseholdStore(connection).list_groceries(principal)
             body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
@@ -199,6 +202,16 @@ def prepare_reference_action(
                 **args,
                 "body": (f"Homelab health for {service.name} ({service.service_id}): {state}."),
             }
+        elif args.get("body_source") == "canonical.workspace_artifact":
+            workspace_id = args.get("workspace_id")
+            path = args.get("path")
+            if not isinstance(workspace_id, str) or not isinstance(path, str) or not path.strip():
+                raise ValueError("workspace artifact is unavailable")
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_workspace_id(principal.id, workspace_id)
+            content = workspace.read(path)
+            args = {**args, "body": content[:20_000]}
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -860,6 +873,60 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "workspace-communications",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="workspace-communications.artifact.send",
+                        capability="workspace-communications.artifact.send",
+                        required_permissions=("workspace.read", "communications.send"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Send one Principal-scoped Workspace artifact through an approved provider"
+                    ),
+                    relevance=1,
+                    argument_keys=(
+                        "target",
+                        "body",
+                        "channel",
+                        "account",
+                        "body_source",
+                        "workspace_id",
+                        "path",
+                    ),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.APPROVED_DEFAULT,
+                            ),
+                            approved_default="owner.approved_communication_target.v1",
+                        )
+                        for key in ("target", "channel", "account")
+                    }
+                    | {
+                        "body": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "body_source": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
+                            approved_derivations=(
+                                "reference.communication_body_from_workspace_artifact.v1",
+                            ),
+                        ),
+                        "workspace_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "communication-drafts",
             "0.1.0",
             (
@@ -1455,6 +1522,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "calendar-reports": ("calendar.read", "workspace.write"),
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
+        "workspace-communications": ("workspace.read", "communications.send"),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
         "device-controls": ("devices.control",),

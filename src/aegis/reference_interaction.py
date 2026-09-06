@@ -146,13 +146,15 @@ def _ground_argument_provenance(
     provenance: dict[str, ArgumentProvenance] = {}
     for key, value in card.action.arguments.items():
         if (
-            card.action.action_id == "communications.messages.send"
+            card.action.action_id
+            in {"communications.messages.send", "workspace-communications.artifact.send"}
             and key in {"target", "channel", "account"}
             and isinstance(value, str)
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
-                r"the document .+|the health of (?:service )?.+)[?!.,]?",
+                r"the document .+|the health of (?:service )?.+|"
+                r"(?:the )?workspace artifact .+)[?!.,]?",
                 intent.utterance.strip(),
                 flags=re.IGNORECASE,
             )
@@ -216,6 +218,7 @@ def _ground_argument_provenance(
             "public.weather",
             "canonical.document",
             "canonical.homelab_health",
+            "canonical.workspace_artifact",
         }:
             source_phrase = {
                 "canonical.groceries": "grocery list",
@@ -224,6 +227,7 @@ def _ground_argument_provenance(
                 "public.weather": "weather",
                 "canonical.document": "document",
                 "canonical.homelab_health": "health",
+                "canonical.workspace_artifact": "workspace artifact",
             }[value]
             spans = _utterance_spans(intent.utterance, source_phrase)
             if not spans:
@@ -251,7 +255,13 @@ def _ground_argument_provenance(
                                 else (
                                     "reference.communication_body_from_document.v1"
                                     if value == "canonical.document"
-                                    else "reference.communication_body_from_homelab_health.v1"
+                                    else (
+                                        "reference.communication_body_from_homelab_health.v1"
+                                        if value == "canonical.homelab_health"
+                                        else (
+                                            "reference.communication_body_from_workspace_artifact.v1"
+                                        )
+                                    )
                                 )
                             )
                         )
@@ -259,6 +269,14 @@ def _ground_argument_provenance(
                 ),
             )
             continue
+        if key == "workspace_id":
+            spans = _utterance_spans(intent.utterance, value)
+            if spans:
+                provenance[key] = ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                    source_spans=spans,
+                )
+                continue
         if key.endswith("_id"):
             if not isinstance(value, str) or not value.strip():
                 return Result(

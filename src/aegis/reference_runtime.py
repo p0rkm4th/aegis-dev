@@ -421,6 +421,25 @@ def default_runtime_registry(
             ),
         )
 
+    def workspace_communications_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del principal
+        provider = (
+            OpenClawCliCommunicationSendProvider(os.environ["AEGIS_OPENCLAW_MESSAGE_BIN"])
+            if os.environ.get("AEGIS_OPENCLAW_MESSAGE_BIN")
+            else FixtureCommunicationSendProvider()
+        )
+        return ActionRuntime(
+            CommunicationsSendExecutor(provider, configured_communication_targets()),
+            CommunicationsSendVerifier(provider),
+            {
+                "workspace.read": frozenset({Role.OWNER}),
+                "communications.send": frozenset({Role.OWNER}),
+            },
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
+        )
+
     def communication_draft_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -548,6 +567,7 @@ def default_runtime_registry(
         "documents.search": documents_runtime,
         "communications.messages.list": communications_runtime,
         "communications.messages.send": communications_send_runtime,
+        "workspace-communications.artifact.send": workspace_communications_runtime,
         "communication-drafts.messages.draft": communication_draft_runtime,
         "devices.states.list": devices_runtime,
         "devices.states.research": device_research_runtime,
