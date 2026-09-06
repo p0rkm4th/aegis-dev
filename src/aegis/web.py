@@ -577,6 +577,21 @@ function renderResearchSummary() {
   const draftBoundary = document.createElement('p'); draftBoundary.className = 'muted';
   draftBoundary.textContent = 'Research is fixed as non-canonical evidence before the unsent draft is written; no message is sent.';
   draftSection.append(draftTitle, draftForm, draftBoundary); panel.append(draftSection);
+  const sendSection = document.createElement('section'); sendSection.className = 'detail-card';
+  const sendTitle = document.createElement('h3'); sendTitle.textContent = 'Send sourced research';
+  const sendForm = document.createElement('form'); sendForm.setAttribute('aria-label', 'Send sourced research');
+  const sendQuery = document.createElement('input'); sendQuery.type = 'search'; sendQuery.required = true;
+  sendQuery.placeholder = 'Research question'; sendQuery.setAttribute('aria-label', 'Research send question');
+  const sendSubmit = document.createElement('button'); sendSubmit.type = 'submit';
+  sendSubmit.textContent = 'Send research'; sendForm.append(sendQuery, sendSubmit);
+  sendForm.addEventListener('submit', event => {
+    event.preventDefault(); const question = sendQuery.value.trim(); if (!question) return;
+    document.getElementById('utterance').value = `Text me the research about ${question}`;
+    document.getElementById('chat').requestSubmit();
+  });
+  const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
+  sendBoundary.textContent = 'Public evidence is fixed before sending and remains non-canonical; provider acceptance is not delivery proof.';
+  sendSection.append(sendTitle, sendForm, sendBoundary); panel.append(sendSection);
   if (!latestResearch) return;
   const heading = document.createElement('p');
   heading.textContent = `Latest external evidence · ${latestResearch.sources.length} source(s)`;
