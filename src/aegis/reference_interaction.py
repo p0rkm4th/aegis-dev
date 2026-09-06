@@ -1514,6 +1514,13 @@ def resolve_reference_fast_paths(
     ):
         return None
     if re.fullmatch(
+        r"save (?:my )?(?:open )?(?:tasks|to-?dos) to workspace as "
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
+    if re.fullmatch(
         r"(?:send|text) me (?:my )?(?:open )?(?:tasks|to-?dos)[?!.,]?",
         intent.utterance.strip(),
         flags=re.IGNORECASE,
