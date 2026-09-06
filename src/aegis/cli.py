@@ -1666,6 +1666,25 @@ def _deterministic_composition_action(
                 )
             }
         )
+    network_report = re.fullmatch(
+        r"save (?:the )?(?:authorized )?network inventory to workspace as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if network_report is not None:
+        card = manager.action_card(
+            "network-reports", "network-reports.inventory.to_workspace"
+        )
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": network_report.groupdict()}
+                )
+            }
+        )
     document_search_workspace = re.fullmatch(
         r"(?:search|find) (?:my )?documents? for (?P<query>.+?) and save results as "
         r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",

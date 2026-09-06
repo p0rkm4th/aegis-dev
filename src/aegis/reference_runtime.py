@@ -84,6 +84,8 @@ from .reference_packs import (
     HomelabResearchVerifier,
     HomelabWorkspaceExecutor,
     HomelabWorkspaceVerifier,
+    NetworkInventoryWorkspaceExecutor,
+    NetworkInventoryWorkspaceVerifier,
     ObligationsWorkspaceExecutor,
     ObligationsWorkspaceVerifier,
     OpenClawGroceryExecutor,
@@ -269,6 +271,21 @@ def default_runtime_registry(
             HomelabWorkspaceVerifier(principal),
             {
                 "homelab.read": frozenset({Role.OWNER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
+        )
+
+    def network_inventory_workspace_runtime(
+        connection: Any, principal: Principal
+    ) -> ActionRuntime:
+        return ActionRuntime(
+            NetworkInventoryWorkspaceExecutor(connection, principal),
+            NetworkInventoryWorkspaceVerifier(principal),
+            {
+                "network.read": frozenset({Role.OWNER}),
                 "workspace.write": frozenset({Role.OWNER}),
             },
             prepare=lambda action, current_principal, objective_id: prepare_reference_action(
@@ -777,6 +794,7 @@ def default_runtime_registry(
         "homelab-reports.inventory.to_workspace": homelab_workspace_runtime,
         "homelab-reports.health.to_workspace": homelab_health_workspace_runtime,
         "network.probe": network_runtime,
+        "network-reports.inventory.to_workspace": network_inventory_workspace_runtime,
         "workspace.artifact.create": workspace_runtime,
         "workspace.artifact.append": workspace_append_runtime,
         "workspace.artifact.copy": workspace_copy_runtime,

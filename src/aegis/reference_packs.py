@@ -68,6 +68,7 @@ from .gateway_rpc import (
 from .holidays import configured_holiday_provider, holidays_evidence
 from .homelab import FixtureHomelabRuntime, PostgresHomelabStore
 from .household import PostgresHouseholdStore
+from .network import PostgresNetworkStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
 from .research import (
     KnowledgeSource,
@@ -581,6 +582,10 @@ def prepare_reference_action(
         if isinstance(report_target, str) and report_target.strip() and connection is not None:
             page = _homelab_health_report_files(connection, principal)
             files = {report_target: page["index.html"], "style.css": page["style.css"]}
+    elif action.action_id == "network-reports.inventory.to_workspace":
+        report_target = args.get("target_path")
+        if isinstance(report_target, str) and report_target.strip() and connection is not None:
+            files = {report_target: _network_inventory_content(connection, principal)}
     elif action.action_id == "calendar-communications.events.draft":
         draft_recipient, draft_target = args.get("recipient"), args.get("target_path")
         if (
@@ -1209,6 +1214,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "port": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
+            "network-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="network-reports.inventory.to_workspace",
+                        capability="network-reports.inventory.to_workspace",
+                        required_permissions=("network.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Create a verified Workspace report from authorized network inventory",
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
                     },
                 ),
             ),
@@ -2286,6 +2313,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "homelab-reports": ("homelab.read", "workspace.write"),
         "homelab-research": ("homelab.read", "research.read"),
         "network": ("network.read",),
+        "network-reports": ("network.read", "workspace.write"),
         "workspace": ("workspace.read", "workspace.write"),
     }
     return tuple(
@@ -2906,6 +2934,29 @@ def _homelab_page_files(connection: Any, principal: Principal) -> dict[str, str]
     return {"index.html": html, "style.css": css}
 
 
+def _network_inventory_content(connection: Any, principal: Principal) -> str:
+    """Serialize only authorized canonical network inventory for Workspace."""
+
+    inventory = PostgresNetworkStore(connection).load(principal)
+    lines = ["# Authorized network inventory", ""]
+    lines.append("## Devices")
+    if inventory.devices:
+        for device in sorted(inventory.devices.values(), key=lambda item: item.address):
+            hostname = device.hostname or "(unnamed)"
+            services = ", ".join(device.services) if device.services else "no recorded services"
+            lines.append(f"- {hostname} — {device.address} — {services}")
+    else:
+        lines.append("- No authorized devices are configured.")
+    lines.extend(("", "## Active scopes"))
+    active_scopes = [scope for scope in inventory.scopes.values() if scope.active]
+    if active_scopes:
+        for scope in sorted(active_scopes, key=lambda item: item.scope_id):
+            lines.append(f"- {scope.scope_id} — {scope.purpose} — {', '.join(scope.cidrs)}")
+    else:
+        lines.append("- No active network scopes are configured.")
+    return "\n".join(lines) + "\n"
+
+
 def _homelab_health_report_files(connection: Any, principal: Principal) -> dict[str, str]:
     """Render a bounded health snapshot from authorized canonical services."""
 
@@ -3229,6 +3280,64 @@ class HomelabHealthWorkspaceExecutor(HomelabWorkspaceExecutor):
                 "executor_local_validated": artifact.validated,
             },
             command_succeeded=True,
+        )
+
+
+class NetworkInventoryWorkspaceExecutor:
+    """Write a pre-execution-fixed authorized network inventory artifact."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"network_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _network_inventory_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (PermissionError, ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"network_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "network_workspace": "artifact",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class NetworkInventoryWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"network_workspace_verified": verified, "postcondition": detail},
+            reason="Network inventory Workspace artifact independently verified"
+            if verified
+            else f"Network inventory Workspace verification failed: {detail}",
         )
 
 

@@ -1204,6 +1204,16 @@ async function loadSystems() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(report);
+    const networkReport = document.createElement('button');
+    networkReport.type = 'button'; networkReport.textContent = 'Save network inventory to Workspace';
+    networkReport.addEventListener('click', () => {
+      document.getElementById('utterance').value =
+        'Save the authorized network inventory to workspace as network-report.md';
+      document.getElementById('chat').requestSubmit();
+    });
+    const networkReportBoundary = document.createElement('p'); networkReportBoundary.className = 'muted';
+    networkReportBoundary.textContent = 'Network inventory is read-only canonical state; export requires explicit network-reports Pack approval and independent Workspace verification.';
+    panel.append(networkReport, networkReportBoundary);
     const probe = document.createElement('section'); probe.className = 'detail-card';
     const probeTitle = document.createElement('h3'); probeTitle.textContent = 'Probe an authorized network target';
     const probeForm = document.createElement('form'); probeForm.setAttribute('aria-label', 'Probe network target');

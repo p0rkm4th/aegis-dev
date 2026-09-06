@@ -598,6 +598,27 @@ def test_deterministic_network_probe_preserves_explicit_endpoint_and_scope():
     }
 
 
+def test_deterministic_network_inventory_workspace_requires_explicit_pack():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "network-reports"
+    )
+    manager.discover(bundle)
+    manager.install("network-reports", frozenset(bundle.manifest.permissions))
+    manager.enable("network-reports")
+    card = _deterministic_composition_action(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="vault"),
+            utterance="Save the authorized network inventory to workspace as network.md",
+        ),
+        manager,
+        Context(),
+    )
+    assert card is not None
+    assert card.action.action_id == "network-reports.inventory.to_workspace"
+    assert card.action.arguments == {"target_path": "network.md"}
+
+
 def test_deterministic_device_research_action_preserves_explicit_entity_and_query():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "devices")
@@ -5116,6 +5137,8 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "Bounded service actions" in html
     assert "Request restart" in html
     assert "independent health verification" in html
+    assert "Save network inventory to Workspace" in html
+    assert "network-reports Pack approval" in html
 
 
 def test_browser_app_task_and_household_views_expose_core_completion_affordances():
@@ -7414,8 +7437,9 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Homelab",
         "Homelab Reports",
         "Homelab Research",
-        "Network",
-        "Workspace",
+            "Network",
+            "Network Reports",
+            "Workspace",
         "Workspace Communications",
         "Device Communications",
         "Devices",
