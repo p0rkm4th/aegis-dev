@@ -149,6 +149,12 @@ def prepare_reference_action(
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
             files = {target_path: _chores_workspace_content(connection, principal)}
+    elif (
+        action.action_id == "household-reports.obligations_to_workspace" and connection is not None
+    ):
+        target_path = args.get("target_path")
+        if isinstance(target_path, str) and target_path.strip():
+            files = {target_path: _obligations_workspace_content(connection, principal)}
     elif action.action_id == "kitchen-reports.groceries_to_workspace" and connection is not None:
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
@@ -840,6 +846,27 @@ def _chores_workspace_content(connection: Any, principal: Principal) -> str:
     for chore in chores:
         assignee = f" (assigned to {chore.assignee_id})" if chore.assignee_id else ""
         lines.append(f"- {chore.title}{assignee}")
+    return "\n".join(lines) + "\n"
+
+
+def _obligations_workspace_content(connection: Any, principal: Principal) -> str:
+    """Serialize authorized unsettled household obligations into a bounded artifact."""
+
+    snapshot = PostgresHouseholdStore(connection).read_snapshot(principal)
+    obligations = [
+        obligation
+        for obligation in cast(tuple[Any, ...], snapshot.get("obligations", ()))
+        if not obligation.settled
+    ][:50]
+    lines = ["# Open household obligations", ""]
+    if not obligations:
+        lines.append("- None")
+    for obligation in obligations:
+        amount = f" (${obligation.amount / 100:.2f})" if obligation.amount is not None else ""
+        responsible = (
+            f" (responsible for {obligation.responsible_id})" if obligation.responsible_id else ""
+        )
+        lines.append(f"- {obligation.title}{amount}{responsible}")
     return "\n".join(lines) + "\n"
 
 
@@ -1836,6 +1863,25 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         )
                     },
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="household-reports.obligations_to_workspace",
+                        capability="household-reports.obligations_to_workspace",
+                        required_permissions=("household.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save canonical open household obligations as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -2666,6 +2712,62 @@ class ChoresWorkspaceVerifier:
                 if verified
                 else f"household chores Workspace verification failed: {detail}"
             ),
+        )
+
+
+class ObligationsWorkspaceExecutor(ChoresWorkspaceExecutor):
+    """Write canonical unsettled household obligations into scoped Workspace."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"obligations_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _obligations_workspace_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"obligations_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "obligations_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class ObligationsWorkspaceVerifier(ChoresWorkspaceVerifier):
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        result = super().verify(observation, contract)
+        return result.model_copy(
+            update={
+                "evidence": {
+                    **result.evidence,
+                    "obligations_workspace_verified": result.verified,
+                },
+                "reason": (
+                    "household obligations Workspace artifact independently verified"
+                    if result.verified
+                    else result.reason.replace("household chores", "household obligations")
+                ),
+            }
         )
 
 
