@@ -10,6 +10,7 @@ from aegis.compositions import (
 )
 from aegis.documents import Document, FixtureDocumentProvider
 from aegis.research import Evidence, EvidenceSet, KnowledgeSource, ResearchAnswer
+from aegis.web import CompositionProjection
 from aegis.workspace import WorkspaceManager
 
 
@@ -27,6 +28,11 @@ def test_tasks_to_communication_composition_is_owner_visible() -> None:
     )
     assert composition["surfaces"] == ("Tasks", "Communications")
     assert "approved destination" in composition["authority"]
+
+
+def test_composition_projection_accepts_current_bounded_catalog() -> None:
+    projection = CompositionProjection.model_validate({"compositions": available_compositions()})
+    assert len(projection.compositions) >= 20
 
 
 def test_authorized_document_can_be_exported_to_verified_scoped_workspace(tmp_path) -> None:
