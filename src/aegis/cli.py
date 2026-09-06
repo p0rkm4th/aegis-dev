@@ -1983,6 +1983,35 @@ def _deterministic_composition_action(
                     )
                 }
             )
+    task_send_me = re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?(?:tasks|to-?dos)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if task_send_me is not None:
+        try:
+            approved_targets = configured_communication_targets()
+        except ValueError:
+            approved_targets = frozenset()
+        if approved_targets is not None and len(approved_targets) == 1:
+            target, channel, account = next(iter(approved_targets))
+            card = manager.action_card("communications", "communications.messages.send")
+            if card is None:
+                return None
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={
+                            "arguments": {
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body_source": "canonical.tasks",
+                            }
+                        }
+                    )
+                }
+            )
     calendar_send_me = re.fullmatch(
         r"(?:send|text) me (?:my )?calendar[?!.,]?",
         text,

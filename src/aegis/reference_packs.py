@@ -163,6 +163,16 @@ def prepare_reference_action(
             items = PostgresHouseholdStore(connection).list_groceries(principal)
             body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
             args = {**args, "body": body}
+        elif args.get("body_source") == "canonical.tasks" and connection is not None:
+            tasks = PostgresTaskStore(connection).list(principal)
+            open_tasks = [task for task in tasks if task.status.value == "open"]
+            lines = ["Open tasks:"]
+            for task in open_tasks[:50]:
+                due = f" (due {task.due_at.isoformat()})" if task.due_at else ""
+                lines.append(f"- {task.title}{due}")
+            if not open_tasks:
+                lines.append("- None")
+            args = {**args, "body": "\n".join(lines)}
         elif args.get("body_source") == "canonical.calendar":
             body = calendar_snapshot_content(configured_calendar_provider().list_events())
             args = {**args, "body": body}
@@ -916,6 +926,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
                             approved_derivations=(
                                 "reference.communication_body_from_groceries.v1",
+                                "reference.communication_body_from_tasks.v1",
                                 "reference.communication_body_from_calendar.v1",
                                 "reference.communication_body_from_research.v1",
                                 "reference.communication_body_from_weather.v1",
