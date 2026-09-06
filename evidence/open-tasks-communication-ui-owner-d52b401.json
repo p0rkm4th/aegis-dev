@@ -1,0 +1,35 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "open-tasks-communication-ui-owner-proof",
+  "source_sha": "d52b401",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34035431912",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "d52b401",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Tasks",
+    "control": "Send open tasks",
+    "request_template": "Text me my open tasks",
+    "boundary": "Canonical task state is fixed before communication; provider acceptance is not delivery proof"
+  },
+  "request": "Text me my open tasks.",
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "325317f8-8926-4154-b754-a2b227f485ee",
+    "correlation_id": "e53eba3d-70dd-444c-8865-57bcac2ea97d",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "canonical task state remained read-only; no task mutation, recipient expansion, or delivery authority was added"
+}
