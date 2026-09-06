@@ -215,6 +215,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "household-chores-to-workspace",
+            "label": "Household chores → Workspace",
+            "description": (
+                "Preserve canonical open household chores as a verified scoped artifact."
+            ),
+            "surfaces": ("Household", "Workspace"),
+            "authority": (
+                "household read + scoped Workspace write; no chore mutation, Core authorization "
+                "and independent verification required"
+            ),
+        },
+        {
             "id": "calendar-task-attention-to-communication",
             "label": "Calendar + Tasks attention → Communication",
             "description": (

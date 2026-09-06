@@ -38,6 +38,14 @@ def test_completed_tasks_workspace_composition_is_owner_visible() -> None:
     assert "no task mutation" in composition["authority"]
 
 
+def test_household_chores_workspace_composition_is_owner_visible() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "household-chores-to-workspace"
+    )
+    assert composition["surfaces"] == ("Household", "Workspace")
+    assert "no chore mutation" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item

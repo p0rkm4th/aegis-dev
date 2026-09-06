@@ -397,6 +397,24 @@ def test_deterministic_today_report_uses_workspace_composition():
     assert card.action.arguments == {"target_path": "today.md"}
 
 
+def test_deterministic_chore_report_uses_household_workspace_composition():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "household-reports"
+    )
+    manager.discover(bundle)
+    manager.install("household-reports", frozenset({"household.read", "workspace.write"}))
+    manager.enable("household-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save my open chores to workspace as chores.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "household-reports.chores_to_workspace"
+    assert card.action.arguments == {"target_path": "chores.md"}
+
+
 def test_deterministic_workspace_copy_uses_scoped_copy_action():
     manager = PackManager()
     bundle = next(
@@ -6998,6 +7016,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Calendar Task Reports",
         "Task Reports",
         "Today Reports",
+        "Household Reports",
         "Communications",
         "Documents",
         "Tasks",

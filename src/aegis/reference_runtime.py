@@ -49,6 +49,8 @@ from .reference_packs import (
     CalendarTaskAttentionWorkspaceVerifier,
     CalendarUpdateExecutor,
     CalendarUpdateVerifier,
+    ChoresWorkspaceExecutor,
+    ChoresWorkspaceVerifier,
     CommunicationDraftExecutor,
     CommunicationDraftVerifier,
     CommunicationsExecutor,
@@ -407,6 +409,19 @@ def default_runtime_registry(
             ),
         )
 
+    def chores_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            ChoresWorkspaceExecutor(connection, principal),
+            ChoresWorkspaceVerifier(principal),
+            {
+                "household.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
+        )
+
     def weather_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -700,6 +715,7 @@ def default_runtime_registry(
         "task-reports.to_workspace": task_workspace_runtime,
         "task-reports.completed_to_workspace": completed_task_workspace_runtime,
         "today-reports.to_workspace": today_workspace_runtime,
+        "household-reports.chores_to_workspace": chores_workspace_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,
