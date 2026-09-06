@@ -4893,16 +4893,18 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
 
     assert '<link rel="stylesheet" href="/static/aegis.css">' in _INDEX_HTML
     assert '<script src="/static/aegis.js" defer></script>' in _INDEX_HTML
-    assert '<script>\n' not in _INDEX_HTML
+    assert "<script>\n" not in _INDEX_HTML
     assert _AEGIS_CSS.strip()
     assert _AEGIS_JS.strip()
     assert "--surface-0" in _AEGIS_CSS
-    assert "script-src 'self' 'unsafe-inline'" in Path(
-        __file__
-    ).parents[1].joinpath("src/aegis/web.py").read_text()
-    assert "style-src 'self' 'unsafe-inline'" in Path(
-        __file__
-    ).parents[1].joinpath("src/aegis/web.py").read_text()
+    assert (
+        "script-src 'self' 'unsafe-inline'"
+        in Path(__file__).parents[1].joinpath("src/aegis/web.py").read_text()
+    )
+    assert (
+        "style-src 'self' 'unsafe-inline'"
+        in Path(__file__).parents[1].joinpath("src/aegis/web.py").read_text()
+    )
 
 
 def test_browser_app_preserves_unknown_as_reconciliation_not_retry():
