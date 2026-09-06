@@ -41,6 +41,7 @@ DocumentsState = Callable[[Principal], dict[str, Any]]
 DocumentFile = Callable[[Principal, str], dict[str, Any]]
 DailyDriverState = Callable[[Principal], dict[str, Any]]
 ResearchState = Callable[[Principal], dict[str, Any]]
+FinanceState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -163,6 +164,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="tasks">Tasks</button>
 <button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>
+<button type="button" data-view="finance">Finance</button>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="documents">Documents</button>
 </div>
@@ -238,6 +240,7 @@ class BrowserApp:
         document_file: DocumentFile | None = None,
         daily_driver_state: DailyDriverState | None = None,
         research_state: ResearchState | None = None,
+        finance_state: FinanceState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -265,6 +268,7 @@ class BrowserApp:
         self.document_file = document_file
         self.daily_driver_state = daily_driver_state
         self.research_state = research_state
+        self.finance_state = finance_state
 
     def dispatch(
         self,
@@ -618,6 +622,22 @@ class BrowserApp:
                     "research state unavailable",
                 )
             return self._json(HTTPStatus.OK, research_projection)
+        if method == "GET" and route == "/api/finance":
+            if self.finance_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                finance_projection = self.finance_state(principal)
+                if not isinstance(finance_projection, dict):
+                    raise ValueError("finance state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "finance unavailable"
+                )
+            return self._json(HTTPStatus.OK, finance_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -864,6 +884,7 @@ def serve(
     document_file: DocumentFile | None = None,
     daily_driver_state: DailyDriverState | None = None,
     research_state: ResearchState | None = None,
+    finance_state: FinanceState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -894,6 +915,7 @@ def serve(
         document_file=document_file,
         daily_driver_state=daily_driver_state,
         research_state=research_state,
+        finance_state=finance_state,
     )
 
     class Handler(BaseHTTPRequestHandler):

@@ -4775,6 +4775,27 @@ def test_browser_app_exposes_principal_scoped_research_history():
     assert json.loads(payload)["results"][0]["principal"] == "alice"
 
 
+def test_browser_app_exposes_principal_scoped_finance_projection():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        finance_state=lambda current: {
+            "provider_state": "available",
+            "accounts": [{"account_id": "checking", "owner": current.id}],
+            "transactions": [],
+        },
+        session_token="session-secret",
+    )
+    status, content_type, payload = app.dispatch(
+        "GET", "/api/finance", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert content_type == "application/json"
+    assert json.loads(payload)["accounts"][0]["owner"] == "alice"
+
+
 def test_browser_app_exposes_principal_scoped_workspace_inventory():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
