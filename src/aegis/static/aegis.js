@@ -1124,6 +1124,33 @@ async function loadSystems() {
       `${device.address || 'no address'} · discovered observation, not canonical Host`
     ]);
     panel.append(inventory);
+    const scopes = Array.isArray(payload.active_network_scopes) ? payload.active_network_scopes : [];
+    if (scopes.length) {
+      const discovery = document.createElement('section'); discovery.className = 'detail-card';
+      const discoveryTitle = document.createElement('h3'); discoveryTitle.textContent = 'Bounded discovery';
+      const discoveryHint = document.createElement('p'); discoveryHint.className = 'muted';
+      discoveryHint.textContent = 'Probe an approved scope for observations only. Discovery does not create a canonical Host or grant action authority.';
+      discovery.append(discoveryTitle, discoveryHint);
+      scopes.slice(0, 8).forEach(scope => {
+        const button = document.createElement('button'); button.type = 'button';
+        button.textContent = `Discover ${scope.scope_id || 'scope'}`;
+        button.addEventListener('click', async () => {
+          button.disabled = true; button.textContent = 'Discovering…';
+          try {
+            const result = await apiFetch('/api/systems/discover', {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({scope_id: scope.scope_id})
+            });
+            const discovered = await result.json();
+            if (!result.ok) throw new Error(discovered.error || 'Discovery unavailable.');
+            button.textContent = `Found ${(discovered.devices || []).length} observation(s)`;
+            await loadSystems();
+          } catch (_) { button.disabled = false; button.textContent = 'Discovery unavailable'; }
+        });
+        discovery.append(button);
+      });
+      panel.append(discovery);
+    }
     const services = Array.isArray(payload.services) ? payload.services : [];
     if (services.length) {
       const actions = document.createElement('section'); actions.className = 'detail-card';

@@ -5472,6 +5472,54 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "independent health verification" in html
     assert "Save network inventory to Workspace" in html
     assert "Approve network-reports in Packs & capabilities" in html
+    assert "Bounded discovery" in html
+    assert "/api/systems/discover" in html
+
+
+def test_browser_app_systems_discovery_is_scoped_and_observation_only():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        systems_discover=lambda current, request: {
+            "scope_id": request["scope_id"],
+            "devices": [{"address": "192.0.2.2", "status": "discovered"}],
+            "authority": (
+                "discovered observations only; not canonical Hosts and not action authority"
+            ),
+            "owner": current.id,
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/systems/discover",
+        body=json.dumps({"scope_id": "lab"}).encode(),
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    result = json.loads(payload)
+    assert result["scope_id"] == "lab"
+    assert result["devices"][0]["status"] == "discovered"
+    assert "not canonical Hosts" in result["authority"]
+
+
+def test_browser_app_systems_discovery_rejects_unknown_fields():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        systems_discover=lambda *_args: {},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/systems/discover",
+        body=json.dumps({"scope_id": "lab", "cidr": "0.0.0.0/0"}).encode(),
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 400
+    assert json.loads(payload)["code"] == "invalid_request"
 
 
 def test_browser_app_task_and_household_views_expose_core_completion_affordances():
