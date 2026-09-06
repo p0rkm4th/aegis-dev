@@ -42,7 +42,7 @@ from .dispatch import ActionExecutorDispatch, ActionVerifierDispatch
 from .documents import configured_document_provider
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
 from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
-from .homelab import PostgresHomelabStore
+from .homelab import PostgresHomelabStore, classify_discovered_device
 from .household import (
     Chore,
     ChoreCompletionFastPath,
@@ -938,11 +938,20 @@ def reference_constellation_state(
             existing_node_ids.add(node_id)
         for device in sorted(network.devices.values(), key=lambda item: item.address):
             node_id = f"network-device-{device.address}"
+            identity = classify_discovered_device(device, homelab.hosts)
+            identity_label = (
+                f"reconciliation candidate for {identity['canonical_host_id']}"
+                if identity["identity_status"] == "reconciliation_candidate"
+                else "unmatched observation"
+            )
             nodes.append(
                 {
                     "id": node_id,
                     "label": device.hostname or device.address,
-                    "detail": f"Discovered device · {device.address} · not a canonical Host",
+                    "detail": (
+                        f"Discovered device · {device.address} · {identity_label} · "
+                        "not a canonical Host"
+                    ),
                     "category": "capability",
                     "detail_view": "systems",
                 }
@@ -951,6 +960,8 @@ def reference_constellation_state(
                 "address": device.address,
                 "hostname": device.hostname,
                 "services": list(device.services),
+                "identity_status": identity["identity_status"],
+                "canonical_host_id": identity["canonical_host_id"],
                 "identity": "discovered observation; not a stable consequential identity",
                 "authority": "discovery context only; graph visibility grants no authority",
             }

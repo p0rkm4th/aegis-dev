@@ -8146,6 +8146,9 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     assert "not a canonical Host" in next(
         node["detail"] for node in state["nodes"] if node["id"] == "network-device-192.0.2.20"
     )
+    assert state["details"]["network-device-192.0.2.20"]["identity_status"] == (
+        "unmatched_observation"
+    )
     assert {"source": "homelab-host-atlas", "target": "homelab-service-plex"} in state["edges"]
     assert "composition-calendar-to-workspace" in node_ids
     assert any(
