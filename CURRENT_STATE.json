@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "3d74398",
+  "state_basis_sha": "1e217bc",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "3d74398",
-  "deterministic_green_sha": "3d74398",
-  "last_pushed_sha": "3d74398",
+  "repository_head_sha": "1e217bc",
+  "deterministic_green_sha": "1e217bc",
+  "last_pushed_sha": "1e217bc",
   "hosted_green_sha": "425ec0b",
   "hosted_ci_green_sha": "425ec0b",
   "hosted_ci_attestation": {
@@ -124,7 +124,8 @@
     "public_holidays_workspace": "installed owner proof explicitly enabled holiday-reports, fixed bounded public holiday evidence before Workspace mutation, independently verified holidays.md, and preserved the external/non-canonical boundary"
     ,"pack_first_experiment": "Experimental Pack-first harness compares incumbent control, pure Pack-first, and retrieval-assisted Pack-first using compact Pack metadata; dynamic lifecycle, strict fail-closed router validation, and owner-context exclusion are regression-tested. Production cognition remains unchanged and no model tournament result is claimed"
     ,"food_stable_state": "Current Household groceries remain backward-compatible while deterministic migration exposes stable-ID GroceryItem records and nullable PantryItem records; purchase/consume operations use IDs and Pantry versions, and unknown quantity is never treated as zero",
-    "food_store_boundary": "Persistent Household store reads stable grocery/Pantry records, migrates legacy grocery JSON idempotently, and rechecks Space membership before structured Pantry reads/inserts; Pack actions still expose the legacy grocery surface pending wiring"
+    "food_store_boundary": "Persistent Household store reads stable grocery/Pantry records, migrates legacy grocery JSON idempotently, and rechecks Space membership before structured Pantry reads/inserts; legacy grocery listing remains compatible while stable-ID state actions are added"
+    ,"food_grocery_actions": "Kitchen Pack exposes stable-ID grocery mark_purchased and remove actions through the normal authorization/runtime path; independent verifier rereads current scoped records and rejects stale or changed state"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
