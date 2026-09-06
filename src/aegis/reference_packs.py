@@ -73,6 +73,7 @@ from .research import (
     SearchRequest,
     configured_research_service,
 )
+from .weather import configured_weather_provider, weather_evidence
 from .workspace import WorkspaceManager, workspace_expected_postcondition
 
 
@@ -1032,6 +1033,33 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "weather",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="weather.current.read",
+                        capability="weather.current.read",
+                        required_permissions=("weather.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read current public weather for explicit coordinates",
+                    relevance=1,
+                    argument_keys=("latitude", "longitude"),
+                    argument_descriptions={
+                        "latitude": "explicit latitude in decimal degrees",
+                        "longitude": "explicit longitude in decimal degrees",
+                    },
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("latitude", "longitude")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "calendar-reports",
             "0.1.0",
             (
@@ -1138,6 +1166,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     """Return first-party Packs through the same generic lifecycle contract."""
     permissions = {
         "calendar": ("calendar.read", "calendar.write"),
+        "weather": ("weather.read",),
         "calendar-reports": ("calendar.read", "workspace.write"),
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
@@ -2411,6 +2440,42 @@ class CalendarEventsVerifier:
             reason=(
                 "calendar readback is structurally valid" if verified else "calendar read failed"
             ),
+        )
+
+
+class WeatherExecutor:
+    """Read current conditions from the bounded configured weather provider."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        try:
+            latitude = float(request.action.arguments["latitude"])
+            longitude = float(request.action.arguments["longitude"])
+            if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+                raise ValueError("weather coordinates are out of range")
+            reading = configured_weather_provider().current(latitude, longitude)
+        except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"weather": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"weather": weather_evidence(reading)},
+            command_succeeded=True,
+        )
+
+
+class WeatherVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("weather")
+        verified = observation.command_succeeded and isinstance(evidence, dict)
+        return VerificationResult(
+            verified=verified,
+            evidence={"weather": evidence} if verified else observation.evidence,
+            reason="weather readback is structurally valid" if verified else "weather read failed",
         )
 
 

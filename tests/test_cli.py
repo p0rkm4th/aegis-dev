@@ -4378,6 +4378,21 @@ def test_browser_app_calendar_surface_exposes_read_only_conflict_inspection():
     assert "Add a task to resolve the calendar conflict between" in html
 
 
+def test_browser_app_exposes_weather_surface_and_public_evidence_boundary():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert 'data-view="weather"' in html
+    assert "Current public conditions for explicit coordinates." in html
+    assert "Weather is public evidence, not canonical personal truth." in html
+
+
 def test_browser_app_today_surface_exposes_calendar_conflicts():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
@@ -6270,6 +6285,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Communication Drafts",
         "Device Controls",
         "Device Reports",
+        "Weather",
     }
     assert all(bundle.manifest.permissions for bundle in bundles)
 

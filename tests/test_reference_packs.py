@@ -44,6 +44,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "communication-drafts",
         "device-controls",
         "device-reports",
+        "weather",
     }
 
 

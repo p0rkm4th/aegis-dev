@@ -95,6 +95,7 @@ from .store import PostgresObjectiveStore
 from .structural import SpacyStructuralParser, StructuralParserUnavailable
 from .tasks import PostgresTaskStore
 from .utterance import is_task_destination_request
+from .weather import configured_weather_provider, weather_evidence
 from .web import serve
 from .workspace import ScopedWorkspace, WorkspaceError, WorkspaceManager
 
@@ -496,6 +497,30 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 
     root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
     return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
+
+
+def _weather_state(principal: Principal) -> dict[str, Any]:
+    """Expose public weather only for explicitly configured owner coordinates."""
+
+    del principal
+    try:
+        latitude = float(_required("AEGIS_WEATHER_LATITUDE"))
+        longitude = float(_required("AEGIS_WEATHER_LONGITUDE"))
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            raise ValueError("weather coordinates are out of range")
+        reading = configured_weather_provider().current(latitude, longitude)
+    except (RuntimeError, ValueError) as exc:
+        return {
+            "reading": None,
+            "provider_state": "unavailable",
+            "reason": str(exc),
+            "boundary": "Weather is public evidence, not canonical personal truth.",
+        }
+    return {
+        "reading": weather_evidence(reading),
+        "provider_state": reading.source,
+        "boundary": "Weather is public evidence, not canonical personal truth.",
+    }
 
 
 def _workspace_file(principal: Principal, workspace_id: str, path: str) -> dict[str, Any]:
@@ -2420,6 +2445,7 @@ def main() -> int:
                 calendar_state=_calendar_state,
                 device_state=_device_state,
                 systems_state=_systems_state,
+                weather_state=_weather_state,
                 today_state=_today_state,
                 objectives_state=_objectives_state,
                 communications_state=_communications_state,

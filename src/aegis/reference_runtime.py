@@ -73,6 +73,8 @@ from .reference_packs import (
     PostgresGroceryListVerifier,
     ResearchWorkspaceExecutor,
     ResearchWorkspaceVerifier,
+    WeatherExecutor,
+    WeatherVerifier,
     WorkspaceArtifactExecutor,
     WorkspaceArtifactVerifier,
     prepare_reference_action,
@@ -247,6 +249,14 @@ def default_runtime_registry(
             CalendarEventsExecutor(),
             CalendarEventsVerifier(),
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def weather_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            WeatherExecutor(),
+            WeatherVerifier(),
+            {"weather.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
     def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -449,6 +459,7 @@ def default_runtime_registry(
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
+        "weather.current.read": weather_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar.events.cancel": calendar_cancel_runtime,
         "calendar.events.update": calendar_update_runtime,
