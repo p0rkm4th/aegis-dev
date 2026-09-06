@@ -1,0 +1,11 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-today-workspace-to-communication",
+  "source_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
+  "installed_release_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
+  "owner_runtime": {"service": "aegis-owner.service", "postgresql": "healthy", "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces", "identity": "authenticated owner"},
+  "workflow": {"source": "today-reports.to_workspace", "workspace_id": "8ffe060f-8d92-5fd1-81fe-771d1ccf66a8", "path": "today.md", "source_content_fixed_before_workspace_write": true, "communication_action": "workspace-communications.artifact.send", "workspace_readback": true},
+  "destination": {"target": "scotty", "channel": "sms", "account": "household", "boundary": "explicit owner-approved configured target"},
+  "result": {"state": "completed", "provider_status": "PROVIDER_ACCEPTED", "provider_readback_proven": true, "delivery_proven": false, "detail": "communication provider accepted and read back the exact Today artifact; delivery is not independently proven"},
+  "safety": ["Today content remained canonical local context; public/external evidence was not included", "Workspace read and communication send required separate explicit permissions", "provider acceptance was not promoted to delivery"]
+}
