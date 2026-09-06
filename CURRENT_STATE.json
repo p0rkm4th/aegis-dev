@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
+  "state_basis_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e19309e5b381ab3e3b963956061f8a47c7eaa519",
-  "deterministic_green_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
-  "last_pushed_sha": "e19309e5b381ab3e3b963956061f8a47c7eaa519",
-  "hosted_green_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
-  "hosted_ci_green_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
+  "repository_head_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "deterministic_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "last_pushed_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "hosted_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "hosted_ci_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
+    "commit_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
     "conclusion": "success",
-    "run_id": "34009805183",
+    "run_id": "34010033946",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
-  "running_release_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
-  "live_green_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
+  "installed_release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "running_release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "live_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-public-holidays",
+  "active_checkpoint": "daily-driver-alpha-public-holidays-today",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "1b457533675743dd95ea513102498b03d3c1cb73"
+    "release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -154,9 +154,10 @@
     ,"Weather is a new provider-neutral public-read capability with explicit coordinate grounding, deterministic fixture coverage, HTTPS-only Open-Meteo adapter validation, owner Weather view, Pack-driven Constellation representation, and a live Open-Meteo owner proof"
     ,"Weather → Task follow-up is a bounded owner composition: live public weather informs only an explicit task request, which remains subject to normal Core grounding, authorization, observation, and verification"
     ,"Public Holidays is a provider-neutral read capability using explicit country/year scope, deterministic fixture coverage, and a live Nager.Date HTTPS adapter; Calendar presents the feed as external evidence rather than canonical personal events"
+    ,"Calendar + Public holidays → Today projects the same live bounded holiday evidence into the canonical Today dashboard without converting dates into personal events or mutation authority"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner Calendar surface now includes a live Nager.Date public-holiday feed for explicitly configured US/2026 scope, with source provenance and an external-evidence boundary; calendar.public_holidays.list is a bounded Core read capability with fixture coverage and HTTPS-only provider validation. Weather remains live through Open-Meteo, Weather → Task is explicit, and live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner Calendar and Today surfaces now include the live Nager.Date public-holiday feed for explicitly configured US/2026 scope, with source provenance and an external-evidence boundary; Calendar + Public holidays → Today is represented as generic composition metadata. Weather remains live through Open-Meteo, and live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -193,22 +194,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 2,
-  "voluntarily_useful_owner_workflows": 36,
+  "voluntarily_useful_owner_workflows": 37,
   "owner_visible_capability_surfaces": 22,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 19,
+  "cross_capability_workflows": 20,
   "breadth_scoreboard": {
     "owner_visible_views": 17,
     "usable_capability_families": 9,
     "verified_write_capabilities": 7,
     "external_integrations": 2,
-    "cross_domain_compositions": 19,
+    "cross_domain_compositions": 20,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 35,
+    "owner_workflows_completed": 36,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-useful vertical after the live public-holiday Calendar slice; seek a consequential verified path or new cross-capability workflow while preserving truthful OpenClaw, Google, and Home Assistant pending states.",
-  "history_artifact": "evidence/public-holidays-owner-1b45753.json",
+  "next_action": "Rearm the next owner-useful vertical after the live public-holiday Today projection; seek a consequential verified path or new cross-capability workflow while preserving truthful OpenClaw, Google, and Home Assistant pending states.",
+  "history_artifact": "evidence/public-holidays-today-owner-7c83442.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
