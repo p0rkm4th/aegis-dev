@@ -115,6 +115,10 @@ def prepare_reference_action(
                 Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
             ).for_workspace_id(principal.id, source_workspace_id)
             files = {target_path: source_workspace.read(source_path)}
+    elif action.action_id == "task-reports.to_workspace" and connection is not None:
+        target_path = args.get("target_path")
+        if isinstance(target_path, str) and target_path.strip():
+            files = {target_path: _task_workspace_content(connection, principal)}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
@@ -576,6 +580,23 @@ def _weather_forecast_workspace_content(forecast: object) -> str:
         + json.dumps(weather_forecast_evidence(cast(Any, forecast)), indent=2, sort_keys=True)
         + "\n"
     )
+
+
+def _task_workspace_content(connection: Any, principal: Principal) -> str:
+    """Serialize the authorized open task snapshot into a bounded artifact."""
+
+    tasks = [
+        task
+        for task in PostgresTaskStore(connection).list(principal)
+        if task.status.value == "open"
+    ]
+    lines = ["# Open tasks", ""]
+    if not tasks:
+        lines.append("- None")
+    for task in tasks[:50]:
+        due = f" (due {task.due_at.isoformat()})" if task.due_at else ""
+        lines.append(f"- {task.title}{due}")
+    return "\n".join(lines) + "\n"
 
 
 @dataclass(frozen=True)
@@ -1427,6 +1448,30 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "task-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="task-reports.to_workspace",
+                        capability="task-reports.to_workspace",
+                        required_permissions=("tasks.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save canonical open tasks as an independently verified Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "air-quality",
             "0.1.0",
             (
@@ -1741,6 +1786,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "tasks": ("tasks.write", "tasks.read"),
         "calendar-task-attention": ("calendar.read", "tasks.read"),
         "calendar-task-reports": ("calendar.read", "tasks.read", "workspace.write"),
+        "task-reports": ("tasks.read", "workspace.write"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
@@ -1986,6 +2032,66 @@ class CalendarTaskAttentionWorkspaceVerifier:
                 "calendar task attention Workspace artifact independently verified"
                 if verified
                 else f"calendar task attention Workspace verification failed: {detail}"
+            ),
+        )
+
+
+class TaskWorkspaceExecutor:
+    """Write an authorized open-task snapshot into the scoped Workspace."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"task_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _task_workspace_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"task_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "tasks_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class TaskWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"task_workspace_verified": verified, "postcondition": detail},
+            reason=(
+                "task Workspace artifact independently verified"
+                if verified
+                else f"task Workspace verification failed: {detail}"
             ),
         )
 

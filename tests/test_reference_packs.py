@@ -95,6 +95,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "calendar-communications",
         "calendar-task-attention",
         "calendar-task-reports",
+        "task-reports",
         "communications",
         "documents",
         "tasks",
