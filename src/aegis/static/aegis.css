@@ -41,9 +41,16 @@ body { background: var(--surface-0); color: var(--text-strong); }
   box-shadow: var(--elevation);
 }
 .product-nav button { text-align: left; border-color: transparent; }
-.product-nav button:nth-child(7),
-.product-nav button:nth-child(11),
-.product-nav button:nth-child(16) { margin-top: .6rem; }
+.nav-group { display: flex; flex-direction: column; gap: .15rem; }
+.nav-group + .nav-group { margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--line); }
+.nav-group-label {
+  padding: .35rem .75rem .25rem;
+  color: var(--text-muted);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
 .workspace { grid-column: 2 !important; grid-row: 2 !important; max-width: none !important; width: 100% !important; }
 .conversation-panel { border-radius: 1.1rem; box-shadow: var(--elevation); }
 .status-badge[data-state="unknown"],
@@ -77,18 +84,21 @@ body { background: var(--surface-0); color: var(--text-strong); }
     overflow-x: auto !important;
     box-shadow: none !important;
   }
+  .nav-group { flex-direction: row; gap: .2rem; }
+  .nav-group + .nav-group { margin-top: 0; padding-top: 0; border-top: 0; }
+  .nav-group-label { display: none; }
   .product-nav button { white-space: nowrap; }
 }
 
 @media (max-width: 36rem) {
   .app-shell { padding-inline: .75rem !important; }
   .product-nav { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; overflow: visible !important; }
+  .nav-group { display: contents; }
   .product-nav button { padding: .65rem .45rem; text-align: center; font-size: .82rem; }
-  .product-nav button:nth-child(n+5) { display: none !important; }
+  .nav-advanced button { display: none !important; }
+  .product-nav.show-advanced .nav-advanced button { display: block !important; }
   .product-nav .nav-more { display: block; grid-column: 1 / -1; text-align: center; }
   .product-nav.show-advanced { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .product-nav.show-advanced button:nth-child(n+5) { display: block !important; }
-  .product-nav button:nth-child(1)::after { content: ""; }
   .conversation-panel { padding: 1rem; }
 }
 
