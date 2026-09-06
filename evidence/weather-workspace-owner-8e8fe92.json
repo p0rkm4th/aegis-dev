@@ -1,0 +1,20 @@
+{
+  "checkpoint": "daily-driver-alpha-weather-to-workspace",
+  "source_sha": "8e8fe92fb03ca02d9bd9c1aff06aa1f44f6d3e50",
+  "hosted_run_id": "34013630760",
+  "owner_runtime_sha": "8e8fe92fb03ca02d9bd9c1aff06aa1f44f6d3e50",
+  "principal": "owner",
+  "utterance": "Save my 1-day weather forecast at 41.881832, -87.623177 as reports/tomorrow.md",
+  "pack": "weather-reports",
+  "pack_approval": "explicit owner approval",
+  "result": "completed",
+  "message": "Done — weather report independently verified",
+  "objective_id": "9ff39191-6313-4d97-96b1-78797bc806d9",
+  "correlation_id": "19d2f86d-9e39-41fc-a876-973c4b6f8366",
+  "workspace_id": "9047eec9-5279-50d0-9f3b-7b133d62b1cc",
+  "path": "reports/tomorrow.md",
+  "sha256": "bd1812774add98a5d68ea7174d4e382652cc35deedab6f62a8495211df4906c6",
+  "source": "open_meteo",
+  "independent_scoped_workspace_verification": true,
+  "truth_boundary": "Weather is public evidence, not canonical personal truth."
+}
