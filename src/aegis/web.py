@@ -1491,6 +1491,16 @@ async function loadHousehold() {
       const obligationBoundary = document.createElement('p'); obligationBoundary.className = 'muted';
       obligationBoundary.textContent = 'Canonical obligation state is fixed before communication; provider acceptance is not delivery proof.';
       panel.append(sendObligations, obligationBoundary);
+      const saveObligations = document.createElement('button');
+      saveObligations.type = 'button'; saveObligations.textContent = 'Save obligations to Workspace';
+      saveObligations.addEventListener('click', () => {
+        document.getElementById('utterance').value = 'Save my open obligations to workspace as obligations.md';
+        document.getElementById('chat').requestSubmit();
+      });
+      const obligationsWorkspaceBoundary = document.createElement('p');
+      obligationsWorkspaceBoundary.className = 'muted';
+      obligationsWorkspaceBoundary.textContent = 'Open obligations are read-only canonical context; the scoped Workspace artifact is independently verified.';
+      panel.append(saveObligations, obligationsWorkspaceBoundary);
     appendTodaySection(panel, 'Upcoming shared events', canonical.upcoming_shared_events || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.truth_boundary || 'Household state is canonical authorized state.';

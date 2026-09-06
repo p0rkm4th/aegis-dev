@@ -5467,6 +5467,9 @@ def test_browser_app_household_surface_exposes_chore_communication():
     assert "Send open obligations" in html
     assert "Text me my open obligations" in html
     assert "Canonical obligation state is fixed before communication" in html
+    assert "Save obligations to Workspace" in html
+    assert "Save my open obligations to workspace as obligations.md" in html
+    assert "scoped Workspace artifact is independently verified" in html
 
 
 def test_device_control_fast_path_accepts_terminal_punctuation(monkeypatch):
