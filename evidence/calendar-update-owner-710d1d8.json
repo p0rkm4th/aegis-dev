@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "calendar-update-owner-surface",
+  "source_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "hosted_validation": {"run_id": "34006398094", "conclusion": "success"},
+  "installed_release_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_events_observed": 1,
+    "task_attention_records_observed": 81,
+    "write_surfaces": ["Update an authorized event", "Cancel an authorized event"]
+  },
+  "verification": "CalendarUpdateVerifier performs provider get_event readback against Core-prepared fields; cancellation separately verifies provider absence.",
+  "authority_boundary": "Calendar writes remain calendar.write-authorized Core actions; UI selection and provider IDs do not bypass authorization."
+}
