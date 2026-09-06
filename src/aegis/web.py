@@ -950,6 +950,14 @@ async function loadDevices() {
     const heading = document.createElement('p');
     heading.textContent = 'Authorized device state and bounded controls';
     panel.append(heading, renderDetailValue(payload));
+    const snapshot = document.createElement('button');
+    snapshot.type = 'button'; snapshot.textContent = 'Save device snapshot to Workspace';
+    snapshot.addEventListener('click', () => {
+      document.getElementById('utterance').value =
+        'Save authorized device states to Workspace as devices.md';
+      document.getElementById('chat').requestSubmit();
+    });
+    panel.append(snapshot);
     const control = payload.control_surface || {};
     const entities = Array.isArray(control.authorized_entities)
       ? control.authorized_entities : [];
