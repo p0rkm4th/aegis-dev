@@ -1067,7 +1067,8 @@ def _communications_state(principal: Principal) -> dict[str, Any]:
                      AND sm.active = TRUE
                  ))
                  AND o.payload->'action'->>'action_id' IN
-                     ('communications.messages.send', 'communication-drafts.messages.draft',
+                     ('communications.messages.send', 'workspace-communications.artifact.send',
+                      'communication-drafts.messages.draft',
                       'calendar-communications.events.draft')
                ORDER BY o.updated_at DESC LIMIT 25""",
             (principal.id, principal.vault_id, principal.id),
