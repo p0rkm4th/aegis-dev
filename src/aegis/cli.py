@@ -1061,6 +1061,9 @@ def _systems_discover(principal: Principal, request: dict[str, Any]) -> dict[str
         _apply_migrations(connection)
         store = PostgresNetworkStore(connection)
         inventory = store.load(principal)
+        homelab = PostgresHomelabStore(connection).load(
+            principal, _InventoryOnlyHomelabRuntime()
+        )
 
         def probe(address: str, port: int) -> bool:
             try:
@@ -1080,6 +1083,7 @@ def _systems_discover(principal: Principal, request: dict[str, Any]) -> dict[str
                     "hostname": device.hostname,
                     "services": list(device.services),
                     "status": "discovered",
+                    **classify_discovered_device(device, homelab.hosts),
                 }
                 for device in observations
             ],

@@ -2205,7 +2205,7 @@ def test_household_event_read_filters_current_and_next_month():
 def test_household_implicit_planned_read_filters_this_week():
     from aegis.household import HouseholdEvent, HouseholdReadFastPath
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(hour=12, minute=0, second=0, microsecond=0)
     result = HouseholdReadFastPath(
         {
             "space_id": "home",
