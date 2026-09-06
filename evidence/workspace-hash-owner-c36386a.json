@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "workspace-hash-owner",
+  "source_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
+  "hosted_validation": {"run_id": "34007252122", "conclusion": "success"},
+  "installed_release_sha": "c36386a815be24d8557f1e0a4c28ef5d2dcdcd79",
+  "owner_runtime": {
+    "service": "active",
+    "workspace_api": "scoped artifact inventory returned",
+    "inspection_surface": "Observed SHA-256, file view, download, and static preview"
+  },
+  "verification": "Scoped file reads expose the observed UTF-8 SHA-256 for owner inspection; Core-owned expected hashes and independent verification remain the completion authority.",
+  "authority_boundary": "File inspection does not grant host filesystem access, mutation authority, or objective completion authority."
+}
