@@ -12,7 +12,12 @@ from aegis.household import (
     migrate_grocery_strings,
     normalize_food_key,
 )
-from aegis.reference_packs import PostgresGroceryStateExecutor, PostgresGroceryStateVerifier
+from aegis.reference_packs import (
+    PostgresGroceryStateExecutor,
+    PostgresGroceryStateVerifier,
+    PostgresPantryMutationExecutor,
+    PostgresPantryMutationVerifier,
+)
 
 
 def test_legacy_groceries_migrate_to_stable_ids_without_inventing_facts():
@@ -94,6 +99,53 @@ def test_kitchen_pack_declares_pantry_read_as_a_generic_capability():
     card = next(card for card in kitchen.cards if card.action.action_id == "kitchen.pantry.list")
     assert card.action.required_permissions == ("kitchen.read",)
     assert card.semantic_scope == "kitchen.pantry"
+
+
+def test_pantry_pack_mutations_preserve_unknowns_and_verify_scoped_state():
+    principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"owner"})
+
+    class Store:
+        def add_pantry_item(self, _principal, item):
+            return space.add_pantry(principal, item)
+
+        def update_pantry_item(self, _principal, item, expected_version):
+            return space.update_pantry(principal, item, expected_version)
+
+        def consume_pantry_item(self, _principal, item_id, quantity, expected_version):
+            return space.consume_pantry(principal, item_id, quantity, expected_version)
+
+        def list_pantry_items(self, _principal):
+            return tuple(space.pantry_items.values())
+
+    store = Store()
+    add = ActionSpec(
+        action_id="kitchen.pantry.add",
+        capability="kitchen.pantry.write",
+        arguments={"item_id": "pantry-milk", "display_name": "Milk"},
+    )
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=add, idempotency_key="pantry-add-1"
+    )
+    observation = PostgresPantryMutationExecutor(store, principal).execute(request)
+    result = PostgresPantryMutationVerifier(store, principal).verify(
+        observation, VerificationContract(kind="readback")
+    )
+    assert result.verified
+    assert space.pantry_items["pantry-milk"].quantity is None
+
+    consume = add.model_copy(
+        update={
+            "action_id": "kitchen.pantry.consume",
+            "arguments": {"item_id": "pantry-milk", "quantity": 1, "expected_version": 0},
+        }
+    )
+    failed = PostgresPantryMutationExecutor(store, principal).execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=consume, idempotency_key="consume-1"
+        )
+    )
+    assert not failed.command_succeeded
 
 
 def test_grocery_state_action_uses_id_and_independent_current_read():
