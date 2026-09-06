@@ -1,0 +1,11 @@
+{
+  "kind": "owner-finance-read-dogfood",
+  "source_sha": "886dd6964e20f51a8cd81fec2aca784602642355",
+  "owner_access": "authenticated Tailscale HTTPS",
+  "workflow": "What did I spend at the store?",
+  "observed": "The normal interaction path completed through memory retrieval and returned unrelated memories instead of a Finance result.",
+  "finance_api": "GET /api/finance remained healthy, Principal-scoped, and returned canonical balance, transaction, and deterministic summary data.",
+  "authority": "No financial mutation occurred.",
+  "status": "owner-utility-gap",
+  "next_step": "Expose Finance read capability through the generic Pack/Core path or a measured equivalent; do not add a phrase-specific shortcut."
+}
