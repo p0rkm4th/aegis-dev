@@ -362,6 +362,24 @@ def test_deterministic_workspace_copy_uses_scoped_copy_action():
     assert card.action.arguments["source_path"] == "attention.md"
 
 
+def test_deterministic_homelab_research_uses_non_mutating_composition():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab-research"
+    )
+    manager.discover(bundle)
+    manager.install("homelab-research", frozenset({"homelab.read", "research.read"}))
+    manager.enable("homelab-research")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Research why acceptance-plex is unavailable",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "homelab-research.service.explain"
+    assert card.action.arguments["service"] == "acceptance-plex"
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
@@ -6867,6 +6885,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Kitchen",
         "Homelab",
         "Homelab Reports",
+        "Homelab Research",
         "Network",
         "Workspace",
         "Workspace Communications",

@@ -1060,6 +1060,14 @@ def reference_format_result(result: Any) -> str:
             if isinstance(item, dict)
         ]
         return "Calendar + Tasks attention: " + ("\n".join(rows) if rows else "(none)")
+    if isinstance(evidence.get("homelab_research"), dict):
+        research = evidence["homelab_research"]
+        service = research.get("service", "service")
+        status = research.get("observed_status", "unknown")
+        answer = research.get("answer", "No bounded public evidence was returned.")
+        return (
+            f"Research for {service} ({status}) — external evidence, not canonical truth:\n{answer}"
+        )
     if evidence.get("obligations") is not None:
         obligations = evidence["obligations"]
         outstanding = [item for item in obligations if not item["settled"]]
@@ -1492,6 +1500,12 @@ def resolve_reference_fast_paths(
         r"copy workspace artifact [0-9a-f-]{36} at "
         r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120} to "
         r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
+    if re.fullmatch(
+        r"research why (?:service )?[a-zA-Z0-9][a-zA-Z0-9_.-]* is unavailable[?!.,]?",
         intent.utterance.strip(),
         flags=re.IGNORECASE,
     ):

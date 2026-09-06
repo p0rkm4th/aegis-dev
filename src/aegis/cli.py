@@ -1270,6 +1270,21 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    homelab_research = re.fullmatch(
+        r"research why (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]*) is unavailable[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if homelab_research is not None:
+        card = manager.action_card("homelab-research", "homelab-research.service.explain")
+        if card is not None:
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={"arguments": homelab_research.groupdict()}
+                    )
+                }
+            )
     calendar_task_attention = re.fullmatch(
         r"(?:which|what) tasks (?:are )?due before my calendar events[?!.,]?",
         text,
