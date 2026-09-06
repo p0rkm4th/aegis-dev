@@ -1,0 +1,16 @@
+{
+  "kind": "owner_live_composition_proof",
+  "composition": "weather-to-today",
+  "source_sha": "5782fa77ba9e77b4ebaccaaa1e78153b4833af4e",
+  "hosted_run_id": "34012578913",
+  "installed_sha": "5782fa77ba9e77b4ebaccaaa1e78153b4833af4e",
+  "running_sha": "5782fa77ba9e77b4ebaccaaa1e78153b4833af4e",
+  "owner_api": "/api/today",
+  "weather_provider": "open_meteo",
+  "air_quality_provider": "open_meteo_air_quality",
+  "forecast_days": 3,
+  "rendered_surface": "Today / Weather outlook",
+  "boundary": "Public weather and air quality are external evidence, not canonical personal state.",
+  "postgresql_preserved": true,
+  "observed_at": "2026-09-06T05:30:00Z"
+}
