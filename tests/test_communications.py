@@ -409,6 +409,51 @@ def test_homelab_health_message_fixes_observation_before_generic_send(monkeypatc
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_workspace_artifact_message_reads_scoped_content_before_generic_send(
+    tmp_path, monkeypatch
+) -> None:
+    workspace_id = str(uuid4())
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    root = tmp_path / "alice" / workspace_id
+    root.mkdir(parents=True)
+    (root / "report.md").write_text("Authorized workspace report.", encoding="utf-8")
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "workspace-communications.artifact.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "canonical.workspace_artifact",
+                "workspace_id": workspace_id,
+                "path": "report.md",
+            }
+        }
+    )
+    prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
+    assert prepared.verification.expected["body"] == "Authorized workspace report."
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="workspace-artifact-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_fixture_send_verifier_rejects_forged_acceptance_without_readback() -> None:
     provider = FixtureCommunicationSendProvider()
     principal = Principal(id="alice", vault_id="vault")

@@ -1447,6 +1447,39 @@ def _deterministic_composition_action(
         if card is None:
             return None
         return card
+    workspace_send = re.fullmatch(
+        r"(?:send|text) me (?:the )?workspace artifact (?P<workspace_id>[0-9a-f-]{36}) at "
+        r"(?P<path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}?)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if workspace_send is not None:
+        try:
+            approved_targets = configured_communication_targets()
+        except ValueError:
+            approved_targets = frozenset()
+        if approved_targets is not None and len(approved_targets) == 1:
+            target, channel, account = next(iter(approved_targets))
+            card = manager.action_card(
+                "workspace-communications", "workspace-communications.artifact.send"
+            )
+            if card is None:
+                return None
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={
+                            "arguments": {
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body_source": "canonical.workspace_artifact",
+                                **workspace_send.groupdict(),
+                            }
+                        }
+                    )
+                }
+            )
     workspace_file = re.fullmatch(
         r"read workspace artifact (?P<workspace_id>[0-9a-f-]{36}) at "
         r"(?P<path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",

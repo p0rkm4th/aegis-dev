@@ -127,6 +127,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "workspace-artifact-to-communication",
+            "label": "Workspace artifact → Communication",
+            "description": (
+                "Send one Principal-scoped Workspace artifact to one approved destination."
+            ),
+            "surfaces": ("Workspace", "Communications"),
+            "authority": (
+                "Principal-scoped Workspace read + communications send; explicit approved "
+                "destination and Core authorization required"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",

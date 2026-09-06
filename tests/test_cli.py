@@ -675,6 +675,46 @@ def test_deterministic_homelab_health_message_uses_explicit_service(monkeypatch)
     )
 
 
+def test_deterministic_workspace_artifact_message_uses_scoped_ids(monkeypatch):
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"scotty","channel":"sms","account":"household"}]',
+    )
+    workspace_id = str(uuid4())
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "workspace-communications"
+    )
+    manager.discover(bundle)
+    manager.install(bundle.manifest.pack_id, frozenset(bundle.manifest.permissions))
+    manager.enable(bundle.manifest.pack_id)
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=f"Text me the workspace artifact {workspace_id} at report.md.",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace-communications.artifact.send"
+    assert card.action.arguments["workspace_id"] == workspace_id
+    assert card.action.arguments["path"] == "report.md"
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounded = _ground_argument_provenance(intent, card, Context())
+    assert not isinstance(grounded, Result)
+    assert grounded.action.argument_provenance["workspace_id"].kind.value in {
+        "EXPLICIT_UTTERANCE",
+        "AUTHORIZED_CANONICAL_REFERENT",
+    }
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
+
+
 def test_deterministic_researched_message_draft_preserves_bounded_source_marker():
     manager = PackManager()
     bundle = next(
@@ -6686,6 +6726,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Homelab Reports",
         "Network",
         "Workspace",
+        "Workspace Communications",
         "Devices",
         "Communication Drafts",
         "Device Controls",

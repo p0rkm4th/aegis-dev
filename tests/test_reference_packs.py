@@ -40,6 +40,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "homelab-reports",
         "network",
         "workspace",
+        "workspace-communications",
         "devices",
         "communication-drafts",
         "device-controls",
