@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "calendar-conflict-tasks-owner",
+  "source_sha": "dda02246dcaf3f978dc5c7ceeb9688bd18641aa4",
+  "hosted_validation": {"run_id": "34008786681", "conclusion": "success"},
+  "installed_release_sha": "dda02246dcaf3f978dc5c7ceeb9688bd18641aa4",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_surface": "Scheduling conflicts",
+    "today_surface": "Scheduling conflicts",
+    "follow_up_action": "Make task"
+  },
+  "verification": "Authorized timed-event conflicts now offer a bounded follow-up task request from Calendar and Today; the request is submitted through the normal Core grounding, authorization, execution, observation, and verification path.",
+  "authority_boundary": "Conflict inspection remains read-only and the browser action does not directly mutate tasks or grant task authority."
+}
