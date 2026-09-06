@@ -1,0 +1,24 @@
+{
+  "artifact_type": "owner_product_proof",
+  "observed_at": "2026-09-06",
+  "source_sha": "8fc9748",
+  "hosted_validation_run": "34049812953",
+  "installed_release_sha": "8fc9748",
+  "running_release_sha": "8fc9748",
+  "proof": {
+    "owner_health": "healthy_ready",
+    "postgresql": "healthy",
+    "today_route": "rendered",
+    "today_overview": [
+      "open tasks",
+      "open chores",
+      "upcoming events",
+      "capability needs",
+      "calendar conflicts",
+      "active objectives"
+    ],
+    "navigation": "overview cards link to existing authorized owner views",
+    "authority": "presentation-only; no new action or permission"
+  },
+  "notes": "Release proof only; this is not voluntary-use or canonical Core truth."
+}
