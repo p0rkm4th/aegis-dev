@@ -1600,6 +1600,12 @@ def reference_fallback_cards(
                 ("homelab", "homelab"),
                 ("service", "homelab"),
                 ("network", "network"),
+                ("finance", "finance"),
+                ("spend", "finance"),
+                ("spent", "finance"),
+                ("transaction", "finance"),
+                ("account", "finance"),
+                ("money", "finance"),
             )
             if marker in text
         ),

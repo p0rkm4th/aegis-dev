@@ -82,6 +82,22 @@ def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> No
         assert result is None, utterance
 
 
+def test_memory_fast_path_yields_domain_questions_to_installed_capabilities() -> None:
+    memory = MemoryRecord(
+        uuid4(),
+        "The owner visited a store while investigating the server backup failure.",
+        datetime(2026, 9, 1, tzinfo=timezone.utc),
+        Provenance.OBSERVED,
+    )
+    result = PersonalMemoryFastPath(PersonalState(memories={memory.memory_id: memory})).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What did I spend at the store?",
+        )
+    )
+    assert result is None
+
+
 def test_grocery_read_fast_path_does_not_substitute_shopping_list_for_inventory() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
