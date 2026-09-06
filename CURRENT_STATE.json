@@ -299,6 +299,8 @@
     "research": "FIXTURE",
     "workspace_artifact": "VERIFIED_LIVE",
     "workspace_execute": "CONTRACT_GREEN",
+    "network_reports": "PARTIAL",
+    "household_obligations_workspace": "PARTIAL",
     "device_read": "INSTALLED",
     "device_control": "FIXTURE",
     "homelab_action": "FIXTURE",
