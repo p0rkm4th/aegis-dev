@@ -3510,6 +3510,12 @@ def run_interaction(
             "device",
             "entity",
             "homelab",
+            "finance",
+            "spend",
+            "spent",
+            "transaction",
+            "account",
+            "money",
         )
         if is_task_destination_request(query) or any(
             marker in query_text for marker in bounded_pack_markers

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import StrEnum
@@ -496,6 +497,25 @@ class PersonalMemoryFastPath:
         "tell me about that",
         "what about that",
     )
+    # Broad activity wording is shared with domain Packs (for example,
+    # "what did I spend at the store?").  Personal memory must not claim
+    # those questions merely because a generic word happens to occur in an
+    # old memory; the bounded domain capability gets first opportunity.
+    _DOMAIN_QUERY_TERMS = frozenset(
+        {
+            "spend",
+            "spent",
+            "store",
+            "transaction",
+            "transactions",
+            "account",
+            "accounts",
+            "finance",
+            "money",
+            "purchase",
+            "purchased",
+        }
+    )
 
     def __init__(
         self,
@@ -520,6 +540,8 @@ class PersonalMemoryFastPath:
     def resolve(self, intent: IntentFrame, context: Context | None = None) -> Result | None:
         text = intent.utterance.casefold()
         if is_mutation_request(text):
+            return None
+        if self._DOMAIN_QUERY_TERMS.intersection(set(re.findall(r"\b[\w'-]+\b", text))):
             return None
         if any(trigger in text for trigger in self._PROJECT_TRIGGERS):
             return self._projects_result(intent)
