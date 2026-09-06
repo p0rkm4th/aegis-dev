@@ -5322,6 +5322,8 @@ def test_browser_app_objectives_surface_exposes_capability_need_investigation_bo
     html = payload.decode()
     assert "Candidate resolutions" in html
     assert "Investigation: ${investigation}" in html
+    assert "Research candidate path" in html
+    assert "capability-needs/${needId}.md" in html
     assert "discovery does not grant installation" in html
 
 

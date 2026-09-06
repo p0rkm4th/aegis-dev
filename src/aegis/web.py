@@ -1390,6 +1390,19 @@ async function loadObjectives() {
           if (Array.isArray(candidates) && candidates.length) {
             const candidateTitle = document.createElement('strong'); candidateTitle.textContent = 'Candidate resolutions';
             needCard.append(candidateTitle, renderDetailValue(candidates));
+            candidates.forEach(candidate => {
+              if (!candidate || candidate.requires_owner_input !== true) return;
+              const research = document.createElement('button');
+              research.type = 'button'; research.textContent = 'Research candidate path';
+              research.addEventListener('click', () => {
+                const effectText = need.requested_effect || need.normalized_effect || 'this requirement';
+                const needId = need.need_id || need.requirement_id || 'requirement';
+                document.getElementById('utterance').value =
+                  `Research a safe path for ${effectText} and save notes as capability-needs/${needId}.md`;
+                document.getElementById('chat').requestSubmit();
+              });
+              needCard.append(research);
+            });
           }
           const boundary = document.createElement('p'); boundary.className = 'muted';
           boundary.textContent = 'Investigation is read-only: discovery does not grant installation, enablement, approval, or execution authority.';
