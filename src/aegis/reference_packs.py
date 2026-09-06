@@ -280,16 +280,16 @@ def prepare_reference_action(
                     "body": f"{document.title}\n\n{document.text[:20_000]}",
                 }
         elif args.get("body_source") == "canonical.document_search":
-            query = args.get("query")
-            if not isinstance(query, str) or not query.strip():
+            search_query: object = args.get("query")
+            if not isinstance(search_query, str) or not search_query.strip():
                 raise ValueError("authorized document search query is unavailable")
-            needle = query.strip().casefold()
+            needle = search_query.strip().casefold()
             matches = [
                 document
                 for document in configured_document_provider().list_documents()
                 if needle in f"{document.title}\n{document.text}".casefold()
             ][:20]
-            lines = [f"Document search: {query.strip()[:500]}", ""]
+            lines = [f"Document search: {search_query.strip()[:500]}", ""]
             for document in matches:
                 lines.extend(
                     (
