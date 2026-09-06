@@ -4495,6 +4495,7 @@ def test_browser_app_today_surface_exposes_calendar_conflicts():
     assert "No overlapping timed events detected." in html
     assert "payload.external_calendar?.conflicts" in html
     assert "Public air quality" in html
+    assert "Weather outlook" in html
     assert "Scheduling follow-up stays a normal authorized task request." in html
     assert "Make task: ${first} / ${second}" in html
 

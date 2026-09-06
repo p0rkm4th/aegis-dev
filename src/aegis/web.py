@@ -1215,6 +1215,13 @@ async function loadToday() {
     const airQualityBoundary = document.createElement('p'); airQualityBoundary.className = 'muted';
     airQualityBoundary.textContent = airQuality.boundary || 'Public evidence only; no canonical personal state was changed.';
     airQualitySection.append(airQualityBoundary); panel.append(airQualitySection);
+    const weather = payload.external_calendar?.weather || {};
+    const weatherSection = document.createElement('section'); weatherSection.className = 'detail-card';
+    const weatherTitle = document.createElement('h3'); weatherTitle.textContent = 'Weather outlook';
+    weatherSection.append(weatherTitle, renderDetailValue(weather.forecast || weather.reading || 'Unavailable'));
+    const weatherBoundary = document.createElement('p'); weatherBoundary.className = 'muted';
+    weatherBoundary.textContent = weather.boundary || 'Weather is public evidence, not canonical personal truth. Data: Open-Meteo.';
+    weatherSection.append(weatherBoundary); panel.append(weatherSection);
     todayHolidays.forEach(holiday => {
       const date = String(holiday.date || '').trim();
       const name = String(holiday.name || '').trim();
