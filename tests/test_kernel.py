@@ -1642,16 +1642,28 @@ def test_typed_unknown_assurance_is_observed_even_without_evidence_marker():
         capability="remote.write",
         verification=VerificationContract(kind="custom", expected={"effect": "on"}),
     )
-    result = Kernel(
+    kernel = Kernel(
         Model(object()),
         Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
         Policy(PolicyDecision(allowed=True, reason="ok")),
         ProviderOutcomeExecutor(),
         Verifier(False),
-    ).run(intent())
+        action_preparer=lambda current, _intent, _objective_id: current.model_copy(
+            update={
+                "verification": VerificationContract(
+                    kind="custom", expected={"fixed_before_execution": True}
+                )
+            }
+        ),
+    )
+    result = kernel.run(intent())
     assert result.state is ObjectiveState.OBSERVED
     assert result.retryable is False
     assert result.evidence["assurance"] == "OUTCOME_UNKNOWN"
+    persisted = kernel.store.get_objective(result.objective_id)
+    assert persisted is not None and persisted.action is not None
+    assert persisted.action.verification is not None
+    assert persisted.action.verification.expected == {"fixed_before_execution": True}
 
 
 def test_verifier_exception_is_a_truthful_failed_result():

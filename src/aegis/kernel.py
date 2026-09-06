@@ -234,6 +234,9 @@ class Kernel:
                     correlation_id=intent.correlation_id,
                 )
             decision = decision.model_copy(update={"action": prepared})
+            objective = objective.model_copy(update={"action": prepared})
+            self.objectives[objective.id] = objective
+            self.store.save_objective(objective)
         assert decision.action is not None
         action = decision.action
         # Correlation is stable across a recovered/replayed turn; objective IDs
