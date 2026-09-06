@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+  "state_basis_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
-  "deterministic_green_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
-  "last_pushed_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
-  "hosted_green_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
-  "hosted_ci_green_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+  "repository_head_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "deterministic_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "last_pushed_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "hosted_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "hosted_ci_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+    "commit_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
     "conclusion": "success",
-    "run_id": "34010778344",
+    "run_id": "34010974977",
     "observed_at": "2026-09-06T04:15:00Z"
   },
-  "installed_release_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
-  "running_release_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
-  "live_green_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+  "installed_release_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "running_release_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "live_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-air-quality",
   "checkpoint_status": "complete",
@@ -159,6 +159,7 @@
     ,"Explicit public-holiday questions now deterministically preserve country/year scope and resolve to the holidays Pack action before model routing; owner proof keeps the live Nager.Date provider provenance"
     ,"Public holiday records now offer explicit preparation-task requests in Calendar and Today; requests are submitted through normal task Core authorization and never auto-create tasks"
     ,"Air Quality is a bounded provider-neutral public read with deterministic fixture coverage, HTTPS-only Open-Meteo adapter, owner surface, and Pack-driven Constellation nodes; live owner proof returned AQI/PM2.5 and preserves the public-evidence boundary"
+    ,"Air Quality → Task follow-up is an explicit owner composition: public evidence can prefill a normal task request, but no task is created automatically and task authorization remains unchanged"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Air Quality is now a live owner-visible public read for explicit coordinates, with Open-Meteo/CAMS provenance and Pack-driven Constellation representation. Weather and Public Holidays remain live; OpenClaw, Google Calendar, and Home Assistant remain pending.",
@@ -202,19 +203,19 @@
   "voluntarily_useful_owner_workflows": 39,
   "owner_visible_capability_surfaces": 23,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 22,
+  "cross_capability_workflows": 23,
   "breadth_scoreboard": {
     "owner_visible_views": 18,
     "usable_capability_families": 10,
     "verified_write_capabilities": 7,
     "external_integrations": 3,
-    "cross_domain_compositions": 22,
+    "cross_domain_compositions": 23,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
     "owner_workflows_completed": 38,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-useful vertical: advance the cheapest live provider or verified consequential path, starting with communications/calendar credentials if available, otherwise deepen homelab/device or a new cross-capability workflow. Preserve truthful pending states.",
+  "next_action": "Rearm the next owner-useful vertical: inspect communications/calendar provider availability, then advance the cheapest live provider or independently verified consequential path. Preserve truthful pending states and keep breadth ahead of semantic micro-tuning.",
   "history_artifact": "evidence/air-quality-live-owner-9d8e0c4.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
