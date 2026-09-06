@@ -5073,6 +5073,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Discovered devices" in _AEGIS_JS
     assert "Balances by currency" in _AEGIS_JS
     assert "Cash flow by settlement state" in _AEGIS_JS
+    assert "Check a grocery budget" in _AEGIS_JS
+    assert "Can I afford $" in _AEGIS_JS
     assert "health_observed_at" in _AEGIS_JS
     assert "host ${service.host_id" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS

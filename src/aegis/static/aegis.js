@@ -1718,6 +1718,23 @@ async function loadFinance() {
         finally { importButton.disabled = false; }
       });
       importSection.append(importTitle, importHint, accountLabel, accountSelect, file, importButton, importStatus); panel.append(importSection);
+      const affordability = document.createElement('section'); affordability.className = 'detail-card';
+      const affordabilityTitle = document.createElement('h3'); affordabilityTitle.textContent = 'Check a grocery budget';
+      const affordabilityHint = document.createElement('p'); affordabilityHint.className = 'muted';
+      affordabilityHint.textContent = 'Uses private balances and known obligations to produce a bounded derived answer; it never changes financial state.';
+      const affordabilityForm = document.createElement('form'); affordabilityForm.setAttribute('aria-label', 'Check grocery affordability');
+      const amount = document.createElement('input'); amount.type = 'number'; amount.min = '0.01'; amount.step = '0.01';
+      amount.required = true; amount.placeholder = 'Amount in USD'; amount.setAttribute('aria-label', 'Grocery amount in USD');
+      const affordabilitySubmit = document.createElement('button'); affordabilitySubmit.type = 'submit'; affordabilitySubmit.textContent = 'Check affordability';
+      affordabilityForm.append(amount, affordabilitySubmit);
+      affordabilityForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const value = Number(amount.value);
+        if (!Number.isFinite(value) || value <= 0) return;
+        document.getElementById('utterance').value = `Can I afford $${value.toFixed(2)} for groceries?`;
+        document.getElementById('chat').requestSubmit();
+      });
+      affordability.append(affordabilityTitle, affordabilityHint, affordabilityForm); panel.append(affordability);
       const summary = payload.summary || {};
       const balances = Object.entries(summary.balances_by_currency || {}).map(([currency, amount]) =>
         `${currency} ${(Number(amount) / 100).toFixed(2)}`);
