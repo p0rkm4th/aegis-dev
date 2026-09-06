@@ -1368,6 +1368,27 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    device_research_why = re.fullmatch(
+        r"research why (?P<entity_id>[a-zA-Z0-9_.:-]+) is currently (?P<state>[a-zA-Z0-9_-]+)[?.]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if device_research_why is not None:
+        card = manager.action_card("devices", "devices.states.research")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "entity_id": device_research_why.group("entity_id"),
+                            "query": text,
+                        }
+                    }
+                )
+            }
+        )
     if device_research is not None:
         card = manager.action_card("devices", "devices.states.research")
         if card is None:
