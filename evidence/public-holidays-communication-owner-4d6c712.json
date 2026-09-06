@@ -1,0 +1,40 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "public-holidays-communication-owner-proof",
+  "source_sha": "4d6c712",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34036011661",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "4d6c712",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Calendar",
+    "control": "Send public holidays",
+    "request_template": "Text me the public holidays",
+    "boundary": "Public holiday data remains external/non-canonical; configured scope is fixed before communication and provider acceptance is not delivery proof"
+  },
+  "request": "Text me the public holidays.",
+  "scope": {
+    "country": "US",
+    "year": 2026,
+    "source": "configured public-holiday provider"
+  },
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "52bace46-67f8-49b0-ae1a-b15145df417d",
+    "correlation_id": "13422b20-9130-4297-8966-7116aadbb05e",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "public holiday evidence remained external/non-canonical; no personal calendar mutation or delivery authority was added"
+}
