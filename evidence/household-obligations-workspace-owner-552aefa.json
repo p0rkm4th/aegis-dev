@@ -1,0 +1,28 @@
+{
+  "source_sha": "552aefad36e5d9ddf5777b8f7949a961542d531b",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+    "release_sha": "552aefa",
+    "postgresql": "healthy"
+  },
+  "workflow": [
+    "explicit owner approval enabled household-reports with household.read and workspace.write",
+    "normal owner conversation requested open household obligations as obligations.md",
+    "Core completed the typed household-reports.obligations_to_workspace action",
+    "Principal/objective-scoped Workspace inventory exposed obligations.md",
+    "independent file read returned the expected content and SHA-256",
+    "rendered owner Workspace view displayed obligations.md with View, Download, and Send controls"
+  ],
+  "artifact": {
+    "workspace_id": "1a961d94-1e21-5a2d-8e05-cc4882bd3822",
+    "path": "obligations.md",
+    "sha256": "f906ecd92d540caac402e5f2e65dc47d477e5ec17768429918331303ec414e68"
+  },
+  "safety": [
+    "Pack permission remained explicit owner approval",
+    "Workspace scope remained Principal/objective-scoped",
+    "the workflow created an artifact only; it did not mutate household obligations"
+  ]
+}
