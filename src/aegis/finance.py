@@ -190,6 +190,8 @@ class AffordabilityProjection:
     purchase_currency: str = "USD"
     matching_balance_cents: int = 0
     reserve_cents: int = 0
+    data_as_of: datetime | None = None
+    coverage_complete: bool | None = None
 
 
 def summarize_snapshot(snapshot: FinanceSnapshot) -> dict[str, object]:
@@ -561,7 +563,9 @@ class FinanceLedger:
             raise ValueError("purchase and reserve amounts cannot be negative")
         purchase_currency = purchase_currency.strip().upper()
         _validate_currency(purchase_currency)
-        balance = self.total_balance(requester, owner_id, purchase_currency)
+        snapshot = self.private_snapshot(requester, owner_id)
+        balances = self.balances_by_currency(requester, owner_id)
+        balance = balances.get(purchase_currency, 0)
         if any(
             obligation.currency.strip().upper() != purchase_currency for obligation in obligations
         ):
@@ -576,6 +580,10 @@ class FinanceLedger:
             purchase_currency=purchase_currency,
             matching_balance_cents=balance,
             reserve_cents=reserve_cents,
+            data_as_of=snapshot.captured_at,
+            coverage_complete=(
+                all(source.complete for source in snapshot.sources) if snapshot.sources else None
+            ),
         )
 
 
@@ -710,6 +718,11 @@ class FinanceReadFastPath:
                 "purchase_cents": projection.purchase_cents,
                 "shared_obligations_cents": projection.shared_obligations_cents,
                 "shortfall_cents": projection.shortfall_cents,
+                "purchase_currency": projection.purchase_currency,
+                "matching_balance_cents": projection.matching_balance_cents,
+                "reserve_cents": projection.reserve_cents,
+                "data_as_of": projection.data_as_of.isoformat() if projection.data_as_of else None,
+                "coverage_complete": projection.coverage_complete,
             },
             correlation_id=intent.correlation_id,
         )

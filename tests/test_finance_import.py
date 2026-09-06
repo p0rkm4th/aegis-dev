@@ -262,6 +262,7 @@ def test_affordability_is_currency_scoped_and_rejects_mixed_obligations():
     assert projection.matching_balance_cents == 10_000
     assert projection.purchase_currency == "USD"
     assert projection.affordable
+    assert projection.coverage_complete is None
     with pytest.raises(ValueError, match="purchase currency"):
         ledger.assess_affordability(
             principal,
