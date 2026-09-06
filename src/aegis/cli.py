@@ -1068,6 +1068,7 @@ def _communications_state(principal: Principal) -> dict[str, Any]:
                  ))
                  AND o.payload->'action'->>'action_id' IN
                      ('communications.messages.send', 'workspace-communications.artifact.send',
+                      'device-communications.state.send',
                       'communication-drafts.messages.draft',
                       'calendar-communications.events.draft')
                ORDER BY o.updated_at DESC LIMIT 25""",
@@ -1476,6 +1477,35 @@ def _deterministic_composition_action(
                                 "account": account,
                                 "body_source": "canonical.workspace_artifact",
                                 **workspace_send.groupdict(),
+                            }
+                        }
+                    )
+                }
+            )
+    device_status_send = re.fullmatch(
+        r"(?:send|text) me (?:the )?device status[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if device_status_send is not None:
+        try:
+            approved_targets = configured_communication_targets()
+        except ValueError:
+            approved_targets = frozenset()
+        if approved_targets is not None and len(approved_targets) == 1:
+            target, channel, account = next(iter(approved_targets))
+            card = manager.action_card("device-communications", "device-communications.state.send")
+            if card is None:
+                return None
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={
+                            "arguments": {
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body_source": "canonical.device_state",
                             }
                         }
                     )

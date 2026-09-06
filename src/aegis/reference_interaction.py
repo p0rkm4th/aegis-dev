@@ -147,14 +147,18 @@ def _ground_argument_provenance(
     for key, value in card.action.arguments.items():
         if (
             card.action.action_id
-            in {"communications.messages.send", "workspace-communications.artifact.send"}
+            in {
+                "communications.messages.send",
+                "workspace-communications.artifact.send",
+                "device-communications.state.send",
+            }
             and key in {"target", "channel", "account"}
             and isinstance(value, str)
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
                 r"the document .+|the health of (?:service )?.+|"
-                r"(?:the )?workspace artifact .+)[?!.,]?",
+                r"(?:the )?workspace artifact .+|(?:the )?device status)[?!.,]?",
                 intent.utterance.strip(),
                 flags=re.IGNORECASE,
             )
@@ -219,6 +223,7 @@ def _ground_argument_provenance(
             "canonical.document",
             "canonical.homelab_health",
             "canonical.workspace_artifact",
+            "canonical.device_state",
         }:
             source_phrase = {
                 "canonical.groceries": "grocery list",
@@ -228,6 +233,7 @@ def _ground_argument_provenance(
                 "canonical.document": "document",
                 "canonical.homelab_health": "health",
                 "canonical.workspace_artifact": "workspace artifact",
+                "canonical.device_state": "device status",
             }[value]
             spans = _utterance_spans(intent.utterance, source_phrase)
             if not spans:
@@ -260,6 +266,8 @@ def _ground_argument_provenance(
                                         if value == "canonical.homelab_health"
                                         else (
                                             "reference.communication_body_from_workspace_artifact.v1"
+                                            if value == "canonical.workspace_artifact"
+                                            else "reference.communication_body_from_device_state.v1"
                                         )
                                     )
                                 )

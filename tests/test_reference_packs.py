@@ -41,6 +41,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "network",
         "workspace",
         "workspace-communications",
+        "device-communications",
         "devices",
         "communication-drafts",
         "device-controls",

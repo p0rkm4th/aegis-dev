@@ -715,6 +715,39 @@ def test_deterministic_workspace_artifact_message_uses_scoped_ids(monkeypatch):
     )
 
 
+def test_deterministic_device_status_message_uses_approved_target(monkeypatch):
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"scotty","channel":"sms","account":"household"}]',
+    )
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "device-communications"
+    )
+    manager.discover(bundle)
+    manager.install(bundle.manifest.pack_id, frozenset(bundle.manifest.permissions))
+    manager.enable(bundle.manifest.pack_id)
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Text me the device status.",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "device-communications.state.send"
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounded = _ground_argument_provenance(intent, card, Context())
+    assert not isinstance(grounded, Result)
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
+
+
 def test_deterministic_researched_message_draft_preserves_bounded_source_marker():
     manager = PackManager()
     bundle = next(
@@ -6727,6 +6760,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Network",
         "Workspace",
         "Workspace Communications",
+        "Device Communications",
         "Devices",
         "Communication Drafts",
         "Device Controls",
