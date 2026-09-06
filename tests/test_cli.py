@@ -6130,6 +6130,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Open active objectives" in _INDEX_HTML
     assert "Create investigation task" in _INDEX_HTML
     assert "Save verified Today brief to Workspace" in _INDEX_HTML
+    assert "Send me today's brief" in _INDEX_HTML
+    assert "provider acceptance is not delivery proof" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
     assert "setOutcomeStatus(result.state)" in _INDEX_HTML
