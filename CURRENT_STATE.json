@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
+  "state_basis_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
-  "deterministic_green_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
-  "last_pushed_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
-  "hosted_green_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
-  "hosted_ci_green_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
+  "repository_head_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "deterministic_green_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "last_pushed_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "hosted_green_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "hosted_ci_green_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
+    "commit_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
     "conclusion": "success",
-    "run_id": "34015601485",
-    "observed_at": "2026-09-06T06:08:00Z"
+    "run_id": "34015810725",
+    "observed_at": "2026-09-06T06:15:00Z"
   },
-  "installed_release_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
-  "running_release_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
-  "live_green_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
+  "installed_release_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "running_release_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "live_green_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-homelab-fixture-restart",
+  "active_checkpoint": "daily-driver-alpha-homelab-restart-owner-surface",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -176,6 +176,7 @@
     ,"Today now projects the live three-day Weather forecast alongside calendar, holiday, and Air Quality evidence through the promoted owner UI; public forecast remains read-only context"
     ,"Calendar → Communications now fixes the authorized calendar snapshot before invoking the generic communications provider; installed owner proof independently reads back fixture acceptance as PROVIDER_ACCEPTED without claiming delivery"
     ,"Homelab restart now has an explicitly selected fixture provider with separate restart and health reads; installed owner proof independently verified acceptance-plex, while live OpenClaw execution remains pending"
+    ,"Systems owner UI now exposes bounded per-service Request restart affordances that only submit normal Core requests; rendered owner proof confirms independent-health language and inventory remains read-only"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner can now restart an authorized Homelab service through an explicitly selected fixture provider and independently read back healthy state; live OpenClaw restart remains unconfigured.",
@@ -217,7 +218,7 @@
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
   "voluntarily_useful_owner_workflows": 50,
-  "owner_visible_capability_surfaces": 26,
+  "owner_visible_capability_surfaces": 27,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 26,
   "breadth_scoreboard": {
@@ -232,6 +233,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: advance the cheapest non-credential-blocked capability, prioritizing a new verified device/homelab action or a useful Calendar/Research/Workspace composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/homelab-restart-owner-6510cac.json",
+  "history_artifact": "evidence/homelab-restart-ui-owner-fa660a7.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
