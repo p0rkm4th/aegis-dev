@@ -7,6 +7,7 @@ from aegis.contracts import ActionCard, ActionSpec
 from aegis.pack_first_experiment import (
     OWNER_PACK_CORPUS,
     PackCase,
+    PackFollowUpContext,
     PackRouterStatus,
     compact_pack_catalog,
     is_pack_lifecycle_request,
@@ -14,6 +15,7 @@ from aegis.pack_first_experiment import (
     measure_pack_first,
     measure_retrieval_assisted_pack_first,
     parse_router_response,
+    route_with_one_context_retry,
     router_prompt,
     run_pack_tournament,
     selected_cards,
@@ -283,3 +285,44 @@ def test_pack_lifecycle_language_is_experimental_fail_closed_preflight():
     assert measurement.status is PackRouterStatus.UNSUPPORTED
     assert measurement.model_calls == 0
     assert measurement.correct
+
+
+def test_follow_up_uses_one_bounded_context_retry_only():
+    manager = corpus_manager()
+    prompts: list[str] = []
+
+    def router(prompt: str):
+        prompts.append(prompt)
+        if len(prompts) == 1:
+            return {"status": "NEED_CONTEXT", "selected_pack_ids": []}
+        return {"status": "SELECTED", "selected_pack_ids": ["dynamic-homelab"]}
+
+    response, calls = route_with_one_context_retry(
+        "restart that instead",
+        manager,
+        router,
+        PackFollowUpContext(
+            prior_pack_ids=("dynamic-homelab",),
+            canonical_result_type="service",
+            referent_ids=("plex",),
+            objective_requirements=("inspect health",),
+        ),
+    )
+    assert response.selected_pack_ids == ("dynamic-homelab",)
+    assert calls == 2
+    assert "plex" in prompts[1]
+    assert "owner" not in prompts[1].casefold() or "authority" in prompts[1].casefold()
+
+
+def test_follow_up_does_not_retry_without_bounded_context():
+    manager = corpus_manager()
+    calls = 0
+
+    def router(_prompt: str):
+        nonlocal calls
+        calls += 1
+        return {"status": "NEED_CONTEXT", "selected_pack_ids": []}
+
+    response, count = route_with_one_context_retry("do the other one", manager, router)
+    assert response.status is PackRouterStatus.NEED_CONTEXT
+    assert count == calls == 1
