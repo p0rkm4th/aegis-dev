@@ -4374,6 +4374,8 @@ def test_browser_app_calendar_surface_exposes_read_only_conflict_inspection():
     assert "Scheduling conflicts" in html
     assert "No overlapping timed events detected." in html
     assert "Conflict inspection is read-only." in html
+    assert "Make task: ${first} / ${second}" in html
+    assert "Add a task to resolve the calendar conflict between" in html
 
 
 def test_browser_app_today_surface_exposes_calendar_conflicts():
@@ -4389,6 +4391,8 @@ def test_browser_app_today_surface_exposes_calendar_conflicts():
     assert "Scheduling conflicts" in html
     assert "No overlapping timed events detected." in html
     assert "payload.external_calendar?.conflicts" in html
+    assert "Scheduling follow-up stays a normal authorized task request." in html
+    assert "Make task: ${first} / ${second}" in html
 
 
 def test_browser_app_calendar_surface_exposes_provider_readback_update():
