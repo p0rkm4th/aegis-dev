@@ -822,6 +822,14 @@ async function loadWorkspace() {
           finally { download.disabled = false; }
         });
         card.append(download);
+        const send = document.createElement('button');
+        send.type = 'button'; send.textContent = `Send ${path}`;
+        send.addEventListener('click', () => {
+          document.getElementById('utterance').value =
+            `Text me the workspace artifact ${workspace.workspace_id} at ${path}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        card.append(send);
         if (path.toLowerCase().endsWith('.html') || path.toLowerCase().endsWith('.htm')) {
           const preview = document.createElement('button');
           preview.type = 'button'; preview.textContent = `Preview ${path}`;

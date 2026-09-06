@@ -5218,6 +5218,20 @@ def test_browser_app_exposes_air_quality_surface_and_public_evidence_boundary():
     assert "Save verified air-quality report" in html
 
 
+def test_browser_app_workspace_surface_exposes_generic_send_action():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Send ${path}" in html
+    assert "Text me the workspace artifact ${workspace.workspace_id} at ${path}" in html
+
+
 def test_browser_app_today_surface_exposes_calendar_conflicts():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),

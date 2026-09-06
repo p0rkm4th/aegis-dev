@@ -102,6 +102,17 @@ def test_air_quality_workspace_composition_preserves_external_boundary() -> None
     assert "non-canonical" in composition["authority"]
 
 
+def test_air_quality_workspace_communication_composition_preserves_boundaries() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "air-quality-workspace-to-communication"
+    )
+    assert composition["surfaces"] == ("Air quality", "Workspace", "Communications")
+    assert "separate Core authorization" in composition["authority"]
+    assert "delivery is not implied" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
