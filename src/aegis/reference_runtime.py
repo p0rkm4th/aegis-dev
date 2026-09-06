@@ -119,6 +119,8 @@ from .reference_packs import (
     WorkspaceArtifactReadVerifier,
     WorkspaceArtifactsListExecutor,
     WorkspaceArtifactsListVerifier,
+    WorkspaceArtifactsSearchExecutor,
+    WorkspaceArtifactsSearchVerifier,
     WorkspaceArtifactVerifier,
     prepare_reference_action,
 )
@@ -364,6 +366,14 @@ def default_runtime_registry(
         return ActionRuntime(
             WorkspaceArtifactReadExecutor(principal),
             WorkspaceArtifactReadVerifier(),
+            {"workspace.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def workspace_search_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            WorkspaceArtifactsSearchExecutor(principal),
+            WorkspaceArtifactsSearchVerifier(),
             {"workspace.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
@@ -797,6 +807,7 @@ def default_runtime_registry(
         "workspace.artifact.append": workspace_append_runtime,
         "workspace.artifact.copy": workspace_copy_runtime,
         "workspace.artifacts.list": workspace_inventory_runtime,
+        "workspace.artifacts.search": workspace_search_runtime,
         "workspace.artifact.read": workspace_file_read_runtime,
         "calendar.events.list": calendar_runtime,
         "calendar.events.conflicts": calendar_conflicts_runtime,

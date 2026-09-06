@@ -2205,6 +2205,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="workspace.artifacts.search",
+                        capability="workspace.artifacts.search",
+                        required_permissions=("workspace.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Search the current owner's scoped Workspace artifact content",
+                    relevance=1,
+                    argument_keys=("query",),
+                    argument_grounding={
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="workspace.artifact.copy",
                         capability="workspace.artifact.copy",
                         required_permissions=("workspace.read", "workspace.write"),
@@ -5115,6 +5131,92 @@ class WorkspaceArtifactsListVerifier:
                 "Workspace inventory is Principal-scoped and structurally valid"
                 if verified
                 else "Workspace inventory read failed"
+            ),
+        )
+
+
+class WorkspaceArtifactsSearchExecutor:
+    """Search only the current Principal's bounded Workspace inventory."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        query = request.action.arguments.get("query")
+        if not isinstance(query, str) or not query.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_search": "invalid_query"},
+                command_succeeded=False,
+            )
+        normalized = query.strip().casefold()
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        try:
+            manager = WorkspaceManager(root)
+            matches: list[dict[str, str]] = []
+            for metadata in manager.list_for_principal(self.principal.id):
+                workspace_id = metadata.get("workspace_id")
+                files = metadata.get("files")
+                if not isinstance(workspace_id, str) or not isinstance(files, tuple):
+                    continue
+                workspace = manager.for_workspace_id(self.principal.id, workspace_id)
+                for path in files:
+                    if not isinstance(path, str):
+                        continue
+                    content = workspace.read(path)
+                    if normalized not in path.casefold() and normalized not in content.casefold():
+                        continue
+                    index = content.casefold().find(normalized)
+                    snippet = content[max(0, index - 120) : index + len(query) + 180]
+                    matches.append(
+                        {
+                            "workspace_id": workspace_id,
+                            "path": path,
+                            "snippet": snippet[:320],
+                        }
+                    )
+                    if len(matches) >= 50:
+                        break
+                if len(matches) >= 50:
+                    break
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_search": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"workspace_search": {"query": query.strip(), "matches": matches}},
+            command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactsSearchVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        result = observation.evidence.get("workspace_search")
+        verified = (
+            observation.command_succeeded
+            and isinstance(result, dict)
+            and isinstance(result.get("query"), str)
+            and isinstance(result.get("matches"), list)
+            and all(
+                isinstance(match, dict)
+                and isinstance(match.get("workspace_id"), str)
+                and isinstance(match.get("path"), str)
+                and isinstance(match.get("snippet"), str)
+                for match in result["matches"]
+            )
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "workspace_search_verified": verified},
+            reason=(
+                "Workspace search is Principal-scoped and structurally valid"
+                if verified
+                else "Workspace search failed"
             ),
         )
 

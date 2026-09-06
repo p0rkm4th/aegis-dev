@@ -320,6 +320,43 @@ def test_workspace_inventory_is_principal_scoped_and_read_only(tmp_path, monkeyp
     assert "secret.md" not in paths
 
 
+def test_workspace_search_is_principal_scoped_and_content_bounded(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    workspace = WorkspaceManager(tmp_path).for_objective(principal.id, uuid4())
+    workspace.write_artifact(
+        {"report.md": "authorized maintenance note", "other.txt": "unrelated"},
+        "seed",
+        lambda current: None,
+    )
+    other = WorkspaceManager(tmp_path).for_objective("bob", uuid4())
+    other.write_artifact({"secret.md": "authorized private note"}, "seed", lambda current: None)
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "workspace.artifacts.search"
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    action = card.action.model_copy(update={"arguments": {"query": "maintenance"}})
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="workspace-search-1",
+        )
+    )
+    result = runtime.verifier.verify(observation, action.verification)
+    assert result.verified is True
+    assert [item["path"] for item in observation.evidence["workspace_search"]["matches"]] == [
+        "report.md"
+    ]
+    assert all(
+        item["workspace_id"] != "bob" for item in result.evidence["workspace_search"]["matches"]
+    )
+
+
 def test_workspace_file_read_rejects_other_principal_and_reads_scoped_file(
     tmp_path, monkeypatch
 ) -> None:
