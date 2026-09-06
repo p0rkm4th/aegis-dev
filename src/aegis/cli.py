@@ -978,6 +978,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         external["conflict_boundary"] = (
             "Conflict inspection is read-only and only compares events with explicit end times."
         )
+        external["air_quality"] = _air_quality_state(principal)
         return {
             "generated_at": now.isoformat(),
             "canonical": {

@@ -1203,6 +1203,13 @@ async function loadToday() {
     const holidayBoundary = document.createElement('p'); holidayBoundary.className = 'muted';
     holidayBoundary.textContent = 'Public holiday dates are external evidence, not canonical personal events.';
     panel.append(holidayBoundary);
+    const airQuality = payload.external_calendar?.air_quality || {};
+    const airQualitySection = document.createElement('section'); airQualitySection.className = 'detail-card';
+    const airQualityTitle = document.createElement('h3'); airQualityTitle.textContent = 'Public air quality';
+    airQualitySection.append(airQualityTitle, renderDetailValue(airQuality.reading || 'Unavailable'));
+    const airQualityBoundary = document.createElement('p'); airQualityBoundary.className = 'muted';
+    airQualityBoundary.textContent = airQuality.boundary || 'Public evidence only; no canonical personal state was changed.';
+    airQualitySection.append(airQualityBoundary); panel.append(airQualitySection);
     todayHolidays.forEach(holiday => {
       const date = String(holiday.date || '').trim();
       const name = String(holiday.name || '').trim();
