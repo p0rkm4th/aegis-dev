@@ -100,6 +100,22 @@ def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
     assert card.action.arguments["target_path"] == "agenda.md"
 
 
+def test_deterministic_public_holiday_request_preserves_explicit_scope():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "holidays")
+    manager.discover(bundle)
+    manager.install("holidays", frozenset({"calendar.read"}))
+    manager.enable("holidays")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Show public holidays for US in 2026",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "holidays.public_holidays.list"
+    assert card.action.arguments == {"country_code": "US", "year": 2026}
+
+
 def test_deterministic_calendar_communication_draft_requires_recipient_and_path():
     manager = PackManager()
     bundle = next(
