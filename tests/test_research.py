@@ -261,6 +261,12 @@ def test_wikipedia_provider_returns_bounded_article_candidates(
         )
         == "Palworld game"
     )
+    assert (
+        WikipediaSearchProvider._search_query(
+            "Research the Palworld game and save notes as palworld.md"
+        )
+        == "Palworld game palworld"
+    )
 
 
 def test_wikipedia_provider_is_explicitly_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
