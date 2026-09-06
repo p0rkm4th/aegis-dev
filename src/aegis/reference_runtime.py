@@ -71,6 +71,8 @@ from .reference_packs import (
     OpenClawNetworkProbeVerifier,
     PostgresGroceryListExecutor,
     PostgresGroceryListVerifier,
+    PublicHolidayExecutor,
+    PublicHolidayVerifier,
     ResearchWorkspaceExecutor,
     ResearchWorkspaceVerifier,
     WeatherExecutor,
@@ -257,6 +259,14 @@ def default_runtime_registry(
             WeatherExecutor(),
             WeatherVerifier(),
             {"weather.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def holiday_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            PublicHolidayExecutor(),
+            PublicHolidayVerifier(),
+            {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
     def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -460,6 +470,7 @@ def default_runtime_registry(
         "workspace.artifact.create": workspace_runtime,
         "calendar.events.list": calendar_runtime,
         "weather.current.read": weather_runtime,
+        "holidays.public_holidays.list": holiday_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar.events.cancel": calendar_cancel_runtime,
         "calendar.events.update": calendar_update_runtime,

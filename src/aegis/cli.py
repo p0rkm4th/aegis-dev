@@ -51,6 +51,7 @@ from .feedback_triage import harvest_defect_candidates
 from .finance import PostgresFinanceSnapshotStore
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
+from .holidays import configured_holiday_provider, holidays_evidence
 from .homelab import PostgresHomelabStore
 from .household import (
     PostgresHouseholdStore,
@@ -572,6 +573,17 @@ def _calendar_state(principal: Principal) -> dict[str, Any]:
             until=latest_event,
         )
         evidence = calendar_events_evidence(external_events)
+        country_code = os.environ.get("AEGIS_HOLIDAY_COUNTRY", "").strip().upper()
+        if country_code:
+            try:
+                year = int(
+                    os.environ.get("AEGIS_HOLIDAY_YEAR", str(datetime.now(timezone.utc).year))
+                )
+                evidence["public_holidays"] = holidays_evidence(
+                    configured_holiday_provider().list_holidays(country_code, year)
+                )
+            except (RuntimeError, ValueError):
+                evidence["public_holidays"] = {"source": "unavailable", "holidays": []}
         evidence["conflicts"] = list(calendar_conflicts(external_events))
         evidence["conflict_boundary"] = (
             "Conflict inspection is read-only and only compares events with explicit end times."
