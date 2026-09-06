@@ -2,22 +2,22 @@
   "schema_version": 2,
   "state_basis_sha": "146097d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9b4b63f",
-  "deterministic_green_sha": "9b4b63f",
-  "last_pushed_sha": "9b4b63f",
-  "hosted_green_sha": "9b4b63f",
-  "hosted_ci_green_sha": "9b4b63f",
+  "repository_head_sha": "c7c69d1",
+  "deterministic_green_sha": "c7c69d1",
+  "last_pushed_sha": "c7c69d1",
+  "hosted_green_sha": "c7c69d1",
+  "hosted_ci_green_sha": "c7c69d1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9b4b63f",
+    "commit_sha": "c7c69d1",
     "conclusion": "success",
-    "run_id": "34043219944",
-    "observed_at": "2026-09-06T07:23:00Z"
+    "run_id": "34043412040",
+    "observed_at": "2026-09-06T07:35:00Z"
   },
-  "installed_release_sha": "1a07144",
-  "running_release_sha": "1a07144",
-  "live_green_sha": "1a07144",
+  "installed_release_sha": "c7c69d1",
+  "running_release_sha": "c7c69d1",
+  "live_green_sha": "c7c69d1",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "external-reality-trust-and-ui-productization",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "1a07144"
+    "release_sha": "c7c69d1"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
