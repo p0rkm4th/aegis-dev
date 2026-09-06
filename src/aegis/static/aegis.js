@@ -393,7 +393,12 @@ function renderResearchSummary() {
   const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
   sendBoundary.textContent = 'Public evidence is fixed before sending and remains non-canonical; provider acceptance is not delivery proof.';
   sendSection.append(sendTitle, sendForm, sendBoundary); panel.append(sendSection);
-  if (!latestResearch) return;
+  if (!latestResearch) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = 'No saved research result is available yet. Ask a sourced question to add one.';
+    panel.append(empty);
+    return;
+  }
   const heading = document.createElement('p');
   heading.textContent = `Latest external evidence · ${latestResearch.sources.length} source(s)`;
   panel.append(heading);
@@ -414,6 +419,22 @@ function renderResearchSummary() {
     item.append(link); sourceList.append(item);
   });
   sources.append(sourceHeading, sourceList); panel.append(sources);
+}
+async function loadResearch() {
+  try {
+    const response = await fetchWithTimeout('/api/research');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Research state unavailable.');
+    const result = Array.isArray(payload.results) ? payload.results[0] : null;
+    if (result) latestResearch = result;
+    renderResearchSummary();
+  } catch (_) {
+    if (activeView !== 'research') return;
+    const panel = document.getElementById('detail');
+    const boundary = document.createElement('p'); boundary.className = 'muted';
+    boundary.textContent = 'Saved research is unavailable; public evidence remains non-canonical.';
+    panel.append(boundary);
+  }
 }
 nodeFilter.addEventListener('input', applyNodeFilter);
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
@@ -443,7 +464,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   }[activeView] || ['Today', 'Your conversation and authorized world at a glance.'];
   document.getElementById('view-title').textContent = viewCopy[0];
   document.getElementById('view-description').textContent = viewCopy[1];
-  if (activeView === 'research') input.focus();
+  if (activeView === 'research') { input.focus(); loadResearch(); }
   if (activeView === 'workspace') loadWorkspace();
   if (activeView === 'compositions') loadCompositions();
   if (activeView === 'packs') loadPacks();

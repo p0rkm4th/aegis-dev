@@ -40,6 +40,7 @@ CommunicationsState = Callable[[Principal], dict[str, Any]]
 DocumentsState = Callable[[Principal], dict[str, Any]]
 DocumentFile = Callable[[Principal, str], dict[str, Any]]
 DailyDriverState = Callable[[Principal], dict[str, Any]]
+ResearchState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -236,6 +237,7 @@ class BrowserApp:
         documents_state: DocumentsState | None = None,
         document_file: DocumentFile | None = None,
         daily_driver_state: DailyDriverState | None = None,
+        research_state: ResearchState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -262,6 +264,7 @@ class BrowserApp:
         self.documents_state = documents_state
         self.document_file = document_file
         self.daily_driver_state = daily_driver_state
+        self.research_state = research_state
 
     def dispatch(
         self,
@@ -597,6 +600,24 @@ class BrowserApp:
                     "daily-driver status unavailable",
                 )
             return self._json(HTTPStatus.OK, daily_driver_projection)
+        if method == "GET" and route == "/api/research":
+            if self.research_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                research_projection = self.research_state(principal)
+                if not isinstance(research_projection, dict):
+                    raise ValueError("research state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "research state unavailable",
+                )
+            return self._json(HTTPStatus.OK, research_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -842,6 +863,7 @@ def serve(
     documents_state: DocumentsState | None = None,
     document_file: DocumentFile | None = None,
     daily_driver_state: DailyDriverState | None = None,
+    research_state: ResearchState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -871,6 +893,7 @@ def serve(
         documents_state=documents_state,
         document_file=document_file,
         daily_driver_state=daily_driver_state,
+        research_state=research_state,
     )
 
     class Handler(BaseHTTPRequestHandler):

@@ -735,6 +735,73 @@ def _daily_driver_state(principal: Principal) -> dict[str, Any]:
     }
 
 
+def _research_state(principal: Principal) -> dict[str, Any]:
+    """Project recent bounded public evidence without making it canonical truth."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        rows = connection.execute(
+            """SELECT o.id, r.state, r.evidence, r.message, r.created_at
+               FROM objectives o
+               JOIN results r ON r.objective_id = o.id
+               WHERE o.principal_id = %s AND o.vault_id = %s
+                 AND (o.space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = o.space_id
+                     AND sm.active = TRUE
+                 ))
+               ORDER BY r.created_at DESC LIMIT 50""",
+            (principal.id, principal.vault_id, principal.id),
+        ).fetchall()
+        results: list[dict[str, Any]] = []
+        for objective_id, state, raw_evidence, message, created_at in rows:
+            evidence = raw_evidence if isinstance(raw_evidence, dict) else {}
+            research = evidence.get("research")
+            if not isinstance(research, dict):
+                continue
+            sources = research.get("sources", ())
+            bounded_sources = [
+                {
+                    "source_id": str(source.get("source_id", "")),
+                    "title": str(source.get("title", "")),
+                    "url": str(source.get("url", "")),
+                    "retrieved_at": str(source.get("retrieved_at", "")),
+                }
+                for source in sources[:5]
+                if isinstance(source, dict)
+                and source.get("source_id")
+                and source.get("title")
+                and source.get("url")
+            ]
+            results.append(
+                {
+                    "objective_id": str(objective_id),
+                    "state": str(state),
+                    "query": str(research.get("query", "")),
+                    "provider_id": str(research.get("provider_id", "")),
+                    "retrieved_at": str(research.get("retrieved_at", "")),
+                    "summary": str(message or ""),
+                    "sources": bounded_sources,
+                    "evidence_status": "external evidence; not canonical personal truth",
+                    "recorded_at": created_at.isoformat()
+                    if hasattr(created_at, "isoformat")
+                    else str(created_at),
+                }
+            )
+            if len(results) >= 10:
+                break
+        return {
+            "results": results,
+            "boundary": (
+                "Research is bounded public evidence. It is not canonical personal truth "
+                "and does not authorize actions."
+            ),
+        }
+    finally:
+        connection.close()
+
+
 def _device_state(principal: Principal) -> dict[str, Any]:
     """Expose the existing bounded device read adapter to the owner UI."""
 
@@ -3533,6 +3600,7 @@ def main() -> int:
                 documents_state=_documents_state,
                 document_file=_document_file,
                 daily_driver_state=_daily_driver_state,
+                research_state=_research_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
