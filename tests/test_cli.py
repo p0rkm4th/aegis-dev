@@ -5506,6 +5506,7 @@ def test_browser_app_household_surface_exposes_chore_communication():
     assert "Canonical obligation state is fixed before communication" in html
     assert "Save obligations to Workspace" in html
     assert "Save my open obligations to workspace as obligations.md" in html
+    assert "Approve household-reports in Packs & capabilities" in html
     assert "scoped Workspace artifact is independently verified" in html
 
 

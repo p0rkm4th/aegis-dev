@@ -1461,6 +1461,14 @@ async function loadHousehold() {
     const response = await fetchWithTimeout('/api/today');
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Household unavailable.');
+    let obligationsPackEnabled = false;
+    try {
+      const packsResponse = await apiFetch('/api/packs');
+      const packsPayload = await packsResponse.json();
+      obligationsPackEnabled = packsResponse.ok && (packsPayload.packs || []).some(
+        pack => pack.pack_id === 'household-reports' && pack.status === 'enabled'
+      );
+    } catch (_) {}
     const canonical = payload.canonical || {};
     appendCompletableSection(panel, 'Open chores', canonical.open_chores || [], 'Mark the chore');
     appendTodaySection(panel, 'Groceries', canonical.groceries || []);
@@ -1493,13 +1501,16 @@ async function loadHousehold() {
       panel.append(sendObligations, obligationBoundary);
       const saveObligations = document.createElement('button');
       saveObligations.type = 'button'; saveObligations.textContent = 'Save obligations to Workspace';
+      saveObligations.disabled = !obligationsPackEnabled;
       saveObligations.addEventListener('click', () => {
         document.getElementById('utterance').value = 'Save my open obligations to workspace as obligations.md';
         document.getElementById('chat').requestSubmit();
       });
       const obligationsWorkspaceBoundary = document.createElement('p');
       obligationsWorkspaceBoundary.className = 'muted';
-      obligationsWorkspaceBoundary.textContent = 'Open obligations are read-only canonical context; the scoped Workspace artifact is independently verified.';
+      obligationsWorkspaceBoundary.textContent = obligationsPackEnabled
+        ? 'Open obligations are read-only canonical context; the scoped Workspace artifact is independently verified.'
+        : 'Approve household-reports in Packs & capabilities before exporting obligations to Workspace.';
       panel.append(saveObligations, obligationsWorkspaceBoundary);
     appendTodaySection(panel, 'Upcoming shared events', canonical.upcoming_shared_events || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
