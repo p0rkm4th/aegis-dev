@@ -1161,13 +1161,25 @@ async function loadSystems() {
       input.setAttribute('aria-label', placeholder); probeFields.push(input);
     });
     const probeSubmit = document.createElement('button'); probeSubmit.type = 'submit'; probeSubmit.textContent = 'Submit probe';
-    probeForm.append(...probeFields, probeSubmit);
+    const reportPath = document.createElement('input'); reportPath.name = 'target_path';
+    reportPath.required = false; reportPath.placeholder = 'Report path (optional)';
+    reportPath.setAttribute('aria-label', 'Report path (optional)');
+    const reportSubmit = document.createElement('button'); reportSubmit.type = 'submit';
+    reportSubmit.textContent = 'Probe and save report';
+    probeForm.append(...probeFields, reportPath, probeSubmit, reportSubmit);
     probeForm.addEventListener('submit', event => {
       event.preventDefault();
       const values = Object.fromEntries(probeFields.map(field => [field.name, field.value.trim()]));
       if (Object.values(values).some(value => !value)) return;
-      document.getElementById('utterance').value =
-        `Probe ${values.address} in scope ${values.scope_id} on port ${values.port}`;
+      if (event.submitter === reportSubmit) {
+        const targetPath = reportPath.value.trim();
+        if (!targetPath) return;
+        document.getElementById('utterance').value =
+          `Probe ${values.address} in scope ${values.scope_id} on port ${values.port} and save report as ${targetPath}`;
+      } else {
+        document.getElementById('utterance').value =
+          `Probe ${values.address} in scope ${values.scope_id} on port ${values.port}`;
+      }
       document.getElementById('chat').requestSubmit();
     });
     probe.append(probeTitle, probeForm); panel.append(probe);

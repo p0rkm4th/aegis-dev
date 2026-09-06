@@ -1,7 +1,14 @@
+import socket
 from types import SimpleNamespace
 from uuid import uuid4
 
-from aegis.contracts import ExecutionRequest, Observation, Principal, VerificationContract
+from aegis.contracts import (
+    ActionSpec,
+    ExecutionRequest,
+    Observation,
+    Principal,
+    VerificationContract,
+)
 from aegis.devices import FixtureDeviceGateway
 from aegis.documents import Document, FixtureDocumentProvider
 from aegis.pack_lifecycle import PackBundle
@@ -16,6 +23,8 @@ from aegis.reference_packs import (
     HomelabHealthVerifier,
     NetworkInventoryWorkspaceExecutor,
     NetworkInventoryWorkspaceVerifier,
+    NetworkProbeWorkspaceExecutor,
+    NetworkProbeWorkspaceVerifier,
     prepare_reference_action,
     reference_bundles,
     reference_packs,
@@ -52,6 +61,50 @@ def test_calendar_conflicts_action_reports_bounded_overlap(monkeypatch) -> None:
     assert observation.command_succeeded is True
     assert len(observation.evidence["conflicts"]) == 1
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_network_probe_to_workspace_uses_fixed_report_and_independent_readback(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(1)
+    port = int(listener.getsockname()[1])
+    principal = Principal(id="alice", vault_id="alice-vault")
+    objective_id = uuid4()
+    action = ActionSpec(
+        action_id="network-reports.probe_to_workspace",
+        capability="network-reports.probe_to_workspace",
+        arguments={
+            "address": "127.0.0.1",
+            "scope_id": "alpha-lab",
+            "port": port,
+            "target_path": "probe.md",
+        },
+        verification=VerificationContract(kind="custom"),
+    )
+    prepared = prepare_reference_action(action, principal, objective_id)
+    request = ExecutionRequest(
+        objective_id=objective_id,
+        action_id=uuid4(),
+        action=prepared,
+        idempotency_key="network-probe-report",
+    )
+    try:
+        observation = NetworkProbeWorkspaceExecutor(principal).execute(request)
+    finally:
+        listener.close()
+
+    verification = NetworkProbeWorkspaceVerifier(principal).verify(
+        observation, prepared.verification
+    )
+    assert observation.command_succeeded is True
+    assert observation.evidence["provider"] == "direct_socket"
+    assert verification.verified is True
+    assert "- Result: reachable" in WorkspaceManager(tmp_path).for_objective(
+        principal.id, objective_id
+    ).read("probe.md")
 
 
 def test_calendar_agenda_action_filters_one_bounded_day(monkeypatch) -> None:
