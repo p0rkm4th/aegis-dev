@@ -6476,6 +6476,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Research is available through conversation" in _INDEX_HTML
     assert "async function loadDocuments()" in _INDEX_HTML
     assert "Read document" in _INDEX_HTML
+    assert "Export document to Workspace" in _INDEX_HTML
+    assert "Export ${documentTitle} to ${documentId}.md" in _INDEX_HTML
     assert "async function loadDailyDriver()" in _INDEX_HTML
     assert "Save forecast to Workspace" in _INDEX_HTML
     assert "Save my 3-day weather forecast at" in _INDEX_HTML

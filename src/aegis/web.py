@@ -1834,7 +1834,17 @@ async function loadDocuments() {
           `Summarize ${documentTitle} to ${documentId}-summary.md`;
         document.getElementById('chat').requestSubmit();
       });
-      card.append(title, metadata, button, summarize); panel.append(card);
+      const exportArtifact = document.createElement('button'); exportArtifact.type = 'button';
+      exportArtifact.textContent = 'Export document to Workspace';
+      exportArtifact.addEventListener('click', () => {
+        const documentId = String(documentRecord.document_id || '').trim();
+        const documentTitle = String(documentRecord.title || documentId).trim();
+        if (!documentId || !documentTitle) return;
+        document.getElementById('utterance').value =
+          `Export ${documentTitle} to ${documentId}.md`;
+        document.getElementById('chat').requestSubmit();
+      });
+      card.append(title, metadata, button, summarize, exportArtifact); panel.append(card);
     });
     if (payload.transformation_boundary) {
       const boundary = document.createElement('p'); boundary.className = 'muted';
