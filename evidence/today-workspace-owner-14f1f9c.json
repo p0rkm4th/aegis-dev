@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "today-to-workspace",
+  "source_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34025152783", "conclusion": "success"},
+  "installed_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
+  "running_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
+  "owner_request": "Save the brief to workspace as today.md",
+  "pack_id": "today-reports",
+  "action_id": "today-reports.to_workspace",
+  "granted_permissions": ["household.read", "tasks.read", "workspace.write"],
+  "source_boundary": "canonical open tasks, chores, upcoming shared events, and groceries; external evidence excluded",
+  "result": {"state": "completed", "message": "Today Workspace artifact independently verified", "path": "today.md"},
+  "postcondition": "Core fixed canonical content before mutation; verifier reopened the Principal/objective-scoped Workspace and compared the expected hash",
+  "authority": "read-only canonical sources plus scoped Workspace write; no task/household mutation authority"
+}
