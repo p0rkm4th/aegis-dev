@@ -1,0 +1,17 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "public-holiday-tasks-owner",
+  "source_sha": "b0b16f9849ecdfc92cfa4a72ab5daadae387bbc9",
+  "hosted_validation": {"run_id": "34010414319", "conclusion": "success"},
+  "installed_release_sha": "b0b16f9849ecdfc92cfa4a72ab5daadae387bbc9",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_holiday_source": "nager_date",
+    "calendar_holiday_count": 17,
+    "calendar_task_control": "Prepare for ${name}",
+    "today_task_control": "Prepare for ${name}",
+    "composition": "public-holiday-to-task"
+  },
+  "verification": "The installed owner Calendar and Today surfaces render preparation-task controls for live holiday records, and the controls submit an explicit normal task request through conversation/Core.",
+  "authority_boundary": "No task is created by rendering or selecting the control; external holiday evidence does not grant task authorization."
+}
