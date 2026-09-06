@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "state_basis_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
-  "deterministic_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
-  "last_pushed_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
-  "hosted_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
-  "hosted_ci_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "repository_head_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
+  "deterministic_green_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
+  "last_pushed_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
+  "hosted_green_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
+  "hosted_ci_green_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+    "commit_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
     "conclusion": "success",
-    "run_id": "34010974977",
+    "run_id": "34011167531",
     "observed_at": "2026-09-06T04:15:00Z"
   },
-  "installed_release_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
-  "running_release_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
-  "live_green_sha": "c84372d39d0a13d12e73e5980d6d55a64b527b9a",
+  "installed_release_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
+  "running_release_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
+  "live_green_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-air-quality",
+  "active_checkpoint": "daily-driver-alpha-air-quality-today",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347"
+    "release_sha": "75ab16e957983b3bb7ef2a23f11c5d9b04da2146"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -160,6 +160,7 @@
     ,"Public holiday records now offer explicit preparation-task requests in Calendar and Today; requests are submitted through normal task Core authorization and never auto-create tasks"
     ,"Air Quality is a bounded provider-neutral public read with deterministic fixture coverage, HTTPS-only Open-Meteo adapter, owner surface, and Pack-driven Constellation nodes; live owner proof returned AQI/PM2.5 and preserves the public-evidence boundary"
     ,"Air Quality → Task follow-up is an explicit owner composition: public evidence can prefill a normal task request, but no task is created automatically and task authorization remains unchanged"
+    ,"Today now projects the same live Air Quality public evidence alongside calendar and holiday attention; attribution and non-canonical boundaries remain visible and no personal state is inferred"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Air Quality is now a live owner-visible public read for explicit coordinates, with Open-Meteo/CAMS provenance and Pack-driven Constellation representation. Weather and Public Holidays remain live; OpenClaw, Google Calendar, and Home Assistant remain pending.",
