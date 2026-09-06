@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a0aff8a",
+  "state_basis_sha": "218be8b",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a0aff8a",
-  "deterministic_green_sha": "a0aff8a",
-  "last_pushed_sha": "a0aff8a",
-  "hosted_green_sha": "a0aff8a",
-  "hosted_ci_green_sha": "a0aff8a",
+  "repository_head_sha": "218be8b",
+  "deterministic_green_sha": "218be8b",
+  "last_pushed_sha": "218be8b",
+  "hosted_green_sha": "218be8b",
+  "hosted_ci_green_sha": "218be8b",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a0aff8a",
+    "commit_sha": "218be8b",
     "conclusion": "success",
-    "run_id": "34056935758",
-    "observed_at": "2026-09-06T20:08:00Z"
+    "run_id": "34057591024",
+    "observed_at": "2026-09-06T20:20:00Z"
   },
-  "installed_release_sha": "a0aff8a",
-  "running_release_sha": "a0aff8a",
-  "live_green_sha": "a0aff8a",
+  "installed_release_sha": "218be8b",
+  "running_release_sha": "218be8b",
+  "live_green_sha": "218be8b",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-reality-food-pantry-mutation",
+  "active_checkpoint": "owner-reality-finance-import-owner-surface",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-reality-food-pantry-mutation",
+  "current_checkpoint": "owner-reality-finance-import-owner-surface",
   "active_campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "a0aff8a"
+    "release_sha": "218be8b"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -129,6 +129,7 @@
     ,"finance_csv_import": "Bounded owner-controlled CSV import emits integer-minor-unit transactions with raw descriptions, optional provider IDs, source/content hash, coverage dates, duplicate-row detection, and explicit partial/rejected-row reporting; no financial mutation exists"
     ,"food_owner_projection": "Today/Household owner projection now exposes bounded stable grocery records and Pantry quantities with an explicit unknown-quantity display; no private Finance data is included"
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
+    ,"finance_csv_import_owner": "Promoted owner Finance view accepts bounded owner-controlled CSV imports through an authenticated Principal-scoped route, records source provenance, and rejects unknown accounts as a bounded request error without changing canonical state"
     ,"homelab_host_identity": "Homelab Host records persist stable host IDs separately from observed addresses, with provider identity, known addresses, identity evidence, status, and last-observed metadata"
     ,"pack_first_owner_corpus": "Experimental Pack-first corpus now covers Food, Finance, Homelab, Forge, and unsupported owner requests across incumbent, pure Pack-first, and retrieval-assisted variants; deterministic fixture routing and compact context metrics are reported, while production cognition remains unchanged"
     ,"finance_summary_projection": "Private Finance owner projection separates balances and cash flows by currency, pending from posted transactions, and imported source coverage; no cross-currency aggregation or financial mutation is exposed"
@@ -370,7 +371,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood a bounded Pantry depletion and grocery projection workflow through the promoted owner path; then advance CapabilityNeed → Forge review while keeping Pack-first experimental.",
+  "next_action": "Dogfood CapabilityNeed investigation through Forge proposal, preview, and quarantine; then advance the highest-value Homelab or Food owner workflow while keeping Pack-first experimental.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
