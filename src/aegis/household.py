@@ -394,6 +394,29 @@ class PostgresHouseholdStore:
         self.save(space)
         return result
 
+    def _space_for_food(self, principal: Principal) -> HouseholdSpace:
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        return self.load(space_id, members)
+
+    def mark_grocery_purchased(self, principal: Principal, grocery_id: str) -> GroceryItem:
+        space = self._space_for_food(principal)
+        result = space.mark_grocery_purchased(principal, grocery_id)
+        self.save(space)
+        return result
+
+    def remove_grocery(self, principal: Principal, grocery_id: str) -> GroceryItem:
+        space = self._space_for_food(principal)
+        result = space.remove_grocery(principal, grocery_id)
+        self.save(space)
+        return result
+
     def read_snapshot(self, principal: Principal) -> dict[str, object]:
         """Read shared household state after rechecking current membership."""
         space_id = self._space_for(principal)

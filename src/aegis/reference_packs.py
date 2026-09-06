@@ -1100,6 +1100,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     relevance=1,
                     semantic_scope="kitchen.pantry",
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.groceries.mark_purchased",
+                        capability="kitchen.groceries.write",
+                        required_permissions=("kitchen.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Mark one stable-ID grocery item as purchased",
+                    relevance=1,
+                    argument_keys=("grocery_id",),
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.groceries.remove",
+                        capability="kitchen.groceries.write",
+                        required_permissions=("kitchen.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Remove one stable-ID grocery item",
+                    relevance=1,
+                    argument_keys=("grocery_id",),
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -6204,6 +6226,69 @@ class PostgresGroceryListVerifier:
             reason=(
                 "canonical grocery list verified" if verified else "canonical grocery list changed"
             ),
+        )
+
+
+class PostgresGroceryStateExecutor:
+    """Execute bounded stable-ID grocery state transitions in canonical storage."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        action_id = request.action.action_id
+        grocery_id = request.action.arguments.get("grocery_id")
+        if not isinstance(grocery_id, str) or not grocery_id:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"reason": "grocery_id is required"},
+                command_succeeded=False,
+            )
+        if action_id == "kitchen.groceries.mark_purchased":
+            item = self.store.mark_grocery_purchased(self.principal, grocery_id)
+        elif action_id == "kitchen.groceries.remove":
+            item = self.store.remove_grocery(self.principal, grocery_id)
+        else:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": action_id},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={"collection": "groceries", "item": item.__dict__},
+            command_succeeded=True,
+        )
+
+
+class PostgresGroceryStateVerifier:
+    """Independently compare the requested stable-ID grocery state."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        del contract
+        expected = observation.evidence.get("item")
+        actual = next(
+            (
+                item.__dict__
+                for item in self.store.list_grocery_items(self.principal)
+                if isinstance(expected, dict) and item.grocery_id == expected.get("grocery_id")
+            ),
+            None,
+        )
+        verified = observation.command_succeeded and actual == expected
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_item": actual},
+            reason="canonical grocery state verified"
+            if verified
+            else "canonical grocery state changed or is unavailable",
         )
 
 
