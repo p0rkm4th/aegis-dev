@@ -331,7 +331,7 @@ def default_runtime_registry(
         )
         return ActionRuntime(
             CommunicationsSendExecutor(provider, configured_communication_targets()),
-            CommunicationsSendVerifier(),
+            CommunicationsSendVerifier(provider),
             {"communications.send": frozenset({Role.OWNER})},
             prepare=lambda action, current_principal, objective_id: prepare_reference_action(
                 action, current_principal, objective_id, connection
