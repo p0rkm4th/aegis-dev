@@ -1610,6 +1610,14 @@ async function loadFinance() {
       const importTitle = document.createElement('h3'); importTitle.textContent = 'Import a private CSV';
       const importHint = document.createElement('p'); importHint.className = 'muted';
       importHint.textContent = 'Owner-controlled import; rows stay private and duplicate sources are ignored.';
+      const accountLabel = document.createElement('label'); accountLabel.textContent = 'Account';
+      const accountSelect = document.createElement('select'); accountSelect.setAttribute('aria-label', 'Finance account');
+      (payload.accounts || []).forEach(account => {
+        const option = document.createElement('option');
+        option.value = String(account.account_id || '');
+        option.textContent = `${account.name || account.account_id || 'Account'} · ${account.currency || 'unknown currency'}`;
+        accountSelect.append(option);
+      });
       const file = document.createElement('input'); file.type = 'file'; file.accept = '.csv,text/csv';
       file.setAttribute('aria-label', 'Finance CSV file');
       const importButton = document.createElement('button'); importButton.type = 'button'; importButton.textContent = 'Import CSV';
@@ -1623,7 +1631,7 @@ async function loadFinance() {
           const content = await selected.text();
           const result = await apiFetch('/api/finance/import', {
             method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({account_id: payload.accounts?.[0]?.account_id || '', source_id: selected.name, content, currency: payload.accounts?.[0]?.currency || 'USD'})
+            body: JSON.stringify({account_id: accountSelect.value, source_id: selected.name, content, currency: payload.accounts?.find(account => String(account.account_id) === accountSelect.value)?.currency || 'USD'})
           });
           const imported = result.imported_transaction_ids?.length || 0;
           importStatus.textContent = `Imported ${imported} transaction${imported === 1 ? '' : 's'}; source hash recorded.`;
@@ -1631,7 +1639,7 @@ async function loadFinance() {
         } catch (error) { importStatus.textContent = error.message || 'Finance import unavailable.'; }
         finally { importButton.disabled = false; }
       });
-      importSection.append(importTitle, importHint, file, importButton, importStatus); panel.append(importSection);
+      importSection.append(importTitle, importHint, accountLabel, accountSelect, file, importButton, importStatus); panel.append(importSection);
       appendTodaySection(panel, 'Accounts', payload.accounts || []);
       appendTodaySection(panel, 'Recent transactions', payload.transactions || []);
     }
