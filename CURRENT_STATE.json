@@ -2,17 +2,17 @@
   "schema_version": 2,
   "state_basis_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
-  "deterministic_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
-  "last_pushed_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
-  "hosted_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
-  "hosted_ci_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "repository_head_sha": "d1e848d7400b4a607dd45c298fd331c78f1613f8",
+  "deterministic_green_sha": "d1e848d7400b4a607dd45c298fd331c78f1613f8",
+  "last_pushed_sha": "d1e848d7400b4a607dd45c298fd331c78f1613f8",
+  "hosted_green_sha": "d1e848d7400b4a607dd45c298fd331c78f1613f8",
+  "hosted_ci_green_sha": "d1e848d7400b4a607dd45c298fd331c78f1613f8",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+    "commit_sha": "d1e848d7400b4a607dd45c298fd331c78f1613f8",
     "conclusion": "success",
-    "run_id": "34012192508",
+    "run_id": "34012314225",
     "observed_at": "2026-09-06T04:15:00Z"
   },
   "installed_release_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "db198bee68d77de05954a45bba3be3d1320b256c"
+    "release_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
