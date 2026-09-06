@@ -113,6 +113,17 @@ def test_air_quality_workspace_communication_composition_preserves_boundaries() 
     assert "delivery is not implied" in composition["authority"]
 
 
+def test_capability_need_research_workspace_composition_preserves_non_authority() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "capability-need-to-research-workspace"
+    )
+    assert composition["surfaces"] == ("Objectives", "Research", "Workspace")
+    assert "no installation" in composition["authority"]
+    assert "external" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item

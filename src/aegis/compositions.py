@@ -45,6 +45,19 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "external evidence remains non-canonical; Core authorization required",
         },
         {
+            "id": "capability-need-to-research-workspace",
+            "label": "CapabilityNeed → Research → Workspace",
+            "description": (
+                "Research a bounded candidate path for an unresolved requirement and preserve "
+                "the sourced result as non-authoritative Workspace notes."
+            ),
+            "surfaces": ("Objectives", "Research", "Workspace"),
+            "authority": (
+                "investigation is owner-selected and read-only; public evidence remains external, "
+                "and no installation, enablement, approval, or execution authority is granted"
+            ),
+        },
+        {
             "id": "calendar-task-attention",
             "label": "Calendar + Tasks attention",
             "description": (
