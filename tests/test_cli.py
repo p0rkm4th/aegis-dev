@@ -696,7 +696,7 @@ def test_deterministic_today_brief_message_uses_one_owner_approved_target(monkey
     manager.enable("communications")
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="vault"),
-        utterance="Text me today's brief.",
+        utterance="Text me the brief.",
     )
     card = _deterministic_composition_action(intent, manager, Context())
     assert card is not None
