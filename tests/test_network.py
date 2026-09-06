@@ -55,3 +55,19 @@ def test_discovery_configuration_is_bounded() -> None:
         BoundedNetworkDiscovery(lambda _address, _port: False, max_hosts=0)
     with pytest.raises(ValueError, match="valid TCP ports"):
         BoundedNetworkDiscovery(lambda _address, _port: False, ports=(0,))
+
+
+def test_loopback_scope_does_not_turn_aliases_into_devices() -> None:
+    inventory = HomelabInventory(
+        scopes={"local": AuthorizedNetworkScope("local", ("127.0.0.0/8",), "owner local")}
+    )
+    seen: list[tuple[str, int]] = []
+
+    def probe(address: str, port: int) -> bool:
+        seen.append((address, port))
+        return True
+
+    found = BoundedNetworkDiscovery(probe, ports=(22, 443)).discover(inventory, "local")
+
+    assert found == (DiscoveredDevice("127.0.0.1", services=("22", "443")),)
+    assert seen == [("127.0.0.1", 22), ("127.0.0.1", 443)]
