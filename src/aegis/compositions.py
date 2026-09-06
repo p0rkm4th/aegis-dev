@@ -187,6 +187,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "external dates are read-only context; no personal event is created",
         },
         {
+            "id": "public-holidays-to-communication",
+            "label": "Public holidays → Communication",
+            "description": "Send configured public-holiday evidence to one approved destination.",
+            "surfaces": ("Calendar", "Communications"),
+            "authority": (
+                "holiday data remains external and non-canonical; configured country/year scope, "
+                "Core authorization, and provider acceptance are distinct from delivery"
+            ),
+        },
+        {
             "id": "public-holidays-to-workspace",
             "label": "Public holidays → Workspace",
             "description": "Preserve bounded public-holiday evidence as a verified scoped report.",

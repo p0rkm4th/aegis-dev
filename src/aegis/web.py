@@ -975,6 +975,15 @@ async function loadCalendar() {
     const holidayBoundary = document.createElement('p'); holidayBoundary.className = 'muted';
     holidayBoundary.textContent = 'Public holiday dates are external evidence, not canonical personal events.';
     holidaySection.append(holidayBoundary); panel.append(holidaySection);
+    const sendHolidays = document.createElement('button');
+    sendHolidays.type = 'button'; sendHolidays.textContent = 'Send public holidays';
+    sendHolidays.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Text me the public holidays';
+      document.getElementById('chat').requestSubmit();
+    });
+    const sendHolidayBoundary = document.createElement('p'); sendHolidayBoundary.className = 'muted';
+    sendHolidayBoundary.textContent = 'Public holiday data remains external/non-canonical; configured scope is fixed before communication and provider acceptance is not delivery proof.';
+    holidaySection.append(sendHolidays, sendHolidayBoundary);
     holidays.forEach(holiday => {
       const date = String(holiday.date || '').trim();
       const name = String(holiday.name || '').trim();

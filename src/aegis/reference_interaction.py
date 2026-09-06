@@ -162,6 +162,7 @@ def _ground_argument_provenance(
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
                 r"the document .+|the document search results for .+|"
+                r"(?:the )?public holidays|"
                 r"the health of (?:service )?.+|"
                 r"(?:the )?workspace artifact .+|(?:the )?device status)[?!.,]?",
                 intent.utterance.strip(),
@@ -228,6 +229,7 @@ def _ground_argument_provenance(
             "canonical.calendar",
             "bounded.research",
             "public.weather",
+            "public.holidays",
             "canonical.document",
             "canonical.document_search",
             "canonical.homelab_health",
@@ -242,6 +244,7 @@ def _ground_argument_provenance(
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
+                "public.holidays": "public holidays",
                 "canonical.document": "document",
                 "canonical.document_search": "document search results",
                 "canonical.homelab_health": "health",
@@ -269,6 +272,7 @@ def _ground_argument_provenance(
                     "canonical.calendar": "reference.communication_body_from_calendar.v1",
                     "bounded.research": "reference.communication_body_from_research.v1",
                     "public.weather": "reference.communication_body_from_weather.v1",
+                    "public.holidays": "reference.communication_body_from_public_holidays.v1",
                     "canonical.document": "reference.communication_body_from_document.v1",
                     "canonical.document_search": (
                         "reference.communication_body_from_document_search.v1"
