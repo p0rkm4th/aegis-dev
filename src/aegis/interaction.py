@@ -148,14 +148,8 @@ def _argument_provenance_error(
                     or not (
                         _context_contains_canonical_ref(context.values, evidence.canonical_ref)
                         if rule.canonical_source == "authorized_documents"
-                        else (
-                            _context_contains_canonical_source_ref(
-                                context.values, rule.canonical_source or "", evidence.canonical_ref
-                            )
-                            if rule.canonical_source in context.values
-                            else _context_contains_canonical_ref(
-                                context.values, evidence.canonical_ref
-                            )
+                        else _context_contains_canonical_source_ref(
+                            context.values, rule.canonical_source or "", evidence.canonical_ref
                         )
                     )
                 )

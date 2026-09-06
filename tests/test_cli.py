@@ -4793,6 +4793,22 @@ def test_browser_app_compositions_surface_exposes_readable_workflow_cards():
     assert "Authority: ${composition.authority" in html
 
 
+def test_browser_app_serves_external_design_tokens_for_responsive_shell():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, content_type, payload = app.dispatch("GET", "/static/aegis.css")
+    assert status == 200
+    assert content_type == "text/css; charset=utf-8"
+    css = payload.decode()
+    assert "--unknown" in css
+    assert "@media (max-width: 36rem)" in css
+    assert ".product-nav" in css
+
+
 def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(

@@ -169,7 +169,7 @@ def test_pack_grounding_rule_rejects_unapproved_derivation_and_forged_referent()
         _argument_provenance_error(forged.action, card=forged, context=Context()) or ""
     )
     authorized = Context(
-        values={"referents": {"those": {"candidates": [{"light_id": "light-1"}]}}},
+        values={"thirdparty.light.state": {"candidates": [{"light_id": "light-1"}]}},
         sources=("authorized_canonical_result",),
     )
     grounded_ref = forged.model_copy(

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shlex
@@ -45,6 +46,7 @@ from .contracts import (
     ArgumentGroundingRule,
     ArgumentProvenanceKind,
     ExecutionRequest,
+    ExternalEffectAssurance,
     Observation,
     Principal,
     VerificationContract,
@@ -406,6 +408,9 @@ def prepare_reference_action(
                                 "channel": channel,
                                 "account": account,
                                 "body": message_body,
+                                "body_sha256": hashlib.sha256(
+                                    message_body.encode("utf-8")
+                                ).hexdigest(),
                             }
                         }
                     ),
@@ -3413,6 +3418,7 @@ class CalendarCreateVerifier:
             reason="calendar event independently read back"
             if verified
             else "calendar event readback did not match the expected event",
+            assurance=(ExternalEffectAssurance.EFFECT_VERIFIED if verified else None),
         )
 
 
@@ -3435,11 +3441,17 @@ class CalendarCancelExecutor:
                 execution_id=uuid4(),
                 evidence={"calendar_cancel": {"event_id": event_id, "error": str(exc)}},
                 command_succeeded=False,
+                assurance=(
+                    ExternalEffectAssurance.OUTCOME_UNKNOWN
+                    if isinstance(exc, RuntimeError)
+                    else ExternalEffectAssurance.DEFINITELY_REJECTED
+                ),
             )
         return Observation(
             execution_id=uuid4(),
             evidence={"calendar_cancel": {"event_id": event_id}},
             command_succeeded=True,
+            assurance=ExternalEffectAssurance.PROVIDER_ACCEPTED,
         )
 
 
@@ -3464,6 +3476,7 @@ class CalendarCancelVerifier:
             reason="calendar event absence independently read back"
             if verified
             else "calendar event remained present after cancellation",
+            assurance=(ExternalEffectAssurance.EFFECT_VERIFIED if verified else None),
         )
 
 
@@ -3506,6 +3519,11 @@ class CalendarUpdateExecutor:
                 execution_id=uuid4(),
                 evidence={"calendar_update": {"event_id": event_id, "error": str(exc)}},
                 command_succeeded=False,
+                assurance=(
+                    ExternalEffectAssurance.OUTCOME_UNKNOWN
+                    if isinstance(exc, RuntimeError)
+                    else ExternalEffectAssurance.DEFINITELY_REJECTED
+                ),
             )
         return Observation(
             execution_id=uuid4(),
@@ -3518,6 +3536,7 @@ class CalendarUpdateExecutor:
                 }
             },
             command_succeeded=True,
+            assurance=ExternalEffectAssurance.PROVIDER_ACCEPTED,
         )
 
 
@@ -3548,6 +3567,7 @@ class CalendarUpdateVerifier:
             reason="calendar event update independently read back"
             if verified
             else "calendar event update readback did not match the expected event",
+            assurance=(ExternalEffectAssurance.EFFECT_VERIFIED if verified else None),
         )
 
 
@@ -3604,6 +3624,7 @@ class CommunicationsSendExecutor:
                 execution_id=uuid4(),
                 evidence={"communication_send": "invalid_arguments"},
                 command_succeeded=False,
+                assurance=ExternalEffectAssurance.NOT_ATTEMPTED,
             )
         if (
             self.approved_targets is not None
@@ -3622,6 +3643,7 @@ class CommunicationsSendExecutor:
                     "channel": channel,
                 },
                 command_succeeded=False,
+                assurance=ExternalEffectAssurance.DEFINITELY_REJECTED,
             )
         result = self.provider.send(
             OutboundMessage(target=target, body=body, channel=channel, account=account),
@@ -3640,6 +3662,7 @@ class CommunicationsSendExecutor:
                 }
             },
             command_succeeded=result.status in {SendStatus.PROVIDER_ACCEPTED, SendStatus.DELIVERED},
+            assurance=result.assurance,
         )
 
 
@@ -3664,6 +3687,9 @@ class CommunicationsSendVerifier:
         readback = False
         expected = _contract.expected
         send_evidence = evidence if isinstance(evidence, dict) else {}
+        verified = verified and all(
+            send_evidence.get(key) == expected.get(key) for key in ("target", "channel", "account")
+        )
         if verified and self.provider is not None:
             getter = getattr(self.provider, "get_sent_message", None)
             expected_body = _expected_message_body(_contract)
@@ -3678,6 +3704,8 @@ class CommunicationsSendVerifier:
                     and actual.channel == send_evidence.get("channel")
                     and actual.account == expected.get("account")
                     and actual.body == expected_body
+                    and hashlib.sha256(actual.body.encode("utf-8")).hexdigest()
+                    == expected.get("body_sha256")
                 )
                 readback = verified
         if verified and readback:
@@ -3699,6 +3727,13 @@ class CommunicationsSendVerifier:
                 "independent_delivery": False,
             },
             reason=reason,
+            assurance=(
+                ExternalEffectAssurance.EFFECT_VERIFIED
+                if verified and readback and status == SendStatus.DELIVERED.value
+                else ExternalEffectAssurance.PROVIDER_ACCEPTED
+                if verified
+                else None
+            ),
         )
 
 
