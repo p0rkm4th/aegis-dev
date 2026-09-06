@@ -642,7 +642,7 @@ def _recent_device_control_outcomes(principal: Principal) -> list[dict[str, Any]
     try:
         _apply_migrations(connection)
         rows = connection.execute(
-            """SELECT o.id, r.state, r.evidence, r.message
+            """SELECT o.id, o.payload, r.state, r.evidence, r.message
                FROM objectives o
                LEFT JOIN results r ON r.objective_id = o.id
                WHERE o.principal_id = %s AND o.vault_id = %s
@@ -652,7 +652,12 @@ def _recent_device_control_outcomes(principal: Principal) -> list[dict[str, Any]
             (principal.id, principal.vault_id),
         ).fetchall()
         outcomes: list[dict[str, Any]] = []
-        for objective_id, result_state, raw_evidence, message in rows:
+        for objective_id, raw_payload, result_state, raw_evidence, message in rows:
+            payload = raw_payload if isinstance(raw_payload, dict) else {}
+            action = payload.get("action") if isinstance(payload, dict) else {}
+            arguments = action.get("arguments") if isinstance(action, dict) else {}
+            if not isinstance(arguments, dict):
+                arguments = {}
             evidence = raw_evidence if isinstance(raw_evidence, dict) else {}
             execution = evidence.get("device_execution")
             if not isinstance(execution, dict):
@@ -661,9 +666,11 @@ def _recent_device_control_outcomes(principal: Principal) -> list[dict[str, Any]
                 {
                     "objective_id": str(objective_id),
                     "state": str(result_state or "unknown"),
-                    "entity_id": execution.get("entity_id"),
-                    "service": execution.get("service"),
-                    "expected_state": execution.get("expected_state"),
+                    "entity_id": execution.get("entity_id", arguments.get("entity_id")),
+                    "service": execution.get("service", arguments.get("service")),
+                    "expected_state": execution.get(
+                        "expected_state", arguments.get("expected_state")
+                    ),
                     "verified": evidence.get("readback_verified") is True,
                     "message": str(message or "")[:300],
                 }
