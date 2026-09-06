@@ -3,21 +3,21 @@
   "state_basis_sha": "702447d",
   "active_branch": "aegis-dev",
   "repository_head_sha": "702447d",
-  "deterministic_green_sha": "49857a8",
-  "last_pushed_sha": "49857a8",
-  "hosted_green_sha": "49857a8",
-  "hosted_ci_green_sha": "49857a8",
+  "deterministic_green_sha": "0aa2975",
+  "last_pushed_sha": "0aa2975",
+  "hosted_green_sha": "0aa2975",
+  "hosted_ci_green_sha": "0aa2975",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "49857a8",
+    "commit_sha": "0aa2975",
     "conclusion": "success",
-    "run_id": "34068147755",
+    "run_id": "34068264466",
     "observed_at": "2026-09-06T22:15:00Z"
   },
-  "installed_release_sha": "49857a8",
-  "running_release_sha": "49857a8",
-  "live_green_sha": "49857a8",
+  "installed_release_sha": "0aa2975",
+  "running_release_sha": "0aa2975",
+  "live_green_sha": "0aa2975",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "49857a8"
+    "release_sha": "0aa2975"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -389,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue Owner-Reality Daily Driver: integrate Food/Finance utility, Homelab identity/read improvements, CapabilityNeed Forge quarantine, Pack-first evaluation, and responsive UI dogfood; keep Finance fidelity as regression coverage.",
+  "next_action": "Advance the next Owner-Reality slice: strengthen Homelab host/service read identity and owner presentation, then continue CapabilityNeed Forge quarantine and Pack-first evaluation; keep Finance fidelity and provenance UI as regression coverage.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
