@@ -196,6 +196,7 @@
     ,"Tasks → Communication is represented in the generic Compositions owner view and Constellation as composition-tasks-to-communication; selecting it routes to the conventional Compositions detail view and grants no authority"
     ,"task-reports is a dedicated Tasks → Workspace Pack; installed owner proof fixed the canonical open-task snapshot before mutation and independently verified tasks.md in the scoped Workspace, with no task mutation authority"
     ,"Calendar + Tasks attention → Communication is a bounded generic composition; installed owner proof fixed the authorized attention snapshot, provider readback accepted the exact message, and no delivery or mutation claim was made"
+    ,"Verified task Workspace artifact → Communication is proven through the existing scoped artifact sender; installed owner read tasks.md from the authorized Workspace, provider readback accepted the exact message, and delivery remains unproven"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner now sends bounded Calendar + Tasks attention through the generic approved-target communication path; provider acceptance/readback is distinct from delivery and neither source is mutated.",
@@ -236,22 +237,22 @@
   },
   "independently_verified_write_capabilities": 8,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 66,
+  "voluntarily_useful_owner_workflows": 67,
   "owner_visible_capability_surfaces": 34,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 40,
+  "cross_capability_workflows": 41,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 8,
     "external_integrations": 3,
-    "cross_domain_compositions": 40,
+    "cross_domain_compositions": 41,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 61,
+    "owner_workflows_completed": 62,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: choose a genuinely new non-credential-blocked provider-neutral capability or composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/calendar-task-communication-owner-545d85c.json",
+  "history_artifact": "evidence/task-workspace-communication-owner-545d85c.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
