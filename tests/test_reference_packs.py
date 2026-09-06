@@ -80,6 +80,41 @@ def test_documents_search_returns_only_bounded_authorized_matches(monkeypatch) -
     ]
 
 
+def test_documents_search_to_workspace_is_independently_verified(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    monkeypatch.setenv(
+        "AEGIS_DOCUMENT_FIXTURE_JSON",
+        '[{"document_id":"alpha","title":"Alpha Handbook","text":"Guidance for the lab"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "documents.search_to_workspace"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    objective_id = uuid4()
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    action = card.action.model_copy(
+        update={"arguments": {"query": "guidance", "target_path": "search.md"}}
+    )
+    assert runtime.prepare is not None
+    action = runtime.prepare(action, principal, objective_id)
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=objective_id,
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="document-search-workspace-1",
+        )
+    )
+    result = runtime.verifier.verify(observation, action.verification)
+    assert result.verified is True
+    assert "Alpha Handbook" in WorkspaceManager(tmp_path).for_objective(
+        principal.id, objective_id
+    ).read("search.md")
+
+
 def test_workspace_pack_uses_generic_runtime_and_readback(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
     card = next(

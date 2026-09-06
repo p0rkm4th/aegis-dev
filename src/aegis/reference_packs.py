@@ -32,6 +32,7 @@ from .communications import (
     communications_evidence,
 )
 from .compositions import (
+    document_search_to_workspace,
     document_summary_to_workspace,
     document_to_workspace,
     research_to_workspace,
@@ -284,6 +285,22 @@ def prepare_reference_action(
             if document is not None:
                 summary = " ".join(document.text.split())[:500]
                 files = {document_target_path: f"# Summary: {document.title}\n\n{summary}\n"}
+    elif action.action_id == "documents.search_to_workspace":
+        search_query, search_target_path = args.get("query"), args.get("target_path")
+        if isinstance(search_query, str) and isinstance(search_target_path, str):
+            matches = [
+                item
+                for item in configured_document_provider().list_documents()
+                if search_query.strip().casefold() in f"{item.title}\n{item.text}".casefold()
+            ][:20]
+            lines = [f"# Document search: {search_query.strip()[:500]}", ""]
+            for document in matches:
+                lines.extend(
+                    (f"## {document.title} ({document.document_id})", "", document.text[:500], "")
+                )
+            if not matches:
+                lines.append("No authorized documents matched this query.")
+            files = {search_target_path: "\n".join(lines)}
     if files is None:
         return action
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
@@ -781,6 +798,27 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
                             ),
                             canonical_source="authorized_documents",
+                        ),
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="documents.search_to_workspace",
+                        capability="documents.search_to_workspace",
+                        required_permissions=("documents.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save bounded authorized document search results as a verified artifact"
+                    ),
+                    relevance=1,
+                    argument_keys=("query", "target_path"),
+                    argument_grounding={
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
                         "target_path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
@@ -1847,6 +1885,49 @@ class DocumentSummaryWorkspaceExecutor(DocumentWorkspaceExecutor):
         )
 
 
+class DocumentSearchWorkspaceExecutor(DocumentWorkspaceExecutor):
+    """Create a bounded search-results artifact from authorized documents."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        query = request.action.arguments.get("query")
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(query, str) or not isinstance(target_path, str):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"documents": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        try:
+            result = document_search_to_workspace(
+                self.provider,
+                WorkspaceManager(root),
+                principal_id=self.principal.id,
+                objective_id=request.objective_id,
+                query=query,
+                target_path=target_path,
+                correlation_id=request.action_id,
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"documents": "search_rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "document_search_to_workspace",
+                "query": query,
+                "target_path": result.target_path,
+                "files": list(result.files),
+                "executor_local_validated": result.validated,
+                "source": result.source,
+            },
+            command_succeeded=True,
+        )
+
+
 class DocumentWorkspaceVerifier:
     def __init__(self, principal: Principal) -> None:
         self.principal = principal
@@ -1856,8 +1937,14 @@ class DocumentWorkspaceVerifier:
     ) -> VerificationResult:
         verified, detail = _verify_workspace_expectation(self.principal, contract)
         verified = observation.command_succeeded and verified
-        summary = observation.evidence.get("composition") == "document_summary_to_workspace"
-        operation = "document summary" if summary else "document export"
+        composition = observation.evidence.get("composition")
+        operation = (
+            "document summary"
+            if composition == "document_summary_to_workspace"
+            else "document search"
+            if composition == "document_search_to_workspace"
+            else "document export"
+        )
         return VerificationResult(
             verified=verified,
             evidence={"composition_verified": verified, "postcondition": detail},
