@@ -948,9 +948,10 @@ async function loadDocuments() {
       summarize.textContent = 'Create summary artifact';
       summarize.addEventListener('click', () => {
         const documentId = String(documentRecord.document_id || '').trim();
-        if (!documentId) return;
+        const documentTitle = String(documentRecord.title || documentId).trim();
+        if (!documentId || !documentTitle) return;
         document.getElementById('utterance').value =
-          `Summarize ${documentId} to ${documentId}-summary.md`;
+          `Summarize ${documentTitle} to ${documentId}-summary.md`;
         document.getElementById('chat').requestSubmit();
       });
       card.append(title, metadata, button, summarize); panel.append(card);
