@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "fe5a8f3",
+  "state_basis_sha": "ac5c696",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "fe5a8f3",
-  "deterministic_green_sha": "fe5a8f3",
-  "last_pushed_sha": "fe5a8f3",
-  "hosted_green_sha": "fe5a8f3",
-  "hosted_ci_green_sha": "fe5a8f3",
+  "repository_head_sha": "ac5c696",
+  "deterministic_green_sha": "ac5c696",
+  "last_pushed_sha": "ac5c696",
+  "hosted_green_sha": "ac5c696",
+  "hosted_ci_green_sha": "ac5c696",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "fe5a8f3",
+    "commit_sha": "ac5c696",
     "conclusion": "success",
-    "run_id": "34040822734",
+    "run_id": "34041032421",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "8c42fe1",
-  "running_release_sha": "8c42fe1",
-  "live_green_sha": "8c42fe1",
+  "installed_release_sha": "ac5c696",
+  "running_release_sha": "ac5c696",
+  "live_green_sha": "ac5c696",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8c42fe1"
+    "release_sha": "ac5c696"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -82,6 +82,7 @@
     "household_obligations_workspace_ui_boundary": "Household disables the obligations Workspace export until household-reports is enabled and points the owner to Packs & capabilities for explicit approval",
     "daily_driver_release_scoreboard": "Promoted owner releases package their release-truth scoreboard and load it through AEGIS_CURRENT_STATE_PATH, preserving the Daily driver surface outside the source checkout",
     "network_inventory_workspace_contract": "Contract-green network-reports provides authorized canonical devices and active scopes as a Principal/objective-scoped Workspace report with independent postcondition verification; owner proof awaits explicit Pack approval",
+    "network_inventory_workspace_permission_guard": "The exact network inventory export fails closed with an explicit Pack-approval result when network-reports is unavailable; Systems disables the export affordance until approval",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -262,7 +263,7 @@
     ,"promoted owner proof created and independently verified a Homelab page with index.html and style.css from authorized canonical inventory; no deployment authority was added"
     ,"promoted owner proof created and independently verified a Homelab health report with truthful unavailable Plex state; no restart or deployment authority was added"
     ,"household obligations Workspace report is deterministic-green and Pack-registered; owner acceptance remains pending because household-reports is pending explicit permission approval, and 046646c now fails closed instead of falling through to task-reports"
-    ,"Network Reports is deterministic-green and visible from Systems; network-reports requires explicit network.read + workspace.write approval before the owner can create network-report.md"
+    ,"Network Reports is deterministic-green and visible from Systems; network-reports requires explicit network.read + workspace.write approval before the owner can create network-report.md, and ac5c696 prevents fallback to unrelated routing"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
