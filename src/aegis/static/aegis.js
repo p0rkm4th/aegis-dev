@@ -1659,6 +1659,12 @@ async function loadFinance() {
       });
       importSection.append(importTitle, importHint, accountLabel, accountSelect, file, importButton, importStatus); panel.append(importSection);
       appendTodaySection(panel, 'Accounts', payload.accounts || []);
+      const spend = payload.summary?.spend_by_description || {};
+      const postedSpend = Object.entries(spend).flatMap(([currency, byStatus]) =>
+        Object.entries(byStatus.posted || {}).map(([description, amount]) =>
+          `${description} · ${currency} ${(Number(amount) / 100).toFixed(2)}`));
+      appendTodaySection(panel, 'Posted spend by description', postedSpend.length
+        ? postedSpend : ['No posted outflows recorded.']);
       appendTodaySection(panel, 'Recent transactions', payload.transactions || []);
     }
     const boundary = document.createElement('p'); boundary.className = 'muted';

@@ -115,3 +115,6 @@ def test_finance_summary_keeps_currencies_and_pending_flow_separate():
     summary = summarize_snapshot(snapshot)
     assert summary["balances_by_currency"] == {"USD": 10_000, "EUR": 8_000}
     assert summary["cash_flow_by_currency"] == {"USD": {"posted": -500, "pending": -700}}
+    assert summary["spend_by_description"] == {
+        "USD": {"posted": {"Food": 500}, "pending": {"Hold": 700}}
+    }
