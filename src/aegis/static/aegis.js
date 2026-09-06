@@ -841,10 +841,10 @@ async function loadCalendar() {
         'Text me the tasks due before my calendar events';
       document.getElementById('chat').requestSubmit();
     });
-    const attentionBoundary = document.createElement('p'); attentionBoundary.className = 'muted';
-    attentionBoundary.textContent =
+    const calendarSendBoundary = document.createElement('p'); calendarSendBoundary.className = 'muted';
+    calendarSendBoundary.textContent =
       'Calendar and task state remain read-only context; provider acceptance is not delivery proof.';
-    conflictSection.append(sendAttention, attentionBoundary);
+    conflictSection.append(sendAttention, calendarSendBoundary);
     const holidays = payload.public_holidays?.holidays || [];
     const holidaySection = document.createElement('section'); holidaySection.className = 'detail-card';
     const holidayTitle = document.createElement('h3'); holidayTitle.textContent = 'Public holidays';

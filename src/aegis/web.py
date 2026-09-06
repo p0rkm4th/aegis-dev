@@ -932,7 +932,8 @@ def serve(
                 self.send_header("Retry-After", str(_RETRY_AFTER_SECONDS))
             self.send_header(
                 "Content-Security-Policy",
-                "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; "
+                "default-src 'none'; script-src 'self' 'unsafe-inline'; "
+                "style-src 'self' 'unsafe-inline'; "
                 "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
             )
             self.end_headers()
