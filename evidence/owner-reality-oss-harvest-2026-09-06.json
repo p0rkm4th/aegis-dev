@@ -1,0 +1,60 @@
+{
+  "observed_at": "2026-09-06",
+  "purpose": "Owner-reality domain planning; no dependency was added.",
+  "candidates": [
+    {
+      "project": "Grocy",
+      "version_or_date": "4.6.0 / 2026-03-06",
+      "license": "MIT",
+      "classification": ["DESIGN-HARVEST", "TEST-HARVEST"],
+      "reuse": "Use stock identity, minimum-stock projection, shopping-list state, purchase/consume transitions, and API boundary ideas; implement AEGIS-owned models.",
+      "security": "Treat external product IDs and API responses as data, not authority.",
+      "source": "https://github.com/grocy/grocy"
+    },
+    {
+      "project": "Mealie",
+      "version_or_date": "3.19.1 / 2026-05-27",
+      "license": "AGPL-3.0",
+      "classification": ["DESIGN-HARVEST"],
+      "reuse": "Study ingredient and shopping-list relationships; do not vendor or create an AGPL compatibility requirement.",
+      "security": "Recipe/import text remains non-canonical until explicitly grounded.",
+      "source": "https://github.com/mealie-recipes/mealie"
+    },
+    {
+      "project": "Actual Budget",
+      "version_or_date": "checked 2026-09-06",
+      "license": "MIT",
+      "classification": ["DESIGN-HARVEST", "TEST-HARVEST"],
+      "reuse": "Use CSV/OFX/QFX import and duplicate-matching concepts as design/test references; its official API is a Node client operating on a local copy, so do not add it as a runtime dependency.",
+      "security": "Imported files require bounded parsing, source hashes, and explicit coverage metadata.",
+      "source": "https://actualbudget.org/docs/transactions/importing/"
+    },
+    {
+      "project": "Firefly III Data Importer",
+      "version_or_date": "checked 2026-09-06",
+      "license": "AGPL-3.0-or-later",
+      "classification": ["DESIGN-HARVEST"],
+      "reuse": "Study separated import boundaries and CSV/CAMT support; do not vendor or couple AEGIS to Firefly.",
+      "security": "Keep importer/provider credentials and raw responses outside canonical AEGIS records.",
+      "source": "https://github.com/firefly-iii/data-importer"
+    },
+    {
+      "project": "ofxtools",
+      "version_or_date": "1.1.1 / 2026-06-12",
+      "license": "GPL-3.0-only",
+      "classification": ["ADAPT"],
+      "reuse": "Evaluate later for bounded OFX/QFX parsing; standard-library-only dependency profile and existing parser tests are attractive, but license compatibility must be reviewed before adoption.",
+      "security": "Use only for local owner-controlled files with size/schema limits.",
+      "source": "https://github.com/csingley/ofxtools"
+    },
+    {
+      "project": "Nmap",
+      "version_or_date": "checked 2026-09-06",
+      "license": "Nmap Public Source License",
+      "classification": ["ADAPT", "DESIGN-HARVEST"],
+      "reuse": "If needed, invoke an owner-installed binary through a typed bounded scan profile and parse XML; do not vendor or redistribute it in AEGIS.",
+      "security": "No model flags, raw targets, or implicit authorization; discovery remains observation and does not create Host authority.",
+      "source": "https://nmap.org/npsl/"
+    }
+  ]
+}
