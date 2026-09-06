@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "device-to-research-natural-owner-proof",
+  "source_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
+  "hosted_run_id": "34016314629",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
+  "owner_request": "Research why light.desk is currently off",
+  "objective_id": "e75fbbcf-5bd8-4de7-8f6f-33dc2dc528b5",
+  "correlation_id": "67d06bf7-babb-488d-b27f-370e1d5fbe27",
+  "entity_id": "light.desk",
+  "observed_state": "off",
+  "public_evidence": "bounded fixture research",
+  "result": "light.desk is off; bounded public evidence collected",
+  "authoritative": false,
+  "safety": "The entity remained authorized device context; the public research query sanitizes the entity identifier and the action is read-only."
+}
