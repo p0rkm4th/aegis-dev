@@ -3858,6 +3858,32 @@ def test_browser_app_exposes_composition_metadata_without_execution_authority():
     assert json.loads(payload)["compositions"] == [{"id": "docs-workspace", "owner": "alice"}]
 
 
+def test_browser_app_compositions_surface_exposes_readable_workflow_cards():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        composition_state=lambda _current: {
+            "compositions": [
+                {
+                    "id": "research-draft",
+                    "label": "Research → Draft",
+                    "description": "Create an unsent sourced draft",
+                    "surfaces": ["Research", "Communications"],
+                    "authority": "Core authorization required",
+                }
+            ]
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "trusted cross-capability workflow(s)" in html
+    assert "Surfaces: ${composition.surfaces.join(' · ')}" in html
+    assert "Authority: ${composition.authority" in html
+
+
 def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(

@@ -1196,7 +1196,28 @@ async function loadCompositions() {
     const response = await fetchWithTimeout('/api/compositions');
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Compositions unavailable.');
-    panel.append(renderDetailValue(payload.compositions || []));
+    const compositions = payload.compositions || [];
+    const heading = document.createElement('p');
+    heading.textContent = compositions.length
+      ? `${compositions.length} trusted cross-capability workflow(s)`
+      : 'No cross-capability workflows are currently available.';
+    panel.append(heading);
+    compositions.forEach(composition => {
+      const card = document.createElement('section'); card.className = 'detail-card';
+      const title = document.createElement('h3');
+      title.textContent = composition.label || composition.id || 'Composition';
+      const description = document.createElement('p');
+      description.textContent = composition.description || 'Bounded cross-capability workflow';
+      card.append(title, description);
+      if (Array.isArray(composition.surfaces) && composition.surfaces.length) {
+        const surfaces = document.createElement('p'); surfaces.className = 'muted';
+        surfaces.textContent = `Surfaces: ${composition.surfaces.join(' · ')}`;
+        card.append(surfaces);
+      }
+      const authority = document.createElement('p'); authority.className = 'muted';
+      authority.textContent = `Authority: ${composition.authority || 'Core authorization required'}`;
+      card.append(authority); panel.append(card);
+    });
   } catch (_) {
     panel.textContent = 'Composition metadata is unavailable; no action state was changed.';
   }
