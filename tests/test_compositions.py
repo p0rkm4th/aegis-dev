@@ -21,6 +21,14 @@ def test_homelab_health_workspace_composition_is_owner_visible() -> None:
     assert "no restart authority" in composition["authority"]
 
 
+def test_tasks_to_communication_composition_is_owner_visible() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "tasks-to-communication"
+    )
+    assert composition["surfaces"] == ("Tasks", "Communications")
+    assert "approved destination" in composition["authority"]
+
+
 def test_authorized_document_can_be_exported_to_verified_scoped_workspace(tmp_path) -> None:
     objective_id = uuid4()
     correlation_id = uuid4()
