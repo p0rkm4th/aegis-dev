@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
+  "state_basis_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
-  "deterministic_green_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
-  "last_pushed_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
-  "hosted_green_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
-  "hosted_ci_green_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
+  "repository_head_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "deterministic_green_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "last_pushed_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "hosted_green_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "hosted_ci_green_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
+    "commit_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
     "conclusion": "success",
-    "run_id": "34005109991",
+    "run_id": "34005252043",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
-  "running_release_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
-  "live_green_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
+  "installed_release_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "running_release_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "live_green_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-document-search-workspace",
+  "active_checkpoint": "daily-driver-alpha-workspace-download",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3"
+    "release_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -132,9 +132,10 @@
     ,"Documents owner surface now exposes bounded authorized text search through the normal Core request path; search remains read-only and separate from transformation authority"
     ,"Workspace owner surface now offers HTML-only static preview through an empty-sandbox iframe after scoped file read; no execution or mutation authority is added"
     ,"Documents owner surface now exposes the existing search-to-Workspace composition with explicit query and artifact path, represented by Documents/Search_To_Workspace/Workspace Constellation nodes"
+    ,"Workspace owner surface now provides scoped artifact download alongside file view and HTML preview; download uses the authorized API and preserves host-path privacy"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner can search authorized documents and save bounded matches into a scoped Workspace artifact through the normal Core and independent verification path; live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner can inspect, preview, and download authorized Workspace artifacts through scoped owner controls; live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -184,7 +185,7 @@
     "owner_workflows_completed": 33,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next owner-useful daily-driver slice after document search-to-Workspace; prioritize a provider-backed communication or calendar lane if credentials appear, otherwise expose the next existing capability or composition through conventional UI and Constellation.",
-  "history_artifact": "evidence/document-search-workspace-owner-324d019.json",
+  "next_action": "Advance the next owner-useful daily-driver slice after Workspace download; prioritize a provider-backed communication or calendar lane if credentials appear, otherwise expose the next existing capability or composition through conventional UI and Constellation.",
+  "history_artifact": "evidence/workspace-download-owner-afad2e5.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

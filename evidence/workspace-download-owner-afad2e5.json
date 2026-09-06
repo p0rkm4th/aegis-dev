@@ -1,0 +1,13 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "workspace-scoped-download-owner-surface",
+  "source_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "hosted_validation": {"run_id": "34005252043", "conclusion": "success"},
+  "installed_release_sha": "afad2e594b85cb0b05d34f171c80b548b2c5a55e",
+  "owner_rendered_surface": {
+    "download_control": "Download ${path}",
+    "preview_control": "Preview ${path}",
+    "scoped_inventory_count": 24
+  },
+  "authority_boundary": "Download reads an authorized Workspace file through the scoped API and grants no host filesystem, execution, or mutation authority."
+}
