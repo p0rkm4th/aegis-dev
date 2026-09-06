@@ -1087,6 +1087,15 @@ async function loadDevices() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(snapshot);
+    const sendStatus = document.createElement('button');
+    sendStatus.type = 'button'; sendStatus.textContent = 'Send device status';
+    sendStatus.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Text me the device status';
+      document.getElementById('chat').requestSubmit();
+    });
+    const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
+    sendBoundary.textContent = 'Device state is read-only context; Core fixes the authorized snapshot before communication, and provider acceptance is not delivery proof.';
+    panel.append(sendStatus, sendBoundary);
     const control = payload.control_surface || {};
     const entities = Array.isArray(control.authorized_entities)
       ? control.authorized_entities : [];
