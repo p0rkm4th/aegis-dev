@@ -728,6 +728,26 @@ async function loadWorkspace() {
           } finally { button.disabled = false; }
         });
         card.append(button);
+        if (path.toLowerCase().endsWith('.html') || path.toLowerCase().endsWith('.htm')) {
+          const preview = document.createElement('button');
+          preview.type = 'button'; preview.textContent = `Preview ${path}`;
+          preview.addEventListener('click', async () => {
+            preview.disabled = true;
+            try {
+              const response = await fetchWithTimeout(`/api/workspace/file?workspace_id=${encodeURIComponent(workspace.workspace_id)}&path=${encodeURIComponent(path)}`);
+              const file = await response.json();
+              if (!response.ok) throw new Error(file.error || 'Preview unavailable.');
+              const frame = document.createElement('iframe');
+              frame.title = `Static preview of ${path}`;
+              frame.setAttribute('sandbox', '');
+              frame.style.cssText = 'width:100%;min-height:18rem;border:1px solid var(--border);border-radius:.5rem;background:white;margin-top:.6rem';
+              frame.srcdoc = file.content || '';
+              card.append(frame);
+            } catch (_) { preview.textContent = 'Preview unavailable'; }
+            finally { preview.disabled = false; }
+          });
+          card.append(preview);
+        }
       });
       panel.append(card);
     });
