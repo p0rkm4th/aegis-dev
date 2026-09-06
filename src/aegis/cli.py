@@ -543,7 +543,9 @@ def _air_quality_state(principal: Principal) -> dict[str, Any]:
     return {
         "reading": air_quality_evidence(reading),
         "provider_state": reading.source,
-        "boundary": "Air quality is public evidence, not canonical personal truth.",
+        "boundary": (
+            "Air quality is public evidence, not canonical personal truth. Data: Open-Meteo / CAMS."
+        ),
     }
 
 

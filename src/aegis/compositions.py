@@ -56,6 +56,15 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "air-quality-to-task-followup",
+            "label": "Air quality → Task follow-up",
+            "description": "Turn a public air-quality check into an explicit owner task request.",
+            "surfaces": ("Air quality", "Tasks"),
+            "authority": (
+                "public evidence informs a proposal; normal task authorization remains required"
+            ),
+        },
+        {
             "id": "calendar-holidays-to-today",
             "label": "Calendar + Public holidays → Today",
             "description": (
