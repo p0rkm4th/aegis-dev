@@ -1,0 +1,20 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "research-to-communication-send",
+  "source_sha": "a77d09e07d14fc8685b8fdca033ab9330a5a1969",
+  "hosted_run_id": "34016091493",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "a77d09e07d14fc8685b8fdca033ab9330a5a1969",
+  "owner_request": "Text me the research about casual Palworld server settings.",
+  "objective_id": "57386113-ba13-404e-ba22-9f39aa62cdd0",
+  "correlation_id": "0070b111-c83d-4789-a24e-f96ceb9c2687",
+  "source": "bounded.research",
+  "target": "scotty",
+  "channel": "sms",
+  "account": "household",
+  "provider_status": "PROVIDER_ACCEPTED",
+  "provider_readback_proven": true,
+  "delivery_proven": false,
+  "openclaw_live_channel": false,
+  "safety": "Bounded evidence was collected and fixed before the generic send; the research result remains non-authoritative and the destination is resolved only from one owner-approved target."
+}
