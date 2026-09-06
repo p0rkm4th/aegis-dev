@@ -367,6 +367,27 @@ def calendar_events_evidence(events: tuple[CalendarEvent, ...]) -> dict[str, obj
     }
 
 
+def calendar_conflicts(events: tuple[CalendarEvent, ...]) -> tuple[dict[str, str], ...]:
+    """Return bounded pairwise overlaps for events with explicit end times."""
+
+    conflicts: list[dict[str, str]] = []
+    bounded = tuple((event, event.ends_at) for event in events[:50] if event.ends_at is not None)
+    for index, (event, event_end) in enumerate(bounded):
+        for other, other_end in bounded[index + 1 :]:
+            if max(event.starts_at, other.starts_at) >= min(event_end, other_end):
+                continue
+            first, second = sorted((event, other), key=lambda item: item.event_id)
+            conflicts.append(
+                {
+                    "event_id": first.event_id,
+                    "event_title": first.title,
+                    "conflicts_with": second.event_id,
+                    "conflicting_title": second.title,
+                }
+            )
+    return tuple(conflicts[:50])
+
+
 def calendar_snapshot_content(events: tuple[CalendarEvent, ...]) -> str:
     """Create stable, bounded report bytes for a Calendar → Workspace snapshot."""
 
