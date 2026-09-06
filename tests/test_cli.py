@@ -5027,6 +5027,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert _AEGIS_CSS.strip()
     assert _AEGIS_JS.strip()
     assert "--surface-0" in _AEGIS_CSS
+    assert "Finance account" in _AEGIS_JS
+    assert "accountSelect.value" in _AEGIS_JS
     assert (
         "script-src 'self' 'unsafe-inline'"
         in Path(__file__).parents[1].joinpath("src/aegis/web.py").read_text()
