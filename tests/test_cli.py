@@ -6475,6 +6475,12 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     assert node_ids.count("domain-homelab") == 0
     assert node_ids.count("pack-network") == 1
     assert node_ids.count("domain-network") == 0
+    assert "composition-calendar-to-workspace" in node_ids
+    assert any(
+        edge["source"] == "pack-calendar" and edge["target"] == "composition-calendar-to-workspace"
+        for edge in state["edges"]
+    )
+    assert state["details"]["composition-calendar-to-workspace"]["authority"]
 
 
 def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):
