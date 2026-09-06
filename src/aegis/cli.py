@@ -600,7 +600,6 @@ def _daily_driver_state(principal: Principal) -> dict[str, Any]:
 def _device_state(principal: Principal) -> dict[str, Any]:
     """Expose the existing bounded device read adapter to the owner UI."""
 
-    del principal
     card = next(
         card
         for bundle in reference_bundles()
@@ -632,7 +631,48 @@ def _device_state(principal: Principal) -> dict[str, Any]:
         "verification": "separate provider state readback is required",
         "authority": "UI visibility and selection do not grant control permission",
     }
+    evidence["recent_control_outcomes"] = _recent_device_control_outcomes(principal)
     return evidence
+
+
+def _recent_device_control_outcomes(principal: Principal) -> list[dict[str, Any]]:
+    """Project recent device-control results without exposing raw action payloads."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        rows = connection.execute(
+            """SELECT o.id, r.state, r.evidence, r.message
+               FROM objectives o
+               LEFT JOIN results r ON r.objective_id = o.id
+               WHERE o.principal_id = %s AND o.vault_id = %s
+                 AND o.payload->'action'->>'action_id' =
+                     'device-controls.devices.command.execute'
+               ORDER BY o.updated_at DESC LIMIT 10""",
+            (principal.id, principal.vault_id),
+        ).fetchall()
+        outcomes: list[dict[str, Any]] = []
+        for objective_id, result_state, raw_evidence, message in rows:
+            evidence = raw_evidence if isinstance(raw_evidence, dict) else {}
+            execution = evidence.get("device_execution")
+            if not isinstance(execution, dict):
+                execution = {}
+            outcomes.append(
+                {
+                    "objective_id": str(objective_id),
+                    "state": str(result_state or "unknown"),
+                    "entity_id": execution.get("entity_id"),
+                    "service": execution.get("service"),
+                    "expected_state": execution.get("expected_state"),
+                    "verified": evidence.get("readback_verified") is True,
+                    "message": str(message or "")[:300],
+                }
+            )
+        return outcomes
+    except (OSError, psycopg.Error):
+        return []
+    finally:
+        connection.close()
 
 
 def _device_research_context(utterance: str) -> tuple[str, dict[str, Any]] | None:
