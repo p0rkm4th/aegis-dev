@@ -1,18 +1,18 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f8be312",
+  "state_basis_sha": "70bebbd",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f8be312",
-  "deterministic_green_sha": "f8be312",
-  "last_pushed_sha": "f8be312",
-  "hosted_green_sha": "f8be312",
-  "hosted_ci_green_sha": "f8be312",
+  "repository_head_sha": "70bebbd",
+  "deterministic_green_sha": "70bebbd",
+  "last_pushed_sha": "70bebbd",
+  "hosted_green_sha": "70bebbd",
+  "hosted_ci_green_sha": "70bebbd",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f8be312",
+    "commit_sha": "70bebbd",
     "conclusion": "success",
-    "run_id": "34037685765",
+    "run_id": "34037826703",
     "observed_at": "2026-09-06T06:33:00Z"
   },
   "installed_release_sha": "24fbdf3",
@@ -74,6 +74,7 @@
     "device_control_owner_fixture": "Promoted Devices owner proof accepts punctuated low-risk light control with independent fixture readback and denies an entity outside configured scope; live Home Assistant remains pending",
     "device_state_research_owner": "Promoted owner proof reads the authorized light state and routes it into bounded public research; device scope remains read-only and public evidence remains non-canonical",
     "document_summary_workspace_owner": "Promoted owner proof summarizes the authorized Alpha Handbook into a Principal/objective-scoped Workspace artifact with independent verification and preserved source provenance",
+    "capability_need_palworld_owner": "Fresh promoted owner proof preserves the unsupported Palworld objective as blocked with a durable owner_input_required CapabilityNeed, bounded research provenance, and a workspace candidate requiring owner input",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -250,6 +251,7 @@
     ,"promoted owner Devices surface accepted punctuated light.desk control with independent fixture readback and denied unauthorized light.garage; live Home Assistant control remains pending"
     ,"promoted owner proof completed Device State → Research for light.desk with bounded public evidence; no device mutation or authority expansion occurred"
     ,"promoted owner proof created handbook-summary.md from the authorized Alpha Handbook with independent scoped Workspace verification"
+    ,"fresh promoted owner proof preserved Palworld as blocked with owner_input_required CapabilityNeed state and no acquisition or execution authority"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes fixed canonical household chore snapshots through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -292,7 +294,7 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 96,
+  "voluntarily_useful_owner_workflows": 97,
   "owner_visible_capability_surfaces": 67,
   "general_purpose_primitives": 2,
   "cross_capability_workflows": 71,
@@ -308,6 +310,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/document-summary-workspace-owner-0549376.json",
+  "history_artifact": "evidence/capability-need-palworld-owner-70bebbd.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

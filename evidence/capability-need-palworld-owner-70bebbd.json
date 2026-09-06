@@ -1,0 +1,36 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "capability-need-palworld-owner-proof",
+  "source_sha": "24fbdf3",
+  "state_record_sha": "70bebbd",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34037826703",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "24fbdf3",
+    "healthy": true,
+    "postgres": "healthy"
+  },
+  "request": "Set up a Palworld server for the girls and me on easy mode.",
+  "result": {
+    "code": "blocked",
+    "message": "I found public evidence related to the unsupported request, but no capability or permission was added.",
+    "objective_id": "bb22cf1e-6e87-4c7a-9456-811fc3b74118",
+    "correlation_id": "6201e3e1-8464-4ae6-8a5b-0378aee37591",
+    "objective_state": "blocked",
+    "need_status": "owner_input_required",
+    "investigation": "complete",
+    "requested_effect": "Set up a Palworld server for the girls and me on easy mode.",
+    "permitted_scope": ["installed_capabilities", "authorized_canonical_state", "public_research"],
+    "candidate_resolution": {
+      "kind": "workspace_solution",
+      "capability": "workspace.artifact.create",
+      "requires_owner_input": true
+    }
+  },
+  "authority": "research and candidate discovery did not grant installation, enablement, execution, network, or deployment authority"
+}
