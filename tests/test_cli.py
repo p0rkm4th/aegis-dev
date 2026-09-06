@@ -1307,6 +1307,22 @@ def test_deterministic_household_obligations_workspace_action_requires_report_pa
     assert card.action.arguments == {"target_path": "obligations.md"}
 
 
+def test_deterministic_household_obligations_workspace_fails_closed_until_pack_approval():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "household-reports"
+    )
+    manager.discover(bundle)
+    intent = IntentFrame(
+        utterance="Save my open obligations to workspace as obligations.md",
+        principal=Principal(id="alice", vault_id="vault"),
+    )
+    result = _deterministic_composition_action(intent, manager, Context())
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert "explicit approval" in result.message
+
+
 def test_deterministic_device_workspace_report_action_requires_explicit_path():
     manager = PackManager()
     bundle = next(

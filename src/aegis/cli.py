@@ -1330,7 +1330,7 @@ def _pack_enable(principal: Principal, request: dict[str, Any]) -> dict[str, Any
 
 def _deterministic_composition_action(
     intent: IntentFrame, manager: PackManager, _context: Context
-) -> ActionCard | None:
+) -> ActionCard | Result | None:
     """Recognize explicit bounded compositions without granting model authority."""
 
     text = " ".join(intent.utterance.split())
@@ -1468,7 +1468,16 @@ def _deterministic_composition_action(
             "household-reports", "household-reports.obligations_to_workspace"
         )
         if card is None:
-            return None
+            status = manager.status("household-reports")
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "Household obligations Workspace export requires explicit approval "
+                    f"for the household-reports Pack (status: {status.value})."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         return card.model_copy(
             update={
                 "action": card.action.model_copy(
