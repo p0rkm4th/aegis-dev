@@ -226,6 +226,18 @@ def prepare_reference_action(
             if not chores:
                 lines.append("- None")
             args = {**args, "body": "\n".join(lines)}
+        elif args.get("body_source") == "canonical.obligations" and connection is not None:
+            snapshot = PostgresHouseholdStore(connection).read_snapshot(principal)
+            obligations = [
+                item
+                for item in cast(tuple[Any, ...], snapshot.get("obligations", ()))
+                if not item.settled
+            ]
+            lines = ["Open household obligations:"]
+            lines.extend(f"- {item.title} (${item.amount / 100:.2f})" for item in obligations[:50])
+            if not obligations:
+                lines.append("- None")
+            args = {**args, "body": "\n".join(lines)}
         elif args.get("body_source") == "canonical.tasks" and connection is not None:
             tasks = PostgresTaskStore(connection).list(principal)
             open_tasks = [task for task in tasks if task.status.value == "open"]
@@ -1228,6 +1240,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             approved_derivations=(
                                 "reference.communication_body_from_groceries.v1",
                                 "reference.communication_body_from_chores.v1",
+                                "reference.communication_body_from_obligations.v1",
                                 "reference.communication_body_from_tasks.v1",
                                 "reference.communication_body_from_calendar_tasks.v1",
                                 "reference.communication_body_from_today.v1",
