@@ -148,12 +148,13 @@ def test_air_quality_workspace_report_uses_fixed_evidence_and_independent_scope(
         }
     )
     objective_id = uuid4()
-    prepared = prepare_reference_action(action, principal, objective_id)
+    runtime_card = card.model_copy(update={"action": action})
+    runtime = default_runtime_registry(lambda: None).resolve(runtime_card, None, principal)
+    assert runtime.prepare is not None
+    prepared = runtime.prepare(action, principal, objective_id)
     assert prepared.arguments["_workspace_content"].startswith("# External air-quality evidence")
     assert prepared.verification is not None
     assert prepared.verification.expected["files"]
-    prepared_card = card.model_copy(update={"action": prepared})
-    runtime = default_runtime_registry(lambda: None).resolve(prepared_card, None, principal)
     observation = runtime.executor.execute(
         ExecutionRequest(
             objective_id=objective_id,
