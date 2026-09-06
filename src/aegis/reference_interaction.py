@@ -9,6 +9,7 @@ the generic client/Core contract.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from collections.abc import Callable
@@ -824,6 +825,61 @@ def reference_constellation_state(
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
+        objective_rows: list[tuple[Any, Any, Any]] = []
+        objective_details: dict[str, dict[str, Any]] = {}
+        execute = getattr(connection, "execute", None)
+        if callable(execute):
+            objective_rows = list(
+                execute(
+                    """SELECT id, state, payload FROM objectives
+                       WHERE principal_id = %s AND vault_id = %s
+                         AND (space_id IS NULL OR EXISTS (
+                           SELECT 1 FROM space_memberships sm
+                           WHERE sm.principal_id = %s AND sm.space_id = objectives.space_id
+                             AND sm.active = TRUE
+                         ))
+                       ORDER BY updated_at DESC LIMIT 20""",
+                    (principal.id, principal.vault_id, principal.id),
+                ).fetchall()
+            )
+        for objective_id, objective_state, payload in objective_rows:
+            data = payload if isinstance(payload, dict) else json.loads(str(payload))
+            if str(objective_state).lower() in {"completed", "complete"}:
+                continue
+            intent = data.get("intent", {}) if isinstance(data, dict) else {}
+            utterance = str(intent.get("utterance", "Objective") or "Objective")
+            node_id = f"objective-{objective_id}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": "Objective",
+                    "detail": f"{objective_state} · {utterance[:180]}",
+                    "category": "objective",
+                    "detail_view": "objectives",
+                }
+            )
+            objective_detail = {
+                "objective_id": str(objective_id),
+                "state": str(objective_state),
+                "utterance": utterance,
+                "authority": "lifecycle context only; graph visibility grants no authority",
+            }
+            objective_details[node_id] = objective_detail
+            objective_linked_packs: set[str] = set()
+            needs = data.get("capability_needs", ()) if isinstance(data, dict) else ()
+            for need in needs if isinstance(needs, list) else ():
+                candidates = need.get("candidate_resolutions", ()) if isinstance(need, dict) else ()
+                for candidate in candidates if isinstance(candidates, list) else ():
+                    objective_capability: object = (
+                        candidate.get("capability") if isinstance(candidate, dict) else None
+                    )
+                    pack_id = (
+                        str(objective_capability).split(".", 1)[0] if objective_capability else ""
+                    )
+                    if pack_id in pack_ids:
+                        objective_linked_packs.add(f"pack-{pack_id}")
+            for source in sorted(objective_linked_packs) or ["aegis"]:
+                edges.append({"source": source, "target": node_id})
         # Composition metadata is a bounded semantic layer above Pack views.
         # It is descriptive navigation context only: no composition node is an
         # executable action or an authority grant.
@@ -841,7 +897,7 @@ def reference_constellation_state(
                 if isinstance(raw_surfaces, (tuple, list))
                 else ()
             )
-            linked_packs = [
+            composition_linked_packs = [
                 pack_labels[surface]
                 for surface in surfaces
                 if isinstance(surface, str) and surface in pack_labels
@@ -861,7 +917,7 @@ def reference_constellation_state(
                     composition.get("authority", "Core authorization remains required")
                 ),
             }
-            for pack_id in linked_packs or ["aegis"]:
+            for pack_id in composition_linked_packs or ["aegis"]:
                 edges.append({"source": pack_id, "target": node_id})
         details: dict[str, Any] = {
             "domain-personal": {
@@ -912,6 +968,7 @@ def reference_constellation_state(
             },
             "pack-kitchen": {"groceries": list(groceries)},
         }
+        details.update(objective_details)
         details.update(area_details)
         return {"nodes": nodes, "edges": edges, "details": details}
     finally:

@@ -7402,6 +7402,72 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     assert state["details"]["composition-calendar-to-workspace"]["authority"]
 
 
+def test_constellation_state_projects_scoped_active_objective_nodes(monkeypatch):
+    from aegis import cli
+    from aegis.network import HomelabInventory
+    from aegis.personal import PersonalState
+
+    class Connection:
+        def close(self):
+            pass
+
+        def execute(self, query, *_args, **_kwargs):
+            class Result:
+                def fetchall(self):
+                    return [
+                        (
+                            "objective-1",
+                            "blocked",
+                            {
+                                "intent": {"utterance": "Set up a server"},
+                                "capability_needs": [
+                                    {
+                                        "candidate_resolutions": [
+                                            {"capability": "workspace.artifact.create"}
+                                        ]
+                                    }
+                                ],
+                            },
+                        )
+                    ]
+
+            if "FROM objectives" in query:
+                return Result()
+
+            class EmptyResult:
+                def fetchall(self):
+                    return []
+
+            return EmptyResult()
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    monkeypatch.setattr(cli.PostgresHouseholdStore, "read_snapshot", lambda *_: {"groceries": ()})
+    monkeypatch.setattr(cli.PostgresTaskStore, "list", lambda *_: ())
+    monkeypatch.setattr(cli.PostgresPackStore, "load", lambda *_: ())
+    monkeypatch.setattr(
+        cli.PostgresPersonalStateStore, "load_for_principal", lambda *_: PersonalState()
+    )
+    monkeypatch.setattr(cli.PostgresFinanceSnapshotStore, "load", lambda *_: None)
+    monkeypatch.setattr(cli.PostgresNetworkStore, "load", lambda *_: HomelabInventory())
+    monkeypatch.setattr(
+        cli.PostgresHomelabStore,
+        "load",
+        lambda *_: type("Pack", (), {"hosts": {}, "services": {}})(),
+    )
+    state = cli._constellation_state(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    )
+    objective = next(node for node in state["nodes"] if node["id"] == "objective-objective-1")
+    assert objective["category"] == "objective"
+    assert any(
+        edge["source"] == "pack-workspace" and edge["target"] == "objective-objective-1"
+        for edge in state["edges"]
+    )
+    assert state["details"]["objective-objective-1"]["authority"].startswith("lifecycle context")
+
+
 def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):
     from aegis import cli
     from aegis.network import HomelabInventory
