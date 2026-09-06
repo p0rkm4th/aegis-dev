@@ -864,6 +864,17 @@ def test_openclaw_launch_failure_is_not_attempted() -> None:
     assert result.assurance.value == "NOT_ATTEMPTED"
 
 
+def test_openclaw_nonzero_result_is_definitely_rejected() -> None:
+    def run(args: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 1, "", "rejected")
+
+    provider = OpenClawCliCommunicationSendProvider(runner=run)
+    result = provider.send(OutboundMessage(target="scotty", body="Milk"), "rejected")
+
+    assert result.status is SendStatus.DEFINITELY_REJECTED
+    assert result.assurance.value == "DEFINITELY_REJECTED"
+
+
 def test_openclaw_timeout_after_invocation_is_unknown() -> None:
     def run(_args: list[str]):
         raise subprocess.TimeoutExpired("openclaw", 1)

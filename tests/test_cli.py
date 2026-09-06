@@ -4814,6 +4814,20 @@ def test_browser_app_serves_external_design_tokens_for_responsive_shell():
     assert "More views" in payload.decode()
 
 
+def test_browser_app_preserves_unknown_as_reconciliation_not_retry():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Outcome unknown" in html
+    assert "Recheck status" in html
+
+
 def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
@@ -6469,7 +6483,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "provider acceptance is not delivery proof" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
-    assert "setOutcomeStatus(result.state)" in _INDEX_HTML
+    assert "setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state)" in _INDEX_HTML
     assert '<details class="secondary" aria-label="Canonical state">' in _INDEX_HTML
     assert "<summary>Canonical state</summary>" in _INDEX_HTML
     assert 'placeholder="Talk to AEGIS…"' in _INDEX_HTML
