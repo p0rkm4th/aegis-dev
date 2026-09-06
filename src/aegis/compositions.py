@@ -134,6 +134,19 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "homelab-health-to-task",
+            "label": "Homelab health → Task",
+            "description": (
+                "Turn an authorized unhealthy service observation into an explicit "
+                "investigation task request."
+            ),
+            "surfaces": ("Systems", "Tasks"),
+            "authority": (
+                "health is read-only context; task creation still requires explicit owner intent, "
+                "normal Core authorization, and canonical task readback"
+            ),
+        },
+        {
             "id": "weather-to-task-followup",
             "label": "Weather → Task follow-up",
             "description": "Turn a public weather check into an explicit owner task request.",

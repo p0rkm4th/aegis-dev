@@ -1130,6 +1130,17 @@ async function loadSystems() {
           document.getElementById('chat').requestSubmit();
         });
         row.append(label, restart); actions.append(row);
+        if (service.health && service.health !== 'healthy') {
+          const investigate = document.createElement('button'); investigate.type = 'button';
+          investigate.textContent = 'Create investigation task';
+          investigate.setAttribute('aria-label', `Create investigation task for ${service.service_id}`);
+          investigate.addEventListener('click', () => {
+            document.getElementById('utterance').value =
+              `Create a task to investigate service ${service.service_id}`;
+            document.getElementById('chat').requestSubmit();
+          });
+          row.append(investigate);
+        }
       });
       panel.append(actions);
     }
