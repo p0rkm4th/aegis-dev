@@ -1,0 +1,17 @@
+{
+  "kind": "owner_installed_conversation_proof",
+  "capability": "air-quality.current.read",
+  "source_sha": "6ff4181cf6342093d9b86c358bbc0ebf834ad8e5",
+  "hosted_run_id": "34011537009",
+  "installed_sha": "6ff4181cf6342093d9b86c358bbc0ebf834ad8e5",
+  "running_sha": "6ff4181cf6342093d9b86c358bbc0ebf834ad8e5",
+  "utterance": "What is current air quality at 41.881832, -87.623177",
+  "pack_status": "enabled_by_explicit_owner_approval",
+  "result_state": "completed",
+  "message": "Done — air-quality readback is structurally valid",
+  "provider": "open_meteo_air_quality",
+  "correlation_id": "addad39d-8ba1-4bcd-a614-70bba2197eb6",
+  "objective_id": "ede5cd0d-e158-40c1-837d-8aaad678656d",
+  "postgresql_preserved": true,
+  "observed_at": "2026-09-06T04:27:00Z"
+}
