@@ -1677,7 +1677,16 @@ def _deterministic_composition_action(
             "network-reports", "network-reports.inventory.to_workspace"
         )
         if card is None:
-            return None
+            status = manager.status("network-reports")
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "Network inventory Workspace export requires explicit approval for "
+                    f"the network-reports Pack (status: {status.value})."
+                ),
+                correlation_id=intent.correlation_id,
+            )
         return card.model_copy(
             update={
                 "action": card.action.model_copy(

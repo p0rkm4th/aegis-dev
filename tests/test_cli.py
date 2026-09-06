@@ -619,6 +619,25 @@ def test_deterministic_network_inventory_workspace_requires_explicit_pack():
     assert card.action.arguments == {"target_path": "network.md"}
 
 
+def test_deterministic_network_inventory_workspace_fails_closed_until_pack_approval():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "network-reports"
+    )
+    manager.discover(bundle)
+    result = _deterministic_composition_action(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="vault"),
+            utterance="Save the authorized network inventory to workspace as network.md",
+        ),
+        manager,
+        Context(),
+    )
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert "explicit approval" in result.message
+
+
 def test_deterministic_device_research_action_preserves_explicit_entity_and_query():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "devices")
@@ -5138,7 +5157,7 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "Request restart" in html
     assert "independent health verification" in html
     assert "Save network inventory to Workspace" in html
-    assert "network-reports Pack approval" in html
+    assert "Approve network-reports in Packs & capabilities" in html
 
 
 def test_browser_app_task_and_household_views_expose_core_completion_affordances():

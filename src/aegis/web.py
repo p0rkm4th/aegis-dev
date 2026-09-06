@@ -1150,6 +1150,14 @@ async function loadSystems() {
     const response = await fetchWithTimeout('/api/systems');
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Systems unavailable.');
+    let networkReportsEnabled = false;
+    try {
+      const packsResponse = await apiFetch('/api/packs');
+      const packsPayload = await packsResponse.json();
+      networkReportsEnabled = packsResponse.ok && (packsPayload.packs || []).some(
+        pack => pack.pack_id === 'network-reports' && pack.status === 'enabled'
+      );
+    } catch (_) {}
     const heading = document.createElement('p');
     heading.textContent = 'Authorized systems inventory (read-only view)';
     panel.append(heading, renderDetailValue(payload));
@@ -1206,13 +1214,16 @@ async function loadSystems() {
     panel.append(report);
     const networkReport = document.createElement('button');
     networkReport.type = 'button'; networkReport.textContent = 'Save network inventory to Workspace';
+    networkReport.disabled = !networkReportsEnabled;
     networkReport.addEventListener('click', () => {
       document.getElementById('utterance').value =
         'Save the authorized network inventory to workspace as network-report.md';
       document.getElementById('chat').requestSubmit();
     });
     const networkReportBoundary = document.createElement('p'); networkReportBoundary.className = 'muted';
-    networkReportBoundary.textContent = 'Network inventory is read-only canonical state; export requires explicit network-reports Pack approval and independent Workspace verification.';
+    networkReportBoundary.textContent = networkReportsEnabled
+      ? 'Network inventory is read-only canonical state; the scoped Workspace artifact is independently verified.'
+      : 'Approve network-reports in Packs & capabilities before exporting network inventory to Workspace.';
     panel.append(networkReport, networkReportBoundary);
     const probe = document.createElement('section'); probe.className = 'detail-card';
     const probeTitle = document.createElement('h3'); probeTitle.textContent = 'Probe an authorized network target';
