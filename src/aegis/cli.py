@@ -1016,6 +1016,10 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                     "health": _service_health(service.health_endpoint)
                     if service.health_endpoint
                     else "not_configured",
+                    "health_source": "bounded_http_read" if service.health_endpoint else None,
+                    "health_observed_at": (
+                        datetime.now(timezone.utc).isoformat() if service.health_endpoint else None
+                    ),
                 }
                 for service in homelab.services.values()
             ],
