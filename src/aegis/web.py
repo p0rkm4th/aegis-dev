@@ -1256,6 +1256,15 @@ async function loadToday() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(report);
+    const sendBrief = document.createElement('button'); sendBrief.type = 'button';
+    sendBrief.textContent = 'Send me today\'s brief';
+    sendBrief.addEventListener('click', () => {
+      document.getElementById('utterance').value = "Send me today's brief";
+      document.getElementById('chat').requestSubmit();
+    });
+    const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
+    sendBoundary.textContent = 'Uses only one exact owner-approved communication target; provider acceptance is not delivery proof.';
+    panel.append(sendBrief, sendBoundary);
     const activeObjectives = payload.active_objectives || [];
     appendTodaySection(panel, 'Active objectives', activeObjectives.length
       ? activeObjectives : 'No active objectives.');
