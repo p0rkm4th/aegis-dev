@@ -113,6 +113,20 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "homelab-health-to-communication",
+            "label": "Homelab health → Communication",
+            "description": (
+                "Send one bounded authorized service-health observation to one approved "
+                "destination."
+            ),
+            "surfaces": ("Systems", "Communications"),
+            "authority": (
+                "authorized Homelab health read + communications send; explicit approved "
+                "destination "
+                "and Core authorization required; no restart authority"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",

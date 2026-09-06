@@ -152,7 +152,7 @@ def _ground_argument_provenance(
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
-                r"the document .+)[?!.,]?",
+                r"the document .+|the health of (?:service )?.+)[?!.,]?",
                 intent.utterance.strip(),
                 flags=re.IGNORECASE,
             )
@@ -215,6 +215,7 @@ def _ground_argument_provenance(
             "bounded.research",
             "public.weather",
             "canonical.document",
+            "canonical.homelab_health",
         }:
             source_phrase = {
                 "canonical.groceries": "grocery list",
@@ -222,6 +223,7 @@ def _ground_argument_provenance(
                 "bounded.research": "research",
                 "public.weather": "weather",
                 "canonical.document": "document",
+                "canonical.homelab_health": "health",
             }[value]
             spans = _utterance_spans(intent.utterance, source_phrase)
             if not spans:
@@ -246,7 +248,11 @@ def _ground_argument_provenance(
                             else (
                                 "reference.communication_body_from_weather.v1"
                                 if value == "public.weather"
-                                else "reference.communication_body_from_document.v1"
+                                else (
+                                    "reference.communication_body_from_document.v1"
+                                    if value == "canonical.document"
+                                    else "reference.communication_body_from_homelab_health.v1"
+                                )
                             )
                         )
                     )
