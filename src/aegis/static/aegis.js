@@ -1718,6 +1718,18 @@ async function loadFinance() {
         finally { importButton.disabled = false; }
       });
       importSection.append(importTitle, importHint, accountLabel, accountSelect, file, importButton, importStatus); panel.append(importSection);
+      const summary = payload.summary || {};
+      const balances = Object.entries(summary.balances_by_currency || {}).map(([currency, amount]) =>
+        `${currency} ${(Number(amount) / 100).toFixed(2)}`);
+      appendTodaySection(panel, 'Balances by currency', balances.length ? balances : ['No balances recorded.']);
+      const cashFlow = Object.entries(summary.cash_flow_by_currency || {}).flatMap(([currency, values]) => [
+        `${currency} posted ${(Number(values.posted || 0) / 100).toFixed(2)}`,
+        `${currency} pending ${(Number(values.pending || 0) / 100).toFixed(2)}`
+      ]);
+      appendTodaySection(panel, 'Cash flow by settlement state', cashFlow.length
+        ? cashFlow : ['No cash-flow totals recorded.']);
+      const coverage = Array.isArray(summary.coverage) ? summary.coverage : [];
+      appendTodaySection(panel, 'Import coverage', coverage.length ? coverage : ['Coverage metadata unavailable.']);
       appendTodaySection(panel, 'Accounts', payload.accounts || []);
       const spend = payload.summary?.spend_by_description || {};
       const postedSpend = Object.entries(spend).flatMap(([currency, byStatus]) =>
