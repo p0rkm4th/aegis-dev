@@ -1,0 +1,15 @@
+{
+  "checkpoint": "homelab-health-to-task-owner-acceptance",
+  "source_sha": "349b799cd870576fa95e638ecb7dd98e6fa475c6",
+  "owner_runtime": {"execution_mode": "installed-release", "release_sha": "349b799", "postgres": "healthy"},
+  "observation": {"service_id": "acceptance-plex", "health": "unavailable"},
+  "request": "Create a task to investigate service acceptance-plex",
+  "result": {
+    "code": "completed",
+    "state": "completed",
+    "objective_id": "c923f6cf-f6c0-4a0f-815b-a9b78e12eb0b",
+    "correlation_id": "c1342e42-89d8-4a46-9af7-65ddf3dfad45",
+    "message": "canonical task readback verified"
+  },
+  "boundary": "The owner request used the normal Core task path; no automatic restart occurred. Today inventory remains bounded to its existing 20-item projection and is not used as proof of this specific task."
+}
