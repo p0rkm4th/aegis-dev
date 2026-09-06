@@ -1963,9 +1963,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
         `${step.action_id}: ${lifecycleLabel(step.state)} · ${step.message}`).join(' | ');
     else document.getElementById('step-status').textContent = '';
     if (result.state) {
-      setOutcomeStatus(result.state);
+      const outcomeUnknown = result.evidence && result.evidence.assurance === 'OUTCOME_UNKNOWN';
+      setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state);
       document.getElementById('activity').textContent =
-      `Status: ${lifecycleLabel(result.state)}${result.detail ? ` · ${result.detail}` : ''}`;
+      `Status: ${outcomeUnknown ? 'Outcome unknown' : lifecycleLabel(result.state)}${result.detail ? ` · ${result.detail}` : ''}`;
     } else if (!response.ok) {
       setOutcomeStatus('failed');
       document.getElementById('activity').textContent =
@@ -1978,6 +1979,9 @@ document.getElementById('chat').addEventListener('submit', async event => {
       document.getElementById('feedback-status').textContent = '';
       if (result.retryable === true) {
         pendingCorrelationId = correlationId; send.textContent = 'Retry';
+        persistPendingRequest(utterance, correlationId);
+      } else if (result.evidence && result.evidence.assurance === 'OUTCOME_UNKNOWN') {
+        pendingCorrelationId = correlationId; send.textContent = 'Recheck status';
         persistPendingRequest(utterance, correlationId);
       } else {
         pendingCorrelationId = null; send.textContent = 'Send';
