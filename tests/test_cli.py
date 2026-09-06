@@ -4808,6 +4808,11 @@ def test_browser_app_serves_external_design_tokens_for_responsive_shell():
     assert "@media (max-width: 36rem)" in css
     assert ".product-nav" in css
 
+    status, content_type, payload = app.dispatch("GET", "/static/aegis.js")
+    assert status == 200
+    assert content_type == "text/javascript; charset=utf-8"
+    assert "More views" in payload.decode()
+
 
 def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
     principal = Principal(id="alice", vault_id="vault")
