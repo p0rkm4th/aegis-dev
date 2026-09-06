@@ -177,6 +177,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="systems">Systems</button>
+<button type="button" data-view="documents">Documents</button>
 </div>
 <div class="nav-group nav-advanced" aria-label="Explore">
 <span class="nav-group-label">Explore</span>
@@ -184,7 +185,6 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="air-quality">Air quality</button>
 <button type="button" data-view="devices">Devices</button>
 <button type="button" data-view="communications">Communications</button>
-<button type="button" data-view="documents">Documents</button>
 <button type="button" data-view="daily-driver">Daily driver</button>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
