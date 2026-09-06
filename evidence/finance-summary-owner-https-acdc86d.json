@@ -1,0 +1,22 @@
+{
+  "checkpoint": "finance-summary-owner-https",
+  "source_sha": "acdc86d",
+  "hosted_validation": {"run_id": "34059750411", "conclusion": "success"},
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "acdc86d",
+    "access": "authenticated Tailscale HTTPS",
+    "postgresql": "healthy",
+    "model": "qwen3:8b"
+  },
+  "pack": {"id": "finance", "status": "enabled", "action": "finance.summary.read"},
+  "request": "What did I spend at the store?",
+  "result": {
+    "state": "completed",
+    "code": "completed",
+    "message": "Done — private Finance summary independently reread",
+    "objective_id": "e07d98a4-8d96-403c-947f-2b156c91c07e",
+    "correlation_id": "f0df8710-f2df-40f9-8617-7cf1cb03aae1"
+  },
+  "interpretation": "Owner Finance read is now reachable through the generic enabled Pack path; the verifier rereads the Principal-scoped snapshot. This is a read capability proof, not a financial mutation or live external integration."
+}
