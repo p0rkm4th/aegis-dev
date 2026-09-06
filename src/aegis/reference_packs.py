@@ -177,6 +177,11 @@ def prepare_reference_action(
             if not open_tasks:
                 lines.append("- None")
             args = {**args, "body": "\n".join(lines)}
+        elif args.get("body_source") == "canonical.calendar_tasks" and connection is not None:
+            args = {
+                **args,
+                "body": _calendar_task_attention_content(connection, principal),
+            }
         elif args.get("body_source") == "canonical.calendar":
             body = calendar_snapshot_content(configured_calendar_provider().list_events())
             args = {**args, "body": body}
@@ -948,6 +953,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             approved_derivations=(
                                 "reference.communication_body_from_groceries.v1",
                                 "reference.communication_body_from_tasks.v1",
+                                "reference.communication_body_from_calendar_tasks.v1",
                                 "reference.communication_body_from_calendar.v1",
                                 "reference.communication_body_from_research.v1",
                                 "reference.communication_body_from_weather.v1",
