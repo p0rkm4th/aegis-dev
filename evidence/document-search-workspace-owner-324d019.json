@@ -1,0 +1,13 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "document-search-to-workspace-owner-surface",
+  "source_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
+  "hosted_validation": {"run_id": "34005109991", "conclusion": "success"},
+  "installed_release_sha": "324d0198b8a3dcb40a27874ce1f90535a5272fe3",
+  "owner_rendered_surface": {
+    "action": "Save results to Workspace",
+    "request_shape": "Find my documents for <query> and save results as <path>",
+    "constellation_nodes": ["Documents", "Search_To_Workspace", "Workspace", "Artifact"]
+  },
+  "authority_boundary": "Document search remains authorized read; Workspace creation requires the normal Core authorization and independently verified scoped artifact path."
+}
