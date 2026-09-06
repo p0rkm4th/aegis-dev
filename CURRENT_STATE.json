@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
+  "state_basis_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
-  "deterministic_green_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
-  "last_pushed_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
-  "hosted_green_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
-  "hosted_ci_green_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
+  "repository_head_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
+  "deterministic_green_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
+  "last_pushed_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
+  "hosted_green_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
+  "hosted_ci_green_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
+    "commit_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
     "conclusion": "success",
-    "run_id": "34026021855",
+    "run_id": "34026405417",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
-  "running_release_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
-  "live_green_sha": "f4c977801c188cbf4434861328f979e4272f8d8f",
+  "installed_release_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
+  "running_release_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
+  "live_green_sha": "bfa8d89c20abc6bfc6aa3be79828a57b6b385e6a",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -49,7 +49,8 @@
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
-    "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added"
+    "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added",
+    "household_chores_workspace": "installed owner proof saved chores.md from canonical open household chores with independent scoped Workspace verification; chore mutation authority was not added"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -204,7 +205,7 @@
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now saves canonical completed-task history as done.md through task-reports and independently verifies the scoped Workspace artifact.",
+  "daily_driver_checkpoint": "The installed owner now saves canonical open household chores as chores.md through household-reports and independently verifies the scoped Workspace artifact.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -242,22 +243,22 @@
   },
   "independently_verified_write_capabilities": 9,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 71,
-  "owner_visible_capability_surfaces": 38,
+  "voluntarily_useful_owner_workflows": 72,
+  "owner_visible_capability_surfaces": 39,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 45,
+  "cross_capability_workflows": 46,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 9,
     "external_integrations": 3,
-    "cross_domain_compositions": 45,
+    "cross_domain_compositions": 46,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 66,
+    "owner_workflows_completed": 67,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/completed-task-workspace-owner-f4c9778.json",
+  "history_artifact": "evidence/household-chores-workspace-owner-bfa8d89.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
