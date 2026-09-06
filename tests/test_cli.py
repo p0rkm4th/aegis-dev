@@ -847,6 +847,27 @@ def test_deterministic_task_message_uses_one_owner_approved_target(monkeypatch):
     assert card.action.arguments["body_source"] == "canonical.tasks"
 
 
+def test_deterministic_completed_task_message_uses_one_owner_approved_target(monkeypatch):
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"scotty","channel":"sms","account":"household"}]',
+    )
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "communications"
+    )
+    manager.discover(bundle)
+    manager.install("communications", frozenset({"communications.read", "communications.send"}))
+    manager.enable("communications")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Text me my completed tasks.",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.arguments["body_source"] == "canonical.completed_tasks"
+
+
 def test_deterministic_calendar_task_message_uses_one_owner_approved_target(monkeypatch):
     monkeypatch.setenv(
         "AEGIS_APPROVED_COMMUNICATION_TARGETS",
