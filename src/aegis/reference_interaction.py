@@ -1206,6 +1206,13 @@ def resolve_reference_safety_fast_paths(
         # This is an explicitly addressed communication request; let the
         # typed communication resolver perform target and send authorization.
         return None
+    if re.fullmatch(
+        r"save (?:my )?(?:open )?(?:tasks|to-?dos) to workspace as "
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     if recovered_plan_actions is None:
         result = MultiActionFastPath.resolve(intent)
         if result is not None:
@@ -3586,6 +3593,14 @@ def resolve_reference_pre_model(
         flags=re.IGNORECASE,
     )
     if explicit_task_message is not None:
+        return None
+    explicit_task_report = re.fullmatch(
+        r"save (?:my )?(?:open )?(?:tasks|to-?dos) to workspace as "
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}",
+        utterance.strip(),
+        flags=re.IGNORECASE,
+    )
+    if explicit_task_report is not None:
         return None
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
