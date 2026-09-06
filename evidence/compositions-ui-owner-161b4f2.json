@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "compositions-ui-owner",
+  "source_sha": "161b4f242910b428d18ceea7a4cfc51574e6a5f3",
+  "hosted_validation": {"run_id": "34007514288", "conclusion": "success"},
+  "installed_release_sha": "161b4f242910b428d18ceea7a4cfc51574e6a5f3",
+  "owner_runtime": {
+    "service": "active",
+    "composition_api": "authorized composition metadata returned",
+    "surface": "trusted cross-capability workflow cards"
+  },
+  "verification": "The owner surface presents generic composition metadata from the existing Core/Pack projection, including surfaces and authority boundaries; it does not execute or authorize workflows.",
+  "authority_boundary": "Composition visibility and constellation context do not grant permission or action authority."
+}
