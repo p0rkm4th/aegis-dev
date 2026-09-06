@@ -29,6 +29,7 @@ PackEnable = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 CalendarState = Callable[[Principal], dict[str, Any]]
 DeviceState = Callable[[Principal], dict[str, Any]]
 SystemsState = Callable[[Principal], dict[str, Any]]
+SystemsDiscover = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -162,6 +163,11 @@ class FinanceImportRequest(BaseModel):
     currency: str = Field(default="USD", min_length=3, max_length=3)
 
 
+class SystemsDiscoverRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    scope_id: str = Field(min_length=1, max_length=100)
+
+
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
@@ -240,6 +246,7 @@ class BrowserApp:
         calendar_state: CalendarState | None = None,
         device_state: DeviceState | None = None,
         systems_state: SystemsState | None = None,
+        systems_discover: SystemsDiscover | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -269,6 +276,7 @@ class BrowserApp:
         self.calendar_state = calendar_state
         self.device_state = device_state
         self.systems_state = systems_state
+        self.systems_discover = systems_discover
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -476,6 +484,39 @@ class BrowserApp:
                     "systems state unavailable",
                 )
             return self._json(HTTPStatus.OK, systems_projection)
+        if method == "POST" and route == "/api/systems/discover":
+            if self.systems_discover is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                discovery_request = SystemsDiscoverRequest.model_validate(
+                    json.loads(body.decode("utf-8"))
+                )
+                discovery_projection = self.systems_discover(
+                    principal, discovery_request.model_dump(mode="json")
+                )
+                if not isinstance(discovery_projection, dict):
+                    raise ValueError("systems discovery result must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "discovery scope denied"
+                )
+            except (
+                UnicodeDecodeError,
+                json.JSONDecodeError,
+                TypeError,
+                ValueError,
+                ValidationError,
+            ):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid discovery request"
+                )
+            except OSError:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "provider_unavailable",
+                    "network discovery provider unavailable",
+                )
+            return self._json(HTTPStatus.OK, discovery_projection)
         if method == "GET" and route == "/api/today":
             if self.today_state is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -910,6 +951,7 @@ def serve(
     calendar_state: CalendarState | None = None,
     device_state: DeviceState | None = None,
     systems_state: SystemsState | None = None,
+    systems_discover: SystemsDiscover | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -942,6 +984,7 @@ def serve(
         calendar_state=calendar_state,
         device_state=device_state,
         systems_state=systems_state,
+        systems_discover=systems_discover,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,

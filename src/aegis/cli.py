@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import socket
 import sqlite3
 import urllib.error
 import urllib.request
@@ -69,7 +70,7 @@ from .identity import (
     Role,
 )
 from .interaction import InteractionBoundary, InteractionDependencies
-from .network import PostgresNetworkStore
+from .network import BoundedNetworkDiscovery, PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PackStatus, PackUpgradeStatus, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
@@ -1039,6 +1040,48 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
             "action_authority": (
                 "read-only inventory; network probes require an explicit authorized scope "
                 "and remain separate from restart authority"
+            ),
+        }
+    finally:
+        connection.close()
+
+
+def _systems_discover(principal: Principal, request: dict[str, Any]) -> dict[str, Any]:
+    """Discover bounded observations in an explicitly authorized network scope."""
+
+    scope_id = request.get("scope_id")
+    if not isinstance(scope_id, str) or not scope_id.strip():
+        raise ValueError("scope_id is required")
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        store = PostgresNetworkStore(connection)
+        inventory = store.load(principal)
+
+        def probe(address: str, port: int) -> bool:
+            try:
+                with socket.create_connection((address, port), timeout=0.25):
+                    return True
+            except OSError:
+                return False
+
+        observations = BoundedNetworkDiscovery(probe, max_hosts=256).discover(inventory, scope_id)
+        for device in observations:
+            store.save_device(principal, device)
+        return {
+            "scope_id": scope_id,
+            "devices": [
+                {
+                    "address": device.address,
+                    "hostname": device.hostname,
+                    "services": list(device.services),
+                    "status": "discovered",
+                }
+                for device in observations
+            ],
+            "source": "bounded_direct_socket_observation",
+            "authority": (
+                "discovered observations only; not canonical Hosts and not action authority"
             ),
         }
     finally:
@@ -3793,6 +3836,7 @@ def main() -> int:
                 calendar_state=_calendar_state,
                 device_state=_device_state,
                 systems_state=_systems_state,
+                systems_discover=_systems_discover,
                 weather_state=_weather_state,
                 air_quality_state=_air_quality_state,
                 today_state=_today_state,
