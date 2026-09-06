@@ -1,0 +1,36 @@
+{
+  "checkpoint": "air-quality-workspace-to-communication-owner-proof",
+  "source_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
+  "hosted": {"run_id": 34028919275, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "6433de3",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "source_artifact": {
+    "workspace_id": "d9d2316b-6cbf-59af-b74c-274d97189ff4",
+    "path": "air-quality.md",
+    "sha256": "3989a7f5af12608c8e97d3e3ff30a788bbb3771ae47a141576cd168a5d39a009",
+    "readback": "Principal-scoped Workspace content and hash"
+  },
+  "request": "Text me the workspace artifact d9d2316b-6cbf-59af-b74c-274d97189ff4 at air-quality.md",
+  "result": {
+    "code": "completed",
+    "objective_id": "9b03f2f1-f734-41fd-a709-d5420274c384",
+    "correlation_id": "f230a76b-5415-4812-9ad2-3e0b2a3faf8a",
+    "status": "PROVIDER_ACCEPTED",
+    "provider_readback": true,
+    "delivery_proven": false
+  },
+  "surfaces": {
+    "owner_view": "Workspace file cards expose a generic Send action",
+    "constellation": "Air quality → Workspace → Communication composition"
+  },
+  "safety": [
+    "source Workspace identity and path remain explicit and Principal-scoped",
+    "communications target remains the configured approved owner target",
+    "Workspace read and communications send use separate Core permissions",
+    "provider acceptance is not delivery proof"
+  ]
+}
