@@ -15,6 +15,8 @@ from aegis.research import (
     SearchRequest,
     SearxngSearchProvider,
     TrafilaturaContentExtractor,
+    WikipediaDocumentFetcher,
+    WikipediaSearchProvider,
     _validated_url,
     configured_research_service,
     resolve_public,
@@ -227,6 +229,63 @@ def test_searxng_json_disabled_is_a_provider_failure(monkeypatch: pytest.MonkeyP
 
     with pytest.raises(RuntimeError, match="SearXNG search failed"):
         SearxngSearchProvider("http://searx.local").search(SearchRequest("public"))
+
+
+def test_wikipedia_provider_returns_bounded_article_candidates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Response(io.BytesIO):
+        def __enter__(self) -> "Response":
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            self.close()
+
+    payload = json.dumps(
+        {"query": {"search": [{"title": "Public topic", "snippet": "bounded result"}]}}
+    ).encode()
+    monkeypatch.setattr("aegis.research.urlopen", lambda *_args, **_kwargs: Response(payload))
+
+    result = WikipediaSearchProvider().search(SearchRequest("public topic"))
+
+    assert result == (
+        SearchCandidate(
+            "Public topic",
+            "https://en.wikipedia.org/wiki/Public_topic",
+            "bounded result",
+        ),
+    )
+
+
+def test_wikipedia_provider_is_explicitly_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("AEGIS_RESEARCH_FIXTURE_JSON", raising=False)
+    monkeypatch.delenv("AEGIS_SEARCH_ENDPOINT", raising=False)
+    monkeypatch.setenv("AEGIS_RESEARCH_WIKIPEDIA", "true")
+
+    service = configured_research_service()
+
+    assert service.provider.provider_id == "wikipedia"
+
+
+def test_wikipedia_fetcher_returns_bounded_summary_without_widening_hosts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Response(io.BytesIO):
+        def __enter__(self) -> "Response":
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            self.close()
+
+    payload = json.dumps({"extract": "A bounded public article extract."}).encode()
+    monkeypatch.setattr("aegis.research.urlopen", lambda *_args, **_kwargs: Response(payload))
+
+    document = WikipediaDocumentFetcher().fetch("https://en.wikipedia.org/wiki/Public_topic")
+
+    assert document.content_type == "text/plain"
+    assert document.body == b"A bounded public article extract."
+    with pytest.raises(ValueError, match="host"):
+        WikipediaDocumentFetcher().fetch("https://example.test/wiki/Public_topic")
 
 
 def test_redirect_is_revalidated_before_connection() -> None:

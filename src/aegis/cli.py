@@ -3133,8 +3133,11 @@ def run_interaction(
         runtime_registry = _default_runtime_registry(_openclaw_channel)
 
     def research_answer(intent: IntentFrame, context: Context, source_kind: str) -> Result:
-        if not os.environ.get("AEGIS_SEARCH_ENDPOINT") and not os.environ.get(
-            "AEGIS_RESEARCH_FIXTURE_JSON"
+        if (
+            not os.environ.get("AEGIS_SEARCH_ENDPOINT")
+            and not os.environ.get("AEGIS_RESEARCH_FIXTURE_JSON")
+            and os.environ.get("AEGIS_RESEARCH_WIKIPEDIA", "").casefold()
+            not in {"1", "true", "yes"}
         ):
             return Result(
                 objective_id=uuid4(),
@@ -3237,7 +3240,12 @@ def run_interaction(
                 correlation_id=intent.correlation_id,
                 retryable=True,
             )
-        if not endpoint and not os.environ.get("AEGIS_RESEARCH_FIXTURE_JSON"):
+        if (
+            not endpoint
+            and not os.environ.get("AEGIS_RESEARCH_FIXTURE_JSON")
+            and os.environ.get("AEGIS_RESEARCH_WIKIPEDIA", "").casefold()
+            not in {"1", "true", "yes"}
+        ):
             return Result(
                 objective_id=uuid4(),
                 state=ObjectiveState.BLOCKED,
