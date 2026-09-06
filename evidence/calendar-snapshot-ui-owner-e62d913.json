@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "calendar-snapshot-ui-owner",
+  "source_sha": "e62d913dee3aac65e0e434750cabc44d925467b3",
+  "hosted_validation": {"run_id": "34006852470", "conclusion": "success"},
+  "installed_release_sha": "e62d913dee3aac65e0e434750cabc44d925467b3",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_events_observed": 1,
+    "task_attention_records_observed": 81,
+    "workspace_action": "Save calendar snapshot to Workspace"
+  },
+  "verification": "The UI invokes calendar-reports.events.snapshot_to_workspace, whose deterministic provider snapshot is fixed before mutation and independently verified in the scoped Workspace.",
+  "authority_boundary": "The UI adds discoverability only; Calendar Pack permissions and Workspace scope remain Core-controlled."
+}
