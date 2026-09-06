@@ -1,0 +1,17 @@
+{
+  "source_sha": "3a7a26894057d30d45820f44eca4925ffaab977d",
+  "hosted_validation": {
+    "run_id": "34051502249",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "3a7a26894057d30d45820f44eca4925ffaab977d",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "proof": {
+    "route": "/api/research",
+    "authorization": "X-Aegis-Session plus Principal/Vault/Space-scoped PostgreSQL projection",
+    "empty_state": "No saved research result is available yet. Ask a sourced question to add one.",
+    "boundary": "Research is bounded public evidence; it is not canonical personal truth and does not authorize actions.",
+    "browser": "Chromium owner path opened Research at 1440px with no page errors",
+    "provider_truth": "No configured live research provider was claimed; empty state is truthful"
+  }
+}
