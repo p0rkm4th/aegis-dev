@@ -1,0 +1,19 @@
+{
+  "checkpoint": "active-objectives-today-owner-proof",
+  "source_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
+  "hosted": {"workflow": "validation", "run_id": 34031389968, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "c87034a",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "owner_visible_proof": {
+    "surface": "Today",
+    "active_objectives": 17,
+    "capability_needs": 2,
+    "actions": ["Open active objectives", "Review capability needs"],
+    "authority": "read-only projection; navigation does not authorize objective or capability mutation"
+  }
+}

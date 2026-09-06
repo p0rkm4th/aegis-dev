@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
+  "state_basis_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
-  "deterministic_green_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
-  "last_pushed_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
-  "hosted_green_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
-  "hosted_ci_green_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
+  "repository_head_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
+  "deterministic_green_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
+  "last_pushed_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
+  "hosted_green_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
+  "hosted_ci_green_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "96d68c26cf991f0735f5af908be2a35c96dbe957",
+    "commit_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25",
     "conclusion": "success",
-    "run_id": "34031148102",
+    "run_id": "34031389968",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "8430137",
-  "running_release_sha": "8430137",
-  "live_green_sha": "8430137",
+  "installed_release_sha": "c87034a",
+  "running_release_sha": "c87034a",
+  "live_green_sha": "c87034a",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8430137586bda098a49f7eeb22ec2c3eb9d73ed5"
+    "release_sha": "c87034aa35b8651b482e439d7dbdadbc1c694c25"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -54,6 +54,7 @@
     "capability_need_review_ui": "Objectives with owner-input candidates provide a generic navigation action to review Packs and capabilities without changing authority",
     "capability_need_focus_ui": "The generic Packs view carries and highlights the exact candidate capability selected from an owner-input Need",
     "capability_need_today": "Today projects authorized unresolved CapabilityNeeds with objective linkage, investigation state, and a read-only handoff to Objectives",
+    "active_objectives_today": "Today projects active canonical objectives with lifecycle state and a read-only handoff to Objectives",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -217,7 +218,7 @@
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner projects durable unresolved CapabilityNeeds into Today and carries selected candidates into Packs; no acquisition or execution authority is implied.",
+  "daily_driver_checkpoint": "The installed owner projects active canonical objectives and unresolved CapabilityNeeds into Today, with safe navigation to lifecycle and capability detail; no mutation authority is implied.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -258,7 +259,7 @@
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
   "voluntarily_useful_owner_workflows": 81,
-  "owner_visible_capability_surfaces": 51,
+  "owner_visible_capability_surfaces": 52,
   "general_purpose_primitives": 2,
   "cross_capability_workflows": 56,
   "breadth_scoreboard": {
@@ -273,6 +274,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/capability-need-today-owner-8430137.json",
+  "history_artifact": "evidence/active-objectives-today-owner-c87034a.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
