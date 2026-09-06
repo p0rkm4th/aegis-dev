@@ -908,6 +908,26 @@ async function loadCommunications() {
       target_boundary: payload.target_boundary,
       outcomes: messages,
     }));
+    const section = document.createElement('section'); section.className = 'detail-card';
+    const title = document.createElement('h3'); title.textContent = 'Send an explicit message';
+    const form = document.createElement('form'); form.setAttribute('aria-label', 'Send message');
+    const fields = [];
+    [['target', 'Approved target'], ['channel', 'Channel'], ['account', 'Account'], ['body', 'Message']].forEach(([name, placeholder]) => {
+      const input = document.createElement(name === 'body' ? 'textarea' : 'input');
+      input.name = name; input.required = true; input.placeholder = placeholder;
+      input.setAttribute('aria-label', placeholder); fields.push(input);
+    });
+    const send = document.createElement('button'); send.type = 'submit'; send.textContent = 'Submit send request';
+    form.append(...fields, send);
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const values = Object.fromEntries(fields.map(field => [field.name, field.value.trim()]));
+      if (Object.values(values).some(value => !value)) return;
+      document.getElementById('utterance').value =
+        `Send a message to ${values.target} via ${values.channel} account ${values.account} saying ${values.body}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    section.append(title, form); panel.append(section);
   } catch (_) {
     panel.textContent = 'Communications state is unavailable; no message was sent.';
   }
