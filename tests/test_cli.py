@@ -5110,6 +5110,22 @@ def test_browser_app_documents_surface_exposes_search_to_workspace_composition()
     assert "independent verification path" in html
 
 
+def test_browser_app_documents_surface_exposes_search_to_communication_composition():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Send document search results" in html
+    assert "Send search results" in html
+    assert "Text me the document search results for ${query}" in html
+    assert "provider acceptance is not delivery proof" in html
+
+
 def test_browser_app_workspace_surface_exposes_scoped_download():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),

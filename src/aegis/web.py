@@ -1615,6 +1615,24 @@ async function loadDocuments() {
     const exportBoundary = document.createElement('p'); exportBoundary.className = 'muted';
     exportBoundary.textContent = 'Results become a scoped Workspace artifact only after the normal Core authorization and independent verification path.';
     searchSection.append(exportForm, exportBoundary);
+    const sendSearchForm = document.createElement('form');
+    sendSearchForm.setAttribute('aria-label', 'Send document search results');
+    const sendSearchQuery = document.createElement('input'); sendSearchQuery.type = 'search';
+    sendSearchQuery.required = true; sendSearchQuery.placeholder = 'Search query';
+    sendSearchQuery.setAttribute('aria-label', 'Communication search query');
+    const sendSearchSubmit = document.createElement('button'); sendSearchSubmit.type = 'submit';
+    sendSearchSubmit.textContent = 'Send search results';
+    sendSearchForm.append(sendSearchQuery, sendSearchSubmit);
+    sendSearchForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const query = sendSearchQuery.value.trim(); if (!query) return;
+      document.getElementById('utterance').value =
+        `Text me the document search results for ${query}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    const sendSearchBoundary = document.createElement('p'); sendSearchBoundary.className = 'muted';
+    sendSearchBoundary.textContent = 'Core fixes authorized matches before sending; provider acceptance is not delivery proof.';
+    searchSection.append(sendSearchForm, sendSearchBoundary);
     documents.forEach(documentRecord => {
       const card = document.createElement('section'); card.className = 'detail-card';
       const title = document.createElement('h3');
