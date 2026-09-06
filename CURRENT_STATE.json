@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "4123c23",
+  "state_basis_sha": "24fbdf3",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "4123c23",
-  "deterministic_green_sha": "4123c23",
-  "last_pushed_sha": "4123c23",
-  "hosted_green_sha": "4123c23",
-  "hosted_ci_green_sha": "4123c23",
+  "repository_head_sha": "24fbdf3",
+  "deterministic_green_sha": "24fbdf3",
+  "last_pushed_sha": "24fbdf3",
+  "hosted_green_sha": "24fbdf3",
+  "hosted_ci_green_sha": "24fbdf3",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "4123c23",
+    "commit_sha": "24fbdf3",
     "conclusion": "success",
-    "run_id": "34036948179",
+    "run_id": "34037267569",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "4123c23",
-  "running_release_sha": "4123c23",
-  "live_green_sha": "4123c23",
+  "installed_release_sha": "24fbdf3",
+  "running_release_sha": "24fbdf3",
+  "live_green_sha": "24fbdf3",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "4123c23"
+    "release_sha": "24fbdf3"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -71,6 +71,7 @@
     "public_holidays_communication": "Promoted Calendar view sends configured public-holiday evidence through generic Communications; evidence remains external/non-canonical and provider acceptance is distinct from delivery",
     "household_chores_communication_ui": "Promoted Household view exposes Send open chores; canonical chore state is fixed before generic communication and provider acceptance is distinct from delivery",
     "household_obligations_communication_ui": "Promoted Household view exposes Send open obligations; canonical obligation state is fixed before generic communication and provider acceptance is distinct from delivery",
+    "device_control_owner_fixture": "Promoted Devices owner proof accepts punctuated low-risk light control with independent fixture readback and denies an entity outside configured scope; live Home Assistant remains pending",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -244,6 +245,7 @@
     ,"promoted owner UI on 4d6c712 exposes Send public holidays; installed owner proof sent configured US/2026 public evidence with PROVIDER_ACCEPTED readback, while evidence remained external/non-canonical and delivery unproven"
     ,"promoted owner UI on df81101 exposes Send open chores; installed owner proof sent the fixed canonical open-chore snapshot with PROVIDER_ACCEPTED readback, while chore state remained read-only and delivery unproven"
     ,"promoted owner UI on ce1d0cc exposes Send open obligations; installed owner proof sent the fixed canonical open-obligation snapshot with PROVIDER_ACCEPTED readback, while obligation state remained read-only and delivery unproven"
+    ,"promoted owner Devices surface accepted punctuated light.desk control with independent fixture readback and denied unauthorized light.garage; live Home Assistant control remains pending"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes fixed canonical household chore snapshots through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -286,7 +288,7 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 93,
+  "voluntarily_useful_owner_workflows": 94,
   "owner_visible_capability_surfaces": 67,
   "general_purpose_primitives": 2,
   "cross_capability_workflows": 69,
@@ -302,6 +304,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/household-obligations-communication-owner-ce1d0cc.json",
+  "history_artifact": "evidence/device-control-owner-24fbdf3.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
