@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+  "state_basis_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
-  "deterministic_green_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
-  "last_pushed_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
-  "hosted_green_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
-  "hosted_ci_green_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+  "repository_head_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "deterministic_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "last_pushed_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "hosted_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "hosted_ci_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+    "commit_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
     "conclusion": "success",
-    "run_id": "34011916883",
+    "run_id": "34012192508",
     "observed_at": "2026-09-06T04:15:00Z"
   },
-  "installed_release_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
-  "running_release_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
-  "live_green_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+  "installed_release_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "running_release_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "live_green_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-weather-forecast",
+  "active_checkpoint": "daily-driver-alpha-weather-conversation",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -164,6 +164,7 @@
     ,"Today now projects the same live Air Quality public evidence alongside calendar and holiday attention; attribution and non-canonical boundaries remain visible and no personal state is inferred"
     ,"After explicit owner approval enabled the Air Quality Pack, the installed natural request with explicit coordinates completed through Core and returned live Open-Meteo evidence; numeric provenance is exact-token grounded"
     ,"Weather now includes a bounded three-day public forecast with explicit coordinates, live Open-Meteo evidence, precipitation probability, sunrise, sunset, owner Weather presentation, and a Pack/runtime action"
+    ,"Installed owner proof completed 'What is the weather tomorrow?' after explicit approval of the Weather Pack upgrade; configured coordinates were an approved default and the two-day horizon was derived only from 'tomorrow'"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "Air Quality is now a live owner-visible public read for explicit coordinates, with Open-Meteo/CAMS provenance and Pack-driven Constellation representation. Weather and Public Holidays remain live; OpenClaw, Google Calendar, and Home Assistant remain pending.",
@@ -204,7 +205,7 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 41,
+  "voluntarily_useful_owner_workflows": 42,
   "owner_visible_capability_surfaces": 23,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 23,
@@ -216,10 +217,10 @@
     "cross_domain_compositions": 23,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 40,
+    "owner_workflows_completed": 41,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: inspect communications/calendar provider availability, then advance the cheapest live provider or independently verified consequential path. Preserve truthful pending states and keep breadth ahead of semantic micro-tuning.",
-  "history_artifact": "evidence/weather-forecast-owner-db198be.json",
+  "history_artifact": "evidence/weather-tomorrow-owner-a58fafc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

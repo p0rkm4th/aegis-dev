@@ -1,0 +1,21 @@
+{
+  "kind": "owner_installed_conversation_proof",
+  "capability": "weather.forecast.read",
+  "source_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "hosted_run_id": "34012192508",
+  "installed_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "running_sha": "a58fafceca77b228fd2f9e4194ac8941b3fa3933",
+  "utterance": "What's the weather tomorrow?",
+  "pack_upgrade": "explicit owner approval followed by explicit installation and enablement",
+  "provenance": {
+    "coordinates": "approved owner.weather_coordinates.v1",
+    "horizon": "reference.tomorrow_forecast_horizon.v1"
+  },
+  "result_state": "completed",
+  "message": "Done — weather forecast readback is structurally valid",
+  "provider": "open_meteo",
+  "correlation_id": "dc93f933-51cc-4004-88b5-13a91065d520",
+  "objective_id": "124f5af6-a2c8-489c-b4d1-f7dcd962af56",
+  "postgresql_preserved": true,
+  "observed_at": "2026-09-06T05:00:00Z"
+}
