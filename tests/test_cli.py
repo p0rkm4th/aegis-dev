@@ -113,6 +113,12 @@ def test_deterministic_finance_read_uses_enabled_pack_for_domain_question():
     assert card.action.action_id == "finance.summary.read"
 
 
+def test_affordability_question_is_not_captured_by_finance_summary_fallback():
+    from aegis.finance import FinanceReadFastPath
+
+    assert FinanceReadFastPath.matches("Can I spend $80 on groceries tonight?")
+
+
 def test_deterministic_workspace_artifact_action_preserves_explicit_file_content():
     manager = PackManager()
     bundle = next(

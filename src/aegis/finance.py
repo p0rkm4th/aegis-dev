@@ -542,6 +542,8 @@ class FinanceReadFastPath:
         return has_amount and (
             "can i afford" in text
             or "can we afford" in text
+            or "can i spend" in text
+            or "can we spend" in text
             or bool(cls._SAFE_PURCHASE.search(text))
             or bool(cls._SAFE_SPEND.search(text))
         )

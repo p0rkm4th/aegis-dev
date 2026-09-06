@@ -49,7 +49,12 @@ from .contracts import (
 from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
-from .finance import FinanceLedger, PostgresFinanceSnapshotStore, summarize_snapshot
+from .finance import (
+    FinanceLedger,
+    FinanceReadFastPath,
+    PostgresFinanceSnapshotStore,
+    summarize_snapshot,
+)
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .holidays import configured_holiday_provider, holidays_evidence
@@ -1527,9 +1532,13 @@ def _deterministic_composition_action(
     # is scoped to an enabled Pack/card and a small domain vocabulary, not to
     # a particular owner sentence.  Core still performs grounding,
     # authorization, execution, and independent verification below.
-    if not is_mutation_request(folded) and re.search(
-        r"\b(?:finance|money|spend|spent|transaction|transactions|account|accounts|purchase)\b",
-        folded,
+    if (
+        not FinanceReadFastPath.matches(folded)
+        and not is_mutation_request(folded)
+        and re.search(
+            r"\b(?:finance|money|spend|spent|transaction|transactions|account|accounts|purchase)\b",
+            folded,
+        )
     ):
         finance_card = manager.action_card("finance", "finance.summary.read")
         if finance_card is not None:
