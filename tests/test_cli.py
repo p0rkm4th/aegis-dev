@@ -4287,6 +4287,22 @@ def test_browser_app_research_surface_exposes_research_to_workspace_composition(
     assert "Public evidence remains non-canonical" in html
 
 
+def test_browser_app_research_surface_exposes_unsent_communication_draft():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Draft a researched message" in html
+    assert "Research and create unsent draft" in html
+    assert "Draft researched message to ${values[0]} with subject" in html
+    assert "no message is sent" in html
+
+
 def test_browser_app_calendar_surface_exposes_read_only_task_attention():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
