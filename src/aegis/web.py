@@ -226,6 +226,7 @@ const recoveryPollMs = 5000;
 const recoveryRequestTimeoutMs = 10000;
 const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
+let pendingOutcomeUnknown = false;
 let conversationSessionId = null;
 let conversationContextCorrelationId = null;
 let selectedNode = null;
@@ -303,10 +304,11 @@ function setOutcomeStatus(state) {
   badge.dataset.state = normalized;
   badge.textContent = normalized === 'idle' ? 'Ready' : lifecycleLabel(normalized);
 }
-function persistPendingRequest(utterance, correlationId) {
+function persistPendingRequest(utterance, correlationId, outcomeUnknown = false) {
   try {
     sessionStorage.setItem(pendingStorageKey, JSON.stringify(
-    {utterance, correlation_id: correlationId, session_id: conversationSessionId}));
+    {utterance, correlation_id: correlationId, session_id: conversationSessionId,
+      outcome_unknown: outcomeUnknown}));
   } catch (_) { /* session storage is optional; Core correlation remains authoritative. */ }
 }
 function clearPendingRequest() {
@@ -349,10 +351,13 @@ function restorePendingRequest() {
       clearPendingRequest(); return;
     }
     pendingCorrelationId = saved.correlation_id;
+    pendingOutcomeUnknown = saved.outcome_unknown === true;
     document.getElementById('utterance').value = saved.utterance;
-    document.getElementById('activity').textContent =
-      'A previous request may still be in progress. Retry uses the same correlation.';
-    document.querySelector('#chat button').textContent = 'Retry';
+    document.getElementById('activity').textContent = pendingOutcomeUnknown
+      ? 'Outcome unknown. Recheck status will read canonical state without repeating the mutation.'
+      : 'A previous request may still be in progress. Retry uses the same correlation.';
+    document.querySelector('#chat button').textContent = pendingOutcomeUnknown
+      ? 'Recheck status' : 'Retry';
   } catch (_) { clearPendingRequest(); }
   resizeComposer();
 }
@@ -392,16 +397,20 @@ async function recoverPendingRequest() {
     }
     const status = await response.json();
     if (status.state === 'unknown') {
+      pendingOutcomeUnknown = true;
+      document.querySelector('#chat button').textContent = 'Recheck status';
+      persistPendingRequest(document.getElementById('utterance').value, pendingCorrelationId, true);
       document.getElementById('activity').textContent =
-        'Outcome unknown; checking canonical status. Retry remains explicit.';
+        'Outcome unknown; checking canonical status. No mutation will be repeated automatically.';
       scheduleRecoveryPoll(); return;
     }
     const inProgressStates = new Set([
       'proposed', 'validated', 'authorized', 'executing', 'observed'
     ]);
     if (inProgressStates.has(status.state)) {
+      document.querySelector('#chat button').textContent = 'Recheck status';
       document.getElementById('activity').textContent =
-        `Request status recovered: ${lifecycleLabel(status.state)}. Retry remains explicit.`;
+        `Request status recovered: ${lifecycleLabel(status.state)}. Recheck status remains read-only.`;
       scheduleRecoveryPoll();
       return;
     }
@@ -410,10 +419,11 @@ async function recoverPendingRequest() {
     document.getElementById('answer').textContent = status.message || 'Request status recovered.';
     document.getElementById('activity').textContent = `Status: ${lifecycleLabel(status.state)}`;
     if (status.retryable === true) {
+      pendingOutcomeUnknown = false;
       document.querySelector('#chat button').textContent = 'Retry';
-      persistPendingRequest(document.getElementById('utterance').value, recoveredCorrelationId);
+      persistPendingRequest(document.getElementById('utterance').value, recoveredCorrelationId, false);
     } else {
-      pendingCorrelationId = null; clearPendingRequest();
+      pendingCorrelationId = null; pendingOutcomeUnknown = false; clearPendingRequest();
       document.querySelector('#chat button').textContent = 'Send';
     }
     if (status.state === 'completed') refreshState();
@@ -1917,6 +1927,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const input = document.getElementById('utterance');
   const send = form.querySelector('button');
   const utterance = input.value.trim(); if (!utterance || send.disabled) return;
+  if (pendingOutcomeUnknown) {
+    recoverPendingRequest();
+    return;
+  }
   const correlationId = pendingCorrelationId || crypto.randomUUID();
   if (!pendingCorrelationId) appendConversationMessage('owner-message', `You: ${utterance}`);
   send.disabled = true; input.disabled = true;
@@ -1978,13 +1992,15 @@ document.getElementById('chat').addEventListener('submit', async event => {
       feedback.dataset.correlationId = result.correlation_id || '';
       document.getElementById('feedback-status').textContent = '';
       if (result.retryable === true) {
+        pendingOutcomeUnknown = false;
         pendingCorrelationId = correlationId; send.textContent = 'Retry';
-        persistPendingRequest(utterance, correlationId);
+        persistPendingRequest(utterance, correlationId, false);
       } else if (result.evidence && result.evidence.assurance === 'OUTCOME_UNKNOWN') {
+        pendingOutcomeUnknown = true;
         pendingCorrelationId = correlationId; send.textContent = 'Recheck status';
-        persistPendingRequest(utterance, correlationId);
+        persistPendingRequest(utterance, correlationId, true);
       } else {
-        pendingCorrelationId = null; send.textContent = 'Send';
+        pendingCorrelationId = null; pendingOutcomeUnknown = false; send.textContent = 'Send';
         clearPendingRequest();
         if (result.state === 'completed' && result.correlation_id)
           persistConversationContext(result.correlation_id);
@@ -2013,8 +2029,9 @@ document.getElementById('chat').addEventListener('submit', async event => {
     document.getElementById('activity').textContent = timedOut
       ? 'Status: request_timeout · Retry uses the same correlation.'
       : 'Status: unavailable';
-    pendingCorrelationId = correlationId; send.textContent = 'Retry';
-    persistPendingRequest(utterance, correlationId);
+    pendingOutcomeUnknown = timedOut;
+    pendingCorrelationId = correlationId; send.textContent = timedOut ? 'Recheck status' : 'Retry';
+    persistPendingRequest(utterance, correlationId, timedOut);
   } finally {
     clearTimeout(timeout);
     form.setAttribute('aria-busy', 'false');

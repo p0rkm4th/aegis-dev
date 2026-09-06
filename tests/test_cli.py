@@ -4831,6 +4831,9 @@ def test_browser_app_preserves_unknown_as_reconciliation_not_retry():
     html = payload.decode()
     assert "Outcome unknown" in html
     assert "Recheck status" in html
+    assert "pendingOutcomeUnknown" in html
+    assert "/api/request-status?correlation_id=" in html
+    assert "No mutation will be repeated automatically." in html
 
 
 def test_browser_app_exposes_pack_lifecycle_without_granting_permissions():
@@ -6587,7 +6590,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "setTimeout(() => controller.abort(), recoveryRequestTimeoutMs)" in _INDEX_HTML
     assert "signal: controller.signal" in _INDEX_HTML
     assert "Status checks paused after five minutes." in _INDEX_HTML
-    assert "Outcome unknown; checking canonical status. Retry remains explicit." in _INDEX_HTML
+    assert (
+        "Outcome unknown; checking canonical status. No mutation will be repeated automatically."
+        in _INDEX_HTML
+    )
     assert "Status check unavailable; retry remains explicit." in _INDEX_HTML
     assert "inProgressStates.has(status.state)" in _INDEX_HTML
     assert "Retry remains explicit." in _INDEX_HTML
