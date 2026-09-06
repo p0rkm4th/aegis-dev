@@ -203,6 +203,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "completed-tasks-to-workspace",
+            "label": "Completed tasks → Workspace",
+            "description": (
+                "Preserve canonical completed-task history as a verified scoped artifact."
+            ),
+            "surfaces": ("Tasks", "Workspace"),
+            "authority": (
+                "completed task read + scoped Workspace write; no task mutation, Core "
+                "authorization and independent verification required"
+            ),
+        },
+        {
             "id": "calendar-task-attention-to-communication",
             "label": "Calendar + Tasks attention → Communication",
             "description": (

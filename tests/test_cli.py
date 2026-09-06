@@ -361,6 +361,24 @@ def test_deterministic_task_report_uses_workspace_composition():
     assert card.action.arguments == {"target_path": "tasks.md"}
 
 
+def test_deterministic_completed_task_report_uses_workspace_composition():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "task-reports"
+    )
+    manager.discover(bundle)
+    manager.install("task-reports", frozenset({"tasks.read", "workspace.write"}))
+    manager.enable("task-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save my completed tasks to workspace as done.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "task-reports.completed_to_workspace"
+    assert card.action.arguments == {"target_path": "done.md"}
+
+
 def test_deterministic_today_report_uses_workspace_composition():
     manager = PackManager()
     bundle = next(

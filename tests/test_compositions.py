@@ -30,6 +30,14 @@ def test_tasks_to_communication_composition_is_owner_visible() -> None:
     assert "approved destination" in composition["authority"]
 
 
+def test_completed_tasks_workspace_composition_is_owner_visible() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "completed-tasks-to-workspace"
+    )
+    assert composition["surfaces"] == ("Tasks", "Workspace")
+    assert "no task mutation" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item

@@ -115,10 +115,18 @@ def prepare_reference_action(
                 Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
             ).for_workspace_id(principal.id, source_workspace_id)
             files = {target_path: source_workspace.read(source_path)}
-    elif action.action_id == "task-reports.to_workspace" and connection is not None:
+    elif (
+        action.action_id
+        in {
+            "task-reports.to_workspace",
+            "task-reports.completed_to_workspace",
+        }
+        and connection is not None
+    ):
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
-            files = {target_path: _task_workspace_content(connection, principal)}
+            status = "completed" if action.action_id.endswith("completed_to_workspace") else "open"
+            files = {target_path: _task_workspace_content(connection, principal, status=status)}
     elif action.action_id == "today-reports.to_workspace" and connection is not None:
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
@@ -593,15 +601,16 @@ def _weather_forecast_workspace_content(forecast: object) -> str:
     )
 
 
-def _task_workspace_content(connection: Any, principal: Principal) -> str:
-    """Serialize the authorized open task snapshot into a bounded artifact."""
+def _task_workspace_content(connection: Any, principal: Principal, *, status: str = "open") -> str:
+    """Serialize one authorized task-status snapshot into a bounded artifact."""
 
     tasks = [
         task
         for task in PostgresTaskStore(connection).list(principal)
-        if task.status.value == "open"
+        if task.status.value == status
     ]
-    lines = ["# Open tasks", ""]
+    heading = "Completed tasks" if status == "completed" else "Open tasks"
+    lines = [f"# {heading}", ""]
     if not tasks:
         lines.append("- None")
     for task in tasks[:50]:
@@ -1526,6 +1535,25 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         )
                     },
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="task-reports.completed_to_workspace",
+                        capability="task-reports.completed_to_workspace",
+                        required_permissions=("tasks.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save canonical completed tasks as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -2120,11 +2148,12 @@ class CalendarTaskAttentionWorkspaceVerifier:
 
 
 class TaskWorkspaceExecutor:
-    """Write an authorized open-task snapshot into the scoped Workspace."""
+    """Write an authorized task-status snapshot into the scoped Workspace."""
 
-    def __init__(self, connection: Any, principal: Principal) -> None:
+    def __init__(self, connection: Any, principal: Principal, *, status: str = "open") -> None:
         self.connection = connection
         self.principal = principal
+        self.status = status
 
     def execute(self, request: ExecutionRequest) -> Observation:
         target_path = request.action.arguments.get("target_path")
@@ -2135,7 +2164,7 @@ class TaskWorkspaceExecutor:
                 command_succeeded=False,
             )
         try:
-            content = _task_workspace_content(self.connection, self.principal)
+            content = _task_workspace_content(self.connection, self.principal, status=self.status)
             workspace = WorkspaceManager(
                 Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
             ).for_objective(self.principal.id, request.objective_id)
@@ -2151,7 +2180,11 @@ class TaskWorkspaceExecutor:
         return Observation(
             execution_id=uuid4(),
             evidence={
-                "composition": "tasks_to_workspace",
+                "composition": (
+                    "completed_tasks_to_workspace"
+                    if self.status == "completed"
+                    else "tasks_to_workspace"
+                ),
                 "files": list(artifact.files),
                 "executor_local_validated": artifact.validated,
             },
