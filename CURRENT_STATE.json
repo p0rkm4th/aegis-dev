@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a200dc2",
+  "state_basis_sha": "431436d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a200dc2",
-  "deterministic_green_sha": "a200dc2",
-  "last_pushed_sha": "a200dc2",
-  "hosted_green_sha": "a200dc2",
-  "hosted_ci_green_sha": "a200dc2",
+  "repository_head_sha": "431436d",
+  "deterministic_green_sha": "431436d",
+  "last_pushed_sha": "431436d",
+  "hosted_green_sha": "431436d",
+  "hosted_ci_green_sha": "431436d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a200dc2",
+    "commit_sha": "431436d",
     "conclusion": "success",
-    "run_id": "34046154911",
-    "observed_at": "2026-09-06T08:20:00Z"
+    "run_id": "34046385752",
+    "observed_at": "2026-09-06T14:20:00Z"
   },
   "installed_release_sha": "1b6d2a4",
   "running_release_sha": "1b6d2a4",
   "live_green_sha": "1b6d2a4",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "breadth-rearm-after-calendar-conformance",
+  "active_checkpoint": "breadth-rearm-after-completed-task-communication",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "breadth-rearm-after-calendar-conformance",
+  "current_checkpoint": "breadth-rearm-after-completed-task-communication",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -91,6 +91,7 @@
     "document_export_workspace_ui": "Promoted Documents view exposes direct authorized document export into a scoped Workspace artifact through the existing typed Core action",
     "homelab_health_research_ui": "Promoted Systems view exposes a bounded health-to-research handoff for unhealthy authorized services without restart or mutation authority",
     "completed_tasks_workspace_ui": "Promoted Tasks view exposes completed canonical task history as a scoped independently verified Workspace report",
+    "completed_tasks_communication_ui": "Promoted Tasks view exposes a generic completed-task snapshot to Communications; canonical history is fixed before send and provider acceptance remains distinct from delivery",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
     "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added",
@@ -271,9 +272,10 @@
     ,"promoted owner proof created and independently verified a Homelab health report with truthful unavailable Plex state; no restart or deployment authority was added"
     ,"household obligations Workspace report is deterministic-green and Pack-registered; owner acceptance remains pending because household-reports is pending explicit permission approval, and 046646c now fails closed instead of falling through to task-reports"
     ,"Network Reports is deterministic-green and visible from Systems; network-reports requires explicit network.read + workspace.write approval before the owner can create network-report.md, and ac5c696 prevents fallback to unrelated routing"
+    ,"Contract-green completed canonical task history → Communications composition is generic and destination-scoped; live provider delivery remains unconfigured"
   ],
   "current_blockers": [
-    "Communications and Calendar still need the full adversarial timeout/restart/reconciliation proof through the owner path; live provider acceptance remains separately gated by credentials.",
+    "No OpenClaw outbound channel or Google Calendar credential is configured, so live external delivery/write acceptance remains pending; fixture/provider acceptance is not delivery proof.",
     "The browser presentation is only partially extracted; the existing inline application script remains to be split after the current Core contract stabilizes."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
@@ -289,9 +291,7 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "active_checkpoint_blockers": [],
-  "project_architecture_blockers": [
-    "Shared assurance is implemented for Communications and Calendar, but full restart/reconciliation conformance and owner-visible proof remain pending."
-  ],
+  "project_architecture_blockers": [],
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "daily_driver_scoreboard": {
@@ -320,22 +320,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 99,
-  "owner_visible_capability_surfaces": 68,
+  "voluntarily_useful_owner_workflows": 100,
+  "owner_visible_capability_surfaces": 69,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 74,
+  "cross_capability_workflows": 75,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 73,
+    "cross_domain_compositions": 74,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 95,
+    "owner_workflows_completed": 96,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood completed Tasks → Workspace through the installed owner view, then move to the next owner-visible domain composition while retaining read-only reconciliation and explicit provider acceptance boundaries.",
+  "next_action": "Promote and dogfood completed Tasks → Communications through the installed owner view, then choose the next non-credential-blocked owner composition while retaining read-only canonical context and explicit provider acceptance boundaries.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
-  "migrated_at": "2026-09-05T02:33:23.074799+00:00"
+  "migrated_at": "2026-09-06T14:20:00+00:00"
 }
