@@ -144,6 +144,20 @@ def _ground_argument_provenance(
 
     provenance: dict[str, ArgumentProvenance] = {}
     for key, value in card.action.arguments.items():
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            numeric_spans = tuple(
+                match.span()
+                for match in re.finditer(
+                    r"(?<![\w.])-?(?:\d+(?:\.\d+)?)(?![\w.])", intent.utterance
+                )
+                if float(match.group(0)) == float(value)
+            )
+            if numeric_spans:
+                provenance[key] = ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                    source_spans=numeric_spans[:1],
+                )
+                continue
         if key == "body_source" and value in {
             "canonical.groceries",
             "bounded.research",
