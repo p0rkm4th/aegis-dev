@@ -174,6 +174,28 @@ def test_deterministic_homelab_health_action_uses_explicit_service():
     assert card.action.arguments == {"service": "acceptance-plex"}
 
 
+def test_deterministic_network_probe_preserves_explicit_endpoint_and_scope():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "network")
+    manager.discover(bundle)
+    manager.install("network", frozenset({"network.read"}))
+    manager.enable("network")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Probe 10.0.0.5 in scope alpha-lab on port 443",
+    )
+
+    card = _deterministic_composition_action(intent, manager, Context())
+
+    assert card is not None
+    assert card.action.action_id == "network.probe"
+    assert card.action.arguments == {
+        "address": "10.0.0.5",
+        "scope_id": "alpha-lab",
+        "port": 443,
+    }
+
+
 def test_device_research_context_sanitizes_public_query_and_reads_authorized_state(monkeypatch):
     from aegis import cli
 

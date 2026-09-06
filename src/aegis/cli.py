@@ -1064,6 +1064,28 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    network_probe = re.fullmatch(
+        r"probe (?P<address>[a-zA-Z0-9_.:-]+) in scope (?P<scope_id>[a-zA-Z0-9_.:-]+) "
+        r"on port (?P<port>[0-9]{1,5})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if network_probe is not None:
+        card = manager.action_card("network", "network.probe")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            **network_probe.groupdict(),
+                            "port": int(network_probe.group("port")),
+                        }
+                    }
+                )
+            }
+        )
     document_search_workspace = re.fullmatch(
         r"(?:search|find) (?:my )?documents? for (?P<query>.+?) and save results as "
         r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
