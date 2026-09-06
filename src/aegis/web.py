@@ -822,6 +822,23 @@ async function loadWorkspace() {
     filterLabel.append(filter); panel.append(filterLabel);
     const filterStatus = document.createElement('p'); filterStatus.className = 'muted';
     filterStatus.setAttribute('aria-live', 'polite'); panel.append(filterStatus);
+    const searchForm = document.createElement('form');
+    searchForm.setAttribute('aria-label', 'Search workspace contents');
+    const searchInput = document.createElement('input');
+    searchInput.type = 'search'; searchInput.required = true;
+    searchInput.placeholder = 'Search authorized file contents';
+    searchInput.setAttribute('aria-label', 'Search authorized file contents');
+    const searchSubmit = document.createElement('button');
+    searchSubmit.type = 'submit'; searchSubmit.textContent = 'Search contents';
+    searchForm.append(searchInput, searchSubmit);
+    searchForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!searchInput.value.trim()) return;
+      document.getElementById('utterance').value =
+        `Search my workspace for ${searchInput.value.trim()}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    panel.append(searchForm);
     const cards = [];
     const applyWorkspaceFilter = () => {
       const query = filter.value.trim().toLowerCase();

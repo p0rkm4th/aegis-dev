@@ -1717,6 +1717,20 @@ def _deterministic_composition_action(
         if card is None:
             return None
         return card
+    workspace_search = re.fullmatch(
+        r"(?:search|find) (?:my )?workspace(?: files| artifacts)? for (?P<query>.+?)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if workspace_search is not None:
+        card = manager.action_card("workspace", "workspace.artifacts.search")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": workspace_search.groupdict()})
+            }
+        )
     workspace_send = re.fullmatch(
         r"(?:send|text) me (?:the )?workspace artifact (?P<workspace_id>[0-9a-f-]{36}) at "
         r"(?P<path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}?)[?!.,]?",

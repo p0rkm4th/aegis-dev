@@ -106,6 +106,24 @@ def test_deterministic_workspace_file_read_preserves_explicit_scope():
     assert card.action.arguments == {"workspace_id": workspace_id, "path": "reports/tomorrow.md"}
 
 
+def test_deterministic_workspace_search_preserves_explicit_query():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(bundle)
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
+    manager.enable("workspace")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Search my workspace for maintenance",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.artifacts.search"
+    assert card.action.arguments == {"query": "maintenance"}
+
+
 def test_workspace_read_result_formatter_returns_bounded_file_content():
     from aegis.reference_interaction import reference_format_result
 
@@ -5502,6 +5520,8 @@ def test_browser_app_workspace_surface_exposes_generic_send_action():
     html = payload.decode()
     assert "Find workspace artifacts" in html
     assert "Filter by workspace or file name" in html
+    assert "Search authorized file contents" in html
+    assert "Search my workspace for ${searchInput.value.trim()}" in html
     assert "Send ${path}" in html
     assert "Text me the workspace artifact ${workspace.workspace_id} at ${path}" in html
 
