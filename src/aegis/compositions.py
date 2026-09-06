@@ -86,6 +86,17 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "workspace-append-to-communication",
+            "label": "Workspace append → Communication",
+            "description": "Update a scoped artifact, then send its exact resulting content.",
+            "surfaces": ("Workspace", "Communications"),
+            "authority": (
+                "Principal-scoped Workspace read/write + communications send; append and send "
+                "retain separate Core authorization, and provider acceptance does not imply "
+                "delivery"
+            ),
+        },
+        {
             "id": "homelab-health-to-research",
             "label": "Homelab health → Research",
             "description": "Research likely causes for an authorized observed service condition.",
