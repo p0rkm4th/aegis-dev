@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "7027956",
+  "state_basis_sha": "8d9c951",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "7027956",
-  "deterministic_green_sha": "7027956",
-  "last_pushed_sha": "7027956",
-  "hosted_green_sha": "7027956",
-  "hosted_ci_green_sha": "7027956",
+  "repository_head_sha": "8d9c951",
+  "deterministic_green_sha": "8d9c951",
+  "last_pushed_sha": "8d9c951",
+  "hosted_green_sha": "8d9c951",
+  "hosted_ci_green_sha": "8d9c951",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "7027956",
+    "commit_sha": "8d9c951",
     "conclusion": "success",
-    "run_id": "34047330626",
-    "observed_at": "2026-09-06T17:40:00Z"
+    "run_id": "34047646913",
+    "observed_at": "2026-09-06T18:00:00Z"
   },
   "installed_release_sha": "26cdc88",
   "running_release_sha": "26cdc88",
   "live_green_sha": "26cdc88",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "breadth-rearm-after-workspace-inventory-filter",
+  "active_checkpoint": "breadth-rearm-after-workspace-content-search",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "breadth-rearm-after-workspace-inventory-filter",
+  "current_checkpoint": "breadth-rearm-after-workspace-content-search",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -97,6 +97,7 @@
     "calendar_task_attention_communication_ui": "Promoted Calendar view exposes Calendar + Tasks attention sharing through the existing generic communications route; task/calendar state remains read-only and delivery is unproven",
     "documents_primary_navigation": "Promoted responsive shell treats Documents as an everyday destination while retaining compact mobile disclosure for exploratory views",
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
+    "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
     "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added",
@@ -340,7 +341,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Promote and dogfood Workspace artifact filtering with scoped file detail, then continue the next non-credential-blocked capability/product slice without claiming live provider delivery.",
+  "next_action": "Promote and dogfood scoped Workspace content search with file detail, then continue the next non-credential-blocked capability/product slice without claiming live provider delivery.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
