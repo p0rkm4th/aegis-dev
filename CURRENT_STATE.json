@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+  "state_basis_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "99254bd950b737f9e8847ed5105d71ac6bec1bf7",
-  "deterministic_green_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
-  "last_pushed_sha": "99254bd950b737f9e8847ed5105d71ac6bec1bf7",
-  "hosted_green_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
-  "hosted_ci_green_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+  "repository_head_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "deterministic_green_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "last_pushed_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "hosted_green_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "hosted_ci_green_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+    "commit_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
     "conclusion": "success",
-    "run_id": "34021672528",
+    "run_id": "34022077122",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
-  "running_release_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
-  "live_green_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+  "installed_release_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "running_release_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "live_green_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-calendar-conflict-inspection",
+  "active_checkpoint": "daily-driver-alpha-homelab-health-research",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02"
+    "release_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -191,9 +191,10 @@
     ,"calendar-task-attention is a dedicated two-permission Pack; installed owner proof reads canonical task deadlines against configured calendar events through Core, renders a bounded list with omitted-count truth, and exposes the Pack in Constellation"
     ,"calendar-task-reports is a dedicated three-permission Calendar + Tasks → Workspace composition; installed owner proof independently verified attention.md in the Principal/objective-scoped Workspace and Workspace UI inventory exposes the artifact"
     ,"workspace.artifact.copy is a generic Principal-scoped Workspace read→write primitive; installed owner proof copied attention.md to a new objective Workspace and independently verified attention-copy.md"
+    ,"homelab-research is a dedicated Systems → Research Pack; installed owner proof reread authorized acceptance-plex health, returned bounded Alpha Guide evidence, marked it external/non-canonical, and granted no restart authority"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now copies a Principal-scoped Workspace artifact into a new verified objective Workspace through workspace.artifact.copy; attention-copy.md is visible in Workspace inventory.",
+  "daily_driver_checkpoint": "The installed owner now composes authorized Homelab health with bounded public Research through the explicitly approved homelab-research Pack; external evidence remains non-canonical and no restart authority is implied.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -231,22 +232,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 62,
-  "owner_visible_capability_surfaces": 30,
+  "voluntarily_useful_owner_workflows": 63,
+  "owner_visible_capability_surfaces": 31,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 36,
+  "cross_capability_workflows": 37,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 7,
     "external_integrations": 3,
-    "cross_domain_compositions": 36,
+    "cross_domain_compositions": 37,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 57,
+    "owner_workflows_completed": 58,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: choose a genuinely new non-credential-blocked provider-neutral capability or composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/workspace-copy-owner-c967c30.json",
+  "history_artifact": "evidence/homelab-research-owner-8a6db2b.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

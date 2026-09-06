@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "homelab-health-to-research",
+  "source_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34022077122", "conclusion": "success"},
+  "installed_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "running_sha": "8a6db2b0ebd93397ee791491a8c4d9b7d7bf398d",
+  "owner_request": "Research why acceptance-plex is unavailable",
+  "pack_id": "homelab-research",
+  "action_id": "homelab-research.service.explain",
+  "granted_permissions": ["homelab.read", "research.read"],
+  "observed_service": {"service": "acceptance-plex", "status": "unavailable", "mutation": false},
+  "research": {"provider_mode": "configured_research_fixture", "source_title": "Alpha Guide", "external_evidence": true, "canonical_personal_truth": false},
+  "result": {"state": "completed", "message_boundary": "Research for acceptance-plex (unavailable) — external evidence, not canonical truth"},
+  "constellation": "Homelab Research is enabled and represented through generic Pack metadata; visibility does not grant restart authority."
+}
