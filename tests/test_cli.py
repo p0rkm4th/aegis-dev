@@ -4850,7 +4850,13 @@ def test_browser_app_exposes_principal_scoped_finance_projection():
         finance_state=lambda current: {
             "provider_state": "available",
             "accounts": [{"account_id": "checking", "owner": current.id}],
-            "transactions": [],
+            "transactions": [
+                {
+                    "transaction_id": "txn-1",
+                    "provider_transaction_id": "bank-1",
+                    "source_id": "import-1",
+                }
+            ],
         },
         session_token="session-secret",
     )
@@ -4859,7 +4865,10 @@ def test_browser_app_exposes_principal_scoped_finance_projection():
     )
     assert status == 200
     assert content_type == "application/json"
-    assert json.loads(payload)["accounts"][0]["owner"] == "alice"
+    finance = json.loads(payload)
+    assert finance["accounts"][0]["owner"] == "alice"
+    assert finance["transactions"][0]["provider_transaction_id"] == "bank-1"
+    assert finance["transactions"][0]["source_id"] == "import-1"
 
 
 def test_browser_app_routes_owner_controlled_finance_import():
