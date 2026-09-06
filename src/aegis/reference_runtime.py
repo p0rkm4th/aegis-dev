@@ -43,6 +43,8 @@ from .reference_packs import (
     CalendarEventsVerifier,
     CalendarSnapshotWorkspaceExecutor,
     CalendarSnapshotWorkspaceVerifier,
+    CalendarTaskAttentionExecutor,
+    CalendarTaskAttentionVerifier,
     CalendarUpdateExecutor,
     CalendarUpdateVerifier,
     CommunicationDraftExecutor,
@@ -141,6 +143,16 @@ def default_runtime_registry(
             PostgresTaskListExecutor(store, principal),
             PostgresTaskListVerifier(store, principal),
             {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def calendar_task_attention_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            CalendarTaskAttentionExecutor(connection, principal),
+            CalendarTaskAttentionVerifier(),
+            {
+                "calendar.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "tasks.read": frozenset({Role.OWNER, Role.MEMBER}),
+            },
         )
 
     def household_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -594,6 +606,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "calendar.events.conflicts": calendar_conflicts_runtime,
         "calendar.events.agenda": calendar_agenda_runtime,
+        "calendar-task-attention.read": calendar_task_attention_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,

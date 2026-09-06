@@ -34,6 +34,7 @@ from .communications import (
     communications_evidence,
 )
 from .compositions import (
+    calendar_to_task_attention,
     document_search_to_workspace,
     document_summary_to_workspace,
     document_to_workspace,
@@ -76,6 +77,7 @@ from .research import (
     SearchRequest,
     configured_research_service,
 )
+from .tasks import PostgresTaskStore
 from .weather import (
     configured_weather_forecast_provider,
     configured_weather_provider,
@@ -1322,6 +1324,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "calendar-task-attention",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar-task-attention.read",
+                        capability="calendar-task-attention.read",
+                        required_permissions=("calendar.read", "tasks.read"),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Find authorized tasks due before connected calendar events",
+                    relevance=1,
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "air-quality",
             "0.1.0",
             (
@@ -1617,6 +1635,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "device-reports": ("devices.read", "workspace.write"),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
+        "calendar-task-attention": ("calendar.read", "tasks.read"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
@@ -1745,6 +1764,63 @@ class CalendarAgendaVerifier:
                 "calendar agenda readback is structurally valid"
                 if verified
                 else "calendar agenda read failed"
+            ),
+        )
+
+
+class CalendarTaskAttentionExecutor:
+    """Join authorized calendar events and canonical task deadlines read-only."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        events = configured_calendar_provider().list_events()
+        tasks = PostgresTaskStore(self.connection).list(self.principal)
+        latest_event = max(
+            (event.starts_at for event in events),
+            default=datetime.now(timezone.utc),
+        )
+        attention = calendar_to_task_attention(
+            events,
+            tuple({"title": task.title, "due_at": task.due_at} for task in tasks),
+            until=latest_event,
+        )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "source": "authorized_calendar_tasks",
+                "attention": [
+                    {
+                        "event_id": item.event_id,
+                        "event_title": item.event_title,
+                        "task_titles": list(item.task_titles),
+                    }
+                    for item in attention
+                ],
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarTaskAttentionVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        attention = observation.evidence.get("attention")
+        verified = observation.command_succeeded and isinstance(attention, list)
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "source": observation.evidence.get("source"),
+                "attention": attention if verified else [],
+            },
+            reason=(
+                "calendar and task attention readback is structurally valid"
+                if verified
+                else "calendar and task attention read failed"
             ),
         )
 

@@ -301,6 +301,25 @@ def test_deterministic_calendar_agenda_request_uses_bounded_read_action():
     assert card.action.arguments["date"]
 
 
+def test_deterministic_calendar_task_attention_uses_cross_domain_read_action():
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "calendar-task-attention"
+    )
+    manager.discover(bundle)
+    manager.install("calendar-task-attention", frozenset({"calendar.read", "tasks.read"}))
+    manager.enable("calendar-task-attention")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Which tasks are due before my calendar events?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar-task-attention.read"
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
@@ -6798,6 +6817,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Calendar",
         "Calendar Reports",
         "Calendar Communications",
+        "Calendar Task Attention",
         "Communications",
         "Documents",
         "Tasks",

@@ -1270,6 +1270,15 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    calendar_task_attention = re.fullmatch(
+        r"(?:which|what) tasks (?:are )?due before my calendar events[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_task_attention is not None:
+        card = manager.action_card("calendar-task-attention", "calendar-task-attention.read")
+        if card is not None:
+            return card
     default_forecast = re.fullmatch(
         r"(?:what(?:'s| is) (?:the )?(?:weather|forecast) (?:like )?tomorrow|"
         r"will it rain tomorrow)[?!.,]?",
