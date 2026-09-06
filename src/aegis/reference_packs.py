@@ -63,6 +63,7 @@ from .gateway_rpc import (
     OpenClawWebSocketChannel,
     RpcProtocolError,
 )
+from .holidays import configured_holiday_provider, holidays_evidence
 from .homelab import PostgresHomelabStore
 from .household import PostgresHouseholdStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
@@ -1033,6 +1034,31 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "holidays",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="holidays.public_holidays.list",
+                        capability="holidays.public_holidays.list",
+                        required_permissions=("calendar.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read public holidays for an explicit country and year",
+                    relevance=1,
+                    argument_keys=("country_code", "year"),
+                    argument_grounding={
+                        "country_code": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "year": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "weather",
             "0.1.0",
             (
@@ -1167,6 +1193,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     permissions = {
         "calendar": ("calendar.read", "calendar.write"),
         "weather": ("weather.read",),
+        "holidays": ("calendar.read",),
         "calendar-reports": ("calendar.read", "workspace.write"),
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
@@ -2476,6 +2503,41 @@ class WeatherVerifier:
             verified=verified,
             evidence={"weather": evidence} if verified else observation.evidence,
             reason="weather readback is structurally valid" if verified else "weather read failed",
+        )
+
+
+class PublicHolidayExecutor:
+    def execute(self, request: ExecutionRequest) -> Observation:
+        try:
+            country_code = str(request.action.arguments["country_code"]).upper()
+            year = int(request.action.arguments["year"])
+            if len(country_code) != 2 or not 1900 <= year <= 2200:
+                raise ValueError("holiday country or year is invalid")
+            holidays = configured_holiday_provider().list_holidays(country_code, year)
+        except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"holidays": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(), evidence=holidays_evidence(holidays), command_succeeded=True
+        )
+
+
+class PublicHolidayVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        holidays = observation.evidence.get("holidays")
+        verified = observation.command_succeeded and isinstance(holidays, list)
+        holiday_rows = holidays if isinstance(holidays, list) else []
+        return VerificationResult(
+            verified=verified,
+            evidence={"holiday_count": len(holiday_rows) if verified else 0},
+            reason="public holiday readback is structurally valid"
+            if verified
+            else "public holiday read failed",
         )
 
 

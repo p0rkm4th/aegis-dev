@@ -930,6 +930,13 @@ async function loadCalendar() {
     const conflictBoundary = document.createElement('p'); conflictBoundary.className = 'muted';
     conflictBoundary.textContent = payload.conflict_boundary || 'Conflict inspection is read-only.';
     conflictSection.append(conflictBoundary); panel.append(conflictSection);
+    const holidays = payload.public_holidays?.holidays || [];
+    const holidaySection = document.createElement('section'); holidaySection.className = 'detail-card';
+    const holidayTitle = document.createElement('h3'); holidayTitle.textContent = 'Public holidays';
+    holidaySection.append(holidayTitle, renderDetailValue(holidays.length ? holidays : 'No configured public-holiday feed.'));
+    const holidayBoundary = document.createElement('p'); holidayBoundary.className = 'muted';
+    holidayBoundary.textContent = 'Public holiday dates are external evidence, not canonical personal events.';
+    holidaySection.append(holidayBoundary); panel.append(holidaySection);
     if (conflicts.length) {
       const actionNote = document.createElement('p'); actionNote.className = 'muted';
       actionNote.textContent = 'Create a follow-up task through the normal Core request path:';
