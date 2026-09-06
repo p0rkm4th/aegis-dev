@@ -227,6 +227,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "today-to-workspace",
+            "label": "Today → Workspace",
+            "description": (
+                "Save canonical personal and household Today state as a verified report."
+            ),
+            "surfaces": ("Today", "Workspace"),
+            "authority": (
+                "canonical task/household reads + scoped Workspace write; Core authorization "
+                "and independent verification required; external evidence is excluded"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",

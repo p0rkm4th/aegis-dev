@@ -92,6 +92,8 @@ from .reference_packs import (
     ResearchWorkspaceVerifier,
     TaskWorkspaceExecutor,
     TaskWorkspaceVerifier,
+    TodayWorkspaceExecutor,
+    TodayWorkspaceVerifier,
     WeatherExecutor,
     WeatherForecastExecutor,
     WeatherForecastVerifier,
@@ -370,6 +372,20 @@ def default_runtime_registry(
             TaskWorkspaceExecutor(connection, principal),
             TaskWorkspaceVerifier(principal),
             {
+                "tasks.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
+        )
+
+    def today_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            TodayWorkspaceExecutor(connection, principal),
+            TodayWorkspaceVerifier(principal),
+            {
+                "household.read": frozenset({Role.OWNER, Role.MEMBER}),
                 "tasks.read": frozenset({Role.OWNER, Role.MEMBER}),
                 "workspace.write": frozenset({Role.OWNER}),
             },
@@ -669,6 +685,7 @@ def default_runtime_registry(
         "calendar-task-attention.read": calendar_task_attention_runtime,
         "calendar-task-reports.to_workspace": calendar_task_attention_workspace_runtime,
         "task-reports.to_workspace": task_workspace_runtime,
+        "today-reports.to_workspace": today_workspace_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,
