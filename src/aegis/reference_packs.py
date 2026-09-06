@@ -5923,6 +5923,55 @@ class OpenClawNetworkProbeExecutor:
         )
 
 
+class DirectNetworkProbeExecutor:
+    """Perform one bounded TCP reachability read without shell or Gateway access."""
+
+    def __init__(self, timeout: float = 3.0) -> None:
+        if timeout <= 0:
+            raise ValueError("network probe timeout must be positive")
+        self.timeout = timeout
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "network.probe":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        address = request.action.arguments.get("address")
+        port = request.action.arguments.get("port")
+        if not isinstance(address, str) or not isinstance(port, int) or not 1 <= port <= 65535:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"invalid_endpoint": True},
+                command_succeeded=False,
+            )
+        try:
+            with socket.create_connection((address, port), timeout=self.timeout):
+                connected = True
+        except OSError as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={
+                    "provider": "direct_socket",
+                    "address": address,
+                    "port": port,
+                    "connect_error": type(exc).__name__,
+                },
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "provider": "direct_socket",
+                "address": address,
+                "port": port,
+                "connected": connected,
+            },
+            command_succeeded=True,
+        )
+
+
 class OpenClawNetworkProbeVerifier:
     """Independently verify target reachability with a TCP connection."""
 

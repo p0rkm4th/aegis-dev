@@ -1,5 +1,6 @@
 import json
 import os
+import socket
 from datetime import datetime, timedelta, timezone
 from threading import Event
 from uuid import uuid4, uuid5
@@ -143,10 +144,12 @@ from aegis.projections import (
     SharedObligation,
 )
 from aegis.reference_packs import (
+    DirectNetworkProbeExecutor,
     OpenClawGroceryExecutor,
     OpenClawGroceryVerifier,
     OpenClawHomelabExecutor,
     OpenClawNetworkProbeExecutor,
+    OpenClawNetworkProbeVerifier,
     ReferenceExecutor,
     ReferenceVerifier,
     ReferenceWorld,
@@ -2584,6 +2587,34 @@ def test_gateway_protocol_failure_becomes_unknown_observation(executor_factory, 
         "outcome": "unknown",
         "idempotency_key": "stable-ambiguous-key",
     }
+
+
+def test_direct_network_probe_is_bounded_and_independently_verified():
+    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(1)
+    port = int(listener.getsockname()[1])
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=ActionSpec(
+            action_id="network.probe",
+            capability="network.probe",
+            arguments={"address": "127.0.0.1", "port": port},
+        ),
+        idempotency_key="direct-network-probe",
+    )
+    try:
+        observation = DirectNetworkProbeExecutor(timeout=1.0).execute(request)
+        verification = OpenClawNetworkProbeVerifier().verify(
+            observation, VerificationContract(kind="health")
+        )
+    finally:
+        listener.close()
+
+    assert observation.command_succeeded is True
+    assert observation.evidence["provider"] == "direct_socket"
+    assert verification.verified is True
 
 
 def test_vault_and_space_authorization_is_structural_and_revocable():
