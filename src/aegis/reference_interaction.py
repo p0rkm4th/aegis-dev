@@ -498,7 +498,10 @@ def reference_domain_and_action(utterance: str, manager: PackManager) -> tuple[s
     """
 
     text = utterance.lower()
-    if "task" in text:
+    if "calendar conflict" in text:
+        domain = "calendar"
+        action_id = "calendar.events.conflicts"
+    elif "task" in text:
         domain = "tasks"
         if any(term in text for term in ("complete", "completed", "finish", "finished")) or (
             "mark" in text and "done" in text
