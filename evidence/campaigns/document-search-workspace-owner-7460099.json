@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-document-search-workspace",
+  "source_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
+  "hosted_validation": {"run_id": "34001511612", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
+    "running_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
+    "postgresql": "preserved",
+    "request": "Find my documents for guidance and save results as search-results.md",
+    "objective_id": "57d1f5e2-a7f9-46e4-bbfc-3db0a2983060",
+    "correlation_id": "8c13b941-db3b-4fb2-ab14-8f0a0fb9a568",
+    "workspace_id": "b52aa48f-5a81-5248-a182-78a2cb73d07d",
+    "artifact": "search-results.md",
+    "result": "document search independently verified",
+    "inventory_readback": "21 scoped workspaces returned; search-results.md content read back"
+  }
+}
