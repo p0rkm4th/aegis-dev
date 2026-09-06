@@ -519,7 +519,9 @@ def _calendar_state(principal: Principal) -> dict[str, Any]:
             CalendarEvent(
                 event.event_id,
                 event.title,
-                event.starts_at,
+                event.starts_at
+                if event.starts_at.tzinfo is not None
+                else event.starts_at.replace(tzinfo=timezone.utc),
                 source="canonical_household",
             )
             for event in cast(tuple[Any, ...], household.get("events", ()))
