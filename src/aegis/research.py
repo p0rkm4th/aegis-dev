@@ -365,6 +365,7 @@ class WikipediaSearchProvider:
         stop_words = {
             "a",
             "about",
+            "as",
             "and",
             "current",
             "find",
@@ -373,12 +374,17 @@ class WikipediaSearchProvider:
             "is",
             "it",
             "me",
+            "notes",
             "of",
             "please",
             "public",
+            "research",
+            "save",
             "summarize",
             "the",
+            "to",
             "what",
+            "workspace",
         }
         words = re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", value)
         meaningful = [word for word in words if word.casefold() not in stop_words]
