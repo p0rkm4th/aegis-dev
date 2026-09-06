@@ -1,0 +1,35 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "device-status-communication-ui-owner-proof",
+  "source_sha": "465743d",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34035136928",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "465743d",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Devices",
+    "control": "Send device status",
+    "request_template": "Text me the device status",
+    "boundary": "Device state is read-only context; Core fixes the authorized snapshot before communication, and provider acceptance is not delivery proof"
+  },
+  "request": "Text me the device status.",
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "ef2ad519-eb6c-470e-86ab-587b2ce66b74",
+    "correlation_id": "4799033f-b0ca-4c75-90e1-628b76760018",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "device state remained read-only; no device mutation, control expansion, or delivery authority was added"
+}
