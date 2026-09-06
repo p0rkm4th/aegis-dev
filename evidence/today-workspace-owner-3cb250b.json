@@ -1,0 +1,21 @@
+{
+  "checkpoint": "today-to-workspace-owner-proof",
+  "source_sha": "3cb250b6e9050c8b9bfe449b610c6d8e166ab425",
+  "hosted": {"workflow": "validation", "run_id": 34032875487, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "3cb250b",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Save today's brief to Workspace as today.md",
+  "result": {
+    "code": "completed",
+    "message": "Today Workspace artifact independently verified",
+    "objective_id": "8ad79703-e54e-488e-a96a-bf6d10ec83f0",
+    "correlation_id": "f413982d-38d4-4bd8-bb02-d15931a19207"
+  },
+  "artifact": {"path": "today.md", "inventory_matches": true, "workspace_count": 40},
+  "authority": "canonical Today reads were fixed before scoped Workspace mutation; independent Workspace verification completed; no external delivery or deployment authority was added"
+}
