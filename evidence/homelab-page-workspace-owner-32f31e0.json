@@ -1,0 +1,35 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "homelab-page-workspace-owner-proof",
+  "source_sha": "24fbdf3",
+  "state_record_sha": "32f31e0",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34038203830",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "24fbdf3",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Make me a little webpage showing my homelab",
+  "result": {
+    "code": "completed",
+    "message": "Homelab page independently verified",
+    "objective_id": "62a67940-7936-4fca-acb1-4a7ba5b97bf0",
+    "correlation_id": "7134d4a8-4e7b-4630-875c-76f3a1442777",
+    "workspace_id": "b3de789c-6d3a-5f6b-bc00-0d403ba7ce08",
+    "files": ["index.html", "style.css"],
+    "inventory_observed": {
+      "hosts": ["acceptance-atlas 192.0.2.10"],
+      "services": ["Plex acceptance-plex"]
+    },
+    "preview_surface": "Workspace owner view exposes View, Download, and sandboxed Preview controls for HTML artifacts",
+    "independent_verification": true
+  },
+  "authority": "authorized canonical Homelab inventory was read-only; Workspace write was scoped to the Principal/objective and did not grant deployment or host access"
+}
