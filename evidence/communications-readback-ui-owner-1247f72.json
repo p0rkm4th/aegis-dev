@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "communications-readback-ui-owner",
+  "source_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "hosted_validation": {"run_id": "34008578250", "conclusion": "success"},
+  "installed_release_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "owner_runtime": {
+    "service": "active",
+    "communications_surface": "Provider outcome status",
+    "readback_label": "provider readback unavailable",
+    "delivery_label": "delivery not proven"
+  },
+  "verification": "Persisted communication outcomes expose provider-readback status independently from delivery proof; no delivery is inferred.",
+  "authority_boundary": "The status presentation does not authorize sending or change target boundaries."
+}
