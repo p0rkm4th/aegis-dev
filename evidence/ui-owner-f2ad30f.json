@@ -1,0 +1,18 @@
+{
+  "evidence_type": "owner-ui-rendered-proof",
+  "source_sha": "f2ad30f3cbe3d6c71ce6a9ad7cd99d5a7c00fbd0",
+  "hosted_validation": {"run_id": "34053826941", "conclusion": "success"},
+  "installed_release_sha": "f2ad30f3cbe3d6c71ce6a9ad7cd99d5a7c00fbd0",
+  "url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "view": "Systems",
+  "proof": [
+    {"viewport": "1440x900", "navigation_display": "flex", "probe_form_visible": true, "document_width": 1440, "viewport_width": 1440},
+    {"viewport": "390x900", "navigation_display": "grid", "probe_form_visible": true, "document_width": 390, "viewport_width": 390}
+  ],
+  "computed_styles": {
+    "body_background": "rgb(244, 247, 250)",
+    "body_font": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+  },
+  "browser_console_errors": [],
+  "network_probe_surface": "The rendered Systems view exposes the bounded authorized network probe form; the form routes through the normal Core path and does not grant authority by visibility."
+}
