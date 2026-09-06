@@ -1,0 +1,17 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-documents-owner-surface",
+  "source_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "hosted_validation": {"run_id": "34000054498", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+    "running_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+    "postgresql": "preserved",
+    "route": "/api/documents",
+    "document_id": "alpha-handbook",
+    "source": "authorized_owner_fixture",
+    "read_route": "/api/documents/file?document_id=alpha-handbook",
+    "result": "authorized document inventory and bounded full read returned",
+    "authority_boundary": "read-only projection; transformations remain Core-authorized Workspace actions"
+  }
+}
