@@ -525,8 +525,28 @@ function applyNodeFilter() {
     : `${renderedNodeCards.size} authorized nodes.`;
 }
 function renderResearchSummary() {
-  if (activeView !== 'research' || !latestResearch) return;
+  if (activeView !== 'research') return;
   const panel = document.getElementById('detail'); panel.replaceChildren();
+  const section = document.createElement('section'); section.className = 'detail-card';
+  const title = document.createElement('h3'); title.textContent = 'Save sourced research to Workspace';
+  const form = document.createElement('form'); form.setAttribute('aria-label', 'Save research to Workspace');
+  const query = document.createElement('input'); query.type = 'search'; query.required = true;
+  query.placeholder = 'Research question'; query.setAttribute('aria-label', 'Research question');
+  const path = document.createElement('input'); path.required = true;
+  path.placeholder = 'Artifact path, e.g. notes.md'; path.setAttribute('aria-label', 'Research artifact path');
+  const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = 'Research and save notes';
+  form.append(query, path, submit);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const question = query.value.trim(); const targetPath = path.value.trim();
+    if (!question || !targetPath) return;
+    document.getElementById('utterance').value = `Research ${question} and save notes as ${targetPath}`;
+    document.getElementById('chat').requestSubmit();
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = 'Public evidence remains non-canonical; saving requires the normal Core authorization and scoped Workspace verification.';
+  section.append(title, form, boundary); panel.append(section);
+  if (!latestResearch) return;
   const heading = document.createElement('p');
   heading.textContent = `Latest external evidence · ${latestResearch.sources.length} source(s)`;
   panel.append(heading);
