@@ -1,0 +1,18 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "weather-read-owner",
+  "source_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "hosted_validation": {"run_id": "34009193737", "conclusion": "success"},
+  "installed_release_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "owner_runtime": {
+    "service": "active",
+    "weather_endpoint": "/api/weather",
+    "provider_state": "fixture_weather",
+    "coordinates": "41.881832,-87.623177",
+    "temperature_c": 21.5,
+    "owner_surface": "Weather navigation and detail view",
+    "constellation_pack": "weather"
+  },
+  "verification": "The installed owner runtime returned a bounded current-weather reading with provider provenance and retrieval coordinates; deterministic tests cover fixture projection, Open-Meteo parsing, and HTTPS endpoint rejection.",
+  "authority_boundary": "Weather is public evidence only; explicit coordinates are required and no personal canonical state or mutation authority is created."
+}
