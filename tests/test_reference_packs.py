@@ -202,6 +202,43 @@ def test_weather_forecast_report_is_independently_verified_in_workspace(
     assert WorkspaceManager(tmp_path).for_objective("alice", objective_id).read("weather.md")
 
 
+def test_public_holiday_report_passes_fixed_evidence_to_independent_workspace_verifier(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv(
+        "AEGIS_HOLIDAY_FIXTURE_JSON",
+        '[{"date":"2026-01-01","name":"New Year","types":["Public"]}]',
+    )
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "holiday-reports.to_workspace"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    objective_id = uuid4()
+    action = card.action.model_copy(
+        update={"arguments": {"country_code": "US", "year": 2026, "target_path": "holidays.md"}}
+    )
+    prepared = prepare_reference_action(action, principal, objective_id)
+    assert prepared.arguments["_workspace_content"].startswith("# External public holiday evidence")
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=objective_id,
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="holiday-report-1",
+        )
+    )
+    assert observation.command_succeeded is True
+    result = runtime.verifier.verify(observation, prepared.verification)
+    assert result.verified is True
+    assert result.evidence["external_evidence"] is True
+    assert WorkspaceManager(tmp_path).for_objective("alice", objective_id).read("holidays.md")
+
+
 def test_workspace_inventory_is_principal_scoped_and_read_only(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
     principal = Principal(id="alice", vault_id="alice-vault")
