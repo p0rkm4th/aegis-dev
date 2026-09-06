@@ -1659,6 +1659,29 @@ def _deterministic_composition_action(
             }
         )
 
+    holidays = re.fullmatch(
+        r"(?:show|list|get) (?:the )?public holidays for (?P<country_code>[A-Za-z]{2}) "
+        r"(?:in|for) (?P<year>19[0-9]{2}|20[0-9]{2}|21[0-9]{2}|22[0-9]{2})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if holidays is not None:
+        card = manager.action_card("holidays", "holidays.public_holidays.list")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "country_code": holidays.group("country_code").upper(),
+                            "year": int(holidays.group("year")),
+                        }
+                    }
+                )
+            }
+        )
+
     draft = re.fullmatch(
         r"draft (?:a )?message to (?P<recipient>.+?) with subject (?P<subject>.+?) "
         r"saying (?P<body>.+?), save it (?:as|to) (?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",
