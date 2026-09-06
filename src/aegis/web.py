@@ -584,6 +584,8 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'daily-driver') loadDailyDriver();
   if (activeView === 'systems') loadSystems();
   if (activeView === 'home') loadToday();
+  if (activeView === 'tasks') loadTasks();
+  if (activeView === 'household') loadHousehold();
   if (activeView === 'objectives') loadObjectives();
   renderResearchSummary();
   applyNodeFilter();
@@ -908,6 +910,40 @@ async function loadToday() {
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
+}
+function appendTodaySection(panel, title, value) {
+  const section = document.createElement('section'); section.className = 'detail-card';
+  const heading = document.createElement('h3'); heading.textContent = title;
+  section.append(heading, renderDetailValue(value)); panel.append(section);
+}
+async function loadTasks() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/today');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Tasks unavailable.');
+    const canonical = payload.canonical || {};
+    appendTodaySection(panel, 'Open and due', canonical.open_tasks || []);
+    appendTodaySection(panel, 'Completed', canonical.completed_tasks || []);
+    const boundary = document.createElement('p'); boundary.className = 'muted';
+    boundary.textContent = payload.truth_boundary || 'Task state is canonical authorized state.';
+    panel.append(boundary);
+  } catch (_) { panel.textContent = 'Task state is unavailable; no canonical state was changed.'; }
+}
+async function loadHousehold() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/today');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Household unavailable.');
+    const canonical = payload.canonical || {};
+    appendTodaySection(panel, 'Open chores', canonical.open_chores || []);
+    appendTodaySection(panel, 'Groceries', canonical.groceries || []);
+    appendTodaySection(panel, 'Upcoming shared events', canonical.upcoming_shared_events || []);
+    const boundary = document.createElement('p'); boundary.className = 'muted';
+    boundary.textContent = payload.truth_boundary || 'Household state is canonical authorized state.';
+    panel.append(boundary);
+  } catch (_) { panel.textContent = 'Household state is unavailable; no canonical state was changed.'; }
 }
 async function loadObjectives() {
   const panel = document.getElementById('detail');

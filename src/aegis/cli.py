@@ -820,6 +820,15 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             for task in tasks
             if task.status.value == "open"
         ][:20]
+        completed_tasks = [
+            {
+                "title": task.title,
+                "due_at": task.due_at.isoformat() if task.due_at else None,
+                "status": task.status.value,
+            }
+            for task in tasks
+            if task.status.value == "completed"
+        ][:20]
         chores = [
             {
                 "title": chore.title,
@@ -842,6 +851,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             "generated_at": now.isoformat(),
             "canonical": {
                 "open_tasks": open_tasks,
+                "completed_tasks": completed_tasks,
                 "open_chores": chores,
                 "upcoming_shared_events": events,
                 "groceries": list(cast(tuple[Any, ...], household.get("groceries", ())))[:50],
