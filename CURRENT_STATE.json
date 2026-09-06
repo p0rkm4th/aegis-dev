@@ -66,6 +66,7 @@
     "capability_need_review_ui": "Objectives with owner-input candidates provide a generic navigation action to review Packs and capabilities without changing authority",
     "capability_need_focus_ui": "The generic Packs view carries and highlights the exact candidate capability selected from an owner-input Need",
     "capability_need_today": "Today projects authorized unresolved CapabilityNeeds with objective linkage, investigation state, and a read-only handoff to Objectives",
+    "capability_need_forge_quarantine": "A durable owner_input_required CapabilityNeed can be converted into a strict PackProposal preview and materialized only under quarantine; the active registry, permissions, installation, enablement, and execution remain untouched",
     "active_objectives_today": "Today projects active canonical objectives with lifecycle state and a read-only handoff to Objectives",
     "active_objectives_constellation": "Constellation projects authorized active objective nodes and links declared candidate capabilities to Pack nodes without granting authority",
     "homelab_health_to_task": "Systems exposes an explicit investigation-task handoff for unhealthy authorized services; health observation does not auto-create tasks or restart services",
@@ -380,7 +381,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Improve the owner Homelab read plane around truthful unavailable/healthy service state and Systems/Constellation presentation; preserve typed service identity and no mutation authority.",
+  "next_action": "Dogfood the owner CapabilityNeed → Forge review path: preserve unsupported requirements, expose bounded research/provenance, and keep Pack proposal previews quarantined with no install, enablement, permission grant, or execution.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }

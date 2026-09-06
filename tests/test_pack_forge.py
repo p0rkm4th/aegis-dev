@@ -3,7 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from aegis.contracts import ActionCard, ActionSpec, VerificationContract
+from aegis.contracts import (
+    ActionCard,
+    ActionSpec,
+    CapabilityInvestigationState,
+    CapabilityNeed,
+    CapabilityNeedStatus,
+    VerificationContract,
+)
 from aegis.osint import CapabilityGap, Forge
 from aegis.pack_forge import PackProposalV0, compile_pack_proposal, materialize_pack_skeleton
 from aegis.pack_lifecycle import PackManager
@@ -178,6 +185,66 @@ def test_owner_capability_gap_reaches_quarantine_without_install_or_authority(
     with pytest.raises(KeyError):
         active_registry.bundle(proposal.pack_id)
     assert not (tmp_path / "installed").exists()
+
+
+def test_durable_capability_need_candidate_reaches_forge_preview_only(tmp_path: Path) -> None:
+    """The owner-facing Need contract can enter Forge without becoming authority."""
+
+    need = CapabilityNeed(
+        requested_effect="home inventory report",
+        reason="No enabled ActionCard currently satisfies this requested effect.",
+        permitted_scope=("installed_capabilities", "public_research"),
+        status=CapabilityNeedStatus.OWNER_INPUT_REQUIRED,
+        investigation=CapabilityInvestigationState.COMPLETE,
+        candidate_resolutions=(
+            {
+                "kind": "workspace_solution",
+                "capability": "workspace.artifact.create",
+                "status": "candidate",
+                "requires_owner_input": True,
+            },
+        ),
+    )
+    candidate = next(
+        item
+        for item in need.candidate_resolutions
+        if item["requires_owner_input"] is True
+    )
+    assert candidate["capability"] == "workspace.artifact.create"
+    proposal = Forge().propose(
+        CapabilityGap(
+            need.requested_effect,
+            "alice",
+            ("workspace.write",),
+        )
+    )
+    contract = PackProposalV0(
+        pack_id=proposal.pack_id,
+        version="0.1.0",
+        permissions=proposal.permissions,
+        ui={"label": need.requested_effect, "category": "candidate", "detail_view": "list"},
+        cards=(
+            ActionCard(
+                action=ActionSpec(
+                    action_id=f"{proposal.pack_id}.report.create",
+                    capability=f"{proposal.pack_id}.report.create",
+                    required_permissions=("workspace.write",),
+                    verification=VerificationContract(kind="readback"),
+                ),
+                summary="Prepare a bounded report",
+                relevance=1,
+            ),
+        ),
+    )
+    preview = materialize_pack_skeleton(contract, tmp_path / "preview", preview=True)
+    quarantine = tmp_path / "forge-quarantine" / contract.pack_id
+    files = materialize_pack_skeleton(contract, quarantine)
+
+    assert "README.md" in preview
+    assert "pack_manifest.json" in files
+    assert quarantine.is_dir()
+    assert not (tmp_path / "installed").exists()
+    assert not (tmp_path / "active-registry").exists()
 
 
 def test_generated_action_ids_can_be_compared_to_registry_bindings() -> None:
