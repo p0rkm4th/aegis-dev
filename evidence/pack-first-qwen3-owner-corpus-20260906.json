@@ -1,0 +1,13 @@
+{
+  "kind": "pack-first-qwen3-owner-corpus",
+  "source_sha": "6d12b315baf08f830dcb11f6d7b0915b3fb787d6",
+  "observed_at": "2026-09-06T20:40:00Z",
+  "model": "qwen3:8b",
+  "corpus": ["Food", "Finance", "Homelab", "Forge", "unsupported"],
+  "metrics": {
+    "incumbent": {"routing_recall": 1.0, "wrong_action_rate": 0.0, "model_calls_per_case": 0.0, "prompt_bytes_per_case": 0.0, "context_bytes_per_case": 0.0},
+    "pack_first": {"routing_recall": 0.4, "wrong_action_rate": 0.2, "clarification_rate": 0.0, "model_calls_per_case": 1.0, "prompt_bytes_per_case": 619.0, "context_bytes_per_case": 0.0, "p50_latency_ms": 634.6, "p95_latency_ms": 1087.7},
+    "retrieval_assisted_pack_first": {"routing_recall": 1.0, "wrong_action_rate": 0.0, "clarification_rate": 0.0, "model_calls_per_case": 1.0, "prompt_bytes_per_case": 265.4, "context_bytes_per_case": 0.0, "p50_latency_ms": 533.4, "p95_latency_ms": 588.3}
+  },
+  "interpretation": "Pure Pack-first is not promotable from this measurement. Retrieval-assisted Pack-first is promising on this small corpus but uses a deterministic fixture prefilter and needs adversarial corpus expansion before any production routing change. Production incumbent remains unchanged."
+}
