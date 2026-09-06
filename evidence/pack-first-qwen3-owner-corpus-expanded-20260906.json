@@ -1,6 +1,6 @@
 {
   "kind": "pack-first-qwen3-owner-corpus-expanded",
-  "source_sha": "ee8fcbb",
+  "source_sha": "68cc18d",
   "observed_at": "2026-09-06T23:30:00Z",
   "model": "qwen3:8b",
   "corpus_cases": 16,
