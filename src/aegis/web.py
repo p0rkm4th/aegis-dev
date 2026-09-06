@@ -926,6 +926,24 @@ async function loadCalendar() {
     const conflictBoundary = document.createElement('p'); conflictBoundary.className = 'muted';
     conflictBoundary.textContent = payload.conflict_boundary || 'Conflict inspection is read-only.';
     conflictSection.append(conflictBoundary); panel.append(conflictSection);
+    if (conflicts.length) {
+      const actionNote = document.createElement('p'); actionNote.className = 'muted';
+      actionNote.textContent = 'Create a follow-up task through the normal Core request path:';
+      conflictSection.append(actionNote);
+      conflicts.forEach(conflict => {
+        const first = String(conflict.event_title || conflict.event_id || '').trim();
+        const second = String(conflict.conflicting_title || conflict.conflicts_with || '').trim();
+        if (!first || !second) return;
+        const button = document.createElement('button'); button.type = 'button';
+        button.textContent = `Make task: ${first} / ${second}`;
+        button.addEventListener('click', () => {
+          document.getElementById('utterance').value =
+            `Add a task to resolve the calendar conflict between ${first} and ${second}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        conflictSection.append(button);
+      });
+    }
     if (events.length) {
       const cancelSection = document.createElement('section'); cancelSection.className = 'detail-card';
       const cancelTitle = document.createElement('h3'); cancelTitle.textContent = 'Cancel an authorized event';
@@ -1103,6 +1121,24 @@ async function loadToday() {
     conflictBoundary.textContent = payload.external_calendar?.conflict_boundary
       || 'Conflict inspection is read-only.';
     panel.append(conflictBoundary);
+    if (conflicts.length) {
+      const actionNote = document.createElement('p'); actionNote.className = 'muted';
+      actionNote.textContent = 'Scheduling follow-up stays a normal authorized task request.';
+      panel.append(actionNote);
+      conflicts.forEach(conflict => {
+        const first = String(conflict.event_title || conflict.event_id || '').trim();
+        const second = String(conflict.conflicting_title || conflict.conflicts_with || '').trim();
+        if (!first || !second) return;
+        const button = document.createElement('button'); button.type = 'button';
+        button.textContent = `Make task: ${first} / ${second}`;
+        button.addEventListener('click', () => {
+          document.getElementById('utterance').value =
+            `Add a task to resolve the calendar conflict between ${first} and ${second}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        panel.append(button);
+      });
+    }
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
