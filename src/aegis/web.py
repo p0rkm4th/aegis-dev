@@ -33,6 +33,7 @@ ObjectivesState = Callable[[Principal], dict[str, Any]]
 CommunicationsState = Callable[[Principal], dict[str, Any]]
 DocumentsState = Callable[[Principal], dict[str, Any]]
 DocumentFile = Callable[[Principal, str], dict[str, Any]]
+DailyDriverState = Callable[[Principal], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -171,6 +172,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="devices">Devices</button>
 <button type="button" data-view="communications">Communications</button>
 <button type="button" data-view="documents">Documents</button>
+<button type="button" data-view="daily-driver">Daily driver</button>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
@@ -552,6 +554,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     devices: ['Devices', 'Authorized device state and bounded controls.'],
     communications: ['Communications', 'Authorized drafts and provider outcomes; delivery is never inferred.'],
     documents: ['Documents', 'Authorized documents and bounded transformations.'],
+    'daily-driver': ['Daily driver', 'What is usable now, and what still needs a provider or approval.'],
     research: ['Research', 'Ask for current public information with sources.'],
     packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
     objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
@@ -568,6 +571,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'devices') loadDevices();
   if (activeView === 'communications') loadCommunications();
   if (activeView === 'documents') loadDocuments();
+  if (activeView === 'daily-driver') loadDailyDriver();
   if (activeView === 'systems') loadSystems();
   if (activeView === 'home') loadToday();
   if (activeView === 'objectives') loadObjectives();
@@ -651,6 +655,7 @@ async function loadState() {
     if (/objective|capability|need/.test(searchable)) views.push('objectives');
     if (/workspace|artifact|file/.test(searchable)) views.push('workspace');
     if (/document/.test(searchable)) views.push('documents');
+    if (/daily.driver|readiness|release/.test(searchable)) views.push('daily-driver');
     renderedNodeViews.set(node.id, views);
     card.append(title, detail); return card;
   }));
@@ -940,6 +945,25 @@ async function loadDocuments() {
     }
   } catch (_) { panel.textContent = 'Documents are unavailable; no document state was changed.'; }
 }
+async function loadDailyDriver() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/daily-driver');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Daily-driver status unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = 'Capability status from the current release truth';
+    panel.append(heading, renderDetailValue({
+      source_basis_sha: payload.source_basis_sha,
+      statuses: payload.statuses,
+      metrics: payload.metrics,
+      provider_gates: payload.provider_gates,
+      boundary: payload.boundary,
+    }));
+  } catch (_) {
+    panel.textContent = 'Daily-driver status is unavailable; no capability state was changed.';
+  }
+}
 async function loadPacks() {
   const panel = document.getElementById('detail');
   panel.replaceChildren();
@@ -1172,6 +1196,7 @@ class BrowserApp:
         communications_state: CommunicationsState | None = None,
         documents_state: DocumentsState | None = None,
         document_file: DocumentFile | None = None,
+        daily_driver_state: DailyDriverState | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -1195,6 +1220,7 @@ class BrowserApp:
         self.communications_state = communications_state
         self.documents_state = documents_state
         self.document_file = document_file
+        self.daily_driver_state = daily_driver_state
 
     def dispatch(
         self,
@@ -1476,6 +1502,24 @@ class BrowserApp:
                     HTTPStatus.NOT_FOUND, "document_unavailable", "document unavailable"
                 )
             return self._json(HTTPStatus.OK, payload)
+        if method == "GET" and route == "/api/daily-driver":
+            if self.daily_driver_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                daily_driver_projection = self.daily_driver_state(principal)
+                if not isinstance(daily_driver_projection, dict):
+                    raise ValueError("daily-driver state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "daily-driver status unavailable",
+                )
+            return self._json(HTTPStatus.OK, daily_driver_projection)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1718,6 +1762,7 @@ def serve(
     communications_state: CommunicationsState | None = None,
     documents_state: DocumentsState | None = None,
     document_file: DocumentFile | None = None,
+    daily_driver_state: DailyDriverState | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1744,6 +1789,7 @@ def serve(
         communications_state=communications_state,
         documents_state=documents_state,
         document_file=document_file,
+        daily_driver_state=daily_driver_state,
     )
 
     class Handler(BaseHTTPRequestHandler):
