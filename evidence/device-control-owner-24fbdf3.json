@@ -1,0 +1,36 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "device-control-owner-fixture-proof",
+  "source_sha": "24fbdf3",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34037267569",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "24fbdf3",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "successful_request": {
+    "utterance": "Turn off light.desk.",
+    "code": "completed",
+    "message": "device state independently verified",
+    "objective_id": "aff63014-f2e1-49b9-a255-442db334459c",
+    "correlation_id": "af8e81f9-a868-42b0-a91b-f94a74c98af1",
+    "provider_state": "fixture",
+    "independent_readback": true
+  },
+  "denied_request": {
+    "utterance": "Turn off light.garage.",
+    "code": "failed",
+    "message": "device entity is outside the authorized device scope",
+    "objective_id": "a16f43d1-f8d0-4549-86ff-32b9dc20f120",
+    "correlation_id": "3c8da211-6194-43cb-bdb7-89f67d5c0bfc",
+    "authority_boundary": "light.garage is not in the configured authorized entity scope"
+  },
+  "truth_boundary": "Fixture device control is independently read back but is not a live Home Assistant integration; UI visibility and selection do not grant control authority."
+}
