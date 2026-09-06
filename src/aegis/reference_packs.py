@@ -1736,7 +1736,9 @@ class CalendarAgendaVerifier:
         return VerificationResult(
             verified=verified,
             evidence={
+                "source": evidence.get("source"),
                 "date": evidence.get("date"),
+                "events": evidence.get("events", []) if verified else [],
                 "event_count": len(evidence.get("events", [])) if verified else 0,
             },
             reason=(
