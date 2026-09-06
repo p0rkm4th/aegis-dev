@@ -174,6 +174,33 @@ def test_deterministic_homelab_health_action_uses_explicit_service():
     assert card.action.arguments == {"service": "acceptance-plex"}
 
 
+def test_device_research_context_sanitizes_public_query_and_reads_authorized_state(monkeypatch):
+    from aegis import cli
+
+    monkeypatch.setenv("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "light.desk")
+    monkeypatch.setattr(
+        cli.DeviceStatesExecutor,
+        "execute",
+        lambda *_args: type(
+            "Observation",
+            (),
+            {"evidence": {"states": [{"entity_id": "light.desk", "state": "off"}]}},
+        )(),
+    )
+
+    result = cli._device_research_context("Research why light.desk is currently off")
+
+    assert result == (
+        "Research why the smart-home device is currently off",
+        {
+            "entity_id": "light.desk",
+            "state": "off",
+            "observed_at": None,
+            "provenance": "authorized_observed_device_state",
+        },
+    )
+
+
 def test_deterministic_homelab_page_action_uses_explicit_workspace_path():
     manager = PackManager()
     bundle = next(

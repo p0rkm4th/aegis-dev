@@ -803,6 +803,13 @@ async function loadDevices() {
         const row = document.createElement('p');
         const label = document.createElement('strong'); label.textContent = entity;
         row.append(label, ' ');
+        const research = document.createElement('button');
+        research.type = 'button'; research.textContent = 'Research state';
+        research.addEventListener('click', () => {
+          document.getElementById('utterance').value = `Research why ${entity} is currently in this state`;
+          document.getElementById('chat').requestSubmit();
+        });
+        row.append(research, ' ');
         ['on', 'off'].forEach(state => {
           const button = document.createElement('button');
           button.type = 'button'; button.textContent = `Turn ${state}`;
