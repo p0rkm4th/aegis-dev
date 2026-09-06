@@ -1734,12 +1734,15 @@ async function loadFinance() {
         importButton.disabled = true; importStatus.textContent = 'Importing…';
         try {
           const content = await selected.text();
-          const result = await apiFetch('/api/finance/import', {
+          const response = await apiFetch('/api/finance/import', {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({account_id: accountSelect.value, source_id: selected.name, content, currency: payload.accounts?.find(account => String(account.account_id) === accountSelect.value)?.currency || 'USD'})
           });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Finance import unavailable.');
           const imported = result.imported_transaction_ids?.length || 0;
-          importStatus.textContent = `Imported ${imported} transaction${imported === 1 ? '' : 's'}; source hash recorded.`;
+          const candidates = result.reconciliations?.length || 0;
+          importStatus.textContent = `Imported ${imported} transaction${imported === 1 ? '' : 's'}; source hash recorded${candidates ? `; ${candidates} duplicate candidate${candidates === 1 ? '' : 's'} need review` : ''}.`;
           await loadFinance();
         } catch (error) { importStatus.textContent = error.message || 'Finance import unavailable.'; }
         finally { importButton.disabled = false; }

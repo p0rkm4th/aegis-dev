@@ -4879,7 +4879,11 @@ def test_browser_app_routes_owner_controlled_finance_import():
         lambda *_: "unused",
         lambda _: {"nodes": []},
         finance_import=lambda current, request: (
-            seen.append((current.id, request)) or {"imported_transaction_ids": ["txn-1"]}
+            seen.append((current.id, request))
+            or {
+                "imported_transaction_ids": ["txn-1"],
+                "reconciliations": [{"classification": "STRONG_CROSS_SOURCE_CANDIDATE"}],
+            }
         ),
         session_token="session-secret",
     )
@@ -4899,6 +4903,9 @@ def test_browser_app_routes_owner_controlled_finance_import():
     assert status == 200
     assert content_type == "application/json"
     assert json.loads(payload)["imported_transaction_ids"] == ["txn-1"]
+    assert json.loads(payload)["reconciliations"][0]["classification"] == (
+        "STRONG_CROSS_SOURCE_CANDIDATE"
+    )
     assert seen[0][0] == "alice"
     assert seen[0][1]["account_id"] == "checking"
 
