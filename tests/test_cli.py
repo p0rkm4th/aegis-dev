@@ -5500,6 +5500,8 @@ def test_browser_app_workspace_surface_exposes_generic_send_action():
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
     html = payload.decode()
+    assert "Find workspace artifacts" in html
+    assert "Filter by workspace or file name" in html
     assert "Send ${path}" in html
     assert "Text me the workspace artifact ${workspace.workspace_id} at ${path}" in html
 

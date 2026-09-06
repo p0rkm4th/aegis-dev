@@ -814,9 +814,33 @@ async function loadWorkspace() {
       ? `${payload.workspaces.length} scoped workspace(s)`
       : 'No scoped workspaces yet. Ask AEGIS to create a bounded artifact.';
     panel.append(heading);
+    const filterLabel = document.createElement('label');
+    filterLabel.textContent = 'Find workspace artifacts';
+    const filter = document.createElement('input');
+    filter.type = 'search'; filter.placeholder = 'Filter by workspace or file name';
+    filter.setAttribute('aria-label', 'Find workspace artifacts');
+    filterLabel.append(filter); panel.append(filterLabel);
+    const filterStatus = document.createElement('p'); filterStatus.className = 'muted';
+    filterStatus.setAttribute('aria-live', 'polite'); panel.append(filterStatus);
+    const cards = [];
+    const applyWorkspaceFilter = () => {
+      const query = filter.value.trim().toLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const matches = !query || card.dataset.searchText.includes(query);
+        card.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      filterStatus.textContent = query
+        ? `${visible} matching workspace(s)`
+        : `${cards.length} workspace(s) shown`;
+    };
+    filter.addEventListener('input', applyWorkspaceFilter);
     (payload.workspaces || []).forEach(workspace => {
       const card = document.createElement('section');
       card.className = 'detail-card';
+      card.dataset.searchText = [workspace.workspace_id, ...(workspace.files || [])]
+        .join(' ').toLowerCase();
       const title = document.createElement('h3');
       title.textContent = `Workspace ${workspace.workspace_id || 'unknown'}`;
       card.append(title);
@@ -888,7 +912,9 @@ async function loadWorkspace() {
         }
       });
       panel.append(card);
+      cards.push(card);
     });
+    applyWorkspaceFilter();
   } catch (_) {
     panel.textContent = 'Workspace inventory is unavailable; no artifact state was changed.';
   }
