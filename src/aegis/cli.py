@@ -552,6 +552,51 @@ def _document_file(principal: Principal, document_id: str) -> dict[str, Any]:
     raise KeyError(document_id)
 
 
+def _daily_driver_state(principal: Principal) -> dict[str, Any]:
+    """Expose the bounded release scoreboard without turning it into authority."""
+
+    del principal
+    state_path = Path(__file__).resolve().parents[2] / "CURRENT_STATE.json"
+    try:
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("release scoreboard is unavailable") from exc
+    if not isinstance(state, dict):
+        raise ValueError("release scoreboard is invalid")
+    statuses = state.get("daily_driver_scoreboard")
+    breadth = state.get("breadth_scoreboard")
+    if not isinstance(statuses, dict) or not isinstance(breadth, dict):
+        raise ValueError("release scoreboard is incomplete")
+    metrics = {
+        key: state.get(key)
+        for key in (
+            "independently_verified_write_capabilities",
+            "live_external_integrations",
+            "voluntarily_useful_owner_workflows",
+            "owner_visible_capability_surfaces",
+            "general_purpose_primitives",
+            "cross_capability_workflows",
+        )
+    }
+    pending = [
+        item
+        for item in state.get("known_runtime_limits", [])
+        if isinstance(item, str)
+        and any(marker in item for marker in ("OpenClaw", "Google", "Home Assistant"))
+    ]
+    return {
+        "source_basis_sha": state.get("state_basis_sha"),
+        "statuses": statuses,
+        "metrics": metrics,
+        "breadth": breadth,
+        "provider_gates": pending[:10],
+        "boundary": (
+            "Fixture and contract states are not live integrations; provider status is "
+            "descriptive release truth and grants no action authority."
+        ),
+    }
+
+
 def _device_state(principal: Principal) -> dict[str, Any]:
     """Expose the existing bounded device read adapter to the owner UI."""
 
@@ -2112,6 +2157,7 @@ def main() -> int:
                 communications_state=_communications_state,
                 documents_state=_documents_state,
                 document_file=_document_file,
+                daily_driver_state=_daily_driver_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

@@ -3798,6 +3798,32 @@ def test_browser_app_rejects_malformed_document_read_query():
     assert status == 400
 
 
+def test_browser_app_exposes_daily_driver_scoreboard_without_authority():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        daily_driver_state=lambda current: {
+            "source_basis_sha": "abc123",
+            "statuses": {"documents": "INSTALLED"},
+            "metrics": {"owner_visible_capability_surfaces": 17},
+            "provider_gates": ["Google Calendar remains pending"],
+            "boundary": "descriptive only",
+            "owner": current.id,
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/daily-driver", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    result = json.loads(payload)
+    assert result["statuses"]["documents"] == "INSTALLED"
+    assert result["metrics"]["owner_visible_capability_surfaces"] == 17
+    assert result["owner"] == "alice"
+
+
 def test_browser_app_exposes_bounded_device_projection():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
@@ -4764,11 +4790,14 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
         "Research",
         "Packs",
         "Documents",
+        "Daily driver",
     ):
         assert f">{view}</button>" in _INDEX_HTML
     assert "Research is available through conversation" in _INDEX_HTML
     assert "async function loadDocuments()" in _INDEX_HTML
     assert "Read document" in _INDEX_HTML
+    assert "async function loadDailyDriver()" in _INDEX_HTML
+    assert "/api/daily-driver" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
     assert "setOutcomeStatus(result.state)" in _INDEX_HTML
