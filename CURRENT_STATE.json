@@ -1,18 +1,18 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e549c7f",
+  "state_basis_sha": "0549376",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e549c7f",
-  "deterministic_green_sha": "e549c7f",
-  "last_pushed_sha": "e549c7f",
-  "hosted_green_sha": "e549c7f",
-  "hosted_ci_green_sha": "e549c7f",
+  "repository_head_sha": "0549376",
+  "deterministic_green_sha": "0549376",
+  "last_pushed_sha": "0549376",
+  "hosted_green_sha": "0549376",
+  "hosted_ci_green_sha": "0549376",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e549c7f",
+    "commit_sha": "0549376",
     "conclusion": "success",
-    "run_id": "34037389461",
+    "run_id": "34037502557",
     "observed_at": "2026-09-06T06:33:00Z"
   },
   "installed_release_sha": "24fbdf3",
@@ -73,6 +73,7 @@
     "household_obligations_communication_ui": "Promoted Household view exposes Send open obligations; canonical obligation state is fixed before generic communication and provider acceptance is distinct from delivery",
     "device_control_owner_fixture": "Promoted Devices owner proof accepts punctuated low-risk light control with independent fixture readback and denies an entity outside configured scope; live Home Assistant remains pending",
     "device_state_research_owner": "Promoted owner proof reads the authorized light state and routes it into bounded public research; device scope remains read-only and public evidence remains non-canonical",
+    "document_summary_workspace_owner": "Promoted owner proof summarizes the authorized Alpha Handbook into a Principal/objective-scoped Workspace artifact with independent verification and preserved source provenance",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -248,6 +249,7 @@
     ,"promoted owner UI on ce1d0cc exposes Send open obligations; installed owner proof sent the fixed canonical open-obligation snapshot with PROVIDER_ACCEPTED readback, while obligation state remained read-only and delivery unproven"
     ,"promoted owner Devices surface accepted punctuated light.desk control with independent fixture readback and denied unauthorized light.garage; live Home Assistant control remains pending"
     ,"promoted owner proof completed Device State → Research for light.desk with bounded public evidence; no device mutation or authority expansion occurred"
+    ,"promoted owner proof created handbook-summary.md from the authorized Alpha Handbook with independent scoped Workspace verification"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes fixed canonical household chore snapshots through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -290,22 +292,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 95,
+  "voluntarily_useful_owner_workflows": 96,
   "owner_visible_capability_surfaces": 67,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 70,
+  "cross_capability_workflows": 71,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 69,
+    "cross_domain_compositions": 70,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 91,
+    "owner_workflows_completed": 92,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/device-state-research-owner-e549c7f.json",
+  "history_artifact": "evidence/document-summary-workspace-owner-0549376.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
