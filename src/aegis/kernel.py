@@ -239,6 +239,14 @@ class Kernel:
         # Correlation is stable across a recovered/replayed turn; objective IDs
         # are intentionally not used as the idempotency key.
         key = f"{intent.correlation_id}:{action.action_id}"
+        if action.action_id == "calendar.events.create" and action.verification is not None:
+            expected = dict(action.verification.expected)
+            expected["idempotency_key"] = key
+            action = action.model_copy(
+                update={
+                    "verification": action.verification.model_copy(update={"expected": expected})
+                }
+            )
         prior = self._results.get(key) or self.store.get_result(key)
         if prior is not None:
             prior_observation = self.store.get_observation(key)

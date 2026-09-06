@@ -1574,6 +1574,55 @@ def test_executor_exception_is_persisted_as_unknown_and_not_replayed():
     assert "private gateway detail" not in str(first)
 
 
+def test_unknown_outcome_reconciles_without_reexecuting_mutation():
+    class AmbiguousExecutor:
+        calls = 0
+
+        def execute(self, _request):
+            self.calls += 1
+            raise TimeoutError("provider stopped responding")
+
+    class Reconciler:
+        def verify(self, _observation, _contract):
+            return VerificationResult(verified=False, evidence={}, reason="still unknown")
+
+        def reconcile(self, _observation, _contract):
+            return VerificationResult(
+                verified=True,
+                evidence={"provider_reconciliation": True},
+                reason="provider state confirmed the expected effect",
+            )
+
+    executor = AmbiguousExecutor()
+    verifier = Reconciler()
+    action = ActionSpec(
+        action_id="remote.write",
+        capability="remote.write",
+        verification=VerificationContract(kind="custom", expected={"effect": "on"}),
+    )
+    k = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        executor,
+        verifier,
+    )
+
+    first = k.run(intent())
+    second = k.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="do it",
+            correlation_id=first.correlation_id,
+        )
+    )
+
+    assert first.state is ObjectiveState.OBSERVED
+    assert second.state is ObjectiveState.COMPLETED
+    assert second.evidence["reconciled"] is True
+    assert executor.calls == 1
+
+
 def test_verifier_exception_is_a_truthful_failed_result():
     class FailingVerifier:
         def verify(self, observation, contract):

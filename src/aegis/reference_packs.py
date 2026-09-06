@@ -3421,6 +3421,33 @@ class CalendarCreateVerifier:
             assurance=(ExternalEffectAssurance.EFFECT_VERIFIED if verified else None),
         )
 
+    def reconcile(
+        self, _observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        key = contract.expected.get("idempotency_key")
+        finder = getattr(self.provider, "find_event_by_idempotency_key", None)
+        actual = finder(key) if callable(finder) and isinstance(key, str) else None
+        expected = contract.expected
+        verified = (
+            actual is not None
+            and actual.title == expected.get("title")
+            and actual.starts_at.isoformat() == expected.get("starts_at")
+            and (actual.ends_at.isoformat() if actual.ends_at else None) == expected.get("ends_at")
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "provider_reconciliation": True,
+                "calendar_event_id": actual.event_id if actual else None,
+            },
+            reason="calendar create was confirmed by idempotency reconciliation"
+            if verified
+            else "calendar create remains outcome unknown",
+            assurance=ExternalEffectAssurance.EFFECT_VERIFIED
+            if verified
+            else ExternalEffectAssurance.OUTCOME_UNKNOWN,
+        )
+
 
 class CalendarCancelExecutor:
     def __init__(self, provider: CalendarWriteProvider) -> None:
@@ -3477,6 +3504,23 @@ class CalendarCancelVerifier:
             if verified
             else "calendar event remained present after cancellation",
             assurance=(ExternalEffectAssurance.EFFECT_VERIFIED if verified else None),
+        )
+
+    def reconcile(
+        self, _observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        event_id = contract.expected.get("event_id")
+        actual = self.provider.get_event(event_id) if isinstance(event_id, str) else None
+        verified = actual is None and contract.expected.get("exists") is False
+        return VerificationResult(
+            verified=verified,
+            evidence={"provider_reconciliation": True, "provider_readback_absent": actual is None},
+            reason="calendar cancellation was confirmed by reconciliation"
+            if verified
+            else "calendar cancellation remains outcome unknown",
+            assurance=ExternalEffectAssurance.EFFECT_VERIFIED
+            if verified
+            else ExternalEffectAssurance.OUTCOME_UNKNOWN,
         )
 
 
@@ -3568,6 +3612,29 @@ class CalendarUpdateVerifier:
             if verified
             else "calendar event update readback did not match the expected event",
             assurance=(ExternalEffectAssurance.EFFECT_VERIFIED if verified else None),
+        )
+
+    def reconcile(
+        self, _observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        event_id = contract.expected.get("event_id")
+        actual = self.provider.get_event(event_id) if isinstance(event_id, str) else None
+        expected = contract.expected
+        verified = (
+            actual is not None
+            and actual.title == expected.get("title")
+            and actual.starts_at.isoformat() == expected.get("starts_at")
+            and (actual.ends_at.isoformat() if actual.ends_at else None) == expected.get("ends_at")
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"provider_reconciliation": True, "calendar_event_id": event_id},
+            reason="calendar update was confirmed by reconciliation"
+            if verified
+            else "calendar update remains outcome unknown",
+            assurance=ExternalEffectAssurance.EFFECT_VERIFIED
+            if verified
+            else ExternalEffectAssurance.OUTCOME_UNKNOWN,
         )
 
 
