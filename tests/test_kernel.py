@@ -71,7 +71,7 @@ from aegis.gateway_rpc import (
     RpcResponse,
 )
 from aegis.health import HealthService
-from aegis.homelab import HomelabPack, Host, PostgresHomelabStore, Service
+from aegis.homelab import FixtureHomelabRuntime, HomelabPack, Host, PostgresHomelabStore, Service
 from aegis.household import (
     Chore,
     ChoreCompletionFastPath,
@@ -5157,6 +5157,15 @@ def test_network_scope_policy_denies_reachable_target_outside_persisted_scope():
 
     decision = NetworkScopePolicy(BasePolicy(), Store()).authorize(request)
     assert not decision.allowed
+
+
+def test_fixture_homelab_runtime_requires_restart_before_health():
+    service = Service("plex", "host", "Plex", "http://127.0.0.1:32400")
+    provider = FixtureHomelabRuntime()
+
+    assert provider.health(service) is False
+    assert provider.restart(service) is True
+    assert provider.health(service) is True
 
 
 def test_homelab_restart_requires_scope_and_health_verification():

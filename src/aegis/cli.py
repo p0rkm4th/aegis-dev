@@ -1672,6 +1672,20 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": health_request.groupdict()})
             }
         )
+    restart_request = re.fullmatch(
+        r"restart (?:the )?(?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if restart_request is not None:
+        card = manager.action_card("homelab", "homelab.service.restart")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": restart_request.groupdict()})
+            }
+        )
     homelab_health_report = re.fullmatch(
         r"(?:create|make) (?:a )?homelab health report"
         r"(?: (?:as|to) (?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}))?",

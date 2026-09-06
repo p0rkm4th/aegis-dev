@@ -15,6 +15,7 @@ from .communications import (
 from .contracts import Principal
 from .devices import FixtureDeviceGateway, HomeAssistantRestControlGateway
 from .gateway_rpc import OpenClawWebSocketChannel
+from .homelab import FixtureHomelabRuntime
 from .household import (
     PostgresChoreExecutor,
     PostgresChoreVerifier,
@@ -60,6 +61,8 @@ from .reference_packs import (
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    FixtureHomelabRestartExecutor,
+    FixtureHomelabRestartVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
     HomelabHealthWorkspaceExecutor,
@@ -180,7 +183,13 @@ def default_runtime_registry(
         )
 
     def homelab_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        del connection, principal
+        if os.environ.get("AEGIS_HOMELAB_FIXTURE", "").casefold() == "true":
+            provider = FixtureHomelabRuntime()
+            return ActionRuntime(
+                FixtureHomelabRestartExecutor(connection, principal, provider),
+                FixtureHomelabRestartVerifier(connection, principal, provider),
+                {"homelab.service.restart": frozenset({Role.OWNER})},
+            )
         channel = openclaw_channel()
         services = {
             name.removeprefix("AEGIS_HOMELAB_SERVICE_").lower(): command
