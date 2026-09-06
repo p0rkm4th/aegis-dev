@@ -68,7 +68,9 @@ def test_csv_import_rejects_missing_schema_and_invalid_currency():
 def test_csv_import_accepts_only_supported_statuses(status):
     transactions, _ = import_csv_transactions(
         f"date,amount,description,status\n2026-09-01,1.00,Good,{status}\n",
-        owner_id="alice", account_id="checking", source_id="status-test",
+        owner_id="alice",
+        account_id="checking",
+        source_id="status-test",
     )
     assert transactions[0].status == status.lower()
 
@@ -77,7 +79,9 @@ def test_csv_import_accepts_only_supported_statuses(status):
 def test_csv_import_rejects_unknown_status(status):
     transactions, report = import_csv_transactions(
         f"date,amount,description,status\n2026-09-01,1.00,Bad,{status}\n",
-        owner_id="alice", account_id="checking", source_id="status-test",
+        owner_id="alice",
+        account_id="checking",
+        source_id="status-test",
     )
     assert transactions == ()
     assert report.rejected_rows[0][0] == 2
@@ -122,20 +126,20 @@ def test_ledger_import_does_not_double_count_provider_transaction_across_files()
 
 def test_cross_source_similarity_is_candidate_and_pending_provider_id_becomes_posted():
     ledger = FinanceLedger()
-    ledger.record_snapshot(FinanceSnapshot(
-        "alice", (Account("checking", "alice", 10_000),),
-    ))
+    ledger.record_snapshot(
+        FinanceSnapshot(
+            "alice",
+            (Account("checking", "alice", 10_000),),
+        )
+    )
     base = "date,amount,description\n2026-09-01,-12.34,Coffee\n"
     ledger.import_csv("alice", "checking", base, source_id="upload-a")
     report = ledger.import_csv("alice", "checking", base + "\n", source_id="upload-b")
     assert report.reconciliations[0].classification == "STRONG_CROSS_SOURCE_CANDIDATE"
-    assert len(
-        ledger.private_snapshot(type("P", (), {"id": "alice"})(), "alice").transactions
-    ) == 2
+    assert len(ledger.private_snapshot(type("P", (), {"id": "alice"})(), "alice").transactions) == 2
 
     pending = (
-        "date,amount,description,transaction_id,status\n"
-        "2026-09-02,-5.00,Coffee,bank-9,pending\n"
+        "date,amount,description,transaction_id,status\n2026-09-02,-5.00,Coffee,bank-9,pending\n"
     )
     posted = pending.replace(",pending", ",posted")
     ledger.import_csv("alice", "checking", pending, source_id="upload-c")
@@ -166,15 +170,30 @@ def test_postgres_finance_round_trip_preserves_non_default_transaction_semantics
         ),
         (
             Transaction(
-                "txn-a", "euro-checking", -1234, captured, "Pending purchase",
-                "EUR", "provider-123", "pending", "import-a",
+                "txn-a",
+                "euro-checking",
+                -1234,
+                captured,
+                "Pending purchase",
+                "EUR",
+                "provider-123",
+                "pending",
+                "import-a",
             ),
             Transaction(
-                "txn-b", "usd-checking", -500, captured, "Posted purchase",
-                "USD", None, "posted", "import-b",
+                "txn-b",
+                "usd-checking",
+                -500,
+                captured,
+                "Posted purchase",
+                "USD",
+                None,
+                "posted",
+                "import-b",
             ),
         ),
-        "bank-evidence", captured,
+        "bank-evidence",
+        captured,
         (
             ImportSource("import-a", "csv", "hash-a", captured, captured, captured, False),
             ImportSource("import-b", "csv", "hash-b", captured, captured, captured, True),
@@ -234,7 +253,10 @@ def test_affordability_is_currency_scoped_and_rejects_mixed_obligations():
     )
     principal = type("P", (), {"id": "alice"})()
     projection = ledger.assess_affordability(
-        principal, "alice", 8_000, (SharedObligation("rent", 1_000, "USD"),),
+        principal,
+        "alice",
+        8_000,
+        (SharedObligation("rent", 1_000, "USD"),),
         purchase_currency="USD",
     )
     assert projection.matching_balance_cents == 10_000
@@ -242,6 +264,9 @@ def test_affordability_is_currency_scoped_and_rejects_mixed_obligations():
     assert projection.affordable
     with pytest.raises(ValueError, match="purchase currency"):
         ledger.assess_affordability(
-            principal, "alice", 8_000, (SharedObligation("rent", 1_000, "EUR"),),
+            principal,
+            "alice",
+            8_000,
+            (SharedObligation("rent", 1_000, "EUR"),),
             purchase_currency="USD",
         )

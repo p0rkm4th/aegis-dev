@@ -563,8 +563,7 @@ class FinanceLedger:
         _validate_currency(purchase_currency)
         balance = self.total_balance(requester, owner_id, purchase_currency)
         if any(
-            obligation.currency.strip().upper() != purchase_currency
-            for obligation in obligations
+            obligation.currency.strip().upper() != purchase_currency for obligation in obligations
         ):
             raise ValueError("obligations must use the purchase currency")
         obligations_total = sum(obligation.amount for obligation in obligations)
