@@ -1093,7 +1093,37 @@ async function loadSystems() {
     } catch (_) {}
     const heading = document.createElement('p');
     heading.textContent = 'Authorized systems inventory (read-only view)';
-    panel.append(heading, renderDetailValue(payload));
+    panel.append(heading);
+    const inventory = document.createElement('section'); inventory.className = 'detail-card';
+    const inventoryTitle = document.createElement('h3'); inventoryTitle.textContent = 'Canonical and observed inventory';
+    inventory.append(inventoryTitle);
+    const appendInventory = (title, items, describe) => {
+      const section = document.createElement('div'); section.className = 'systems-inventory-section';
+      const label = document.createElement('h4'); label.textContent = title; section.append(label);
+      if (!items.length) {
+        const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = `No ${title.toLowerCase()} recorded.`;
+        section.append(empty);
+      } else items.slice(0, 20).forEach(item => {
+        const row = document.createElement('div'); row.className = 'list-row';
+        const name = document.createElement('strong'); name.textContent = describe(item)[0];
+        const detail = document.createElement('span'); detail.className = 'muted'; detail.textContent = describe(item)[1];
+        row.append(name, detail); section.append(row);
+      });
+      inventory.append(section);
+    };
+    appendInventory('Canonical hosts', Array.isArray(payload.hosts) ? payload.hosts : [], host => [
+      host.hostname || host.host_id || 'Unnamed host',
+      `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'}`
+    ]);
+    appendInventory('Authorized network scopes', Array.isArray(payload.active_network_scopes) ? payload.active_network_scopes : [], scope => [
+      scope.scope_id || 'Unnamed scope',
+      `${(scope.cidrs || []).join(', ') || 'no ranges'} · ${scope.purpose || 'no purpose'}`
+    ]);
+    appendInventory('Discovered devices', Array.isArray(payload.authorized_network_devices) ? payload.authorized_network_devices : [], device => [
+      device.hostname || device.address || 'Unnamed device',
+      `${device.address || 'no address'} · discovered observation, not canonical Host`
+    ]);
+    panel.append(inventory);
     const services = Array.isArray(payload.services) ? payload.services : [];
     if (services.length) {
       const actions = document.createElement('section'); actions.className = 'detail-card';
