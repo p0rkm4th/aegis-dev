@@ -1543,6 +1543,10 @@ async function loadHousehold() {
     } else {
       appendTodaySection(panel, 'Pantry', ['No canonical Pantry items recorded yet.']);
     }
+    const lowPantry = canonical.pantry_low_items || [];
+    appendTodaySection(panel, 'Pantry items to review', lowPantry.length
+      ? lowPantry.map(item => `${item.display_name} · ${item.quantity} ${item.unit || ''} · minimum ${item.minimum_quantity}`.trim())
+      : ['No low-stock projection; unknown quantities are not treated as low.']);
     const sendGroceries = document.createElement('button');
     sendGroceries.type = 'button'; sendGroceries.textContent = 'Send grocery list';
     sendGroceries.addEventListener('click', () => {

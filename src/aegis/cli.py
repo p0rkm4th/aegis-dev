@@ -1075,6 +1075,20 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         pantry_items = [
             item.__dict__ for item in cast(tuple[Any, ...], household.get("pantry_items", ()))
         ][:50]
+        pantry_low_items = [
+            {
+                "item_id": item["item_id"],
+                "display_name": item["display_name"],
+                "quantity": item["quantity"],
+                "unit": item["unit"],
+                "minimum_quantity": item["minimum_quantity"],
+                "reason": "known quantity is at or below the configured minimum",
+            }
+            for item in pantry_items
+            if item["quantity"] is not None
+            and item["minimum_quantity"] is not None
+            and item["quantity"] <= item["minimum_quantity"]
+        ]
         external_events = configured_calendar_provider().list_events()
         external = calendar_events_evidence(external_events)
         country_code = os.environ.get("AEGIS_HOLIDAY_COUNTRY", "").strip().upper()
@@ -1149,6 +1163,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
                 "groceries": list(cast(tuple[Any, ...], household.get("groceries", ())))[:50],
                 "grocery_items": grocery_items,
                 "pantry_items": pantry_items,
+                "pantry_low_items": pantry_low_items,
             },
             "external_calendar": external,
             "active_objectives": active_objectives[:20],
