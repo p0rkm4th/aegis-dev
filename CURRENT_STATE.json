@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "425ec0b",
+  "state_basis_sha": "5267bb0",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "425ec0b",
-  "deterministic_green_sha": "425ec0b",
-  "last_pushed_sha": "425ec0b",
+  "repository_head_sha": "5267bb0",
+  "deterministic_green_sha": "5267bb0",
+  "last_pushed_sha": "5267bb0",
   "hosted_green_sha": "425ec0b",
   "hosted_ci_green_sha": "425ec0b",
   "hosted_ci_attestation": {
@@ -123,10 +123,11 @@
     "workspace_append_communication": "installed owner proof appended a note to groceries.md, then sent the updated scoped artifact through generic communications with exact provider readback; delivery remains unproven",
     "public_holidays_workspace": "installed owner proof explicitly enabled holiday-reports, fixed bounded public holiday evidence before Workspace mutation, independently verified holidays.md, and preserved the external/non-canonical boundary"
     ,"pack_first_experiment": "Experimental Pack-first harness compares incumbent control, pure Pack-first, and retrieval-assisted Pack-first using compact Pack metadata; dynamic lifecycle, strict fail-closed router validation, and owner-context exclusion are regression-tested. Production cognition remains unchanged and no model tournament result is claimed"
+    ,"food_stable_state": "Current Household groceries remain backward-compatible while deterministic migration exposes stable-ID GroceryItem records and nullable PantryItem records; purchase/consume operations use IDs and Pantry versions, and unknown quantity is never treated as zero"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
-    "Pack-first A/B/C harness is source- and hosted-green at 425ec0b; Qwen routing corpus and production-route decision remain pending",
+    "Pack-first A/B/C harness is deterministic-green at 425ec0b; exact hosted validation for newer source 5267bb0 and Qwen routing corpus remain pending",
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
@@ -360,7 +361,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Begin the isolated Pack-first A/B/C harness, while advancing stable-ID Food/Pantry and private Finance read/import seams; preserve the incumbent production cognition path.",
+  "next_action": "Wire stable-ID Food/Pantry records into the normal Pack actions and owner Food view, preserving the incumbent cognition path; then advance private Finance read/import seams.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
