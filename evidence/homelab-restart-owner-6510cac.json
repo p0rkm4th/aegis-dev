@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "homelab-fixture-restart-independent-health",
+  "source_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
+  "hosted_run_id": "34015601485",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "6510cac60f3b3515903349d7b2575ac2ec5527f1",
+  "owner_request": "Restart service acceptance-plex",
+  "objective_id": "0669b428-7541-414e-bdc7-8463d4b62970",
+  "correlation_id": "0965aafe-7c23-43c9-b1c3-a3112f0f6175",
+  "service": "acceptance-plex",
+  "provider": "fixture",
+  "restart_accepted": true,
+  "independent_health_readback": true,
+  "result": "fixture service health independently verified",
+  "live_provider": false,
+  "safety": "The fixture provider is explicitly selected; canonical service identity remains Principal/Space-scoped and the live OpenClaw execution path remains separate and unconfigured."
+}
