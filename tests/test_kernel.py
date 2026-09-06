@@ -31,6 +31,7 @@ from aegis.contracts import (
     Decision,
     DecisionKind,
     ExecutionRequest,
+    ExternalEffectAssurance,
     IntentFrame,
     ModelRequest,
     ModelResponse,
@@ -1624,6 +1625,33 @@ def test_unknown_outcome_reconciles_without_reexecuting_mutation():
     assert second.state is ObjectiveState.COMPLETED
     assert second.evidence["reconciled"] is True
     assert executor.calls == 1
+
+
+def test_typed_unknown_assurance_is_observed_even_without_evidence_marker():
+    class ProviderOutcomeExecutor:
+        def execute(self, request):
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"provider": "fault-fixture"},
+                command_succeeded=False,
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
+            )
+
+    action = ActionSpec(
+        action_id="remote.write",
+        capability="remote.write",
+        verification=VerificationContract(kind="custom", expected={"effect": "on"}),
+    )
+    result = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ProviderOutcomeExecutor(),
+        Verifier(False),
+    ).run(intent())
+    assert result.state is ObjectiveState.OBSERVED
+    assert result.retryable is False
+    assert result.evidence["assurance"] == "OUTCOME_UNKNOWN"
 
 
 def test_verifier_exception_is_a_truthful_failed_result():
