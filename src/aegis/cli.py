@@ -1392,6 +1392,21 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": chores_report.groupdict()})
             }
         )
+    grocery_report = re.fullmatch(
+        r"save (?:my )?(?:the )?grocery list to workspace as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if grocery_report is not None:
+        card = manager.action_card("kitchen-reports", "kitchen-reports.groceries_to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": grocery_report.groupdict()})
+            }
+        )
     forecast = re.fullmatch(
         r"(?:show|read|get) (?:the )?(?P<days>[1-7])(?:-| )day weather forecast at "
         r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"

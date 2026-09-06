@@ -46,6 +46,14 @@ def test_household_chores_workspace_composition_is_owner_visible() -> None:
     assert "no chore mutation" in composition["authority"]
 
 
+def test_groceries_workspace_composition_is_owner_visible() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "groceries-to-workspace"
+    )
+    assert composition["surfaces"] == ("Food", "Workspace")
+    assert "no grocery mutation" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
