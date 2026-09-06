@@ -443,6 +443,51 @@ def test_document_search_message_fixes_authorized_matches_before_generic_send(mo
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_public_holiday_message_fixes_external_evidence_before_generic_send(monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_HOLIDAY_COUNTRY", "US")
+    monkeypatch.setenv("AEGIS_HOLIDAY_YEAR", "2026")
+    monkeypatch.setenv(
+        "AEGIS_HOLIDAY_FIXTURE_JSON",
+        '[{"date":"2026-07-04","name":"Independence Day","types":["Public"]}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "public.holidays",
+            }
+        }
+    )
+    prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
+    expected_body = prepared.verification.expected["body"]
+    assert isinstance(expected_body, str)
+    assert "Public holiday evidence for US 2026 (external; non-canonical)" in expected_body
+    assert "Independence Day" in expected_body
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="public-holiday-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_homelab_health_message_fixes_observation_before_generic_send(monkeypatch) -> None:
     monkeypatch.setattr(
         reference_packs_module,

@@ -262,6 +262,21 @@ def prepare_reference_action(
                 weather_forecast_evidence(forecast), sort_keys=True
             )
             args = {**args, "body": body}
+        elif args.get("body_source") == "public.holidays":
+            country_code = os.environ.get("AEGIS_HOLIDAY_COUNTRY", "").strip().upper()
+            if not country_code:
+                raise ValueError("public holiday country is not configured")
+            try:
+                year = int(os.environ.get("AEGIS_HOLIDAY_YEAR", ""))
+                holidays = configured_holiday_provider().list_holidays(country_code, year)
+            except (RuntimeError, ValueError) as exc:
+                raise ValueError(f"public holidays are unavailable: {exc}") from exc
+            body = (
+                f"Public holiday evidence for {country_code} {year} "
+                "(external; non-canonical):\n"
+                + json.dumps(holidays_evidence(holidays), sort_keys=True)
+            )
+            args = {**args, "body": body}
         elif args.get("body_source") == "canonical.document":
             document_id = args.get("document_id")
             if isinstance(document_id, str) and document_id.strip():
@@ -1208,6 +1223,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 "reference.communication_body_from_weather.v1",
                                 "reference.communication_body_from_document.v1",
                                 "reference.communication_body_from_document_search.v1",
+                                "reference.communication_body_from_public_holidays.v1",
                                 "reference.communication_body_from_homelab_health.v1",
                             ),
                         )
