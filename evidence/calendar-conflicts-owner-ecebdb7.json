@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "calendar-conflicts-owner",
+  "source_sha": "ecebdb7dcd18b4f558979f79421160d50aab74a4",
+  "hosted_validation": {"run_id": "34008120281", "conclusion": "success"},
+  "installed_release_sha": "ecebdb7dcd18b4f558979f79421160d50aab74a4",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_api": "conflicts and conflict_boundary returned",
+    "calendar_surface": "Scheduling conflicts"
+  },
+  "verification": "Calendar conflict projection compares bounded provider events with explicit end times and reports pairwise overlaps without mutation.",
+  "authority_boundary": "Conflict inspection is read-only and does not create, update, cancel, or authorize events."
+}
