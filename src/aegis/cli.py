@@ -1314,6 +1314,32 @@ def _deterministic_composition_action(
                 )
             }
         )
+    weather_report = re.fullmatch(
+        r"save (?:my )?(?P<days>[1-7])-day weather forecast at "
+        r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"
+        r"(?P<longitude>-?[0-9]{1,3}(?:\.[0-9]{1,6})?) as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if weather_report is not None:
+        card = manager.action_card("weather-reports", "weather-reports.forecast.to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "latitude": float(weather_report.group("latitude")),
+                            "longitude": float(weather_report.group("longitude")),
+                            "days": int(weather_report.group("days")),
+                            "target_path": weather_report.group("target_path"),
+                        }
+                    }
+                )
+            }
+        )
     air_quality = re.fullmatch(
         r"(?:what(?:'s| is)|show|read) (?:the )?(?:current )?air quality at "
         r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"

@@ -382,6 +382,22 @@ def prepare_reference_action(
             if not matches:
                 lines.append("No authorized documents matched this query.")
             files = {search_target_path: "\n".join(lines)}
+    elif action.action_id == "weather-reports.forecast.to_workspace":
+        report_target_path = args.get("target_path")
+        latitude, longitude, days = args.get("latitude"), args.get("longitude"), args.get("days")
+        if (
+            isinstance(report_target_path, str)
+            and report_target_path.strip()
+            and isinstance(latitude, (int, float))
+            and isinstance(longitude, (int, float))
+            and isinstance(days, int)
+        ):
+            forecast = configured_weather_forecast_provider().forecast(
+                float(latitude), float(longitude), days
+            )
+            content = _weather_forecast_workspace_content(forecast)
+            files = {report_target_path: content}
+            args = {**args, "_workspace_content": content}
     if files is None:
         return action
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
@@ -415,6 +431,16 @@ def _verify_workspace_expectation(
         return workspace.verify_expected_files(cast(dict[str, str], files))
     except (KeyError, TypeError, ValueError, OSError) as exc:
         return False, f"workspace postcondition unavailable: {exc}"
+
+
+def _weather_forecast_workspace_content(forecast: object) -> str:
+    """Serialize public forecast evidence into a bounded owner artifact."""
+
+    return (
+        "# Weather forecast\n\n"
+        + json.dumps(weather_forecast_evidence(cast(Any, forecast)), indent=2, sort_keys=True)
+        + "\n"
+    )
 
 
 @dataclass(frozen=True)
@@ -1154,6 +1180,37 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "weather-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="weather-reports.forecast.to_workspace",
+                        capability="weather-reports.forecast.to_workspace",
+                        required_permissions=("weather.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Save a bounded public forecast as a verified Workspace report",
+                    relevance=1,
+                    argument_keys=("target_path", "latitude", "longitude", "days"),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "latitude": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "longitude": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "days": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "calendar-reports",
             "0.1.0",
             (
@@ -1261,6 +1318,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
     permissions = {
         "calendar": ("calendar.read", "calendar.write"),
         "weather": ("weather.read",),
+        "weather-reports": ("weather.read", "workspace.write"),
         "holidays": ("calendar.read",),
         "air-quality": ("air_quality.read",),
         "calendar-reports": ("calendar.read", "workspace.write"),
@@ -2630,6 +2688,67 @@ class PublicHolidayExecutor:
             )
         return Observation(
             execution_id=uuid4(), evidence=holidays_evidence(holidays), command_succeeded=True
+        )
+
+
+class WeatherWorkspaceExecutor:
+    """Write a pre-execution-fixed public forecast into scoped Workspace."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        content = request.action.arguments.get("_workspace_content")
+        if (
+            not isinstance(target_path, str)
+            or not target_path.strip()
+            or not isinstance(content, str)
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"weather_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"weather_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "weather_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class WeatherWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"weather_workspace_verified": verified, "postcondition": detail},
+            reason="weather report independently verified"
+            if verified
+            else f"weather report verification failed: {detail}",
         )
 
 

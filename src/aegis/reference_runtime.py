@@ -81,6 +81,8 @@ from .reference_packs import (
     WeatherForecastExecutor,
     WeatherForecastVerifier,
     WeatherVerifier,
+    WeatherWorkspaceExecutor,
+    WeatherWorkspaceVerifier,
     WorkspaceArtifactExecutor,
     WorkspaceArtifactVerifier,
     prepare_reference_action,
@@ -271,6 +273,18 @@ def default_runtime_registry(
             WeatherForecastExecutor(),
             WeatherForecastVerifier(),
             {"weather.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def weather_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            WeatherWorkspaceExecutor(principal),
+            WeatherWorkspaceVerifier(principal),
+            {
+                "weather.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=prepare_reference_action,
         )
 
     def holiday_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -491,6 +505,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
+        "weather-reports.forecast.to_workspace": weather_workspace_runtime,
         "holidays.public_holidays.list": holiday_runtime,
         "air-quality.current.read": air_quality_runtime,
         "calendar.events.create": calendar_create_runtime,

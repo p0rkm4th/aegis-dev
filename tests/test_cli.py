@@ -6376,6 +6376,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Device Controls",
         "Device Reports",
         "Weather",
+        "Weather Reports",
         "Holidays",
         "Air Quality",
     }

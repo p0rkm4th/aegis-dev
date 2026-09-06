@@ -45,6 +45,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "device-controls",
         "device-reports",
         "weather",
+        "weather-reports",
         "holidays",
         "air-quality",
     }
@@ -81,6 +82,53 @@ def test_documents_search_returns_only_bounded_authorized_matches(monkeypatch) -
             "snippet": "Guidance for the lab",
         }
     ]
+
+
+def test_weather_forecast_report_is_independently_verified_in_workspace(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv(
+        "AEGIS_WEATHER_FORECAST_FIXTURE_JSON",
+        '[{"date":"2026-09-06","temperature_max_c":22,"temperature_min_c":14,'
+        '"precipitation_probability_max":20,"sunrise":"06:20","sunset":"19:10",'
+        '"source":"fixture_weather"}]',
+    )
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "weather-reports.forecast.to_workspace"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    objective_id = uuid4()
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target_path": "weather.md",
+                "latitude": 41.88,
+                "longitude": -87.62,
+                "days": 1,
+            }
+        }
+    )
+    prepared = prepare_reference_action(action, principal, objective_id)
+    assert prepared.verification is not None
+    assert prepared.arguments["_workspace_content"].startswith("# Weather forecast")
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=objective_id,
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="weather-report-1",
+        )
+    )
+
+    assert observation.command_succeeded is True
+    result = runtime.verifier.verify(observation, prepared.verification)
+    assert result.verified is True
+    assert WorkspaceManager(tmp_path).for_objective("alice", objective_id).read("weather.md")
 
 
 def test_documents_search_to_workspace_is_independently_verified(tmp_path, monkeypatch) -> None:
