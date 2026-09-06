@@ -3410,6 +3410,28 @@ def ground_reference_action(
     """
 
     principal = intent.principal
+    if card.action.action_id == "workspace.artifact.read":
+        read_arguments = dict(card.action.arguments)
+        provenance: dict[str, ArgumentProvenance] = {}
+        for key, value in read_arguments.items():
+            if not isinstance(value, str) or not _utterance_spans(intent.utterance, value):
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="Name the Workspace ID and relative file path explicitly.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                source_spans=_utterance_spans(intent.utterance, value),
+            )
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": read_arguments, "argument_provenance": provenance}
+                )
+            }
+        )
     if card.action.action_id == "tasks.complete":
         text = intent.utterance.casefold()
         if "chore" in text and "task" not in text:
