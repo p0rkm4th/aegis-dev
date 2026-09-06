@@ -1,0 +1,13 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "research-to-workspace-owner-surface",
+  "source_sha": "21715b773440f8d43b7cc1473fedf7400773b52f",
+  "hosted_validation": {"run_id": "34005549016", "conclusion": "success"},
+  "installed_release_sha": "21715b773440f8d43b7cc1473fedf7400773b52f",
+  "owner_rendered_surface": {
+    "action": "Research and save notes",
+    "request_shape": "Research <question> and save notes as <path>",
+    "constellation_nodes": ["Research_Notes", "Workspace", "Artifact"]
+  },
+  "authority_boundary": "Public research remains non-canonical; the fixed-input artifact still requires normal Core authorization and scoped Workspace verification."
+}
