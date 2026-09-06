@@ -43,7 +43,7 @@ from aegis.tasks import (
     TaskStatus,
     ground_task_due_at,
 )
-from aegis.web import BrowserApp
+from aegis.web import _AEGIS_JS, BrowserApp
 
 
 def test_interaction_boundary_is_public_without_live_runtime():
@@ -4855,7 +4855,7 @@ def test_browser_app_compositions_surface_exposes_readable_workflow_cards():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "trusted cross-capability workflow(s)" in html
     assert "Surfaces: ${composition.surfaces.join(' · ')}" in html
     assert "Authority: ${composition.authority" in html
@@ -4875,8 +4875,7 @@ def test_browser_app_serves_external_design_tokens_for_responsive_shell():
     assert "--unknown" in css
     assert "@media (max-width: 36rem)" in css
     assert ".product-nav" in css
-    # The legacy inline stylesheet is still present for compatibility.  The
-    # served design layer must therefore win the cascade for the shell layout.
+    # The served design layer owns the shell layout and responsive behavior.
     assert "display: grid !important" in css
     assert "flex-direction: column !important" in css
     assert ".nav-advanced button { display: none !important; }" in css
@@ -4896,7 +4895,7 @@ def test_browser_app_preserves_unknown_as_reconciliation_not_retry():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Outcome unknown" in html
     assert "Recheck status" in html
     assert "pendingOutcomeUnknown" in html
@@ -5248,7 +5247,7 @@ def test_browser_app_communications_surface_offers_core_resolved_source_choice()
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Use authorized grocery list" in html
     assert "Canonical sources are resolved by Core" in html
     assert "Text my grocery list to" in html
@@ -5263,7 +5262,7 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Bounded service actions" in html
     assert "Request restart" in html
     assert "independent health verification" in html
@@ -5280,7 +5279,7 @@ def test_browser_app_task_and_household_views_expose_core_completion_affordances
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Complete the task" in html
     assert "Mark the chore" in html
 
@@ -5294,7 +5293,7 @@ def test_browser_app_documents_surface_exposes_bounded_search():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Search authorized documents" in html
     assert "Find my documents for" in html
     assert "bounded to documents authorized" in html
@@ -5309,7 +5308,7 @@ def test_browser_app_workspace_surface_exposes_sandboxed_static_preview():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Preview ${path}" in html
     assert "setAttribute('sandbox', '')" in html
     assert "Static preview of ${path}" in html
@@ -5324,7 +5323,7 @@ def test_browser_app_documents_surface_exposes_search_to_workspace_composition()
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Save results to Workspace" in html
     assert "Find my documents for ${query} and save results as ${path}" in html
     assert "independent verification path" in html
@@ -5339,7 +5338,7 @@ def test_browser_app_documents_surface_exposes_search_to_communication_compositi
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send document search results" in html
     assert "Send search results" in html
     assert "Text me the document search results for ${query}" in html
@@ -5355,7 +5354,7 @@ def test_browser_app_calendar_surface_exposes_snapshot_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send calendar snapshot" in html
     assert "Text me my calendar" in html
     assert "configured owner-approved destination" in html
@@ -5370,7 +5369,7 @@ def test_browser_app_research_surface_exposes_sourced_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send sourced research" in html
     assert "Send research" in html
     assert "Text me the research about ${question}" in html
@@ -5386,7 +5385,7 @@ def test_browser_app_systems_surface_exposes_health_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send health status" in html
     assert "Text me the health of service ${service.service_id}" in html
     assert "Health status is read-only context" in html
@@ -5401,7 +5400,7 @@ def test_browser_app_workspace_surface_exposes_scoped_download():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Download ${path}" in html
     assert "URL.createObjectURL" in html
     assert "workspace/file?workspace_id=" in html
@@ -5417,7 +5416,7 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert 'data-view="constellation"' in html
     assert "constellation: ['Constellation'" in html
     assert "The authorized semantic map: context and navigation, never authority." in html
@@ -5435,7 +5434,7 @@ def test_browser_app_research_surface_exposes_research_to_workspace_composition(
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Save sourced research to Workspace" in html
     assert "Research and save notes" in html
     assert "Research ${question} and save notes as ${targetPath}" in html
@@ -5451,7 +5450,7 @@ def test_browser_app_research_surface_exposes_unsent_communication_draft():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Draft a researched message" in html
     assert "Research and create unsent draft" in html
     assert "Draft researched message to ${values[0]} with subject" in html
@@ -5467,7 +5466,7 @@ def test_browser_app_calendar_surface_exposes_read_only_task_attention():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Tasks before shared events" in html
     assert "Calendar + Tasks attention" in html
     assert "Read-only Calendar + Tasks attention" in html
@@ -5482,7 +5481,7 @@ def test_browser_app_calendar_surface_exposes_provider_readback_cancellation():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Cancel an authorized event" in html
     assert "Cancel calendar event ${eventRecord.event_id}" in html
     assert "absence readback" in html
@@ -5497,7 +5496,7 @@ def test_browser_app_calendar_surface_exposes_read_only_conflict_inspection():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Scheduling conflicts" in html
     assert "Send scheduling attention" in html
     assert "Text me the tasks due before my calendar events" in html
@@ -5516,7 +5515,7 @@ def test_browser_app_exposes_weather_surface_and_public_evidence_boundary():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert 'data-view="weather"' in html
     assert "Current public conditions for explicit coordinates." in html
     assert "Weather is public evidence, not canonical personal truth." in html
@@ -5531,7 +5530,7 @@ def test_browser_app_exposes_air_quality_surface_and_public_evidence_boundary():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert 'data-view="air-quality"' in html
     assert "Current public air quality for explicit coordinates." in html
     assert "Air quality is public evidence, not canonical personal truth." in html
@@ -5549,7 +5548,7 @@ def test_browser_app_workspace_surface_exposes_generic_send_action():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Find workspace artifacts" in html
     assert "Filter by workspace or file name" in html
     assert "Search authorized file contents" in html
@@ -5567,7 +5566,7 @@ def test_browser_app_today_surface_exposes_calendar_conflicts():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Scheduling conflicts" in html
     assert "No overlapping timed events detected." in html
     assert "payload.external_calendar?.conflicts" in html
@@ -5586,7 +5585,7 @@ def test_browser_app_calendar_surface_exposes_provider_readback_update():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Update an authorized event" in html
     assert "changed fields are independently read back" in html
     assert "Update calendar event ${eventRecord.event_id} to" in html
@@ -5601,7 +5600,7 @@ def test_browser_app_calendar_surface_exposes_workspace_snapshot():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Save calendar snapshot to Workspace" in html
     assert "Save my calendar snapshot to Workspace as agenda.md" in html
 
@@ -5615,7 +5614,7 @@ def test_browser_app_devices_surface_exposes_workspace_snapshot():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Save device snapshot to Workspace" in html
     assert "Save authorized device states to Workspace as devices.md" in html
 
@@ -5629,7 +5628,7 @@ def test_browser_app_devices_surface_exposes_status_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send device status" in html
     assert "Text me the device status" in html
     assert "Device state is read-only context" in html
@@ -5644,7 +5643,7 @@ def test_browser_app_tasks_surface_exposes_open_task_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send open tasks" in html
     assert "Text me my open tasks" in html
     assert "Canonical task state is fixed before communication" in html
@@ -5659,7 +5658,7 @@ def test_browser_app_household_surface_exposes_grocery_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send grocery list" in html
     assert "Text me the grocery list" in html
     assert "one approved target is required" in html
@@ -5674,7 +5673,7 @@ def test_browser_app_calendar_surface_exposes_public_holiday_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send public holidays" in html
     assert "Text me the public holidays" in html
     assert "external/non-canonical" in html
@@ -5689,7 +5688,7 @@ def test_browser_app_household_surface_exposes_chore_communication():
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Send open chores" in html
     assert "Text me my open chores" in html
     assert "Canonical chore state is fixed before communication" in html
@@ -5737,7 +5736,7 @@ def test_browser_app_communications_surface_exposes_provider_outcome_distinction
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Provider outcome status" in html
     assert "delivery not proven" in html
     assert "DRAFTED" in html
@@ -5753,7 +5752,7 @@ def test_browser_app_objectives_surface_exposes_capability_need_investigation_bo
     )
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
-    html = payload.decode()
+    html = payload.decode() + _AEGIS_JS
     assert "Candidate resolutions" in html
     assert "Investigation: ${investigation}" in html
     assert "Research candidate path" in html
@@ -6529,17 +6528,19 @@ def test_browser_rejects_oversized_request_body():
 
 
 def test_browser_surface_has_transcript_and_duplicate_submission_guard():
-    from aegis.web import _AEGIS_CSS, _INDEX_HTML
+    from aegis.web import _AEGIS_CSS, _AEGIS_JS, _INDEX_HTML
 
-    assert 'id="theme-toggle"' in _INDEX_HTML
-    assert "themeStorageKey = 'aegis.theme'" in _INDEX_HTML
+    browser_source = _INDEX_HTML + _AEGIS_JS
+
+    assert 'id="theme-toggle"' in browser_source
+    assert "themeStorageKey = 'aegis.theme'" in browser_source
     assert "color-scheme: dark" in _AEGIS_CSS
-    assert "let initialTheme = 'dark';" in _INDEX_HTML
-    assert 'class="conversation-panel"' in _INDEX_HTML
-    assert '<nav class="product-nav" aria-label="AEGIS views">' in _INDEX_HTML
-    assert '<div class="nav-group nav-primary" aria-label="Everyday">' in _INDEX_HTML
-    assert '<div class="nav-group nav-advanced" aria-label="Explore">' in _INDEX_HTML
-    assert 'data-view="home" aria-current="page"' in _INDEX_HTML
+    assert "let initialTheme = 'dark';" in browser_source
+    assert 'class="conversation-panel"' in browser_source
+    assert '<nav class="product-nav" aria-label="AEGIS views">' in browser_source
+    assert '<div class="nav-group nav-primary" aria-label="Everyday">' in browser_source
+    assert '<div class="nav-group nav-advanced" aria-label="Explore">' in browser_source
+    assert 'data-view="home" aria-current="page"' in browser_source
     for view in (
         "Today",
         "Tasks",
@@ -6551,159 +6552,160 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
         "Documents",
         "Daily driver",
     ):
-        assert f">{view}</button>" in _INDEX_HTML
-    assert "Research is available through conversation" in _INDEX_HTML
-    assert "async function loadDocuments()" in _INDEX_HTML
-    assert "Read document" in _INDEX_HTML
-    assert "Export document to Workspace" in _INDEX_HTML
-    assert "Export ${documentTitle} to ${documentId}.md" in _INDEX_HTML
-    assert "async function loadDailyDriver()" in _INDEX_HTML
-    assert "appendDailyDriverStatuses" in _INDEX_HTML
-    assert "Provider gates" in _INDEX_HTML
-    assert "Save forecast to Workspace" in _INDEX_HTML
-    assert "Save my 3-day weather forecast at" in _INDEX_HTML
-    assert "public forecast provenance" in _INDEX_HTML
-    assert "Send tomorrow's weather" in _INDEX_HTML
-    assert "Text me tomorrow's weather" in _INDEX_HTML
-    assert "provider acceptance is not delivery proof" in _INDEX_HTML
-    assert "Research likely cause" in _INDEX_HTML
-    assert "Research why service ${service.service_id} is unavailable" in _INDEX_HTML
-    assert "Save completed tasks to Workspace" in _INDEX_HTML
-    assert "Save my completed tasks to workspace as completed.md" in _INDEX_HTML
-    assert "Send completed tasks" in _INDEX_HTML
-    assert "Text me my completed tasks" in _INDEX_HTML
-    assert "/api/daily-driver" in _INDEX_HTML
-    assert "Review Packs & capabilities" in _INDEX_HTML
-    assert "candidate.requires_owner_input" in _INDEX_HTML
-    assert "pendingCapabilityFocus" in _INDEX_HTML
-    assert "Matches candidate capability" in _INDEX_HTML
-    assert "Capability needs requiring attention" in _INDEX_HTML
-    assert "Review capability needs" in _INDEX_HTML
-    assert "Active objectives" in _INDEX_HTML
-    assert "Open active objectives" in _INDEX_HTML
-    assert "Create investigation task" in _INDEX_HTML
-    assert "Save verified Today brief to Workspace" in _INDEX_HTML
-    assert "Send me today's brief" in _INDEX_HTML
-    assert "appendTodayOverview" in _INDEX_HTML
+        assert f">{view}</button>" in browser_source
+    assert "Research is available through conversation" in browser_source
+    assert "async function loadDocuments()" in browser_source
+    assert "Read document" in browser_source
+    assert "Export document to Workspace" in browser_source
+    assert "Export ${documentTitle} to ${documentId}.md" in browser_source
+    assert "async function loadDailyDriver()" in browser_source
+    assert "appendDailyDriverStatuses" in browser_source
+    assert "Provider gates" in browser_source
+    assert "Save forecast to Workspace" in browser_source
+    assert "Save my 3-day weather forecast at" in browser_source
+    assert "public forecast provenance" in browser_source
+    assert "Send tomorrow's weather" in browser_source
+    assert "Text me tomorrow's weather" in browser_source
+    assert "provider acceptance is not delivery proof" in browser_source
+    assert "Research likely cause" in browser_source
+    assert "Research why service ${service.service_id} is unavailable" in browser_source
+    assert "Save completed tasks to Workspace" in browser_source
+    assert "Save my completed tasks to workspace as completed.md" in browser_source
+    assert "Send completed tasks" in browser_source
+    assert "Text me my completed tasks" in browser_source
+    assert "/api/daily-driver" in browser_source
+    assert "Review Packs & capabilities" in browser_source
+    assert "candidate.requires_owner_input" in browser_source
+    assert "pendingCapabilityFocus" in browser_source
+    assert "Matches candidate capability" in browser_source
+    assert "Capability needs requiring attention" in browser_source
+    assert "Review capability needs" in browser_source
+    assert "Active objectives" in browser_source
+    assert "Open active objectives" in browser_source
+    assert "Create investigation task" in browser_source
+    assert "Save verified Today brief to Workspace" in browser_source
+    assert "Send me today's brief" in browser_source
+    assert "appendTodayOverview" in browser_source
     assert "today-overview" in _AEGIS_CSS
     assert "constellation-layer" in _AEGIS_CSS
-    assert "categoryLabels" in _INDEX_HTML
-    assert "provider acceptance is not delivery proof" in _INDEX_HTML
-    assert 'class="intro"' in _INDEX_HTML
-    assert 'id="status-badge"' in _INDEX_HTML
-    assert "setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state)" in _INDEX_HTML
-    assert '<details class="secondary" aria-label="Canonical state">' in _INDEX_HTML
-    assert "<summary>Canonical state</summary>" in _INDEX_HTML
-    assert 'placeholder="Talk to AEGIS…"' in _INDEX_HTML
-    assert '<textarea id="utterance"' in _INDEX_HTML
-    assert "Enter to send · Shift+Enter for a new line" in _INDEX_HTML
-    assert 'id="conversation"' in _INDEX_HTML
-    assert 'id="activity"' in _INDEX_HTML
-    assert 'id="health-details"' in _INDEX_HTML
-    assert 'id="node-filter"' in _INDEX_HTML
-    assert 'id="node-filter-status"' in _INDEX_HTML
-    assert 'aria-describedby="node-filter-status"' in _INDEX_HTML
+    assert "categoryLabels" in browser_source
+    assert "provider acceptance is not delivery proof" in browser_source
+    assert 'class="intro"' in browser_source
+    assert 'id="status-badge"' in browser_source
+    assert "setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state)" in browser_source
+    assert '<details class="secondary" aria-label="Canonical state">' in browser_source
+    assert "<summary>Canonical state</summary>" in browser_source
+    assert 'placeholder="Talk to AEGIS…"' in browser_source
+    assert '<textarea id="utterance"' in browser_source
+    assert "Enter to send · Shift+Enter for a new line" in browser_source
+    assert 'id="conversation"' in browser_source
+    assert 'id="activity"' in browser_source
+    assert 'id="health-details"' in browser_source
+    assert 'id="node-filter"' in browser_source
+    assert 'id="node-filter-status"' in browser_source
+    assert 'aria-describedby="node-filter-status"' in browser_source
     assert (
-        'id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"' in _INDEX_HTML
+        'id="node-filter-status" class="muted" aria-live="polite" '
+        'aria-atomic="true"' in browser_source
     )
-    assert "component.detail" in _INDEX_HTML
-    assert "send.disabled = true" in _INDEX_HTML
-    assert "input.disabled = true" in _INDEX_HTML
-    assert "form.setAttribute('aria-busy', 'true')" in _INDEX_HTML
-    assert "form.setAttribute('aria-busy', 'false')" in _INDEX_HTML
-    assert "nodes.setAttribute('aria-busy', 'true')" in _INDEX_HTML
-    assert "nodes.setAttribute('aria-busy', 'false')" in _INDEX_HTML
-    assert "appendConversationMessage('aegis-message'" in _INDEX_HTML
-    assert "appendConversationMessage('owner-message'" in _INDEX_HTML
-    assert "requestSubmit()" in _INDEX_HTML
-    assert "scrollIntoView({block: 'nearest', behavior: 'smooth'})" in _INDEX_HTML
-    assert 'role="log"' in _INDEX_HTML
-    assert "renderDetailValue(details[node.id])" in _INDEX_HTML
-    assert "aria-pressed" in _INDEX_HTML
-    assert 'role="region"' in _INDEX_HTML
-    assert 'aria-label="Selected node details"' in _INDEX_HTML
-    assert "card.setAttribute('aria-label'" in _INDEX_HTML
-    assert "selectedNode" in _INDEX_HTML
-    assert "const nodeCards = new Map()" in _INDEX_HTML
-    assert "const selectNode = (node, card)" in _INDEX_HTML
-    assert "navigableViews.has(node.detail_view)" in _INDEX_HTML
-    assert "Open relationship to" in _INDEX_HTML
-    assert "target.focus(); target.click()" in _INDEX_HTML
-    assert "function applyNodeFilter()" in _INDEX_HTML
-    assert "authorizedProjectionLoaded" in _INDEX_HTML
-    assert "Authorized nodes unavailable." in _INDEX_HTML
-    assert "No authorized nodes match" in _INDEX_HTML
-    assert "renderedEdgeRows" in _INDEX_HTML
+    assert "component.detail" in browser_source
+    assert "send.disabled = true" in browser_source
+    assert "input.disabled = true" in browser_source
+    assert "form.setAttribute('aria-busy', 'true')" in browser_source
+    assert "form.setAttribute('aria-busy', 'false')" in browser_source
+    assert "nodes.setAttribute('aria-busy', 'true')" in browser_source
+    assert "nodes.setAttribute('aria-busy', 'false')" in browser_source
+    assert "appendConversationMessage('aegis-message'" in browser_source
+    assert "appendConversationMessage('owner-message'" in browser_source
+    assert "requestSubmit()" in browser_source
+    assert "scrollIntoView({block: 'nearest', behavior: 'smooth'})" in browser_source
+    assert 'role="log"' in browser_source
+    assert "renderDetailValue(details[node.id])" in browser_source
+    assert "aria-pressed" in browser_source
+    assert 'role="region"' in browser_source
+    assert 'aria-label="Selected node details"' in browser_source
+    assert "card.setAttribute('aria-label'" in browser_source
+    assert "selectedNode" in browser_source
+    assert "const nodeCards = new Map()" in browser_source
+    assert "const selectNode = (node, card)" in browser_source
+    assert "navigableViews.has(node.detail_view)" in browser_source
+    assert "Open relationship to" in browser_source
+    assert "target.focus(); target.click()" in browser_source
+    assert "function applyNodeFilter()" in browser_source
+    assert "authorizedProjectionLoaded" in browser_source
+    assert "Authorized nodes unavailable." in browser_source
+    assert "No authorized nodes match" in browser_source
+    assert "renderedEdgeRows" in browser_source
     assert (
         "selectedNode = null;\n  document.getElementById('detail').replaceChildren();"
-        in _INDEX_HTML
+        in browser_source
     )
-    assert "No canonical records available" in _INDEX_HTML
-    assert "Show ${value.length} canonical records" in _INDEX_HTML
-    assert "key.replaceAll('_', ' ')" in _INDEX_HTML
-    assert "retryableCodes.has(result.code)" in _INDEX_HTML
-    assert "const lifecycleLabels = Object.freeze" in _INDEX_HTML
-    assert "const errorLabels = Object.freeze" in _INDEX_HTML
-    assert "function errorLabel(code)" in _INDEX_HTML
-    assert "function clearHealthDetails()" in _INDEX_HTML
-    assert "clearHealthDetails();" in _INDEX_HTML
-    assert "function lifecycleLabel(state)" in _INDEX_HTML
-    assert "lifecycleLabel(result.state)" in _INDEX_HTML
-    assert "lifecycleLabel(status.state)" in _INDEX_HTML
-    assert "Request status recovered" in _INDEX_HTML
-    assert "new AbortController()" in _INDEX_HTML
-    assert "request_timeout" in _INDEX_HTML
-    assert "refreshRequestTimeoutMs = 10000" in _INDEX_HTML
-    assert "async function fetchWithTimeout(resource, options = {})" in _INDEX_HTML
-    assert "setTimeout(() => controller.abort(), refreshRequestTimeoutMs)" in _INDEX_HTML
-    assert "fetchWithTimeout('/api/health')" in _INDEX_HTML
-    assert "fetchWithTimeout('/api/constellation')" in _INDEX_HTML
-    assert "outcome is unknown" in _INDEX_HTML
-    assert 'id="refresh"' in _INDEX_HTML
-    assert "refreshState()" in _INDEX_HTML
-    assert "state_access_denied" in _INDEX_HTML
-    assert "State refresh failed" in _INDEX_HTML
-    assert "${errorLabel(code)} (${code})." in _INDEX_HTML
-    assert "await loadHealth();" in _INDEX_HTML
-    assert "await loadState();" in _INDEX_HTML
-    assert "response.ok" in _INDEX_HTML
-    assert "apiFetch('/api/message'" in _INDEX_HTML
-    assert "apiFetch('/api/feedback'" in _INDEX_HTML
-    assert "if (response.status !== 401 || resource === '/') return response;" in _INDEX_HTML
-    assert 'const refreshed = html.match(/<meta name="aegis-session-token"' in _INDEX_HTML
-    assert "return fetch(resource, {...options, headers: retryHeaders});" in _INDEX_HTML
-    assert "clearAuthorizedDisplays()" in _INDEX_HTML
-    assert "document.getElementById('step-status').textContent = '';" in _INDEX_HTML
-    assert "document.querySelector('#chat button').textContent = 'Send';" in _INDEX_HTML
-    assert "Authorization lost; authorized state cleared." in _INDEX_HTML
-    assert "conversation').replaceChildren()" in _INDEX_HTML
-    assert "sessionStorage" in _INDEX_HTML
-    assert "aegis.session-id" in _INDEX_HTML
-    assert "session_id:conversationSessionId" in _INDEX_HTML
-    assert "A previous request may still be in progress" in _INDEX_HTML
-    assert "persistPendingRequest(utterance, correlationId)" in _INDEX_HTML
-    assert "/api/request-status?correlation_id=" in _INDEX_HTML
-    assert "recoverPendingRequest();" in _INDEX_HTML
-    assert "maxRecoveryPolls = 60" in _INDEX_HTML
-    assert "recoveryRequestTimeoutMs = 10000" in _INDEX_HTML
-    assert "setTimeout(() => controller.abort(), recoveryRequestTimeoutMs)" in _INDEX_HTML
-    assert "signal: controller.signal" in _INDEX_HTML
-    assert "Status checks paused after five minutes." in _INDEX_HTML
+    assert "No canonical records available" in browser_source
+    assert "Show ${value.length} canonical records" in browser_source
+    assert "key.replaceAll('_', ' ')" in browser_source
+    assert "retryableCodes.has(result.code)" in browser_source
+    assert "const lifecycleLabels = Object.freeze" in browser_source
+    assert "const errorLabels = Object.freeze" in browser_source
+    assert "function errorLabel(code)" in browser_source
+    assert "function clearHealthDetails()" in browser_source
+    assert "clearHealthDetails();" in browser_source
+    assert "function lifecycleLabel(state)" in browser_source
+    assert "lifecycleLabel(result.state)" in browser_source
+    assert "lifecycleLabel(status.state)" in browser_source
+    assert "Request status recovered" in browser_source
+    assert "new AbortController()" in browser_source
+    assert "request_timeout" in browser_source
+    assert "refreshRequestTimeoutMs = 10000" in browser_source
+    assert "async function fetchWithTimeout(resource, options = {})" in browser_source
+    assert "setTimeout(() => controller.abort(), refreshRequestTimeoutMs)" in browser_source
+    assert "fetchWithTimeout('/api/health')" in browser_source
+    assert "fetchWithTimeout('/api/constellation')" in browser_source
+    assert "outcome is unknown" in browser_source
+    assert 'id="refresh"' in browser_source
+    assert "refreshState()" in browser_source
+    assert "state_access_denied" in browser_source
+    assert "State refresh failed" in browser_source
+    assert "${errorLabel(code)} (${code})." in browser_source
+    assert "await loadHealth();" in browser_source
+    assert "await loadState();" in browser_source
+    assert "response.ok" in browser_source
+    assert "apiFetch('/api/message'" in browser_source
+    assert "apiFetch('/api/feedback'" in browser_source
+    assert "if (response.status !== 401 || resource === '/') return response;" in browser_source
+    assert 'const refreshed = html.match(/<meta name="aegis-session-token"' in browser_source
+    assert "return fetch(resource, {...options, headers: retryHeaders});" in browser_source
+    assert "clearAuthorizedDisplays()" in browser_source
+    assert "document.getElementById('step-status').textContent = '';" in browser_source
+    assert "document.querySelector('#chat button').textContent = 'Send';" in browser_source
+    assert "Authorization lost; authorized state cleared." in browser_source
+    assert "conversation').replaceChildren()" in browser_source
+    assert "sessionStorage" in browser_source
+    assert "aegis.session-id" in browser_source
+    assert "session_id:conversationSessionId" in browser_source
+    assert "A previous request may still be in progress" in browser_source
+    assert "persistPendingRequest(utterance, correlationId)" in browser_source
+    assert "/api/request-status?correlation_id=" in browser_source
+    assert "recoverPendingRequest();" in browser_source
+    assert "maxRecoveryPolls = 60" in browser_source
+    assert "recoveryRequestTimeoutMs = 10000" in browser_source
+    assert "setTimeout(() => controller.abort(), recoveryRequestTimeoutMs)" in browser_source
+    assert "signal: controller.signal" in browser_source
+    assert "Status checks paused after five minutes." in browser_source
     assert (
         "Outcome unknown; checking canonical status. No mutation will be repeated automatically."
-        in _INDEX_HTML
+        in browser_source
     )
-    assert "Status check unavailable; retry remains explicit." in _INDEX_HTML
-    assert "inProgressStates.has(status.state)" in _INDEX_HTML
-    assert "Retry remains explicit." in _INDEX_HTML
-    assert "scheduleRecoveryPoll();" in _INDEX_HTML
-    assert "recoveryPollMs = 5000" in _INDEX_HTML
-    assert "if (result.state === 'completed') refreshState();" in _INDEX_HTML
-    assert "if (status.state === 'completed') refreshState();" in _INDEX_HTML
-    assert "loadState().catch(() => {})" not in _INDEX_HTML
-    assert "Status: ${errorLabel(result.code)}" in _INDEX_HTML
-    assert "result.retryable === true" in _INDEX_HTML
-    assert "status.retryable === true" in _INDEX_HTML
+    assert "Status check unavailable; retry remains explicit." in browser_source
+    assert "inProgressStates.has(status.state)" in browser_source
+    assert "Retry remains explicit." in browser_source
+    assert "scheduleRecoveryPoll();" in browser_source
+    assert "recoveryPollMs = 5000" in browser_source
+    assert "if (result.state === 'completed') refreshState();" in browser_source
+    assert "if (status.state === 'completed') refreshState();" in browser_source
+    assert "loadState().catch(() => {})" not in browser_source
+    assert "Status: ${errorLabel(result.code)}" in browser_source
+    assert "result.retryable === true" in browser_source
+    assert "status.retryable === true" in browser_source
 
 
 def test_browser_transport_disables_caching_and_referrer_disclosure():
