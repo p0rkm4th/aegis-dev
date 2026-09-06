@@ -2,6 +2,7 @@ import socket
 from types import SimpleNamespace
 from uuid import uuid4
 
+import aegis.reference_packs as reference_packs_module
 from aegis.contracts import (
     ActionSpec,
     ExecutionRequest,
@@ -11,6 +12,7 @@ from aegis.contracts import (
 )
 from aegis.devices import FixtureDeviceGateway
 from aegis.documents import Document, FixtureDocumentProvider
+from aegis.homelab import Service
 from aegis.pack_lifecycle import PackBundle
 from aegis.reference_packs import (
     DeviceControlExecutor,
@@ -23,6 +25,7 @@ from aegis.reference_packs import (
     FinanceSummaryVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
+    HomelabResearchExecutor,
     NetworkInventoryWorkspaceExecutor,
     NetworkInventoryWorkspaceVerifier,
     NetworkProbeWorkspaceExecutor,
@@ -63,6 +66,50 @@ def test_calendar_conflicts_action_reports_bounded_overlap(monkeypatch) -> None:
     assert observation.command_succeeded is True
     assert len(observation.evidence["conflicts"]) == 1
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_homelab_research_uses_public_service_name_and_preserves_observed_status(monkeypatch):
+    service = Service("acceptance-plex", "acceptance-atlas", "Plex", "http://127.0.0.1:1")
+    evidence = SimpleNamespace(
+        query="Plex software",
+        provider_id="fixture-research",
+        evidence=(
+            SimpleNamespace(
+                text="Plex is media-server software.",
+                source_id="source-1",
+                title="Plex",
+                final_url="https://en.wikipedia.org/wiki/Plex",
+                retrieved_at=__import__("datetime").datetime.now().astimezone(),
+            ),
+        ),
+    )
+    monkeypatch.setattr(reference_packs_module, "_canonical_homelab_service", lambda *_: service)
+    monkeypatch.setattr(
+        reference_packs_module, "_health_read", lambda _endpoint: (False, "unavailable")
+    )
+    monkeypatch.setattr(
+        reference_packs_module,
+        "configured_research_service",
+        lambda: SimpleNamespace(collect=lambda request: evidence),
+    )
+    observation = HomelabResearchExecutor(
+        object(), Principal(id="alice", vault_id="vault")
+    ).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=ActionSpec(
+                action_id="homelab-research.service.explain",
+                capability="homelab-research.service.explain",
+                arguments={"service": "acceptance-plex"},
+            ),
+            idempotency_key="homelab-research-1",
+        )
+    )
+    assert observation.command_succeeded is True
+    result = observation.evidence["homelab_research"]
+    assert result["query"] == "Plex software"
+    assert result["observed_status"] == "unavailable"
 
 
 def test_finance_summary_runtime_reads_and_rechecks_private_snapshot() -> None:

@@ -3268,7 +3268,10 @@ class HomelabResearchExecutor:
         try:
             service = _canonical_homelab_service(self.connection, self.principal, service_id)
             healthy, status = _health_read(service.health_endpoint)
-            query = f"likely causes of {service.service_id} service status {status}"
+            # Keep the observed failure attached to the result, but search for
+            # the canonical service name rather than an internal ID/status
+            # string that public indexes cannot usefully resolve.
+            query = f"{service.name} software"
             evidence = configured_research_service().collect(SearchRequest(query))
         except (PermissionError, ResearchUnavailable, ValueError, RuntimeError) as exc:
             return Observation(
