@@ -100,12 +100,19 @@ def prepare_reference_action(
         elif isinstance(args.get("path"), str) and isinstance(args.get("content"), str):
             files = {args["path"]: args["content"]}
     elif action.action_id == "workspace.artifact.append":
+        workspace_id = args.get("workspace_id")
         path = args.get("path")
         addition = args.get("content")
-        if isinstance(path, str) and isinstance(addition, str) and path.strip():
+        if (
+            isinstance(workspace_id, str)
+            and isinstance(path, str)
+            and isinstance(addition, str)
+            and workspace_id.strip()
+            and path.strip()
+        ):
             workspace = WorkspaceManager(
                 Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
-            ).for_objective(principal.id, UUID(str(objective_id)))
+            ).for_workspace_id(principal.id, workspace_id)
             files = {path: workspace.read(path) + addition}
     elif action.action_id == "workspace.artifact.copy":
         source_workspace_id = args.get("source_workspace_id")
@@ -575,6 +582,11 @@ def prepare_reference_action(
     if files is None:
         return action
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
+    if action.action_id == "workspace.artifact.append":
+        workspace_id = args.get("workspace_id")
+        if not isinstance(workspace_id, str) or not workspace_id.strip():
+            raise ValueError("workspace append requires a Principal-scoped workspace_id")
+        expectation = {**expectation, "workspace_id": workspace_id}
     verification = action.verification or VerificationContract(kind="custom")
     return action.model_copy(
         update={
@@ -599,9 +611,15 @@ def _verify_workspace_expectation(
             isinstance(path, str) and isinstance(digest, str) for path, digest in files.items()
         ):
             return False, "workspace postcondition files are invalid"
-        workspace = WorkspaceManager(
-            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
-        ).for_objective(principal.id, objective_id)
+        workspace_id = expected.get("workspace_id")
+        if isinstance(workspace_id, str) and workspace_id.strip():
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_workspace_id(principal.id, workspace_id)
+        else:
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(principal.id, objective_id)
         return workspace.verify_expected_files(cast(dict[str, str], files))
     except (KeyError, TypeError, ValueError, OSError) as exc:
         return False, f"workspace postcondition unavailable: {exc}"
@@ -1952,8 +1970,11 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "Append explicit content to an existing scoped Workspace file and verify it"
                     ),
                     relevance=1,
-                    argument_keys=("path", "content"),
+                    argument_keys=("workspace_id", "path", "content"),
                     argument_grounding={
+                        "workspace_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
                         "path": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
@@ -4244,9 +4265,16 @@ class WorkspaceArtifactAppendExecutor:
         self.principal = principal
 
     def execute(self, request: ExecutionRequest) -> Observation:
+        workspace_id = request.action.arguments.get("workspace_id")
         path = request.action.arguments.get("path")
         addition = request.action.arguments.get("content")
-        if not isinstance(path, str) or not isinstance(addition, str) or not path.strip():
+        if (
+            not isinstance(workspace_id, str)
+            or not isinstance(path, str)
+            or not isinstance(addition, str)
+            or not workspace_id.strip()
+            or not path.strip()
+        ):
             return Observation(
                 execution_id=uuid4(),
                 evidence={"workspace_append": "invalid_arguments"},
@@ -4254,9 +4282,7 @@ class WorkspaceArtifactAppendExecutor:
             )
         root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
         try:
-            workspace = WorkspaceManager(root).for_objective(
-                self.principal.id, request.objective_id
-            )
+            workspace = WorkspaceManager(root).for_workspace_id(self.principal.id, workspace_id)
             updated = workspace.read(path) + addition
             workspace.write(path, updated)
         except (ValueError, OSError) as exc:
@@ -4267,7 +4293,11 @@ class WorkspaceArtifactAppendExecutor:
             )
         return Observation(
             execution_id=uuid4(),
-            evidence={"workspace_append": "attempted", "path": path},
+            evidence={
+                "workspace_append": "attempted",
+                "workspace_id": workspace_id,
+                "path": path,
+            },
             command_succeeded=True,
         )
 
