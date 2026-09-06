@@ -589,6 +589,54 @@ def test_deterministic_weather_message_uses_approved_target(monkeypatch):
     )
 
 
+def test_deterministic_document_message_uses_canonical_document_id(monkeypatch):
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"scotty","channel":"sms","account":"household"}]',
+    )
+    monkeypatch.setenv(
+        "AEGIS_DOCUMENT_FIXTURE_JSON",
+        '[{"document_id":"alpha-handbook","title":"Alpha Handbook",'
+        '"text":"Authorized guidance.","source":"owner"}]',
+    )
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "communications"
+    )
+    manager.discover(bundle)
+    manager.install("communications", frozenset({"communications.read", "communications.send"}))
+    manager.enable("communications")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Text me the document Alpha Handbook.",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.arguments["document_id"] == "alpha-handbook"
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounding_context = Context(
+        values={
+            "referents": {
+                "those": {
+                    "fact_key": "authorized_documents",
+                    "candidates": [{"document_id": "alpha-handbook", "title": "Alpha Handbook"}],
+                }
+            }
+        },
+        sources=("authorized_canonical_result",),
+    )
+    grounded = _ground_argument_provenance(intent, card, grounding_context)
+    assert not isinstance(grounded, Result)
+    assert grounded.action.argument_provenance["document_id"].canonical_ref == "alpha-handbook"
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=grounding_context
+        )
+        is None
+    )
+
+
 def test_deterministic_researched_message_draft_preserves_bounded_source_marker():
     manager = PackManager()
     bundle = next(

@@ -314,6 +314,49 @@ def test_weather_message_fixes_public_forecast_before_generic_send(monkeypatch) 
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_document_message_fixes_authorized_content_before_generic_send(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_DOCUMENT_FIXTURE_JSON",
+        '[{"document_id":"alpha-handbook","title":"Alpha Handbook",'
+        '"text":"Authorized guidance.","source":"owner"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "canonical.document",
+                "document_id": "alpha-handbook",
+            }
+        }
+    )
+    prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
+    expected_body = prepared.verification.expected["body"]
+    assert expected_body == "Alpha Handbook\n\nAuthorized guidance."
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="document-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_fixture_send_verifier_rejects_forged_acceptance_without_readback() -> None:
     provider = FixtureCommunicationSendProvider()
     principal = Principal(id="alice", vault_id="vault")

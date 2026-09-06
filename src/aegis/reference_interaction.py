@@ -151,7 +151,8 @@ def _ground_argument_provenance(
             and isinstance(value, str)
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar|"
-                r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather)[?!.,]?",
+                r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
+                r"the document .+)[?!.,]?",
                 intent.utterance.strip(),
                 flags=re.IGNORECASE,
             )
@@ -213,12 +214,14 @@ def _ground_argument_provenance(
             "canonical.calendar",
             "bounded.research",
             "public.weather",
+            "canonical.document",
         }:
             source_phrase = {
                 "canonical.groceries": "grocery list",
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
+                "canonical.document": "document",
             }[value]
             spans = _utterance_spans(intent.utterance, source_phrase)
             if not spans:
@@ -240,7 +243,11 @@ def _ground_argument_provenance(
                         else (
                             "reference.communication_body_from_research.v1"
                             if value == "bounded.research"
-                            else "reference.communication_body_from_weather.v1"
+                            else (
+                                "reference.communication_body_from_weather.v1"
+                                if value == "public.weather"
+                                else "reference.communication_body_from_document.v1"
+                            )
                         )
                     )
                 ),
@@ -3692,7 +3699,10 @@ def ground_reference_action_runtime(
     if card.action.action_id in {
         "documents.export_to_workspace",
         "documents.summarize_to_workspace",
-    }:
+    } or (
+        card.action.action_id == "communications.messages.send"
+        and card.action.arguments.get("body_source") == "canonical.document"
+    ):
         documents = configured_document_provider().list_documents()
         matches = [
             document
