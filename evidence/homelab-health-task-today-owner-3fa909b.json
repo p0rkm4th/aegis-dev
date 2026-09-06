@@ -1,0 +1,19 @@
+{
+  "checkpoint": "homelab-health-task-today-owner-proof",
+  "source_sha": "3fa909bba3dd960d782e149ed0f57f9754fbf1e7",
+  "hosted": {"workflow": "validation", "run_id": 34032643478, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "3fa909b",
+    "healthy": true,
+    "postgres": "healthy"
+  },
+  "projection": {
+    "limit": 20,
+    "matching_task": "investigate service acceptance-plex",
+    "task_status": "open",
+    "source": "canonical PostgreSQL task state",
+    "selection_rule": "due-prioritized with one reserved slot for newest open task"
+  },
+  "prior_request_correlation_id": "c1342e42-89d8-4a46-9af7-65ddf3dfad45"
+}
