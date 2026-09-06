@@ -1,0 +1,20 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-to-communication-send",
+  "source_sha": "3b5e4a421dbb3ee0839fbe1a00a3fa441c9f23c3",
+  "hosted_run_id": "34015241580",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "3b5e4a421dbb3ee0839fbe1a00a3fa441c9f23c3",
+  "owner_request": "Text me my calendar.",
+  "objective_id": "d8106d71-bd2c-41de-99dd-d5cab8ac6ff7",
+  "correlation_id": "7939225c-8b4d-4063-9ba5-9f4c1eaf94ab",
+  "source": "canonical.calendar",
+  "target": "scotty",
+  "channel": "sms",
+  "account": "household",
+  "provider_status": "PROVIDER_ACCEPTED",
+  "provider_readback_proven": true,
+  "delivery_proven": false,
+  "openclaw_live_channel": false,
+  "safety": "Calendar content is fixed before the generic send; destination is resolved only from one exact owner-approved target and normal Core authorization remains required."
+}
