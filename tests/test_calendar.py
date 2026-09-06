@@ -23,7 +23,10 @@ from aegis.documents import Document, FixtureDocumentProvider, documents_evidenc
 from aegis.reference_packs import (
     CalendarCancelExecutor,
     CalendarCancelVerifier,
+    CalendarCreateExecutor,
     CalendarCreateVerifier,
+    CalendarUpdateExecutor,
+    CalendarUpdateVerifier,
     prepare_reference_action,
     reference_bundles,
 )
@@ -266,6 +269,145 @@ def test_calendar_create_reconciliation_upgrades_unknown_without_mutation() -> N
     )
     assert result.verified is True
     assert result.evidence["provider_reconciliation"] is True
+
+
+def test_calendar_create_response_loss_reconciles_without_second_create() -> None:
+    class AmbiguousCreateProvider(FixtureCalendarWriteProvider):
+        def __init__(self) -> None:
+            super().__init__()
+            self.create_calls = 0
+
+        def create_event(self, event, idempotency_key):
+            self.create_calls += 1
+            super().create_event(event, idempotency_key)
+            raise RuntimeError("response lost after provider accepted create")
+
+    provider = AmbiguousCreateProvider()
+    event = CalendarEvent(
+        "pending",
+        "Dinner",
+        datetime(2026, 9, 7, 19, tzinfo=timezone.utc),
+        datetime(2026, 9, 7, 20, tzinfo=timezone.utc),
+    )
+    contract = VerificationContract(
+        kind="custom",
+        expected={
+            "idempotency_key": "calendar-create-ambiguous",
+            "title": event.title,
+            "starts_at": event.starts_at.isoformat(),
+            "ends_at": event.ends_at.isoformat(),
+        },
+    )
+    executor = CalendarCreateExecutor(provider)
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=next(
+                card.action
+                for bundle in reference_bundles()
+                for card in bundle.cards
+                if card.action.action_id == "calendar.events.create"
+            ).model_copy(
+                update={
+                    "arguments": {
+                        "title": event.title,
+                        "starts_at": event.starts_at.isoformat(),
+                        "ends_at": event.ends_at.isoformat(),
+                    },
+                    "verification": contract,
+                }
+            ),
+            idempotency_key="calendar-create-ambiguous",
+        )
+    )
+    assert observation.assurance is ExternalEffectAssurance.OUTCOME_UNKNOWN
+    result = CalendarCreateVerifier(provider).reconcile(observation, contract)
+    assert result.verified is True
+    assert provider.create_calls == 1
+
+
+def test_calendar_update_response_loss_reconciles_without_second_update() -> None:
+    class AmbiguousUpdateProvider(FixtureCalendarWriteProvider):
+        def __init__(self) -> None:
+            super().__init__()
+            self.events["event-1"] = CalendarEvent(
+                "event-1",
+                "Old",
+                datetime(2026, 9, 7, 18, tzinfo=timezone.utc),
+                datetime(2026, 9, 7, 19, tzinfo=timezone.utc),
+            )
+            self.update_calls = 0
+
+        def update_event(self, event_id, event):
+            self.update_calls += 1
+            super().update_event(event_id, event)
+            raise RuntimeError("response lost after provider accepted update")
+
+    provider = AmbiguousUpdateProvider()
+    expected = {
+        "event_id": "event-1",
+        "title": "New",
+        "starts_at": "2026-09-07T20:00:00+00:00",
+        "ends_at": "2026-09-07T21:00:00+00:00",
+    }
+    contract = VerificationContract(kind="custom", expected=expected)
+    executor = CalendarUpdateExecutor(provider)
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=next(
+                card.action
+                for bundle in reference_bundles()
+                for card in bundle.cards
+                if card.action.action_id == "calendar.events.update"
+            ).model_copy(update={"arguments": expected, "verification": contract}),
+            idempotency_key="calendar-update-ambiguous",
+        )
+    )
+    assert observation.assurance is ExternalEffectAssurance.OUTCOME_UNKNOWN
+    result = CalendarUpdateVerifier(provider).reconcile(observation, contract)
+    assert result.verified is True
+    assert provider.update_calls == 1
+
+
+def test_calendar_cancel_response_loss_reconciles_without_second_delete() -> None:
+    class AmbiguousCancelProvider(FixtureCalendarWriteProvider):
+        def __init__(self) -> None:
+            super().__init__()
+            self.events["event-1"] = CalendarEvent(
+                "event-1", "Dinner", datetime(2026, 9, 7, tzinfo=timezone.utc)
+            )
+            self.delete_calls = 0
+
+        def delete_event(self, event_id):
+            self.delete_calls += 1
+            super().delete_event(event_id)
+            raise RuntimeError("response lost after provider accepted delete")
+
+    provider = AmbiguousCancelProvider()
+    contract = VerificationContract(
+        kind="custom", expected={"event_id": "event-1", "exists": False}
+    )
+    executor = CalendarCancelExecutor(provider)
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=next(
+                card.action
+                for bundle in reference_bundles()
+                for card in bundle.cards
+                if card.action.action_id == "calendar.events.cancel"
+            ).model_copy(update={"arguments": {"event_id": "event-1"}, "verification": contract}),
+            idempotency_key="calendar-cancel-ambiguous",
+        )
+    )
+    assert observation.assurance is ExternalEffectAssurance.OUTCOME_UNKNOWN
+    result = CalendarCancelVerifier(provider).reconcile(observation, contract)
+    assert result.verified is True
+    assert provider.delete_calls == 1
 
 
 def test_calendar_cancel_reads_back_provider_absence_and_is_idempotent() -> None:
