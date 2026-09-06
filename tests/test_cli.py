@@ -4306,6 +4306,20 @@ def test_browser_app_calendar_surface_exposes_provider_readback_update():
     assert "Update calendar event ${eventRecord.event_id} to" in html
 
 
+def test_browser_app_devices_surface_exposes_workspace_snapshot():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Save device snapshot to Workspace" in html
+    assert "Save authorized device states to Workspace as devices.md" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []
