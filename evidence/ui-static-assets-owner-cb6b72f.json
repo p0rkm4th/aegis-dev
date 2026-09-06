@@ -1,0 +1,18 @@
+{
+  "artifact_type": "owner_rendered_ui_proof",
+  "observed_at": "2026-09-06",
+  "source_sha": "cb6b72f",
+  "hosted_validation_run": "34051045357",
+  "installed_release_sha": "cb6b72f",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "assets": {
+    "/static/aegis.css": {"status": 200, "content_type": "text/css; charset=utf-8", "bytes": 12428},
+    "/static/aegis.js": {"status": 200, "content_type": "text/javascript; charset=utf-8", "bytes": 115646}
+  },
+  "computed_styles": {
+    "1440": {"app_display": "grid", "nav_display": "flex", "nav_position": "sticky", "stylesheet_loaded": true, "body_background": "rgb(244, 247, 250)", "browser_errors": []},
+    "390": {"app_display": "grid", "nav_display": "grid", "nav_position": "static", "stylesheet_loaded": true, "body_background": "rgb(244, 247, 250)", "browser_errors": []}
+  },
+  "csp": "same-origin script and style assets permitted; unsafe inline retained for existing bounded document behavior",
+  "notes": "Chromium proof through the Tailscale HTTPS path; screenshots reviewed at both widths."
+}
