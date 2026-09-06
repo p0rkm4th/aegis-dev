@@ -82,6 +82,25 @@ def test_deterministic_workspace_artifact_action_preserves_explicit_file_content
     assert card.action.arguments == {"path": "owner-proof.html", "content": "owner proof"}
 
 
+def test_deterministic_workspace_file_read_preserves_explicit_scope():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(bundle)
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
+    manager.enable("workspace")
+    workspace_id = "9047eec9-5279-50d0-9f3b-7b133d62b1cc"
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=f"Read workspace artifact {workspace_id} at reports/tomorrow.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.artifact.read"
+    assert card.action.arguments == {"workspace_id": workspace_id, "path": "reports/tomorrow.md"}
+
+
 def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
     manager = PackManager()
     bundle = next(
