@@ -6,6 +6,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
 from typing import Any, Protocol, cast
 from uuid import uuid4
 
@@ -63,6 +64,56 @@ class HouseholdObligation:
     settled: bool = False
 
 
+@dataclass(frozen=True)
+class GroceryItem:
+    """Stable-ID shopping item; unknown quantities remain unknown."""
+
+    grocery_id: str
+    display_name: str
+    normalized_key: str
+    desired_quantity: float | None = None
+    unit: str | None = None
+    state: str = "needed"
+    pantry_item_id: str | None = None
+    updated_at: datetime | None = None
+
+
+@dataclass(frozen=True)
+class PantryItem:
+    """Stable-ID pantry state with deliberately nullable facts."""
+
+    item_id: str
+    display_name: str
+    normalized_key: str
+    quantity: float | None = None
+    unit: str | None = None
+    storage_location: str | None = None
+    best_by: str | None = None
+    minimum_quantity: float | None = None
+    updated_at: datetime | None = None
+
+
+def normalize_food_key(display_name: str) -> str:
+    """Create a deterministic matching key without inventing food facts."""
+
+    return " ".join(display_name.casefold().split())
+
+
+def migrate_grocery_strings(items: list[str]) -> dict[str, GroceryItem]:
+    """Idempotently migrate legacy string groceries to stable-ID records."""
+
+    migrated: dict[str, GroceryItem] = {}
+    for index, raw in enumerate(items):
+        display_name = str(raw).strip()
+        if not display_name:
+            continue
+        normalized = normalize_food_key(display_name)
+        digest = sha256(f"{normalized}\0{index}".encode()).hexdigest()[:16]
+        grocery_id = f"grocery-{digest}"
+        migrated[grocery_id] = GroceryItem(grocery_id, display_name, normalized)
+    return migrated
+
+
 class HouseholdStateConnection(Protocol):
     def execute(self, query: str, params: tuple[object, ...] = ()) -> Any: ...
 
@@ -80,6 +131,33 @@ class PostgresHouseholdStore:
             raise ValueError("household state requires a Space")
         payload = {
             "groceries": list(space.groceries),
+            "grocery_items": [
+                {
+                    "grocery_id": item.grocery_id,
+                    "display_name": item.display_name,
+                    "normalized_key": item.normalized_key,
+                    "desired_quantity": item.desired_quantity,
+                    "unit": item.unit,
+                    "state": item.state,
+                    "pantry_item_id": item.pantry_item_id,
+                    "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+                }
+                for item in space.grocery_items.values()
+            ],
+            "pantry_items": [
+                {
+                    "item_id": item.item_id,
+                    "display_name": item.display_name,
+                    "normalized_key": item.normalized_key,
+                    "quantity": item.quantity,
+                    "unit": item.unit,
+                    "storage_location": item.storage_location,
+                    "best_by": item.best_by,
+                    "minimum_quantity": item.minimum_quantity,
+                    "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+                }
+                for item in space.pantry_items.values()
+            ],
             "grocery_mutations": space.grocery_mutations,
             "chores": [
                 {
@@ -156,6 +234,57 @@ class PostgresHouseholdStore:
             for item in payload.get("obligations", [])
         }
         groceries = [str(item) for item in payload.get("groceries", [])]
+        grocery_items = {
+            str(item["grocery_id"]): GroceryItem(
+                grocery_id=str(item["grocery_id"]),
+                display_name=str(item["display_name"]),
+                normalized_key=str(item["normalized_key"]),
+                desired_quantity=(
+                    float(item["desired_quantity"])
+                    if item.get("desired_quantity") is not None
+                    else None
+                ),
+                unit=str(item["unit"]) if item.get("unit") is not None else None,
+                state=str(item.get("state", "needed")),
+                pantry_item_id=(
+                    str(item["pantry_item_id"]) if item.get("pantry_item_id") is not None else None
+                ),
+                updated_at=(
+                    datetime.fromisoformat(str(item["updated_at"]))
+                    if item.get("updated_at")
+                    else None
+                ),
+            )
+            for item in payload.get("grocery_items", [])
+        }
+        if not grocery_items:
+            grocery_items = migrate_grocery_strings(groceries)
+        pantry_items = {
+            str(item["item_id"]): PantryItem(
+                item_id=str(item["item_id"]),
+                display_name=str(item["display_name"]),
+                normalized_key=str(item["normalized_key"]),
+                quantity=float(item["quantity"]) if item.get("quantity") is not None else None,
+                unit=str(item["unit"]) if item.get("unit") is not None else None,
+                storage_location=(
+                    str(item["storage_location"])
+                    if item.get("storage_location") is not None
+                    else None
+                ),
+                best_by=str(item["best_by"]) if item.get("best_by") is not None else None,
+                minimum_quantity=(
+                    float(item["minimum_quantity"])
+                    if item.get("minimum_quantity") is not None
+                    else None
+                ),
+                updated_at=(
+                    datetime.fromisoformat(str(item["updated_at"]))
+                    if item.get("updated_at")
+                    else None
+                ),
+            )
+            for item in payload.get("pantry_items", [])
+        }
         grocery_mutations = {
             str(key): str(item) for key, item in payload.get("grocery_mutations", {}).items()
         }
@@ -175,6 +304,8 @@ class PostgresHouseholdStore:
             grocery_mutations,
             chore_mutations,
             event_mutations,
+            grocery_items,
+            pantry_items,
         )
 
     def add_grocery(self, principal: Principal, item: str, idempotency_key: str) -> None:
@@ -315,6 +446,12 @@ class HouseholdSpace:
     grocery_mutations: dict[str, str] = field(default_factory=dict)
     chore_mutations: dict[str, str] = field(default_factory=dict)
     event_mutations: dict[str, str] = field(default_factory=dict)
+    grocery_items: dict[str, GroceryItem] = field(default_factory=dict)
+    pantry_items: dict[str, PantryItem] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if not self.grocery_items and self.groceries:
+            self.grocery_items = migrate_grocery_strings(self.groceries)
 
     def _require_member(self, principal: Principal) -> None:
         if principal.id not in self.members or self.space_id not in principal.space_ids:
@@ -332,6 +469,8 @@ class HouseholdSpace:
             if idempotency_key in self.grocery_mutations:
                 raise ValueError("grocery idempotency key is bound to another item")
         self.groceries.append(item)
+        migrated = migrate_grocery_strings(self.groceries)
+        self.grocery_items.update(migrated)
         if idempotency_key is not None:
             self.grocery_mutations[idempotency_key] = item
 
@@ -389,6 +528,8 @@ class HouseholdSpace:
         return {
             "space_id": self.space_id,
             "groceries": tuple(self.groceries),
+            "grocery_items": tuple(self.grocery_items.values()),
+            "pantry_items": tuple(self.pantry_items.values()),
             "chores": tuple(self.chores.values()),
             "events": tuple(self.events.values()),
             "obligations": tuple(self.obligations.values()),
