@@ -255,6 +255,12 @@ def test_wikipedia_provider_returns_bounded_article_candidates(
             "bounded result",
         ),
     )
+    assert (
+        WikipediaSearchProvider._search_query(
+            "Find public information about the Palworld game and summarize it."
+        )
+        == "Palworld game"
+    )
 
 
 def test_wikipedia_provider_is_explicitly_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
