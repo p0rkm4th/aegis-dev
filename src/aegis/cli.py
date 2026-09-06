@@ -59,7 +59,7 @@ from .finance import (
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .holidays import configured_holiday_provider, holidays_evidence
-from .homelab import PostgresHomelabStore
+from .homelab import PostgresHomelabStore, classify_discovered_device
 from .household import (
     PostgresHouseholdStore,
 )
@@ -1025,7 +1025,11 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                 for service in homelab.services.values()
             ],
             "authorized_network_devices": [
-                {"address": device.address, "hostname": device.hostname}
+                {
+                    "address": device.address,
+                    "hostname": device.hostname,
+                    **classify_discovered_device(device, homelab.hosts),
+                }
                 for device in network.devices.values()
             ],
             "active_network_scopes": [

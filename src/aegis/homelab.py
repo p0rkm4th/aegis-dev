@@ -40,6 +40,40 @@ class ServiceActionResult:
     message: str
 
 
+def classify_discovered_device(
+    device: DiscoveredDevice, hosts: dict[str, Host]
+) -> dict[str, str | None]:
+    """Classify an observation without promoting it to canonical identity.
+
+    A hostname plus an address already recorded with identity evidence is a
+    useful reconciliation candidate.  It is deliberately still a candidate:
+    discovery never mutates the Host registry or grants action authority.
+    Address-only observations remain unmatched because an IP is not a stable
+    consequential identity.
+    """
+
+    if not device.hostname:
+        return {
+            "identity_status": "unmatched_observation",
+            "canonical_host_id": None,
+        }
+    for host in hosts.values():
+        known_addresses = {host.address, *host.known_addresses}
+        if (
+            host.hostname == device.hostname
+            and device.address in known_addresses
+            and host.identity_evidence
+        ):
+            return {
+                "identity_status": "reconciliation_candidate",
+                "canonical_host_id": host.host_id,
+            }
+    return {
+        "identity_status": "unmatched_observation",
+        "canonical_host_id": None,
+    }
+
+
 class HomelabRuntime(Protocol):
     def restart(self, service: Service) -> bool: ...
     def health(self, service: Service) -> bool: ...

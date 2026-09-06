@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from aegis.homelab import Host, classify_discovered_device
 from aegis.network import (
     AuthorizedNetworkScope,
     BoundedNetworkDiscovery,
@@ -9,6 +10,32 @@ from aegis.network import (
     HomelabInventory,
     ScopeDenied,
 )
+
+
+def test_discovery_reconciliation_is_candidate_only_when_stable_evidence_matches() -> None:
+    host = Host(
+        "atlas",
+        "192.0.2.10",
+        "atlas.local",
+        known_addresses=("192.0.2.11",),
+        identity_evidence=("owner-configured hostname",),
+    )
+    candidate = classify_discovered_device(
+        DiscoveredDevice("192.0.2.11", hostname="atlas.local"), {host.host_id: host}
+    )
+    assert candidate == {
+        "identity_status": "reconciliation_candidate",
+        "canonical_host_id": "atlas",
+    }
+
+
+def test_address_only_discovery_never_becomes_canonical_identity() -> None:
+    host = Host("atlas", "192.0.2.10", "atlas.local", identity_evidence=("fixture",))
+    result = classify_discovered_device(DiscoveredDevice("192.0.2.10"), {host.host_id: host})
+    assert result == {
+        "identity_status": "unmatched_observation",
+        "canonical_host_id": None,
+    }
 
 
 def test_bounded_discovery_returns_observations_without_promoting_hosts() -> None:
