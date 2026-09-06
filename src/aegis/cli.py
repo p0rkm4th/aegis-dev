@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import errno
+import hashlib
 import json
 import os
 import re
@@ -503,7 +504,12 @@ def _workspace_file(principal: Principal, workspace_id: str, path: str) -> dict[
     workspace_root = root / principal.id / workspace_id
     workspace = ScopedWorkspace(workspace_root)
     content = workspace.read(path)
-    return {"workspace_id": workspace_id, "path": path, "content": content[:200_000]}
+    return {
+        "workspace_id": workspace_id,
+        "path": path,
+        "content": content[:200_000],
+        "sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
+    }
 
 
 def _calendar_state(principal: Principal) -> dict[str, Any]:

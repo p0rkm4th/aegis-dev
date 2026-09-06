@@ -1,3 +1,4 @@
+import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
@@ -3795,6 +3796,30 @@ def test_browser_app_exposes_principal_scoped_workspace_inventory():
     assert json.loads(payload)["workspaces"] == [{"workspace_id": "alice", "files": ["index.html"]}]
 
 
+def test_browser_app_workspace_file_exposes_observed_sha256():
+    principal = Principal(id="alice", vault_id="vault")
+    workspace_id = str(uuid4())
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        workspace_file=lambda current, requested_workspace, path: {
+            "workspace_id": requested_workspace,
+            "path": path,
+            "content": "artifact",
+            "sha256": hashlib.sha256(b"artifact").hexdigest(),
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET",
+        f"/api/workspace/file?workspace_id={workspace_id}&path=index.html",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload)["sha256"] == hashlib.sha256(b"artifact").hexdigest()
+
+
 def test_browser_app_keeps_bounded_workspace_inventory_readable_over_twenty_entries():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
@@ -4228,6 +4253,7 @@ def test_browser_app_workspace_surface_exposes_scoped_download():
     assert "Download ${path}" in html
     assert "URL.createObjectURL" in html
     assert "workspace/file?workspace_id=" in html
+    assert "Observed SHA-256: ${file.sha256" in html
 
 
 def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_focus():
