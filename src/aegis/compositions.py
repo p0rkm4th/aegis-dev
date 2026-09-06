@@ -74,6 +74,15 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "external dates are read-only context; no personal event is created",
         },
         {
+            "id": "weather-to-today",
+            "label": "Weather → Today",
+            "description": "Bring a bounded public forecast into the owner's daily planning view.",
+            "surfaces": ("Weather", "Today"),
+            "authority": (
+                "public evidence is read-only context; no canonical personal state is changed"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
