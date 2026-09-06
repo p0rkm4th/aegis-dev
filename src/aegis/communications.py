@@ -7,7 +7,8 @@ import os
 import subprocess
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Protocol
+from pathlib import Path
+from typing import Any, Protocol
 
 from aegis.contracts import ExternalEffectAssurance
 
@@ -124,6 +125,53 @@ class FixtureCommunicationSendProvider:
             return None
         key = provider_message_id.removeprefix(prefix)
         return next((message for message, sent_key in self.sent if sent_key == key), None)
+
+
+@dataclass
+class FaultCommunicationSendProvider:
+    """Explicit owner-acceptance fixture: record once, return UNKNOWN, reconcile later."""
+
+    state_path: Path
+
+    def send(self, message: OutboundMessage, idempotency_key: str) -> SendResult:
+        records = self._records()
+        if idempotency_key not in records:
+            self.state_path.parent.mkdir(parents=True, exist_ok=True)
+            records[idempotency_key] = {
+                "target": message.target,
+                "body": message.body,
+                "channel": message.channel,
+                "account": message.account,
+            }
+            self.state_path.write_text(json.dumps(records, sort_keys=True), encoding="utf-8")
+        return SendResult(
+            status=SendStatus.OUTCOME_UNKNOWN,
+            provider_message_id=f"fault:{idempotency_key}",
+            detail="acceptance fixture recorded the request but withheld the response",
+            assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
+        )
+
+    def get_sent_message(self, provider_message_id: str) -> OutboundMessage | None:
+        if not provider_message_id.startswith("fault:"):
+            return None
+        record = self._records().get(provider_message_id.removeprefix("fault:"))
+        if not isinstance(record, dict):
+            return None
+        return OutboundMessage(
+            target=record["target"],
+            body=record["body"],
+            channel=record["channel"],
+            account=record.get("account"),
+        )
+
+    def _records(self) -> dict[str, dict[str, Any]]:
+        try:
+            payload = json.loads(self.state_path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return {}
+        except (OSError, json.JSONDecodeError):
+            return {}
+        return payload if isinstance(payload, dict) else {}
 
 
 class OpenClawMessageCommand(Protocol):

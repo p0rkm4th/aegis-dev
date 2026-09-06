@@ -1,4 +1,5 @@
 import subprocess
+from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -6,6 +7,7 @@ import pytest
 
 import aegis.reference_packs as reference_packs_module
 from aegis.communications import (
+    FaultCommunicationSendProvider,
     FixtureCommunicationProvider,
     FixtureCommunicationSendProvider,
     Message,
@@ -35,6 +37,18 @@ def test_approved_communication_targets_are_exact_and_fail_closed(monkeypatch) -
     monkeypatch.setenv("AEGIS_APPROVED_COMMUNICATION_TARGETS", "not-json")
     with pytest.raises(ValueError):
         configured_communication_targets()
+
+
+def test_fault_communication_provider_records_once_and_reconciles(tmp_path: Path) -> None:
+    provider = FaultCommunicationSendProvider(tmp_path / "fault.json")
+    message = OutboundMessage("scotty", "Milk", "sms", "household")
+    first = provider.send(message, "fault-1")
+    second = provider.send(message, "fault-1")
+    assert first.status is SendStatus.OUTCOME_UNKNOWN
+    assert first.provider_message_id == second.provider_message_id == "fault:fault-1"
+    assert provider.get_sent_message("fault:fault-1") == message
+    restarted = FaultCommunicationSendProvider(tmp_path / "fault.json")
+    assert restarted.get_sent_message("fault:fault-1") == message
 
 
 def test_send_executor_rejects_target_outside_approved_boundary() -> None:
