@@ -145,6 +145,35 @@ def test_workspace_read_result_formatter_returns_bounded_file_content():
     assert formatted == "Workspace file report.md:\n# Report\n\nAuthorized content"
 
 
+def test_workspace_search_result_formatter_shows_bounded_matches():
+    from aegis.reference_interaction import reference_format_result
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Workspace search is Principal-scoped and structurally valid",
+        evidence={
+            "workspace_search": {
+                "query": "maintenance",
+                "matches": [
+                    {
+                        "workspace_id": "workspace-1",
+                        "path": "report.md",
+                        "snippet": "authorized maintenance note",
+                    }
+                ],
+            }
+        },
+        correlation_id=uuid4(),
+    )
+
+    formatted = reference_format_result(result)
+    assert formatted == (
+        "Workspace search for 'maintenance':\n"
+        "• workspace-1 / report.md: authorized maintenance note"
+    )
+
+
 def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
     manager = PackManager()
     bundle = next(

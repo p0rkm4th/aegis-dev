@@ -1177,6 +1177,26 @@ def reference_format_result(result: Any) -> str:
         if not entries:
             return "Workspace artifacts: (none)"
         return "Workspace artifacts:\n" + "\n".join(f"• {entry}" for entry in entries)
+    if isinstance(evidence.get("workspace_search"), dict):
+        search = evidence["workspace_search"]
+        query = str(search.get("query", ""))
+        matches = search.get("matches", [])
+        if not isinstance(matches, list) or not matches:
+            return f"Workspace search for {query!r}: (no matches)"
+        rows = []
+        for item in matches[:20]:
+            if not isinstance(item, dict):
+                continue
+            workspace_id = item.get("workspace_id", "workspace")
+            path = item.get("path", "file")
+            snippet = " ".join(str(item.get("snippet", "")).split())
+            rows.append(
+                f"• {workspace_id} / {path}: {snippet}" if snippet else f"• {workspace_id} / {path}"
+            )
+        if not rows:
+            return f"Workspace search for {query!r}: (no matches)"
+        suffix = f"\n… and {len(matches) - len(rows)} more" if len(matches) > len(rows) else ""
+        return f"Workspace search for {query!r}:\n" + "\n".join(rows) + suffix
     if isinstance(evidence.get("workspace_file"), dict):
         file_record = evidence["workspace_file"]
         path = file_record.get("path", "file")
