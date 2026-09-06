@@ -4807,6 +4807,11 @@ def test_browser_app_serves_external_design_tokens_for_responsive_shell():
     assert "--unknown" in css
     assert "@media (max-width: 36rem)" in css
     assert ".product-nav" in css
+    # The legacy inline stylesheet is still present for compatibility.  The
+    # served design layer must therefore win the cascade for the shell layout.
+    assert "display: grid !important" in css
+    assert "flex-direction: column !important" in css
+    assert "button:nth-child(n+5) { display: none !important; }" in css
 
     status, content_type, payload = app.dispatch("GET", "/static/aegis.js")
     assert status == 200
@@ -6452,6 +6457,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "let initialTheme = 'dark';" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
     assert '<nav class="product-nav" aria-label="AEGIS views">' in _INDEX_HTML
+    assert 'data-view="home" aria-current="page"' in _INDEX_HTML
     for view in (
         "Today",
         "Tasks",

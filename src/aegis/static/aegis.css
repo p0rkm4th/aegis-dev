@@ -17,24 +17,24 @@
 
 body { background: var(--surface-0); color: var(--text-strong); }
 .app-shell {
-  display: grid;
-  grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr);
+  display: grid !important;
+  grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr) !important;
   column-gap: clamp(1rem, 3vw, 2.5rem);
-  max-width: 90rem;
-  padding: 1.25rem clamp(1rem, 4vw, 3rem) 4rem;
+  max-width: 90rem !important;
+  padding: 1.25rem clamp(1rem, 4vw, 3rem) 4rem !important;
 }
-.topbar { grid-column: 1 / -1; padding-bottom: 1.25rem; }
+.topbar { grid-column: 1 / -1 !important; padding-bottom: 1.25rem !important; }
 .product-nav {
-  grid-column: 1;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
   align-self: start;
   position: sticky;
   top: 1rem;
-  overflow: visible;
+  overflow: visible !important;
   padding: .25rem;
-  margin: 0;
+  margin: 0 !important;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface-1) 92%, transparent);
@@ -44,7 +44,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .product-nav button:nth-child(7),
 .product-nav button:nth-child(11),
 .product-nav button:nth-child(16) { margin-top: .6rem; }
-.workspace { grid-column: 2; grid-row: 2; max-width: none; width: 100%; }
+.workspace { grid-column: 2 !important; grid-row: 2 !important; max-width: none !important; width: 100% !important; }
 .conversation-panel { border-radius: 1.1rem; box-shadow: var(--elevation); }
 .status-badge[data-state="unknown"],
 .status-badge[data-state="reconciliation_pending"] {
@@ -69,25 +69,25 @@ body { background: var(--surface-0); color: var(--text-strong); }
 }
 
 @media (max-width: 52rem) {
-  .app-shell { grid-template-columns: 1fr; }
-  .topbar, .product-nav, .workspace { grid-column: 1; grid-row: auto; }
+  .app-shell { grid-template-columns: 1fr !important; }
+  .topbar, .product-nav, .workspace { grid-column: 1 !important; grid-row: auto !important; }
   .product-nav {
-    position: static;
-    flex-direction: row;
-    overflow-x: auto;
-    box-shadow: none;
+    position: static !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    box-shadow: none !important;
   }
   .product-nav button { white-space: nowrap; }
 }
 
 @media (max-width: 36rem) {
-  .app-shell { padding-inline: .75rem; }
-  .product-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; }
+  .app-shell { padding-inline: .75rem !important; }
+  .product-nav { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; overflow: visible !important; }
   .product-nav button { padding: .65rem .45rem; text-align: center; font-size: .82rem; }
-  .product-nav button:nth-child(n+5) { display: none; }
+  .product-nav button:nth-child(n+5) { display: none !important; }
   .product-nav .nav-more { display: block; grid-column: 1 / -1; text-align: center; }
   .product-nav.show-advanced { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .product-nav.show-advanced button:nth-child(n+5) { display: block; }
+  .product-nav.show-advanced button:nth-child(n+5) { display: block !important; }
   .product-nav button:nth-child(1)::after { content: ""; }
   .conversation-panel { padding: 1rem; }
 }
