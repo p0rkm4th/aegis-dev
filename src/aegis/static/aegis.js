@@ -1531,6 +1531,16 @@ async function loadHousehold() {
     const canonical = payload.canonical || {};
     appendCompletableSection(panel, 'Open chores', canonical.open_chores || [], 'Mark the chore');
     appendTodaySection(panel, 'Groceries', canonical.groceries || []);
+    const pantry = canonical.pantry_items || [];
+    if (pantry.length) {
+      const pantryRows = pantry.map(item => {
+        const quantity = item.quantity == null ? 'quantity unknown' : `${item.quantity} ${item.unit || ''}`.trim();
+        return `${item.display_name} · ${quantity}${item.storage_location ? ` · ${item.storage_location}` : ''}`;
+      });
+      appendTodaySection(panel, 'Pantry', pantryRows);
+    } else {
+      appendTodaySection(panel, 'Pantry', ['No canonical Pantry items recorded yet.']);
+    }
     const sendGroceries = document.createElement('button');
     sendGroceries.type = 'button'; sendGroceries.textContent = 'Send grocery list';
     sendGroceries.addEventListener('click', () => {

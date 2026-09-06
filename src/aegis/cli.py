@@ -1069,6 +1069,12 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             if starts_at >= now:
                 events.append({"title": event.title, "starts_at": starts_at.isoformat()})
         events = events[:20]
+        grocery_items = [
+            item.__dict__ for item in cast(tuple[Any, ...], household.get("grocery_items", ()))
+        ][:50]
+        pantry_items = [
+            item.__dict__ for item in cast(tuple[Any, ...], household.get("pantry_items", ()))
+        ][:50]
         external_events = configured_calendar_provider().list_events()
         external = calendar_events_evidence(external_events)
         country_code = os.environ.get("AEGIS_HOLIDAY_COUNTRY", "").strip().upper()
@@ -1141,6 +1147,8 @@ def _today_state(principal: Principal) -> dict[str, Any]:
                 "open_chores": chores,
                 "upcoming_shared_events": events,
                 "groceries": list(cast(tuple[Any, ...], household.get("groceries", ())))[:50],
+                "grocery_items": grocery_items,
+                "pantry_items": pantry_items,
             },
             "external_calendar": external,
             "active_objectives": active_objectives[:20],
