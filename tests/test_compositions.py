@@ -54,6 +54,17 @@ def test_groceries_workspace_composition_is_owner_visible() -> None:
     assert "no grocery mutation" in composition["authority"]
 
 
+def test_groceries_workspace_communication_chain_is_non_authoritative() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "groceries-workspace-to-communication"
+    )
+    assert composition["surfaces"] == ("Food", "Workspace", "Communications")
+    assert "each step requires its own Core authorization" in composition["authority"]
+    assert "does not imply delivery" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
