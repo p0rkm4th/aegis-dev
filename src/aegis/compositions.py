@@ -239,6 +239,20 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "today-workspace-to-communication",
+            "label": "Today → Workspace → Communication",
+            "description": (
+                "Preserve the canonical Today brief as a verified artifact, then send that "
+                "artifact to one approved destination."
+            ),
+            "surfaces": ("Today", "Workspace", "Communications"),
+            "authority": (
+                "canonical task/household reads + scoped Workspace write/read + communications "
+                "send; each step requires its own Core authorization, and provider acceptance "
+                "does not imply delivery"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
