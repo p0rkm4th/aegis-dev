@@ -4215,6 +4215,21 @@ def test_browser_app_documents_surface_exposes_search_to_workspace_composition()
     assert "independent verification path" in html
 
 
+def test_browser_app_workspace_surface_exposes_scoped_download():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Download ${path}" in html
+    assert "URL.createObjectURL" in html
+    assert "workspace/file?workspace_id=" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []
