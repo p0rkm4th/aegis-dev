@@ -1,0 +1,10 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "communications-owner-composer",
+  "source_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "hosted_validation": {"run_id": "34002571486", "conclusion": "success"},
+  "installed_release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "request": "Send a message to scotty via sms account household saying Test from the owner composer",
+  "result": {"state": "completed", "provider_status": "PROVIDER_ACCEPTED", "delivery_proven": false, "independent_delivery": false},
+  "authority_boundary": "The form submits explicit target, channel, account, and body values; Core authorization and provider status remain authoritative."
+}
