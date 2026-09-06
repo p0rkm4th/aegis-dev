@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "communications-outcome-ui-owner",
+  "source_sha": "321c6fb8452327b64efe0f1237765cb96b4dfcb6",
+  "hosted_validation": {"run_id": "34006980802", "conclusion": "success"},
+  "installed_release_sha": "321c6fb8452327b64efe0f1237765cb96b4dfcb6",
+  "owner_runtime": {
+    "service": "active",
+    "communications_surface": "Send an explicit message",
+    "outcome_surface": "Provider outcome status",
+    "delivery_boundary": "delivery not proven"
+  },
+  "verification": "The owner UI reads persisted provider status and renders delivery proof independently; the generic OpenClaw adapter still reports PROVIDER_ACCEPTED only when provider acceptance includes a message ID.",
+  "authority_boundary": "Target/channel/account remain explicit grounded inputs or approved-boundary matches; presentation does not authorize sending."
+}
