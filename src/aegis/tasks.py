@@ -624,7 +624,7 @@ class TaskReadFastPath:
             "to-do",
         }
 
-    def resolve(self, intent: IntentFrame) -> Result | None:
+    def resolve(self, intent: IntentFrame, now: datetime | None = None) -> Result | None:
         if not self.matches(intent.utterance):
             return None
         all_tasks = self.store.list(intent.principal)
@@ -644,7 +644,7 @@ class TaskReadFastPath:
         else:
             tasks = all_tasks
             status_filter = "all"
-        now = datetime.now().astimezone()
+        now = (now or datetime.now().astimezone()).astimezone()
         due_start: date | None = None
         due_end: date | None = None
         if "before the weekend" in text or "before weekend" in text:
