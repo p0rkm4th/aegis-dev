@@ -1,0 +1,15 @@
+{
+  "kind": "owner_live_capability_proof",
+  "capability": "weather.forecast.read",
+  "source_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+  "hosted_run_id": "34011916883",
+  "installed_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+  "running_sha": "db198bee68d77de05954a45bba3be3d1320b256c",
+  "provider": "open_meteo",
+  "coordinates": {"latitude": 41.881832, "longitude": -87.623177},
+  "forecast_days": 3,
+  "owner_api": "/api/weather",
+  "rendered_surface": "Weather / Three-day forecast",
+  "postgresql_preserved": true,
+  "observed_at": "2026-09-06T04:40:00Z"
+}
