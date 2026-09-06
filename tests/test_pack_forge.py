@@ -206,9 +206,7 @@ def test_durable_capability_need_candidate_reaches_forge_preview_only(tmp_path: 
         ),
     )
     candidate = next(
-        item
-        for item in need.candidate_resolutions
-        if item["requires_owner_input"] is True
+        item for item in need.candidate_resolutions if item["requires_owner_input"] is True
     )
     assert candidate["capability"] == "workspace.artifact.create"
     proposal = Forge().propose(
