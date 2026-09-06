@@ -77,6 +77,8 @@ from .reference_packs import (
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    FinanceSummaryExecutor,
+    FinanceSummaryVerifier,
     FixtureHomelabRestartExecutor,
     FixtureHomelabRestartVerifier,
     GroceryWorkspaceExecutor,
@@ -693,6 +695,13 @@ def default_runtime_registry(
             {"documents.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def finance_summary_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            FinanceSummaryExecutor(connection, principal),
+            FinanceSummaryVerifier(connection, principal),
+            {"finance.read": frozenset({Role.OWNER})},
+        )
+
     def communications_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -893,6 +902,7 @@ def default_runtime_registry(
         "calendar-communications.events.draft": calendar_communication_draft_runtime,
         "documents.list": documents_runtime,
         "documents.search": documents_runtime,
+        "finance.summary.read": finance_summary_runtime,
         "communications.messages.list": communications_runtime,
         "communications.messages.send": communications_send_runtime,
         "workspace-communications.artifact.send": workspace_communications_runtime,
