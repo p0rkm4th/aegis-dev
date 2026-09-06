@@ -1,0 +1,39 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "household-obligations-communication-owner-proof",
+  "source_sha": "ce1d0cc",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34036754383",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "ce1d0cc",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Household",
+    "control": "Send open obligations",
+    "request_template": "Text me my open obligations",
+    "boundary": "Canonical obligation state is fixed before communication; provider acceptance is not delivery proof"
+  },
+  "request": "Text me my open obligations.",
+  "scope": {
+    "source": "authorized canonical household obligation state",
+    "mutation": "read-only"
+  },
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "df3d6c35-a0e8-4698-90f4-1c97bdbeb22f",
+    "correlation_id": "efb5d20e-55e7-499b-b858-3d242b14d059",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "canonical obligations remained read-only; no recipient expansion, obligation mutation, or delivery authority was added"
+}
