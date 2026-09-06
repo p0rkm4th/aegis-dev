@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "capability-need-ui-owner",
+  "source_sha": "ec2e1299db9dc7b259bdbe01b2c5ff8dc302675f",
+  "hosted_validation": {"run_id": "34007102613", "conclusion": "success"},
+  "installed_release_sha": "ec2e1299db9dc7b259bdbe01b2c5ff8dc302675f",
+  "owner_runtime": {
+    "service": "active",
+    "objectives_api": "scoped objectives and capability_needs returned",
+    "surface": "Capability needs / Candidate resolutions"
+  },
+  "verification": "The owner surface renders persisted CapabilityNeed status, requested effect, investigation state, and candidate resolutions without converting investigation into capability or permission.",
+  "authority_boundary": "Discovery does not grant installation, enablement, approval, or execution authority."
+}
