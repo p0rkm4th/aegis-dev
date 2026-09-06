@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 
+from aegis.contracts import ActionSpec, ExecutionRequest, VerificationContract
 from aegis.household import (
     HouseholdSpace,
     PantryItem,
     migrate_grocery_strings,
     normalize_food_key,
 )
+from aegis.reference_packs import PostgresGroceryStateExecutor, PostgresGroceryStateVerifier
 
 
 def test_legacy_groceries_migrate_to_stable_ids_without_inventing_facts():
@@ -91,3 +94,34 @@ def test_kitchen_pack_declares_pantry_read_as_a_generic_capability():
     card = next(card for card in kitchen.cards if card.action.action_id == "kitchen.pantry.list")
     assert card.action.required_permissions == ("kitchen.read",)
     assert card.semantic_scope == "kitchen.pantry"
+
+
+def test_grocery_state_action_uses_id_and_independent_current_read():
+    principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"owner"}, groceries=["Milk"])
+    grocery_id = next(iter(space.grocery_items))
+
+    class Store:
+        def mark_grocery_purchased(self, _principal, item_id):
+            return space.mark_grocery_purchased(principal, item_id)
+
+        def remove_grocery(self, _principal, item_id):
+            return space.remove_grocery(principal, item_id)
+
+        def list_grocery_items(self, _principal):
+            return tuple(space.grocery_items.values())
+
+    action = ActionSpec(
+        action_id="kitchen.groceries.mark_purchased",
+        capability="kitchen.groceries.write",
+        arguments={"grocery_id": grocery_id},
+    )
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="purchase-1"
+    )
+    observation = PostgresGroceryStateExecutor(Store(), principal).execute(request)
+    assert (
+        PostgresGroceryStateVerifier(Store(), principal)
+        .verify(observation, VerificationContract(kind="readback"))
+        .verified
+    )
