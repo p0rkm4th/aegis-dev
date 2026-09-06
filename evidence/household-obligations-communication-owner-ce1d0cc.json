@@ -1,16 +1,16 @@
 {
   "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "checkpoint": "household-obligations-communication-owner-proof",
-  "source_sha": "ce1d0cc",
+  "source_sha": "4123c23",
   "hosted": {
     "provider": "github-actions",
     "workflow": "validation",
-    "run_id": "34036754383",
+    "run_id": "34036948179",
     "conclusion": "success"
   },
   "owner_runtime": {
     "execution_mode": "installed-release",
-    "release_sha": "ce1d0cc",
+    "release_sha": "4123c23",
     "healthy": true,
     "postgres": "healthy",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
@@ -29,8 +29,8 @@
   "result": {
     "code": "completed",
     "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
-    "objective_id": "df3d6c35-a0e8-4698-90f4-1c97bdbeb22f",
-    "correlation_id": "efb5d20e-55e7-499b-b858-3d242b14d059",
+    "objective_id": "955ac5cc-01fd-4b46-9f99-f8e2df8f73a9",
+    "correlation_id": "2f74615c-3c03-4bef-8d2e-c918e1b535f0",
     "provider_status": "PROVIDER_ACCEPTED",
     "provider_readback_proven": true,
     "delivery_proven": false
