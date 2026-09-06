@@ -1,0 +1,14 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "constellation-owner-context-navigation",
+  "source_sha": "da9ba6cd1a465d7d638f866367e811142299af03",
+  "hosted_validation": {"run_id": "34005421795", "conclusion": "success"},
+  "installed_release_sha": "da9ba6cd1a465d7d638f866367e811142299af03",
+  "owner_runtime": {
+    "service": "active",
+    "authorized_nodes": 46,
+    "authorized_edges": 45,
+    "handoffs": ["Open conventional view", "Ask about selected node"]
+  },
+  "authority_boundary": "Node selection supplies navigation or prefilled conversational context only; it does not grant permission, expand scope, or reveal inaccessible state."
+}
