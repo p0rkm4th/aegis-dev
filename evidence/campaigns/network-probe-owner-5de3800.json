@@ -1,0 +1,11 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "network-probe-owner-path",
+  "source_sha": "d6fc6931ceecfe4a36c5144f283cf2dc9abb71a0",
+  "hosted_validation": {"run_id": "34003027107", "conclusion": "success"},
+  "installed_release_sha": "d6fc6931ceecfe4a36c5144f283cf2dc9abb71a0",
+  "pack_approval": {"pack_id": "network", "permission": "network.read", "actor": "alice"},
+  "request": "Probe 10.0.0.5 in scope alpha-lab on port 443",
+  "result": {"state": "failed", "reason": "execution provider is not configured", "provider": "OpenClaw", "authority_preserved": true, "reachability_claimed": false},
+  "boundary": "Network probing remains a bounded typed capability, but no provider execution or reachability is claimed without OpenClaw."
+}
