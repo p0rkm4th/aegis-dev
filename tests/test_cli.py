@@ -6489,6 +6489,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Research why service ${service.service_id} is unavailable" in _INDEX_HTML
     assert "Save completed tasks to Workspace" in _INDEX_HTML
     assert "Save my completed tasks to workspace as completed.md" in _INDEX_HTML
+    assert "Send completed tasks" in _INDEX_HTML
+    assert "Text me my completed tasks" in _INDEX_HTML
     assert "/api/daily-driver" in _INDEX_HTML
     assert "Review Packs & capabilities" in _INDEX_HTML
     assert "candidate.requires_owner_input" in _INDEX_HTML

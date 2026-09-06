@@ -257,6 +257,14 @@ def prepare_reference_action(
             if not open_tasks:
                 lines.append("- None")
             args = {**args, "body": "\n".join(lines)}
+        elif args.get("body_source") == "canonical.completed_tasks" and connection is not None:
+            tasks = PostgresTaskStore(connection).list(principal)
+            completed_tasks = [task for task in tasks if task.status.value == "completed"]
+            lines = ["Completed tasks:"]
+            lines.extend(f"- {task.title}" for task in completed_tasks[:50])
+            if not completed_tasks:
+                lines.append("- None")
+            args = {**args, "body": "\n".join(lines)}
         elif args.get("body_source") == "canonical.calendar_tasks" and connection is not None:
             args = {
                 **args,

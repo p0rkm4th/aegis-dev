@@ -1519,6 +1519,16 @@ async function loadTasks() {
     const sendBoundary = document.createElement('p'); sendBoundary.className = 'muted';
     sendBoundary.textContent = 'Canonical task state is fixed before communication; provider acceptance is not delivery proof.';
     panel.append(sendTasks, sendBoundary);
+    const sendCompleted = document.createElement('button'); sendCompleted.type = 'button';
+    sendCompleted.textContent = 'Send completed tasks';
+    sendCompleted.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Text me my completed tasks';
+      document.getElementById('chat').requestSubmit();
+    });
+    const completedSendBoundary = document.createElement('p'); completedSendBoundary.className = 'muted';
+    completedSendBoundary.textContent =
+      'Completed task history is fixed before communication; provider acceptance is not delivery proof.';
+    panel.append(sendCompleted, completedSendBoundary);
     appendTodaySection(panel, 'Completed', canonical.completed_tasks || []);
     const saveCompleted = document.createElement('button'); saveCompleted.type = 'button';
     saveCompleted.textContent = 'Save completed tasks to Workspace';
