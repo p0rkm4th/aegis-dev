@@ -1,0 +1,17 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "public-holidays-today-owner",
+  "source_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "hosted_validation": {"run_id": "34010033946", "conclusion": "success"},
+  "installed_release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_source": "nager_date",
+    "calendar_holiday_count": 17,
+    "today_source": "nager_date",
+    "today_holiday_count": 17,
+    "composition": "calendar-holidays-to-today"
+  },
+  "verification": "Authenticated owner Calendar and Today APIs both returned the live public-holiday projection, and the rendered Today surface carries the planning context.",
+  "authority_boundary": "Holiday dates remain external read-only evidence and are not treated as canonical personal events or automatic actions."
+}
