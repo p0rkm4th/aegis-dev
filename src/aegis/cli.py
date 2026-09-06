@@ -2363,6 +2363,24 @@ def _deterministic_composition_action(
             }
         )
 
+    holiday_report = re.fullmatch(
+        r"save (?:the )?public holidays for (?P<country_code>[A-Za-z]{2}) "
+        r"(?:in|for) (?P<year>19[0-9]{2}|20[0-9]{2}|21[0-9]{2}|22[0-9]{2}) "
+        r"to workspace as (?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if holiday_report is not None:
+        card = manager.action_card("holiday-reports", "holiday-reports.to_workspace")
+        if card is None:
+            return None
+        args = holiday_report.groupdict()
+        args["country_code"] = str(args["country_code"]).upper()
+        args["year"] = int(str(args["year"]))
+        return card.model_copy(
+            update={"action": card.action.model_copy(update={"arguments": args})}
+        )
+
     holidays = re.fullmatch(
         r"(?:show|list|get) (?:the )?public holidays for (?P<country_code>[A-Za-z]{2}) "
         r"(?:in|for) (?P<year>19[0-9]{2}|20[0-9]{2}|21[0-9]{2}|22[0-9]{2})",

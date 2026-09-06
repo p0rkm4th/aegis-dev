@@ -154,6 +154,18 @@ def prepare_reference_action(
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
             files = {target_path: _groceries_workspace_content(connection, principal)}
+    elif action.action_id == "holiday-reports.to_workspace":
+        target_path = args.get("target_path")
+        country_code = args.get("country_code")
+        year = args.get("year")
+        if (
+            isinstance(target_path, str)
+            and target_path.strip()
+            and isinstance(country_code, str)
+            and isinstance(year, (str, int))
+        ):
+            content = _holiday_workspace_content(country_code, int(year))
+            files = {target_path: content}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
@@ -723,6 +735,17 @@ def _groceries_workspace_content(connection: Any, principal: Principal) -> str:
     else:
         lines.extend(f"- {item}" for item in items)
     return "\n".join(lines) + "\n"
+
+
+def _holiday_workspace_content(country_code: str, year: int) -> str:
+    """Serialize bounded public-holiday evidence without making it canonical state."""
+
+    holidays = configured_holiday_provider().list_holidays(country_code.upper(), year)
+    return (
+        "# External public holiday evidence\n\n"
+        + json.dumps(holidays_evidence(holidays), indent=2, sort_keys=True)
+        + "\n"
+    )
 
 
 @dataclass(frozen=True)
@@ -1742,6 +1765,32 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "holiday-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="holiday-reports.to_workspace",
+                        capability="holiday-reports.to_workspace",
+                        required_permissions=("calendar.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save bounded public-holiday evidence as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("country_code", "year", "target_path"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("country_code", "year", "target_path")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "weather",
             "0.1.0",
             (
@@ -2018,6 +2067,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "weather": ("weather.read",),
         "weather-reports": ("weather.read", "workspace.write"),
         "holidays": ("calendar.read",),
+        "holiday-reports": ("calendar.read", "workspace.write"),
         "air-quality": ("air_quality.read",),
         "calendar-reports": ("calendar.read", "workspace.write"),
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
@@ -3962,6 +4012,74 @@ class PublicHolidayExecutor:
             )
         return Observation(
             execution_id=uuid4(), evidence=holidays_evidence(holidays), command_succeeded=True
+        )
+
+
+class PublicHolidayWorkspaceExecutor:
+    """Write fixed public-holiday evidence into a scoped Workspace artifact."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        content = request.action.arguments.get("_workspace_content")
+        if (
+            not isinstance(target_path, str)
+            or not target_path.strip()
+            or not isinstance(content, str)
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"holiday_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"holiday_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "public_holidays_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+                "external_evidence": True,
+            },
+            command_succeeded=True,
+        )
+
+
+class PublicHolidayWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "holiday_workspace_verified": verified,
+                "external_evidence": True,
+                "postcondition": detail,
+            },
+            reason=(
+                "public holiday Workspace artifact independently verified"
+                if verified
+                else f"public holiday Workspace verification failed: {detail}"
+            ),
         )
 
 
