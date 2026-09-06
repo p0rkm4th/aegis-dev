@@ -132,6 +132,16 @@ def test_deterministic_air_quality_request_preserves_explicit_coordinates():
     assert card is not None
     assert card.action.action_id == "air-quality.current.read"
     assert card.action.arguments == {"latitude": 41.881832, "longitude": -87.623177}
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounded = _ground_argument_provenance(intent, card, Context())
+    assert not isinstance(grounded, Result)
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
 
 
 def test_deterministic_calendar_communication_draft_requires_recipient_and_path():
