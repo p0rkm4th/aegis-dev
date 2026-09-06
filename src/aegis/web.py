@@ -42,6 +42,7 @@ DocumentFile = Callable[[Principal, str], dict[str, Any]]
 DailyDriverState = Callable[[Principal], dict[str, Any]]
 ResearchState = Callable[[Principal], dict[str, Any]]
 FinanceState = Callable[[Principal], dict[str, Any]]
+FinanceImport = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -153,6 +154,14 @@ class PackEnableRequest(BaseModel):
     confirm: bool
 
 
+class FinanceImportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    account_id: str = Field(min_length=1, max_length=200)
+    source_id: str = Field(min_length=1, max_length=200)
+    content: str = Field(min_length=1, max_length=900_000)
+    currency: str = Field(default="USD", min_length=3, max_length=3)
+
+
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
@@ -241,6 +250,7 @@ class BrowserApp:
         daily_driver_state: DailyDriverState | None = None,
         research_state: ResearchState | None = None,
         finance_state: FinanceState | None = None,
+        finance_import: FinanceImport | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -269,6 +279,7 @@ class BrowserApp:
         self.daily_driver_state = daily_driver_state
         self.research_state = research_state
         self.finance_state = finance_state
+        self.finance_import = finance_import
 
     def dispatch(
         self,
@@ -638,6 +649,29 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "finance unavailable"
                 )
             return self._json(HTTPStatus.OK, finance_projection)
+        if method == "POST" and route == "/api/finance/import":
+            if self.finance_import is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                import_request = FinanceImportRequest.model_validate(
+                    json.loads(body.decode("utf-8"))
+                )
+                result = self.finance_import(principal, import_request.model_dump(mode="json"))
+                if not isinstance(result, dict):
+                    raise ValueError("finance import result must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (
+                UnicodeDecodeError,
+                json.JSONDecodeError,
+                TypeError,
+                ValueError,
+                ValidationError,
+            ) as exc:
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
+            return self._json(HTTPStatus.OK, result)
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -885,6 +919,7 @@ def serve(
     daily_driver_state: DailyDriverState | None = None,
     research_state: ResearchState | None = None,
     finance_state: FinanceState | None = None,
+    finance_import: FinanceImport | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -916,6 +951,7 @@ def serve(
         daily_driver_state=daily_driver_state,
         research_state=research_state,
         finance_state=finance_state,
+        finance_import=finance_import,
     )
 
     class Handler(BaseHTTPRequestHandler):
