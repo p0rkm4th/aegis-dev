@@ -3803,6 +3803,56 @@ class CommunicationsSendVerifier:
             ),
         )
 
+    def reconcile(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        """Re-read a persisted provider receipt without issuing another send."""
+
+        evidence = observation.evidence.get("communication_send")
+        if not isinstance(evidence, dict) or self.provider is None:
+            return VerificationResult(
+                verified=False,
+                evidence={"provider_reconciliation": False},
+                reason="communication outcome remains unknown",
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
+            )
+        provider_message_id = evidence.get("provider_message_id")
+        if not isinstance(provider_message_id, str) or not provider_message_id:
+            return VerificationResult(
+                verified=False,
+                evidence={"provider_reconciliation": False},
+                reason="communication outcome remains unknown without a provider receipt",
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
+            )
+        rebound = observation.model_copy(
+            update={
+                "command_succeeded": True,
+                "evidence": {
+                    **observation.evidence,
+                    "communication_send": {
+                        **evidence,
+                        "status": SendStatus.PROVIDER_ACCEPTED.value,
+                    },
+                },
+            }
+        )
+        result = self.verify(rebound, contract)
+        return result.model_copy(
+            update={
+                "reason": (
+                    "communication provider receipt was independently reconciled"
+                    if result.verified
+                    else "communication outcome remains unknown"
+                ),
+                "evidence": {**result.evidence, "provider_reconciliation": True},
+                "assurance": (
+                    ExternalEffectAssurance.EFFECT_VERIFIED
+                    if result.verified
+                    else ExternalEffectAssurance.OUTCOME_UNKNOWN
+                ),
+            }
+        )
+
 
 def _expected_message_body(contract: VerificationContract) -> str | None:
     """Read the grounded body from the generic contract when available."""

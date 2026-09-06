@@ -785,6 +785,40 @@ def test_fixture_send_verifier_rejects_receipt_with_wrong_expected_tuple() -> No
     )
 
 
+def test_communications_unknown_receipt_reconciles_without_sending_again() -> None:
+    provider = FixtureCommunicationSendProvider()
+    principal = Principal(id="alice", vault_id="vault")
+    action = ActionSpec(
+        action_id="communications.messages.send",
+        capability="communications.messages.send",
+        arguments={"target": "scotty", "body": "Milk", "channel": "sms", "account": "household"},
+    )
+    prepared = prepare_reference_action(action, principal, uuid4())
+    accepted = provider.send(
+        OutboundMessage(target="scotty", body="Milk", channel="sms", account="household"),
+        "reconcile-1",
+    )
+    observation = Observation(
+        execution_id=uuid4(),
+        command_succeeded=False,
+        evidence={
+            "communication_send": {
+                "status": "OUTCOME_UNKNOWN",
+                "provider_message_id": accepted.provider_message_id,
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+            }
+        },
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).reconcile(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["provider_reconciliation"] is True
+    assert len(provider.sent) == 1
+
+
 def test_openclaw_cli_provider_adapts_explicit_message_send_without_claiming_delivery() -> None:
     calls: list[list[str]] = []
 
