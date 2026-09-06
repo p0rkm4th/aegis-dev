@@ -1,0 +1,16 @@
+{
+  "checkpoint": "daily-driver-alpha-workspace-file-read",
+  "source_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
+  "hosted_run_id": "34014400371",
+  "owner_runtime_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
+  "principal": "owner",
+  "utterance": "Read workspace artifact 9047eec9-5279-50d0-9f3b-7b133d62b1cc at reports/tomorrow.md",
+  "result": "completed",
+  "message": "Done — Workspace file read is Principal-scoped and structurally valid",
+  "objective_id": "a9b96235-cd3c-4240-a284-ca4b919814f4",
+  "correlation_id": "cb785f6d-b87a-45ee-942d-f94e257abf8c",
+  "workspace_id": "9047eec9-5279-50d0-9f3b-7b133d62b1cc",
+  "path": "reports/tomorrow.md",
+  "scope": "current Principal workspace only",
+  "authority": "read-only; no mutation or execution authority"
+}
