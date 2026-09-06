@@ -119,6 +119,10 @@ def prepare_reference_action(
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
             files = {target_path: _task_workspace_content(connection, principal)}
+    elif action.action_id == "today-reports.to_workspace" and connection is not None:
+        target_path = args.get("target_path")
+        if isinstance(target_path, str) and target_path.strip():
+            files = {target_path: _today_brief_content(connection, principal)}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
@@ -1525,6 +1529,31 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "today-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="today-reports.to_workspace",
+                        capability="today-reports.to_workspace",
+                        required_permissions=("household.read", "tasks.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save the canonical Today brief as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "air-quality",
             "0.1.0",
             (
@@ -1840,6 +1869,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "calendar-task-attention": ("calendar.read", "tasks.read"),
         "calendar-task-reports": ("calendar.read", "tasks.read", "workspace.write"),
         "task-reports": ("tasks.read", "workspace.write"),
+        "today-reports": ("household.read", "tasks.read", "workspace.write"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
@@ -2145,6 +2175,66 @@ class TaskWorkspaceVerifier:
                 "task Workspace artifact independently verified"
                 if verified
                 else f"task Workspace verification failed: {detail}"
+            ),
+        )
+
+
+class TodayWorkspaceExecutor:
+    """Write a canonical Today brief into the scoped Workspace."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"today_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _today_brief_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"today_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "today_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class TodayWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"today_workspace_verified": verified, "postcondition": detail},
+            reason=(
+                "Today Workspace artifact independently verified"
+                if verified
+                else f"Today Workspace verification failed: {detail}"
             ),
         )
 
