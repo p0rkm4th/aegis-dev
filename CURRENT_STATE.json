@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "cc3ddf5",
+  "state_basis_sha": "d1ffb26",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "cc3ddf5",
-  "deterministic_green_sha": "cc3ddf5",
-  "last_pushed_sha": "cc3ddf5",
-  "hosted_green_sha": "cc3ddf5",
-  "hosted_ci_green_sha": "cc3ddf5",
+  "repository_head_sha": "d1ffb26",
+  "deterministic_green_sha": "d1ffb26",
+  "last_pushed_sha": "d1ffb26",
+  "hosted_green_sha": "d1ffb26",
+  "hosted_ci_green_sha": "d1ffb26",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "cc3ddf5",
+    "commit_sha": "d1ffb26",
     "conclusion": "success",
-    "run_id": "34064690118",
+    "run_id": "34064914882",
     "observed_at": "2026-09-06T20:50:00Z"
   },
-  "installed_release_sha": "cc3ddf5",
-  "running_release_sha": "cc3ddf5",
-  "live_green_sha": "cc3ddf5",
+  "installed_release_sha": "d1ffb26",
+  "running_release_sha": "d1ffb26",
+  "live_green_sha": "d1ffb26",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-finance-settlement-presentation",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "cc3ddf5"
+    "release_sha": "d1ffb26"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -116,6 +116,7 @@
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
+    "bounded_network_discovery_owner_surface": "Promoted Systems UI exposes scope-specific bounded discovery through authenticated POST /api/systems/discover; unknown scopes fail closed and discovered results remain visibly non-canonical observations",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
     "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added",
     "household_chores_workspace": "installed owner proof saved chores.md from canonical open household chores with independent scoped Workspace verification; chore mutation authority was not added",
@@ -382,7 +383,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Expose bounded authorized network discovery in the owner Systems read plane; keep discovered devices visibly distinct from canonical Hosts and require explicit reconciliation before any future action capability.",
+  "next_action": "Dogfood bounded Systems discovery on the owner-approved alpha-lab scope, record observed devices only when the bounded provider finds them, and then prioritize the next useful Food/Finance/Homelab action.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
