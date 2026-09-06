@@ -1481,6 +1481,13 @@ def resolve_reference_fast_paths(
         flags=re.IGNORECASE,
     ):
         return None
+    if re.fullmatch(
+        r"save (?:the )?tasks due before my calendar events to workspace as "
+        r"[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     if re.search(r"\bnext\s+one\b", intent.utterance.casefold()):
         next_result = resolve_contextual_ordinal_read(intent, context)
         if next_result is not None:

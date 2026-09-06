@@ -320,6 +320,29 @@ def test_deterministic_calendar_task_attention_uses_cross_domain_read_action():
     assert card.action.action_id == "calendar-task-attention.read"
 
 
+def test_deterministic_calendar_task_report_uses_workspace_composition():
+    manager = PackManager()
+    bundle = next(
+        bundle
+        for bundle in reference_bundles()
+        if bundle.manifest.pack_id == "calendar-task-reports"
+    )
+    manager.discover(bundle)
+    manager.install(
+        "calendar-task-reports",
+        frozenset({"calendar.read", "tasks.read", "workspace.write"}),
+    )
+    manager.enable("calendar-task-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save the tasks due before my calendar events to Workspace as attention.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar-task-reports.to_workspace"
+    assert card.action.arguments["target_path"] == "attention.md"
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
@@ -6818,6 +6841,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Calendar Reports",
         "Calendar Communications",
         "Calendar Task Attention",
+        "Calendar Task Reports",
         "Communications",
         "Documents",
         "Tasks",

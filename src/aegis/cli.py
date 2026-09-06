@@ -1279,6 +1279,22 @@ def _deterministic_composition_action(
         card = manager.action_card("calendar-task-attention", "calendar-task-attention.read")
         if card is not None:
             return card
+    calendar_task_report = re.fullmatch(
+        r"save (?:the )?tasks due before my calendar events to workspace as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_task_report is not None:
+        card = manager.action_card("calendar-task-reports", "calendar-task-reports.to_workspace")
+        if card is not None:
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={"arguments": calendar_task_report.groupdict()}
+                    )
+                }
+            )
     default_forecast = re.fullmatch(
         r"(?:what(?:'s| is) (?:the )?(?:weather|forecast) (?:like )?tomorrow|"
         r"will it rain tomorrow)[?!.,]?",
