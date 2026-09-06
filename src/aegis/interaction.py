@@ -15,6 +15,7 @@ from .contracts import (
     ArgumentProvenanceKind,
     CapabilityInvestigationState,
     CapabilityNeed,
+    CapabilityNeedStatus,
     Context,
     Decision,
     DecisionKind,
@@ -493,6 +494,16 @@ class InteractionBoundary:
                                 requirement_id = UUID(raw_requirement_id)
                             except ValueError:
                                 requirement_id = None
+                        candidate_resolutions = tuple(
+                            evidence.get("candidate_resolutions", [])
+                            if isinstance(evidence.get("candidate_resolutions"), list)
+                            else (
+                                {
+                                    "kind": "available_action_ids",
+                                    "action_ids": evidence.get("available_action_ids", []),
+                                },
+                            )
+                        )
                         durable_needs.append(
                             CapabilityNeed(
                                 requirement_id=requirement_id,
@@ -507,16 +518,16 @@ class InteractionBoundary:
                                     "public_research",
                                 ),
                                 investigation=CapabilityInvestigationState.COMPLETE,
-                                candidate_resolutions=tuple(
-                                    evidence.get("candidate_resolutions", [])
-                                    if isinstance(evidence.get("candidate_resolutions"), list)
-                                    else (
-                                        {
-                                            "kind": "available_action_ids",
-                                            "action_ids": evidence.get("available_action_ids", []),
-                                        },
+                                status=(
+                                    CapabilityNeedStatus.OWNER_INPUT_REQUIRED
+                                    if any(
+                                        item.get("requires_owner_input") is True
+                                        for item in candidate_resolutions
+                                        if isinstance(item, dict)
                                     )
+                                    else CapabilityNeedStatus.OPEN
                                 ),
+                                candidate_resolutions=candidate_resolutions,
                                 parent_objective_id=result.objective_id,
                             ).model_dump(mode="json")
                         )
