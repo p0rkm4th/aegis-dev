@@ -38,7 +38,6 @@ from .compositions import (
     document_search_to_workspace,
     document_summary_to_workspace,
     document_to_workspace,
-    research_to_workspace,
 )
 from .contracts import (
     ActionCard,
@@ -608,6 +607,29 @@ def prepare_reference_action(
             content = _air_quality_workspace_content(reading)
             files = {report_target_path: content}
             args = {**args, "_workspace_content": content}
+    elif action.action_id == "workspace.research_notes.create":
+        research_query = args.get("query")
+        research_target_path = args.get("target_path")
+        if (
+            isinstance(research_query, str)
+            and research_query.strip()
+            and isinstance(research_target_path, str)
+            and research_target_path.strip()
+        ):
+            evidence = configured_research_service().collect(SearchRequest(research_query))
+            answer = ResearchAnswer(
+                text="\n\n".join(item.text[:4_000] for item in evidence.evidence),
+                source_kind=KnowledgeSource.EXTERNAL,
+                evidence=evidence,
+            )
+            content = _research_workspace_content(answer)
+            files = {research_target_path: content}
+            args = {
+                **args,
+                "_workspace_content": content,
+                "_research_provider_id": evidence.provider_id,
+                "_research_source_ids": [item.source_id for item in evidence.evidence],
+            }
     if files is None:
         return action
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
@@ -672,6 +694,13 @@ def _air_quality_workspace_content(reading: object) -> str:
         + json.dumps(air_quality_evidence(cast(Any, reading)), indent=2, sort_keys=True)
         + "\n"
     )
+
+
+def _research_workspace_content(answer: ResearchAnswer) -> str:
+    """Serialize fixed bounded research as explicitly non-authoritative notes."""
+
+    sources = "\n".join(f"- [{item.title}]({item.final_url})" for item in answer.evidence.evidence)
+    return f"# Research notes\n\n{answer.text}\n\n## Sources\n{sources}\n"
 
 
 def _task_workspace_content(connection: Any, principal: Principal, *, status: str = "open") -> str:
@@ -4710,32 +4739,22 @@ class ResearchWorkspaceExecutor:
         self.principal = principal
 
     def execute(self, request: ExecutionRequest) -> Observation:
-        query = request.action.arguments.get("query")
         target_path = request.action.arguments.get("target_path")
-        if not isinstance(query, str) or not isinstance(target_path, str):
+        content = request.action.arguments.get("_workspace_content")
+        if not isinstance(target_path, str) or not isinstance(content, str):
             return Observation(
                 execution_id=uuid4(),
                 evidence={"research_workspace": "invalid_arguments"},
                 command_succeeded=False,
             )
         try:
-            evidence = configured_research_service().collect(SearchRequest(query))
-            answer = ResearchAnswer(
-                text="\n\n".join(item.text[:4_000] for item in evidence.evidence),
-                source_kind=KnowledgeSource.EXTERNAL,
-                evidence=evidence,
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
             )
-            result = research_to_workspace(
-                answer,
-                WorkspaceManager(
-                    Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
-                ),
-                principal_id=self.principal.id,
-                objective_id=request.objective_id,
-                target_path=target_path,
-                correlation_id=request.action_id,
-            )
-        except (ResearchUnavailable, ValueError, OSError) as exc:
+        except (ValueError, OSError) as exc:
             return Observation(
                 execution_id=uuid4(),
                 evidence={"research_workspace": "rejected", "reason": str(exc)},
@@ -4745,28 +4764,38 @@ class ResearchWorkspaceExecutor:
             execution_id=uuid4(),
             evidence={
                 "composition": "research_to_workspace",
-                "query": evidence.query,
-                "provider_id": evidence.provider_id,
-                "source_ids": list(result.source_ids),
-                "files": list(result.files),
-                "executor_local_validated": result.validated,
-                "authoritative": result.authoritative,
+                "provider_id": request.action.arguments.get("_research_provider_id"),
+                "source_ids": request.action.arguments.get("_research_source_ids", []),
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+                "authoritative": False,
+                "external_evidence": True,
             },
             command_succeeded=True,
         )
 
 
 class ResearchWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
     def verify(
-        self, observation: Observation, _contract: VerificationContract
+        self, observation: Observation, contract: VerificationContract
     ) -> VerificationResult:
-        # Research output is produced during execution, so its final bytes
-        # are not a trusted pre-execution expectation.
-        verified = False
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
         return VerificationResult(
             verified=verified,
-            evidence={"research_workspace_verified": verified, "postcondition": "not established"},
-            reason="research notes verification is pending a fixed-input workspace step",
+            evidence={
+                "research_workspace_verified": verified,
+                "external_evidence": True,
+                "postcondition": detail,
+            },
+            reason=(
+                "research notes Workspace artifact independently verified"
+                if verified
+                else f"research notes verification failed: {detail}"
+            ),
         )
 
 

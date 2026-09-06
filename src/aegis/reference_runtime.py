@@ -740,8 +740,9 @@ def default_runtime_registry(
         del connection
         return ActionRuntime(
             ResearchWorkspaceExecutor(principal),
-            ResearchWorkspaceVerifier(),
+            ResearchWorkspaceVerifier(principal),
             {"workspace.write": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
         )
 
     from .reference_packs import reference_bundles
