@@ -1,0 +1,25 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "document-search-communication-ui-owner-proof",
+  "source_sha": "d77695d",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34034108554",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "d77695d",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Documents",
+    "control": "Send document search results",
+    "request_template": "Text me the document search results for ${query}",
+    "boundary": "Core fixes authorized matches before sending; provider acceptance is not delivery proof"
+  },
+  "authority": "the UI submits the normal Core request; it does not choose a recipient, bypass authorization, or claim delivery"
+}
