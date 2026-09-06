@@ -5907,6 +5907,8 @@ def test_browser_app_objectives_surface_exposes_capability_need_investigation_bo
     assert "Candidate resolutions" in html
     assert "Investigation: ${investigation}" in html
     assert "Research candidate path" in html
+    assert "Forge review · candidate only" in html
+    assert "do not install, enable, approve, grant permissions, or execute" in html
     assert "capability-needs/${needId}.md" in html
     assert "discovery does not grant installation" in html
 

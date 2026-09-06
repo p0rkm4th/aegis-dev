@@ -105,6 +105,10 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .status-badge[data-state="completed"] { border-color: #4f9b68; color: #9be2ae; }
 .status-badge[data-state="blocked"], .status-badge[data-state="failed"] { border-color: #a56a6a; color: #f0b0b0; }
 .detail-card { margin: .65rem 0; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-1); }
+.forge-review { border-style: dashed; background: color-mix(in srgb, var(--warning) 5%, var(--surface-1)); }
+.forge-review h6 { margin: 0 0 .35rem; font-size: .82rem; letter-spacing: .04em; }
+.forge-review p { margin: .35rem 0 0; }
+.status-badge[data-state="candidate"] { border-color: var(--warning); color: var(--warning); }
 
 @media (max-width: 36rem) {
   #chat { align-items: stretch; flex-direction: column; }
