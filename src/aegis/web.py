@@ -1154,7 +1154,14 @@ async function loadSystems() {
           document.getElementById('utterance').value = `Restart service ${service.service_id}`;
           document.getElementById('chat').requestSubmit();
         });
-        row.append(label, restart); actions.append(row);
+        const sendHealth = document.createElement('button'); sendHealth.type = 'button';
+        sendHealth.textContent = 'Send health status';
+        sendHealth.setAttribute('aria-label', `Send health status for ${service.service_id}`);
+        sendHealth.addEventListener('click', () => {
+          document.getElementById('utterance').value = `Text me the health of service ${service.service_id}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        row.append(label, restart, sendHealth); actions.append(row);
         if (service.health && service.health !== 'healthy') {
           const investigate = document.createElement('button'); investigate.type = 'button';
           investigate.textContent = 'Create investigation task';
@@ -1169,6 +1176,9 @@ async function loadSystems() {
       });
       panel.append(actions);
     }
+    const communicationBoundary = document.createElement('p'); communicationBoundary.className = 'muted';
+    communicationBoundary.textContent = 'Health status is read-only context; Core fixes the observation before communication, and provider acceptance is not delivery proof.';
+    panel.append(communicationBoundary);
     const report = document.createElement('button');
     report.type = 'button'; report.textContent = 'Create verified health report';
     report.addEventListener('click', () => {
