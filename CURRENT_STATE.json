@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
+  "state_basis_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
-  "deterministic_green_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
-  "last_pushed_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
-  "hosted_green_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
-  "hosted_ci_green_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
+  "repository_head_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "deterministic_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "last_pushed_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "hosted_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "hosted_ci_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+    "commit_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
     "conclusion": "success",
-    "run_id": "34002096370",
+    "run_id": "34002571486",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
-  "running_release_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
-  "live_green_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
+  "installed_release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "running_release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "live_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-document-search-workspace",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb"
+    "release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -120,6 +120,7 @@
     ,"documents.search_to_workspace composes authorized document search into a pre-execution-fixed, independently verified scoped Workspace artifact"
     ,"Devices view offers a bounded state-to-research affordance that sanitizes entity IDs from public queries and retains authorized observed state as private mixed evidence; owner proof remains partial because the current model/provider path did not complete synthesis"
     ,"Documents view now provides a direct Core-routed summary-artifact action; installed owner proof independently verified alpha-handbook-summary.md on ec10d47"
+    ,"Communications view now provides a generic explicit target/channel/account/body composer; installed owner proof reached truthful PROVIDER_ACCEPTED without claiming delivery"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The owner can inspect and search authorized documents, save bounded search results into independently verified Workspace artifacts, and inspect truthful Daily driver readiness; live OpenClaw, Google, and Home Assistant providers remain pending.",
@@ -157,8 +158,8 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 31,
-  "owner_visible_capability_surfaces": 19,
+  "voluntarily_useful_owner_workflows": 32,
+  "owner_visible_capability_surfaces": 20,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 16,
   "breadth_scoreboard": {
@@ -169,10 +170,10 @@
     "cross_domain_compositions": 16,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 29,
+    "owner_workflows_completed": 30,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Advance the next owner-useful provider-backed or homelab/device workflow; live OpenClaw, Google, and Home Assistant remain pending, and the device-state research affordance remains partial.",
-  "history_artifact": "evidence/campaigns/document-summary-ui-owner-ec10d47.json",
+  "history_artifact": "evidence/campaigns/communications-composer-owner-2bf29e1.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
