@@ -39,6 +39,21 @@ class HomelabRuntime(Protocol):
     def health(self, service: Service) -> bool: ...
 
 
+class FixtureHomelabRuntime:
+    """Explicit deterministic provider for bounded restart/readback acceptance."""
+
+    def __init__(self, initially_healthy: bool = False) -> None:
+        self._health: dict[str, bool] = {}
+        self.initially_healthy = initially_healthy
+
+    def restart(self, service: Service) -> bool:
+        self._health[service.service_id] = True
+        return True
+
+    def health(self, service: Service) -> bool:
+        return self._health.get(service.service_id, self.initially_healthy)
+
+
 class PostgresHomelabStore:
     """Persist Space-scoped Homelab host and service inventory."""
 

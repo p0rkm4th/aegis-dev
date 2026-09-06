@@ -65,7 +65,7 @@ from .gateway_rpc import (
     RpcProtocolError,
 )
 from .holidays import configured_holiday_provider, holidays_evidence
-from .homelab import PostgresHomelabStore
+from .homelab import FixtureHomelabRuntime, PostgresHomelabStore
 from .household import PostgresHouseholdStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
 from .research import (
@@ -3619,6 +3619,85 @@ class OpenClawHomelabVerifier:
                 "health_body_bytes": body_bytes,
             },
             reason="independent service health verified" if verified else "service health failed",
+        )
+
+
+class FixtureHomelabRestartExecutor:
+    """Use an explicit fixture provider without introducing shell authority."""
+
+    def __init__(self, connection: Any, principal: Principal, provider: FixtureHomelabRuntime):
+        self.connection = connection
+        self.principal = principal
+        self.provider = provider
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        service_id = request.action.arguments.get("service")
+        if not isinstance(service_id, str) or not service_id.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_restart": "invalid_service"},
+                command_succeeded=False,
+            )
+        try:
+            service = _canonical_homelab_service(self.connection, self.principal, service_id)
+            accepted = self.provider.restart(service)
+        except (PermissionError, ValueError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_restart": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "homelab_restart": {
+                    "service": service.service_id,
+                    "provider": "fixture",
+                    "restart_accepted": accepted,
+                }
+            },
+            command_succeeded=accepted,
+        )
+
+
+class FixtureHomelabRestartVerifier:
+    """Read fixture provider health separately from the restart attempt."""
+
+    def __init__(self, connection: Any, principal: Principal, provider: FixtureHomelabRuntime):
+        self.connection = connection
+        self.principal = principal
+        self.provider = provider
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("homelab_restart")
+        service_id = evidence.get("service") if isinstance(evidence, dict) else None
+        if contract.kind != "health" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="fixture restart failed"
+            )
+        if not isinstance(service_id, str):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="fixture restart service identity missing",
+            )
+        try:
+            service = _canonical_homelab_service(self.connection, self.principal, service_id)
+            healthy = self.provider.health(service)
+        except (PermissionError, ValueError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "reason": str(exc)},
+                reason="fixture service scope failed",
+            )
+        return VerificationResult(
+            verified=healthy,
+            evidence={**observation.evidence, "independent_health_readback": healthy},
+            reason="fixture service health independently verified"
+            if healthy
+            else "fixture service health readback failed",
         )
 
 
