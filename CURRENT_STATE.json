@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
+  "state_basis_sha": "1969a2d8b00fab29e272899678171152e080fc03",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
-  "deterministic_green_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
-  "last_pushed_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
-  "hosted_green_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
-  "hosted_ci_green_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
+  "repository_head_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "deterministic_green_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "last_pushed_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "hosted_green_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "hosted_ci_green_sha": "1969a2d8b00fab29e272899678171152e080fc03",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
+    "commit_sha": "1969a2d8b00fab29e272899678171152e080fc03",
     "conclusion": "success",
-    "run_id": "34018097586",
+    "run_id": "34018458468",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
-  "running_release_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
-  "live_green_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb",
+  "installed_release_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "running_release_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "live_green_sha": "1969a2d8b00fab29e272899678171152e080fc03",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-workspace-artifact-communication",
+  "active_checkpoint": "daily-driver-alpha-device-state-communication",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "f7c7b8069d02cf26f119fa34f2a342d13826e8cb"
+    "release_sha": "1969a2d8b00fab29e272899678171152e080fc03"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -183,9 +183,10 @@
     ,"Documents → Communications now fixes authorized Alpha Handbook content from the grounded canonical document ID before generic sending; installed owner proof independently reads back fixture acceptance as PROVIDER_ACCEPTED and preserves the approved target and non-delivery boundary"
     ,"Homelab health → Communications now fixes a bounded authorized service-health observation before generic sending; installed owner proof reports acceptance-plex unavailable truthfully as PROVIDER_ACCEPTED with provider readback and no restart or delivery claim"
     ,"Workspace artifact → Communications is a dedicated two-permission composition; installed owner proof read reports/send-me.md only within Alice's scoped Workspace, fixed its content before sending, and surfaced workspace-communications.artifact.send as PROVIDER_ACCEPTED with delivery unproven"
+    ,"Device state → Communications is a dedicated two-permission composition; installed owner proof fixed the bounded Home Assistant-shaped fixture snapshot before sending and surfaced device-communications.state.send as PROVIDER_ACCEPTED with delivery unproven and no device mutation authority"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner can now send a Principal-scoped Workspace artifact through the dedicated workspace-communications Pack to one approved target; fixture provider readback is proven while delivery and live OpenClaw remain pending.",
+  "daily_driver_checkpoint": "The installed owner can now send a bounded authorized device-state snapshot through the dedicated device-communications Pack to one approved target; fixture provider readback is proven while delivery and live OpenClaw remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -223,22 +224,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 56,
+  "voluntarily_useful_owner_workflows": 57,
   "owner_visible_capability_surfaces": 27,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 32,
+  "cross_capability_workflows": 33,
   "breadth_scoreboard": {
     "owner_visible_views": 18,
     "usable_capability_families": 10,
     "verified_write_capabilities": 7,
     "external_integrations": 3,
-    "cross_domain_compositions": 32,
+    "cross_domain_compositions": 33,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 51,
+    "owner_workflows_completed": 52,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-useful vertical: choose the cheapest non-credential-blocked capability, prioritizing verified device control or the next generic Workspace/document composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/workspace-artifact-communication-owner-f7c7b80.json",
+  "next_action": "Rearm the next owner-useful vertical: choose the cheapest non-credential-blocked capability, prioritizing a new verified device/homelab action or the next generic document/calendar composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
+  "history_artifact": "evidence/device-state-communication-owner-1969a2d.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

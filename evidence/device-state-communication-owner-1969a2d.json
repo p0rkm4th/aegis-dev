@@ -1,0 +1,52 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-device-state-communication",
+  "source_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "run_id": "34018458468",
+    "head_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "1969a2d8b00fab29e272899678171152e080fc03",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "postgresql": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "identity": "authenticated owner"
+  },
+  "pack": {
+    "pack_id": "device-communications",
+    "status": "enabled",
+    "permissions": ["devices.read", "communications.send"],
+    "approval": "explicit owner approval"
+  },
+  "request": "Text me the device status.",
+  "objective": "dd6326f7-2ed0-4c49-a62e-abb49c69cd58",
+  "correlation": "f234a0ba-79d9-4d3a-9b7e-a9aff52d3e67",
+  "source": {
+    "provider": "Home Assistant-shaped fixture",
+    "snapshot_fixed_before_send": true,
+    "mutation_authority": false
+  },
+  "destination": {
+    "target": "scotty",
+    "channel": "sms",
+    "account": "household",
+    "boundary": "explicit owner-approved configured target"
+  },
+  "result": {
+    "action_id": "device-communications.state.send",
+    "state": "completed",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false,
+    "detail": "communication provider accepted and read back the exact message; delivery is not independently proven"
+  },
+  "safety": [
+    "device state was read through the bounded read-only adapter",
+    "the composition did not call a device service",
+    "device read and communication send required separate explicit Pack permissions",
+    "delivery was not inferred from fixture acceptance"
+  ]
+}
