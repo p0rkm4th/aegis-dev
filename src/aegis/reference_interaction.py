@@ -157,7 +157,7 @@ def _ground_argument_provenance(
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|"
                 r"(?:the )?tasks due before my calendar events|"
-                r"today(?:'s)? brief|"
+                r"(?:today(?:'s)?|the) brief|"
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
                 r"the document .+|the health of (?:service )?.+|"
@@ -235,7 +235,7 @@ def _ground_argument_provenance(
                 "canonical.groceries": "grocery list",
                 "canonical.tasks": "tasks",
                 "canonical.calendar_tasks": "tasks due before my calendar events",
-                "canonical.today": "today brief",
+                "canonical.today": "brief",
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
