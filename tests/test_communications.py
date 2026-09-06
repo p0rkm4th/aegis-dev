@@ -95,6 +95,38 @@ def test_canonical_grocery_source_is_fixed_before_generic_send(monkeypatch) -> N
     assert prepared.arguments["body"] == "Grocery list:\n- milk\n- rice"
 
 
+def test_canonical_task_source_is_fixed_before_generic_send(monkeypatch) -> None:
+    class FakeTask:
+        status = SimpleNamespace(value="open")
+        title = "Check the filter"
+        due_at = None
+
+    class FakeTaskStore:
+        def __init__(self, _connection):
+            pass
+
+        def list(self, _principal):
+            return (FakeTask(),)
+
+    monkeypatch.setattr(reference_packs_module, "PostgresTaskStore", FakeTaskStore)
+    prepared = prepare_reference_action(
+        ActionSpec(
+            action_id="communications.messages.send",
+            capability="communications.messages.send",
+            arguments={
+                "target": "scotty",
+                "channel": "sms",
+                "account": "personal",
+                "body_source": "canonical.tasks",
+            },
+        ),
+        Principal(id="alice", vault_id="vault"),
+        uuid4(),
+        object(),
+    )
+    assert prepared.arguments["body"] == "Open tasks:\n- Check the filter"
+
+
 def test_bounded_research_source_is_fixed_before_unsent_draft(monkeypatch) -> None:
     monkeypatch.setenv(
         "AEGIS_RESEARCH_FIXTURE_JSON",
