@@ -1,0 +1,18 @@
+{
+  "artifact": "finance-provenance-owner-surface",
+  "observed_at": "2026-09-06T22:30:00Z",
+  "source_sha": "0aa297574f7181ddbcb5efc1108f425df69d170e",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34068264466",
+    "conclusion": "success"
+  },
+  "owner_release_sha": "0aa297574f7181ddbcb5efc1108f425df69d170e",
+  "owner_path": "tailscale_https",
+  "proof": {
+    "finance_projection": "provider_transaction_id and source_id are exposed beside status and currency",
+    "csv_import": "decoded JSON response reports imported rows and bounded reconciliation candidates",
+    "canonical_boundary": "read-only owner projection; no financial mutation or private ledger rows recorded"
+  },
+  "synthetic_fixture_ids_only": true
+}
