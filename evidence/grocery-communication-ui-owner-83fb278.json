@@ -1,0 +1,35 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "grocery-communication-ui-owner-proof",
+  "source_sha": "83fb278",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34035685750",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "83fb278",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Household/Food",
+    "control": "Send grocery list",
+    "request_template": "Text me the grocery list",
+    "boundary": "Canonical groceries are fixed before communication; one approved target is required and provider acceptance is not delivery proof"
+  },
+  "request": "Text me the grocery list.",
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "cb2d333e-2d2b-42b8-8ba1-f402b4c22feb",
+    "correlation_id": "515733ae-4e77-4a61-aaf1-11e585de1a19",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "canonical grocery state remained read-only; exact owner-approved target grounding was preserved and no delivery authority was added"
+}
