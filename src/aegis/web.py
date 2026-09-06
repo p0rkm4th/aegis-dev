@@ -746,9 +746,11 @@ async function loadState() {
   renderedNodeText = new Map();
   renderedNodeViews = new Map();
   renderedEdgeRows = [];
-  nodes.replaceChildren(...(state.nodes || []).map(node => {
+  const constellationGroups = new Map();
+  (state.nodes || []).forEach(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
-    card.dataset.category = node.category || 'domain';
+    const category = node.category || 'domain';
+    card.dataset.category = category;
     card.setAttribute('aria-pressed', 'false');
     card.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
     const title = document.createElement('h2'); title.textContent = node.label;
@@ -772,7 +774,22 @@ async function loadState() {
     if (/document/.test(searchable)) views.push('documents');
     if (/daily.driver|readiness|release/.test(searchable)) views.push('daily-driver');
     renderedNodeViews.set(node.id, views);
-    card.append(title, detail); return card;
+    card.append(title, detail);
+    if (!constellationGroups.has(category)) constellationGroups.set(category, []);
+    constellationGroups.get(category).push(card);
+  });
+  const categoryLabels = {
+    core: 'AEGIS', domain: 'Domains & Packs', capability: 'Semantic areas',
+    objective: 'Active objectives', composition: 'Bounded relationships',
+  };
+  const categoryOrder = ['core', 'domain', 'capability', 'objective', 'composition'];
+  nodes.replaceChildren(...categoryOrder.filter(category => constellationGroups.has(category)).map(category => {
+    const layer = document.createElement('section');
+    layer.className = `constellation-layer constellation-layer-${category}`;
+    const title = document.createElement('h3'); title.textContent = categoryLabels[category] || category;
+    const items = document.createElement('div'); items.className = 'constellation-layer-nodes';
+    items.append(...constellationGroups.get(category));
+    layer.append(title, items); return layer;
   }));
   renderedNodeCards = nodeCards;
   authorizedProjectionLoaded = true;

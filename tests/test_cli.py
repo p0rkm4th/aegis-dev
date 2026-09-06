@@ -6586,6 +6586,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Send me today's brief" in _INDEX_HTML
     assert "appendTodayOverview" in _INDEX_HTML
     assert "today-overview" in _AEGIS_CSS
+    assert "constellation-layer" in _AEGIS_CSS
+    assert "categoryLabels" in _INDEX_HTML
     assert "provider acceptance is not delivery proof" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
