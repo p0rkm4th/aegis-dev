@@ -70,7 +70,7 @@ from .gateway_rpc import (
 )
 from .holidays import configured_holiday_provider, holidays_evidence
 from .homelab import FixtureHomelabRuntime, PostgresHomelabStore
-from .household import PostgresHouseholdStore
+from .household import PantryItem, PostgresHouseholdStore
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackBundle, PackManifest, PackUI
 from .research import (
@@ -1099,6 +1099,45 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     relevance=1,
                     semantic_scope="kitchen.pantry",
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.pantry.add",
+                        capability="kitchen.pantry.write",
+                        required_permissions=("kitchen.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Add a Pantry item without inventing unknown quantities",
+                    relevance=1,
+                    argument_keys=("item_id", "display_name", "quantity", "unit"),
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.pantry.update",
+                        capability="kitchen.pantry.write",
+                        required_permissions=("kitchen.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Update one stable-ID Pantry item",
+                    relevance=1,
+                    argument_keys=(
+                        "item_id",
+                        "display_name",
+                        "quantity",
+                        "unit",
+                        "expected_version",
+                    ),
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.pantry.consume",
+                        capability="kitchen.pantry.write",
+                        required_permissions=("kitchen.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Consume a known quantity from one Pantry item",
+                    relevance=1,
+                    argument_keys=("item_id", "quantity", "expected_version"),
                 ),
                 ActionCard(
                     action=ActionSpec(
@@ -6338,4 +6377,121 @@ class PostgresPantryListVerifier:
             verified=verified,
             evidence={**observation.evidence, "canonical_items": actual},
             reason="canonical Pantry verified" if verified else "canonical Pantry changed",
+        )
+
+
+class PostgresPantryMutationExecutor:
+    """Execute typed Pantry mutations against the Principal-scoped store."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        action = request.action.action_id
+        args = request.action.arguments
+        try:
+            item_id = args.get("item_id")
+            if not isinstance(item_id, str) or not item_id.strip():
+                raise ValueError("item_id is required")
+            if action == "kitchen.pantry.add":
+                display_name = args.get("display_name")
+                if not isinstance(display_name, str) or not display_name.strip():
+                    raise ValueError("display_name is required")
+                item = self.store.add_pantry_item(
+                    self.principal,
+                    PantryItem(
+                        item_id=item_id,
+                        display_name=display_name.strip(),
+                        normalized_key=" ".join(display_name.casefold().split()),
+                        quantity=(
+                            float(args["quantity"]) if args.get("quantity") is not None else None
+                        ),
+                        unit=str(args["unit"]) if args.get("unit") is not None else None,
+                    ),
+                )
+            elif action == "kitchen.pantry.update":
+                display_name = args.get("display_name")
+                if not isinstance(display_name, str) or not display_name.strip():
+                    raise ValueError("display_name is required")
+                expected_version = args.get("expected_version")
+                if not isinstance(expected_version, int):
+                    raise ValueError("expected_version is required")
+                item = self.store.update_pantry_item(
+                    self.principal,
+                    PantryItem(
+                        item_id=item_id,
+                        display_name=display_name.strip(),
+                        normalized_key=" ".join(display_name.casefold().split()),
+                        quantity=(
+                            float(args["quantity"]) if args.get("quantity") is not None else None
+                        ),
+                        unit=str(args["unit"]) if args.get("unit") is not None else None,
+                        storage_location=(
+                            str(args["storage_location"])
+                            if args.get("storage_location") is not None
+                            else None
+                        ),
+                        best_by=(str(args["best_by"]) if args.get("best_by") is not None else None),
+                        minimum_quantity=(
+                            float(args["minimum_quantity"])
+                            if args.get("minimum_quantity") is not None
+                            else None
+                        ),
+                    ),
+                    expected_version,
+                )
+            elif action == "kitchen.pantry.consume":
+                quantity = args.get("quantity")
+                expected_version = args.get("expected_version")
+                if not isinstance(quantity, (int, float)) or isinstance(quantity, bool):
+                    raise ValueError("quantity is required")
+                if not isinstance(expected_version, int):
+                    raise ValueError("expected_version is required")
+                item = self.store.consume_pantry_item(
+                    self.principal, item_id, float(quantity), expected_version
+                )
+            else:
+                raise ValueError("unknown Pantry action")
+        except (KeyError, TypeError, ValueError, PermissionError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"error": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={"collection": "pantry", "item": item.__dict__},
+            command_succeeded=True,
+        )
+
+
+class PostgresPantryMutationVerifier:
+    """Re-read the scoped Pantry item and compare the complete returned record."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        expected = observation.evidence.get("item")
+        actual = next(
+            (
+                item.__dict__
+                for item in self.store.list_pantry_items(self.principal)
+                if isinstance(expected, dict) and item.item_id == expected.get("item_id")
+            ),
+            None,
+        )
+        verified = (
+            contract.kind == "readback" and observation.command_succeeded and actual == expected
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_item": actual},
+            reason="canonical Pantry mutation verified"
+            if verified
+            else "canonical Pantry mutation changed or is unavailable",
         )
