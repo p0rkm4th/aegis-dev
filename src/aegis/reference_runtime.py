@@ -92,6 +92,8 @@ from .reference_packs import (
     PostgresGroceryListVerifier,
     PublicHolidayExecutor,
     PublicHolidayVerifier,
+    PublicHolidayWorkspaceExecutor,
+    PublicHolidayWorkspaceVerifier,
     ResearchWorkspaceExecutor,
     ResearchWorkspaceVerifier,
     TaskWorkspaceExecutor,
@@ -488,6 +490,18 @@ def default_runtime_registry(
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def holiday_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            PublicHolidayWorkspaceExecutor(principal),
+            PublicHolidayWorkspaceVerifier(principal),
+            {
+                "calendar.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=prepare_reference_action,
+        )
+
     def air_quality_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -752,6 +766,7 @@ def default_runtime_registry(
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,
         "holidays.public_holidays.list": holiday_runtime,
+        "holiday-reports.to_workspace": holiday_workspace_runtime,
         "air-quality.current.read": air_quality_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar.events.cancel": calendar_cancel_runtime,

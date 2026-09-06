@@ -99,6 +99,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "today-reports",
         "household-reports",
         "kitchen-reports",
+        "holiday-reports",
         "communications",
         "documents",
         "tasks",

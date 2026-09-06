@@ -433,6 +433,28 @@ def test_deterministic_grocery_report_uses_kitchen_workspace_composition():
     assert card.action.arguments == {"target_path": "groceries.md"}
 
 
+def test_deterministic_public_holiday_report_uses_workspace_composition():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "holiday-reports"
+    )
+    manager.discover(bundle)
+    manager.install("holiday-reports", frozenset({"calendar.read", "workspace.write"}))
+    manager.enable("holiday-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save public holidays for US in 2026 to workspace as holidays.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "holiday-reports.to_workspace"
+    assert card.action.arguments == {
+        "country_code": "US",
+        "year": 2026,
+        "target_path": "holidays.md",
+    }
+
+
 def test_deterministic_workspace_copy_uses_scoped_copy_action():
     manager = PackManager()
     bundle = next(
@@ -7061,6 +7083,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Today Reports",
         "Household Reports",
         "Kitchen Reports",
+        "Holiday Reports",
         "Communications",
         "Documents",
         "Tasks",

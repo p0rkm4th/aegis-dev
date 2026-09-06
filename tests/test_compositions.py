@@ -84,6 +84,15 @@ def test_workspace_append_communication_composition_is_non_authoritative() -> No
     assert "does not imply delivery" in composition["authority"]
 
 
+def test_public_holidays_workspace_composition_preserves_external_boundary() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "public-holidays-to-workspace"
+    )
+    assert composition["surfaces"] == ("Calendar", "Workspace")
+    assert "external" in composition["authority"]
+    assert "non-canonical" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
