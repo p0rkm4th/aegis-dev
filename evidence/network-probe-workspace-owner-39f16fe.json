@@ -1,0 +1,17 @@
+{
+  "evidence_type": "owner-network-probe-workspace-composition",
+  "source_sha": "39f16febe536ddca5e54a78d1685c4afbd6fa9b6",
+  "hosted_validation": {"run_id": "34054635642", "conclusion": "success"},
+  "installed_release_sha": "39f16febe536ddca5e54a78d1685c4afbd6fa9b6",
+  "owner_path": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "request": "Probe 127.0.0.1 in scope alpha-lab on port 18080 and save report as probe-report.md",
+  "result": {
+    "state": "completed",
+    "message": "Done — Network probe Workspace report independently verified",
+    "correlation_id": "8142b91c-930f-4291-8fdd-c356ade65914",
+    "workspace_id": "ba30fc0a-b0d9-5999-b05c-d72c975410a6",
+    "path": "probe-report.md",
+    "sha256": "291c667497454d2e350aac4876bbf30b3c79ad40cc0d4d626232620f4b68df87"
+  },
+  "artifact_boundary": "The report expectation is fixed before Workspace mutation from the grounded endpoint/scope/path. Core authorizes network.read and workspace.write separately; the verifier independently reopens the scoped Workspace."
+}
