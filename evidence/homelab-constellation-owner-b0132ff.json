@@ -1,0 +1,14 @@
+{
+  "evidence_type": "owner_https_constellation_homelab_identity",
+  "source_sha": "b0132ff29b090d3e69b28fcddffbaafaf42fafb5",
+  "hosted_validation": {"run_id": "34061943686", "conclusion": "success"},
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "installed_release_sha": "b0132ff29b090d3e69b28fcddffbaafaf42fafb5",
+  "service_health": "healthy",
+  "proof": {
+    "host_node": {"id": "homelab-host-acceptance-atlas", "detail_view": "systems"},
+    "service_node": {"id": "homelab-service-acceptance-plex", "detail_view": "systems"},
+    "relationship": "canonical Host → Service identity is visible in the scoped map; selection is navigation/context only and does not grant restart authority",
+    "health_truth": "Plex remains unavailable through the bounded health observer; no healthy or recovery claim was fabricated"
+  }
+}
