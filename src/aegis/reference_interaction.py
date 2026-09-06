@@ -865,6 +865,51 @@ def reference_constellation_state(
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
+        # Canonical Homelab identity is useful map context, but remains scoped
+        # read-only state: these nodes do not create action authority.
+        homelab_parent = "pack-homelab" if "pack-homelab" in pack_ids else "domain-homelab"
+        for host in sorted(homelab.hosts.values(), key=lambda item: item.host_id):
+            node_id = f"homelab-host-{host.host_id}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": host.hostname or host.host_id,
+                    "detail": f"Canonical host · {host.status or 'unknown'} · {host.address}",
+                    "category": "domain",
+                    "detail_view": "systems",
+                }
+            )
+            area_details[node_id] = {
+                "host_id": host.host_id,
+                "hostname": host.hostname,
+                "address": host.address,
+                "status": host.status,
+                "provider_identity": host.provider_identity,
+                "last_observed": host.last_observed.isoformat() if host.last_observed else None,
+                "authority": "read-only canonical inventory; graph visibility grants no authority",
+            }
+            edges.append({"source": homelab_parent, "target": node_id})
+        for service in sorted(homelab.services.values(), key=lambda item: item.service_id):
+            node_id = f"homelab-service-{service.service_id}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": service.name or service.service_id,
+                    "detail": f"Service · host {service.host_id} · health readback available",
+                    "category": "capability",
+                    "detail_view": "systems",
+                }
+            )
+            area_details[node_id] = {
+                "service_id": service.service_id,
+                "host_id": service.host_id,
+                "name": service.name,
+                "health_endpoint_configured": bool(service.health_endpoint),
+                "authority": "health/read context only; restart still requires Core authorization",
+            }
+            host_node_id = f"homelab-host-{service.host_id}"
+            source = host_node_id if host_node_id in {n["id"] for n in nodes} else homelab_parent
+            edges.append({"source": source, "target": node_id})
         objective_rows: list[tuple[Any, Any, Any]] = []
         objective_details: dict[str, dict[str, Any]] = {}
         execute = getattr(connection, "execute", None)
