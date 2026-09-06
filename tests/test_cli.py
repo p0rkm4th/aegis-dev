@@ -1286,6 +1286,27 @@ def test_deterministic_device_control_action_requires_explicit_entity_and_postco
     }
 
 
+def test_deterministic_household_obligations_workspace_action_requires_report_pack():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "household-reports"
+    )
+    manager.discover(bundle)
+    manager.install("household-reports", frozenset(bundle.manifest.permissions))
+    manager.enable("household-reports")
+    card = _deterministic_composition_action(
+        IntentFrame(
+            utterance="Save my open obligations to workspace as obligations.md",
+            principal=Principal(id="alice", vault_id="vault"),
+        ),
+        manager,
+        Context(),
+    )
+    assert card is not None
+    assert card.action.action_id == "household-reports.obligations_to_workspace"
+    assert card.action.arguments == {"target_path": "obligations.md"}
+
+
 def test_deterministic_device_workspace_report_action_requires_explicit_path():
     manager = PackManager()
     bundle = next(
