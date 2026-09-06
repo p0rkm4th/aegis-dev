@@ -1,0 +1,46 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-document-communication-send",
+  "source_sha": "1ee89ed319c479b4b84aa62985e231e6bf76bc97",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "run_id": "34017107733",
+    "head_sha": "1ee89ed319c479b4b84aa62985e231e6bf76bc97",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "1ee89ed319c479b4b84aa62985e231e6bf76bc97",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "postgresql": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "identity": "authenticated owner"
+  },
+  "request": "Text me the document Alpha Handbook.",
+  "objective": "c8fe1127-2622-4360-ba29-2a04a534ae34",
+  "correlation": "9e7e9c65-b0cc-4a05-98f0-859f3809d40c",
+  "document": {
+    "document_id": "alpha-handbook",
+    "title": "Alpha Handbook",
+    "source": "authorized owner fixture",
+    "content_fixed_before_send": true
+  },
+  "destination": {
+    "target": "scotty",
+    "channel": "sms",
+    "account": "household",
+    "boundary": "explicit owner-approved configured target"
+  },
+  "result": {
+    "state": "completed",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false,
+    "detail": "communication provider accepted and read back the exact message; delivery is not independently proven"
+  },
+  "safety": [
+    "document content came from authorized canonical document grounding",
+    "destination was not model-invented",
+    "provider acceptance is distinct from delivery",
+    "research/public evidence was not used as canonical truth"
+  ]
+}
