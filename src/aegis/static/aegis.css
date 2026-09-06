@@ -85,6 +85,14 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 #detail dt { font-weight: 600; }
 #detail dd { margin: 0; }
 #nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; align-items: stretch; }
+.constellation-layer { display: grid; gap: .55rem; }
+.constellation-layer + .constellation-layer { margin-top: .85rem; }
+.constellation-layer > h3 { margin: 0; color: var(--text-muted); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+.constellation-layer-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .75rem; }
+.constellation-layer-core .constellation-layer-nodes { grid-template-columns: minmax(12rem, 18rem); justify-content: center; }
+.constellation-layer-capability .constellation-layer-nodes,
+.constellation-layer-objective .constellation-layer-nodes,
+.constellation-layer-composition .constellation-layer-nodes { padding-left: clamp(.5rem, 4vw, 2.5rem); border-left: 2px solid color-mix(in srgb, var(--accent) 28%, var(--line)); }
 .node { width: 100%; min-height: 7rem; text-align: left; }
 .node[data-category="core"] { grid-column: 1 / -1; justify-self: center; width: min(18rem, 100%); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel-raised)); text-align: center; }
 .node[data-category="domain"] { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
