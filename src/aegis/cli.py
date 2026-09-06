@@ -992,6 +992,44 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         )
         external["air_quality"] = _air_quality_state(principal)
         external["weather"] = _weather_state(principal)
+        objective_rows = connection.execute(
+            """SELECT id, state, payload FROM objectives
+               WHERE principal_id = %s AND vault_id = %s
+                 AND (space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = objectives.space_id
+                     AND sm.active = TRUE
+                 ))
+               ORDER BY updated_at DESC LIMIT 50""",
+            (principal.id, principal.vault_id, principal.id),
+        ).fetchall()
+        capability_needs: list[dict[str, Any]] = []
+        for objective_id, objective_state, payload in objective_rows:
+            data = payload if isinstance(payload, dict) else json.loads(str(payload))
+            needs = data.get("capability_needs", ()) if isinstance(data, dict) else ()
+            utterance = (
+                data.get("intent", {}).get("utterance", "") if isinstance(data, dict) else ""
+            )
+            for need in needs[:8] if isinstance(needs, list) else ():
+                if not isinstance(need, dict) or need.get("status") in {"resolved", "complete"}:
+                    continue
+                capability_needs.append(
+                    {
+                        "status": need.get("status", "open"),
+                        "requested_effect": need.get("requested_effect")
+                        or need.get("normalized_effect")
+                        or "Unresolved capability requirement",
+                        "investigation": need.get("investigation")
+                        or need.get("investigation_state"),
+                        "objective_id": str(objective_id),
+                        "objective_state": str(objective_state),
+                        "objective": utterance,
+                    }
+                )
+                if len(capability_needs) >= 20:
+                    break
+            if len(capability_needs) >= 20:
+                break
         return {
             "generated_at": now.isoformat(),
             "canonical": {
@@ -1002,8 +1040,10 @@ def _today_state(principal: Principal) -> dict[str, Any]:
                 "groceries": list(cast(tuple[Any, ...], household.get("groceries", ())))[:50],
             },
             "external_calendar": external,
+            "capability_needs": capability_needs,
             "truth_boundary": (
-                "canonical personal/household state is distinct from external calendar evidence"
+                "canonical personal/household state is distinct from external calendar evidence; "
+                "capability needs are read-only unresolved requirements and do not grant authority"
             ),
         }
     finally:

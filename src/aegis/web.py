@@ -1238,6 +1238,18 @@ async function loadToday() {
     heading.textContent = 'Authorized state requiring attention today';
     panel.append(heading);
     panel.append(renderDetailValue(payload));
+    const capabilityNeeds = payload.capability_needs || [];
+    appendTodaySection(panel, 'Capability needs requiring attention', capabilityNeeds.length
+      ? capabilityNeeds : 'No unresolved capability needs.');
+    if (capabilityNeeds.length) {
+      const needsButton = document.createElement('button'); needsButton.type = 'button';
+      needsButton.textContent = 'Review capability needs';
+      needsButton.addEventListener('click', () => {
+        const objectives = document.querySelector('[data-view="objectives"]');
+        if (objectives) objectives.click();
+      });
+      panel.append(needsButton);
+    }
     const conflicts = payload.external_calendar?.conflicts || [];
     appendTodaySection(panel, 'Scheduling conflicts', conflicts.length
       ? conflicts : 'No overlapping timed events detected.');
