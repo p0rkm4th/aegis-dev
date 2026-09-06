@@ -5357,12 +5357,26 @@ def test_postgres_homelab_store_reloads_space_inventory():
     connection = Connection()
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     pack = HomelabPack(HomelabInventory(), Runtime())
-    pack.add_host(Host("atlas", "192.0.2.10", "atlas", {"ram_gb": 64}))
+    pack.add_host(
+        Host(
+            "atlas",
+            "192.0.2.10",
+            "atlas",
+            {"ram_gb": 64},
+            provider_identity="fixture:atlas",
+            known_addresses=("192.0.2.10", "192.0.2.11"),
+            identity_evidence=("configured hostname", "fixture identity"),
+            status="reachable",
+        )
+    )
     pack.add_service(Service("plex", "atlas", "Plex", "http://192.0.2.10:32400/health"))
     store = PostgresHomelabStore(connection)
     store.save(principal, pack)
     restored = store.load(principal, Runtime())
     assert restored.hosts["atlas"].resources == {"ram_gb": 64}
+    assert restored.hosts["atlas"].provider_identity == "fixture:atlas"
+    assert restored.hosts["atlas"].known_addresses == ("192.0.2.10", "192.0.2.11")
+    assert restored.hosts["atlas"].status == "reachable"
     assert restored.services["plex"].health_endpoint.endswith("/health")
     assert connection.commits == 1
 
