@@ -1544,9 +1544,27 @@ async function loadHousehold() {
       appendTodaySection(panel, 'Pantry', ['No canonical Pantry items recorded yet.']);
     }
     const lowPantry = canonical.pantry_low_items || [];
-    appendTodaySection(panel, 'Pantry items to review', lowPantry.length
-      ? lowPantry.map(item => `${item.display_name} · ${item.quantity} ${item.unit || ''} · minimum ${item.minimum_quantity}`.trim())
-      : ['No low-stock projection; unknown quantities are not treated as low.']);
+    const lowSection = document.createElement('section'); lowSection.className = 'detail-card';
+    const lowTitle = document.createElement('h3'); lowTitle.textContent = 'Pantry items to review';
+    lowSection.append(lowTitle);
+    if (!lowPantry.length) {
+      const empty = document.createElement('p'); empty.className = 'muted';
+      empty.textContent = 'No low-stock projection; unknown quantities are not treated as low.';
+      lowSection.append(empty);
+    }
+    lowPantry.forEach(item => {
+      const row = document.createElement('div'); row.className = 'list-row';
+      const detail = document.createElement('span');
+      detail.textContent = `${item.display_name} · ${item.quantity} ${item.unit || ''} · minimum ${item.minimum_quantity}`.trim();
+      const add = document.createElement('button'); add.type = 'button'; add.textContent = 'Add to groceries';
+      add.addEventListener('click', () => {
+        const name = String(item.display_name || '').trim(); if (!name) return;
+        document.getElementById('utterance').value = `Add ${name} to my grocery list`;
+        document.getElementById('chat').requestSubmit();
+      });
+      row.append(detail, add); lowSection.append(row);
+    });
+    panel.append(lowSection);
     const sendGroceries = document.createElement('button');
     sendGroceries.type = 'button'; sendGroceries.textContent = 'Send grocery list';
     sendGroceries.addEventListener('click', () => {
