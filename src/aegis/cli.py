@@ -957,6 +957,25 @@ def _service_health(endpoint: str) -> str:
         return "unavailable"
 
 
+def _pantry_low_stock_projection(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Project only explicit low-stock facts; unknown quantities remain absent."""
+
+    return [
+        {
+            "item_id": item["item_id"],
+            "display_name": item["display_name"],
+            "quantity": item["quantity"],
+            "unit": item["unit"],
+            "minimum_quantity": item["minimum_quantity"],
+            "reason": "known quantity is at or below the configured minimum",
+        }
+        for item in items
+        if item["quantity"] is not None
+        and item["minimum_quantity"] is not None
+        and item["quantity"] <= item["minimum_quantity"]
+    ]
+
+
 def _systems_state(principal: Principal) -> dict[str, Any]:
     """Expose authorized Homelab and Network inventory without action authority."""
 
@@ -1075,20 +1094,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         pantry_items = [
             item.__dict__ for item in cast(tuple[Any, ...], household.get("pantry_items", ()))
         ][:50]
-        pantry_low_items = [
-            {
-                "item_id": item["item_id"],
-                "display_name": item["display_name"],
-                "quantity": item["quantity"],
-                "unit": item["unit"],
-                "minimum_quantity": item["minimum_quantity"],
-                "reason": "known quantity is at or below the configured minimum",
-            }
-            for item in pantry_items
-            if item["quantity"] is not None
-            and item["minimum_quantity"] is not None
-            and item["quantity"] <= item["minimum_quantity"]
-        ]
+        pantry_low_items = _pantry_low_stock_projection(pantry_items)
         external_events = configured_calendar_provider().list_events()
         external = calendar_events_evidence(external_events)
         country_code = os.environ.get("AEGIS_HOLIDAY_COUNTRY", "").strip().upper()
