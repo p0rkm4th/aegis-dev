@@ -4010,7 +4010,10 @@ def test_browser_app_exposes_truthful_today_projection():
         lambda *_: "unused",
         lambda _: {"nodes": []},
         today_state=lambda _current: {
-            "canonical": {"open_tasks": [{"title": "Review backup"}]},
+            "canonical": {
+                "open_tasks": [{"title": "Review backup"}],
+                "completed_tasks": [{"title": "Buy milk", "status": "completed"}],
+            },
             "external_calendar": {"source": "external_calendar_fixture", "events": []},
             "truth_boundary": "canonical state is distinct from external evidence",
         },
@@ -4021,6 +4024,7 @@ def test_browser_app_exposes_truthful_today_projection():
     )
     assert status == 200
     assert json.loads(payload)["canonical"]["open_tasks"] == [{"title": "Review backup"}]
+    assert json.loads(payload)["canonical"]["completed_tasks"][0]["status"] == "completed"
 
 
 def test_browser_app_exposes_objective_capability_needs():
