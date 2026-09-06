@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "workspace-artifact-copy",
+  "source_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34021672528", "conclusion": "success"},
+  "installed_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+  "running_sha": "c967c30cb58f7db28f8e4d6e6c301e8828d13e02",
+  "owner_request": "Copy workspace artifact a94ad69a-c033-5ede-843a-42405d9440ec at attention.md to attention-copy.md",
+  "action_id": "workspace.artifact.copy",
+  "source_workspace_id": "a94ad69a-c033-5ede-843a-42405d9440ec",
+  "source_path": "attention.md",
+  "target_path": "attention-copy.md",
+  "target_workspace_id": "184205cc-00d6-5a6d-ab8a-7ee90107a043",
+  "result": {"state": "completed", "independent_workspace_verification": true, "message": "workspace artifact independently verified"},
+  "truth_boundary": "Source and target remain Principal-scoped; source content was fixed before mutation and the target hash was independently reread."
+}
