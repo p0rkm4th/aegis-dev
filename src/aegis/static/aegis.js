@@ -24,6 +24,7 @@ let renderedEdgeRows = [];
 let activeView = 'home';
 let pendingCapabilityFocus = null;
 let latestResearch = null;
+let researchHistory = [];
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
@@ -419,13 +420,32 @@ function renderResearchSummary() {
     item.append(link); sourceList.append(item);
   });
   sources.append(sourceHeading, sourceList); panel.append(sources);
+  if (researchHistory.length > 1) {
+    const recent = document.createElement('section'); recent.className = 'detail-card';
+    const recentHeading = document.createElement('h3'); recentHeading.textContent = 'Recent research';
+    const recentList = document.createElement('ul');
+    researchHistory.slice(0, 10).forEach(item => {
+      const row = document.createElement('li');
+      const button = document.createElement('button'); button.type = 'button';
+      button.textContent = item.query || 'Untitled research';
+      button.addEventListener('click', () => {
+        latestResearch = item;
+        renderResearchSummary();
+      });
+      row.append(button);
+      if (item.retrieved_at) row.append(document.createTextNode(` · retrieved ${item.retrieved_at}`));
+      recentList.append(row);
+    });
+    recent.append(recentHeading, recentList); panel.append(recent);
+  }
 }
 async function loadResearch() {
   try {
     const response = await fetchWithTimeout('/api/research');
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Research state unavailable.');
-    const result = Array.isArray(payload.results) ? payload.results[0] : null;
+    researchHistory = Array.isArray(payload.results) ? payload.results : [];
+    const result = researchHistory[0] || null;
     if (result) latestResearch = result;
     renderResearchSummary();
   } catch (_) {

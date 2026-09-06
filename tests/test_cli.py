@@ -6616,6 +6616,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Text me my completed tasks" in browser_source
     assert "/api/daily-driver" in browser_source
     assert "/api/research" in browser_source
+    assert "Recent research" in browser_source
+    assert "researchHistory" in browser_source
     assert "Saved research is unavailable" in browser_source
     assert "external evidence; not canonical personal truth" in browser_source
     assert "Review Packs & capabilities" in browser_source
