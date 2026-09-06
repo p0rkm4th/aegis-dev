@@ -1,0 +1,15 @@
+{
+  "evidence_type": "owner_https_homelab_research",
+  "source_sha": "61a7cc01f9d532b63f9095994d2454b1e68c89a8",
+  "hosted_validation": {"run_id": "34063160146", "conclusion": "success"},
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "installed_release_sha": "61a7cc01f9d532b63f9095994d2454b1e68c89a8",
+  "request": "Research why service acceptance-plex is unavailable",
+  "result": {
+    "state": "completed",
+    "observed_service_status": "unavailable",
+    "evidence_provider": "wikimedia",
+    "canonical_personal_truth": false,
+    "authority": "read-only Homelab observation and public research; no restart or mutation authority"
+  }
+}
