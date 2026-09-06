@@ -4137,6 +4137,21 @@ def test_browser_app_session_gate_rejects_unauthenticated_api_requests():
     assert "session-secret" in payload.decode()
 
 
+def test_browser_app_communications_surface_offers_core_resolved_source_choice():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Use authorized grocery list" in html
+    assert "Canonical sources are resolved by Core" in html
+    assert "Text my grocery list to" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []

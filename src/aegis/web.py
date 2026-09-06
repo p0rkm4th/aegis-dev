@@ -970,14 +970,23 @@ async function loadCommunications() {
       input.name = name; input.required = true; input.placeholder = placeholder;
       input.setAttribute('aria-label', placeholder); fields.push(input);
     });
+    const source = document.createElement('select');
+    source.name = 'source'; source.setAttribute('aria-label', 'Message source');
+    [['message', 'Write message'], ['groceries', 'Use authorized grocery list']].forEach(([value, label]) => {
+      const option = document.createElement('option'); option.value = value; option.textContent = label;
+      source.append(option);
+    });
+    const sourceNote = document.createElement('p'); sourceNote.className = 'muted';
+    sourceNote.textContent = 'Canonical sources are resolved by Core; this control never chooses a recipient or grants send authority.';
     const send = document.createElement('button'); send.type = 'submit'; send.textContent = 'Submit send request';
-    form.append(...fields, send);
+    form.append(...fields, source, sourceNote, send);
     form.addEventListener('submit', event => {
       event.preventDefault();
       const values = Object.fromEntries(fields.map(field => [field.name, field.value.trim()]));
       if (Object.values(values).some(value => !value)) return;
-      document.getElementById('utterance').value =
-        `Send a message to ${values.target} via ${values.channel} account ${values.account} saying ${values.body}`;
+      document.getElementById('utterance').value = source.value === 'groceries'
+        ? `Text my grocery list to ${values.target} via ${values.channel} account ${values.account}`
+        : `Send a message to ${values.target} via ${values.channel} account ${values.account} saying ${values.body}`;
       document.getElementById('chat').requestSubmit();
     });
     section.append(title, form); panel.append(section);
