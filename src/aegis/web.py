@@ -837,6 +837,13 @@ async function loadSystems() {
     const heading = document.createElement('p');
     heading.textContent = 'Authorized systems inventory (read-only view)';
     panel.append(heading, renderDetailValue(payload));
+    const report = document.createElement('button');
+    report.type = 'button'; report.textContent = 'Create verified health report';
+    report.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Create a homelab health report as health-report.html';
+      document.getElementById('chat').requestSubmit();
+    });
+    panel.append(report);
   } catch (_) {
     panel.textContent = 'Systems inventory is unavailable; no system action was attempted.';
   }
