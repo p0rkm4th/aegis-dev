@@ -224,6 +224,51 @@ def test_calendar_snapshot_message_prepares_body_before_generic_send() -> None:
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_research_message_fixes_evidence_before_generic_send(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_RESEARCH_FIXTURE_JSON",
+        '[{"title":"Guide","url":"https://fixture.test/guide",'
+        '"text":"Use the casual setting.","snippet":"casual"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "bounded.research",
+                "query": "casual server settings",
+            }
+        }
+    )
+    principal = Principal(id="alice", vault_id="vault")
+    prepared = prepare_reference_action(action, principal, uuid4())
+    expected_body = prepared.verification.expected["body"]
+    assert isinstance(expected_body, str)
+    assert "Use the casual setting." in expected_body
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="research-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_fixture_send_verifier_rejects_forged_acceptance_without_readback() -> None:
     provider = FixtureCommunicationSendProvider()
     principal = Principal(id="alice", vault_id="vault")

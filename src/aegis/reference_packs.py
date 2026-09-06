@@ -143,6 +143,23 @@ def prepare_reference_action(
         elif args.get("body_source") == "canonical.calendar":
             body = calendar_snapshot_content(configured_calendar_provider().list_events())
             args = {**args, "body": body}
+        elif args.get("body_source") == "bounded.research":
+            research_query: object = args.get("query")
+            if isinstance(research_query, str) and research_query.strip():
+                try:
+                    evidence = configured_research_service().collect(SearchRequest(research_query))
+                except ResearchUnavailable as exc:
+                    raise ValueError(f"bounded research is unavailable: {exc}") from exc
+                excerpts = "\n\n".join(
+                    f"## {item.title}\n{item.text[:1_200]}\nSource: {item.final_url}"
+                    for item in evidence.evidence
+                )
+                if not excerpts:
+                    raise ValueError("bounded research returned no usable evidence")
+                args = {
+                    **args,
+                    "body": f"Research notes for: {research_query}\n\n{excerpts}",
+                }
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -742,7 +759,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Send an explicitly addressed message through an authorized provider",
                     relevance=1,
-                    argument_keys=("target", "body", "channel", "account", "body_source"),
+                    argument_keys=("target", "body", "channel", "account", "body_source", "query"),
                     argument_grounding={
                         key: ArgumentGroundingRule(
                             permitted_provenance=(
@@ -764,7 +781,13 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             approved_derivations=(
                                 "reference.communication_body_from_groceries.v1",
                                 "reference.communication_body_from_calendar.v1",
+                                "reference.communication_body_from_research.v1",
                             ),
+                        )
+                    }
+                    | {
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                     },
                 ),
