@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Protocol
 
 from .contracts import Principal
@@ -16,6 +17,11 @@ class Host:
     address: str
     hostname: str
     resources: dict[str, int] = field(default_factory=dict)
+    provider_identity: str | None = None
+    known_addresses: tuple[str, ...] = ()
+    identity_evidence: tuple[str, ...] = ()
+    status: str = "unknown"
+    last_observed: datetime | None = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +75,11 @@ class PostgresHomelabStore:
                     "address": host.address,
                     "hostname": host.hostname,
                     "resources": host.resources,
+                    "provider_identity": host.provider_identity,
+                    "known_addresses": list(host.known_addresses),
+                    "identity_evidence": list(host.identity_evidence),
+                    "status": host.status,
+                    "last_observed": host.last_observed.isoformat() if host.last_observed else None,
                 }
                 for host in pack.hosts.values()
             ],
@@ -106,6 +117,15 @@ class PostgresHomelabStore:
                     str(item["address"]),
                     str(item["hostname"]),
                     {str(key): int(value) for key, value in item.get("resources", {}).items()},
+                    str(item["provider_identity"])
+                    if item.get("provider_identity") is not None
+                    else None,
+                    tuple(str(value) for value in item.get("known_addresses", [])),
+                    tuple(str(value) for value in item.get("identity_evidence", [])),
+                    str(item.get("status", "unknown")),
+                    datetime.fromisoformat(str(item["last_observed"]))
+                    if item.get("last_observed")
+                    else None,
                 )
             )
         for item in payload.get("services", []):
