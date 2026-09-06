@@ -188,7 +188,10 @@ body { background: var(--surface-0); color: var(--text-strong); }
 }
 
 @media (max-width: 36rem) {
-  .app-shell { padding-inline: .75rem !important; }
+  .app-shell { padding-inline: .75rem !important; min-width: 0; }
+  .topbar { flex-wrap: wrap; gap: .75rem; min-width: 0; }
+  .topbar > * { min-width: 0; }
+  .product-nav, .workspace, .conversation-panel, .secondary { min-width: 0; }
   .product-nav { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; overflow: visible !important; }
   .nav-group { display: contents; }
   .product-nav button { padding: .65rem .45rem; text-align: center; font-size: .82rem; }
