@@ -333,7 +333,9 @@ def default_runtime_registry(
                 "tasks.read": frozenset({Role.OWNER, Role.MEMBER}),
                 "workspace.write": frozenset({Role.OWNER}),
             },
-            prepare=prepare_reference_action,
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
         )
 
     def weather_runtime(connection: Any, principal: Principal) -> ActionRuntime:
