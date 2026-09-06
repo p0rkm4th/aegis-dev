@@ -116,6 +116,24 @@ def test_deterministic_public_holiday_request_preserves_explicit_scope():
     assert card.action.arguments == {"country_code": "US", "year": 2026}
 
 
+def test_deterministic_air_quality_request_preserves_explicit_coordinates():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "air-quality"
+    )
+    manager.discover(bundle)
+    manager.install("air-quality", frozenset({"air_quality.read"}))
+    manager.enable("air-quality")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="What's the current air quality at 41.881832, -87.623177",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "air-quality.current.read"
+    assert card.action.arguments == {"latitude": 41.881832, "longitude": -87.623177}
+
+
 def test_deterministic_calendar_communication_draft_requires_recipient_and_path():
     manager = PackManager()
     bundle = next(
