@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-agenda-read",
+  "source_sha": "13327ec6d9cab5c31cd4a454d171bc26f4b30f27",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34019807391", "conclusion": "success"},
+  "installed_sha": "13327ec6d9cab5c31cd4a454d171bc26f4b30f27",
+  "running_sha": "13327ec6d9cab5c31cd4a454d171bc26f4b30f27",
+  "owner_request": "What's on my calendar tomorrow?",
+  "action_id": "calendar.events.agenda",
+  "permission": "calendar.read",
+  "provider_mode": "configured_calendar_fixture",
+  "derived_date": "2026-09-07",
+  "returned_event_ids": ["breakfast", "standup"],
+  "result": {"state": "completed", "message": "Done — calendar agenda readback is structurally valid"},
+  "truth_boundary": "Fixture-backed owner proof; Google Calendar live credentials remain unavailable and no mutation authority was used."
+}
