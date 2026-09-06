@@ -270,6 +270,17 @@ def test_owner_corpus_includes_adversarial_followups_without_core_phrase_routes(
     assert any(case.expected_pack_ids == frozenset() for case in OWNER_PACK_CORPUS)
 
 
+def test_owner_corpus_covers_real_frontier_variants_without_sensitive_context():
+    cases = {case.utterance: case.expected_pack_ids for case in OWNER_PACK_CORPUS}
+    assert cases["which pantry items are low"] == frozenset({"dynamic-food"})
+    assert cases["can I afford eighty dollars for groceries"] == frozenset({"dynamic-finance"})
+    assert cases["which services are unhealthy"] == frozenset({"dynamic-homelab"})
+    assert cases["show authorized network observations"] == frozenset({"dynamic-homelab"})
+    assert cases["what should I do about this unsupported capability"] == frozenset(
+        {"dynamic-forge"}
+    )
+
+
 def test_pack_lifecycle_language_is_experimental_fail_closed_preflight():
     assert is_pack_lifecycle_request("install this unknown Pack")
     assert is_pack_lifecycle_request("approve the capability")
