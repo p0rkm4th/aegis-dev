@@ -1,0 +1,29 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "document-summary-workspace-owner-proof",
+  "source_sha": "24fbdf3",
+  "state_record_sha": "0549376",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34037502557",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "24fbdf3",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Summarize Alpha Handbook to summary.md",
+  "result": {
+    "code": "completed",
+    "message": "document summary independently verified",
+    "objective_id": "85add2dd-db3d-4411-aef2-91c98d264faa",
+    "correlation_id": "f84aba69-7528-47ef-96ce-26e32447aa9e",
+    "workspace_artifact": "handbook-summary.md",
+    "independent_verification": true
+  },
+  "authority": "authorized document read and scoped Workspace write only; source provenance and Principal/objective scope remained bounded"
+}
