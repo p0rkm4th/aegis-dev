@@ -1345,6 +1345,23 @@ def _deterministic_composition_action(
         return card.model_copy(
             update={"action": card.action.model_copy(update={"arguments": task_report.groupdict()})}
         )
+    completed_task_report = re.fullmatch(
+        r"save (?:my )?(?:completed|done|finished) tasks to workspace as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if completed_task_report is not None:
+        card = manager.action_card("task-reports", "task-reports.completed_to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": completed_task_report.groupdict()}
+                )
+            }
+        )
     today_report = re.fullmatch(
         r"save (?:today(?:'s)?|the) brief to workspace as "
         r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
