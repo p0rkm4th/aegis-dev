@@ -1168,6 +1168,19 @@ async function loadCommunications() {
       target_boundary: payload.target_boundary,
       outcomes: messages,
     }));
+    if (messages.length) {
+      const outcomeSection = document.createElement('section'); outcomeSection.className = 'detail-card';
+      const outcomeTitle = document.createElement('h3'); outcomeTitle.textContent = 'Provider outcome status';
+      outcomeSection.append(outcomeTitle);
+      messages.forEach(message => {
+        const row = document.createElement('p');
+        const status = String(message.provider_status || 'DRAFTED');
+        const delivery = message.delivery_proven === true ? 'delivery proven' : 'delivery not proven';
+        row.textContent = `${status} · ${delivery} · ${message.target || 'target not recorded'}`;
+        outcomeSection.append(row);
+      });
+      panel.append(outcomeSection);
+    }
     const section = document.createElement('section'); section.className = 'detail-card';
     const title = document.createElement('h3'); title.textContent = 'Send an explicit message';
     const form = document.createElement('form'); form.setAttribute('aria-label', 'Send message');
