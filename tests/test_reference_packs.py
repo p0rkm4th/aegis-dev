@@ -14,6 +14,8 @@ from aegis.reference_packs import (
     DocumentWorkspaceVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
+    NetworkInventoryWorkspaceExecutor,
+    NetworkInventoryWorkspaceVerifier,
     prepare_reference_action,
     reference_bundles,
     reference_packs,
@@ -608,6 +610,44 @@ def test_device_service_success_with_wrong_provider_state_is_not_verified(monkey
     assert action.verification is not None
     assert observation.command_succeeded is True
     assert verifier.verify(observation, action.verification).verified is False
+
+
+def test_network_inventory_workspace_is_independently_verified(tmp_path, monkeypatch) -> None:
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    objective_id = uuid4()
+    content = "# Authorized network inventory\n\n- router — 10.0.0.1 — ssh\n"
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    monkeypatch.setattr(
+        "aegis.reference_packs._network_inventory_content",
+        lambda _connection, _principal: content,
+    )
+    action = next(
+        card.action
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "network-reports.inventory.to_workspace"
+    ).model_copy(update={"arguments": {"target_path": "network.md"}})
+    action = prepare_reference_action(action, principal, objective_id, object())
+    assert action.verification is not None
+    expected = action.verification.expected
+    assert isinstance(expected, dict)
+    assert expected["files"]
+    executor = NetworkInventoryWorkspaceExecutor(object(), principal)
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=objective_id,
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="network-report-proof",
+        )
+    )
+    result = NetworkInventoryWorkspaceVerifier(principal).verify(observation, action.verification)
+    assert observation.command_succeeded is True
+    assert result.verified is True
+    assert (
+        WorkspaceManager(tmp_path).for_objective(principal.id, objective_id).read("network.md")
+        == content
+    )
 
 
 def test_homelab_health_verifier_performs_independent_second_read(monkeypatch) -> None:
