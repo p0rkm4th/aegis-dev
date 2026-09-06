@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e221ff0",
+  "state_basis_sha": "f8eddef",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e221ff0",
-  "deterministic_green_sha": "e221ff0",
-  "last_pushed_sha": "e221ff0",
-  "hosted_green_sha": "1669ba0",
-  "hosted_ci_green_sha": "1669ba0",
+  "repository_head_sha": "f8eddef",
+  "deterministic_green_sha": "f8eddef",
+  "last_pushed_sha": "f8eddef",
+  "hosted_green_sha": "f8eddef",
+  "hosted_ci_green_sha": "f8eddef",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "1669ba0",
+    "commit_sha": "f8eddef",
     "conclusion": "success",
-    "run_id": "34056164719",
-    "observed_at": "2026-09-06T20:05:00Z"
+    "run_id": "34056405915",
+    "observed_at": "2026-09-06T20:06:00Z"
   },
-  "installed_release_sha": "39f16fe",
-  "running_release_sha": "39f16fe",
-  "live_green_sha": "39f16fe",
+  "installed_release_sha": "f8eddef",
+  "running_release_sha": "f8eddef",
+  "live_green_sha": "f8eddef",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-reality-pack-first-and-domain-expansion",
+  "active_checkpoint": "owner-reality-owner-promotion-and-forge-rearm",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-reality-pack-first-and-domain-expansion",
+  "current_checkpoint": "owner-reality-owner-promotion-and-forge-rearm",
   "active_campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "39f16fe"
+    "release_sha": "f8eddef"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -369,7 +369,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Add private Finance snapshot/import projection and owner surface, then advance bounded Homelab identity/read work; preserve Pack-first as experimental and do not claim newer source is installed/live.",
+  "next_action": "Prove the owner CapabilityNeed → Forge research, proposal, preview, and quarantined-skeleton path; then advance the highest-value Food or Homelab owner workflow while keeping Pack-first experimental.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
