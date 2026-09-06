@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "state_basis_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
-  "deterministic_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
-  "last_pushed_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
-  "hosted_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
-  "hosted_ci_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "repository_head_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "deterministic_green_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "last_pushed_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "hosted_green_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "hosted_ci_green_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+    "commit_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
     "conclusion": "success",
-    "run_id": "34002571486",
+    "run_id": "34002782394",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
-  "running_release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
-  "live_green_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e",
+  "installed_release_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "running_release_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "live_green_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-communications-composer",
+  "active_checkpoint": "daily-driver-alpha-homelab-health-report",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "2bf29e12687e1476810658a84b8e3b8a80eb949e"
+    "release_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -121,9 +121,10 @@
     ,"Devices view offers a bounded state-to-research affordance that sanitizes entity IDs from public queries and retains authorized observed state as private mixed evidence; owner proof remains partial because the current model/provider path did not complete synthesis"
     ,"Documents view now provides a direct Core-routed summary-artifact action; installed owner proof independently verified alpha-handbook-summary.md on ec10d47"
     ,"Communications view now provides a generic explicit target/channel/account/body composer; installed owner proof reached truthful PROVIDER_ACCEPTED without claiming delivery"
+    ,"Systems view now provides a direct verified Homelab health-report action; installed owner proof created health-report.html and style.css, independently verified both, and preserved Plex unavailable truth"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner can inspect documents, create verified summary artifacts, and submit explicit generic communications through the Core path; the installed provider accepts fixture sends without delivery proof, while live OpenClaw, Google, and Home Assistant providers remain pending.",
+  "daily_driver_checkpoint": "The owner can inspect systems, create independently verified Homelab health reports, create document summaries, and submit explicit communications through Core; live OpenClaw, Google, Home Assistant, and Plex service recovery remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -158,8 +159,8 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 32,
-  "owner_visible_capability_surfaces": 20,
+  "voluntarily_useful_owner_workflows": 33,
+  "owner_visible_capability_surfaces": 21,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 16,
   "breadth_scoreboard": {
@@ -170,10 +171,10 @@
     "cross_domain_compositions": 16,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 30,
+    "owner_workflows_completed": 31,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Advance the next owner-useful provider-backed or homelab/device workflow; live OpenClaw, Google, and Home Assistant remain pending, and the device-state research affordance remains partial.",
-  "history_artifact": "evidence/campaigns/communications-composer-owner-2bf29e1.json",
+  "history_artifact": "evidence/campaigns/homelab-health-report-owner-5de3800.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
