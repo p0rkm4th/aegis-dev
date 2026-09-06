@@ -182,6 +182,8 @@ def prepare_reference_action(
                 **args,
                 "body": _calendar_task_attention_content(connection, principal),
             }
+        elif args.get("body_source") == "canonical.today" and connection is not None:
+            args = {**args, "body": _today_brief_content(connection, principal)}
         elif args.get("body_source") == "canonical.calendar":
             body = calendar_snapshot_content(configured_calendar_provider().list_events())
             args = {**args, "body": body}
@@ -604,6 +606,50 @@ def _task_workspace_content(connection: Any, principal: Principal) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _today_brief_content(connection: Any, principal: Principal) -> str:
+    """Serialize bounded canonical personal/household state for an owner brief."""
+
+    tasks = [
+        task
+        for task in PostgresTaskStore(connection).list(principal)
+        if task.status.value == "open"
+    ][:20]
+    snapshot = PostgresHouseholdStore(connection).read_snapshot(principal)
+    chores = [
+        chore for chore in cast(tuple[Any, ...], snapshot.get("chores", ())) if not chore.completed
+    ][:20]
+    now = datetime.now(timezone.utc)
+    events = []
+    for event in cast(tuple[Any, ...], snapshot.get("events", ())):
+        starts_at = event.starts_at
+        if starts_at.tzinfo is None:
+            starts_at = starts_at.replace(tzinfo=timezone.utc)
+        if starts_at >= now:
+            events.append(event)
+    lines = ["Today's canonical brief", "", "Open tasks:"]
+    if tasks:
+        lines.extend(f"- {task.title}" for task in tasks)
+    else:
+        lines.append("- None")
+    lines.append("\nOpen chores:")
+    if chores:
+        lines.extend(f"- {chore.title}" for chore in chores)
+    else:
+        lines.append("- None")
+    lines.append("\nUpcoming shared events:")
+    if events:
+        lines.extend(f"- {event.title} ({event.starts_at.isoformat()})" for event in events[:20])
+    else:
+        lines.append("- None")
+    lines.append("\nGroceries:")
+    groceries = list(cast(tuple[Any, ...], snapshot.get("groceries", ())))[:50]
+    if groceries:
+        lines.extend(f"- {item}" for item in groceries)
+    else:
+        lines.append("- None")
+    return "\n".join(lines)
+
+
 @dataclass(frozen=True)
 class _ReferencePackSpec:
     pack_id: str
@@ -954,6 +1000,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 "reference.communication_body_from_groceries.v1",
                                 "reference.communication_body_from_tasks.v1",
                                 "reference.communication_body_from_calendar_tasks.v1",
+                                "reference.communication_body_from_today.v1",
                                 "reference.communication_body_from_calendar.v1",
                                 "reference.communication_body_from_research.v1",
                                 "reference.communication_body_from_weather.v1",
