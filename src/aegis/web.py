@@ -29,6 +29,7 @@ CalendarState = Callable[[Principal], dict[str, Any]]
 DeviceState = Callable[[Principal], dict[str, Any]]
 SystemsState = Callable[[Principal], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
+AirQualityState = Callable[[Principal], dict[str, Any]]
 TodayState = Callable[[Principal], dict[str, Any]]
 ObjectivesState = Callable[[Principal], dict[str, Any]]
 CommunicationsState = Callable[[Principal], dict[str, Any]]
@@ -171,6 +172,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="weather">Weather</button>
+<button type="button" data-view="air-quality">Air quality</button>
 <button type="button" data-view="devices">Devices</button>
 <button type="button" data-view="communications">Communications</button>
 <button type="button" data-view="documents">Documents</button>
@@ -610,6 +612,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     household: ['Household', 'Shared chores, groceries, and obligations.'],
     systems: ['Systems', 'Authorized hosts, services, and network state.'],
     weather: ['Weather', 'Current public conditions for explicit coordinates.'],
+    'air-quality': ['Air quality', 'Current public air quality for explicit coordinates.'],
     devices: ['Devices', 'Authorized device state and bounded controls.'],
     communications: ['Communications', 'Authorized drafts and provider outcomes; delivery is never inferred.'],
     documents: ['Documents', 'Authorized documents and bounded transformations.'],
@@ -633,6 +636,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'daily-driver') loadDailyDriver();
   if (activeView === 'systems') loadSystems();
   if (activeView === 'weather') loadWeather();
+  if (activeView === 'air-quality') loadAirQuality();
   if (activeView === 'home') loadToday();
   if (activeView === 'tasks') loadTasks();
   if (activeView === 'household') loadHousehold();
@@ -1150,6 +1154,20 @@ async function loadWeather() {
       panel.append(followup);
     }
   } catch (_) { panel.textContent = 'Weather is unavailable; no personal state was changed.'; }
+}
+async function loadAirQuality() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await fetchWithTimeout('/api/air-quality');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Air quality unavailable.');
+    const heading = document.createElement('p');
+    heading.textContent = payload.reading ? 'Current public air quality' : 'Air quality is not configured.';
+    panel.append(heading, renderDetailValue(payload));
+    const boundary = document.createElement('p'); boundary.className = 'muted';
+    boundary.textContent = payload.boundary || 'Air quality is public evidence, not canonical personal truth. Data: Open-Meteo / CAMS.';
+    panel.append(boundary);
+  } catch (_) { panel.textContent = 'Air quality is unavailable; no personal state was changed.'; }
 }
 async function loadToday() {
   const panel = document.getElementById('detail');
@@ -1738,6 +1756,7 @@ class BrowserApp:
         device_state: DeviceState | None = None,
         systems_state: SystemsState | None = None,
         weather_state: WeatherState | None = None,
+        air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
         objectives_state: ObjectivesState | None = None,
         communications_state: CommunicationsState | None = None,
@@ -1763,6 +1782,7 @@ class BrowserApp:
         self.device_state = device_state
         self.systems_state = systems_state
         self.weather_state = weather_state
+        self.air_quality_state = air_quality_state
         self.today_state = today_state
         self.objectives_state = objectives_state
         self.communications_state = communications_state
@@ -1995,6 +2015,22 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "weather unavailable"
                 )
             return self._json(HTTPStatus.OK, weather_projection)
+        if method == "GET" and route == "/api/air-quality":
+            if self.air_quality_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                air_quality_projection = self.air_quality_state(principal)
+                if not isinstance(air_quality_projection, dict):
+                    raise ValueError("air-quality state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "air quality unavailable"
+                )
+            return self._json(HTTPStatus.OK, air_quality_projection)
         if method == "GET" and route == "/api/objectives":
             if self.objectives_state is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -2322,6 +2358,7 @@ def serve(
     device_state: DeviceState | None = None,
     systems_state: SystemsState | None = None,
     weather_state: WeatherState | None = None,
+    air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
     objectives_state: ObjectivesState | None = None,
     communications_state: CommunicationsState | None = None,
@@ -2350,6 +2387,7 @@ def serve(
         device_state=device_state,
         systems_state=systems_state,
         weather_state=weather_state,
+        air_quality_state=air_quality_state,
         today_state=today_state,
         objectives_state=objectives_state,
         communications_state=communications_state,

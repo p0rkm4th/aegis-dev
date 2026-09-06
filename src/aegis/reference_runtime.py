@@ -26,6 +26,8 @@ from .identity import Role
 from .openclaw import OpenClawExecutor
 from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
+    AirQualityExecutor,
+    AirQualityVerifier,
     CalendarCancelExecutor,
     CalendarCancelVerifier,
     CalendarCommunicationDraftExecutor,
@@ -269,6 +271,14 @@ def default_runtime_registry(
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def air_quality_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            AirQualityExecutor(),
+            AirQualityVerifier(),
+            {"air_quality.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
     def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         provider = configured_calendar_write_provider()
@@ -471,6 +481,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "weather.current.read": weather_runtime,
         "holidays.public_holidays.list": holiday_runtime,
+        "air-quality.current.read": air_quality_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar.events.cancel": calendar_cancel_runtime,
         "calendar.events.update": calendar_update_runtime,

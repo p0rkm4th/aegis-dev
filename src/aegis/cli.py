@@ -23,6 +23,7 @@ from uuid import UUID, uuid4
 
 import psycopg
 
+from .air_quality import air_quality_evidence, configured_air_quality_provider
 from .audit import PostgresAuditLog
 from .calendar import (
     CalendarEvent,
@@ -521,6 +522,28 @@ def _weather_state(principal: Principal) -> dict[str, Any]:
         "reading": weather_evidence(reading),
         "provider_state": reading.source,
         "boundary": "Weather is public evidence, not canonical personal truth.",
+    }
+
+
+def _air_quality_state(principal: Principal) -> dict[str, Any]:
+    del principal
+    try:
+        latitude = float(_required("AEGIS_WEATHER_LATITUDE"))
+        longitude = float(_required("AEGIS_WEATHER_LONGITUDE"))
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            raise ValueError("air-quality coordinates are out of range")
+        reading = configured_air_quality_provider().current(latitude, longitude)
+    except (RuntimeError, ValueError) as exc:
+        return {
+            "reading": None,
+            "provider_state": "unavailable",
+            "reason": str(exc),
+            "boundary": "Air quality is public evidence, not canonical personal truth.",
+        }
+    return {
+        "reading": air_quality_evidence(reading),
+        "provider_state": reading.source,
+        "boundary": "Air quality is public evidence, not canonical personal truth.",
     }
 
 
@@ -2490,6 +2513,7 @@ def main() -> int:
                 device_state=_device_state,
                 systems_state=_systems_state,
                 weather_state=_weather_state,
+                air_quality_state=_air_quality_state,
                 today_state=_today_state,
                 objectives_state=_objectives_state,
                 communications_state=_communications_state,
