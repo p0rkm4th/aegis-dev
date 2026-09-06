@@ -1240,6 +1240,26 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="calendar.events.agenda",
+                        capability="calendar.events.agenda",
+                        required_permissions=("calendar.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read connected calendar events for one explicitly bounded day",
+                    relevance=1,
+                    argument_keys=("date",),
+                    argument_grounding={
+                        "date": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                            ),
+                            approved_derivations=("reference.temporal_grounding.v1",),
+                        )
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="calendar.events.create",
                         capability="calendar.events.create",
                         required_permissions=("calendar.write",),
@@ -1675,6 +1695,55 @@ class CalendarConflictsVerifier:
             reason="calendar conflicts readback is structurally valid"
             if verified
             else "calendar conflicts read failed",
+        )
+
+
+class CalendarAgendaExecutor:
+    """Read one bounded calendar day from the configured external provider."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        day = request.action.arguments.get("date")
+        if not isinstance(day, str) or len(day) != 10:
+            return Observation(
+                execution_id=uuid4(), evidence={"agenda": "invalid_date"}, command_succeeded=False
+            )
+        events = [
+            event
+            for event in configured_calendar_provider().list_events()
+            if event.starts_at.date().isoformat() == day
+        ]
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "source": "external_calendar_fixture",
+                "date": day,
+                "events": calendar_events_evidence(tuple(events))["events"],
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarAgendaVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence
+        verified = (
+            observation.command_succeeded
+            and isinstance(evidence.get("date"), str)
+            and isinstance(evidence.get("events"), list)
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "date": evidence.get("date"),
+                "event_count": len(evidence.get("events", [])) if verified else 0,
+            },
+            reason=(
+                "calendar agenda readback is structurally valid"
+                if verified
+                else "calendar agenda read failed"
+            ),
         )
 
 

@@ -29,6 +29,8 @@ from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
     AirQualityExecutor,
     AirQualityVerifier,
+    CalendarAgendaExecutor,
+    CalendarAgendaVerifier,
     CalendarCancelExecutor,
     CalendarCancelVerifier,
     CalendarCommunicationDraftExecutor,
@@ -295,6 +297,14 @@ def default_runtime_registry(
         return ActionRuntime(
             CalendarConflictsExecutor(),
             CalendarConflictsVerifier(),
+            {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def calendar_agenda_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            CalendarAgendaExecutor(),
+            CalendarAgendaVerifier(),
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
@@ -583,6 +593,7 @@ def default_runtime_registry(
         "workspace.artifact.read": workspace_file_read_runtime,
         "calendar.events.list": calendar_runtime,
         "calendar.events.conflicts": calendar_conflicts_runtime,
+        "calendar.events.agenda": calendar_agenda_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,

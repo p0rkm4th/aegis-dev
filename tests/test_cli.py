@@ -285,6 +285,22 @@ def test_deterministic_calendar_conflict_request_uses_read_only_action():
     assert card.action.action_id == "calendar.events.conflicts"
 
 
+def test_deterministic_calendar_agenda_request_uses_bounded_read_action():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "calendar")
+    manager.discover(bundle)
+    manager.install("calendar", frozenset({"calendar.read", "calendar.write"}))
+    manager.enable("calendar")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="What's on my calendar tomorrow?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "calendar.events.agenda"
+    assert card.action.arguments["date"]
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
