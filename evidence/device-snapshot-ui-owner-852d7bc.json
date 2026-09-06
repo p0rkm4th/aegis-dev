@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "device-snapshot-ui-owner",
+  "source_sha": "852d7bcde4af4a304d581956b1aa46e6818e866b",
+  "hosted_validation": {"run_id": "34006650753", "conclusion": "success"},
+  "installed_release_sha": "852d7bcde4af4a304d581956b1aa46e6818e866b",
+  "owner_runtime": {
+    "service": "active",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "device_surface": "Authorized device state and bounded controls",
+    "workspace_action": "Save device snapshot to Workspace"
+  },
+  "verification": "The UI invokes the existing device-reports.devices.snapshot_to_workspace Core action; its pre-execution expected hashes and scoped independent Workspace verifier remain covered by deterministic tests.",
+  "authority_boundary": "The UI adds discoverability only; it does not grant device control, workspace scope, or authorization."
+}
