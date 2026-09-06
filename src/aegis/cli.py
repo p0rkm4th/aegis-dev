@@ -97,7 +97,12 @@ from .store import PostgresObjectiveStore
 from .structural import SpacyStructuralParser, StructuralParserUnavailable
 from .tasks import PostgresTaskStore
 from .utterance import is_task_destination_request
-from .weather import configured_weather_provider, weather_evidence
+from .weather import (
+    configured_weather_forecast_provider,
+    configured_weather_provider,
+    weather_evidence,
+    weather_forecast_evidence,
+)
 from .web import serve
 from .workspace import ScopedWorkspace, WorkspaceError, WorkspaceManager
 
@@ -518,11 +523,18 @@ def _weather_state(principal: Principal) -> dict[str, Any]:
             "reason": str(exc),
             "boundary": "Weather is public evidence, not canonical personal truth.",
         }
-    return {
+    result: dict[str, Any] = {
         "reading": weather_evidence(reading),
         "provider_state": reading.source,
         "boundary": "Weather is public evidence, not canonical personal truth.",
     }
+    try:
+        forecast = configured_weather_forecast_provider().forecast(latitude, longitude, 3)
+        result["forecast"] = weather_forecast_evidence(forecast)
+    except (RuntimeError, ValueError) as exc:
+        result["forecast"] = []
+        result["forecast_reason"] = str(exc)
+    return result
 
 
 def _air_quality_state(principal: Principal) -> dict[str, Any]:
@@ -1255,6 +1267,30 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    forecast = re.fullmatch(
+        r"(?:show|read|get) (?:the )?(?P<days>[1-7])(?:-| )day weather forecast at "
+        r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"
+        r"(?P<longitude>-?[0-9]{1,3}(?:\.[0-9]{1,6})?)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if forecast is not None:
+        card = manager.action_card("weather", "weather.forecast.read")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "latitude": float(forecast.group("latitude")),
+                            "longitude": float(forecast.group("longitude")),
+                            "days": int(forecast.group("days")),
+                        }
+                    }
+                )
+            }
+        )
     air_quality = re.fullmatch(
         r"(?:what(?:'s| is)|show|read) (?:the )?(?:current )?air quality at "
         r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"

@@ -1141,8 +1141,13 @@ async function loadWeather() {
     heading.textContent = payload.reading ? 'Current public weather' : 'Weather is not configured.';
     panel.append(heading, renderDetailValue(payload));
     const boundary = document.createElement('p'); boundary.className = 'muted';
-    boundary.textContent = payload.boundary || 'Weather is public evidence, not canonical personal truth.';
+    boundary.textContent = payload.boundary || 'Weather is public evidence, not canonical personal truth. Data: Open-Meteo.';
     panel.append(boundary);
+    if (Array.isArray(payload.forecast) && payload.forecast.length) {
+      const forecast = document.createElement('section'); forecast.className = 'detail-card';
+      const forecastTitle = document.createElement('h3'); forecastTitle.textContent = 'Three-day forecast';
+      forecast.append(forecastTitle, renderDetailValue(payload.forecast)); panel.append(forecast);
+    }
     if (payload.reading) {
       const followup = document.createElement('button'); followup.type = 'button';
       followup.textContent = 'Create weather follow-up task';
