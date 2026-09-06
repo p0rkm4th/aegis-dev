@@ -8011,6 +8011,7 @@ def test_browser_interaction_projects_bounded_canonical_step_status(monkeypatch)
 
 def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     from aegis import cli
+    from aegis.homelab import Host, Service
     from aegis.network import HomelabInventory
     from aegis.personal import PersonalState
 
@@ -8040,7 +8041,16 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     monkeypatch.setattr(
         cli.PostgresHomelabStore,
         "load",
-        lambda _store, _principal, _runtime: type("Pack", (), {"hosts": {}, "services": {}})(),
+        lambda _store, _principal, _runtime: type(
+            "Pack",
+            (),
+            {
+                "hosts": {"atlas": Host("atlas", "192.0.2.10", "atlas", status="unknown")},
+                "services": {
+                    "plex": Service("plex", "atlas", "Plex", "http://192.0.2.10:32400/health")
+                },
+            },
+        )(),
     )
 
     state = cli._constellation_state(
@@ -8066,6 +8076,11 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     assert node_ids.count("domain-homelab") == 0
     assert node_ids.count("pack-network") == 1
     assert node_ids.count("domain-network") == 0
+    assert "homelab-host-atlas" in node_ids
+    assert "homelab-service-plex" in node_ids
+    assert state["details"]["homelab-host-atlas"]["status"] == "unknown"
+    assert state["details"]["homelab-service-plex"]["authority"]
+    assert {"source": "homelab-host-atlas", "target": "homelab-service-plex"} in state["edges"]
     assert "composition-calendar-to-workspace" in node_ids
     assert any(
         edge["source"] == "pack-calendar" and edge["target"] == "composition-calendar-to-workspace"
