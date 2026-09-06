@@ -1929,6 +1929,37 @@ def _deterministic_composition_action(
                     )
                 }
             )
+    homelab_health_send_me = re.fullmatch(
+        r"(?:send|text) me the health of (?:service )?"
+        r"(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120}?)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if homelab_health_send_me is not None:
+        try:
+            approved_targets = configured_communication_targets()
+        except ValueError:
+            approved_targets = frozenset()
+        if approved_targets is not None and len(approved_targets) == 1:
+            target, channel, account = next(iter(approved_targets))
+            card = manager.action_card("communications", "communications.messages.send")
+            if card is None:
+                return None
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={
+                            "arguments": {
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body_source": "canonical.homelab_health",
+                                "service": homelab_health_send_me.group("service"),
+                            }
+                        }
+                    )
+                }
+            )
     research_send_me = re.fullmatch(
         r"(?:send|text) me (?:the )?research (?:on|about) (?P<query>.+?)[?!.,]?",
         text,

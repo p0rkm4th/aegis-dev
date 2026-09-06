@@ -188,6 +188,17 @@ def prepare_reference_action(
                     **args,
                     "body": f"{document.title}\n\n{document.text[:20_000]}",
                 }
+        elif args.get("body_source") == "canonical.homelab_health":
+            service_id = args.get("service")
+            if not isinstance(service_id, str) or not service_id.strip() or connection is None:
+                raise ValueError("authorized Homelab service is unavailable")
+            service = _canonical_homelab_service(connection, principal, service_id)
+            healthy, status = _health_read(service.health_endpoint)
+            state = "healthy" if healthy else status
+            args = {
+                **args,
+                "body": (f"Homelab health for {service.name} ({service.service_id}): {state}."),
+            }
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -797,6 +808,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "body_source",
                         "query",
                         "document_id",
+                        "service",
                     ),
                     argument_grounding={
                         key: ArgumentGroundingRule(
@@ -822,6 +834,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 "reference.communication_body_from_research.v1",
                                 "reference.communication_body_from_weather.v1",
                                 "reference.communication_body_from_document.v1",
+                                "reference.communication_body_from_homelab_health.v1",
                             ),
                         )
                     }
@@ -836,6 +849,11 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
                             ),
                             canonical_source="authorized_documents",
+                        )
+                    }
+                    | {
+                        "service": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                     },
                 ),

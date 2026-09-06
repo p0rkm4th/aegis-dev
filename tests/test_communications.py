@@ -1,4 +1,5 @@
 import subprocess
+from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
@@ -348,6 +349,57 @@ def test_document_message_fixes_authorized_content_before_generic_send(monkeypat
             action_id=uuid4(),
             action=prepared,
             idempotency_key="document-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
+def test_homelab_health_message_fixes_observation_before_generic_send(monkeypatch) -> None:
+    monkeypatch.setattr(
+        reference_packs_module,
+        "_canonical_homelab_service",
+        lambda connection, principal, service_id: SimpleNamespace(
+            name="Acceptance Plex", service_id=service_id, health_endpoint="http://plex.test/health"
+        ),
+    )
+    monkeypatch.setattr(
+        reference_packs_module, "_health_read", lambda endpoint: (False, "http_503")
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "canonical.homelab_health",
+                "service": "acceptance-plex",
+            }
+        }
+    )
+    prepared = prepare_reference_action(
+        action, Principal(id="alice", vault_id="vault"), uuid4(), connection=object()
+    )
+    assert prepared.verification.expected["body"] == (
+        "Homelab health for Acceptance Plex (acceptance-plex): http_503."
+    )
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="homelab-health-send-1",
         )
     )
     result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
