@@ -70,6 +70,7 @@ from .reference_packs import (
     DeviceSnapshotWorkspaceVerifier,
     DeviceStatesExecutor,
     DeviceStatesVerifier,
+    DirectNetworkProbeExecutor,
     DocumentSearchWorkspaceExecutor,
     DocumentsExecutor,
     DocumentSummaryWorkspaceExecutor,
@@ -321,6 +322,12 @@ def default_runtime_registry(
 
     def network_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
+        if os.environ.get("AEGIS_NETWORK_PROBE_PROVIDER", "").casefold() == "direct":
+            return ActionRuntime(
+                DirectNetworkProbeExecutor(),
+                OpenClawNetworkProbeVerifier(),
+                {"network.read": frozenset({Role.OWNER, Role.MEMBER})},
+            )
         channel = openclaw_channel()
         return ActionRuntime(
             OpenClawExecutor(
