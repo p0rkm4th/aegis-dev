@@ -5469,6 +5469,32 @@ def test_browser_app_household_surface_exposes_chore_communication():
     assert "Canonical obligation state is fixed before communication" in html
 
 
+def test_device_control_fast_path_accepts_terminal_punctuation(monkeypatch):
+    monkeypatch.setenv("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "light.desk")
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "device-controls"
+    )
+    manager.discover(bundle)
+    manager.install("device-controls", frozenset(bundle.manifest.permissions))
+    manager.enable("device-controls")
+    card = _deterministic_composition_action(
+        IntentFrame(
+            utterance="Turn off light.desk.",
+            principal=Principal(id="alice", vault_id="vault"),
+        ),
+        manager,
+        Context(),
+    )
+    assert card is not None
+    assert card.action.action_id == "device-controls.devices.command.execute"
+    assert card.action.arguments == {
+        "entity_id": "light.desk",
+        "service": "turn_off",
+        "expected_state": "off",
+    }
+
+
 def test_browser_app_communications_surface_exposes_provider_outcome_distinction():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),

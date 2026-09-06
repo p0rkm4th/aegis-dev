@@ -2082,7 +2082,7 @@ def _deterministic_composition_action(
         )
     device = re.fullmatch(
         r"(?:turn|switch) (?P<state>on|off) (?P<entity_id>"
-        r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?",
+        r"(?:light|switch|input_boolean)\.[a-z0-9_.-]+)(?: and verify(?: it)?)?[?!.,]?",
         folded,
     )
     if device is not None:
@@ -2090,12 +2090,13 @@ def _deterministic_composition_action(
         if card is None:
             return None
         state = device.group("state")
+        entity_id = device.group("entity_id").rstrip("?!.,")
         return card.model_copy(
             update={
                 "action": card.action.model_copy(
                     update={
                         "arguments": {
-                            "entity_id": device.group("entity_id"),
+                            "entity_id": entity_id,
                             "service": f"turn_{state}",
                             "expected_state": state,
                         }
