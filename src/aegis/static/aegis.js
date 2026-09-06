@@ -1007,7 +1007,20 @@ async function loadDevices() {
     if (!response.ok) throw new Error(payload.error || 'Devices unavailable.');
     const heading = document.createElement('p');
     heading.textContent = 'Authorized device state and bounded controls';
-    panel.append(heading, renderDetailValue(payload));
+    panel.append(heading);
+    const inventory = document.createElement('section'); inventory.className = 'detail-card';
+    const inventoryTitle = document.createElement('h3'); inventoryTitle.textContent = 'Canonical inventory';
+    inventory.append(inventoryTitle);
+    const hosts = Array.isArray(payload.hosts) ? payload.hosts : [];
+    hosts.slice(0, 20).forEach(host => {
+      const row = document.createElement('div'); row.className = 'list-row';
+      const identity = document.createElement('strong'); identity.textContent = host.hostname || host.host_id || 'Unnamed host';
+      const detail = document.createElement('span'); detail.className = 'muted';
+      detail.textContent = `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'}`;
+      row.append(identity, detail); inventory.append(row);
+    });
+    if (!hosts.length) appendTodaySection(inventory, 'Hosts', ['No canonical hosts configured.']);
+    panel.append(inventory);
     const snapshot = document.createElement('button');
     snapshot.type = 'button'; snapshot.textContent = 'Save device snapshot to Workspace';
     snapshot.addEventListener('click', () => {
@@ -1092,7 +1105,7 @@ async function loadSystems() {
         if (!service || typeof service.service_id !== 'string') return;
         const row = document.createElement('div'); row.className = 'action-row';
         const label = document.createElement('span');
-        label.textContent = `${service.name || service.service_id} · ${service.health || 'unknown'}`;
+        label.textContent = `${service.name || service.service_id} · ${service.service_id} · host ${service.host_id || 'unknown'} · ${service.health || 'unknown'}`;
         const restart = document.createElement('button'); restart.type = 'button';
         restart.textContent = 'Request restart';
         restart.setAttribute('aria-label', `Request restart for ${service.service_id}`);
