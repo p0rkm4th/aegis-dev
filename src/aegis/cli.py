@@ -1457,6 +1457,25 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": chores_report.groupdict()})
             }
         )
+    obligations_report = re.fullmatch(
+        r"save (?:my )?(?:open )?obligations to workspace as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if obligations_report is not None:
+        card = manager.action_card(
+            "household-reports", "household-reports.obligations_to_workspace"
+        )
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": obligations_report.groupdict()}
+                )
+            }
+        )
     grocery_report = re.fullmatch(
         r"save (?:my )?(?:the )?grocery list to workspace as "
         r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",

@@ -331,6 +331,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "household-obligations-to-workspace",
+            "label": "Household obligations → Workspace",
+            "description": "Preserve canonical open obligations as a verified scoped artifact.",
+            "surfaces": ("Household", "Workspace"),
+            "authority": (
+                "canonical obligation state remains read-only; Core fixes the authorized snapshot "
+                "before scoped Workspace write and independently verifies the artifact"
+            ),
+        },
+        {
             "id": "household-obligations-to-communication",
             "label": "Household obligations → Communication",
             "description": (
