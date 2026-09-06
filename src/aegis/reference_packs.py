@@ -3374,9 +3374,21 @@ class CalendarCreateExecutor:
                 evidence={"calendar_create": "invalid_timestamp"},
                 command_succeeded=False,
             )
-        created = self.provider.create_event(
-            CalendarEvent("pending", title, start, end), request.idempotency_key
-        )
+        try:
+            created = self.provider.create_event(
+                CalendarEvent("pending", title, start, end), request.idempotency_key
+            )
+        except (RuntimeError, ValueError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_create": {"error": str(exc)}},
+                command_succeeded=False,
+                assurance=(
+                    ExternalEffectAssurance.OUTCOME_UNKNOWN
+                    if isinstance(exc, RuntimeError)
+                    else ExternalEffectAssurance.DEFINITELY_REJECTED
+                ),
+            )
         return Observation(
             execution_id=uuid4(),
             evidence={
