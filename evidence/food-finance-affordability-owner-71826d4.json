@@ -1,0 +1,9 @@
+{
+  "checkpoint": "food-finance-affordability-owner",
+  "source_sha": "71826d4",
+  "hosted_validation": {"run_id": "34060885609", "conclusion": "success"},
+  "owner_runtime": {"service": "aegis-owner.service", "release_sha": "71826d4", "access": "authenticated Tailscale HTTPS", "postgresql": "healthy"},
+  "request": "Can I spend $80 on groceries tonight?",
+  "result": {"state": "completed", "message": "Affordable: yes (purchase $80.00; shared obligations $1.20)", "objective_id": "30ff426d-8f70-4304-8179-dceafa029713", "correlation_id": "78ba2ae0-fb21-4add-873f-274eb95a5518"},
+  "interpretation": "The owner workflow combines canonical Food context with private deterministic Finance affordability; raw ledger rows are not exposed and no financial mutation exists."
+}

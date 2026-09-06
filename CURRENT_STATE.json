@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8187b5c",
+  "state_basis_sha": "71826d4",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8187b5c",
-  "deterministic_green_sha": "8187b5c",
-  "last_pushed_sha": "8187b5c",
-  "hosted_green_sha": "8187b5c",
-  "hosted_ci_green_sha": "8187b5c",
+  "repository_head_sha": "71826d4",
+  "deterministic_green_sha": "71826d4",
+  "last_pushed_sha": "71826d4",
+  "hosted_green_sha": "71826d4",
+  "hosted_ci_green_sha": "71826d4",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8187b5c",
+    "commit_sha": "71826d4",
     "conclusion": "success",
-    "run_id": "34060598641",
+    "run_id": "34060885609",
     "observed_at": "2026-09-06T20:50:00Z"
   },
-  "installed_release_sha": "8187b5c",
-  "running_release_sha": "8187b5c",
-  "live_green_sha": "8187b5c",
+  "installed_release_sha": "71826d4",
+  "running_release_sha": "71826d4",
+  "live_green_sha": "71826d4",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "pack-first-adversarial-follow-up-experiment",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8187b5c"
+    "release_sha": "71826d4"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -374,7 +374,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood a bounded Food + private Finance derived read using canonical grocery/Pantry state and deterministic affordability, without exposing raw ledger details or adding domain-specific Core routing.",
+  "next_action": "Advance owner-real Homelab/Network read utility using stable canonical Host identity and bounded service health, then expose the result through Systems and Constellation.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
