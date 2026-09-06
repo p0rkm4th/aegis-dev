@@ -68,6 +68,88 @@ class PackRouteMeasurement:
     failure_category: str | None = None
 
 
+@dataclass(frozen=True)
+class PackCase:
+    utterance: str
+    expected_pack_ids: frozenset[str] | None
+
+
+@dataclass(frozen=True)
+class PackTournamentReport:
+    measurements: tuple[PackRouteMeasurement, ...]
+    metrics: dict[str, dict[str, float]]
+
+
+def _percentile(values: Sequence[float], percentile: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, round((len(ordered) - 1) * percentile))
+    return ordered[index]
+
+
+def _variant_metrics(measurements: Sequence[PackRouteMeasurement]) -> dict[str, float]:
+    judged = [item for item in measurements if item.correct is not None]
+    correct = sum(item.correct is True for item in judged)
+    return {
+        "routing_recall": correct / len(judged) if judged else 0.0,
+        "wrong_action_rate": (
+            sum(item.valid and item.correct is False for item in judged) / len(judged)
+            if judged
+            else 0.0
+        ),
+        "clarification_rate": sum(
+            item.status in {PackRouterStatus.NEED_CONTEXT, PackRouterStatus.UNSUPPORTED}
+            for item in measurements
+        )
+        / len(measurements)
+        if measurements
+        else 0.0,
+        "model_calls_per_case": sum(item.model_calls for item in measurements) / len(measurements)
+        if measurements
+        else 0.0,
+        "prompt_bytes_per_case": sum(item.prompt_bytes for item in measurements) / len(measurements)
+        if measurements
+        else 0.0,
+        "context_bytes_per_case": sum(item.context_bytes for item in measurements)
+        / len(measurements)
+        if measurements
+        else 0.0,
+        "p50_latency_ms": _percentile([item.latency_ms for item in measurements], 0.50),
+        "p95_latency_ms": _percentile([item.latency_ms for item in measurements], 0.95),
+    }
+
+
+def run_pack_tournament(
+    cases: Sequence[PackCase],
+    manager: PackManager,
+    incumbent: Callable[[str], Sequence[ActionCard]],
+    router: PackRouter,
+    prefilter: PackPrefilter,
+) -> PackTournamentReport:
+    """Run a deterministic corpus through all experimental variants."""
+
+    measurements: list[PackRouteMeasurement] = []
+    for case in cases:
+        expected = case.expected_pack_ids
+        measurements.extend(
+            (
+                measure_incumbent(case.utterance, incumbent, expected),
+                measure_pack_first(case.utterance, manager, router, expected),
+                measure_retrieval_assisted_pack_first(
+                    case.utterance, manager, router, prefilter, expected
+                ),
+            )
+        )
+    grouped: dict[str, list[PackRouteMeasurement]] = {}
+    for measurement in measurements:
+        grouped.setdefault(measurement.variant, []).append(measurement)
+    return PackTournamentReport(
+        measurements=tuple(measurements),
+        metrics={variant: _variant_metrics(values) for variant, values in grouped.items()},
+    )
+
+
 def compact_pack_catalog(
     manager: PackManager, pack_ids: Iterable[str] | None = None
 ) -> tuple[PackCatalogEntry, ...]:
