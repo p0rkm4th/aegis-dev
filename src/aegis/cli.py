@@ -23,9 +23,9 @@ from uuid import UUID, uuid4
 import psycopg
 
 from .audit import PostgresAuditLog
-from .calendar import calendar_events_evidence, configured_calendar_provider
+from .calendar import CalendarEvent, calendar_events_evidence, configured_calendar_provider
 from .communications import configured_communication_targets
-from .compositions import available_compositions
+from .compositions import available_compositions, calendar_to_task_attention
 from .contracts import (
     ActionCard,
     Context,
@@ -507,10 +507,48 @@ def _workspace_file(principal: Principal, workspace_id: str, path: str) -> dict[
 
 
 def _calendar_state(principal: Principal) -> dict[str, Any]:
-    """Expose only bounded configured calendar evidence to the owner UI."""
+    """Expose bounded calendar evidence plus read-only task attention context."""
 
-    del principal
-    return calendar_events_evidence(configured_calendar_provider().list_events())
+    external_events = configured_calendar_provider().list_events()
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        tasks = PostgresTaskStore(connection).list(principal)
+        household = PostgresHouseholdStore(connection).read_snapshot(principal)
+        canonical_events = tuple(
+            CalendarEvent(
+                event.event_id,
+                event.title,
+                event.starts_at,
+                source="canonical_household",
+            )
+            for event in cast(tuple[Any, ...], household.get("events", ()))
+        )
+        latest_event = max(
+            (event.starts_at for event in canonical_events),
+            default=datetime.now(timezone.utc),
+        )
+        attention = calendar_to_task_attention(
+            canonical_events,
+            tuple({"title": task.title, "due_at": task.due_at} for task in tasks),
+            until=latest_event,
+        )
+        evidence = calendar_events_evidence(external_events)
+        evidence["task_attention"] = [
+            {
+                "event_id": item.event_id,
+                "event_title": item.event_title,
+                "task_titles": list(item.task_titles),
+            }
+            for item in attention
+        ]
+        evidence["attention_boundary"] = (
+            "Calendar + Tasks attention is a read-only narrowing of authorized canonical state; "
+            "it creates, completes, or authorizes nothing."
+        )
+        return evidence
+    finally:
+        connection.close()
 
 
 def _documents_state(principal: Principal) -> dict[str, Any]:
