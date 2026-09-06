@@ -1027,6 +1027,8 @@ def _communications_state(principal: Principal) -> dict[str, Any]:
                     or ("DRAFTED" if "draft" in str(action_id) else None),
                     "provider_message_id": provider_message_id,
                     "detail": str(message or ""),
+                    "provider_readback_proven": result_evidence.get("independent_provider_readback")
+                    is True,
                     "delivery_proven": provider_status == "DELIVERED",
                 }
             )
