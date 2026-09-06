@@ -223,6 +223,7 @@ def _ground_argument_provenance(
                 continue
         if key == "body_source" and value in {
             "canonical.groceries",
+            "canonical.chores",
             "canonical.tasks",
             "canonical.calendar_tasks",
             "canonical.today",
@@ -238,6 +239,7 @@ def _ground_argument_provenance(
         }:
             source_phrase = {
                 "canonical.groceries": "grocery list",
+                "canonical.chores": "chores",
                 "canonical.tasks": "tasks",
                 "canonical.calendar_tasks": "tasks due before my calendar events",
                 "canonical.today": "brief",
@@ -264,6 +266,7 @@ def _ground_argument_provenance(
                 source_spans=spans,
                 derivation={
                     "canonical.groceries": "reference.communication_body_from_groceries.v1",
+                    "canonical.chores": "reference.communication_body_from_chores.v1",
                     "canonical.tasks": "reference.communication_body_from_tasks.v1",
                     "canonical.calendar_tasks": (
                         "reference.communication_body_from_calendar_tasks.v1"

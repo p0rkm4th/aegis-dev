@@ -5451,6 +5451,21 @@ def test_browser_app_calendar_surface_exposes_public_holiday_communication():
     assert "external/non-canonical" in html
 
 
+def test_browser_app_household_surface_exposes_chore_communication():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Send open chores" in html
+    assert "Text me my open chores" in html
+    assert "Canonical chore state is fixed before communication" in html
+
+
 def test_browser_app_communications_surface_exposes_provider_outcome_distinction():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
