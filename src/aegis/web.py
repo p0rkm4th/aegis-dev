@@ -1167,6 +1167,16 @@ async function loadAirQuality() {
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.boundary || 'Air quality is public evidence, not canonical personal truth. Data: Open-Meteo / CAMS.';
     panel.append(boundary);
+    if (payload.reading) {
+      const followup = document.createElement('button'); followup.type = 'button';
+      followup.textContent = 'Create air-quality follow-up task';
+      followup.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          'Add a task to check air quality before going outside';
+        document.getElementById('chat').requestSubmit();
+      });
+      panel.append(followup);
+    }
   } catch (_) { panel.textContent = 'Air quality is unavailable; no personal state was changed.'; }
 }
 async function loadToday() {

@@ -4423,6 +4423,7 @@ def test_browser_app_exposes_air_quality_surface_and_public_evidence_boundary():
     assert "Current public air quality for explicit coordinates." in html
     assert "Air quality is public evidence, not canonical personal truth." in html
     assert "Open-Meteo / CAMS" in html
+    assert "Create air-quality follow-up task" in html
 
 
 def test_browser_app_today_surface_exposes_calendar_conflicts():
