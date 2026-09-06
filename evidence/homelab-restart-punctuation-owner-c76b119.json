@@ -1,0 +1,30 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-homelab-restart-current-release",
+  "source_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "run_id": "34018726622",
+    "head_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "postgresql": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "identity": "authenticated owner"
+  },
+  "request": "Restart the service acceptance-plex.",
+  "objective": "4ba2452b-4203-4673-8236-6dc0fae724c9",
+  "correlation": "55744bd3-944f-4680-9fe8-2b6640e3d96f",
+  "result": {
+    "state": "completed",
+    "detail": "fixture service health independently verified",
+    "provider": "explicit FixtureHomelabRuntime",
+    "independent_health_readback": true,
+    "live_external_restart": false,
+    "shell_authority": false
+  },
+  "regression": "terminal punctuation is excluded from the canonical service identifier"
+}
