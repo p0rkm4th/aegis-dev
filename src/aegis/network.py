@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Protocol, cast
 
@@ -70,6 +71,55 @@ class HomelabInventory:
         except KeyError as exc:
             raise ScopeDenied(f"unknown authorization scope {scope_id}") from exc
         return tuple(device for device in self.devices.values() if scope.authorizes(device.address))
+
+
+class BoundedNetworkDiscovery:
+    """Read-only discovery within one explicitly authorized network scope.
+
+    Discovery produces observations only.  It does not persist devices, promote
+    them to canonical Hosts, or grant any action permission.  The caller supplies
+    the bounded probe so transports remain provider-owned and deterministic tests
+    need no live network.
+    """
+
+    def __init__(
+        self,
+        probe: Callable[[str, int], bool],
+        *,
+        max_hosts: int = 256,
+        ports: tuple[int, ...] = (22, 80, 443),
+    ) -> None:
+        if max_hosts < 1 or max_hosts > 4096:
+            raise ValueError("max_hosts must be between 1 and 4096")
+        if not ports or any(port < 1 or port > 65535 for port in ports):
+            raise ValueError("discovery ports must be valid TCP ports")
+        self.probe = probe
+        self.max_hosts = max_hosts
+        self.ports = tuple(dict.fromkeys(ports))
+
+    def discover(self, inventory: HomelabInventory, scope_id: str) -> tuple[DiscoveredDevice, ...]:
+        """Return bounded discovered observations for an active authorized scope."""
+
+        try:
+            scope = inventory.scopes[scope_id]
+        except KeyError as exc:
+            raise ScopeDenied(f"unknown authorization scope {scope_id}") from exc
+        if not scope.active:
+            raise ScopeDenied(f"inactive authorization scope {scope_id}")
+        candidates: list[str] = []
+        for cidr in scope.cidrs:
+            network = ipaddress.ip_network(cidr, strict=False)
+            if network.version != 4:
+                continue
+            candidates.extend(str(address) for address in network.hosts())
+            if len(candidates) >= self.max_hosts:
+                break
+        observations: list[DiscoveredDevice] = []
+        for address in candidates[: self.max_hosts]:
+            open_ports = tuple(str(port) for port in self.ports if self.probe(address, port))
+            if open_ports:
+                observations.append(DiscoveredDevice(address=address, services=open_ports))
+        return tuple(observations)
 
 
 class NetworkStateConnection(Protocol):
