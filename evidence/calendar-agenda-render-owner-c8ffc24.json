@@ -1,0 +1,14 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-agenda-owner-render",
+  "source_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34020049985", "conclusion": "success"},
+  "installed_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+  "running_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+  "owner_request": "What's on my calendar tomorrow?",
+  "action_id": "calendar.events.agenda",
+  "provider_mode": "configured_calendar_fixture",
+  "owner_message": "Calendar 2026-09-07:\n• Breakfast\n• Standup",
+  "state": "completed",
+  "truth_boundary": "The agenda is a bounded external-calendar fixture proof. Google Calendar live credentials remain unavailable; this does not increment live integrations or verified writes."
+}
