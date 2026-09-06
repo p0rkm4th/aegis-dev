@@ -1061,9 +1061,7 @@ def _systems_discover(principal: Principal, request: dict[str, Any]) -> dict[str
         _apply_migrations(connection)
         store = PostgresNetworkStore(connection)
         inventory = store.load(principal)
-        homelab = PostgresHomelabStore(connection).load(
-            principal, _InventoryOnlyHomelabRuntime()
-        )
+        homelab = PostgresHomelabStore(connection).load(principal, _InventoryOnlyHomelabRuntime())
 
         def probe(address: str, port: int) -> bool:
             try:
