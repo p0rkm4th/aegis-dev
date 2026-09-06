@@ -65,6 +65,15 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "external dates are read-only context; no personal event is created",
         },
         {
+            "id": "public-holiday-to-task",
+            "label": "Public holiday → Task",
+            "description": "Prepare an explicit task for an authorized public-holiday date.",
+            "surfaces": ("Calendar", "Tasks"),
+            "authority": (
+                "external date informs a proposal; normal task authorization remains required"
+            ),
+        },
+        {
             "id": "calendar-to-workspace",
             "label": "Calendar → Workspace",
             "description": (

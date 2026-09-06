@@ -937,6 +937,19 @@ async function loadCalendar() {
     const holidayBoundary = document.createElement('p'); holidayBoundary.className = 'muted';
     holidayBoundary.textContent = 'Public holiday dates are external evidence, not canonical personal events.';
     holidaySection.append(holidayBoundary); panel.append(holidaySection);
+    holidays.forEach(holiday => {
+      const date = String(holiday.date || '').trim();
+      const name = String(holiday.name || '').trim();
+      if (!date || !name) return;
+      const button = document.createElement('button'); button.type = 'button';
+      button.textContent = `Prepare for ${name}`;
+      button.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          `Add a task to prepare for ${name} on ${date}`;
+        document.getElementById('chat').requestSubmit();
+      });
+      holidaySection.append(button);
+    });
     if (conflicts.length) {
       const actionNote = document.createElement('p'); actionNote.className = 'muted';
       actionNote.textContent = 'Create a follow-up task through the normal Core request path:';
@@ -1162,6 +1175,19 @@ async function loadToday() {
     const holidayBoundary = document.createElement('p'); holidayBoundary.className = 'muted';
     holidayBoundary.textContent = 'Public holiday dates are external evidence, not canonical personal events.';
     panel.append(holidayBoundary);
+    todayHolidays.forEach(holiday => {
+      const date = String(holiday.date || '').trim();
+      const name = String(holiday.name || '').trim();
+      if (!date || !name) return;
+      const button = document.createElement('button'); button.type = 'button';
+      button.textContent = `Prepare for ${name}`;
+      button.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          `Add a task to prepare for ${name} on ${date}`;
+        document.getElementById('chat').requestSubmit();
+      });
+      panel.append(button);
+    });
     if (conflicts.length) {
       const actionNote = document.createElement('p'); actionNote.className = 'muted';
       actionNote.textContent = 'Scheduling follow-up stays a normal authorized task request.';
