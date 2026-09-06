@@ -1758,7 +1758,7 @@ def _deterministic_composition_action(
             }
         )
     restart_request = re.fullmatch(
-        r"restart (?:the )?(?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})",
+        r"restart (?:the )?(?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120}?)[?!.,]?",
         text,
         flags=re.IGNORECASE,
     )
