@@ -1,0 +1,21 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "weather-to-communication",
+  "source_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "hosted_run_id": "34016693176",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "owner_request": "Text me tomorrow's weather.",
+  "objective_id": "52e5a71a-6861-4f87-ad85-e088d7dfcc75",
+  "correlation_id": "0b0d0049-641e-4a68-a7d2-184125ba4536",
+  "source": "public.weather",
+  "target": "scotty",
+  "channel": "sms",
+  "account": "household",
+  "provider_status": "PROVIDER_ACCEPTED",
+  "provider_readback_proven": true,
+  "delivery_proven": false,
+  "forecast_non_canonical": true,
+  "openclaw_live_channel": false,
+  "safety": "The bounded forecast was fixed before generic sending; the destination is resolved only from one owner-approved target and public weather remains non-canonical."
+}

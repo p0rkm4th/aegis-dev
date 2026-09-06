@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
+  "state_basis_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
-  "deterministic_green_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
-  "last_pushed_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
-  "hosted_green_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
-  "hosted_ci_green_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
+  "repository_head_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "deterministic_green_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "last_pushed_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "hosted_green_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "hosted_ci_green_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
+    "commit_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
     "conclusion": "success",
-    "run_id": "34016314629",
-    "observed_at": "2026-09-06T06:25:00Z"
+    "run_id": "34016693176",
+    "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
-  "running_release_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
-  "live_green_sha": "68943f7f63dd630776c9c6d2cf1cc74f40209556",
+  "installed_release_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "running_release_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
+  "live_green_sha": "2422c388369070d3d875819471c726ff8b4ca29c",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-device-research-natural-owner-proof",
+  "active_checkpoint": "daily-driver-alpha-weather-communication",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -179,9 +179,10 @@
     ,"Systems owner UI now exposes bounded per-service Request restart affordances that only submit normal Core requests; rendered owner proof confirms independent-health language and inventory remains read-only"
     ,"Research → Communications now fixes bounded sourced evidence before generic sending; installed owner proof independently reads back fixture acceptance as PROVIDER_ACCEPTED and preserves the non-authoritative research boundary"
     ,"Natural Device → Research requests now route to the typed read-only action; installed owner proof reports light.desk off with sanitized public query context and bounded non-authoritative evidence"
+    ,"Weather → Communications now fixes a bounded public forecast before generic sending; installed owner proof independently reads back fixture acceptance as PROVIDER_ACCEPTED and preserves the non-canonical weather boundary"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner can now ask why an authorized device is in its observed state; Device → Research uses sanitized bounded public evidence and reports the private device readback without mutation authority. Live device hardware remains pending.",
+  "daily_driver_checkpoint": "The installed owner can now send a bounded public weather forecast through the generic communications path to one approved target; fixture provider readback is proven while delivery and live OpenClaw remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -219,22 +220,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 52,
+  "voluntarily_useful_owner_workflows": 53,
   "owner_visible_capability_surfaces": 27,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 28,
+  "cross_capability_workflows": 29,
   "breadth_scoreboard": {
     "owner_visible_views": 18,
     "usable_capability_families": 10,
     "verified_write_capabilities": 7,
     "external_integrations": 3,
-    "cross_domain_compositions": 28,
+    "cross_domain_compositions": 29,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 47,
+    "owner_workflows_completed": 48,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: advance the cheapest non-credential-blocked capability, prioritizing a new verified device/homelab action or a useful Calendar/Research/Workspace composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/device-research-owner-68943f7.json",
+  "history_artifact": "evidence/weather-communication-owner-2422c38.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
