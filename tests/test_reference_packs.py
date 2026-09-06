@@ -190,8 +190,10 @@ def test_workspace_file_read_rejects_other_principal_and_reads_scoped_file(
             idempotency_key="workspace-file-read-1",
         )
     )
-    assert runtime.verifier.verify(observation, action.verification).verified is True
+    result = runtime.verifier.verify(observation, action.verification)
+    assert result.verified is True
     assert observation.evidence["workspace_file"]["content"] == "authorized"
+    assert result.evidence["workspace_file"]["path"] == "report.md"
 
     other = Principal(id="bob", vault_id="bob-vault")
     other_runtime = default_runtime_registry(lambda: None).resolve(card, None, other)

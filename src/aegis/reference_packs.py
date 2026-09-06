@@ -3046,7 +3046,10 @@ class WorkspaceArtifactsListVerifier:
         verified = observation.command_succeeded and isinstance(inventory, list)
         return VerificationResult(
             verified=verified,
-            evidence={"workspace_count": len(cast(list[Any], inventory)) if verified else 0},
+            evidence={
+                **observation.evidence,
+                "workspace_count": len(cast(list[Any], inventory)) if verified else 0,
+            },
             reason=(
                 "Workspace inventory is Principal-scoped and structurally valid"
                 if verified
@@ -3108,7 +3111,7 @@ class WorkspaceArtifactReadVerifier:
         )
         return VerificationResult(
             verified=verified,
-            evidence={"workspace_file_read": verified},
+            evidence={**observation.evidence, "workspace_file_read": verified},
             reason=(
                 "Workspace file read is Principal-scoped and structurally valid"
                 if verified
