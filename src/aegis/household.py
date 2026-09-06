@@ -355,6 +355,45 @@ class PostgresHouseholdStore:
         }
         return tuple(self.load(space_id, members).groceries)
 
+    def list_grocery_items(self, principal: Principal) -> tuple[GroceryItem, ...]:
+        """Read stable-ID grocery records for an active Space member."""
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        return tuple(self.load(space_id, members).grocery_items.values())
+
+    def list_pantry_items(self, principal: Principal) -> tuple[PantryItem, ...]:
+        """Read canonical Pantry records for an active Space member."""
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        return tuple(self.load(space_id, members).pantry_items.values())
+
+    def add_pantry_item(self, principal: Principal, item: PantryItem) -> PantryItem:
+        """Persist one stable-ID Pantry record after membership recheck."""
+        space_id = self._space_for(principal)
+        members = {
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT principal_id FROM space_memberships WHERE space_id = %s AND active = TRUE",
+                (space_id,),
+            ).fetchall()
+        }
+        space = self.load(space_id, members)
+        result = space.add_pantry(principal, item)
+        self.save(space)
+        return result
+
     def read_snapshot(self, principal: Principal) -> dict[str, object]:
         """Read shared household state after rechecking current membership."""
         space_id = self._space_for(principal)
