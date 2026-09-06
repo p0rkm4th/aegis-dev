@@ -1,0 +1,36 @@
+{
+  "checkpoint": "capability-need-to-research-workspace-owner-proof",
+  "source_sha": "ebfe302c4294e10f06571edc508b881430989ea2",
+  "hosted": {"run_id": 34029581366, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "ebfe302",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "originating_need": {
+    "need_id": "08909857-b723-4215-946b-589635a12e83",
+    "parent_objective_id": "e796a2e6-5a34-4813-abb2-6a3a510765d1",
+    "status": "open",
+    "investigation": "complete",
+    "candidate": "workspace_solution",
+    "requires_owner_input": true
+  },
+  "owner_request": "Research a safe path for Set up a Palworld server for the girls and me on easy mode. and save notes as capability-needs/08909857-b723-4215-946b-589635a12e83.md",
+  "result": {
+    "code": "completed",
+    "objective_id": "549ac492-0b56-4b09-91c6-4b7627717c41",
+    "correlation_id": "6dffa1f0-0d61-4398-a1a5-ea2803e2c0b4",
+    "workspace_id": "fc3a1436-d3e1-59b5-932f-3858c41e5496",
+    "path": "capability-needs/08909857-b723-4215-946b-589635a12e83.md",
+    "sha256": "ce270e8e1ca33c196486ecd86f67550a1401df6f498e1f1d5fa820fc9698fb52",
+    "source_title": "Alpha Guide",
+    "verification": "independent Principal/objective-scoped Workspace readback"
+  },
+  "safety": [
+    "the original CapabilityNeed remains open",
+    "the candidate path did not install, enable, approve, or execute a capability",
+    "the follow-up research objective is separately authorized",
+    "research evidence remains external and non-canonical"
+  ]
+}
