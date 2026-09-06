@@ -82,3 +82,12 @@ def test_store_load_migrates_legacy_payload_once():
     item = next(iter(space.grocery_items.values()))
     assert item.display_name == "milk"
     assert item.desired_quantity is None
+
+
+def test_kitchen_pack_declares_pantry_read_as_a_generic_capability():
+    from aegis.reference_packs import reference_bundles
+
+    kitchen = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "kitchen")
+    card = next(card for card in kitchen.cards if card.action.action_id == "kitchen.pantry.list")
+    assert card.action.required_permissions == ("kitchen.read",)
+    assert card.semantic_scope == "kitchen.pantry"

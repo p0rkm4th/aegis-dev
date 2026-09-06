@@ -1087,6 +1087,19 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     relevance=1,
                     semantic_scope="kitchen.shopping_list",
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.pantry.list",
+                        capability="kitchen.pantry.read",
+                        required_permissions=("kitchen.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary=(
+                        "Read the authorized Pantry inventory with quantities only when known"
+                    ),
+                    relevance=1,
+                    semantic_scope="kitchen.pantry",
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -6191,4 +6204,53 @@ class PostgresGroceryListVerifier:
             reason=(
                 "canonical grocery list verified" if verified else "canonical grocery list changed"
             ),
+        )
+
+
+class PostgresPantryListExecutor:
+    """Adapt the canonical stable-ID Pantry read to the generic runtime port."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "kitchen.pantry.list":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        items = self.store.list_pantry_items(self.principal)
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "pantry",
+                "items": [item.__dict__ for item in items],
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresPantryListVerifier:
+    """Independently compare Pantry observation with the current scoped store."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="Pantry read failed"
+            )
+        actual = [item.__dict__ for item in self.store.list_pantry_items(self.principal)]
+        expected = observation.evidence.get("items")
+        verified = expected == actual
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "canonical_items": actual},
+            reason="canonical Pantry verified" if verified else "canonical Pantry changed",
         )
