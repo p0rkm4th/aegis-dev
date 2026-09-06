@@ -73,6 +73,17 @@ def test_workspace_append_composition_is_owner_visible() -> None:
     assert "independently verifies" in composition["authority"]
 
 
+def test_workspace_append_communication_composition_is_non_authoritative() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "workspace-append-to-communication"
+    )
+    assert composition["surfaces"] == ("Workspace", "Communications")
+    assert "separate Core authorization" in composition["authority"]
+    assert "does not imply delivery" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
