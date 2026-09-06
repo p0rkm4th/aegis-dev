@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
+from hashlib import sha256
 from typing import Any, Protocol, cast
 from uuid import uuid4
 
@@ -28,6 +32,114 @@ class Transaction:
     amount_cents: int
     occurred_at: datetime
     description: str
+    currency: str = "USD"
+    provider_transaction_id: str | None = None
+    status: str = "posted"
+    source_id: str = "fixture"
+
+
+@dataclass(frozen=True)
+class ImportSource:
+    source_id: str
+    source_type: str
+    content_hash: str
+    imported_at: datetime
+    coverage_start: datetime | None = None
+    coverage_end: datetime | None = None
+    complete: bool = True
+
+
+@dataclass(frozen=True)
+class FinanceImportReport:
+    source: ImportSource
+    imported_transaction_ids: tuple[str, ...]
+    duplicate_rows: tuple[int, ...] = ()
+    rejected_rows: tuple[tuple[int, str], ...] = ()
+
+
+def import_csv_transactions(
+    content: str,
+    *,
+    owner_id: str,
+    account_id: str,
+    source_id: str,
+    currency: str = "USD",
+    imported_at: datetime | None = None,
+) -> tuple[tuple[Transaction, ...], FinanceImportReport]:
+    """Parse a bounded owner-controlled CSV without floating-point money."""
+
+    if not owner_id or not account_id or not source_id:
+        raise ValueError("owner, account, and source identities are required")
+    if len(content.encode()) > 5_000_000:
+        raise ValueError("finance import exceeds size limit")
+    currency = currency.strip().upper()
+    if len(currency) != 3 or not currency.isalpha():
+        raise ValueError("currency must be an ISO-like three-letter code")
+    digest = sha256(content.encode()).hexdigest()
+    now = imported_at or datetime.now(timezone.utc)
+    reader = csv.DictReader(io.StringIO(content))
+    required = {"date", "amount", "description"}
+    if reader.fieldnames is None or not required.issubset(set(reader.fieldnames)):
+        raise ValueError("CSV requires date, amount, and description columns")
+    transactions: list[Transaction] = []
+    seen: set[str] = set()
+    duplicates: list[int] = []
+    rejected: list[tuple[int, str]] = []
+    dates: list[datetime] = []
+    for row_number, row in enumerate(reader, start=2):
+        try:
+            occurred_at = datetime.fromisoformat(str(row.get("date", "")).strip())
+            amount = Decimal(str(row.get("amount", "")).strip()).quantize(
+                Decimal("0.01"), rounding=ROUND_HALF_EVEN
+            )
+            if not amount.is_finite():
+                raise ValueError("amount is not finite")
+            description = str(row.get("description", "")).strip()
+            if not description:
+                raise ValueError("description is required")
+            provider_id = str(row.get("transaction_id", "")).strip() or None
+            identity = (
+                provider_id
+                or sha256(
+                    f"{source_id}\0{occurred_at.isoformat()}\0{amount}\0{description}".encode()
+                ).hexdigest()
+            )
+            if identity in seen:
+                duplicates.append(row_number)
+                continue
+            seen.add(identity)
+            transaction_id = f"{source_id}:{identity}"
+            dates.append(occurred_at)
+            transactions.append(
+                Transaction(
+                    transaction_id=transaction_id,
+                    account_id=account_id,
+                    amount_cents=int(amount * 100),
+                    occurred_at=occurred_at,
+                    description=description,
+                    currency=currency,
+                    provider_transaction_id=provider_id,
+                    status=str(row.get("status", "posted")).strip().lower() or "posted",
+                    source_id=source_id,
+                )
+            )
+        except (InvalidOperation, TypeError, ValueError) as exc:
+            rejected.append((row_number, str(exc)))
+    source = ImportSource(
+        source_id=source_id,
+        source_type="csv",
+        content_hash=digest,
+        imported_at=now,
+        coverage_start=min(dates) if dates else None,
+        coverage_end=max(dates) if dates else None,
+        complete=not rejected,
+    )
+    return tuple(transactions), FinanceImportReport(
+        source=source,
+        imported_transaction_ids=tuple(item.transaction_id for item in transactions),
+        duplicate_rows=tuple(duplicates),
+        rejected_rows=tuple(rejected),
+    )
 
 
 @dataclass(frozen=True)
