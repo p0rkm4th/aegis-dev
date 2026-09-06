@@ -144,6 +144,33 @@ def test_deterministic_air_quality_request_preserves_explicit_coordinates():
     )
 
 
+def test_deterministic_weather_tomorrow_request_uses_approved_coordinates(monkeypatch):
+    monkeypatch.setenv("AEGIS_WEATHER_LATITUDE", "41.881832")
+    monkeypatch.setenv("AEGIS_WEATHER_LONGITUDE", "-87.623177")
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "weather")
+    manager.discover(bundle)
+    manager.install("weather", frozenset({"weather.read"}))
+    manager.enable("weather")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="What's the weather tomorrow?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "weather.forecast.read"
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounded = _ground_argument_provenance(intent, card, Context())
+    assert not isinstance(grounded, Result)
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
+
+
 def test_deterministic_calendar_communication_draft_requires_recipient_and_path():
     manager = PackManager()
     bundle = next(

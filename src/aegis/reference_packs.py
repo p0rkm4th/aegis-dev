@@ -1128,10 +1128,27 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "days": "explicit forecast horizon from 1 to 7 days",
                     },
                     argument_grounding={
-                        key: ArgumentGroundingRule(
-                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
-                        )
-                        for key in ("latitude", "longitude", "days")
+                        "latitude": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.APPROVED_DEFAULT,
+                            ),
+                            approved_default="owner.weather_coordinates.v1",
+                        ),
+                        "longitude": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.APPROVED_DEFAULT,
+                            ),
+                            approved_default="owner.weather_coordinates.v1",
+                        ),
+                        "days": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                            ),
+                            approved_derivations=("reference.tomorrow_forecast_horizon.v1",),
+                        ),
                     },
                 ),
             ),

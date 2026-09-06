@@ -1267,6 +1267,28 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    default_forecast = re.fullmatch(
+        r"(?:what(?:'s| is) (?:the )?(?:weather|forecast) (?:like )?tomorrow|"
+        r"will it rain tomorrow)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if default_forecast is not None:
+        try:
+            latitude = float(_required("AEGIS_WEATHER_LATITUDE"))
+            longitude = float(_required("AEGIS_WEATHER_LONGITUDE"))
+        except (RuntimeError, ValueError):
+            return None
+        card = manager.action_card("weather", "weather.forecast.read")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": {"latitude": latitude, "longitude": longitude, "days": 2}}
+                )
+            }
+        )
     forecast = re.fullmatch(
         r"(?:show|read|get) (?:the )?(?P<days>[1-7])(?:-| )day weather forecast at "
         r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"

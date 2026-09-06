@@ -144,6 +144,27 @@ def _ground_argument_provenance(
 
     provenance: dict[str, ArgumentProvenance] = {}
     for key, value in card.action.arguments.items():
+        if (
+            card.action.action_id == "weather.forecast.read"
+            and key in {"latitude", "longitude"}
+            and isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and re.search(r"\btomorrow\b", intent.utterance, flags=re.IGNORECASE)
+        ):
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.APPROVED_DEFAULT,
+                default_contract="owner.weather_coordinates.v1",
+            )
+            continue
+        if card.action.action_id == "weather.forecast.read" and key == "days" and value == 2:
+            tomorrow = re.search(r"\btomorrow\b", intent.utterance, flags=re.IGNORECASE)
+            if tomorrow is not None:
+                provenance[key] = ArgumentProvenance(
+                    kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                    source_spans=(tomorrow.span(),),
+                    derivation="reference.tomorrow_forecast_horizon.v1",
+                )
+                continue
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             numeric_spans = tuple(
                 match.span()
