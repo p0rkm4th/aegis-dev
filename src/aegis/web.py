@@ -639,6 +639,23 @@ async function loadState() {
     const heading = document.createElement('p');
     heading.textContent = `${node.label}: ${node.detail || 'No detail'}`;
     panel.append(heading);
+    const nodeViews = (renderedNodeViews.get(node.id) || []).filter(view => view !== 'home');
+    if (nodeViews.length) {
+      const navigation = document.createElement('p');
+      const targetView = nodeViews[0];
+      const viewButton = document.createElement('button'); viewButton.type = 'button';
+      const targetNav = document.querySelector(`[data-view="${targetView}"]`);
+      viewButton.textContent = `Open ${targetNav?.textContent || targetView} view`;
+      viewButton.addEventListener('click', () => targetNav?.click());
+      navigation.append(viewButton); panel.append(navigation);
+    }
+    const focus = document.createElement('button'); focus.type = 'button';
+    focus.textContent = `Ask about ${node.label}`;
+    focus.addEventListener('click', () => {
+      const input = document.getElementById('utterance');
+      input.value = `Tell me about ${node.label}`; input.focus();
+    });
+    panel.append(focus);
     if (Object.prototype.hasOwnProperty.call(details, node.id)) {
       panel.append(renderDetailValue(details[node.id]));
     }

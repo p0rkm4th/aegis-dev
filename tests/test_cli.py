@@ -4230,6 +4230,21 @@ def test_browser_app_workspace_surface_exposes_scoped_download():
     assert "workspace/file?workspace_id=" in html
 
 
+def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_focus():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Open ${targetNav?.textContent || targetView} view" in html
+    assert "Ask about ${node.label}" in html
+    assert "Tell me about ${node.label}" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []
