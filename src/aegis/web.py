@@ -1303,6 +1303,17 @@ async function loadWeather() {
         document.getElementById('chat').requestSubmit();
       });
       panel.append(followup);
+      const sendForecast = document.createElement('button'); sendForecast.type = 'button';
+      sendForecast.textContent = "Send tomorrow's weather";
+      sendForecast.addEventListener('click', () => {
+        document.getElementById('utterance').value = "Text me tomorrow's weather";
+        document.getElementById('chat').requestSubmit();
+      });
+      panel.append(sendForecast);
+      const sendForecastBoundary = document.createElement('p'); sendForecastBoundary.className = 'muted';
+      sendForecastBoundary.textContent =
+        'Sending uses the exact approved communication destination; provider acceptance is not delivery proof.';
+      panel.append(sendForecastBoundary);
       const report = document.createElement('button'); report.type = 'button';
       report.textContent = 'Save verified air-quality report';
       report.addEventListener('click', () => {
