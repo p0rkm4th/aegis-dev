@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+  "state_basis_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1e60f3b3122be43f4de5a926beb04f719b019bfe",
-  "deterministic_green_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
-  "last_pushed_sha": "1e60f3b3122be43f4de5a926beb04f719b019bfe",
-  "hosted_green_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
-  "hosted_ci_green_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+  "repository_head_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "deterministic_green_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "last_pushed_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "hosted_green_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "hosted_ci_green_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+    "commit_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
     "conclusion": "success",
-    "run_id": "34020049985",
+    "run_id": "34020630547",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
-  "running_release_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
-  "live_green_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c",
+  "installed_release_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "running_release_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "live_green_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-calendar-conflict-inspection",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "c8ffc2463221b322898fa9b2b407e2f00307327c"
+    "release_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -188,9 +188,10 @@
     ,"calendar.events.conflicts is a typed read-only Core action with calendar.read grounding; installed owner proof inspected two overlapping fixture events through the normal conversation path and exposed Calendar conflict inspection in Constellation"
     ,"calendar.events.agenda is a typed date-bounded calendar.read action; installed owner proof completed 'What's on my calendar tomorrow?' through the configured provider and temporal grounding, while live Google remains pending"
     ,"installed owner proof on c8ffc24 renders the verified bounded agenda as 'Calendar 2026-09-07: Breakfast; Standup'; provider remains the configured fixture and no live Google claim is made"
+    ,"calendar-task-attention is a dedicated two-permission Pack; installed owner proof reads canonical task deadlines against configured calendar events through Core, renders a bounded list with omitted-count truth, and exposes the Pack in Constellation"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now reads a bounded tomorrow agenda and overlapping calendar conflicts through typed calendar.read actions; proofs are fixture-backed and live Google Calendar remains pending.",
+  "daily_driver_checkpoint": "The installed owner now reads bounded Calendar + Tasks attention through the explicitly approved calendar-task-attention Pack; the proof is fixture-backed and read-only.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -228,22 +229,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 59,
+  "voluntarily_useful_owner_workflows": 60,
   "owner_visible_capability_surfaces": 27,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 33,
+  "cross_capability_workflows": 34,
   "breadth_scoreboard": {
     "owner_visible_views": 18,
     "usable_capability_families": 10,
     "verified_write_capabilities": 7,
     "external_integrations": 3,
-    "cross_domain_compositions": 33,
+    "cross_domain_compositions": 34,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 54,
+    "owner_workflows_completed": 55,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: choose a genuinely new non-credential-blocked provider-neutral capability or composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/calendar-agenda-render-owner-c8ffc24.json",
+  "history_artifact": "evidence/calendar-task-attention-owner-44d4dbd.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

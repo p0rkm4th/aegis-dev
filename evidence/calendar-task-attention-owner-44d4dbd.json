@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-task-attention",
+  "source_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34020630547", "conclusion": "success"},
+  "installed_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "running_sha": "44d4dbda6a83b2fd0d86c74423ad892553dd9aad",
+  "owner_request": "Which tasks are due before my calendar events?",
+  "pack_id": "calendar-task-attention",
+  "action_id": "calendar-task-attention.read",
+  "granted_permissions": ["calendar.read", "tasks.read"],
+  "provider_mode": "configured_calendar_fixture_plus_postgresql_tasks",
+  "owner_message_boundary": "Each event renders 12 task titles and an explicit omitted count; no task is created, completed, or authorized.",
+  "result": {"state": "completed", "events": ["Breakfast", "Standup"], "omitted_tasks_per_event": 48},
+  "constellation": "Calendar Task Attention is enabled and represented through generic Pack metadata; visibility does not grant authority."
+}
