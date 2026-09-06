@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "5c2c955",
+  "state_basis_sha": "fae7081",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5c2c955",
-  "deterministic_green_sha": "5c2c955",
-  "last_pushed_sha": "5c2c955",
-  "hosted_green_sha": "5c2c955",
-  "hosted_ci_green_sha": "5c2c955",
+  "repository_head_sha": "fae7081",
+  "deterministic_green_sha": "fae7081",
+  "last_pushed_sha": "fae7081",
+  "hosted_green_sha": "fae7081",
+  "hosted_ci_green_sha": "fae7081",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "5c2c955",
+    "commit_sha": "fae7081",
     "conclusion": "success",
-    "run_id": "34046896953",
-    "observed_at": "2026-09-06T17:05:00Z"
+    "run_id": "34046995337",
+    "observed_at": "2026-09-06T17:15:00Z"
   },
   "installed_release_sha": "8081058",
   "running_release_sha": "8081058",
   "live_green_sha": "8081058",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "breadth-rearm-after-owner-navigation-hierarchy",
+  "active_checkpoint": "breadth-rearm-after-calendar-task-attention-ui",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "breadth-rearm-after-owner-navigation-hierarchy",
+  "current_checkpoint": "breadth-rearm-after-calendar-task-attention-ui",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -94,6 +94,7 @@
     "completed_tasks_communication_ui": "Promoted Tasks view exposes a generic completed-task snapshot to Communications; canonical history is fixed before send and provider acceptance remains distinct from delivery",
     "completed_tasks_communication_routing": "Deterministic routing for completed-task communication is regression-tested separately from open-task routing and requires one exact owner-approved destination",
     "owner_navigation_hierarchy": "Promoted browser shell groups everyday views separately from exploratory capability views, with responsive mobile disclosure and unchanged Core routes",
+    "calendar_task_attention_communication_ui": "Promoted Calendar view exposes Calendar + Tasks attention sharing through the existing generic communications route; task/calendar state remains read-only and delivery is unproven",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
     "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added",
@@ -337,7 +338,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Promote and dogfood the grouped owner navigation at desktop and mobile widths, then continue the next non-credential-blocked capability/product slice without claiming live provider delivery.",
+  "next_action": "Promote and dogfood Calendar + Tasks attention sharing at desktop and mobile widths, then continue the next non-credential-blocked capability/product slice without claiming live provider delivery.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
