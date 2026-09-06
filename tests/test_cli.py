@@ -6477,6 +6477,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "async function loadDocuments()" in _INDEX_HTML
     assert "Read document" in _INDEX_HTML
     assert "async function loadDailyDriver()" in _INDEX_HTML
+    assert "Save forecast to Workspace" in _INDEX_HTML
+    assert "Save my 3-day weather forecast at" in _INDEX_HTML
+    assert "public forecast provenance" in _INDEX_HTML
     assert "/api/daily-driver" in _INDEX_HTML
     assert "Review Packs & capabilities" in _INDEX_HTML
     assert "candidate.requires_owner_input" in _INDEX_HTML

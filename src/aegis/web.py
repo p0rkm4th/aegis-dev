@@ -1278,6 +1278,21 @@ async function loadWeather() {
       const forecast = document.createElement('section'); forecast.className = 'detail-card';
       const forecastTitle = document.createElement('h3'); forecastTitle.textContent = 'Three-day forecast';
       forecast.append(forecastTitle, renderDetailValue(payload.forecast)); panel.append(forecast);
+      const reading = payload.reading || {};
+      if (reading.latitude !== undefined && reading.longitude !== undefined) {
+        const saveForecast = document.createElement('button'); saveForecast.type = 'button';
+        saveForecast.textContent = 'Save forecast to Workspace';
+        saveForecast.addEventListener('click', () => {
+          document.getElementById('utterance').value =
+            `Save my 3-day weather forecast at ${reading.latitude}, ${reading.longitude} as forecast.md`;
+          document.getElementById('chat').requestSubmit();
+        });
+        forecast.append(saveForecast);
+        const forecastBoundary = document.createElement('p'); forecastBoundary.className = 'muted';
+        forecastBoundary.textContent =
+          'The report preserves public forecast provenance; it is not canonical personal truth.';
+        forecast.append(forecastBoundary);
+      }
     }
     if (payload.reading) {
       const followup = document.createElement('button'); followup.type = 'button';
