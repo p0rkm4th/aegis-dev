@@ -9,6 +9,7 @@ from aegis.pack_first_experiment import (
     PackCase,
     PackRouterStatus,
     compact_pack_catalog,
+    is_pack_lifecycle_request,
     measure_incumbent,
     measure_pack_first,
     measure_retrieval_assisted_pack_first,
@@ -265,3 +266,20 @@ def test_owner_corpus_includes_adversarial_followups_without_core_phrase_routes(
     assert "restart that instead" in utterances
     assert any(case.expected_pack_ids is None for case in OWNER_PACK_CORPUS)
     assert any(case.expected_pack_ids == frozenset() for case in OWNER_PACK_CORPUS)
+
+
+def test_pack_lifecycle_language_is_experimental_fail_closed_preflight():
+    assert is_pack_lifecycle_request("install this unknown Pack")
+    assert is_pack_lifecycle_request("approve the capability")
+    assert not is_pack_lifecycle_request("show my groceries")
+
+    manager = corpus_manager()
+    measurement = measure_pack_first(
+        "install this unknown Pack",
+        manager,
+        lambda _prompt: {"status": "SELECTED", "selected_pack_ids": ["dynamic-weather"]},
+        frozenset(),
+    )
+    assert measurement.status is PackRouterStatus.UNSUPPORTED
+    assert measurement.model_calls == 0
+    assert measurement.correct
