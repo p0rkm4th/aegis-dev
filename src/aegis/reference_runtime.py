@@ -409,6 +409,7 @@ def default_runtime_registry(
         "calendar-reports.events.snapshot_to_workspace": calendar_snapshot_workspace_runtime,
         "calendar-communications.events.draft": calendar_communication_draft_runtime,
         "documents.list": documents_runtime,
+        "documents.search": documents_runtime,
         "communications.messages.list": communications_runtime,
         "communications.messages.send": communications_send_runtime,
         "communication-drafts.messages.draft": communication_draft_runtime,

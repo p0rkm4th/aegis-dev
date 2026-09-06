@@ -8,6 +8,8 @@ from aegis.pack_lifecycle import PackBundle
 from aegis.reference_packs import (
     DeviceControlExecutor,
     DeviceControlVerifier,
+    DocumentsExecutor,
+    DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
     HomelabHealthExecutor,
@@ -43,6 +45,39 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "device-controls",
         "device-reports",
     }
+
+
+def test_documents_search_returns_only_bounded_authorized_matches(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_DOCUMENT_FIXTURE_JSON",
+        '[{"document_id":"alpha","title":"Alpha Handbook","text":"Guidance for the lab"},'
+        '{"document_id":"other","title":"Other","text":"Unrelated"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "documents.search"
+    )
+    action = card.action.model_copy(update={"arguments": {"query": "guidance"}})
+    observation = DocumentsExecutor().execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="document-search-1",
+        )
+    )
+    result = DocumentsVerifier().verify(observation, action.verification)
+    assert result.verified is True
+    assert observation.evidence["documents"] == [
+        {
+            "document_id": "alpha",
+            "title": "Alpha Handbook",
+            "source": "configured_document_fixture",
+            "snippet": "Guidance for the lab",
+        }
+    ]
 
 
 def test_workspace_pack_uses_generic_runtime_and_readback(tmp_path, monkeypatch) -> None:

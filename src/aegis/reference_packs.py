@@ -749,6 +749,22 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="documents.search",
+                        capability="documents.search",
+                        required_permissions=("documents.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Search authorized document titles and bounded text",
+                    relevance=1,
+                    argument_keys=("query",),
+                    argument_grounding={
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="documents.export_to_workspace",
                         capability="documents.export_to_workspace",
                         required_permissions=("documents.read", "workspace.write"),
@@ -1706,10 +1722,39 @@ class DeviceStatesVerifier:
 
 class DocumentsExecutor:
     def execute(self, request: ExecutionRequest) -> Observation:
-        del request
+        query = request.action.arguments.get("query")
+        documents = configured_document_provider().list_documents()
+        if request.action.action_id == "documents.search":
+            if not isinstance(query, str) or not query.strip():
+                return Observation(
+                    execution_id=uuid4(),
+                    evidence={"documents_search": "invalid_query"},
+                    command_succeeded=False,
+                )
+            needle = query.strip().casefold()
+            matches = []
+            for document in documents:
+                haystack = f"{document.title}\n{document.text}".casefold()
+                if needle not in haystack:
+                    continue
+                matches.append(
+                    {
+                        "document_id": document.document_id,
+                        "title": document.title,
+                        "source": document.source,
+                        "snippet": document.text[:500],
+                    }
+                )
+            evidence: dict[str, object] = {
+                "query": query.strip()[:500],
+                "documents": matches[:20],
+                "source": "authorized_document_fixture",
+            }
+        else:
+            evidence = documents_evidence(documents)
         return Observation(
             execution_id=uuid4(),
-            evidence=documents_evidence(configured_document_provider().list_documents()),
+            evidence=evidence,
             command_succeeded=True,
         )
 
