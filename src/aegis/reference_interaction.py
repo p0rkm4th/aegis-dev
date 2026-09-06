@@ -303,6 +303,24 @@ def _ground_argument_provenance(
                     source_spans=spans,
                 )
                 continue
+        if (
+            card.action.action_id == "network.probe"
+            and key == "scope_id"
+            and isinstance(value, str)
+        ):
+            spans = _utterance_spans(intent.utterance, value)
+            if not spans:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="Name the authorized network scope explicitly.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                source_spans=spans,
+            )
+            continue
         if key.endswith("_id"):
             if not isinstance(value, str) or not value.strip():
                 return Result(
