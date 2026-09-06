@@ -230,6 +230,7 @@ let renderedNodeText = new Map();
 let renderedNodeViews = new Map();
 let renderedEdgeRows = [];
 let activeView = 'home';
+let pendingCapabilityFocus = null;
 let latestResearch = null;
 let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
@@ -1395,6 +1396,7 @@ async function loadObjectives() {
               const review = document.createElement('button');
               review.type = 'button'; review.textContent = 'Review Packs & capabilities';
               review.addEventListener('click', () => {
+                pendingCapabilityFocus = String(candidate.capability || '').trim() || null;
                 const packs = document.querySelector('[data-view="packs"]');
                 if (packs) packs.click();
               });
@@ -1627,9 +1629,13 @@ async function loadPacks() {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Packs unavailable.');
     const heading = document.createElement('p');
+    const focusText = pendingCapabilityFocus
+      ? ` Candidate capability: ${pendingCapabilityFocus}.`
+      : '';
     heading.textContent = payload.packs?.length
       ? `${payload.packs.length} Pack(s) in the lifecycle registry`
       : 'No Pack metadata is currently available.';
+    heading.textContent += focusText;
     panel.append(heading);
     (payload.packs || []).forEach(pack => {
       const card = document.createElement('section');
@@ -1637,6 +1643,11 @@ async function loadPacks() {
       const title = document.createElement('h2');
       title.textContent = `${pack.label || pack.pack_id} · ${pack.status || 'unknown'}`;
       card.append(title, renderDetailValue(pack));
+      if (pendingCapabilityFocus && JSON.stringify(pack).includes(pendingCapabilityFocus)) {
+        const match = document.createElement('p'); match.className = 'status-badge';
+        match.textContent = `Matches candidate capability: ${pendingCapabilityFocus}`;
+        card.prepend(match);
+      }
       if (pack.status !== 'enabled' && Array.isArray(pack.permissions)) {
         const enable = document.createElement('button');
         enable.type = 'button';
