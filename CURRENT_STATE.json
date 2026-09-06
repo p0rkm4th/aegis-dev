@@ -19,9 +19,9 @@
   "running_release_sha": "eaaf9bb",
   "live_green_sha": "eaaf9bb",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-finance-settlement-presentation",
+  "active_checkpoint": "homelab-discovery-identity-candidate",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-finance-settlement-presentation",
+  "current_checkpoint": "homelab-discovery-identity-candidate",
   "active_campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -386,7 +386,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Strengthen observed-to-canonical Homelab reconciliation only when stable identity evidence exists; preserve discovered observations as non-authoritative while keeping Pantry/Finance owner reads useful and explicit.",
+  "next_action": "Expand the isolated Pack-first owner corpus across Food, Finance, Homelab, and Forge using the now-proven owner surfaces; keep the incumbent production route unchanged until measured safety and correctness justify a single replacement.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
