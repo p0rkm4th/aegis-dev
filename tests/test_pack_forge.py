@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from aegis.contracts import ActionCard, ActionSpec, VerificationContract
+from aegis.osint import CapabilityGap, Forge
 from aegis.pack_forge import PackProposalV0, compile_pack_proposal, materialize_pack_skeleton
 from aegis.pack_lifecycle import PackManager
 
@@ -137,6 +138,46 @@ def test_local_materializer_preview_and_output_are_structural_only(tmp_path: Pat
     assert "provenance/OSS.md" in files
     assert "NotImplementedError" in (output / "runtime.py").read_text()
     assert "command_succeeded=True" not in (output / "runtime.py").read_text()
+
+
+def test_owner_capability_gap_reaches_quarantine_without_install_or_authority(
+    tmp_path: Path,
+) -> None:
+    """Investigation and preview remain separate from the active Pack registry."""
+
+    gap = CapabilityGap(
+        "home inventory report",
+        "alice",
+        ("workspace.write",),
+    )
+    draft = Forge().propose(gap)
+    proposal = PackProposalV0(
+        pack_id=draft.pack_id,
+        version="0.1.0",
+        permissions=draft.permissions,
+        ui={"label": "Home inventory report", "category": "candidate", "detail_view": "list"},
+        cards=(
+            ActionCard(
+                action=ActionSpec(
+                    action_id=f"{draft.pack_id}.report.create",
+                    capability=f"{draft.pack_id}.report.create",
+                    required_permissions=("workspace.write",),
+                    verification=VerificationContract(kind="readback"),
+                ),
+                summary="Prepare a bounded report",
+                relevance=1,
+            ),
+        ),
+    )
+    quarantine = tmp_path / "forge-quarantine" / proposal.pack_id
+    files = materialize_pack_skeleton(proposal, quarantine)
+
+    assert "pack_manifest.json" in files
+    assert quarantine.is_dir()
+    active_registry = PackManager()
+    with pytest.raises(KeyError):
+        active_registry.bundle(proposal.pack_id)
+    assert not (tmp_path / "installed").exists()
 
 
 def test_generated_action_ids_can_be_compared_to_registry_bindings() -> None:
