@@ -859,6 +859,14 @@ async function loadCalendar() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(form);
+    const snapshot = document.createElement('button');
+    snapshot.type = 'button'; snapshot.textContent = 'Save calendar snapshot to Workspace';
+    snapshot.addEventListener('click', () => {
+      document.getElementById('utterance').value =
+        'Save my calendar snapshot to Workspace as agenda.md';
+      document.getElementById('chat').requestSubmit();
+    });
+    panel.append(snapshot);
     const draftSection = document.createElement('section'); draftSection.className = 'detail-card';
     const draftTitle = document.createElement('h3'); draftTitle.textContent = 'Draft an agenda message';
     const draftForm = document.createElement('form'); draftForm.setAttribute('aria-label', 'Draft calendar message');
