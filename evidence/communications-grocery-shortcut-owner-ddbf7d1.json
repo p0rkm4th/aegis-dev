@@ -1,0 +1,19 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "communications-grocery-approved-target-shortcut",
+  "source_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "hosted_run_id": "34014978201",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "owner_request": "Text me the grocery list.",
+  "objective_id": "d9e50de6-0c3f-4fd0-9775-a5833a9939d8",
+  "correlation_id": "646c6ebe-0d1c-45c7-8b8a-c4b51ab5effc",
+  "target": "scotty",
+  "channel": "sms",
+  "account": "household",
+  "provider_status": "PROVIDER_ACCEPTED",
+  "provider_readback_proven": true,
+  "delivery_proven": false,
+  "openclaw_live_channel": false,
+  "safety": "The destination is resolved only from one exact owner-approved target; zero or multiple approved targets fail closed and require explicit addressing."
+}
