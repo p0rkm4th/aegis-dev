@@ -5068,6 +5068,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "accountSelect.value" in _AEGIS_JS
     assert "Add to groceries" in _AEGIS_JS
     assert "pantry_low_items" in _AEGIS_JS
+    assert "Canonical inventory" in _AEGIS_JS
+    assert "host ${service.host_id" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS
     assert "quantity unknown" in _AEGIS_JS
     assert "Groceries needed" in _AEGIS_JS
