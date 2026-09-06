@@ -1096,6 +1096,13 @@ async function loadToday() {
     heading.textContent = 'Authorized state requiring attention today';
     panel.append(heading);
     panel.append(renderDetailValue(payload));
+    const conflicts = payload.external_calendar?.conflicts || [];
+    appendTodaySection(panel, 'Scheduling conflicts', conflicts.length
+      ? conflicts : 'No overlapping timed events detected.');
+    const conflictBoundary = document.createElement('p'); conflictBoundary.className = 'muted';
+    conflictBoundary.textContent = payload.external_calendar?.conflict_boundary
+      || 'Conflict inspection is read-only.';
+    panel.append(conflictBoundary);
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }

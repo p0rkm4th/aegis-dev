@@ -4374,6 +4374,21 @@ def test_browser_app_calendar_surface_exposes_read_only_conflict_inspection():
     assert "Conflict inspection is read-only." in html
 
 
+def test_browser_app_today_surface_exposes_calendar_conflicts():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Scheduling conflicts" in html
+    assert "No overlapping timed events detected." in html
+    assert "payload.external_calendar?.conflicts" in html
+
+
 def test_browser_app_calendar_surface_exposes_provider_readback_update():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
