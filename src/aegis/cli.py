@@ -635,6 +635,52 @@ def _device_state(principal: Principal) -> dict[str, Any]:
     return evidence
 
 
+def _device_research_context(utterance: str) -> tuple[str, dict[str, Any]] | None:
+    """Split an explicit device explanation into public query and private context."""
+
+    authorized = {
+        item.strip()
+        for item in os.environ.get("AEGIS_AUTHORIZED_DEVICE_ENTITIES", "").split(",")
+        if item.strip()
+    }
+    for entity_id in authorized:
+        if entity_id.casefold() not in utterance.casefold():
+            continue
+        public_query = re.sub(
+            re.escape(entity_id), "the smart-home device", utterance, flags=re.IGNORECASE
+        )
+        try:
+            states = (
+                DeviceStatesExecutor()
+                .execute(
+                    ExecutionRequest(
+                        objective_id=uuid4(),
+                        action_id=uuid4(),
+                        action=next(
+                            card.action
+                            for bundle in reference_bundles()
+                            for card in bundle.cards
+                            if card.action.action_id == "devices.states.list"
+                        ),
+                        idempotency_key=f"research-device-read-{uuid4()}",
+                    )
+                )
+                .evidence.get("states", [])
+            )
+        except (OSError, RuntimeError, ValueError):
+            return public_query, {"entity_id": entity_id, "state": "unavailable"}
+        for state in states if isinstance(states, list) else []:
+            if isinstance(state, dict) and state.get("entity_id") == entity_id:
+                return public_query, {
+                    "entity_id": entity_id,
+                    "state": state.get("state", "unknown"),
+                    "observed_at": state.get("observed_at"),
+                    "provenance": "authorized_observed_device_state",
+                }
+        return public_query, {"entity_id": entity_id, "state": "unknown"}
+    return None
+
+
 class _InventoryOnlyHomelabRuntime:
     def restart(self, _service: Any) -> bool:
         return False
@@ -1747,8 +1793,10 @@ def run_interaction(
             )
 
         try:
+            device_context = _device_research_context(intent.utterance)
+            research_query = device_context[0] if device_context is not None else intent.utterance
             service = configured_research_service()
-            evidence = service.collect(SearchRequest(intent.utterance))
+            evidence = service.collect(SearchRequest(research_query))
             evidence_values = {
                 "query": evidence.query,
                 "provider_id": evidence.provider_id,
@@ -1765,6 +1813,8 @@ def run_interaction(
                 ],
             }
             synthesis_values: dict[str, Any] = {"research_evidence": evidence_values}
+            if device_context is not None:
+                synthesis_values["authorized_device_context"] = device_context[1]
             if source_kind == "mixed_evidence":
                 # Local synthesis may use authorized context only after public
                 # retrieval. This value is never passed to SearchProvider.
@@ -1794,7 +1844,10 @@ def run_interaction(
                     "authoritative": False,
                     "research": evidence_values,
                     "local_context_sources": (
-                        list(context.sources) if source_kind == "mixed_evidence" else []
+                        list(context.sources)
+                        + (["authorized_observed_device_state"] if device_context else [])
+                        if source_kind == "mixed_evidence" or device_context
+                        else []
                     ),
                 },
                 correlation_id=intent.correlation_id,
