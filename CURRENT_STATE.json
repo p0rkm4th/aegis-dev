@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "31dd1dc",
+  "state_basis_sha": "f8bfaea",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "31dd1dc",
-  "deterministic_green_sha": "31dd1dc",
-  "last_pushed_sha": "31dd1dc",
-  "hosted_green_sha": "31dd1dc",
-  "hosted_ci_green_sha": "31dd1dc",
+  "repository_head_sha": "f8bfaea",
+  "deterministic_green_sha": "f8bfaea",
+  "last_pushed_sha": "f8bfaea",
+  "hosted_green_sha": "f8bfaea",
+  "hosted_ci_green_sha": "f8bfaea",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "31dd1dc",
+    "commit_sha": "f8bfaea",
     "conclusion": "success",
-    "run_id": "34047887236",
+    "run_id": "34047973979",
     "observed_at": "2026-09-06T18:20:00Z"
   },
-  "installed_release_sha": "8d743d1",
-  "running_release_sha": "8d743d1",
-  "live_green_sha": "8d743d1",
-  "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "breadth-rearm-after-workspace-search-owner-response",
+  "installed_release_sha": "f8bfaea",
+  "running_release_sha": "f8bfaea",
+  "live_green_sha": "f8bfaea",
+  "active_milestone": "DAILY-DRIVER-ALPHA",
+  "active_checkpoint": "external-effect-assurance-acceptance",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "breadth-rearm-after-workspace-search-owner-response",
+  "current_checkpoint": "external-effect-assurance-acceptance",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -283,6 +283,7 @@
   ],
   "current_blockers": [
     "No OpenClaw outbound channel or Google Calendar credential is configured, so live external delivery/write acceptance remains pending; fixture/provider acceptance is not delivery proof.",
+    "External-effect acceptance and promotion are incomplete: hostile Calendar ambiguity/rejection proof, UNKNOWN audit proof, exact hosted validation, and installed UNKNOWN → restart → reconciliation proof remain.",
     "The browser presentation is only partially extracted; the existing inline application script remains to be split after the current Core contract stabilizes."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
@@ -297,8 +298,13 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "active_checkpoint_blockers": [],
-  "project_architecture_blockers": [],
+  "active_checkpoint_blockers": [
+    "Calendar transport errors must preserve definite rejection versus possible remote effect.",
+    "UNKNOWN outcomes must not be recorded as definite failure in the audit trail."
+  ],
+  "project_architecture_blockers": [
+    "External-effect acceptance/promotion is incomplete; the landed contract is present and under hostile validation."
+  ],
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "daily_driver_scoreboard": {
@@ -342,7 +348,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Promote and dogfood scoped Workspace search through the conversation and Workspace views, then continue the next non-credential-blocked capability/product slice without claiming live provider delivery.",
+  "next_action": "Run hostile Communications/Calendar/Kernel/provenance acceptance; no new consequential provider until green.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }

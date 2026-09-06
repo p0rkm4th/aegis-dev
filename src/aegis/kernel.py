@@ -433,10 +433,21 @@ class Kernel:
         self._results[key] = result
         self.store.save_result(key, result)
         self.store.update_action_state(key, state)
+        audit_event = (
+            "result.verified"
+            if verified.verified
+            else "result.observed"
+            if outcome_unknown
+            else "result.failed"
+        )
         self.audit.append(
-            "result.verified" if verified.verified else "result.failed",
+            audit_event,
             intent.principal.id,
-            {"state": state.value, "verified": verified.verified},
+            {
+                "state": state.value,
+                "verified": verified.verified,
+                "assurance": assurance.value if assurance is not None else None,
+            },
             objective_id=objective.id,
             action_id=execution_id,
         )
