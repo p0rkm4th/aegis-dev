@@ -390,6 +390,52 @@ def test_document_message_fixes_authorized_content_before_generic_send(monkeypat
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_document_search_message_fixes_authorized_matches_before_generic_send(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_DOCUMENT_FIXTURE_JSON",
+        '[{"document_id":"alpha-handbook","title":"Alpha Handbook",'
+        '"text":"Authorized guidance.","source":"owner"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "canonical.document_search",
+                "query": "guidance",
+            }
+        }
+    )
+    prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
+    expected_body = prepared.verification.expected["body"]
+    assert expected_body == (
+        "Document search: guidance\n\n## Alpha Handbook (alpha-handbook)\n\n"
+        "Authorized guidance.\n"
+    )
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="document-search-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_homelab_health_message_fixes_observation_before_generic_send(monkeypatch) -> None:
     monkeypatch.setattr(
         reference_packs_module,

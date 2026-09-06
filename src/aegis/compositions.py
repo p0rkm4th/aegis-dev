@@ -38,6 +38,19 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "document read + scoped workspace write; Core authorization required",
         },
         {
+            "id": "document-search-to-communication",
+            "label": "Document search → Communication",
+            "description": (
+                "Send bounded matches from authorized documents to one approved destination."
+            ),
+            "surfaces": ("Documents", "Communications"),
+            "authority": (
+                "authorized document search is fixed before communications send; explicit approved "
+                "destination and Core authorization are required, and provider delivery "
+                "remains distinct"
+            ),
+        },
+        {
             "id": "research-to-workspace",
             "label": "Research → Workspace",
             "description": "Preserve sourced public research as non-authoritative workspace notes.",

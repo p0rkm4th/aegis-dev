@@ -38,6 +38,16 @@ def test_tasks_to_communication_composition_is_owner_visible() -> None:
     assert "approved destination" in composition["authority"]
 
 
+def test_document_search_to_communication_composition_is_owner_visible() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "document-search-to-communication"
+    )
+    assert composition["surfaces"] == ("Documents", "Communications")
+    assert "fixed before communications send" in composition["authority"]
+
+
 def test_completed_tasks_workspace_composition_is_owner_visible() -> None:
     composition = next(
         item for item in available_compositions() if item["id"] == "completed-tasks-to-workspace"
