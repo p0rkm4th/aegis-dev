@@ -24,7 +24,12 @@ from uuid import UUID, uuid4
 import psycopg
 
 from .audit import PostgresAuditLog
-from .calendar import CalendarEvent, calendar_events_evidence, configured_calendar_provider
+from .calendar import (
+    CalendarEvent,
+    calendar_conflicts,
+    calendar_events_evidence,
+    configured_calendar_provider,
+)
 from .communications import configured_communication_targets
 from .compositions import available_compositions, calendar_to_task_attention
 from .contracts import (
@@ -542,6 +547,10 @@ def _calendar_state(principal: Principal) -> dict[str, Any]:
             until=latest_event,
         )
         evidence = calendar_events_evidence(external_events)
+        evidence["conflicts"] = list(calendar_conflicts(external_events))
+        evidence["conflict_boundary"] = (
+            "Conflict inspection is read-only and only compares events with explicit end times."
+        )
         evidence["task_attention"] = [
             {
                 "event_id": item.event_id,

@@ -8,6 +8,7 @@ from aegis.calendar import (
     FixtureCalendarWriteProvider,
     GoogleCalendarRestProvider,
     GoogleCalendarWriteProvider,
+    calendar_conflicts,
     calendar_events_evidence,
     configured_calendar_provider,
 )
@@ -28,6 +29,32 @@ def test_fixture_calendar_provider_returns_bounded_provider_neutral_events() -> 
     evidence = calendar_events_evidence(provider.list_events())
     assert evidence["source"] == "external_calendar_fixture"
     assert evidence["events"][0]["title"] == "Game night"
+
+
+def test_calendar_conflicts_returns_only_overlapping_timed_pairs() -> None:
+    events = (
+        CalendarEvent(
+            "b",
+            "Second",
+            datetime(2026, 9, 6, 10, tzinfo=timezone.utc),
+            datetime(2026, 9, 6, 11, tzinfo=timezone.utc),
+        ),
+        CalendarEvent(
+            "a",
+            "First",
+            datetime(2026, 9, 6, 10, 30, tzinfo=timezone.utc),
+            datetime(2026, 9, 6, 11, 30, tzinfo=timezone.utc),
+        ),
+        CalendarEvent("open", "Open ended", datetime(2026, 9, 6, 12, tzinfo=timezone.utc)),
+    )
+    assert calendar_conflicts(events) == (
+        {
+            "event_id": "a",
+            "event_title": "First",
+            "conflicts_with": "b",
+            "conflicting_title": "Second",
+        },
+    )
 
 
 def test_configured_calendar_provider_loads_bounded_snapshot(monkeypatch) -> None:

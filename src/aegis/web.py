@@ -918,6 +918,14 @@ async function loadCalendar() {
     });
     draftSection.append(draftTitle, draftForm); panel.append(draftSection);
     panel.append(renderDetailValue(events));
+    const conflicts = payload.conflicts || [];
+    const conflictSection = document.createElement('section'); conflictSection.className = 'detail-card';
+    const conflictTitle = document.createElement('h3'); conflictTitle.textContent = 'Scheduling conflicts';
+    conflictSection.append(conflictTitle);
+    conflictSection.append(renderDetailValue(conflicts.length ? conflicts : 'No overlapping timed events detected.'));
+    const conflictBoundary = document.createElement('p'); conflictBoundary.className = 'muted';
+    conflictBoundary.textContent = payload.conflict_boundary || 'Conflict inspection is read-only.';
+    conflictSection.append(conflictBoundary); panel.append(conflictSection);
     if (events.length) {
       const cancelSection = document.createElement('section'); cancelSection.className = 'detail-card';
       const cancelTitle = document.createElement('h3'); cancelTitle.textContent = 'Cancel an authorized event';
