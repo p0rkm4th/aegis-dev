@@ -64,3 +64,21 @@ def test_unknown_pantry_quantity_is_not_treated_as_zero():
     space.add_pantry(principal, item)
     with pytest.raises(ValueError, match="quantity is unknown"):
         space.consume_pantry(principal, item.item_id, 1, expected_version=0)
+
+
+def test_store_load_migrates_legacy_payload_once():
+    from aegis.household import PostgresHouseholdStore
+
+    class Connection:
+        def execute(self, query, params=()):
+            del params
+            assert "SELECT payload" in query
+            return self
+
+        def fetchone(self):
+            return ({"groceries": ["milk"]},)
+
+    space = PostgresHouseholdStore(Connection()).load("kitchen", {"owner"})
+    item = next(iter(space.grocery_items.values()))
+    assert item.display_name == "milk"
+    assert item.desired_quantity is None
