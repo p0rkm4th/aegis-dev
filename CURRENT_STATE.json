@@ -15,9 +15,9 @@
     "run_id": "34047096145",
     "observed_at": "2026-09-06T17:25:00Z"
   },
-  "installed_release_sha": "8081058",
-  "running_release_sha": "8081058",
-  "live_green_sha": "8081058",
+  "installed_release_sha": "e6af858",
+  "running_release_sha": "e6af858",
+  "live_green_sha": "e6af858",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "breadth-rearm-after-primary-navigation-documents",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8081058"
+    "release_sha": "e6af858"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
