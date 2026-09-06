@@ -5464,6 +5464,9 @@ def test_browser_app_household_surface_exposes_chore_communication():
     assert "Send open chores" in html
     assert "Text me my open chores" in html
     assert "Canonical chore state is fixed before communication" in html
+    assert "Send open obligations" in html
+    assert "Text me my open obligations" in html
+    assert "Canonical obligation state is fixed before communication" in html
 
 
 def test_browser_app_communications_surface_exposes_provider_outcome_distinction():

@@ -536,6 +536,57 @@ def test_chore_message_fixes_canonical_snapshot_before_generic_send(monkeypatch)
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_obligation_message_fixes_canonical_snapshot_before_generic_send(monkeypatch) -> None:
+    class FakeHouseholdStore:
+        def __init__(self, _connection):
+            pass
+
+        def read_snapshot(self, _principal):
+            return {
+                "obligations": (
+                    SimpleNamespace(title="Electric bill", amount=12500, settled=False),
+                )
+            }
+
+    monkeypatch.setattr(reference_packs_module, "PostgresHouseholdStore", FakeHouseholdStore)
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "canonical.obligations",
+            }
+        }
+    )
+    prepared = prepare_reference_action(
+        action, Principal(id="alice", vault_id="vault"), uuid4(), connection=object()
+    )
+    expected_body = prepared.verification.expected["body"]
+    assert expected_body == "Open household obligations:\n- Electric bill ($125.00)"
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="obligation-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_homelab_health_message_fixes_observation_before_generic_send(monkeypatch) -> None:
     monkeypatch.setattr(
         reference_packs_module,

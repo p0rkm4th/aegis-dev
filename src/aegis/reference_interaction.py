@@ -158,6 +158,7 @@ def _ground_argument_provenance(
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|"
                 r"(?:my )?(?:open )?chores|"
+                r"(?:my )?(?:open )?obligations|"
                 r"(?:the )?tasks due before my calendar events|"
                 r"(?:today(?:'s)?|the) brief|"
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
@@ -225,6 +226,7 @@ def _ground_argument_provenance(
         if key == "body_source" and value in {
             "canonical.groceries",
             "canonical.chores",
+            "canonical.obligations",
             "canonical.tasks",
             "canonical.calendar_tasks",
             "canonical.today",
@@ -241,6 +243,7 @@ def _ground_argument_provenance(
             source_phrase = {
                 "canonical.groceries": "grocery list",
                 "canonical.chores": "chores",
+                "canonical.obligations": "obligations",
                 "canonical.tasks": "tasks",
                 "canonical.calendar_tasks": "tasks due before my calendar events",
                 "canonical.today": "brief",
@@ -268,6 +271,7 @@ def _ground_argument_provenance(
                 derivation={
                     "canonical.groceries": "reference.communication_body_from_groceries.v1",
                     "canonical.chores": "reference.communication_body_from_chores.v1",
+                    "canonical.obligations": "reference.communication_body_from_obligations.v1",
                     "canonical.tasks": "reference.communication_body_from_tasks.v1",
                     "canonical.calendar_tasks": (
                         "reference.communication_body_from_calendar_tasks.v1"
@@ -1269,6 +1273,12 @@ def resolve_reference_safety_fast_paths(
         return None
     if re.fullmatch(
         r"(?:send|text) me (?:my )?(?:open )?chores[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
+    if re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?obligations[?!.,]?",
         intent.utterance.strip(),
         flags=re.IGNORECASE,
     ):
@@ -3724,6 +3734,13 @@ def resolve_reference_pre_model(
         flags=re.IGNORECASE,
     )
     if explicit_chore_message is not None:
+        return None
+    explicit_obligation_message = re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?obligations[?!.,]?",
+        utterance.strip(),
+        flags=re.IGNORECASE,
+    )
+    if explicit_obligation_message is not None:
         return None
     explicit_task_report = re.fullmatch(
         r"save (?:my )?(?:open )?(?:tasks|to-?dos) to workspace as "
