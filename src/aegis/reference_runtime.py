@@ -74,6 +74,8 @@ from .reference_packs import (
     HomelabHealthExecutor,
     HomelabHealthVerifier,
     HomelabHealthWorkspaceExecutor,
+    HomelabResearchExecutor,
+    HomelabResearchVerifier,
     HomelabWorkspaceExecutor,
     HomelabWorkspaceVerifier,
     OpenClawGroceryExecutor,
@@ -234,6 +236,16 @@ def default_runtime_registry(
             HomelabHealthExecutor(connection, principal),
             HomelabHealthVerifier(connection, principal),
             {"homelab.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def homelab_research_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            HomelabResearchExecutor(connection, principal),
+            HomelabResearchVerifier(connection, principal),
+            {
+                "homelab.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "research.read": frozenset({Role.OWNER, Role.MEMBER}),
+            },
         )
 
     def homelab_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -628,6 +640,7 @@ def default_runtime_registry(
         "kitchen.groceries.add": grocery_add_runtime,
         "homelab.service.restart": homelab_runtime,
         "homelab.service.health": homelab_health_runtime,
+        "homelab-research.service.explain": homelab_research_runtime,
         "homelab-reports.inventory.to_workspace": homelab_workspace_runtime,
         "homelab-reports.health.to_workspace": homelab_health_workspace_runtime,
         "network.probe": network_runtime,

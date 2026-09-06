@@ -814,6 +814,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "homelab-research",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="homelab-research.service.explain",
+                        capability="homelab-research.service.explain",
+                        required_permissions=("homelab.read", "research.read"),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Research likely causes for an authorized Homelab service condition",
+                    relevance=1,
+                    argument_keys=("service",),
+                    argument_grounding={
+                        "service": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "network",
             "0.1.0",
             (
@@ -1711,6 +1733,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
+        "homelab-research": ("homelab.read", "research.read"),
         "network": ("network.read",),
         "workspace": ("workspace.read", "workspace.write"),
     }
@@ -2155,6 +2178,110 @@ class HomelabHealthVerifier:
             reason="Homelab health independently verified"
             if verified
             else "Homelab health readback failed",
+        )
+
+
+class HomelabResearchExecutor:
+    """Combine authorized service observation with bounded public research."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        service_id = request.action.arguments.get("service")
+        if not isinstance(service_id, str) or not service_id.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_research": "invalid_service"},
+                command_succeeded=False,
+            )
+        try:
+            service = _canonical_homelab_service(self.connection, self.principal, service_id)
+            healthy, status = _health_read(service.health_endpoint)
+            query = f"likely causes of {service.service_id} service status {status}"
+            evidence = configured_research_service().collect(SearchRequest(query))
+        except (PermissionError, ResearchUnavailable, ValueError, RuntimeError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"homelab_research": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        answer = ResearchAnswer(
+            text="\n\n".join(item.text[:4_000] for item in evidence.evidence),
+            source_kind=KnowledgeSource.EXTERNAL,
+            evidence=evidence,
+        )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "homelab_research": {
+                    "service": service.service_id,
+                    "observed_status": status,
+                    "observed_healthy": healthy,
+                    "query": evidence.query,
+                    "answer": answer.text,
+                    "provider_id": evidence.provider_id,
+                    "sources": [
+                        {
+                            "source_id": item.source_id,
+                            "title": item.title,
+                            "url": item.final_url,
+                            "retrieved_at": item.retrieved_at.isoformat(),
+                        }
+                        for item in evidence.evidence
+                    ],
+                    "external_evidence": True,
+                    "canonical_personal_truth": False,
+                }
+            },
+            command_succeeded=True,
+        )
+
+
+class HomelabResearchVerifier:
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("homelab_research")
+        if not observation.command_succeeded or not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab research evidence is unavailable",
+            )
+        service_id = evidence.get("service")
+        sources = evidence.get("sources")
+        if not isinstance(service_id, str) or not isinstance(sources, list):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab research shape failed",
+            )
+        try:
+            service = _canonical_homelab_service(self.connection, self.principal, service_id)
+            _health_read(service.health_endpoint)
+        except (PermissionError, ValueError):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab service scope failed during research verification",
+            )
+        verified = (
+            isinstance(evidence.get("answer"), str) and evidence.get("external_evidence") is True
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence=observation.evidence,
+            reason=(
+                "Homelab state was reread and bounded external research is non-canonical"
+                if verified
+                else "Homelab research verification failed"
+            ),
         )
 
 

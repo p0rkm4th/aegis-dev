@@ -101,6 +101,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "kitchen",
         "homelab",
         "homelab-reports",
+        "homelab-research",
         "network",
         "workspace",
         "workspace-communications",

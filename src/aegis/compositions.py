@@ -76,6 +76,17 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "homelab-health-to-research",
+            "label": "Homelab health → Research",
+            "description": "Research likely causes for an authorized observed service condition.",
+            "surfaces": ("Systems", "Research"),
+            "authority": (
+                "authorized health observation + bounded public evidence; "
+                "research is non-canonical "
+                "and no restart or mutation authority is granted"
+            ),
+        },
+        {
             "id": "weather-to-task-followup",
             "label": "Weather → Task follow-up",
             "description": "Turn a public weather check into an explicit owner task request.",
