@@ -1,0 +1,35 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "research-communication-ui-owner-proof",
+  "source_sha": "aef55d6",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34034604832",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "aef55d6",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Research",
+    "control": "Send sourced research",
+    "request_template": "Text me the research about ${question}",
+    "boundary": "Public evidence is fixed before sending and remains non-canonical; provider acceptance is not delivery proof"
+  },
+  "request": "Text me the research about guidance.",
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "8eea6ffe-178a-48d9-b790-3d269cc8f356",
+    "correlation_id": "b7d79966-a75b-4b2e-88d4-c21c79275f0c",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "bounded public evidence remained external/non-canonical; generic communications authorization and approved target grounding remained in Core"
+}
