@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "48e3642",
+  "state_basis_sha": "74c0be9",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "48e3642",
-  "deterministic_green_sha": "48e3642",
-  "last_pushed_sha": "48e3642",
-  "hosted_green_sha": "48e3642",
+  "repository_head_sha": "74c0be9",
+  "deterministic_green_sha": "74c0be9",
+  "last_pushed_sha": "74c0be9",
+  "hosted_green_sha": "74c0be9",
   "hosted_ci_green_sha": "48e3642",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "48e3642",
+    "commit_sha": "74c0be9",
     "conclusion": "success",
-    "run_id": "34044896065",
+    "run_id": "34044926714",
     "observed_at": "2026-09-06T08:20:00Z"
   },
-  "installed_release_sha": "05f4d9f",
-  "running_release_sha": "05f4d9f",
-  "live_green_sha": "05f4d9f",
+  "installed_release_sha": "74c0be9",
+  "running_release_sha": "74c0be9",
+  "live_green_sha": "74c0be9",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "breadth-rearm-after-calendar-conformance",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "05f4d9f"
+    "release_sha": "74c0be9"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
