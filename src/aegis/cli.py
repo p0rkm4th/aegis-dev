@@ -1001,7 +1001,10 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                 for scope in network.scopes.values()
                 if scope.active
             ],
-            "action_authority": "read-only inventory; no restart or probe authority",
+            "action_authority": (
+                "read-only inventory; network probes require an explicit authorized scope "
+                "and remain separate from restart authority"
+            ),
         }
     finally:
         connection.close()
