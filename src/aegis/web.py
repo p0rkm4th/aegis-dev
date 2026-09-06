@@ -1437,6 +1437,7 @@ async function loadToday() {
     const heading = document.createElement('p');
     heading.textContent = 'Authorized state requiring attention today';
     panel.append(heading);
+    appendTodayOverview(panel, payload);
     panel.append(renderDetailValue(payload));
     const report = document.createElement('button'); report.type = 'button';
     report.textContent = 'Save verified Today brief to Workspace';
@@ -1539,6 +1540,57 @@ async function loadToday() {
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
+}
+function appendTodayOverview(panel, payload) {
+  const canonical = payload.canonical || {};
+  const external = payload.external_calendar || {};
+  const items = [
+    {
+      label: 'Open tasks', count: (canonical.open_tasks || []).length, view: 'tasks',
+      attention: (canonical.open_tasks || []).length > 0,
+    },
+    {
+      label: 'Open chores', count: (canonical.open_chores || []).length, view: 'household',
+      attention: (canonical.open_chores || []).length > 0,
+    },
+    {
+      label: 'Up next', count: (canonical.upcoming_shared_events || []).length, view: 'calendar',
+      attention: false,
+    },
+    {
+      label: 'Capability needs', count: (payload.capability_needs || []).length, view: 'objectives',
+      attention: (payload.capability_needs || []).length > 0,
+    },
+    {
+      label: 'Conflicts', count: (external.conflicts || []).length, view: 'calendar',
+      attention: (external.conflicts || []).length > 0,
+    },
+    {
+      label: 'Active objectives', count: (payload.active_objectives || []).length, view: 'objectives',
+      attention: false,
+    },
+  ];
+  const unknowns = (payload.external_effects || {}).unknown || [];
+  if (unknowns.length) {
+    items.push({label: 'Outcome unknown', count: unknowns.length, view: 'compositions', attention: 'unknown'});
+  }
+  const overview = document.createElement('div');
+  overview.className = 'today-overview';
+  overview.setAttribute('aria-label', 'Today at a glance');
+  items.forEach(item => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'today-overview-card';
+    if (item.attention) button.dataset.attention = String(item.attention);
+    const count = document.createElement('strong'); count.textContent = String(item.count);
+    const label = document.createElement('span'); label.textContent = item.label;
+    button.append(count, label);
+    button.addEventListener('click', () => {
+      const destination = document.querySelector(`[data-view="${item.view}"]`);
+      if (destination) destination.click();
+    });
+    overview.append(button);
+  });
+  panel.append(overview);
 }
 function appendTodaySection(panel, title, value) {
   const section = document.createElement('section'); section.className = 'detail-card';

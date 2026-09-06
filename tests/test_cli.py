@@ -6529,7 +6529,7 @@ def test_browser_rejects_oversized_request_body():
 
 
 def test_browser_surface_has_transcript_and_duplicate_submission_guard():
-    from aegis.web import _INDEX_HTML
+    from aegis.web import _AEGIS_CSS, _INDEX_HTML
 
     assert 'id="theme-toggle"' in _INDEX_HTML
     assert "themeStorageKey = 'aegis.theme'" in _INDEX_HTML
@@ -6582,6 +6582,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Create investigation task" in _INDEX_HTML
     assert "Save verified Today brief to Workspace" in _INDEX_HTML
     assert "Send me today's brief" in _INDEX_HTML
+    assert "appendTodayOverview" in _INDEX_HTML
+    assert "today-overview" in _AEGIS_CSS
     assert "provider acceptance is not delivery proof" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML

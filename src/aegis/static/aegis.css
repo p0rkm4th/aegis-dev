@@ -106,6 +106,34 @@ body { background: var(--surface-0); color: var(--text-strong); }
 
 .nav-more { display: none; }
 
+.today-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: .65rem;
+  margin: 0 0 1rem;
+}
+.today-overview-card {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  min-height: 4.5rem;
+  padding: .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-1);
+  color: inherit;
+  text-align: left;
+}
+.today-overview-card:hover { border-color: var(--accent); }
+.today-overview-card strong { font-size: 1.35rem; line-height: 1.1; }
+.today-overview-card span { color: var(--text-muted); font-size: .78rem; }
+.today-overview-card[data-attention="true"] {
+  border-color: color-mix(in srgb, var(--warning) 65%, var(--line));
+}
+.today-overview-card[data-attention="unknown"] {
+  border-color: color-mix(in srgb, var(--unknown) 65%, var(--line));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
