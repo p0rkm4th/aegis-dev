@@ -2737,7 +2737,9 @@ def test_event_temporal_weekday_followup_targets_the_requested_day():
         },
         sources=("authorized_canonical_result",),
     )
-    saturday = datetime.now(timezone.utc) + timedelta(days=(5 - datetime.now().weekday()) % 7)
+    saturday = datetime.now(timezone.utc) + timedelta(
+        days=(5 - datetime.now(timezone.utc).weekday()) % 7
+    )
     result = resolve_contextual_event_temporal_read(
         IntentFrame(
             principal=Principal(id="alice", vault_id="alice-vault"),

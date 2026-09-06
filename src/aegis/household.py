@@ -801,7 +801,7 @@ class HouseholdReadFastPath:
                     ).date()
                     < week_end
                 )
-            elif "this week" in text:
+            elif "this week" in text and "this weekend" not in text:
                 week_end = now.date() + timedelta(days=7 - now.weekday())
                 date_filter = "this_week"
                 events = tuple(
@@ -844,7 +844,7 @@ class HouseholdReadFastPath:
                     ).date()
                     < weekend_end
                 )
-            elif "next week" in text:
+            elif "next week" in text and "next weekend" not in text:
                 week_start = (now + timedelta(days=7)).date()
                 week_end = week_start + timedelta(days=7)
                 date_filter = "next_week"

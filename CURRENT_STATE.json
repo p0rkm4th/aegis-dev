@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+  "state_basis_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
-  "deterministic_green_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
-  "last_pushed_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
-  "hosted_green_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
-  "hosted_ci_green_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+  "repository_head_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "deterministic_green_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "last_pushed_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "hosted_green_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "hosted_ci_green_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+    "commit_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
     "conclusion": "success",
-    "run_id": "33999734558",
+    "run_id": "34000054498",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
-  "running_release_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
-  "live_green_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776",
+  "installed_release_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "running_release_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
+  "live_green_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-document-summary",
+  "active_checkpoint": "daily-driver-alpha-documents-owner-surface",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "f3cb16bdfe57780e84e6bc79e61f135636117776"
+    "release_sha": "41d370df71f6a5cd3d2ece438a9d67a81eef5625"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -114,9 +114,10 @@
     ,"owner proof composed bounded research into an unsent communication draft with sourced content and independent Workspace verification"
     ,"owner proof exported authorized Alpha Handbook into handbook-copy.md through the natural document route with independent scoped Workspace verification"
     ,"owner proof summarized authorized Alpha Handbook into handbook-summary.md through the bounded transformation route with independent scoped Workspace verification"
+    ,"Documents owner surface exposes authorized inventory, bounded previews, and principal-scoped full reads; read access does not grant transformation authority"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Authorized documents can now be exported or deterministically summarized through natural owner routes into independently verified scoped Workspace artifacts; live external document providers remain pending.",
+  "daily_driver_checkpoint": "Authorized documents can now be inspected in a conventional owner view and exported or deterministically summarized through natural routes into independently verified scoped Workspace artifacts; live external document providers remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -152,11 +153,11 @@
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
   "voluntarily_useful_owner_workflows": 27,
-  "owner_visible_capability_surfaces": 16,
+  "owner_visible_capability_surfaces": 17,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 14,
   "breadth_scoreboard": {
-    "owner_visible_views": 14,
+    "owner_visible_views": 15,
     "usable_capability_families": 7,
     "verified_write_capabilities": 7,
     "external_integrations": 0,
@@ -166,7 +167,7 @@
     "owner_workflows_completed": 26,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue daily-driver breadth with the next highest-value functional device, calendar, communications, or document composition; live OpenClaw, Google, and Home Assistant remain pending.",
-  "history_artifact": "evidence/campaigns/document-summary-owner-f3cb16b.json",
+  "next_action": "Continue daily-driver breadth with the next highest-value functional device, calendar, communications, or homelab composition; live OpenClaw, Google, and Home Assistant remain pending.",
+  "history_artifact": "evidence/campaigns/documents-owner-surface-41d370d.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
