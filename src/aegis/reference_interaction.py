@@ -17,6 +17,7 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
+from .compositions import available_compositions
 from .contracts import (
     ActionCard,
     ActionSpec,
@@ -685,6 +686,45 @@ def reference_constellation_state(
                 }
             )
             edges.append({"source": "aegis", "target": node_id})
+        # Composition metadata is a bounded semantic layer above Pack views.
+        # It is descriptive navigation context only: no composition node is an
+        # executable action or an authority grant.
+        pack_labels = {
+            node["label"]: node["id"] for node in nodes if node.get("id", "").startswith("pack-")
+        }
+        for composition in available_compositions():
+            composition_id = composition.get("id")
+            if not isinstance(composition_id, str) or not composition_id:
+                continue
+            node_id = f"composition-{composition_id}"
+            raw_surfaces = composition.get("surfaces", ())
+            surfaces = (
+                tuple(item for item in raw_surfaces if isinstance(item, str))
+                if isinstance(raw_surfaces, (tuple, list))
+                else ()
+            )
+            linked_packs = [
+                pack_labels[surface]
+                for surface in surfaces
+                if isinstance(surface, str) and surface in pack_labels
+            ]
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": str(composition.get("label", composition_id)),
+                    "detail": str(composition.get("description", "bounded workflow")),
+                    "category": "composition",
+                    "detail_view": "compositions",
+                }
+            )
+            area_details[node_id] = {
+                "surfaces": list(surfaces),
+                "authority": str(
+                    composition.get("authority", "Core authorization remains required")
+                ),
+            }
+            for pack_id in linked_packs or ["aegis"]:
+                edges.append({"source": pack_id, "target": node_id})
         details: dict[str, Any] = {
             "domain-personal": {
                 "projects": [
