@@ -10,6 +10,7 @@ from __future__ import annotations
 import ipaddress
 import json
 import os
+import re
 import socket
 from dataclasses import dataclass
 from datetime import datetime
@@ -357,12 +358,38 @@ class WikipediaSearchProvider:
     provider_id = "wikipedia"
     endpoint = "https://en.wikipedia.org/w/api.php"
 
+    @staticmethod
+    def _search_query(value: str) -> str:
+        """Remove bounded conversational scaffolding from encyclopedia searches."""
+
+        stop_words = {
+            "a",
+            "about",
+            "and",
+            "current",
+            "find",
+            "for",
+            "information",
+            "is",
+            "it",
+            "me",
+            "of",
+            "please",
+            "public",
+            "summarize",
+            "the",
+            "what",
+        }
+        words = re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", value)
+        meaningful = [word for word in words if word.casefold() not in stop_words]
+        return " ".join(meaningful[:12]) or value
+
     def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]:
         query = urlencode(
             {
                 "action": "query",
                 "list": "search",
-                "srsearch": request.query,
+                "srsearch": self._search_query(request.query),
                 "format": "json",
                 "srlimit": request.limit,
             }
