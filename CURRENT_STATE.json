@@ -15,9 +15,9 @@
     "run_id": "34042284034",
     "observed_at": "2026-09-06T06:47:00Z"
   },
-  "installed_release_sha": "55d161f",
-  "running_release_sha": "55d161f",
-  "live_green_sha": "55d161f",
+  "installed_release_sha": "358d938",
+  "running_release_sha": "358d938",
+  "live_green_sha": "358d938",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "55d161f"
+    "release_sha": "358d938"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
