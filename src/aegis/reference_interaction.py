@@ -1408,6 +1408,14 @@ def resolve_reference_fast_paths(
     utterance = strip_context_reset(intent.utterance)
     if utterance != intent.utterance:
         intent = intent.model_copy(update={"utterance": utterance})
+    if re.fullmatch(
+        r"(?:show|find|check) (?:my )?calendar conflicts[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        # Let the deterministic resolver bind the typed calendar action so
+        # authorization and provider verification remain visible in Core.
+        return None
     if re.search(r"\bnext\s+one\b", intent.utterance.casefold()):
         next_result = resolve_contextual_ordinal_read(intent, context)
         if next_result is not None:
