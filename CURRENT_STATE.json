@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "state_basis_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
-  "deterministic_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
-  "last_pushed_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
-  "hosted_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
-  "hosted_ci_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "repository_head_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "deterministic_green_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "last_pushed_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "hosted_green_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "hosted_ci_green_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+    "commit_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
     "conclusion": "success",
-    "run_id": "34010033946",
+    "run_id": "34010231428",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
-  "running_release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
-  "live_green_sha": "7c8344291546d2562b3d2b18d2fefe28febac747",
+  "installed_release_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "running_release_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "live_green_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-public-holidays-today",
+  "active_checkpoint": "daily-driver-alpha-public-holidays-request",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "7c8344291546d2562b3d2b18d2fefe28febac747"
+    "release_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -155,9 +155,10 @@
     ,"Weather → Task follow-up is a bounded owner composition: live public weather informs only an explicit task request, which remains subject to normal Core grounding, authorization, observation, and verification"
     ,"Public Holidays is a provider-neutral read capability using explicit country/year scope, deterministic fixture coverage, and a live Nager.Date HTTPS adapter; Calendar presents the feed as external evidence rather than canonical personal events"
     ,"Calendar + Public holidays → Today projects the same live bounded holiday evidence into the canonical Today dashboard without converting dates into personal events or mutation authority"
+    ,"Explicit public-holiday questions now deterministically preserve country/year scope and resolve to the holidays Pack action before model routing; owner proof keeps the live Nager.Date provider provenance"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner Calendar and Today surfaces now include the live Nager.Date public-holiday feed for explicitly configured US/2026 scope, with source provenance and an external-evidence boundary; Calendar + Public holidays → Today is represented as generic composition metadata. Weather remains live through Open-Meteo, and live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "Explicit public-holiday questions now resolve deterministically to holidays.public_holidays.list with preserved US/2026 scope before model routing; the promoted owner Calendar and Today surfaces continue returning live Nager.Date records with external-evidence boundaries. Weather remains live through Open-Meteo, and live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -209,7 +210,7 @@
     "owner_workflows_completed": 36,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-useful vertical after the live public-holiday Today projection; seek a consequential verified path or new cross-capability workflow while preserving truthful OpenClaw, Google, and Home Assistant pending states.",
-  "history_artifact": "evidence/public-holidays-today-owner-7c83442.json",
+  "next_action": "Rearm the next owner-useful vertical after the deterministic public-holiday request slice; seek a consequential verified path or new cross-capability workflow while preserving truthful OpenClaw, Google, and Home Assistant pending states.",
+  "history_artifact": "evidence/public-holidays-request-owner-e2eb845.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

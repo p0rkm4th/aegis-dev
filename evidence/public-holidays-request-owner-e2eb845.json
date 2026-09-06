@@ -1,0 +1,17 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "public-holidays-request-owner",
+  "source_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "hosted_validation": {"run_id": "34010231428", "conclusion": "success"},
+  "installed_release_sha": "e2eb845c9fa349a49bb1c03fa668a92361f62932",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_source": "nager_date",
+    "holiday_count": 17,
+    "deterministic_request": "Show public holidays for US in 2026",
+    "resolved_action": "holidays.public_holidays.list",
+    "resolved_scope": {"country_code": "US", "year": 2026}
+  },
+  "verification": "Deterministic tests preserve explicit country/year arguments, and the installed owner release continues to return the live Nager.Date holiday feed after promotion.",
+  "authority_boundary": "The request is read-only external evidence and does not create or modify personal calendar state."
+}
