@@ -138,6 +138,7 @@ def prepare_reference_action(
     elif action.action_id in {
         "communications.messages.send",
         "workspace-communications.artifact.send",
+        "device-communications.state.send",
     }:
         if args.get("body_source") == "canonical.groceries" and connection is not None:
             items = PostgresHouseholdStore(connection).list_groceries(principal)
@@ -212,6 +213,21 @@ def prepare_reference_action(
             ).for_workspace_id(principal.id, workspace_id)
             content = workspace.read(path)
             args = {**args, "body": content[:20_000]}
+        elif args.get("body_source") == "canonical.device_state":
+            observation = DeviceStatesExecutor().execute(
+                ExecutionRequest(
+                    objective_id=objective_id,
+                    action_id=uuid4(),
+                    action=action,
+                    idempotency_key=f"device-state-message:{objective_id}",
+                )
+            )
+            if not observation.command_succeeded:
+                raise ValueError("authorized device state is unavailable")
+            args = {
+                **args,
+                "body": "Device state:\n" + json.dumps(observation.evidence, sort_keys=True),
+            }
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -927,6 +943,46 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "device-communications",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="device-communications.state.send",
+                        capability="device-communications.state.send",
+                        required_permissions=("devices.read", "communications.send"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Send a bounded authorized device-state snapshot to an approved destination"
+                    ),
+                    relevance=1,
+                    argument_keys=("target", "body", "channel", "account", "body_source"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.APPROVED_DEFAULT,
+                            ),
+                            approved_default="owner.approved_communication_target.v1",
+                        )
+                        for key in ("target", "channel", "account")
+                    }
+                    | {
+                        "body": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "body_source": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
+                            approved_derivations=(
+                                "reference.communication_body_from_device_state.v1",
+                            ),
+                        ),
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "communication-drafts",
             "0.1.0",
             (
@@ -1523,6 +1579,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
         "workspace-communications": ("workspace.read", "communications.send"),
+        "device-communications": ("devices.read", "communications.send"),
         "communication-drafts": ("communications.draft", "workspace.write"),
         "devices": ("devices.read",),
         "device-controls": ("devices.control",),

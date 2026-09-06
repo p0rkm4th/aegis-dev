@@ -139,6 +139,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "device-state-to-communication",
+            "label": "Device state → Communication",
+            "description": (
+                "Send a bounded authorized device-state snapshot to one approved destination."
+            ),
+            "surfaces": ("Devices", "Communications"),
+            "authority": (
+                "authorized device read + communications send; explicit approved destination "
+                "and Core authorization required; no device mutation authority"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
