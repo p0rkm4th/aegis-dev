@@ -1573,6 +1573,8 @@ def test_executor_exception_is_persisted_as_unknown_and_not_replayed():
     assert first.evidence["assurance"] == "OUTCOME_UNKNOWN"
     assert first.evidence["error_type"] == "RuntimeError"
     assert "private gateway detail" not in str(first)
+    assert [event.event_type for event in k.audit.events][-1] == "result.observed"
+    assert "result.failed" not in [event.event_type for event in k.audit.events]
 
 
 def test_unknown_outcome_reconciles_without_reexecuting_mutation():

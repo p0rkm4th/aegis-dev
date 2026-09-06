@@ -16,6 +16,14 @@ from datetime import datetime
 from typing import Protocol
 
 
+class CalendarProviderRejected(RuntimeError):
+    """The provider positively rejected a mutation before accepting it."""
+
+
+class CalendarProviderAmbiguous(RuntimeError):
+    """The provider boundary may have been crossed, but the result is unknown."""
+
+
 @dataclass(frozen=True)
 class CalendarEvent:
     event_id: str
@@ -83,6 +91,10 @@ class GoogleCalendarWriteProvider:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 item = json.loads(response.read(1_000_001))
+        except urllib.error.HTTPError as exc:
+            if 400 <= exc.code < 500:
+                raise CalendarProviderRejected("Google Calendar create was rejected") from exc
+            raise CalendarProviderAmbiguous("Google Calendar create outcome is unknown") from exc
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise RuntimeError("Google Calendar create failed") from exc
         parsed = _google_event(item)
@@ -109,6 +121,10 @@ class GoogleCalendarWriteProvider:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                 item = json.loads(response.read(1_000_001))
+        except urllib.error.HTTPError as exc:
+            if 400 <= exc.code < 500:
+                raise CalendarProviderRejected("Google Calendar update was rejected") from exc
+            raise CalendarProviderAmbiguous("Google Calendar update outcome is unknown") from exc
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise RuntimeError("Google Calendar update failed") from exc
         parsed = _google_event(item)
@@ -174,7 +190,9 @@ class GoogleCalendarWriteProvider:
         except urllib.error.HTTPError as exc:
             if exc.code == 404:
                 return
-            raise RuntimeError("Google Calendar delete failed") from exc
+            if 400 <= exc.code < 500:
+                raise CalendarProviderRejected("Google Calendar delete was rejected") from exc
+            raise CalendarProviderAmbiguous("Google Calendar delete outcome is unknown") from exc
         except (urllib.error.URLError, TimeoutError) as exc:
             raise RuntimeError("Google Calendar delete failed") from exc
 

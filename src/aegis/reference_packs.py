@@ -21,6 +21,7 @@ from uuid import UUID, uuid4
 from .air_quality import air_quality_evidence, configured_air_quality_provider
 from .calendar import (
     CalendarEvent,
+    CalendarProviderRejected,
     CalendarWriteProvider,
     calendar_conflicts,
     calendar_events_evidence,
@@ -3408,9 +3409,9 @@ class CalendarCreateExecutor:
                 evidence={"calendar_create": {"error": str(exc)}},
                 command_succeeded=False,
                 assurance=(
-                    ExternalEffectAssurance.OUTCOME_UNKNOWN
-                    if isinstance(exc, RuntimeError)
-                    else ExternalEffectAssurance.DEFINITELY_REJECTED
+                    ExternalEffectAssurance.DEFINITELY_REJECTED
+                    if isinstance(exc, (CalendarProviderRejected, ValueError))
+                    else ExternalEffectAssurance.OUTCOME_UNKNOWN
                 ),
             )
         return Observation(
@@ -3505,9 +3506,9 @@ class CalendarCancelExecutor:
                 evidence={"calendar_cancel": {"event_id": event_id, "error": str(exc)}},
                 command_succeeded=False,
                 assurance=(
-                    ExternalEffectAssurance.OUTCOME_UNKNOWN
-                    if isinstance(exc, RuntimeError)
-                    else ExternalEffectAssurance.DEFINITELY_REJECTED
+                    ExternalEffectAssurance.DEFINITELY_REJECTED
+                    if isinstance(exc, (CalendarProviderRejected, ValueError))
+                    else ExternalEffectAssurance.OUTCOME_UNKNOWN
                 ),
             )
         return Observation(
@@ -3600,9 +3601,9 @@ class CalendarUpdateExecutor:
                 evidence={"calendar_update": {"event_id": event_id, "error": str(exc)}},
                 command_succeeded=False,
                 assurance=(
-                    ExternalEffectAssurance.OUTCOME_UNKNOWN
-                    if isinstance(exc, RuntimeError)
-                    else ExternalEffectAssurance.DEFINITELY_REJECTED
+                    ExternalEffectAssurance.DEFINITELY_REJECTED
+                    if isinstance(exc, (CalendarProviderRejected, ValueError))
+                    else ExternalEffectAssurance.OUTCOME_UNKNOWN
                 ),
             )
         return Observation(

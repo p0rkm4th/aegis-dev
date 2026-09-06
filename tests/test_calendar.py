@@ -1,9 +1,12 @@
 import json
+import urllib.error
 from datetime import datetime, timezone
 from uuid import uuid4
 
 from aegis.calendar import (
     CalendarEvent,
+    CalendarProviderAmbiguous,
+    CalendarProviderRejected,
     FixtureCalendarProvider,
     FixtureCalendarWriteProvider,
     GoogleCalendarRestProvider,
@@ -161,6 +164,38 @@ def test_google_calendar_write_creates_then_separately_reads_back(monkeypatch) -
     assert seen[0][0].method == "POST"
     assert seen[1][0].get_method() == "GET"
     assert b"calendar-1" in seen[0][0].data
+
+
+def test_google_calendar_write_classifies_http_rejection_and_ambiguity(monkeypatch) -> None:
+    event = CalendarEvent(
+        "pending",
+        "Dinner",
+        datetime(2026, 9, 8, 19, tzinfo=timezone.utc),
+        datetime(2026, 9, 8, 20, tzinfo=timezone.utc),
+    )
+
+    def reject(_request, timeout):
+        raise urllib.error.HTTPError("https://calendar.test", 400, "bad request", {}, None)
+
+    monkeypatch.setattr("aegis.calendar.urllib.request.urlopen", reject)
+    provider = GoogleCalendarWriteProvider("token", endpoint="https://calendar.test")
+    try:
+        provider.create_event(event, "calendar-rejected")
+    except CalendarProviderRejected:
+        pass
+    else:
+        raise AssertionError("provider rejection was not classified")
+
+    def ambiguous(_request, timeout):
+        raise urllib.error.HTTPError("https://calendar.test", 503, "unavailable", {}, None)
+
+    monkeypatch.setattr("aegis.calendar.urllib.request.urlopen", ambiguous)
+    try:
+        provider.create_event(event, "calendar-ambiguous")
+    except CalendarProviderAmbiguous:
+        pass
+    else:
+        raise AssertionError("provider ambiguity was not preserved")
 
 
 def test_fixture_documents_preserve_authorized_read_provenance() -> None:
