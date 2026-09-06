@@ -166,6 +166,7 @@ def prepare_reference_action(
         ):
             content = _holiday_workspace_content(country_code, int(year))
             files = {target_path: content}
+            args = {**args, "_workspace_content": content}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
