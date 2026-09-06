@@ -1119,6 +1119,16 @@ async function loadWeather() {
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.boundary || 'Weather is public evidence, not canonical personal truth.';
     panel.append(boundary);
+    if (payload.reading) {
+      const followup = document.createElement('button'); followup.type = 'button';
+      followup.textContent = 'Create weather follow-up task';
+      followup.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          'Add a task to check the weather before leaving';
+        document.getElementById('chat').requestSubmit();
+      });
+      panel.append(followup);
+    }
   } catch (_) { panel.textContent = 'Weather is unavailable; no personal state was changed.'; }
 }
 async function loadToday() {
