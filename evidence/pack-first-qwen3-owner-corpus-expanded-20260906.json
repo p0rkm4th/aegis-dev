@@ -1,0 +1,30 @@
+{
+  "kind": "pack-first-qwen3-owner-corpus-expanded",
+  "source_sha": "ee8fcbb",
+  "observed_at": "2026-09-06T23:30:00Z",
+  "model": "qwen3:8b",
+  "corpus_cases": 16,
+  "variants": {
+    "pack_first": {
+      "routing_recall": 0.5833333333333334,
+      "wrong_action_rate": 0.4166666666666667,
+      "valid_rate": 1.0,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 588.0625,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 10559.3,
+      "p95_latency_ms": 29617.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.6666666666666666,
+      "wrong_action_rate": 0.3333333333333333,
+      "valid_rate": 1.0,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 256.5,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 10257.9,
+      "p95_latency_ms": 17411.6
+    }
+  },
+  "interpretation": "Retrieval-assisted Pack-first is better than pure Pack-first on this expanded owner-real corpus and exposes less router prompt data, but neither reaches promotable objective correctness. Production incumbent remains unchanged; no authority or execution path consumed this experiment."
+}

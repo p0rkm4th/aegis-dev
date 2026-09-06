@@ -152,7 +152,7 @@
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
-    "Pack-first A/B/C harness is deterministic-green; the owner-real corpus now covers Food, Finance, Homelab, Forge, unsupported requests, follow-ups, lifecycle language, and shorthand, while production incumbent routing remains unchanged",
+    "Pack-first A/B/C harness is deterministic-green; Qwen3:8B evaluation over the expanded 16-case owner-real corpus found retrieval-assisted recall 0.667 versus pure Pack-first 0.583, so neither is promotable and production incumbent routing remains unchanged",
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
@@ -386,7 +386,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Expand the isolated Pack-first owner corpus across Food, Finance, Homelab, and Forge using the now-proven owner surfaces; keep the incumbent production route unchanged until measured safety and correctness justify a single replacement.",
+  "next_action": "Iterate the isolated Pack-first experiment against its measured routing failures and owner-real corpus; preserve the incumbent production route until safety and objective correctness justify one replacement, while continuing Food/Finance/Homelab utility work.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
