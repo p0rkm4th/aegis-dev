@@ -1101,6 +1101,29 @@ async function loadSystems() {
     const heading = document.createElement('p');
     heading.textContent = 'Authorized systems inventory (read-only view)';
     panel.append(heading, renderDetailValue(payload));
+    const services = Array.isArray(payload.services) ? payload.services : [];
+    if (services.length) {
+      const actions = document.createElement('section'); actions.className = 'detail-card';
+      const actionsTitle = document.createElement('h3'); actionsTitle.textContent = 'Bounded service actions';
+      const actionsNote = document.createElement('p');
+      actionsNote.textContent = 'Requests are sent through AEGIS Core authorization and independent health verification.';
+      actions.append(actionsTitle, actionsNote);
+      services.slice(0, 20).forEach(service => {
+        if (!service || typeof service.service_id !== 'string') return;
+        const row = document.createElement('div'); row.className = 'action-row';
+        const label = document.createElement('span');
+        label.textContent = `${service.name || service.service_id} · ${service.health || 'unknown'}`;
+        const restart = document.createElement('button'); restart.type = 'button';
+        restart.textContent = 'Request restart';
+        restart.setAttribute('aria-label', `Request restart for ${service.service_id}`);
+        restart.addEventListener('click', () => {
+          document.getElementById('utterance').value = `Restart service ${service.service_id}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        row.append(label, restart); actions.append(row);
+      });
+      panel.append(actions);
+    }
     const report = document.createElement('button');
     report.type = 'button'; report.textContent = 'Create verified health report';
     report.addEventListener('click', () => {
