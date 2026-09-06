@@ -277,7 +277,7 @@ def _ground_argument_provenance(
                 ),
             )
             continue
-        if key == "workspace_id":
+        if key in {"workspace_id", "source_workspace_id"}:
             spans = _utterance_spans(intent.utterance, value)
             if spans:
                 provenance[key] = ArgumentProvenance(
