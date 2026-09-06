@@ -6533,7 +6533,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
 
     assert 'id="theme-toggle"' in _INDEX_HTML
     assert "themeStorageKey = 'aegis.theme'" in _INDEX_HTML
-    assert "color-scheme:dark" in _INDEX_HTML
+    assert "color-scheme: dark" in _AEGIS_CSS
     assert "let initialTheme = 'dark';" in _INDEX_HTML
     assert 'class="conversation-panel"' in _INDEX_HTML
     assert '<nav class="product-nav" aria-label="AEGIS views">' in _INDEX_HTML
