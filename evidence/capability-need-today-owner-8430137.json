@@ -1,0 +1,20 @@
+{
+  "checkpoint": "capability-need-today-owner-proof",
+  "source_sha": "8430137586bda098a49f7eeb22ec2c3eb9d73ed5",
+  "hosted": {"workflow": "validation", "run_id": 34030993167, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "8430137",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "owner_visible_proof": {
+    "surface": "Today",
+    "section": "Capability needs requiring attention",
+    "objective_state": "blocked",
+    "need_status": "owner_input_required",
+    "investigation": "complete",
+    "authority": "read-only unresolved requirement; no installation, enablement, approval, or execution authority"
+  }
+}
