@@ -1,0 +1,30 @@
+{
+  "evidence_type": "owner-pantry-capability",
+  "observed_at": "2026-09-06T20:14:00Z",
+  "installed_release_sha": "4dd857faf237cbe2b6275fb97833ffa906063c4d",
+  "hosted_validation": {
+    "run_id": "34057246737",
+    "commit_sha": "4dd857faf237cbe2b6275fb97833ffa906063c4d",
+    "conclusion": "success"
+  },
+  "owner_access": {
+    "path": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+    "runtime_ready": true,
+    "postgresql": "healthy",
+    "provider": "ollama",
+    "model": "qwen3:8b"
+  },
+  "proof": {
+    "authenticated_pack": "kitchen",
+    "pantry_actions": [
+      "kitchen.pantry.add",
+      "kitchen.pantry.consume",
+      "kitchen.pantry.list",
+      "kitchen.pantry.update"
+    ],
+    "today_pantry_count": 0,
+    "today_low_stock_count": 0,
+    "unknown_quantities_are_not_projected_as_low_stock": true,
+    "authority_boundary": "Pack visibility does not grant permission; mutations remain normal Core actions."
+  }
+}
