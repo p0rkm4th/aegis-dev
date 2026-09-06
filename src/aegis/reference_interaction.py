@@ -373,6 +373,24 @@ def _ground_argument_provenance(
                 derivation="reference.temporal_grounding.v1",
             )
             continue
+        if card.action.action_id == "calendar.events.agenda" and key == "date":
+            spans = _utterance_spans(intent.utterance, "tomorrow") or _utterance_spans(
+                intent.utterance, "today"
+            )
+            if not spans:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely ground the requested calendar day.",
+                    evidence={"failure": "CONSEQUENTIAL_ARGUMENT_PROVENANCE_UNAVAILABLE"},
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                source_spans=spans,
+                derivation="reference.temporal_grounding.v1",
+            )
+            continue
         if (
             card.action.action_id == "device-controls.devices.command.execute"
             and key == "service"
