@@ -15,9 +15,9 @@
     "run_id": "34045872056",
     "observed_at": "2026-09-06T08:20:00Z"
   },
-  "installed_release_sha": "fd7ddea",
-  "running_release_sha": "fd7ddea",
-  "live_green_sha": "fd7ddea",
+  "installed_release_sha": "e736df2",
+  "running_release_sha": "e736df2",
+  "live_green_sha": "e736df2",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "breadth-rearm-after-calendar-conformance",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "fd7ddea"
+    "release_sha": "e736df2"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -333,7 +333,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Promote and dogfood direct Documents → Workspace export, then move to the next owner-visible domain composition while retaining read-only reconciliation and explicit provider acceptance boundaries.",
+  "next_action": "Dogfood direct Documents → Workspace export through the installed owner view, then move to the next owner-visible domain composition while retaining read-only reconciliation and explicit provider acceptance boundaries.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
