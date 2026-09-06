@@ -99,6 +99,14 @@ def prepare_reference_action(
             files = candidate
         elif isinstance(args.get("path"), str) and isinstance(args.get("content"), str):
             files = {args["path"]: args["content"]}
+    elif action.action_id == "workspace.artifact.append":
+        path = args.get("path")
+        addition = args.get("content")
+        if isinstance(path, str) and isinstance(addition, str) and path.strip():
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(principal.id, UUID(str(objective_id)))
+            files = {path: workspace.read(path) + addition}
     elif action.action_id == "workspace.artifact.copy":
         source_workspace_id = args.get("source_workspace_id")
         source_path = args.get("source_path")
@@ -1929,6 +1937,27 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
                         "files": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="workspace.artifact.append",
+                        capability="workspace.artifact.append",
+                        required_permissions=("workspace.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Append explicit content to an existing scoped Workspace file and verify it"
+                    ),
+                    relevance=1,
+                    argument_keys=("path", "content"),
+                    argument_grounding={
+                        "path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "content": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         ),
                     },
@@ -4204,6 +4233,41 @@ class WorkspaceArtifactExecutor:
                 "files": list(artifact.files),
                 "executor_local_validated": artifact.validated,
             },
+            command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactAppendExecutor:
+    """Append explicit content to an existing file in the current scoped Workspace."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        path = request.action.arguments.get("path")
+        addition = request.action.arguments.get("content")
+        if not isinstance(path, str) or not isinstance(addition, str) or not path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_append": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        try:
+            workspace = WorkspaceManager(root).for_objective(
+                self.principal.id, request.objective_id
+            )
+            updated = workspace.read(path) + addition
+            workspace.write(path, updated)
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_append": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"workspace_append": "attempted", "path": path},
             command_succeeded=True,
         )
 

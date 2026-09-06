@@ -65,6 +65,14 @@ def test_groceries_workspace_communication_chain_is_non_authoritative() -> None:
     assert "does not imply delivery" in composition["authority"]
 
 
+def test_workspace_append_composition_is_owner_visible() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "workspace-artifact-append"
+    )
+    assert composition["surfaces"] == ("Workspace",)
+    assert "independently verifies" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
