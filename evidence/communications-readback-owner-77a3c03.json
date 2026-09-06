@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "communications-readback-owner",
+  "source_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
+  "hosted_validation": {"run_id": "34008447513", "conclusion": "success"},
+  "installed_release_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
+  "owner_runtime": {
+    "service": "active",
+    "communications_surface": "Provider outcome status",
+    "delivery_boundary": "delivery not proven"
+  },
+  "verification": "Fixture-backed send verification can independently read back exact accepted target/channel/account/body when the provider exposes the optional readback port; the OpenClaw adapter remains acceptance-only.",
+  "authority_boundary": "No provider readback or fixture proof grants external delivery authority; target boundaries and Core authorization remain required."
+}
