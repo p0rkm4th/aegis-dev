@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
+  "state_basis_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
-  "deterministic_green_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
-  "last_pushed_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
-  "hosted_green_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
-  "hosted_ci_green_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
+  "repository_head_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "deterministic_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "last_pushed_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "hosted_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "hosted_ci_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
+    "commit_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
     "conclusion": "success",
-    "run_id": "34003494272",
+    "run_id": "34003677028",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
-  "running_release_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
-  "live_green_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
+  "installed_release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "running_release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "live_green_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-device-research",
+  "active_checkpoint": "daily-driver-alpha-calendar-draft",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "3f0c808b222e30acef3bd2f2262b12512209baec"
+    "release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -127,7 +127,7 @@
     ,"devices.states.research is a typed read-only Device → Research composition with explicit entity/query grounding, bounded public evidence, and separate provider state reread; installed fixture proof completed for light.desk"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner can inspect an authorized device, collect bounded public evidence about its state, and receive an independently reread result without control authority; live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner can inspect Calendar, create an independently verified unsent agenda draft in Workspace, and keep sending as a separate authorized step; live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -162,22 +162,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 34,
+  "voluntarily_useful_owner_workflows": 35,
   "owner_visible_capability_surfaces": 21,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 17,
+  "cross_capability_workflows": 18,
   "breadth_scoreboard": {
     "owner_visible_views": 16,
     "usable_capability_families": 7,
     "verified_write_capabilities": 7,
     "external_integrations": 0,
-    "cross_domain_compositions": 17,
+    "cross_domain_compositions": 18,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 32,
+    "owner_workflows_completed": 33,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Advance the next owner-useful provider-backed or homelab/device workflow; live OpenClaw, Google, and Home Assistant remain pending, and the device-state research affordance remains partial.",
-  "history_artifact": "evidence/campaigns/device-research-owner-3f0c808.json",
+  "history_artifact": "evidence/campaigns/calendar-draft-ui-owner-329a5d1.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

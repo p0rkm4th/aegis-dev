@@ -1,0 +1,10 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "calendar-communication-draft-surface",
+  "source_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "hosted_validation": {"run_id": "34003677028", "conclusion": "success"},
+  "installed_release_sha": "329a5d18e96ca30727b43c2d2d627136adc1f8f3",
+  "request": "Draft my calendar for scotty as agenda.md",
+  "result": {"state": "completed", "message": "Done — calendar communication draft independently verified", "objective_id": "d0da591e-ab3d-4bfd-828e-4e4454547e9e", "correlation_id": "6b0d551e-3d22-4424-9f87-bd740c1f015f", "workspace_file": "agenda.md", "independent_verification": true, "sent": false},
+  "authority_boundary": "The Calendar view creates an unsent scoped draft only; communication send remains a separate explicitly authorized action."
+}
