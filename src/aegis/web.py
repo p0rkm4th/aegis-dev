@@ -546,6 +546,32 @@ function renderResearchSummary() {
   const boundary = document.createElement('p'); boundary.className = 'muted';
   boundary.textContent = 'Public evidence remains non-canonical; saving requires the normal Core authorization and scoped Workspace verification.';
   section.append(title, form, boundary); panel.append(section);
+  const draftSection = document.createElement('section'); draftSection.className = 'detail-card';
+  const draftTitle = document.createElement('h3'); draftTitle.textContent = 'Draft a researched message';
+  const draftForm = document.createElement('form'); draftForm.setAttribute('aria-label', 'Draft researched message');
+  const recipient = document.createElement('input'); recipient.required = true;
+  recipient.placeholder = 'Recipient'; recipient.setAttribute('aria-label', 'Research draft recipient');
+  const subject = document.createElement('input'); subject.required = true;
+  subject.placeholder = 'Subject'; subject.setAttribute('aria-label', 'Research draft subject');
+  const draftQuery = document.createElement('input'); draftQuery.type = 'search'; draftQuery.required = true;
+  draftQuery.placeholder = 'Research question'; draftQuery.setAttribute('aria-label', 'Research draft question');
+  const draftPath = document.createElement('input'); draftPath.required = true;
+  draftPath.placeholder = 'Artifact path, e.g. drafts/research.md';
+  draftPath.setAttribute('aria-label', 'Research draft artifact path');
+  const draftSubmit = document.createElement('button'); draftSubmit.type = 'submit';
+  draftSubmit.textContent = 'Research and create unsent draft';
+  draftForm.append(recipient, subject, draftQuery, draftPath, draftSubmit);
+  draftForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const values = [recipient.value.trim(), subject.value.trim(), draftQuery.value.trim(), draftPath.value.trim()];
+    if (values.some(value => !value)) return;
+    document.getElementById('utterance').value =
+      `Draft researched message to ${values[0]} with subject ${values[1]} about ${values[2]}, save it as ${values[3]}`;
+    document.getElementById('chat').requestSubmit();
+  });
+  const draftBoundary = document.createElement('p'); draftBoundary.className = 'muted';
+  draftBoundary.textContent = 'Research is fixed as non-canonical evidence before the unsent draft is written; no message is sent.';
+  draftSection.append(draftTitle, draftForm, draftBoundary); panel.append(draftSection);
   if (!latestResearch) return;
   const heading = document.createElement('p');
   heading.textContent = `Latest external evidence · ${latestResearch.sources.length} source(s)`;
