@@ -184,6 +184,28 @@ def test_deterministic_air_quality_request_preserves_explicit_coordinates():
     )
 
 
+def test_deterministic_air_quality_workspace_request_preserves_coordinates_and_path():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "air-quality-reports"
+    )
+    manager.discover(bundle)
+    manager.install("air-quality-reports", frozenset({"air_quality.read", "workspace.write"}))
+    manager.enable("air-quality-reports")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Save current air quality at 41.88, -87.62 as air-quality.md",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "air-quality-reports.current.to_workspace"
+    assert card.action.arguments == {
+        "latitude": 41.88,
+        "longitude": -87.62,
+        "target_path": "air-quality.md",
+    }
+
+
 def test_deterministic_weather_tomorrow_request_uses_approved_coordinates(monkeypatch):
     monkeypatch.setenv("AEGIS_WEATHER_LATITUDE", "41.881832")
     monkeypatch.setenv("AEGIS_WEATHER_LONGITUDE", "-87.623177")
@@ -5193,6 +5215,7 @@ def test_browser_app_exposes_air_quality_surface_and_public_evidence_boundary():
     assert "Air quality is public evidence, not canonical personal truth." in html
     assert "Open-Meteo / CAMS" in html
     assert "Create air-quality follow-up task" in html
+    assert "Save verified air-quality report" in html
 
 
 def test_browser_app_today_surface_exposes_calendar_conflicts():
@@ -7103,6 +7126,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Weather Reports",
         "Holidays",
         "Air Quality",
+        "Air Quality Reports",
     }
     assert all(bundle.manifest.permissions for bundle in bundles)
 

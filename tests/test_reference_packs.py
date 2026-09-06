@@ -119,7 +119,54 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "weather-reports",
         "holidays",
         "air-quality",
+        "air-quality-reports",
     }
+
+
+def test_air_quality_workspace_report_uses_fixed_evidence_and_independent_scope(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv(
+        "AEGIS_AIR_QUALITY_FIXTURE_JSON",
+        '{"us_aqi":42,"pm2_5":8.5,"observed_at":"2026-09-06T12:00:00Z"}',
+    )
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "air-quality-reports.current.to_workspace"
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "latitude": 41.88,
+                "longitude": -87.62,
+                "target_path": "air-quality.md",
+            }
+        }
+    )
+    objective_id = uuid4()
+    prepared = prepare_reference_action(action, principal, objective_id)
+    assert prepared.arguments["_workspace_content"].startswith("# External air-quality evidence")
+    assert prepared.verification is not None
+    assert prepared.verification.expected["files"]
+    prepared_card = card.model_copy(update={"action": prepared})
+    runtime = default_runtime_registry(lambda: None).resolve(prepared_card, None, principal)
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=objective_id,
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="air-quality-workspace-1",
+        )
+    )
+    result = runtime.verifier.verify(observation, prepared.verification)
+    assert result.verified is True
+    artifact = WorkspaceManager(tmp_path).for_objective(principal.id, objective_id)
+    artifact.write("air-quality.md", "tampered")
+    assert runtime.verifier.verify(observation, prepared.verification).verified is False
 
 
 def test_documents_search_returns_only_bounded_authorized_matches(monkeypatch) -> None:

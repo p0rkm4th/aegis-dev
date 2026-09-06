@@ -592,6 +592,22 @@ def prepare_reference_action(
             content = _weather_forecast_workspace_content(forecast)
             files = {report_target_path: content}
             args = {**args, "_workspace_content": content}
+    elif action.action_id == "air-quality-reports.current.to_workspace":
+        report_target_path = args.get("target_path")
+        air_report_latitude: object = args.get("latitude")
+        air_report_longitude: object = args.get("longitude")
+        if (
+            isinstance(report_target_path, str)
+            and report_target_path.strip()
+            and isinstance(air_report_latitude, (int, float))
+            and isinstance(air_report_longitude, (int, float))
+        ):
+            reading = configured_air_quality_provider().current(
+                float(air_report_latitude), float(air_report_longitude)
+            )
+            content = _air_quality_workspace_content(reading)
+            files = {report_target_path: content}
+            args = {**args, "_workspace_content": content}
     if files is None:
         return action
     expectation = workspace_expected_postcondition(principal.id, objective_id, files)
@@ -644,6 +660,16 @@ def _weather_forecast_workspace_content(forecast: object) -> str:
     return (
         "# Weather forecast\n\n"
         + json.dumps(weather_forecast_evidence(cast(Any, forecast)), indent=2, sort_keys=True)
+        + "\n"
+    )
+
+
+def _air_quality_workspace_content(reading: object) -> str:
+    """Serialize bounded public air-quality evidence into an owner artifact."""
+
+    return (
+        "# External air-quality evidence\n\n"
+        + json.dumps(air_quality_evidence(cast(Any, reading)), indent=2, sort_keys=True)
         + "\n"
     )
 
@@ -1741,6 +1767,32 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "air-quality-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="air-quality-reports.current.to_workspace",
+                        capability="air-quality-reports.current.to_workspace",
+                        required_permissions=("air_quality.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save bounded public air-quality evidence as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("latitude", "longitude", "target_path"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("latitude", "longitude", "target_path")
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "holidays",
             "0.1.0",
             (
@@ -2070,6 +2122,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "holidays": ("calendar.read",),
         "holiday-reports": ("calendar.read", "workspace.write"),
         "air-quality": ("air_quality.read",),
+        "air-quality-reports": ("air_quality.read", "workspace.write"),
         "calendar-reports": ("calendar.read", "workspace.write"),
         "calendar-communications": ("calendar.read", "communications.draft", "workspace.write"),
         "communications": ("communications.read", "communications.send"),
@@ -4142,6 +4195,74 @@ class WeatherWorkspaceVerifier:
             reason="weather report independently verified"
             if verified
             else f"weather report verification failed: {detail}",
+        )
+
+
+class AirQualityWorkspaceExecutor:
+    """Write pre-execution-fixed public air-quality evidence to scoped Workspace."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        content = request.action.arguments.get("_workspace_content")
+        if (
+            not isinstance(target_path, str)
+            or not target_path.strip()
+            or not isinstance(content, str)
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"air_quality_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        workspace = WorkspaceManager(
+            Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        ).for_objective(self.principal.id, request.objective_id)
+        try:
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"air_quality_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "air_quality_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+                "external_evidence": True,
+            },
+            command_succeeded=True,
+        )
+
+
+class AirQualityWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "air_quality_workspace_verified": verified,
+                "external_evidence": True,
+                "postcondition": detail,
+            },
+            reason=(
+                "air-quality Workspace artifact independently verified"
+                if verified
+                else f"air-quality Workspace verification failed: {detail}"
+            ),
         )
 
 

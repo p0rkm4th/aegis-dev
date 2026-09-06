@@ -145,6 +145,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "air-quality-to-workspace",
+            "label": "Air quality → Workspace",
+            "description": (
+                "Preserve bounded public air-quality evidence as a verified scoped report."
+            ),
+            "surfaces": ("Air quality", "Workspace"),
+            "authority": (
+                "public air-quality evidence + scoped Workspace write; evidence remains external "
+                "and non-canonical, with Core authorization and independent verification required"
+            ),
+        },
+        {
             "id": "weather-to-today",
             "label": "Weather → Today",
             "description": "Bring a bounded public forecast into the owner's daily planning view.",

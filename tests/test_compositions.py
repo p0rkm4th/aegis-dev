@@ -93,6 +93,15 @@ def test_public_holidays_workspace_composition_preserves_external_boundary() -> 
     assert "non-canonical" in composition["authority"]
 
 
+def test_air_quality_workspace_composition_preserves_external_boundary() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "air-quality-to-workspace"
+    )
+    assert composition["surfaces"] == ("Air quality", "Workspace")
+    assert "external" in composition["authority"]
+    assert "non-canonical" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item

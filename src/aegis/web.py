@@ -1180,6 +1180,17 @@ async function loadWeather() {
         document.getElementById('chat').requestSubmit();
       });
       panel.append(followup);
+      const report = document.createElement('button'); report.type = 'button';
+      report.textContent = 'Save verified air-quality report';
+      report.addEventListener('click', () => {
+        const reading = payload.reading || {};
+        const latitude = reading.latitude; const longitude = reading.longitude;
+        if (latitude === undefined || longitude === undefined) return;
+        document.getElementById('utterance').value =
+          `Save current air quality at ${latitude}, ${longitude} as air-quality.md`;
+        document.getElementById('chat').requestSubmit();
+      });
+      panel.append(report);
     }
   } catch (_) { panel.textContent = 'Weather is unavailable; no personal state was changed.'; }
 }
