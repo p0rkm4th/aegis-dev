@@ -191,6 +191,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "tasks-to-communication",
+            "label": "Tasks → Communication",
+            "description": (
+                "Send a bounded canonical open-task snapshot to one approved destination."
+            ),
+            "surfaces": ("Tasks", "Communications"),
+            "authority": (
+                "authorized task read + communications send; explicit approved destination "
+                "and Core authorization required; provider delivery remains distinct"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
