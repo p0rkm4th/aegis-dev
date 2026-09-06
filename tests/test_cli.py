@@ -4037,6 +4037,7 @@ def test_browser_app_exposes_communications_outcome_projection():
                 {
                     "target": current.id,
                     "provider_status": "PROVIDER_ACCEPTED",
+                    "provider_readback_proven": True,
                     "delivery_proven": False,
                 }
             ],
@@ -4051,6 +4052,7 @@ def test_browser_app_exposes_communications_outcome_projection():
     outcome = json.loads(payload)["messages"][0]
     assert outcome["target"] == "alice"
     assert outcome["provider_status"] == "PROVIDER_ACCEPTED"
+    assert outcome["provider_readback_proven"] is True
     assert outcome["delivery_proven"] is False
 
 
@@ -4445,6 +4447,7 @@ def test_browser_app_communications_surface_exposes_provider_outcome_distinction
     assert "Provider outcome status" in html
     assert "delivery not proven" in html
     assert "DRAFTED" in html
+    assert "provider readback unavailable" in html
 
 
 def test_browser_app_objectives_surface_exposes_capability_need_investigation_boundary():

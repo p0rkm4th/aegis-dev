@@ -1264,8 +1264,10 @@ async function loadCommunications() {
       messages.forEach(message => {
         const row = document.createElement('p');
         const status = String(message.provider_status || 'DRAFTED');
+        const readback = message.provider_readback_proven === true
+          ? 'provider readback proven' : 'provider readback unavailable';
         const delivery = message.delivery_proven === true ? 'delivery proven' : 'delivery not proven';
-        row.textContent = `${status} · ${delivery} · ${message.target || 'target not recorded'}`;
+        row.textContent = `${status} · ${readback} · ${delivery} · ${message.target || 'target not recorded'}`;
         outcomeSection.append(row);
       });
       panel.append(outcomeSection);
