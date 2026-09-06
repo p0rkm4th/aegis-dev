@@ -1,0 +1,20 @@
+{
+  "checkpoint": "homelab-health-to-task-owner-proof",
+  "source_sha": "349b799cd870576fa95e638ecb7dd98e6fa475c6",
+  "hosted": {"workflow": "validation", "run_id": 34032003183, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "349b799",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "owner_visible_proof": {
+    "service": "acceptance-plex",
+    "observed_health": "unavailable",
+    "surface": "Systems",
+    "action": "Create investigation task",
+    "route": "explicit task request through normal Core conversation path",
+    "authority": "health observation is read-only; restart and task creation remain separately authorized"
+  }
+}
