@@ -1,0 +1,20 @@
+{
+  "checkpoint": "active-objectives-constellation-owner-proof",
+  "source_sha": "3dd6cf6c4c62bd986ae9abd9ae9b8b61fe6038e2",
+  "hosted": {"workflow": "validation", "run_id": 34031668130, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "3dd6cf6",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "owner_visible_proof": {
+    "objective_nodes": 6,
+    "objective_detail_view": "objectives",
+    "candidate_pack_link": "objective Palworld → pack-workspace",
+    "unmapped_objective_link": "objective → AEGIS root",
+    "scope": "same Principal/Vault/Space-filtered canonical objective query",
+    "authority": "lifecycle context only; graph visibility grants no authority"
+  }
+}
