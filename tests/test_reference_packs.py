@@ -131,6 +131,36 @@ def test_weather_forecast_report_is_independently_verified_in_workspace(
     assert WorkspaceManager(tmp_path).for_objective("alice", objective_id).read("weather.md")
 
 
+def test_workspace_inventory_is_principal_scoped_and_read_only(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    objective_id = uuid4()
+    workspace = WorkspaceManager(tmp_path).for_objective(principal.id, objective_id)
+    workspace.write_artifact({"report.md": "authorized"}, "seed", lambda current: None)
+    other = WorkspaceManager(tmp_path).for_objective("bob", uuid4())
+    other.write_artifact({"secret.md": "private"}, "seed", lambda current: None)
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "workspace.artifacts.list"
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=card.action,
+            idempotency_key="workspace-list-1",
+        )
+    )
+
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+    paths = [path for item in observation.evidence["workspace_inventory"] for path in item["files"]]
+    assert "report.md" in paths
+    assert "secret.md" not in paths
+
+
 def test_documents_search_to_workspace_is_independently_verified(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("AEGIS_WORKSPACE_ROOT", str(tmp_path))
     monkeypatch.setenv(

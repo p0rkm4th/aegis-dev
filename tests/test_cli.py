@@ -52,7 +52,7 @@ def test_deterministic_research_workspace_action_requires_enabled_pack():
         bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
     )
     manager.discover(workspace)
-    manager.install("workspace", frozenset({"workspace.write"}))
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
     manager.enable("workspace")
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="vault"),
@@ -70,7 +70,7 @@ def test_deterministic_workspace_artifact_action_preserves_explicit_file_content
         bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
     )
     manager.discover(bundle)
-    manager.install("workspace", frozenset({"workspace.write"}))
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
     manager.enable("workspace")
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="vault"),
@@ -485,7 +485,7 @@ def test_workspace_multi_file_provenance_accepts_bounded_component_spans():
         bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
     )
     manager.discover(bundle)
-    manager.install("workspace", frozenset({"workspace.write"}))
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
     manager.enable("workspace")
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="vault"),

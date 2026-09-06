@@ -1265,6 +1265,16 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             (
                 ActionCard(
                     action=ActionSpec(
+                        action_id="workspace.artifacts.list",
+                        capability="workspace.artifacts.list",
+                        required_permissions=("workspace.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="List the current owner's scoped Workspace artifacts",
+                    relevance=1,
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="workspace.artifact.create",
                         capability="workspace.artifact.create",
                         required_permissions=("workspace.write",),
@@ -1334,7 +1344,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
         "network": ("network.read",),
-        "workspace": ("workspace.write",),
+        "workspace": ("workspace.read", "workspace.write"),
     }
     return tuple(
         PackBundle(
@@ -2981,6 +2991,48 @@ class WorkspaceArtifactExecutor:
                 "executor_local_validated": artifact.validated,
             },
             command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactsListExecutor:
+    """List only the current Principal's bounded Workspace inventory."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        try:
+            workspaces = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).list_for_principal(self.principal.id)
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_inventory": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"workspace_inventory": list(workspaces)},
+            command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactsListVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        inventory = observation.evidence.get("workspace_inventory")
+        verified = observation.command_succeeded and isinstance(inventory, list)
+        return VerificationResult(
+            verified=verified,
+            evidence={"workspace_count": len(cast(list[Any], inventory)) if verified else 0},
+            reason=(
+                "Workspace inventory is Principal-scoped and structurally valid"
+                if verified
+                else "Workspace inventory read failed"
+            ),
         )
 
 
