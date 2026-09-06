@@ -17,6 +17,7 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from .audit import PostgresAuditLog
+from .communications import configured_communication_targets
 from .compositions import available_compositions
 from .contracts import (
     ActionCard,
@@ -144,6 +145,33 @@ def _ground_argument_provenance(
 
     provenance: dict[str, ArgumentProvenance] = {}
     for key, value in card.action.arguments.items():
+        if (
+            card.action.action_id == "communications.messages.send"
+            and key in {"target", "channel", "account"}
+            and isinstance(value, str)
+            and re.fullmatch(
+                r"(?:send|text) me (?:the )?grocery list[?!.,]?",
+                intent.utterance.strip(),
+                flags=re.IGNORECASE,
+            )
+        ):
+            try:
+                approved_targets = configured_communication_targets()
+            except ValueError:
+                approved_targets = frozenset()
+            if approved_targets is not None and len(approved_targets) == 1:
+                approved_target, approved_channel, approved_account = next(iter(approved_targets))
+                expected = {
+                    "target": approved_target,
+                    "channel": approved_channel,
+                    "account": approved_account,
+                }[key]
+                if value == expected:
+                    provenance[key] = ArgumentProvenance(
+                        kind=ArgumentProvenanceKind.APPROVED_DEFAULT,
+                        default_contract="owner.approved_communication_target.v1",
+                    )
+                    continue
         if (
             card.action.action_id == "weather.forecast.read"
             and key in {"latitude", "longitude"}

@@ -415,6 +415,66 @@ def test_deterministic_message_send_requires_explicit_destination_and_channel():
     }
 
 
+def test_deterministic_grocery_message_uses_one_owner_approved_target(monkeypatch):
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"scotty","channel":"sms","account":"household"}]',
+    )
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "communications"
+    )
+    manager.discover(bundle)
+    manager.install("communications", frozenset({"communications.read", "communications.send"}))
+    manager.enable("communications")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Text me the grocery list.",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.arguments == {
+        "target": "scotty",
+        "channel": "sms",
+        "account": "household",
+        "body_source": "canonical.groceries",
+    }
+    from aegis.reference_interaction import _ground_argument_provenance
+
+    grounded = _ground_argument_provenance(intent, card, Context())
+    assert not isinstance(grounded, Result)
+    assert all(
+        grounded.action.argument_provenance[key].kind.value == "APPROVED_DEFAULT"
+        for key in ("target", "channel", "account")
+    )
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
+
+
+def test_deterministic_grocery_message_requires_unambiguous_approved_target(monkeypatch):
+    monkeypatch.setenv(
+        "AEGIS_APPROVED_COMMUNICATION_TARGETS",
+        '[{"target":"scotty","channel":"sms","account":"household"},'
+        '{"target":"partner","channel":"sms","account":"household"}]',
+    )
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "communications"
+    )
+    manager.discover(bundle)
+    manager.install("communications", frozenset({"communications.read", "communications.send"}))
+    manager.enable("communications")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Text me the grocery list.",
+    )
+    assert _deterministic_composition_action(intent, manager, Context()) is None
+
+
 def test_deterministic_researched_message_draft_preserves_bounded_source_marker():
     manager = PackManager()
     bundle = next(
