@@ -1,0 +1,39 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "household-chores-communication-owner-proof",
+  "source_sha": "df81101",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34036415513",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "df81101",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Household",
+    "control": "Send open chores",
+    "request_template": "Text me my open chores",
+    "boundary": "Canonical chore state is fixed before communication; provider acceptance is not delivery proof"
+  },
+  "request": "Text me my open chores.",
+  "scope": {
+    "source": "authorized canonical household chore state",
+    "mutation": "read-only"
+  },
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "62c3be43-1e68-4c04-abfb-3c01c95bc1e8",
+    "correlation_id": "4b6022d1-cdaa-4e1f-b704-ea4807de0c54",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "canonical chores remained read-only; no recipient expansion, chore mutation, or delivery authority was added"
+}
