@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "465743d",
+  "state_basis_sha": "d52b401",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "465743d",
-  "deterministic_green_sha": "465743d",
-  "last_pushed_sha": "465743d",
-  "hosted_green_sha": "465743d",
-  "hosted_ci_green_sha": "465743d",
+  "repository_head_sha": "d52b401",
+  "deterministic_green_sha": "d52b401",
+  "last_pushed_sha": "d52b401",
+  "hosted_green_sha": "d52b401",
+  "hosted_ci_green_sha": "d52b401",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "465743d",
+    "commit_sha": "d52b401",
     "conclusion": "success",
-    "run_id": "34035136928",
+    "run_id": "34035431912",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "465743d",
-  "running_release_sha": "465743d",
-  "live_green_sha": "465743d",
+  "installed_release_sha": "d52b401",
+  "running_release_sha": "d52b401",
+  "live_green_sha": "d52b401",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "465743d"
+    "release_sha": "d52b401"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -66,6 +66,7 @@
     "research_communication_ui": "Promoted Research view exposes a generic Send sourced research control; bounded evidence remains non-canonical and provider acceptance is distinct from delivery",
     "homelab_health_communication_ui": "Promoted Systems view exposes a generic Send health status control; health remains read-only context and provider acceptance is distinct from delivery",
     "device_status_communication_ui": "Promoted Devices view exposes a generic Send device status control; device state remains read-only context and provider acceptance is distinct from delivery",
+    "open_tasks_communication_ui": "Promoted Tasks view exposes a generic Send open tasks control; canonical task state remains read-only context and provider acceptance is distinct from delivery",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -234,6 +235,7 @@
     ,"promoted owner UI on aef55d6 exposes Send sourced research; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while external evidence remained non-canonical and delivery unproven"
     ,"promoted owner UI on 99e0d0a exposes Send health status; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while health remained read-only and delivery unproven"
     ,"promoted owner UI on 465743d exposes Send device status; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while device state remained read-only and delivery unproven"
+    ,"promoted owner UI on d52b401 exposes Send open tasks; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while task state remained read-only and delivery unproven"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes the fixed canonical brief through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -276,22 +278,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 88,
-  "owner_visible_capability_surfaces": 62,
+  "voluntarily_useful_owner_workflows": 89,
+  "owner_visible_capability_surfaces": 63,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 64,
+  "cross_capability_workflows": 65,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 63,
+    "cross_domain_compositions": 64,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 85,
+    "owner_workflows_completed": 86,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/device-status-communication-ui-owner-465743d.json",
+  "history_artifact": "evidence/open-tasks-communication-ui-owner-d52b401.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
