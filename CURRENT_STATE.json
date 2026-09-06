@@ -1,18 +1,18 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "db0c9eb",
+  "state_basis_sha": "3a1844f",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "db0c9eb",
-  "deterministic_green_sha": "db0c9eb",
-  "last_pushed_sha": "db0c9eb",
-  "hosted_green_sha": "db0c9eb",
-  "hosted_ci_green_sha": "db0c9eb",
+  "repository_head_sha": "3a1844f",
+  "deterministic_green_sha": "3a1844f",
+  "last_pushed_sha": "3a1844f",
+  "hosted_green_sha": "3a1844f",
+  "hosted_ci_green_sha": "3a1844f",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "db0c9eb",
+    "commit_sha": "3a1844f",
     "conclusion": "success",
-    "run_id": "34045872056",
+    "run_id": "34046019898",
     "observed_at": "2026-09-06T08:20:00Z"
   },
   "installed_release_sha": "e736df2",
@@ -89,6 +89,7 @@
     "weather_forecast_workspace_ui": "Promoted Weather view exposes the existing typed forecast-to-Workspace action with public-evidence provenance and no canonical personal-state mutation",
     "weather_forecast_communication_ui": "Promoted Weather view exposes the existing generic forecast-to-Communication action; approved destination and provider acceptance remain separate from delivery",
     "document_export_workspace_ui": "Promoted Documents view exposes direct authorized document export into a scoped Workspace artifact through the existing typed Core action",
+    "homelab_health_research_ui": "Promoted Systems view exposes a bounded health-to-research handoff for unhealthy authorized services without restart or mutation authority",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
     "completed_task_workspace": "installed owner proof saved done.md from canonical completed tasks with independent scoped Workspace verification; task mutation authority was not added",
@@ -333,7 +334,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood direct Documents → Workspace export through the installed owner view, then move to the next owner-visible domain composition while retaining read-only reconciliation and explicit provider acceptance boundaries.",
+  "next_action": "Promote and dogfood the Systems health-to-research handoff, then move to the next owner-visible domain composition while retaining read-only reconciliation and explicit provider acceptance boundaries.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
