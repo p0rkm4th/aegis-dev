@@ -1,0 +1,16 @@
+{
+  "checkpoint": "daily-driver-alpha-workspace-inventory-read",
+  "source_sha": "90e4867f56ad682109defdbd386a2f944d89c6c0",
+  "hosted_run_id": "34013981593",
+  "owner_runtime_sha": "90e4867f56ad682109defdbd386a2f944d89c6c0",
+  "principal": "owner",
+  "utterance": "Show my workspace artifacts",
+  "result": "completed",
+  "message": "Done — Workspace inventory is Principal-scoped and structurally valid",
+  "objective_id": "755f8789-f9c2-4dfe-aee4-8d17d2a3fa46",
+  "correlation_id": "854fff05-3a54-413b-909a-151f99a89340",
+  "pack": "workspace",
+  "pack_upgrade": "explicit owner approval for workspace.read + workspace.write",
+  "scope": "current Principal workspace inventory only",
+  "authority": "read-only; no artifact mutation or execution authority"
+}
