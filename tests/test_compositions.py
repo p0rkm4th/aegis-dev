@@ -22,6 +22,14 @@ def test_homelab_health_workspace_composition_is_owner_visible() -> None:
     assert "no restart authority" in composition["authority"]
 
 
+def test_homelab_health_to_task_composition_preserves_explicit_task_authority() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "homelab-health-to-task"
+    )
+    assert composition["surfaces"] == ("Systems", "Tasks")
+    assert "explicit owner intent" in composition["authority"]
+
+
 def test_tasks_to_communication_composition_is_owner_visible() -> None:
     composition = next(
         item for item in available_compositions() if item["id"] == "tasks-to-communication"
