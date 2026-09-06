@@ -1,0 +1,10 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-today-workspace-communication-surface",
+  "source_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "hosted_validation": {"provider": "github-actions", "run_id": "34025710611", "head_sha": "326a9bf1894750a3660cea570da3112366ffb6c4", "conclusion": "success"},
+  "installed_release_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "owner_runtime": {"service": "aegis-owner.service", "postgresql": "healthy", "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces", "identity": "authenticated owner"},
+  "surface": {"composition_id": "today-workspace-to-communication", "surfaces": ["Today", "Workspace", "Communications"], "constellation_visible": true},
+  "authority": "Each step retains separate Core authorization; provider acceptance does not imply delivery."
+}

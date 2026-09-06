@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8e14ca1bbc733ea3bbfab79fa8ff85f2bfbf3e80",
+  "state_basis_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8e14ca1bbc733ea3bbfab79fa8ff85f2bfbf3e80",
-  "deterministic_green_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
-  "last_pushed_sha": "8e14ca1bbc733ea3bbfab79fa8ff85f2bfbf3e80",
-  "hosted_green_sha": "8e14ca1bbc733ea3bbfab79fa8ff85f2bfbf3e80",
-  "hosted_ci_green_sha": "8e14ca1bbc733ea3bbfab79fa8ff85f2bfbf3e80",
+  "repository_head_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "deterministic_green_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "last_pushed_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "hosted_green_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "hosted_ci_green_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8e14ca1bbc733ea3bbfab79fa8ff85f2bfbf3e80",
+    "commit_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
     "conclusion": "success",
-    "run_id": "34025493710",
+    "run_id": "34025710611",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
-  "running_release_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
-  "live_green_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1",
+  "installed_release_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "running_release_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
+  "live_green_sha": "326a9bf1894750a3660cea570da3112366ffb6c4",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -47,7 +47,8 @@
     "compound_cognition": "bounded research evidence only; not capability-green",
     "air_quality": "live Open-Meteo public evidence for explicit owner coordinates; not canonical personal truth or medical advice",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
-    "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f"
+    "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
+    "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -241,7 +242,7 @@
   "independently_verified_write_capabilities": 9,
   "live_external_integrations": 3,
   "voluntarily_useful_owner_workflows": 70,
-  "owner_visible_capability_surfaces": 36,
+  "owner_visible_capability_surfaces": 37,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 44,
   "breadth_scoreboard": {
@@ -256,6 +257,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Implement the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/today-workspace-communication-owner-14f1f9c.json",
+  "history_artifact": "evidence/today-workspace-communication-metadata-owner-326a9bf.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
