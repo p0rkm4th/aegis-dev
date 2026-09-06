@@ -84,6 +84,8 @@ from .reference_packs import (
     WeatherWorkspaceExecutor,
     WeatherWorkspaceVerifier,
     WorkspaceArtifactExecutor,
+    WorkspaceArtifactsListExecutor,
+    WorkspaceArtifactsListVerifier,
     WorkspaceArtifactVerifier,
     prepare_reference_action,
 )
@@ -249,6 +251,14 @@ def default_runtime_registry(
             WorkspaceArtifactVerifier(principal),
             {"workspace.write": frozenset({Role.OWNER})},
             prepare=prepare_reference_action,
+        )
+
+    def workspace_inventory_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            WorkspaceArtifactsListExecutor(principal),
+            WorkspaceArtifactsListVerifier(),
+            {"workspace.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
     def calendar_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -502,6 +512,7 @@ def default_runtime_registry(
         "homelab-reports.health.to_workspace": homelab_health_workspace_runtime,
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
+        "workspace.artifacts.list": workspace_inventory_runtime,
         "calendar.events.list": calendar_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,

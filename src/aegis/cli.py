@@ -1416,6 +1416,16 @@ def _deterministic_composition_action(
                 )
             }
         )
+    workspace_inventory = re.fullmatch(
+        r"(?:show|list) (?:my )?(?:workspace files|workspace artifacts|artifacts)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if workspace_inventory is not None:
+        card = manager.action_card("workspace", "workspace.artifacts.list")
+        if card is None:
+            return None
+        return card
     document_search = re.fullmatch(
         r"(?:search|find) (?:my )?documents? for (?P<query>.+)", text, flags=re.IGNORECASE
     )
