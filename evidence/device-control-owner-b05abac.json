@@ -1,0 +1,17 @@
+{
+  "checkpoint": "daily-driver-alpha-device-control-fixture",
+  "source_sha": "b05abacb5a93b0df2d66dd4c6dcbb44309812f8c",
+  "owner_runtime": "installed-release",
+  "principal": "owner",
+  "utterance": "Turn off light.desk and verify it",
+  "result": "completed",
+  "message": "Done — device state independently verified",
+  "entity_id": "light.desk",
+  "service": "turn_off",
+  "expected_state": "off",
+  "provider_state": "fixture",
+  "independent_provider_readback": true,
+  "scope_boundary": "Only light.desk is authorized; UI visibility and selection do not grant control permission.",
+  "live_hardware_claim": false,
+  "postgresql": "healthy"
+}
