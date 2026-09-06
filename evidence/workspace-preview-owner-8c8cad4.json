@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "workspace-static-preview-owner-surface",
+  "source_sha": "8c8cad4ab6bd02028120da551657040c7bf82d9a",
+  "hosted_validation": {"run_id": "34004964297", "conclusion": "success"},
+  "installed_release_sha": "8c8cad4ab6bd02028120da551657040c7bf82d9a",
+  "owner_runtime": {
+    "service": "active",
+    "scoped_workspaces_observed": 24,
+    "html_artifacts_observed": 8,
+    "preview": "HTML-only scoped file fetch rendered in an empty-sandbox iframe"
+  },
+  "authority_boundary": "Preview observes an authorized Workspace file and grants no execution, mutation, host-path, or network authority."
+}
