@@ -74,6 +74,20 @@ class PackCase:
     expected_pack_ids: frozenset[str] | None
 
 
+OWNER_PACK_CORPUS: tuple[PackCase, ...] = (
+    PackCase("we ran out of milk", frozenset({"dynamic-food"})),
+    PackCase("what did I spend at the store", frozenset({"dynamic-finance"})),
+    PackCase("is the media server reachable", frozenset({"dynamic-homelab"})),
+    PackCase("what could I add safely", frozenset({"dynamic-forge"})),
+    PackCase("groceris for tonight", frozenset({"dynamic-food"})),
+    PackCase("show me the other one", None),
+    PackCase("nah, tomorrow", None),
+    PackCase("restart that instead", None),
+    PackCase("tell me everything", None),
+    PackCase("install this unknown Pack", frozenset()),
+)
+
+
 @dataclass(frozen=True)
 class PackTournamentReport:
     measurements: tuple[PackRouteMeasurement, ...]

@@ -5,6 +5,7 @@ import pytest
 from aegis.audit import AuditLog
 from aegis.contracts import ActionCard, ActionSpec
 from aegis.pack_first_experiment import (
+    OWNER_PACK_CORPUS,
     PackCase,
     PackRouterStatus,
     compact_pack_catalog,
@@ -254,3 +255,13 @@ def test_tournament_corpus_covers_owner_reality_domains_and_unsupported_requests
     assert report.metrics["incumbent"]["routing_recall"] == 1.0
     assert report.metrics["pack_first"]["routing_recall"] == 1.0
     assert report.metrics["retrieval_assisted_pack_first"]["routing_recall"] == 1.0
+
+
+def test_owner_corpus_includes_adversarial_followups_without_core_phrase_routes():
+    utterances = {case.utterance for case in OWNER_PACK_CORPUS}
+    assert "we ran out of milk" in utterances
+    assert "show me the other one" in utterances
+    assert "nah, tomorrow" in utterances
+    assert "restart that instead" in utterances
+    assert any(case.expected_pack_ids is None for case in OWNER_PACK_CORPUS)
+    assert any(case.expected_pack_ids == frozenset() for case in OWNER_PACK_CORPUS)
