@@ -4170,6 +4170,21 @@ def test_browser_app_task_and_household_views_expose_core_completion_affordances
     assert "Mark the chore" in html
 
 
+def test_browser_app_documents_surface_exposes_bounded_search():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Search authorized documents" in html
+    assert "Find my documents for" in html
+    assert "bounded to documents authorized" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []
