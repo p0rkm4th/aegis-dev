@@ -1,0 +1,13 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "authorized-document-search-owner-surface",
+  "source_sha": "e66469abb68bacbd44a4b53620b14155290edc86",
+  "hosted_validation": {"run_id": "34004825656", "conclusion": "success"},
+  "installed_release_sha": "e66469abb68bacbd44a4b53620b14155290edc86",
+  "owner_rendered_surface": {
+    "search_label": "Search authorized documents",
+    "core_request_shape": "Find my documents for <query>",
+    "authorized_documents_observed": 1
+  },
+  "authority_boundary": "Search is bounded to current-owner authorized documents; reading/searching does not grant transformation or mutation authority."
+}
