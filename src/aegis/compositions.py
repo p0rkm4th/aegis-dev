@@ -58,6 +58,19 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "capability-need-research-workspace-to-communication",
+            "label": "CapabilityNeed → Research → Workspace → Communication",
+            "description": (
+                "Send the owner-selected, sourced candidate notes from a verified Workspace "
+                "artifact to the approved communication destination."
+            ),
+            "surfaces": ("Objectives", "Research", "Workspace", "Communications"),
+            "authority": (
+                "each read/write/send step requires separate Core authorization; the original "
+                "Need remains open and provider acceptance does not imply delivery"
+            ),
+        },
+        {
             "id": "calendar-task-attention",
             "label": "Calendar + Tasks attention",
             "description": (
