@@ -1,0 +1,14 @@
+{
+  "campaign": "breadth-expansion",
+  "checkpoint": "calendar-task-attention-owner-surface",
+  "source_sha": "f7860694edc991866324ffdda21478064120a53a",
+  "hosted_validation": {"run_id": "34005896166", "conclusion": "success"},
+  "installed_release_sha": "f7860694edc991866324ffdda21478064120a53a",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_events_observed": 1,
+    "task_attention_records_observed": 81,
+    "surface": "Tasks before shared events"
+  },
+  "authority_boundary": "Calendar + Tasks attention is read-only narrowing of authorized state; it creates, completes, or authorizes nothing."
+}
