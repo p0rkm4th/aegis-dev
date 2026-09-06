@@ -1480,6 +1480,33 @@ def _deterministic_composition_action(
                 )
             }
         )
+    air_quality_report = re.fullmatch(
+        r"save (?:the )?(?:current )?air quality at "
+        r"(?P<latitude>-?[0-9]{1,2}(?:\.[0-9]{1,6})?),\s*"
+        r"(?P<longitude>-?[0-9]{1,3}(?:\.[0-9]{1,6})?) as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if air_quality_report is not None:
+        card = manager.action_card(
+            "air-quality-reports", "air-quality-reports.current.to_workspace"
+        )
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={
+                        "arguments": {
+                            "latitude": float(air_quality_report.group("latitude")),
+                            "longitude": float(air_quality_report.group("longitude")),
+                            "target_path": air_quality_report.group("target_path"),
+                        }
+                    }
+                )
+            }
+        )
     device_research = re.fullmatch(
         r"research the current state of (?P<entity_id>[a-zA-Z0-9_.:-]+) for (?P<query>.+)",
         text,

@@ -29,6 +29,8 @@ from .pack_runtime import ActionRuntime, PackRuntimeRegistry
 from .reference_packs import (
     AirQualityExecutor,
     AirQualityVerifier,
+    AirQualityWorkspaceExecutor,
+    AirQualityWorkspaceVerifier,
     CalendarAgendaExecutor,
     CalendarAgendaVerifier,
     CalendarCancelExecutor,
@@ -510,6 +512,17 @@ def default_runtime_registry(
             {"air_quality.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def air_quality_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            AirQualityWorkspaceExecutor(principal),
+            AirQualityWorkspaceVerifier(principal),
+            {
+                "air_quality.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+        )
+
     def calendar_create_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         provider = configured_calendar_write_provider()
@@ -768,6 +781,7 @@ def default_runtime_registry(
         "holidays.public_holidays.list": holiday_runtime,
         "holiday-reports.to_workspace": holiday_workspace_runtime,
         "air-quality.current.read": air_quality_runtime,
+        "air-quality-reports.current.to_workspace": air_quality_workspace_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar.events.cancel": calendar_cancel_runtime,
         "calendar.events.update": calendar_update_runtime,
