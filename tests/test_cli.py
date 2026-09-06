@@ -5262,6 +5262,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "selectedNode" in _INDEX_HTML
     assert "const nodeCards = new Map()" in _INDEX_HTML
     assert "const selectNode = (node, card)" in _INDEX_HTML
+    assert "navigableViews.has(node.detail_view)" in _INDEX_HTML
     assert "Open relationship to" in _INDEX_HTML
     assert "target.focus(); target.click()" in _INDEX_HTML
     assert "function applyNodeFilter()" in _INDEX_HTML
