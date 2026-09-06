@@ -321,6 +321,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "completed-tasks-to-communication",
+            "label": "Completed tasks → Communication",
+            "description": (
+                "Send a bounded canonical completed-task snapshot to one approved destination."
+            ),
+            "surfaces": ("Tasks", "Communications"),
+            "authority": (
+                "authorized completed-task read + communications send; explicit approved "
+                "destination and Core authorization required; provider delivery remains distinct"
+            ),
+        },
+        {
             "id": "household-chores-to-communication",
             "label": "Household chores → Communication",
             "description": "Send the canonical open chore snapshot to one approved destination.",
