@@ -1,0 +1,18 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "public-holidays-owner",
+  "source_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
+  "hosted_validation": {"run_id": "34009805183", "conclusion": "success"},
+  "installed_release_sha": "1b457533675743dd95ea513102498b03d3c1cb73",
+  "owner_runtime": {
+    "service": "active",
+    "calendar_endpoint": "/api/calendar",
+    "country_code": "US",
+    "year": 2026,
+    "provider_state": "nager_date",
+    "holiday_count_observed": 17,
+    "owner_surface": "Calendar · Public holidays"
+  },
+  "verification": "The installed owner Calendar API returned public-holiday records from the live Nager.Date HTTPS provider, and the rendered Calendar view presents the records with provenance and an external-evidence boundary.",
+  "authority_boundary": "Public holidays are not canonical personal events and do not create, update, or authorize calendar mutations."
+}
