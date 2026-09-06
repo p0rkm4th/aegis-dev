@@ -306,7 +306,7 @@
     "cross_domain_compositions": 70,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 92,
+    "owner_workflows_completed": 93,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
