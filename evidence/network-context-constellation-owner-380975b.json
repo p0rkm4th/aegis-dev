@@ -1,0 +1,13 @@
+{
+  "evidence_type": "owner_https_constellation_network_context",
+  "source_sha": "380975b4dfd8ccf4cc332e07952fc076345d210e",
+  "hosted_validation": {"run_id": "34062354908", "conclusion": "success"},
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "installed_release_sha": "380975b4dfd8ccf4cc332e07952fc076345d210e",
+  "service_health": "healthy",
+  "proof": {
+    "authorized_scope": {"id": "network-scope-alpha-lab", "detail": "Authorized scope · 1 network range(s) · active"},
+    "discovered_device": {"id": "network-device-127.0.0.1", "detail": "Discovered device · 127.0.0.1 · not a canonical Host"},
+    "boundary": "Network scope/device nodes are scoped context and navigation only; discovery does not become canonical identity or action authority."
+  }
+}
