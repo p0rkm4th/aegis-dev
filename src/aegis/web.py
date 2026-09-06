@@ -170,11 +170,16 @@ _INDEX_HTML = """<!doctype html>
 <style>.status-badge{display:inline-flex;align-items:center;gap:.4rem;width:max-content;margin:.2rem 0 .35rem;padding:.3rem .65rem;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.78rem;font-weight:600}.status-badge[data-state="completed"]{border-color:#4f9b68;color:#9be2ae}.status-badge[data-state="blocked"],.status-badge[data-state="failed"]{border-color:#a56a6a;color:#f0b0b0}#detail:empty{display:none}</style>
 </head><body><div class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><div class="eyebrow">Personal intelligence</div><h1>AEGIS</h1></div></div><button id="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button></header>
 <nav class="product-nav" aria-label="AEGIS views">
+<div class="nav-group nav-primary" aria-label="Everyday">
+<span class="nav-group-label">Everyday</span>
 <button type="button" data-view="home" aria-current="page">Today</button>
 <button type="button" data-view="tasks">Tasks</button>
 <button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="systems">Systems</button>
+</div>
+<div class="nav-group nav-advanced" aria-label="Explore">
+<span class="nav-group-label">Explore</span>
 <button type="button" data-view="weather">Weather</button>
 <button type="button" data-view="air-quality">Air quality</button>
 <button type="button" data-view="devices">Devices</button>
@@ -186,6 +191,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="objectives">Objectives</button>
 <button type="button" data-view="workspace">Workspace</button>
 <button type="button" data-view="compositions">Compositions</button>
+</div>
 </nav>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
 <div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
