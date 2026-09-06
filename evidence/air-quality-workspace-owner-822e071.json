@@ -1,0 +1,43 @@
+{
+  "checkpoint": "air-quality-to-workspace-owner-proof",
+  "source_sha": "822e0718cf52e24baa7feae8c4942ff225050aa5",
+  "hosted": {
+    "run_id": 34028697057,
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "822e071",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "provider": "ollama",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+  },
+  "pack_lifecycle": {
+    "pack_id": "air-quality-reports",
+    "permissions": ["air_quality.read", "workspace.write"],
+    "approval": "explicit owner approval"
+  },
+  "request": "Save current air quality at 41.881832, -87.623177 as air-quality.md",
+  "result": {
+    "code": "completed",
+    "objective_id": "d632e92f-5820-43e0-bbc1-4f660815b7f1",
+    "correlation_id": "46937352-acf8-40bb-a593-0130fdccc856",
+    "workspace_id": "d9d2316b-6cbf-59af-b74c-274d97189ff4",
+    "path": "air-quality.md",
+    "sha256": "3989a7f5af12608c8e97d3e3ff30a788bbb3771ae47a141576cd168a5d39a009",
+    "provider": "open_meteo_air_quality",
+    "verification": "independent Principal/objective-scoped Workspace readback"
+  },
+  "surfaces": {
+    "owner_view": "Air Quality view exposes Save verified air-quality report",
+    "constellation": "Air Quality Reports Pack and Air quality → Workspace composition"
+  },
+  "safety": [
+    "public air-quality evidence remains external and non-canonical",
+    "evidence is fixed before Workspace mutation",
+    "Workspace verification is independent of executor-local validation",
+    "Pack approval grants no unrelated authority"
+  ]
+}

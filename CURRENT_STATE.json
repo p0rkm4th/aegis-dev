@@ -210,7 +210,7 @@
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now explicitly enables holiday-reports, saves bounded public-holiday evidence as holidays.md, and independently verifies the scoped Workspace artifact without making it canonical personal calendar state.",
+  "daily_driver_checkpoint": "The installed owner now explicitly enables air-quality-reports, saves live Open-Meteo/CAMS evidence as air-quality.md, and independently verifies the scoped Workspace artifact without making public evidence canonical personal state.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -235,6 +235,7 @@
     "weather": "LIVE",
     "public_holidays": "LIVE",
     "air_quality": "LIVE",
+    "air_quality_workspace": "VERIFIED_LIVE",
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
     "communications_send": "FIXTURE",
@@ -246,24 +247,24 @@
     "homelab_action": "FIXTURE",
     "constellation": "INSTALLED"
   },
-  "independently_verified_write_capabilities": 10,
+  "independently_verified_write_capabilities": 11,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 77,
-  "owner_visible_capability_surfaces": 44,
+  "voluntarily_useful_owner_workflows": 78,
+  "owner_visible_capability_surfaces": 45,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 51,
+  "cross_capability_workflows": 52,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
-    "verified_write_capabilities": 10,
+    "verified_write_capabilities": 11,
     "external_integrations": 3,
-    "cross_domain_compositions": 51,
+    "cross_domain_compositions": 52,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 72,
+    "owner_workflows_completed": 73,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/public-holidays-workspace-owner-8c93456.json",
+  "history_artifact": "evidence/air-quality-workspace-owner-822e071.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
