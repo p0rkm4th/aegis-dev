@@ -784,6 +784,23 @@ async function loadCalendar() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(form);
+    const draftSection = document.createElement('section'); draftSection.className = 'detail-card';
+    const draftTitle = document.createElement('h3'); draftTitle.textContent = 'Draft an agenda message';
+    const draftForm = document.createElement('form'); draftForm.setAttribute('aria-label', 'Draft calendar message');
+    const recipient = document.createElement('input'); recipient.required = true; recipient.placeholder = 'Recipient';
+    recipient.setAttribute('aria-label', 'Recipient');
+    const targetPath = document.createElement('input'); targetPath.required = true; targetPath.placeholder = 'Workspace path, e.g. agenda.md';
+    targetPath.setAttribute('aria-label', 'Workspace path');
+    const draftSubmit = document.createElement('button'); draftSubmit.type = 'submit'; draftSubmit.textContent = 'Create unsent draft';
+    draftForm.append(recipient, targetPath, draftSubmit);
+    draftForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!recipient.value.trim() || !targetPath.value.trim()) return;
+      document.getElementById('utterance').value =
+        `Draft my calendar for ${recipient.value.trim()} as ${targetPath.value.trim()}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    draftSection.append(draftTitle, draftForm); panel.append(draftSection);
     panel.append(renderDetailValue(events));
   } catch (_) {
     panel.textContent = 'Calendar state is unavailable; no event state was changed.';
