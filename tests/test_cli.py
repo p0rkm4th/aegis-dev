@@ -3725,6 +3725,26 @@ def test_browser_app_exposes_principal_scoped_workspace_inventory():
     assert json.loads(payload)["workspaces"] == [{"workspace_id": "alice", "files": ["index.html"]}]
 
 
+def test_browser_app_keeps_bounded_workspace_inventory_readable_over_twenty_entries():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        workspace_state=lambda _current: {
+            "workspaces": [
+                {"workspace_id": str(index), "files": ["artifact.md"]} for index in range(21)
+            ]
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET", "/api/workspace", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert len(json.loads(payload)["workspaces"]) == 21
+
+
 def test_browser_app_exposes_composition_metadata_without_execution_authority():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
