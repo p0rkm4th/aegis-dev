@@ -98,6 +98,47 @@ def is_pack_lifecycle_request(utterance: str) -> bool:
 
 
 @dataclass(frozen=True)
+class PackFollowUpContext:
+    """Small, bounded context permitted for one experimental follow-up retry."""
+
+    prior_pack_ids: tuple[str, ...] = ()
+    canonical_result_type: str | None = None
+    referent_ids: tuple[str, ...] = ()
+    objective_requirements: tuple[str, ...] = ()
+
+
+def route_with_one_context_retry(
+    utterance: str,
+    manager: PackManager,
+    router: PackRouter,
+    context: PackFollowUpContext | None = None,
+) -> tuple[PackRouterResponse, int]:
+    """Route with at most one bounded context retry; never grants authority."""
+
+    if is_pack_lifecycle_request(utterance):
+        return PackRouterResponse(status=PackRouterStatus.UNSUPPORTED), 0
+
+    def route(prompt: str) -> PackRouterResponse:
+        response = parse_router_response(router(prompt))
+        validate_selected_packs(response, manager)
+        return response
+
+    response = route(router_prompt(utterance, compact_pack_catalog(manager)))
+    calls = 1
+    if response.status is PackRouterStatus.NEED_CONTEXT and context is not None:
+        bounded = (
+            "Bounded follow-up context (context only; no authority):\n"
+            f"prior_pack_ids: {list(context.prior_pack_ids[:4])}\n"
+            f"canonical_result_type: {context.canonical_result_type or ''}\n"
+            f"referent_ids: {list(context.referent_ids[:8])}\n"
+            f"objective_requirements: {list(context.objective_requirements[:8])}\n"
+        )
+        response = route(router_prompt(utterance, compact_pack_catalog(manager)) + "\n" + bounded)
+        calls += 1
+    return response, calls
+
+
+@dataclass(frozen=True)
 class PackTournamentReport:
     measurements: tuple[PackRouteMeasurement, ...]
     metrics: dict[str, dict[str, float]]
