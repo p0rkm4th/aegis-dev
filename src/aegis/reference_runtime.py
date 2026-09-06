@@ -36,6 +36,8 @@ from .reference_packs import (
     CalendarEventsVerifier,
     CalendarSnapshotWorkspaceExecutor,
     CalendarSnapshotWorkspaceVerifier,
+    CalendarUpdateExecutor,
+    CalendarUpdateVerifier,
     CommunicationDraftExecutor,
     CommunicationDraftVerifier,
     CommunicationsExecutor,
@@ -267,6 +269,16 @@ def default_runtime_registry(
             prepare=prepare_reference_action,
         )
 
+    def calendar_update_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        provider = configured_calendar_write_provider()
+        return ActionRuntime(
+            CalendarUpdateExecutor(provider),
+            CalendarUpdateVerifier(provider),
+            {"calendar.write": frozenset({Role.OWNER})},
+            prepare=prepare_reference_action,
+        )
+
     def calendar_snapshot_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         return ActionRuntime(
@@ -439,6 +451,7 @@ def default_runtime_registry(
         "calendar.events.list": calendar_runtime,
         "calendar.events.create": calendar_create_runtime,
         "calendar.events.cancel": calendar_cancel_runtime,
+        "calendar.events.update": calendar_update_runtime,
         "calendar-reports.events.snapshot_to_workspace": calendar_snapshot_workspace_runtime,
         "calendar-communications.events.draft": calendar_communication_draft_runtime,
         "documents.list": documents_runtime,

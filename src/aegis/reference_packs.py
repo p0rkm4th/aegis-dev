@@ -186,6 +186,40 @@ def prepare_reference_action(
                     )
                 }
             )
+    elif action.action_id == "calendar.events.update":
+        event_id, title, starts_at, ends_at = (
+            args.get("event_id"),
+            args.get("title"),
+            args.get("starts_at"),
+            args.get("ends_at"),
+        )
+        if (
+            isinstance(event_id, str)
+            and event_id.strip()
+            and isinstance(title, str)
+            and title.strip()
+            and isinstance(starts_at, str)
+            and starts_at.strip()
+            and (ends_at is None or isinstance(ends_at, str))
+        ):
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": {
+                                "version": 1,
+                                "principal_id": principal.id,
+                                "objective_id": str(objective_id),
+                                "event_id": event_id,
+                                "title": title,
+                                "starts_at": starts_at,
+                                "ends_at": ends_at,
+                            }
+                        }
+                    )
+                }
+            )
     elif action.action_id == "device-controls.devices.command.execute":
         entity_id = args.get("entity_id")
         expected_state = args.get("expected_state")
@@ -955,6 +989,26 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         )
                     },
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar.events.update",
+                        capability="calendar.events.update",
+                        required_permissions=("calendar.write",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Update an explicitly identified calendar event and read back "
+                        "the changed fields"
+                    ),
+                    relevance=1,
+                    argument_keys=("event_id", "title", "starts_at", "ends_at"),
+                    argument_grounding={
+                        key: ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                        for key in ("event_id", "title", "starts_at", "ends_at")
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -1523,6 +1577,90 @@ class CalendarCancelVerifier:
             reason="calendar event absence independently read back"
             if verified
             else "calendar event remained present after cancellation",
+        )
+
+
+class CalendarUpdateExecutor:
+    def __init__(self, provider: CalendarWriteProvider) -> None:
+        self.provider = provider
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        args = request.action.arguments
+        event_id, title, starts_at, ends_at = (
+            args.get("event_id"),
+            args.get("title"),
+            args.get("starts_at"),
+            args.get("ends_at"),
+        )
+        if not (
+            isinstance(event_id, str)
+            and event_id.strip()
+            and isinstance(title, str)
+            and title.strip()
+            and isinstance(starts_at, str)
+            and starts_at.strip()
+            and (ends_at is None or isinstance(ends_at, str))
+        ):
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_update": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            event = CalendarEvent(
+                event_id,
+                title,
+                datetime.fromisoformat(starts_at),
+                datetime.fromisoformat(ends_at) if ends_at else None,
+            )
+            updated = self.provider.update_event(event_id, event)
+        except (ValueError, RuntimeError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_update": {"event_id": event_id, "error": str(exc)}},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "calendar_update": {
+                    "event_id": updated.event_id,
+                    "title": updated.title,
+                    "starts_at": updated.starts_at.isoformat(),
+                    "ends_at": updated.ends_at.isoformat() if updated.ends_at else None,
+                }
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarUpdateVerifier:
+    def __init__(self, provider: CalendarWriteProvider) -> None:
+        self.provider = provider
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("calendar_update")
+        if not observation.command_succeeded or not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False, evidence={}, reason="calendar update did not execute"
+            )
+        event_id = contract.expected.get("event_id")
+        actual = self.provider.get_event(event_id) if isinstance(event_id, str) else None
+        verified = (
+            actual is not None
+            and actual.title == contract.expected.get("title")
+            and actual.starts_at.isoformat() == contract.expected.get("starts_at")
+            and (actual.ends_at.isoformat() if actual.ends_at else None)
+            == contract.expected.get("ends_at")
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"calendar_event_id": event_id, "provider_readback": actual is not None},
+            reason="calendar event update independently read back"
+            if verified
+            else "calendar event update readback did not match the expected event",
         )
 
 

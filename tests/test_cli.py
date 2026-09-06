@@ -4291,6 +4291,21 @@ def test_browser_app_calendar_surface_exposes_provider_readback_cancellation():
     assert "absence readback" in html
 
 
+def test_browser_app_calendar_surface_exposes_provider_readback_update():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Update an authorized event" in html
+    assert "changed fields are independently read back" in html
+    assert "Update calendar event ${eventRecord.event_id} to" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []

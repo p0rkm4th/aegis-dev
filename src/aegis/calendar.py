@@ -32,6 +32,8 @@ class CalendarProvider(Protocol):
 class CalendarWriteProvider(Protocol):
     def create_event(self, event: CalendarEvent, idempotency_key: str) -> CalendarEvent: ...
 
+    def update_event(self, event_id: str, event: CalendarEvent) -> CalendarEvent: ...
+
     def get_event(self, event_id: str) -> CalendarEvent | None: ...
 
     def delete_event(self, event_id: str) -> None: ...
@@ -84,6 +86,32 @@ class GoogleCalendarWriteProvider:
         parsed = _google_event(item)
         if parsed is None:
             raise RuntimeError("Google Calendar create response was invalid")
+        return parsed
+
+    def update_event(self, event_id: str, event: CalendarEvent) -> CalendarEvent:
+        payload = {
+            "summary": event.title,
+            "start": {"dateTime": event.starts_at.isoformat()},
+            "end": {"dateTime": (event.ends_at or event.starts_at).isoformat()},
+        }
+        request = urllib.request.Request(
+            self._url(event_id),
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+            method="PATCH",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                item = json.loads(response.read(1_000_001))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise RuntimeError("Google Calendar update failed") from exc
+        parsed = _google_event(item)
+        if parsed is None:
+            raise RuntimeError("Google Calendar update response was invalid")
         return parsed
 
     def get_event(self, event_id: str) -> CalendarEvent | None:
@@ -145,6 +173,19 @@ class FixtureCalendarWriteProvider:
 
     def get_event(self, event_id: str) -> CalendarEvent | None:
         return self.events.get(event_id)
+
+    def update_event(self, event_id: str, event: CalendarEvent) -> CalendarEvent:
+        if event_id not in self.events:
+            raise RuntimeError("calendar event does not exist")
+        updated = CalendarEvent(
+            event_id=event_id,
+            title=event.title,
+            starts_at=event.starts_at,
+            ends_at=event.ends_at,
+            source="fixture_calendar",
+        )
+        self.events[event_id] = updated
+        return updated
 
     def delete_event(self, event_id: str) -> None:
         self.events.pop(event_id, None)
