@@ -468,6 +468,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     tasks: ['Tasks', 'Open and completed work from authorized canonical state.'],
     calendar: ['Calendar', 'Events and appointments currently visible to you.'],
     household: ['Household', 'Shared chores, groceries, and obligations.'],
+    finance: ['Finance', 'Private balances and imported transactions with freshness.'],
     systems: ['Systems', 'Authorized hosts, services, and network state.'],
     weather: ['Weather', 'Current public conditions for explicit coordinates.'],
     'air-quality': ['Air quality', 'Current public air quality for explicit coordinates.'],
@@ -499,6 +500,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'home') loadToday();
   if (activeView === 'tasks') loadTasks();
   if (activeView === 'household') loadHousehold();
+  if (activeView === 'finance') loadFinance();
   if (activeView === 'objectives') loadObjectives();
   if (activeView === 'constellation') {
     document.querySelector('.secondary').open = true;
@@ -1586,6 +1588,27 @@ async function loadHousehold() {
     boundary.textContent = payload.truth_boundary || 'Household state is canonical authorized state.';
     panel.append(boundary);
   } catch (_) { panel.textContent = 'Household state is unavailable; no canonical state was changed.'; }
+}
+async function loadFinance() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await apiFetch('/api/finance');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Finance unavailable.');
+    const title = document.createElement('h3');
+    title.textContent = payload.provider_state === 'available' ? 'Private finance' : 'Finance not configured';
+    panel.append(title);
+    if (payload.provider_state === 'available') {
+      const source = document.createElement('p'); source.className = 'muted';
+      source.textContent = `Source: ${payload.provider_id || 'unknown'} · As of: ${payload.captured_at || 'unknown'}`;
+      panel.append(source);
+      appendTodaySection(panel, 'Accounts', payload.accounts || []);
+      appendTodaySection(panel, 'Recent transactions', payload.transactions || []);
+    }
+    const boundary = document.createElement('p'); boundary.className = 'muted';
+    boundary.textContent = payload.boundary || 'Finance is private Principal-scoped canonical state.';
+    panel.append(boundary);
+  } catch (_) { panel.textContent = 'Finance is unavailable; no financial state was changed.'; }
 }
 async function loadObjectives() {
   const panel = document.getElementById('detail');

@@ -1162,6 +1162,53 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         connection.close()
 
 
+def _finance_state(principal: Principal) -> dict[str, Any]:
+    """Expose bounded private finance facts with freshness and source metadata."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        snapshot = PostgresFinanceSnapshotStore(connection).load(principal.id)
+        if snapshot is None:
+            return {
+                "provider_state": "unavailable",
+                "accounts": [],
+                "transactions": [],
+                "boundary": "Private finance data is not configured for this Principal.",
+            }
+        return {
+            "provider_state": "available",
+            "provider_id": snapshot.provider_id,
+            "captured_at": snapshot.captured_at.isoformat() if snapshot.captured_at else None,
+            "accounts": [
+                {
+                    "account_id": account.account_id,
+                    "currency": getattr(account, "currency", "USD"),
+                    "balance_minor": account.balance_cents,
+                }
+                for account in snapshot.accounts
+            ],
+            "transactions": [
+                {
+                    "transaction_id": transaction.transaction_id,
+                    "account_id": transaction.account_id,
+                    "amount_minor": transaction.amount_cents,
+                    "currency": getattr(transaction, "currency", "USD"),
+                    "occurred_at": transaction.occurred_at.isoformat(),
+                    "description": transaction.description,
+                    "status": getattr(transaction, "status", "posted"),
+                }
+                for transaction in snapshot.transactions[:100]
+            ],
+            "boundary": (
+                "Private finance state is Principal-scoped; numbers are canonical snapshot "
+                "facts, not model inference."
+            ),
+        }
+    finally:
+        connection.close()
+
+
 def _objectives_state(principal: Principal) -> dict[str, Any]:
     """Project bounded canonical objective lifecycle and CapabilityNeeds."""
 
@@ -3665,6 +3712,7 @@ def main() -> int:
                 document_file=_document_file,
                 daily_driver_state=_daily_driver_state,
                 research_state=_research_state,
+                finance_state=_finance_state,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
