@@ -54,6 +54,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "read-only narrowing; no task mutation or authorization",
         },
         {
+            "id": "calendar-task-attention-to-workspace",
+            "label": "Calendar + Tasks attention → Workspace",
+            "description": "Save bounded Calendar + Tasks attention as a verified scoped report.",
+            "surfaces": ("Calendar", "Tasks", "Workspace"),
+            "authority": (
+                "calendar/task reads + scoped workspace write; no task or calendar mutation; "
+                "Core authorization and independent Workspace verification required"
+            ),
+        },
+        {
             "id": "weather-to-task-followup",
             "label": "Weather → Task follow-up",
             "description": "Turn a public weather check into an explicit owner task request.",

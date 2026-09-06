@@ -403,6 +403,22 @@ def prepare_reference_action(
                     )
                 }
             )
+    elif action.action_id == "calendar-task-reports.to_workspace":
+        report_target = args.get("target_path")
+        if isinstance(report_target, str) and report_target.strip() and connection is not None:
+            content = _calendar_task_attention_content(connection, principal)
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": workspace_expected_postcondition(
+                                principal.id, objective_id, {report_target: content}
+                            )
+                        }
+                    )
+                }
+            )
     elif action.action_id == "homelab-reports.inventory.to_workspace":
         report_target = args.get("target_path")
         if isinstance(report_target, str) and report_target.strip() and connection is not None:
@@ -1340,6 +1356,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "calendar-task-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar-task-reports.to_workspace",
+                        capability="calendar-task-reports.to_workspace",
+                        required_permissions=("calendar.read", "tasks.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Save Calendar + Tasks attention as a verified Workspace report",
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "air-quality",
             "0.1.0",
             (
@@ -1636,6 +1674,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
         "calendar-task-attention": ("calendar.read", "tasks.read"),
+        "calendar-task-reports": ("calendar.read", "tasks.read", "workspace.write"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
@@ -1777,17 +1816,7 @@ class CalendarTaskAttentionExecutor:
 
     def execute(self, request: ExecutionRequest) -> Observation:
         del request
-        events = configured_calendar_provider().list_events()
-        tasks = PostgresTaskStore(self.connection).list(self.principal)
-        latest_event = max(
-            (event.starts_at for event in events),
-            default=datetime.now(timezone.utc),
-        )
-        attention = calendar_to_task_attention(
-            events,
-            tuple({"title": task.title, "due_at": task.due_at} for task in tasks),
-            until=latest_event,
-        )
+        attention = _calendar_task_attention(self.connection, self.principal)
         return Observation(
             execution_id=uuid4(),
             evidence={
@@ -1803,6 +1832,94 @@ class CalendarTaskAttentionExecutor:
                 ],
             },
             command_succeeded=True,
+        )
+
+
+def _calendar_task_attention(connection: Any, principal: Principal) -> tuple[Any, ...]:
+    events = configured_calendar_provider().list_events()
+    tasks = PostgresTaskStore(connection).list(principal)
+    latest_event = max(
+        (event.starts_at for event in events),
+        default=datetime.now(timezone.utc),
+    )
+    return calendar_to_task_attention(
+        events,
+        tuple({"title": task.title, "due_at": task.due_at} for task in tasks),
+        until=latest_event,
+    )
+
+
+def _calendar_task_attention_content(connection: Any, principal: Principal) -> str:
+    attention = _calendar_task_attention(connection, principal)
+    lines = ["# Calendar + Tasks attention", ""]
+    for item in attention:
+        lines.append(f"## {item.event_title} ({item.event_id})")
+        if item.task_titles:
+            lines.extend(f"- {title}" for title in item.task_titles[:50])
+        else:
+            lines.append("- No earlier tasks")
+        lines.append("")
+    return "\n".join(lines)
+
+
+class CalendarTaskAttentionWorkspaceExecutor:
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_task_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _calendar_task_attention_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_task_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "calendar_task_attention_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarTaskAttentionWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "calendar_task_workspace_verified": verified,
+                "postcondition": detail,
+            },
+            reason=(
+                "calendar task attention Workspace artifact independently verified"
+                if verified
+                else f"calendar task attention Workspace verification failed: {detail}"
+            ),
         )
 
 

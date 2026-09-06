@@ -45,6 +45,8 @@ from .reference_packs import (
     CalendarSnapshotWorkspaceVerifier,
     CalendarTaskAttentionExecutor,
     CalendarTaskAttentionVerifier,
+    CalendarTaskAttentionWorkspaceExecutor,
+    CalendarTaskAttentionWorkspaceVerifier,
     CalendarUpdateExecutor,
     CalendarUpdateVerifier,
     CommunicationDraftExecutor,
@@ -318,6 +320,20 @@ def default_runtime_registry(
             CalendarAgendaExecutor(),
             CalendarAgendaVerifier(),
             {"calendar.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def calendar_task_attention_workspace_runtime(
+        connection: Any, principal: Principal
+    ) -> ActionRuntime:
+        return ActionRuntime(
+            CalendarTaskAttentionWorkspaceExecutor(connection, principal),
+            CalendarTaskAttentionWorkspaceVerifier(principal),
+            {
+                "calendar.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "tasks.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=prepare_reference_action,
         )
 
     def weather_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -607,6 +623,7 @@ def default_runtime_registry(
         "calendar.events.conflicts": calendar_conflicts_runtime,
         "calendar.events.agenda": calendar_agenda_runtime,
         "calendar-task-attention.read": calendar_task_attention_runtime,
+        "calendar-task-reports.to_workspace": calendar_task_attention_workspace_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,
