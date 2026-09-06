@@ -992,6 +992,13 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                     "hostname": host.hostname,
                     "address": host.address,
                     "resources": host.resources,
+                    "provider_identity": host.provider_identity,
+                    "known_addresses": list(host.known_addresses),
+                    "identity_evidence": list(host.identity_evidence),
+                    "status": host.status,
+                    "last_observed": (
+                        host.last_observed.isoformat() if host.last_observed else None
+                    ),
                 }
                 for host in homelab.hosts.values()
             ],
