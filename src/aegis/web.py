@@ -1203,6 +1203,15 @@ async function loadSystems() {
         });
         row.append(label, restart, sendHealth); actions.append(row);
         if (service.health && service.health !== 'healthy') {
+          const research = document.createElement('button'); research.type = 'button';
+          research.textContent = 'Research likely cause';
+          research.setAttribute('aria-label', `Research likely cause for ${service.service_id}`);
+          research.addEventListener('click', () => {
+            document.getElementById('utterance').value =
+              `Research why service ${service.service_id} is unavailable`;
+            document.getElementById('chat').requestSubmit();
+          });
+          row.append(research);
           const investigate = document.createElement('button'); investigate.type = 'button';
           investigate.textContent = 'Create investigation task';
           investigate.setAttribute('aria-label', `Create investigation task for ${service.service_id}`);

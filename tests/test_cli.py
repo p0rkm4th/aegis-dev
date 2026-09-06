@@ -6485,6 +6485,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Send tomorrow's weather" in _INDEX_HTML
     assert "Text me tomorrow's weather" in _INDEX_HTML
     assert "provider acceptance is not delivery proof" in _INDEX_HTML
+    assert "Research likely cause" in _INDEX_HTML
+    assert "Research why service ${service.service_id} is unavailable" in _INDEX_HTML
     assert "/api/daily-driver" in _INDEX_HTML
     assert "Review Packs & capabilities" in _INDEX_HTML
     assert "candidate.requires_owner_input" in _INDEX_HTML
