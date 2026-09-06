@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "state_basis_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
-  "deterministic_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
-  "last_pushed_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
-  "hosted_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
-  "hosted_ci_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "repository_head_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "deterministic_green_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "last_pushed_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "hosted_green_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "hosted_ci_green_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+    "commit_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
     "conclusion": "success",
-    "run_id": "34014676486",
-    "observed_at": "2026-09-06T04:15:00Z"
+    "run_id": "34014978201",
+    "observed_at": "2026-09-06T05:53:00Z"
   },
-  "installed_release_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
-  "running_release_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
-  "live_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "installed_release_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "running_release_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
+  "live_green_sha": "ddbf7d15e5afba663937d1c6de07b5f70a30bc28",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-workspace-file-read-content",
+  "active_checkpoint": "daily-driver-alpha-communications-approved-target-shortcut",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -120,6 +120,7 @@
     ,"Workspace now exposes a generic workspace.artifacts.list read capability; installed owner proof completed 'Show my workspace artifacts' after explicit workspace.read Pack approval with Principal-scoped inventory"
     ,"Workspace now exposes a generic workspace.artifact.read action with explicit Workspace ID/path grounding; installed owner proof read reports/tomorrow.md through Principal-scoped Core verification"
     ,"Workspace artifact reads now return bounded verified content through the owner conversation; the read remains Principal-scoped and read-only"
+    ,"natural 'Text me the grocery list' now resolves only a single exact owner-approved target and completes through the generic communications Core path; installed owner proof is PROVIDER_ACCEPTED with provider readback, while OpenClaw delivery remains unconfigured"
     ,"Weather Reports is Pack-driven in the owner Packs and Constellation surfaces; explicit approval is required for its weather.read + workspace.write boundary"
     ,"owner proof exported authorized Alpha Handbook into handbook-copy.md through the natural document route with independent scoped Workspace verification"
     ,"owner proof summarized authorized Alpha Handbook into handbook-summary.md through the bounded transformation route with independent scoped Workspace verification"
@@ -175,7 +176,7 @@
     ,"Today now projects the live three-day Weather forecast alongside calendar, holiday, and Air Quality evidence through the promoted owner UI; public forecast remains read-only context"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "Air Quality is now a live owner-visible public read for explicit coordinates, with Open-Meteo/CAMS provenance and Pack-driven Constellation representation. Weather and Public Holidays remain live; OpenClaw, Google Calendar, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The installed owner can now say 'Text me the grocery list' when one exact approved target is configured; the generic communications path independently reads back fixture acceptance but truthfully does not claim delivery. OpenClaw, Google Calendar, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -213,7 +214,7 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 47,
+  "voluntarily_useful_owner_workflows": 48,
   "owner_visible_capability_surfaces": 26,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 25,
@@ -228,7 +229,7 @@
     "owner_workflows_completed": 43,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-useful vertical: inspect communications/calendar provider availability, then advance the cheapest live provider or independently verified consequential path. Preserve truthful pending states and keep breadth ahead of semantic micro-tuning.",
-  "history_artifact": "evidence/workspace-file-read-content-owner-419b623.json",
+  "next_action": "Rearm the next owner-useful vertical: advance the cheapest non-credential-blocked capability, prioritizing a new verified device/homelab action or a useful Calendar/Research/Workspace composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
+  "history_artifact": "evidence/communications-grocery-shortcut-owner-ddbf7d1.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
