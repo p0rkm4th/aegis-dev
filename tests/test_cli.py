@@ -5432,7 +5432,7 @@ def test_task_read_fast_path_filters_this_week_to_open_current_week():
 
     now = datetime.now(timezone.utc)
     this_week = Task(
-        uuid4(), "apartment", "this week task", "alice", due_at=now + timedelta(days=1)
+        uuid4(), "apartment", "this week task", "alice", due_at=now + timedelta(hours=1)
     )
     next_week = Task(
         uuid4(), "apartment", "next week task", "alice", due_at=now + timedelta(days=8)
@@ -5442,7 +5442,7 @@ def test_task_read_fast_path_filters_this_week_to_open_current_week():
         "apartment",
         "completed this week task",
         "alice",
-        due_at=now + timedelta(days=1),
+        due_at=now + timedelta(hours=1),
         status=TaskStatus.COMPLETED,
     )
 
