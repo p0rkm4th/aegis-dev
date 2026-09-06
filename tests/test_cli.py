@@ -5418,6 +5418,9 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     status, _, payload = app.dispatch("GET", "/")
     assert status == 200
     html = payload.decode()
+    assert 'data-view="constellation"' in html
+    assert "constellation: ['Constellation'" in html
+    assert "The authorized semantic map: context and navigation, never authority." in html
     assert "Open ${targetNav?.textContent || targetView} view" in html
     assert "Ask about ${node.label}" in html
     assert "Tell me about ${node.label}" in html

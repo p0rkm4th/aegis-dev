@@ -189,6 +189,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="research">Research</button>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
+<button type="button" data-view="constellation">Constellation</button>
 <button type="button" data-view="workspace">Workspace</button>
 <button type="button" data-view="compositions">Compositions</button>
 </div>
@@ -656,6 +657,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     research: ['Research', 'Ask for current public information with sources.'],
     packs: ['Packs & capabilities', 'Installed capability areas and their current status.'],
     objectives: ['Active objectives', 'Objectives remain grounded in their canonical lifecycle.'],
+    constellation: ['Constellation', 'The authorized semantic map: context and navigation, never authority.'],
     workspace: ['Workspace', 'Scoped artifacts and bounded digital work will appear here.']
     ,compositions: ['Compositions', 'Cross-capability workflows available through the trusted Core.']
   }[activeView] || ['Today', 'Your conversation and authorized world at a glance.'];
@@ -677,6 +679,10 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'tasks') loadTasks();
   if (activeView === 'household') loadHousehold();
   if (activeView === 'objectives') loadObjectives();
+  if (activeView === 'constellation') {
+    document.querySelector('.secondary').open = true;
+    loadState();
+  }
   renderResearchSummary();
   applyNodeFilter();
 }));
