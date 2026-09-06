@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 import pytest
 
-from aegis.finance import Account, FinanceLedger, FinanceSnapshot, import_csv_transactions
+from aegis.finance import (
+    Account,
+    FinanceLedger,
+    FinanceSnapshot,
+    Transaction,
+    import_csv_transactions,
+    summarize_snapshot,
+)
 
 
 def test_csv_import_uses_minor_units_source_hash_and_deduplicates_rows():
@@ -88,3 +97,21 @@ def test_ledger_import_does_not_double_count_provider_transaction_across_files()
 
     assert len(snapshot.transactions) == 1
     assert len(snapshot.sources) == 2
+
+
+def test_finance_summary_keeps_currencies_and_pending_flow_separate():
+    snapshot = FinanceSnapshot(
+        "alice",
+        (
+            Account("usd", "alice", 10_000, currency="USD"),
+            Account("eur", "alice", 8_000, currency="EUR"),
+        ),
+        (
+            Transaction("posted", "usd", -500, datetime(2026, 9, 1), "Food"),
+            Transaction("pending", "usd", -700, datetime(2026, 9, 2), "Hold", status="pending"),
+        ),
+    )
+
+    summary = summarize_snapshot(snapshot)
+    assert summary["balances_by_currency"] == {"USD": 10_000, "EUR": 8_000}
+    assert summary["cash_flow_by_currency"] == {"USD": {"posted": -500, "pending": -700}}

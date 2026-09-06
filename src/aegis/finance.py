@@ -23,6 +23,9 @@ class Account:
     account_id: str
     owner_id: str
     balance_cents: int
+    currency: str = "USD"
+    balance_as_of: datetime | None = None
+    status: str = "active"
 
 
 @dataclass(frozen=True)
@@ -160,6 +163,40 @@ class AffordabilityProjection:
     shortfall_cents: int
 
 
+def summarize_snapshot(snapshot: FinanceSnapshot) -> dict[str, object]:
+    """Derive bounded finance summaries without aggregating currencies."""
+
+    balances: dict[str, int] = {}
+    for account in snapshot.accounts:
+        currency = account.currency.upper()
+        balances[currency] = balances.get(currency, 0) + account.balance_cents
+    flows: dict[str, dict[str, int]] = {}
+    for transaction in snapshot.transactions:
+        currency = transaction.currency.upper()
+        bucket = flows.setdefault(currency, {"posted": 0, "pending": 0})
+        status = "pending" if transaction.status == "pending" else "posted"
+        bucket[status] += transaction.amount_cents
+    return {
+        "balances_by_currency": balances,
+        "cash_flow_by_currency": flows,
+        "transaction_count": len(snapshot.transactions),
+        "source_count": len(snapshot.sources),
+        "coverage": [
+            {
+                "source_id": source.source_id,
+                "source_type": source.source_type,
+                "content_hash": source.content_hash,
+                "coverage_start": source.coverage_start.isoformat()
+                if source.coverage_start
+                else None,
+                "coverage_end": source.coverage_end.isoformat() if source.coverage_end else None,
+                "complete": source.complete,
+            }
+            for source in snapshot.sources
+        ],
+    }
+
+
 class FinancialProvider(Protocol):
     def snapshot(self, owner_id: str) -> FinanceSnapshot: ...
 
@@ -185,6 +222,11 @@ class PostgresFinanceSnapshotStore:
                     "account_id": account.account_id,
                     "owner_id": account.owner_id,
                     "balance_cents": account.balance_cents,
+                    "currency": account.currency,
+                    "balance_as_of": account.balance_as_of.isoformat()
+                    if account.balance_as_of
+                    else None,
+                    "status": account.status,
                 }
                 for account in snapshot.accounts
             ],
@@ -243,6 +285,11 @@ class PostgresFinanceSnapshotStore:
                 str(account["account_id"]),
                 str(account["owner_id"]),
                 int(account["balance_cents"]),
+                str(account.get("currency", "USD")),
+                datetime.fromisoformat(str(account["balance_as_of"]))
+                if account.get("balance_as_of")
+                else None,
+                str(account.get("status", "active")),
             )
             for account in payload.get("accounts", [])
         )

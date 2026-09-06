@@ -49,7 +49,7 @@ from .contracts import (
 from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
-from .finance import PostgresFinanceSnapshotStore
+from .finance import PostgresFinanceSnapshotStore, summarize_snapshot
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .holidays import configured_holiday_provider, holidays_evidence
@@ -1180,6 +1180,7 @@ def _finance_state(principal: Principal) -> dict[str, Any]:
             "provider_state": "available",
             "provider_id": snapshot.provider_id,
             "captured_at": snapshot.captured_at.isoformat() if snapshot.captured_at else None,
+            "summary": summarize_snapshot(snapshot),
             "accounts": [
                 {
                     "account_id": account.account_id,
