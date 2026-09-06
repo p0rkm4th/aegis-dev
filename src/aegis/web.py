@@ -33,6 +33,7 @@ WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
 _AEGIS_CSS = (Path(__file__).with_name("static") / "aegis.css").read_text(encoding="utf-8")
+_AEGIS_JS = (Path(__file__).with_name("static") / "aegis.js").read_text(encoding="utf-8")
 TodayState = Callable[[Principal], dict[str, Any]]
 ObjectivesState = Callable[[Principal], dict[str, Any]]
 CommunicationsState = Callable[[Principal], dict[str, Any]]
@@ -152,7 +153,7 @@ class PackEnableRequest(BaseModel):
 
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><title>AEGIS · Personal intelligence</title>
+<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
 <style>
 :root{color-scheme:dark;--bg:#0e1117;--panel:#171c25;--panel-raised:#1d2430;--border:#2b3442;--text:#edf2f7;--muted:#9aa8b8;--accent:#8dc7ff;--shadow:0 1rem 3rem #0005}
 :root[data-theme="light"]{color-scheme:light;--bg:#f4f6f8;--panel:#fff;--panel-raised:#f8fafc;--border:#d7dee7;--text:#18212b;--muted:#536273;--accent:#155ea8;--shadow:0 .75rem 2rem #18212b18}
@@ -2108,6 +2109,8 @@ class BrowserApp:
             return HTTPStatus.OK, "text/html; charset=utf-8", html.encode()
         if method == "GET" and route == "/static/aegis.css":
             return HTTPStatus.OK, "text/css; charset=utf-8", _AEGIS_CSS.encode()
+        if method == "GET" and route == "/static/aegis.js":
+            return HTTPStatus.OK, "text/javascript; charset=utf-8", _AEGIS_JS.encode()
         if method == "GET" and route in {"/api/health", "/api/ready"}:
             if self.health is None:
                 payload: dict[str, Any] = {"healthy": True, "ready": True, "components": []}

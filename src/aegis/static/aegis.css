@@ -85,9 +85,14 @@ body { background: var(--surface-0); color: var(--text-strong); }
   .product-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; }
   .product-nav button { padding: .65rem .45rem; text-align: center; font-size: .82rem; }
   .product-nav button:nth-child(n+5) { display: none; }
+  .product-nav .nav-more { display: block; grid-column: 1 / -1; text-align: center; }
+  .product-nav.show-advanced { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .product-nav.show-advanced button:nth-child(n+5) { display: block; }
   .product-nav button:nth-child(1)::after { content: ""; }
   .conversation-panel { padding: 1rem; }
 }
+
+.nav-more { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
