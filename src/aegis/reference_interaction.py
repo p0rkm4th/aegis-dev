@@ -867,7 +867,8 @@ def reference_constellation_state(
             edges.append({"source": "aegis", "target": node_id})
         # Canonical Homelab identity is useful map context, but remains scoped
         # read-only state: these nodes do not create action authority.
-        homelab_parent = "pack-homelab" if "pack-homelab" in pack_ids else "domain-homelab"
+        existing_node_ids = {node["id"] for node in nodes}
+        homelab_parent = "pack-homelab" if "pack-homelab" in existing_node_ids else "domain-homelab"
         for host in sorted(homelab.hosts.values(), key=lambda item: item.host_id):
             node_id = f"homelab-host-{host.host_id}"
             nodes.append(
@@ -889,6 +890,7 @@ def reference_constellation_state(
                 "authority": "read-only canonical inventory; graph visibility grants no authority",
             }
             edges.append({"source": homelab_parent, "target": node_id})
+            existing_node_ids.add(node_id)
         for service in sorted(homelab.services.values(), key=lambda item: item.service_id):
             node_id = f"homelab-service-{service.service_id}"
             nodes.append(
@@ -908,7 +910,7 @@ def reference_constellation_state(
                 "authority": "health/read context only; restart still requires Core authorization",
             }
             host_node_id = f"homelab-host-{service.host_id}"
-            source = host_node_id if host_node_id in {n["id"] for n in nodes} else homelab_parent
+            source = host_node_id if host_node_id in existing_node_ids else homelab_parent
             edges.append({"source": source, "target": node_id})
         objective_rows: list[tuple[Any, Any, Any]] = []
         objective_details: dict[str, dict[str, Any]] = {}
