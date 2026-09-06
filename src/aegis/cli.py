@@ -952,6 +952,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             for index, task in enumerate(tasks)
             if task.status.value == "open"
         ]
+        latest_open_task = open_task_rows[-1] if open_task_rows else None
         open_task_rows.sort(
             key=lambda item: (
                 item[1]["due_at"] is None,
@@ -960,8 +961,8 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             )
         )
         selected_open_task_rows = open_task_rows[:20]
-        if open_task_rows and open_task_rows[-1] not in selected_open_task_rows:
-            selected_open_task_rows = [*open_task_rows[:19], open_task_rows[-1]]
+        if latest_open_task is not None and latest_open_task not in selected_open_task_rows:
+            selected_open_task_rows = [*open_task_rows[:19], latest_open_task]
         open_tasks = [item[1] for item in selected_open_task_rows]
         completed_tasks = [
             {
