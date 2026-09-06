@@ -377,10 +377,14 @@ def _unresolved_investigation_result(
                 candidate_resolutions=tuple(
                     item
                     for item in (
-                        {
-                            "kind": "available_action_ids",
-                            "action_ids": investigated.evidence.get("available_action_ids", []),
-                        },
+                        investigated.evidence.get("candidate_resolutions", [])
+                        if isinstance(investigated.evidence.get("candidate_resolutions"), list)
+                        else (
+                            {
+                                "kind": "available_action_ids",
+                                "action_ids": investigated.evidence.get("available_action_ids", []),
+                            },
+                        )
                     )
                     if isinstance(item, dict)
                 ),

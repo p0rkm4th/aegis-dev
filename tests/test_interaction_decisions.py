@@ -1515,6 +1515,35 @@ def test_unresolved_investigation_requires_explicit_non_authoritative_result() -
     assert need["investigation"] == "complete"
 
 
+def test_unresolved_investigation_persists_candidate_resolutions() -> None:
+    intent = IntentFrame(principal=Principal(id="alice", vault_id="v"), utterance="set up X")
+    effect = RequestedEffect(source_spans=((0, 9),), normalized_effect="set up X")
+    candidate = {
+        "kind": "workspace_solution",
+        "capability": "workspace.artifact.create",
+        "status": "candidate",
+        "requires_owner_input": True,
+    }
+
+    result = _unresolved_investigation_result(
+        SimpleNamespace(
+            unresolved_requirement_investigator=lambda *_args: Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="investigation",
+                evidence={"authoritative": False, "candidate_resolutions": [candidate]},
+                correlation_id=intent.correlation_id,
+            )
+        ),
+        intent,
+        Context(),
+        (effect,),
+    )
+
+    assert result is not None
+    assert result.evidence["capability_needs"][0]["candidate_resolutions"] == [candidate]
+
+
 def test_plan_fidelity_provider_failure_fails_closed() -> None:
     class Provider:
         def decide(self, request: ModelRequest) -> ModelResponse:
