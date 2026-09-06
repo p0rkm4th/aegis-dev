@@ -1542,6 +1542,7 @@ def test_unresolved_investigation_persists_candidate_resolutions() -> None:
 
     assert result is not None
     assert result.evidence["capability_needs"][0]["candidate_resolutions"] == [candidate]
+    assert result.evidence["capability_needs"][0]["status"] == "owner_input_required"
 
 
 def test_plan_fidelity_provider_failure_fails_closed() -> None:

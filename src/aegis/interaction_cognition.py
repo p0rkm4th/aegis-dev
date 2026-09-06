@@ -11,6 +11,7 @@ from .contracts import (
     ActionCard,
     CapabilityInvestigationState,
     CapabilityNeed,
+    CapabilityNeedStatus,
     Context,
     Decision,
     DecisionKind,
@@ -363,35 +364,45 @@ def _unresolved_investigation_result(
             }
             for effect in effects
         ]
-        evidence["capability_needs"] = [
-            CapabilityNeed(
-                requirement_id=effect.effect_id,
-                requested_effect=effect.normalized_effect,
-                reason="No enabled ActionCard currently satisfies this requested effect.",
-                permitted_scope=(
-                    "installed_capabilities",
-                    "authorized_canonical_state",
-                    "public_research",
-                ),
-                investigation=CapabilityInvestigationState.COMPLETE,
-                candidate_resolutions=tuple(
-                    item
-                    for item in (
-                        investigated.evidence.get("candidate_resolutions", [])
-                        if isinstance(investigated.evidence.get("candidate_resolutions"), list)
-                        else (
-                            {
-                                "kind": "available_action_ids",
-                                "action_ids": investigated.evidence.get("available_action_ids", []),
-                            },
-                        )
+        evidence["capability_needs"] = []
+        for effect in effects:
+            candidates = tuple(
+                item
+                for item in (
+                    investigated.evidence.get("candidate_resolutions", [])
+                    if isinstance(investigated.evidence.get("candidate_resolutions"), list)
+                    else (
+                        {
+                            "kind": "available_action_ids",
+                            "action_ids": investigated.evidence.get("available_action_ids", []),
+                        },
                     )
-                    if isinstance(item, dict)
-                ),
-                parent_objective_id=investigated.objective_id,
-            ).model_dump(mode="json")
-            for effect in effects
-        ]
+                )
+                if isinstance(item, dict)
+            )
+            requires_owner_input = any(
+                item.get("requires_owner_input") is True for item in candidates
+            )
+            evidence["capability_needs"].append(
+                CapabilityNeed(
+                    requirement_id=effect.effect_id,
+                    requested_effect=effect.normalized_effect,
+                    reason="No enabled ActionCard currently satisfies this requested effect.",
+                    permitted_scope=(
+                        "installed_capabilities",
+                        "authorized_canonical_state",
+                        "public_research",
+                    ),
+                    investigation=CapabilityInvestigationState.COMPLETE,
+                    status=(
+                        CapabilityNeedStatus.OWNER_INPUT_REQUIRED
+                        if requires_owner_input
+                        else CapabilityNeedStatus.OPEN
+                    ),
+                    candidate_resolutions=candidates,
+                    parent_objective_id=investigated.objective_id,
+                ).model_dump(mode="json")
+            )
         return investigated.model_copy(update={"evidence": evidence})
     return None
 
