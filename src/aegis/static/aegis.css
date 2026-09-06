@@ -95,6 +95,8 @@ body { background: var(--surface-0); color: var(--text-strong); }
   .product-nav { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; overflow: visible !important; }
   .nav-group { display: contents; }
   .product-nav button { padding: .65rem .45rem; text-align: center; font-size: .82rem; }
+  .nav-primary button:nth-child(7) { display: none !important; }
+  .product-nav.show-advanced .nav-primary button:nth-child(7) { display: block !important; }
   .nav-advanced button { display: none !important; }
   .product-nav.show-advanced .nav-advanced button { display: block !important; }
   .product-nav .nav-more { display: block; grid-column: 1 / -1; text-align: center; }
