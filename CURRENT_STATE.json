@@ -1,18 +1,18 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "380096a",
+  "state_basis_sha": "ef9c8bc",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "380096a",
-  "deterministic_green_sha": "380096a",
-  "last_pushed_sha": "380096a",
-  "hosted_green_sha": "380096a",
-  "hosted_ci_green_sha": "380096a",
+  "repository_head_sha": "ef9c8bc",
+  "deterministic_green_sha": "ef9c8bc",
+  "last_pushed_sha": "ef9c8bc",
+  "hosted_green_sha": "ef9c8bc",
+  "hosted_ci_green_sha": "ef9c8bc",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "380096a",
+    "commit_sha": "ef9c8bc",
     "conclusion": "success",
-    "run_id": "34038449438",
+    "run_id": "34038515811",
     "observed_at": "2026-09-06T06:33:00Z"
   },
   "installed_release_sha": "24fbdf3",
@@ -76,6 +76,7 @@
     "document_summary_workspace_owner": "Promoted owner proof summarizes the authorized Alpha Handbook into a Principal/objective-scoped Workspace artifact with independent verification and preserved source provenance",
     "capability_need_palworld_owner": "Fresh promoted owner proof preserves the unsupported Palworld objective as blocked with a durable owner_input_required CapabilityNeed, bounded research provenance, and a workspace candidate requiring owner input",
     "homelab_page_workspace_owner": "Promoted owner proof renders authorized Homelab hosts/services into independently verified index.html and style.css artifacts; Workspace exposes scoped file detail and sandboxed preview without deployment authority",
+    "homelab_health_workspace_owner": "Promoted owner proof renders authorized service health into independently verified health-report.html and style.css artifacts, preserving unavailable provider state without mutation authority",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -254,6 +255,7 @@
     ,"promoted owner proof created handbook-summary.md from the authorized Alpha Handbook with independent scoped Workspace verification"
     ,"fresh promoted owner proof preserved Palworld as blocked with owner_input_required CapabilityNeed state and no acquisition or execution authority"
     ,"promoted owner proof created and independently verified a Homelab page with index.html and style.css from authorized canonical inventory; no deployment authority was added"
+    ,"promoted owner proof created and independently verified a Homelab health report with truthful unavailable Plex state; no restart or deployment authority was added"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes fixed canonical household chore snapshots through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -296,22 +298,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 98,
+  "voluntarily_useful_owner_workflows": 99,
   "owner_visible_capability_surfaces": 67,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 72,
+  "cross_capability_workflows": 73,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 71,
+    "cross_domain_compositions": 72,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 94,
+    "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/homelab-page-workspace-owner-32f31e0.json",
+  "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

@@ -1,0 +1,32 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "homelab-health-workspace-owner-proof",
+  "source_sha": "24fbdf3",
+  "state_record_sha": "ef9c8bc",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34038515811",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "24fbdf3",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Create a homelab health report as health-report.html",
+  "result": {
+    "code": "completed",
+    "message": "Homelab page independently verified",
+    "objective_id": "c0da5478-d2a4-4674-96fb-e59e7e9807db",
+    "correlation_id": "36da1975-ddd6-45ed-aecf-fc204f4a993f",
+    "workspace_id": "36ce774e-daee-59a4-ae4e-38ce05c3029e",
+    "files": ["health-report.html", "style.css"],
+    "service_observation": "Plex / acceptance-plex unavailable",
+    "independent_verification": true,
+    "failure_truthful": true
+  },
+  "authority": "authorized service health was read-only; unavailable provider state was preserved and no restart/deployment authority was added"
+}
