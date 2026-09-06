@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "05f4d9f",
+  "state_basis_sha": "48e3642",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "05f4d9f",
-  "deterministic_green_sha": "05f4d9f",
-  "last_pushed_sha": "05f4d9f",
-  "hosted_green_sha": "05f4d9f",
-  "hosted_ci_green_sha": "05f4d9f",
+  "repository_head_sha": "48e3642",
+  "deterministic_green_sha": "48e3642",
+  "last_pushed_sha": "48e3642",
+  "hosted_green_sha": "48e3642",
+  "hosted_ci_green_sha": "48e3642",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "05f4d9f",
+    "commit_sha": "48e3642",
     "conclusion": "success",
-    "run_id": "34044706459",
+    "run_id": "34044896065",
     "observed_at": "2026-09-06T08:20:00Z"
   },
   "installed_release_sha": "05f4d9f",
   "running_release_sha": "05f4d9f",
   "live_green_sha": "05f4d9f",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "breadth-rearm-after-external-assurance",
+  "active_checkpoint": "breadth-rearm-after-calendar-conformance",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "breadth-rearm-after-external-assurance",
+  "current_checkpoint": "breadth-rearm-after-calendar-conformance",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -330,7 +330,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue the owner product tranche: extract the remaining browser application script into the served static shell, add responsive/accessibility coverage for the ordinary-versus-advanced shell, then dogfood the installed release before the next promotion; retain the explicit Communications/Calendar live-provider and full owner reconciliation gates.",
+  "next_action": "Promote the calendar conformance checkpoint, then complete the remaining owner-path Communications/Calendar reconciliation proof where deterministic fixtures can cover it; immediately rearm the next owner-visible breadth slice while retaining the explicit live-provider credential gates.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
