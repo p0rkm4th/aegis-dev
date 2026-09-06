@@ -1134,7 +1134,27 @@ async function loadObjectives() {
       card.append(title, text);
       if (objective.capability_needs?.length) {
         const needs = document.createElement('h4'); needs.textContent = 'Capability needs'; card.append(needs);
-        card.append(renderDetailValue(objective.capability_needs));
+        objective.capability_needs.forEach(need => {
+          const needCard = document.createElement('section'); needCard.className = 'detail-card';
+          const needTitle = document.createElement('h5');
+          needTitle.textContent = `${need.status || 'open'} · ${need.requirement_id || need.effect_id || 'requirement'}`;
+          const effect = document.createElement('p');
+          effect.textContent = need.normalized_effect || need.requested_effect || 'Unresolved requested effect';
+          needCard.append(needTitle, effect);
+          const investigation = need.investigation || need.investigation_state;
+          if (investigation) {
+            const state = document.createElement('p'); state.className = 'muted';
+            state.textContent = `Investigation: ${investigation}`; needCard.append(state);
+          }
+          const candidates = need.candidate_resolutions || need.candidates;
+          if (Array.isArray(candidates) && candidates.length) {
+            const candidateTitle = document.createElement('strong'); candidateTitle.textContent = 'Candidate resolutions';
+            needCard.append(candidateTitle, renderDetailValue(candidates));
+          }
+          const boundary = document.createElement('p'); boundary.className = 'muted';
+          boundary.textContent = 'Investigation is read-only: discovery does not grant installation, enablement, approval, or execution authority.';
+          needCard.append(boundary); card.append(needCard);
+        });
       }
       panel.append(card);
     });
