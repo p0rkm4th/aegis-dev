@@ -84,13 +84,13 @@
     "capability_need_palworld_owner": "Fresh promoted owner proof preserves the unsupported Palworld objective as blocked with a durable owner_input_required CapabilityNeed, bounded research provenance, and a workspace candidate requiring owner input",
     "homelab_page_workspace_owner": "Promoted owner proof renders authorized Homelab hosts/services into independently verified index.html and style.css artifacts; Workspace exposes scoped file detail and sandboxed preview without deployment authority",
     "homelab_health_workspace_owner": "Promoted owner proof renders authorized service health into independently verified health-report.html and style.css artifacts, preserving unavailable provider state without mutation authority",
-    "household_obligations_workspace_contract": "Contract-green household obligations → Workspace action is Pack-neutral and independently verifies the scoped artifact; owner proof is pending explicit household-reports permission approval",
+    "household_obligations_workspace_contract": "Installed owner proof explicitly enabled household-reports, fixed authorized household obligations before mutation, and independently verified the scoped obligations.md artifact; household state remained read-only",
     "household_obligations_workspace_permission_guard": "The exact obligations → Workspace request now fails closed with an explicit Pack-approval result when household-reports is unavailable; it cannot fall through to task-reports",
     "household_obligations_workspace_ui_boundary": "Household disables the obligations Workspace export until household-reports is enabled and points the owner to Packs & capabilities for explicit approval",
     "daily_driver_release_scoreboard": "Promoted owner releases package their release-truth scoreboard and load it through AEGIS_CURRENT_STATE_PATH, preserving the Daily driver surface outside the source checkout",
-    "network_inventory_workspace_contract": "Contract-green network-reports provides authorized canonical devices and active scopes as a Principal/objective-scoped Workspace report with independent postcondition verification; owner proof awaits explicit Pack approval",
+    "network_inventory_workspace_contract": "Installed owner proof explicitly enabled network-reports, fixed authorized network inventory before mutation, and independently verified network.md in the scoped Workspace; no probe or mutation authority was added",
     "network_inventory_workspace_permission_guard": "The exact network inventory export fails closed with an explicit Pack-approval result when network-reports is unavailable; Systems disables the export affordance until approval",
-    "network_inventory_workspace_owner_contract_proof": "The promoted source has deterministic executor→independent-verifier proof for network-report.md; live owner artifact remains pending explicit network-reports Pack approval",
+    "network_inventory_workspace_owner_contract_proof": "Installed owner proof enabled network-reports explicitly and independently verified network.md in the scoped Workspace; no probe or mutation authority was added",
     "network_inventory_workspace_communication": "The owner-visible composition catalog now connects an explicitly selected, independently verified network report to generic Communications; both Pack approval and the normal communication authorization/readback boundary remain required",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "weather_forecast_workspace_ui": "Promoted Weather view exposes the existing typed forecast-to-Workspace action with public-evidence provenance and no canonical personal-state mutation",
@@ -284,8 +284,8 @@
     ,"fresh promoted owner proof preserved Palworld as blocked with owner_input_required CapabilityNeed state and no acquisition or execution authority"
     ,"promoted owner proof created and independently verified a Homelab page with index.html and style.css from authorized canonical inventory; no deployment authority was added"
     ,"promoted owner proof created and independently verified a Homelab health report with truthful unavailable Plex state; no restart or deployment authority was added"
-    ,"household obligations Workspace report is deterministic-green and Pack-registered; owner acceptance remains pending because household-reports is pending explicit permission approval, and 046646c now fails closed instead of falling through to task-reports"
-    ,"Network Reports is deterministic-green and visible from Systems; network-reports requires explicit network.read + workspace.write approval before the owner can create network-report.md, and ac5c696 prevents fallback to unrelated routing"
+    ,"household obligations Workspace report is promoted and owner-proven after explicit household-reports approval; 046646c fails closed instead of falling through to task-reports"
+    ,"Network Reports is owner-proven after explicit network.read + workspace.write approval; ac5c696 prevents fallback to unrelated routing"
     ,"Contract-green completed canonical task history → Communications composition is generic and destination-scoped; live provider delivery remains unconfigured"
   ],
   "current_blockers": [
@@ -325,8 +325,8 @@
     "research": "FIXTURE",
     "workspace_artifact": "VERIFIED_LIVE",
     "workspace_execute": "CONTRACT_GREEN",
-    "network_reports": "PARTIAL",
-    "household_obligations_workspace": "PARTIAL",
+    "network_reports": "VERIFIED_LIVE",
+    "household_obligations_workspace": "VERIFIED_LIVE",
     "device_read": "INSTALLED",
     "device_control": "FIXTURE",
     "homelab_action": "FIXTURE",
@@ -346,7 +346,7 @@
     "cross_domain_compositions": 73,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 95,
+    "owner_workflows_completed": 97,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Connect the fastest configured real consequential provider; OpenClaw and Google Calendar credentials remain pending, so continue bounded owner utility/UI work in parallel.",

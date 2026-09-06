@@ -1,0 +1,26 @@
+{
+  "source_sha": "552aefad36e5d9ddf5777b8f7949a961542d531b",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "552aefa",
+    "postgresql": "healthy"
+  },
+  "workflow": [
+    "explicit owner approval enabled network-reports with network.read and workspace.write",
+    "normal owner conversation requested the authorized network inventory as network.md",
+    "Core completed the typed network-reports.inventory.to_workspace action",
+    "Principal/objective-scoped Workspace inventory exposed network.md",
+    "independent file read returned the expected content and SHA-256"
+  ],
+  "artifact": {
+    "workspace_id": "15d65ae6-e451-59fd-ae83-4ec28c6a783b",
+    "path": "network.md",
+    "sha256": "2cf3e8a867c2a444c9fceef147f99848aafe61007f134fb4192f3fc6fb53f22b"
+  },
+  "safety": [
+    "Pack permission remained explicit owner approval",
+    "network inventory is authorized read-only state",
+    "no probe, restart, shell, or remote mutation authority was added"
+  ]
+}
