@@ -1480,8 +1480,17 @@ async function loadHousehold() {
       document.getElementById('chat').requestSubmit();
     });
     const choreBoundary = document.createElement('p'); choreBoundary.className = 'muted';
-    choreBoundary.textContent = 'Canonical chore state is fixed before communication; provider acceptance is not delivery proof.';
-    panel.append(sendChores, choreBoundary);
+      choreBoundary.textContent = 'Canonical chore state is fixed before communication; provider acceptance is not delivery proof.';
+      panel.append(sendChores, choreBoundary);
+      const sendObligations = document.createElement('button');
+      sendObligations.type = 'button'; sendObligations.textContent = 'Send open obligations';
+      sendObligations.addEventListener('click', () => {
+        document.getElementById('utterance').value = 'Text me my open obligations';
+        document.getElementById('chat').requestSubmit();
+      });
+      const obligationBoundary = document.createElement('p'); obligationBoundary.className = 'muted';
+      obligationBoundary.textContent = 'Canonical obligation state is fixed before communication; provider acceptance is not delivery proof.';
+      panel.append(sendObligations, obligationBoundary);
     appendTodaySection(panel, 'Upcoming shared events', canonical.upcoming_shared_events || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.truth_boundary || 'Household state is canonical authorized state.';

@@ -331,6 +331,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "household-obligations-to-communication",
+            "label": "Household obligations → Communication",
+            "description": (
+                "Send the canonical open obligation snapshot to one approved destination."
+            ),
+            "surfaces": ("Household", "Communications"),
+            "authority": (
+                "canonical obligation state remains read-only; Core fixes the authorized snapshot "
+                "before send and provider acceptance remains distinct from delivery"
+            ),
+        },
+        {
             "id": "completed-tasks-to-workspace",
             "label": "Completed tasks → Workspace",
             "description": (
