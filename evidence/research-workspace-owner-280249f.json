@@ -1,0 +1,29 @@
+{
+  "checkpoint": "research-to-workspace-owner-proof",
+  "source_sha": "280249f64b5b9488c999709e3b088ace4eade976",
+  "hosted": {"run_id": 34029337678, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "280249f",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "request": "Research the current recommended alpha setting and save sourced notes to workspace as research-notes.md",
+  "result": {
+    "code": "completed",
+    "objective_id": "63e60a80-b44e-421b-ac9e-5f48fa3431d2",
+    "correlation_id": "8a23eeee-59a1-4bca-85e7-d6d39a80b374",
+    "workspace_id": "88c7f440-242e-5846-af90-ac93b926ab2a",
+    "path": "research-notes.md",
+    "sha256": "ce270e8e1ca33c196486ecd86f67550a1401df6f498e1f1d5fa820fc9698fb52",
+    "source_title": "Alpha Guide",
+    "source_url": "https://fixture.test/alpha",
+    "verification": "independent Principal/objective-scoped Workspace readback"
+  },
+  "truth_boundary": [
+    "Research evidence remains external and non-canonical",
+    "the source fixture is not counted as a live external integration",
+    "research content is fixed before Workspace mutation",
+    "Workspace completion is based on independent postcondition verification"
+  ]
+}

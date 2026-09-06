@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
+  "state_basis_sha": "280249f64b5b9488c999709e3b088ace4eade976",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
-  "deterministic_green_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
-  "last_pushed_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
-  "hosted_green_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
-  "hosted_ci_green_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
+  "repository_head_sha": "280249f64b5b9488c999709e3b088ace4eade976",
+  "deterministic_green_sha": "280249f64b5b9488c999709e3b088ace4eade976",
+  "last_pushed_sha": "280249f64b5b9488c999709e3b088ace4eade976",
+  "hosted_green_sha": "280249f64b5b9488c999709e3b088ace4eade976",
+  "hosted_ci_green_sha": "280249f64b5b9488c999709e3b088ace4eade976",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "6433de3721ea9b47efefa877a064ed5b4fb317ed",
+    "commit_sha": "280249f64b5b9488c999709e3b088ace4eade976",
     "conclusion": "success",
-    "run_id": "34028093286",
+    "run_id": "34029337678",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "6433de3",
-  "running_release_sha": "6433de3",
-  "live_green_sha": "6433de3",
+  "installed_release_sha": "280249f",
+  "running_release_sha": "280249f",
+  "live_green_sha": "280249f",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -47,6 +47,7 @@
     "compound_cognition": "bounded research evidence only; not capability-green",
     "air_quality": "live Open-Meteo public evidence for explicit owner coordinates; not canonical personal truth or medical advice",
     "air_quality_workspace_communication": "installed owner proof chains live air-quality evidence through independently verified Workspace into generic provider-readback communication; delivery remains unproven",
+    "research_workspace": "installed owner proof fixes bounded sourced evidence before mutation and independently verifies research-notes.md; evidence remains external and non-canonical",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -69,7 +70,6 @@
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"documents.export_to_workspace is a typed two-permission composition with pre-execution expectation support; installed independent proof completed for Alpha Handbook"
     ,"live owner service now exposes Calendar/Documents/Communications Pack nodes on the promoted release; communications remains discovered until explicit enablement"
-    ,"Research-to-Workspace preserves answer provenance and non-authoritative status in a validated artifact; live owner proof remains pending"
     ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
     ,"communications read capability is deterministic-green through a generic Pack runtime; live owner request is correctly blocked while the Pack remains discovered"
@@ -211,7 +211,7 @@
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now chains live Air Quality evidence into a verified scoped Workspace artifact and uses the generic Workspace sender to reach the approved communication provider; acceptance is read back and delivery remains unproven.",
+  "daily_driver_checkpoint": "The installed owner now independently verifies bounded Research → Workspace notes with source provenance, while preserving the external/non-canonical evidence boundary; Air Quality → Workspace → Communication remains acceptance-only for delivery.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -237,6 +237,7 @@
     "public_holidays": "LIVE",
     "air_quality": "LIVE",
     "air_quality_workspace": "VERIFIED_LIVE",
+    "research_workspace": "VERIFIED_LIVE",
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
     "communications_send": "FIXTURE",
@@ -248,24 +249,24 @@
     "homelab_action": "FIXTURE",
     "constellation": "INSTALLED"
   },
-  "independently_verified_write_capabilities": 11,
+  "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 79,
+  "voluntarily_useful_owner_workflows": 80,
   "owner_visible_capability_surfaces": 46,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 53,
+  "cross_capability_workflows": 54,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
-    "verified_write_capabilities": 11,
+    "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 53,
+    "cross_domain_compositions": 54,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 74,
+    "owner_workflows_completed": 75,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/air-quality-workspace-communication-owner-6433de3.json",
+  "history_artifact": "evidence/research-workspace-owner-280249f.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
