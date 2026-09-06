@@ -93,6 +93,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "weather-to-communication",
+            "label": "Weather → Communication",
+            "description": "Send a bounded public forecast to one approved destination.",
+            "surfaces": ("Weather", "Communications"),
+            "authority": (
+                "public weather read + communications send; forecast remains non-canonical, "
+                "explicit approved destination and Core authorization required"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
