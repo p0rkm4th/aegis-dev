@@ -304,7 +304,8 @@ def _ground_argument_provenance(
                 )
                 continue
         if (
-            card.action.action_id in {
+            card.action.action_id
+            in {
                 "network.probe",
                 "network-reports.probe_to_workspace",
             }
