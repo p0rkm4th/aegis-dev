@@ -1,0 +1,16 @@
+{
+  "checkpoint": "daily-driver-alpha-workspace-file-read-content",
+  "source_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "hosted_run_id": "34014676486",
+  "owner_runtime_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "principal": "owner",
+  "utterance": "Read workspace artifact 9047eec9-5279-50d0-9f3b-7b133d62b1cc at reports/tomorrow.md",
+  "result": "completed",
+  "message": "Workspace file reports/tomorrow.md returned bounded artifact content",
+  "objective_id": "5b7ec2c0-9bff-40aa-ae68-7507a5a5753a",
+  "correlation_id": "518bc155-9b4e-4dd7-b318-20d6ca4dd7f9",
+  "workspace_id": "9047eec9-5279-50d0-9f3b-7b133d62b1cc",
+  "path": "reports/tomorrow.md",
+  "scope": "current Principal workspace only",
+  "authority": "read-only; no mutation or execution authority"
+}
