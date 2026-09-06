@@ -374,7 +374,10 @@ class Kernel:
             )
             return result
         if not observation.command_succeeded:
-            outcome_unknown = observation.evidence.get("outcome") == "unknown"
+            outcome_unknown = (
+                observation.assurance is ExternalEffectAssurance.OUTCOME_UNKNOWN
+                or observation.evidence.get("outcome") == "unknown"
+            )
             failure_reason = observation.evidence.get("failure_reason")
             verified = VerificationResult(
                 verified=False,
