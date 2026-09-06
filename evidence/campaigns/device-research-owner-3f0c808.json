@@ -1,0 +1,10 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "device-state-research",
+  "source_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
+  "hosted_validation": {"run_id": "34003494272", "conclusion": "success"},
+  "installed_release_sha": "3f0c808b222e30acef3bd2f2262b12512209baec",
+  "request": "Research the current state of light.desk for why it is off",
+  "result": {"state": "completed", "message": "Done — light.desk is off; bounded public evidence collected", "objective_id": "daaaa2cf-4110-4008-8551-24ecfb8a4515", "correlation_id": "11a31d26-e312-449c-baed-07da55ec367a", "device_state": "off", "independent_provider_read": true, "public_evidence_non_authoritative": true},
+  "authority_boundary": "The composition only reads the authorized device and public evidence; it cannot authorize or execute device control."
+}
