@@ -124,6 +124,22 @@ def test_capability_need_research_workspace_composition_preserves_non_authority(
     assert "external" in composition["authority"]
 
 
+def test_capability_need_research_workspace_communication_preserves_boundaries() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "capability-need-research-workspace-to-communication"
+    )
+    assert composition["surfaces"] == (
+        "Objectives",
+        "Research",
+        "Workspace",
+        "Communications",
+    )
+    assert "separate Core authorization" in composition["authority"]
+    assert "does not imply delivery" in composition["authority"]
+
+
 def test_today_workspace_communication_chain_is_explicitly_non_authoritative() -> None:
     composition = next(
         item
