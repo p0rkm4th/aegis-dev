@@ -1676,6 +1676,23 @@ async function loadObjectives() {
             needCard.append(candidateTitle, renderDetailValue(candidates));
             candidates.forEach(candidate => {
               if (!candidate || candidate.requires_owner_input !== true) return;
+              const forgeReview = document.createElement('section');
+              forgeReview.className = 'forge-review detail-card';
+              forgeReview.setAttribute('aria-label', 'Forge candidate review');
+              const forgeTitle = document.createElement('h6');
+              forgeTitle.textContent = 'Forge review · candidate only';
+              const forgeStatus = document.createElement('span');
+              forgeStatus.className = 'status-badge';
+              forgeStatus.dataset.state = 'candidate';
+              forgeStatus.textContent = String(candidate.status || 'candidate').toUpperCase();
+              const forgeDetails = document.createElement('p'); forgeDetails.className = 'muted';
+              const permissions = Array.isArray(candidate.permissions) && candidate.permissions.length
+                ? ` Requested permissions: ${candidate.permissions.join(', ')}.` : '';
+              forgeDetails.textContent = `Owner review is required before a Pack proposal can be prepared.${permissions}`;
+              const forgeBoundary = document.createElement('p'); forgeBoundary.className = 'muted';
+              forgeBoundary.textContent = 'Research and preview do not install, enable, approve, grant permissions, or execute a candidate.';
+              forgeReview.append(forgeTitle, forgeStatus, forgeDetails, forgeBoundary);
+              needCard.append(forgeReview);
               const review = document.createElement('button');
               review.type = 'button'; review.textContent = 'Review Packs & capabilities';
               review.addEventListener('click', () => {
