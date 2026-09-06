@@ -1534,6 +1534,10 @@ def _deterministic_composition_action(
         finance_card = manager.action_card("finance", "finance.summary.read")
         if finance_card is not None:
             return finance_card
+    if not is_mutation_request(folded) and re.search(r"\\bpantry\\b", folded):
+        pantry_card = manager.action_card("kitchen", "kitchen.pantry.list")
+        if pantry_card is not None:
+            return pantry_card
     network_probe_report = re.fullmatch(
         r"probe (?P<address>[a-zA-Z0-9_.:-]+) in scope (?P<scope_id>[a-zA-Z0-9_.:-]+) "
         r"on port (?P<port>[0-9]{1,5}) and save (?:the )?report as "
@@ -3528,6 +3532,7 @@ def run_interaction(
             "transaction",
             "account",
             "money",
+            "pantry",
         )
         if is_task_destination_request(query) or any(
             marker in query_text for marker in bounded_pack_markers

@@ -1600,6 +1600,7 @@ def reference_fallback_cards(
                 ("homelab", "homelab"),
                 ("service", "homelab"),
                 ("network", "network"),
+                ("pantry", "kitchen"),
                 ("finance", "finance"),
                 ("spend", "finance"),
                 ("spent", "finance"),
@@ -1753,6 +1754,8 @@ def resolve_reference_fast_paths(
             ),
             correlation_id=intent.correlation_id,
         )
+    if re.search(r"\bpantry\b", intent.utterance, flags=re.IGNORECASE):
+        return None
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)
     snapshot = household_store.read_snapshot(principal)
