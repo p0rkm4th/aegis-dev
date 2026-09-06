@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "aef55d6",
+  "state_basis_sha": "99e0d0a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "aef55d6",
-  "deterministic_green_sha": "aef55d6",
-  "last_pushed_sha": "aef55d6",
-  "hosted_green_sha": "aef55d6",
-  "hosted_ci_green_sha": "aef55d6",
+  "repository_head_sha": "99e0d0a",
+  "deterministic_green_sha": "99e0d0a",
+  "last_pushed_sha": "99e0d0a",
+  "hosted_green_sha": "99e0d0a",
+  "hosted_ci_green_sha": "99e0d0a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "aef55d6",
+    "commit_sha": "99e0d0a",
     "conclusion": "success",
-    "run_id": "34034604832",
+    "run_id": "34034868730",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "aef55d6",
-  "running_release_sha": "aef55d6",
-  "live_green_sha": "aef55d6",
+  "installed_release_sha": "99e0d0a",
+  "running_release_sha": "99e0d0a",
+  "live_green_sha": "99e0d0a",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "aef55d6"
+    "release_sha": "99e0d0a"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -64,6 +64,7 @@
     "document_search_communication_ui": "Promoted Documents view exposes a generic Send document search results control that submits the normal Core route and displays the acceptance-versus-delivery boundary",
     "calendar_communication_ui": "Promoted Calendar view exposes a generic Send calendar snapshot control that submits the existing Core route and displays the acceptance-versus-delivery boundary",
     "research_communication_ui": "Promoted Research view exposes a generic Send sourced research control; bounded evidence remains non-canonical and provider acceptance is distinct from delivery",
+    "homelab_health_communication_ui": "Promoted Systems view exposes a generic Send health status control; health remains read-only context and provider acceptance is distinct from delivery",
     "weather_forecast": "live bounded Open-Meteo public forecast for explicit owner coordinates; not canonical personal truth",
     "ui_showable_alpha": "rendered owner proof green at 1440x1000 and 390x844 on f61c23f",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -230,6 +231,7 @@
     ,"promoted owner UI on d77695d exposes Send document search results with the Core request template and explicit provider acceptance boundary; no recipient or delivery authority is added"
     ,"promoted owner UI on aa494b9 exposes Send calendar snapshot with the existing Core request template and explicit provider acceptance boundary; no calendar mutation or delivery authority is added"
     ,"promoted owner UI on aef55d6 exposes Send sourced research; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while external evidence remained non-canonical and delivery unproven"
+    ,"promoted owner UI on 99e0d0a exposes Send health status; installed owner proof reached PROVIDER_ACCEPTED with exact provider readback, while health remained read-only and delivery unproven"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Today Workspace briefs, and routes the fixed canonical brief through generic communication; no observation-driven mutation or delivery claim is automatic.",
@@ -272,22 +274,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 86,
-  "owner_visible_capability_surfaces": 60,
+  "voluntarily_useful_owner_workflows": 87,
+  "owner_visible_capability_surfaces": 61,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 62,
+  "cross_capability_workflows": 63,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 61,
+    "cross_domain_compositions": 62,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-    "owner_workflows_completed": 83,
+    "owner_workflows_completed": 84,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/research-communication-ui-owner-aef55d6.json",
+  "history_artifact": "evidence/homelab-health-communication-ui-owner-99e0d0a.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
