@@ -1,0 +1,19 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-conflict-inspection",
+  "source_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34019374205", "conclusion": "success"},
+  "installed_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "running_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "owner_request": "Show my calendar conflicts.",
+  "action_id": "calendar.events.conflicts",
+  "permission": "calendar.read",
+  "provider_mode": "configured_calendar_fixture",
+  "events": [
+    {"event_id": "breakfast", "title": "Breakfast", "starts_at": "2026-09-07T09:00:00+00:00", "ends_at": "2026-09-07T10:00:00+00:00"},
+    {"event_id": "standup", "title": "Standup", "starts_at": "2026-09-07T09:30:00+00:00", "ends_at": "2026-09-07T10:30:00+00:00"}
+  ],
+  "result": {"state": "completed", "message": "Done — calendar conflicts readback is structurally valid", "independent_mutation": false},
+  "truth_boundary": "Fixture-backed owner proof; Google Calendar live credentials remain unavailable, so no live external integration or verified write count changed.",
+  "constellation": "Calendar conflict inspection is represented through generic composition metadata and does not grant mutation authority."
+}

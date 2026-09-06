@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+  "state_basis_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
-  "deterministic_green_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
-  "last_pushed_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
-  "hosted_green_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
-  "hosted_ci_green_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+  "repository_head_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "deterministic_green_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "last_pushed_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "hosted_green_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "hosted_ci_green_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+    "commit_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
     "conclusion": "success",
-    "run_id": "34018726622",
+    "run_id": "34019374205",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
-  "running_release_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
-  "live_green_sha": "c76b119a5671a98a308dc968ca1582adbf638951",
+  "installed_release_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "running_release_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
+  "live_green_sha": "6f05467a518c528bd0e75084ffa3473bf6351218",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-homelab-restart-current-release",
+  "active_checkpoint": "daily-driver-alpha-calendar-conflict-inspection",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "c76b119a5671a98a308dc968ca1582adbf638951"
+    "release_sha": "6f05467a518c528bd0e75084ffa3473bf6351218"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -185,9 +185,10 @@
     ,"Workspace artifact → Communications is a dedicated two-permission composition; installed owner proof read reports/send-me.md only within Alice's scoped Workspace, fixed its content before sending, and surfaced workspace-communications.artifact.send as PROVIDER_ACCEPTED with delivery unproven"
     ,"Device state → Communications is a dedicated two-permission composition; installed owner proof fixed the bounded Home Assistant-shaped fixture snapshot before sending and surfaced device-communications.state.send as PROVIDER_ACCEPTED with delivery unproven and no device mutation authority"
     ,"Current-release owner proof for 'Restart the service acceptance-plex.' now strips terminal punctuation, routes the typed Homelab restart action, and independently verifies fixture health; no shell or live external restart claim was added"
+    ,"calendar.events.conflicts is a typed read-only Core action with calendar.read grounding; installed owner proof inspected two overlapping fixture events through the normal conversation path and exposed Calendar conflict inspection in Constellation"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now accepts punctuated Homelab restart requests through the typed bounded action and independently verifies fixture health; live Homelab execution remains pending.",
+  "daily_driver_checkpoint": "The installed owner now inspects overlapping calendar events through the typed calendar.events.conflicts read action; the owner proof is fixture-backed and live Google Calendar remains pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -225,7 +226,7 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 57,
+  "voluntarily_useful_owner_workflows": 58,
   "owner_visible_capability_surfaces": 27,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 33,
@@ -237,10 +238,10 @@
     "cross_domain_compositions": 33,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 52,
+    "owner_workflows_completed": 53,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: choose a genuinely new non-credential-blocked provider-neutral capability or composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/homelab-restart-punctuation-owner-c76b119.json",
+  "history_artifact": "evidence/calendar-conflicts-owner-6f05467.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
