@@ -1016,7 +1016,7 @@ async function loadDevices() {
       const row = document.createElement('div'); row.className = 'list-row';
       const identity = document.createElement('strong'); identity.textContent = host.hostname || host.host_id || 'Unnamed host';
       const detail = document.createElement('span'); detail.className = 'muted';
-      detail.textContent = `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'}`;
+      detail.textContent = `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'} · identity ${host.provider_identity || 'not configured'} · evidence ${(host.identity_evidence || []).join(', ') || 'none'}`;
       row.append(identity, detail); inventory.append(row);
     });
     if (!hosts.length) appendTodaySection(inventory, 'Hosts', ['No canonical hosts configured.']);
@@ -1113,7 +1113,7 @@ async function loadSystems() {
     };
     appendInventory('Canonical hosts', Array.isArray(payload.hosts) ? payload.hosts : [], host => [
       host.hostname || host.host_id || 'Unnamed host',
-      `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'}`
+      `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'} · identity ${host.provider_identity || 'not configured'} · evidence ${(host.identity_evidence || []).join(', ') || 'none'}`
     ]);
     appendInventory('Authorized network scopes', Array.isArray(payload.active_network_scopes) ? payload.active_network_scopes : [], scope => [
       scope.scope_id || 'Unnamed scope',
