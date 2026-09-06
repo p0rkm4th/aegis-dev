@@ -111,7 +111,15 @@ class BoundedNetworkDiscovery:
             network = ipaddress.ip_network(cidr, strict=False)
             if network.version != 4:
                 continue
-            candidates.extend(str(address) for address in network.hosts())
+            if network.is_loopback:
+                # The kernel treats every 127/8 address as local.  Probing
+                # the whole range would report aliases of one machine as
+                # separate discovered devices.
+                loopback = ipaddress.ip_address("127.0.0.1")
+                if loopback in network:
+                    candidates.append(str(loopback))
+            else:
+                candidates.extend(str(address) for address in network.hosts())
             if len(candidates) >= self.max_hosts:
                 break
         observations: list[DiscoveredDevice] = []
