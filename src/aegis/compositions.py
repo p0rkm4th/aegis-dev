@@ -47,6 +47,15 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "read-only narrowing; no task mutation or authorization",
         },
         {
+            "id": "weather-to-task-followup",
+            "label": "Weather → Task follow-up",
+            "description": "Turn a public weather check into an explicit owner task request.",
+            "surfaces": ("Weather", "Tasks"),
+            "authority": (
+                "public evidence informs a proposal; normal task authorization remains required"
+            ),
+        },
+        {
             "id": "calendar-to-workspace",
             "label": "Calendar → Workspace",
             "description": (
