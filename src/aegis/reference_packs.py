@@ -131,6 +131,10 @@ def prepare_reference_action(
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
             files = {target_path: _today_brief_content(connection, principal)}
+    elif action.action_id == "household-reports.chores_to_workspace" and connection is not None:
+        target_path = args.get("target_path")
+        if isinstance(target_path, str) and target_path.strip():
+            files = {target_path: _chores_workspace_content(connection, principal)}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
@@ -661,6 +665,22 @@ def _today_brief_content(connection: Any, principal: Principal) -> str:
     else:
         lines.append("- None")
     return "\n".join(lines)
+
+
+def _chores_workspace_content(connection: Any, principal: Principal) -> str:
+    """Serialize the authorized open household chores into a bounded artifact."""
+
+    snapshot = PostgresHouseholdStore(connection).read_snapshot(principal)
+    chores = [
+        chore for chore in cast(tuple[Any, ...], snapshot.get("chores", ())) if not chore.completed
+    ][:50]
+    lines = ["# Open household chores", ""]
+    if not chores:
+        lines.append("- None")
+    for chore in chores:
+        assignee = f" (assigned to {chore.assignee_id})" if chore.assignee_id else ""
+        lines.append(f"- {chore.title}{assignee}")
+    return "\n".join(lines) + "\n"
 
 
 @dataclass(frozen=True)
@@ -1582,6 +1602,31 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
             ),
         ),
         _ReferencePackSpec(
+            "household-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="household-reports.chores_to_workspace",
+                        capability="household-reports.chores_to_workspace",
+                        required_permissions=("household.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save canonical open household chores as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
             "air-quality",
             "0.1.0",
             (
@@ -1898,6 +1943,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "calendar-task-reports": ("calendar.read", "tasks.read", "workspace.write"),
         "task-reports": ("tasks.read", "workspace.write"),
         "today-reports": ("household.read", "tasks.read", "workspace.write"),
+        "household-reports": ("household.read", "workspace.write"),
         "kitchen": ("kitchen.write", "kitchen.read"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
@@ -2268,6 +2314,66 @@ class TodayWorkspaceVerifier:
                 "Today Workspace artifact independently verified"
                 if verified
                 else f"Today Workspace verification failed: {detail}"
+            ),
+        )
+
+
+class ChoresWorkspaceExecutor:
+    """Write canonical open household chores into the scoped Workspace."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"chores_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _chores_workspace_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"chores_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "chores_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class ChoresWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"chores_workspace_verified": verified, "postcondition": detail},
+            reason=(
+                "household chores Workspace artifact independently verified"
+                if verified
+                else f"household chores Workspace verification failed: {detail}"
             ),
         )
 

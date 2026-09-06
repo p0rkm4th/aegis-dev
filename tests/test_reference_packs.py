@@ -97,6 +97,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "calendar-task-reports",
         "task-reports",
         "today-reports",
+        "household-reports",
         "communications",
         "documents",
         "tasks",
