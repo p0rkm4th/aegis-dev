@@ -13,7 +13,7 @@ from aegis.communications import (
     communications_evidence,
     configured_communication_targets,
 )
-from aegis.contracts import ActionSpec, ExecutionRequest, Principal
+from aegis.contracts import ActionSpec, ExecutionRequest, Observation, Principal
 from aegis.reference_packs import (
     CommunicationsSendExecutor,
     prepare_reference_action,
@@ -159,6 +159,59 @@ def test_fixture_send_is_idempotent_and_reports_acceptance_not_delivery() -> Non
     assert first.status is SendStatus.PROVIDER_ACCEPTED
     assert second.provider_message_id == first.provider_message_id
     assert len(provider.sent) == 1
+
+
+def test_fixture_send_verifier_reads_back_exact_provider_message() -> None:
+    provider = FixtureCommunicationSendProvider()
+    principal = Principal(id="alice", vault_id="vault")
+    action = ActionSpec(
+        action_id="communications.messages.send",
+        capability="communications.messages.send",
+        arguments={"target": "scotty", "body": "Milk", "channel": "sms", "account": "household"},
+    )
+    prepared = prepare_reference_action(action, principal, uuid4())
+    executor = CommunicationsSendExecutor(provider)
+    observation = executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=prepared, idempotency_key="readback-1"
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+    assert result.evidence["independent_delivery"] is False
+
+
+def test_fixture_send_verifier_rejects_forged_acceptance_without_readback() -> None:
+    provider = FixtureCommunicationSendProvider()
+    principal = Principal(id="alice", vault_id="vault")
+    action = ActionSpec(
+        action_id="communications.messages.send",
+        capability="communications.messages.send",
+        arguments={"target": "scotty", "body": "Milk", "channel": "sms", "account": "household"},
+    )
+    prepared = prepare_reference_action(action, principal, uuid4())
+    observation = Observation(
+        execution_id=uuid4(),
+        command_succeeded=True,
+        evidence={
+            "communication_send": {
+                "status": "PROVIDER_ACCEPTED",
+                "provider_message_id": "fixture:missing",
+                "target": "scotty",
+                "channel": "sms",
+            }
+        },
+    )
+    # A missing provider readback cannot be upgraded by forged acceptance evidence.
+    assert (
+        reference_packs_module.CommunicationsSendVerifier(provider)
+        .verify(observation, prepared.verification)
+        .verified
+        is False
+    )
 
 
 def test_openclaw_cli_provider_adapts_explicit_message_send_without_claiming_delivery() -> None:

@@ -51,6 +51,12 @@ class CommunicationSendProvider(Protocol):
     def send(self, message: OutboundMessage, idempotency_key: str) -> SendResult: ...
 
 
+class CommunicationSendReadbackProvider(Protocol):
+    """Optional provider readback for exact accepted-message verification."""
+
+    def get_sent_message(self, provider_message_id: str) -> OutboundMessage | None: ...
+
+
 def configured_communication_targets() -> frozenset[tuple[str, str, str | None]] | None:
     """Load the optional owner-approved target boundary.
 
@@ -104,6 +110,13 @@ class FixtureCommunicationSendProvider:
             provider_message_id=f"fixture:{idempotency_key}",
             detail="fixture provider accepted the outbound message",
         )
+
+    def get_sent_message(self, provider_message_id: str) -> OutboundMessage | None:
+        prefix = "fixture:"
+        if not provider_message_id.startswith(prefix):
+            return None
+        key = provider_message_id.removeprefix(prefix)
+        return next((message for message, sent_key in self.sent if sent_key == key), None)
 
 
 class OpenClawMessageCommand(Protocol):

@@ -131,12 +131,32 @@ def prepare_reference_action(
         if args.get("body_source") == "canonical.groceries" and connection is not None:
             items = PostgresHouseholdStore(connection).list_groceries(principal)
             body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
+            args = {**args, "body": body}
+        target, message_body = args.get("target"), args.get("body")
+        channel, account = args.get("channel", "default"), args.get("account")
+        if (
+            isinstance(target, str)
+            and isinstance(message_body, str)
+            and isinstance(channel, str)
+            and (account is None or isinstance(account, str))
+        ):
+            verification = action.verification or VerificationContract(kind="custom")
             return action.model_copy(
                 update={
-                    "arguments": {
-                        **args,
-                        "body": body,
-                    }
+                    "arguments": args,
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": {
+                                "version": 1,
+                                "principal_id": principal.id,
+                                "objective_id": str(objective_id),
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body": message_body,
+                            }
+                        }
+                    ),
                 }
             )
     elif action.action_id == "calendar.events.create":
@@ -1749,6 +1769,7 @@ class CommunicationsSendExecutor:
                     "detail": result.detail,
                     "target": target,
                     "channel": channel,
+                    "account": account,
                 }
             },
             command_succeeded=result.status in {SendStatus.PROVIDER_ACCEPTED, SendStatus.DELIVERED},
@@ -1756,7 +1777,10 @@ class CommunicationsSendExecutor:
 
 
 class CommunicationsSendVerifier:
-    """Verify provider response shape without upgrading acceptance to delivery."""
+    """Verify acceptance and optionally exact provider readback, never delivery."""
+
+    def __init__(self, provider: Any | None = None) -> None:
+        self.provider = provider
 
     def verify(
         self, observation: Observation, _contract: VerificationContract
@@ -1770,15 +1794,53 @@ class CommunicationsSendVerifier:
             and isinstance(evidence.get("provider_message_id"), str)
         )
         status = evidence.get("status") if isinstance(evidence, dict) else None
+        readback = False
+        expected = _contract.expected
+        send_evidence = evidence if isinstance(evidence, dict) else {}
+        if verified and self.provider is not None:
+            getter = getattr(self.provider, "get_sent_message", None)
+            expected_body = _expected_message_body(_contract)
+            if callable(getter) and expected_body is not None:
+                try:
+                    actual = getter(send_evidence["provider_message_id"])
+                except (OSError, RuntimeError, ValueError):
+                    actual = None
+                verified = (
+                    actual is not None
+                    and actual.target == send_evidence.get("target")
+                    and actual.channel == send_evidence.get("channel")
+                    and actual.account == expected.get("account")
+                    and actual.body == expected_body
+                )
+                readback = verified
+        if verified and readback:
+            reason = (
+                "communication provider accepted and read back the exact message; "
+                "delivery is not independently proven"
+            )
+        elif verified:
+            reason = (
+                "communication provider accepted the message; delivery is not independently proven"
+            )
+        else:
+            reason = "communication provider did not accept the message"
         return VerificationResult(
             verified=verified,
-            evidence={"communication_send_status": status, "independent_delivery": False},
-            reason=(
-                "communication provider accepted the message; delivery is not independently proven"
-                if verified
-                else "communication provider did not accept the message"
-            ),
+            evidence={
+                "communication_send_status": status,
+                "independent_provider_readback": readback,
+                "independent_delivery": False,
+            },
+            reason=reason,
         )
+
+
+def _expected_message_body(contract: VerificationContract) -> str | None:
+    """Read the grounded body from the generic contract when available."""
+
+    expected = contract.expected
+    body = expected.get("body") if isinstance(expected, dict) else None
+    return body if isinstance(body, str) else None
 
 
 class DeviceStatesExecutor:
