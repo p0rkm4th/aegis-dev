@@ -1,0 +1,15 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "constellation-compositions-owner",
+  "source_sha": "a6ea247f64df1ca5d512ab0d07f411d972c7c36c",
+  "hosted_validation": {"run_id": "34007740000", "conclusion": "success"},
+  "installed_release_sha": "a6ea247f64df1ca5d512ab0d07f411d972c7c36c",
+  "owner_runtime": {
+    "service": "active",
+    "constellation_projection": "authenticated projection returned",
+    "composition_nodes": ["composition-calendar-to-workspace", "composition-research-to-workspace"],
+    "pack_nodes": ["pack-calendar", "pack-communication-drafts", "pack-workspace"]
+  },
+  "verification": "Composition nodes are generated from bounded generic metadata and linked to matching Pack nodes; details include surfaces and authority text.",
+  "authority_boundary": "Constellation visibility, relationship edges, and selection provide context only; they do not grant permissions or action authority."
+}
