@@ -751,6 +751,40 @@ def test_fixture_send_verifier_rejects_forged_acceptance_without_readback() -> N
     )
 
 
+def test_fixture_send_verifier_rejects_receipt_with_wrong_expected_tuple() -> None:
+    provider = FixtureCommunicationSendProvider()
+    principal = Principal(id="alice", vault_id="vault")
+    action = ActionSpec(
+        action_id="communications.messages.send",
+        capability="communications.messages.send",
+        arguments={"target": "scotty", "body": "Milk", "channel": "sms", "account": "household"},
+    )
+    prepared = prepare_reference_action(action, principal, uuid4())
+    accepted = provider.send(
+        OutboundMessage(target="scotty", body="Milk", channel="sms", account="household"),
+        "tuple-1",
+    )
+    observation = Observation(
+        execution_id=uuid4(),
+        command_succeeded=True,
+        evidence={
+            "communication_send": {
+                "status": "PROVIDER_ACCEPTED",
+                "provider_message_id": accepted.provider_message_id,
+                "target": "another-target",
+                "channel": "sms",
+                "account": "household",
+            }
+        },
+    )
+    assert (
+        reference_packs_module.CommunicationsSendVerifier(provider)
+        .verify(observation, prepared.verification)
+        .verified
+        is False
+    )
+
+
 def test_openclaw_cli_provider_adapts_explicit_message_send_without_claiming_delivery() -> None:
     calls: list[list[str]] = []
 
@@ -814,8 +848,31 @@ def test_openclaw_cli_provider_downgrades_missing_acceptance() -> None:
     provider = OpenClawCliCommunicationSendProvider(runner=run)
     result = provider.send(OutboundMessage(target="scotty", body="Milk"), "send-43")
 
-    assert result.status is SendStatus.SEND_ATTEMPTED
+    assert result.status is SendStatus.OUTCOME_UNKNOWN
+    assert result.assurance.value == "OUTCOME_UNKNOWN"
     assert result.provider_message_id is None
+
+
+def test_openclaw_launch_failure_is_not_attempted() -> None:
+    def run(_args: list[str]):
+        raise OSError("openclaw not installed")
+
+    provider = OpenClawCliCommunicationSendProvider(runner=run)
+    result = provider.send(OutboundMessage(target="scotty", body="Milk"), "launch-failure")
+
+    assert result.status is SendStatus.NOT_ATTEMPTED
+    assert result.assurance.value == "NOT_ATTEMPTED"
+
+
+def test_openclaw_timeout_after_invocation_is_unknown() -> None:
+    def run(_args: list[str]):
+        raise subprocess.TimeoutExpired("openclaw", 1)
+
+    provider = OpenClawCliCommunicationSendProvider(runner=run)
+    result = provider.send(OutboundMessage(target="scotty", body="Milk"), "timeout")
+
+    assert result.status is SendStatus.OUTCOME_UNKNOWN
+    assert result.assurance.value == "OUTCOME_UNKNOWN"
 
 
 def test_communications_send_pack_uses_explicit_provider_contract() -> None:
@@ -838,12 +895,14 @@ def test_communications_send_pack_uses_explicit_provider_contract() -> None:
             }
         }
     )
+    prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
+    assert prepared.verification is not None
     observation = runtime.executor.execute(
         ExecutionRequest(
-            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="send-1"
+            objective_id=uuid4(), action_id=uuid4(), action=prepared, idempotency_key="send-1"
         )
     )
-    result = runtime.verifier.verify(observation, card.action.verification)
+    result = runtime.verifier.verify(observation, prepared.verification)
     assert result.verified is True
     assert result.evidence["communication_send_status"] == "PROVIDER_ACCEPTED"
     assert result.evidence["independent_delivery"] is False

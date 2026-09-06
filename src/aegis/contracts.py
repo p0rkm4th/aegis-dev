@@ -40,6 +40,16 @@ class ObjectiveState(StrEnum):
     BLOCKED = "blocked"
 
 
+class ExternalEffectAssurance(StrEnum):
+    """Core-owned truth about a consequential external mutation."""
+
+    NOT_ATTEMPTED = "NOT_ATTEMPTED"
+    DEFINITELY_REJECTED = "DEFINITELY_REJECTED"
+    PROVIDER_ACCEPTED = "PROVIDER_ACCEPTED"
+    EFFECT_VERIFIED = "EFFECT_VERIFIED"
+    OUTCOME_UNKNOWN = "OUTCOME_UNKNOWN"
+
+
 class Principal(StrictModel):
     id: str = Field(min_length=1)
     vault_id: str = Field(min_length=1)
@@ -360,6 +370,7 @@ class Observation(StrictModel):
     action_id: str | None = None
     evidence: dict[str, Any]
     command_succeeded: bool
+    assurance: ExternalEffectAssurance | None = None
     observed_at: datetime = Field(default_factory=utc_now)
 
 
@@ -367,6 +378,7 @@ class VerificationResult(StrictModel):
     verified: bool
     evidence: dict[str, Any]
     reason: str
+    assurance: ExternalEffectAssurance | None = None
 
 
 class Result(StrictModel):

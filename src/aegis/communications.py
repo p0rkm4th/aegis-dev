@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Protocol
 
+from aegis.contracts import ExternalEffectAssurance
+
 
 @dataclass(frozen=True)
 class Message:
@@ -28,6 +30,9 @@ class SendStatus(StrEnum):
     SEND_ATTEMPTED = "SEND_ATTEMPTED"
     PROVIDER_ACCEPTED = "PROVIDER_ACCEPTED"
     DELIVERED = "DELIVERED"
+    NOT_ATTEMPTED = "NOT_ATTEMPTED"
+    DEFINITELY_REJECTED = "DEFINITELY_REJECTED"
+    OUTCOME_UNKNOWN = "OUTCOME_UNKNOWN"
 
 
 @dataclass(frozen=True)
@@ -43,6 +48,7 @@ class SendResult:
     status: SendStatus
     provider_message_id: str | None = None
     detail: str = ""
+    assurance: ExternalEffectAssurance = ExternalEffectAssurance.PROVIDER_ACCEPTED
 
 
 class CommunicationSendProvider(Protocol):
@@ -109,6 +115,7 @@ class FixtureCommunicationSendProvider:
             status=SendStatus.PROVIDER_ACCEPTED,
             provider_message_id=f"fixture:{idempotency_key}",
             detail="fixture provider accepted the outbound message",
+            assurance=ExternalEffectAssurance.PROVIDER_ACCEPTED,
         )
 
     def get_sent_message(self, provider_message_id: str) -> OutboundMessage | None:
@@ -172,33 +179,44 @@ class OpenClawCliCommunicationSendProvider:
             args.extend(("--account", message.account))
         try:
             completed = self.runner(args)
-        except (OSError, subprocess.TimeoutExpired) as exc:
+        except OSError as exc:
             return SendResult(
-                status=SendStatus.SEND_ATTEMPTED,
-                detail=f"OpenClaw message send unavailable: {type(exc).__name__}",
+                status=SendStatus.NOT_ATTEMPTED,
+                detail=f"OpenClaw message send was not started: {type(exc).__name__}",
+                assurance=ExternalEffectAssurance.NOT_ATTEMPTED,
+            )
+        except subprocess.TimeoutExpired as exc:
+            return SendResult(
+                status=SendStatus.OUTCOME_UNKNOWN,
+                detail=f"OpenClaw stopped responding after invocation: {type(exc).__name__}",
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
             )
         if completed.returncode != 0:
             return SendResult(
-                status=SendStatus.SEND_ATTEMPTED,
+                status=SendStatus.DEFINITELY_REJECTED,
                 detail="OpenClaw message send was rejected by the provider",
+                assurance=ExternalEffectAssurance.DEFINITELY_REJECTED,
             )
         try:
             payload = json.loads(completed.stdout)
         except (TypeError, json.JSONDecodeError):
             return SendResult(
-                status=SendStatus.SEND_ATTEMPTED,
+                status=SendStatus.OUTCOME_UNKNOWN,
                 detail="OpenClaw returned no structured message acceptance",
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
             )
         if not isinstance(payload, dict):
             return SendResult(
-                status=SendStatus.SEND_ATTEMPTED,
+                status=SendStatus.OUTCOME_UNKNOWN,
                 detail="OpenClaw returned an invalid message result",
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
             )
         provider_message_id = payload.get("messageId") or payload.get("message_id")
         if not isinstance(provider_message_id, str) or not provider_message_id.strip():
             return SendResult(
-                status=SendStatus.SEND_ATTEMPTED,
+                status=SendStatus.OUTCOME_UNKNOWN,
                 detail="OpenClaw did not return a provider message id",
+                assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
             )
         delivered = payload.get("delivered") is True or payload.get("delivery_proven") is True
         result = SendResult(
@@ -208,6 +226,11 @@ class OpenClawCliCommunicationSendProvider:
                 "OpenClaw supplied provider delivery evidence"
                 if delivered
                 else "OpenClaw accepted the outbound message; delivery is not independently proven"
+            ),
+            assurance=(
+                ExternalEffectAssurance.EFFECT_VERIFIED
+                if delivered
+                else ExternalEffectAssurance.PROVIDER_ACCEPTED
             ),
         )
         self._accepted[idempotency_key] = result

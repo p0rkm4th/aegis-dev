@@ -14,6 +14,7 @@ from .contracts import (
     Decision,
     DecisionKind,
     ExecutionRequest,
+    ExternalEffectAssurance,
     IntentFrame,
     ModelRequest,
     ModelResponse,
@@ -241,6 +242,33 @@ class Kernel:
         prior = self._results.get(key) or self.store.get_result(key)
         if prior is not None:
             prior_observation = self.store.get_observation(key)
+            if (
+                prior.state is ObjectiveState.OBSERVED
+                and prior_observation is not None
+                and action.verification is not None
+            ):
+                reconcile = getattr(self.verifier, "reconcile", None)
+                if callable(reconcile):
+                    reconciled = reconcile(prior_observation, action.verification)
+                    if reconciled.verified:
+                        result = Result(
+                            objective_id=prior.objective_id,
+                            state=ObjectiveState.COMPLETED,
+                            message=reconciled.reason,
+                            evidence={
+                                **reconciled.evidence,
+                                "assurance": (
+                                    reconciled.assurance or ExternalEffectAssurance.EFFECT_VERIFIED
+                                ).value,
+                                "reconciled": True,
+                            },
+                            correlation_id=prior.correlation_id,
+                            retryable=False,
+                        )
+                        self._results[key] = result
+                        self.store.save_result(key, result)
+                        self.store.update_action_state(key, ObjectiveState.COMPLETED)
+                        return result
             if not (
                 prior.state is ObjectiveState.FAILED
                 and prior_observation is not None
@@ -299,6 +327,7 @@ class Kernel:
                         "idempotency_key": key,
                     },
                     command_succeeded=False,
+                    assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
                 )
             self.store.save_observation(key, observation)
         self.store.update_action_state(key, ObjectiveState.OBSERVED)
@@ -365,16 +394,33 @@ class Kernel:
                         "verification unavailable; external state must be checked before retrying"
                     ),
                 )
-        state = ObjectiveState.COMPLETED if verified.verified else ObjectiveState.FAILED
+        outcome_unknown = (
+            observation.assurance is not None and observation.assurance.value == "OUTCOME_UNKNOWN"
+        ) or observation.evidence.get("outcome") == "unknown"
+        state = (
+            ObjectiveState.COMPLETED
+            if verified.verified
+            else ObjectiveState.OBSERVED
+            if outcome_unknown
+            else ObjectiveState.FAILED
+        )
         self.objectives[objective.id] = objective.model_copy(update={"state": state})
         self.store.save_objective(self.objectives[objective.id])
+        assurance = verified.assurance or observation.assurance
         result = Result(
             objective_id=objective.id,
             state=state,
             message=verified.reason,
-            evidence=verified.evidence,
+            evidence={
+                **verified.evidence,
+                "assurance": assurance.value if assurance is not None else None,
+            },
             correlation_id=intent.correlation_id,
-            retryable=(state is not ObjectiveState.COMPLETED and observation.command_succeeded),
+            retryable=(
+                False
+                if outcome_unknown
+                else state is not ObjectiveState.COMPLETED and observation.command_succeeded
+            ),
         )
         self._results[key] = result
         self.store.save_result(key, result)

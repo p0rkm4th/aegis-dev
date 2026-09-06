@@ -2,26 +2,26 @@
   "schema_version": 2,
   "state_basis_sha": "146097d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "358d938",
-  "deterministic_green_sha": "358d938",
-  "last_pushed_sha": "358d938",
-  "hosted_green_sha": "358d938",
-  "hosted_ci_green_sha": "358d938",
+  "repository_head_sha": "d6552d4",
+  "deterministic_green_sha": "d6552d4",
+  "last_pushed_sha": "d6552d4",
+  "hosted_green_sha": "d6552d4",
+  "hosted_ci_green_sha": "d6552d4",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "146097d",
+    "commit_sha": "d6552d4",
     "conclusion": "success",
-    "run_id": "34042284034",
-    "observed_at": "2026-09-06T06:47:00Z"
+    "run_id": "34042491443",
+    "observed_at": "2026-09-06T06:58:00Z"
   },
   "installed_release_sha": "358d938",
   "running_release_sha": "358d938",
   "live_green_sha": "358d938",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
+  "active_checkpoint": "external-reality-trust-and-ui-productization",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "daily-driver-alpha-rearm-next-utility",
+  "current_checkpoint": "external-reality-trust-and-ui-productization",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -267,7 +267,11 @@
     ,"household obligations Workspace report is deterministic-green and Pack-registered; owner acceptance remains pending because household-reports is pending explicit permission approval, and 046646c now fails closed instead of falling through to task-reports"
     ,"Network Reports is deterministic-green and visible from Systems; network-reports requires explicit network.read + workspace.write approval before the owner can create network-report.md, and ac5c696 prevents fallback to unrelated routing"
   ],
-  "current_blockers": [],
+  "current_blockers": [
+    "External consequential effects do not yet have one durable canonical assurance state; provider timeout, malformed post-invocation output, and missing receipts can be reduced to ordinary failure or SEND_ATTEMPTED.",
+    "Communications and Calendar expected effects are not yet uniformly bound to Core-owned durable reconciliation records.",
+    "Canonical referent qualification still has a fallback path that must be proven source-qualified or removed."
+  ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
@@ -281,7 +285,9 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "active_checkpoint_blockers": [],
-  "project_architecture_blockers": [],
+  "project_architecture_blockers": [
+    "External-effect UNKNOWN/reconciliation semantics are not yet shared across Communications and Calendar."
+  ],
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "daily_driver_scoreboard": {
@@ -325,7 +331,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next non-credential-blocked utility slice after the Network inventory → Workspace → Communication composition; network-reports and household-reports remain pending explicit Pack approval, while OpenClaw delivery, Google Calendar live write, and Home Assistant live control remain pending.",
+  "next_action": "Lane A: implement and adversarially prove shared durable external-effect assurance for Communications then Calendar; Lane B: extract the browser shell and preserve current routes while rendering UNKNOWN, approval, and provider states distinctly.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

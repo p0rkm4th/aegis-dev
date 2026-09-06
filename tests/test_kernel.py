@@ -1565,7 +1565,8 @@ def test_executor_exception_is_persisted_as_unknown_and_not_replayed():
         )
     )
 
-    assert first.state is ObjectiveState.FAILED
+    assert first.state is ObjectiveState.OBSERVED
+    assert first.retryable is False
     assert second == first
     assert executor.calls == 1
     assert first.evidence["outcome"] == "unknown"
