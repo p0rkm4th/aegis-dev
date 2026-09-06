@@ -4755,6 +4755,26 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     assert seen == [("Show my tasks.", "alice")]
 
 
+def test_browser_app_exposes_principal_scoped_research_history():
+    principal = Principal(id="alice", vault_id="vault")
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        research_state=lambda current: {
+            "results": [{"query": "current question", "principal": current.id}],
+            "boundary": "external evidence; not canonical personal truth",
+        },
+        session_token="session-secret",
+    )
+    status, content_type, payload = app.dispatch(
+        "GET", "/api/research", headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert content_type == "application/json"
+    assert json.loads(payload)["results"][0]["principal"] == "alice"
+
+
 def test_browser_app_exposes_principal_scoped_workspace_inventory():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(
@@ -6595,6 +6615,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Send completed tasks" in browser_source
     assert "Text me my completed tasks" in browser_source
     assert "/api/daily-driver" in browser_source
+    assert "/api/research" in browser_source
+    assert "Saved research is unavailable" in browser_source
+    assert "external evidence; not canonical personal truth" in browser_source
     assert "Review Packs & capabilities" in browser_source
     assert "candidate.requires_owner_input" in browser_source
     assert "pendingCapabilityFocus" in browser_source
