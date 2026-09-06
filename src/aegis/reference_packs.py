@@ -21,6 +21,7 @@ from .air_quality import air_quality_evidence, configured_air_quality_provider
 from .calendar import (
     CalendarEvent,
     CalendarWriteProvider,
+    calendar_conflicts,
     calendar_events_evidence,
     calendar_snapshot_content,
     configured_calendar_provider,
@@ -1229,6 +1230,16 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="calendar.events.conflicts",
+                        capability="calendar.events.conflicts",
+                        required_permissions=("calendar.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Inspect overlapping connected calendar events without changing them",
+                    relevance=1,
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="calendar.events.create",
                         capability="calendar.events.create",
                         required_permissions=("calendar.write",),
@@ -1633,6 +1644,37 @@ class CalendarEventsExecutor:
             execution_id=uuid4(),
             evidence=calendar_events_evidence(events),
             command_succeeded=True,
+        )
+
+
+class CalendarConflictsExecutor:
+    """Inspect bounded pairwise overlaps from the configured calendar provider."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        del request
+        events = configured_calendar_provider().list_events()
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "source": "external_calendar_fixture",
+                "conflicts": list(calendar_conflicts(events)),
+            },
+            command_succeeded=True,
+        )
+
+
+class CalendarConflictsVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        conflicts = observation.evidence.get("conflicts")
+        verified = observation.command_succeeded and isinstance(conflicts, list)
+        return VerificationResult(
+            verified=verified,
+            evidence={"conflicts": conflicts if verified else [], "readback_verified": verified},
+            reason="calendar conflicts readback is structurally valid"
+            if verified
+            else "calendar conflicts read failed",
         )
 
 

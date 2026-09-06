@@ -22,6 +22,36 @@ from aegis.reference_runtime import default_runtime_registry
 from aegis.workspace import WorkspaceManager
 
 
+def test_calendar_conflicts_action_reports_bounded_overlap(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AEGIS_CALENDAR_FIXTURE_JSON",
+        '[{"event_id":"a","title":"Breakfast","starts_at":"2026-09-07T09:00:00+00:00",'
+        '"ends_at":"2026-09-07T10:00:00+00:00"},'
+        '{"event_id":"b","title":"Standup","starts_at":"2026-09-07T09:30:00+00:00",'
+        '"ends_at":"2026-09-07T10:30:00+00:00"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "calendar.events.conflicts"
+    )
+    runtime = default_runtime_registry(lambda: None).resolve(
+        card, None, Principal(id="alice", vault_id="alice-vault")
+    )
+    observation = runtime.executor.execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=card.action,
+            idempotency_key="calendar-conflicts-1",
+        )
+    )
+    assert observation.command_succeeded is True
+    assert len(observation.evidence["conflicts"]) == 1
+    assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
 def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
     packs = reference_packs()
 

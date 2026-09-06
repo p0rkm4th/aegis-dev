@@ -17,6 +17,13 @@ def available_compositions() -> tuple[dict[str, object], ...]:
 
     return (
         {
+            "id": "calendar-conflict-inspection",
+            "label": "Calendar conflict inspection",
+            "description": "Inspect overlapping external calendar events without changing them.",
+            "surfaces": ("Calendar",),
+            "authority": "calendar.read only; no event mutation or authorization",
+        },
+        {
             "id": "documents-to-workspace",
             "label": "Document → Workspace",
             "description": "Export one authorized document into a verified scoped artifact.",
