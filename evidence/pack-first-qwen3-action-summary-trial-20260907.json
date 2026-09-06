@@ -1,0 +1,13 @@
+{
+  "kind": "pack-first-qwen3-action-summary-trial",
+  "baseline_source_sha": "2fcdcd2",
+  "observed_at": "2026-09-07T00:30:00Z",
+  "model": "qwen3:8b",
+  "corpus_cases": 16,
+  "change": "Included up to four existing bounded ActionCard summaries in each Pack router catalog entry.",
+  "results": {
+    "pack_first": {"routing_recall": 0.5833333333333334, "wrong_action_rate": 0.4166666666666667, "valid_rate": 0.9375, "prompt_bytes_per_case": 766.1875, "p50_latency_ms": 10417.0, "p95_latency_ms": 15183.2},
+    "retrieval_assisted_pack_first": {"routing_recall": 0.5, "wrong_action_rate": 0.5, "valid_rate": 0.875, "prompt_bytes_per_case": 292.8125, "p50_latency_ms": 10364.3, "p95_latency_ms": 30673.2}
+  },
+  "interpretation": "Rejected. Action summaries did not improve routing, reduced retrieval-assisted recall and validity, and expanded prompt exposure. The production-incumbent route and compact Pack-first prompt remain unchanged."
+}
