@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "218be8b",
+  "state_basis_sha": "72d18af",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "218be8b",
-  "deterministic_green_sha": "218be8b",
-  "last_pushed_sha": "218be8b",
-  "hosted_green_sha": "218be8b",
-  "hosted_ci_green_sha": "218be8b",
+  "repository_head_sha": "72d18af",
+  "deterministic_green_sha": "72d18af",
+  "last_pushed_sha": "72d18af",
+  "hosted_green_sha": "72d18af",
+  "hosted_ci_green_sha": "72d18af",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "218be8b",
+    "commit_sha": "72d18af",
     "conclusion": "success",
-    "run_id": "34057591024",
-    "observed_at": "2026-09-06T20:20:00Z"
+    "run_id": "34057859330",
+    "observed_at": "2026-09-06T20:24:00Z"
   },
-  "installed_release_sha": "218be8b",
-  "running_release_sha": "218be8b",
-  "live_green_sha": "218be8b",
+  "installed_release_sha": "72d18af",
+  "running_release_sha": "72d18af",
+  "live_green_sha": "72d18af",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-finance-import-owner-surface",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "218be8b"
+    "release_sha": "72d18af"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -371,7 +371,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood CapabilityNeed investigation through Forge proposal, preview, and quarantine; then advance the highest-value Homelab or Food owner workflow while keeping Pack-first experimental.",
+  "next_action": "Dogfood an unsupported owner requirement through CapabilityNeed investigation and Forge preview/quarantine; then strengthen one canonical Homelab identity/read workflow while keeping Pack-first experimental.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
