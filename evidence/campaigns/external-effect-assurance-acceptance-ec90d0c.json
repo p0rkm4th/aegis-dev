@@ -1,0 +1,32 @@
+{
+  "artifact_type": "external_effect_assurance_acceptance",
+  "source_sha": "ec90d0ca5a15dabc4a415d39af2c35f056805e4d",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34049240186",
+    "conclusion": "success"
+  },
+  "deterministic_proof": [
+    "Communications launch failure, explicit rejection, provider acceptance, timeout, malformed output, missing receipt, delivery evidence, expected-tuple mismatch, restart, and reconciliation tests are green.",
+    "Calendar create/update/cancel response-loss fixtures reconcile without a second mutation; Google HTTP 4xx is definite rejection and 5xx is ambiguous.",
+    "Kernel records typed UNKNOWN assurance as observed rather than result.failed and persists prepared expectations for recovery.",
+    "Canonical source collision regression remains green for source-qualified identity."
+  ],
+  "owner_proof": {
+    "execution_mode": "installed-release",
+    "release_sha": "ec90d0c",
+    "service": "aegis-owner.service",
+    "identity": "authenticated owner",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "postgresql": "healthy",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "workflow": "grocery communication acceptance fixture",
+    "correlation_id": "755b2c7e-d3f2-4249-af07-c537ac7aadf3",
+    "first_result": "OBSERVED / OUTCOME_UNKNOWN",
+    "after_restart": "OBSERVED / same correlation and no mutation replay",
+    "reconciliation": "COMPLETED / provider receipt independently matched Core expectation",
+    "provider_record_count": "3 before restart/reconciliation and 3 after"
+  },
+  "truth_boundary": "The fixture proves owner UNKNOWN/restart/reconciliation semantics without claiming external delivery. Temporary fault-provider configuration was removed after proof."
+}

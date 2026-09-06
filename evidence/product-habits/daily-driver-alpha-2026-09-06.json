@@ -1,0 +1,14 @@
+{
+  "artifact_type": "product_habit_evidence",
+  "observed_at": "2026-09-06",
+  "scope": "installed external-effect acceptance dogfood",
+  "sessions_zero_developer_intervention": 1,
+  "useful_requests_per_session": 1,
+  "clarification_rate": 0.0,
+  "safe_blocked_failure_rate": 0.0,
+  "unknown_rate_before_reconciliation": 1.0,
+  "median_time_to_useful_result_seconds": null,
+  "workflows_repeated_across_3_or_more_days": [],
+  "workflows_repeated_within_7_days": [],
+  "notes": "Small acceptance evidence only; not canonical truth or analytics infrastructure."
+}

@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f8bfaea",
+  "state_basis_sha": "ec90d0c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f8bfaea",
-  "deterministic_green_sha": "f8bfaea",
-  "last_pushed_sha": "f8bfaea",
-  "hosted_green_sha": "f8bfaea",
-  "hosted_ci_green_sha": "f8bfaea",
+  "repository_head_sha": "ec90d0c",
+  "deterministic_green_sha": "ec90d0c",
+  "last_pushed_sha": "ec90d0c",
+  "hosted_green_sha": "ec90d0c",
+  "hosted_ci_green_sha": "ec90d0c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f8bfaea",
+    "commit_sha": "ec90d0c",
     "conclusion": "success",
-    "run_id": "34047973979",
+    "run_id": "34049240186",
     "observed_at": "2026-09-06T18:20:00Z"
   },
-  "installed_release_sha": "f8bfaea",
-  "running_release_sha": "f8bfaea",
-  "live_green_sha": "f8bfaea",
+  "installed_release_sha": "ec90d0c",
+  "running_release_sha": "ec90d0c",
+  "live_green_sha": "ec90d0c",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "external-effect-assurance-acceptance",
+  "active_checkpoint": "real-provider-selection-after-external-effect-acceptance",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "external-effect-assurance-acceptance",
+  "current_checkpoint": "real-provider-selection-after-external-effect-acceptance",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
   "current_model": {
     "provider": "ollama",
@@ -39,9 +39,10 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8d743d1"
+    "release_sha": "ec90d0c"
   },
   "current_capability_claims": {
+    "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "owner_provenance_proof": "explicit ACTION, temporal ACTION, and task+chore PLAN verified on 25846cd",
     "compound_cognition": "bounded research evidence only; not capability-green",
@@ -283,7 +284,6 @@
   ],
   "current_blockers": [
     "No OpenClaw outbound channel or Google Calendar credential is configured, so live external delivery/write acceptance remains pending; fixture/provider acceptance is not delivery proof.",
-    "External-effect acceptance and promotion are incomplete: hostile Calendar ambiguity/rejection proof, UNKNOWN audit proof, exact hosted validation, and installed UNKNOWN → restart → reconciliation proof remain.",
     "The browser presentation is only partially extracted; the existing inline application script remains to be split after the current Core contract stabilizes."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
@@ -298,13 +298,8 @@
     "the latest Network acceptance used a disposable loopback OpenClaw Gateway configured auth=none because the prior Gateway token was unavailable; paired-token runtime authorization remains covered by the earlier grocery/homelab evidence and must be used for production-like acceptance",
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
-  "active_checkpoint_blockers": [
-    "Calendar transport errors must preserve definite rejection versus possible remote effect.",
-    "UNKNOWN outcomes must not be recorded as definite failure in the audit trail."
-  ],
-  "project_architecture_blockers": [
-    "External-effect acceptance/promotion is incomplete; the landed contract is present and under hostile validation."
-  ],
+  "active_checkpoint_blockers": [],
+  "project_architecture_blockers": [],
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "daily_driver_scoreboard": {
@@ -348,7 +343,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Run hostile Communications/Calendar/Kernel/provenance acceptance; no new consequential provider until green.",
-  "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
+  "next_action": "Connect the fastest configured real consequential provider; OpenClaw and Google Calendar credentials remain pending, so continue bounded owner utility/UI work in parallel.",
+  "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
