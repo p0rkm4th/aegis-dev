@@ -332,7 +332,7 @@
     "owner_workflows_completed": 95,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Promote and dogfood the forecast Workspace/Communication controls, then move to the next owner-visible domain composition while retaining read-only reconciliation and explicit live-provider credential gates.",
+  "next_action": "Move to the next owner-visible domain composition after the promoted forecast Workspace/Communication proof; retain read-only reconciliation, explicit provider acceptance boundaries, and live-provider credential gates.",
   "history_artifact": "evidence/homelab-health-workspace-owner-ef9c8bc.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
