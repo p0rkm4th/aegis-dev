@@ -944,7 +944,16 @@ async function loadDocuments() {
         } catch (_) { button.textContent = 'Document unavailable'; }
         finally { button.disabled = false; }
       });
-      card.append(title, metadata, button); panel.append(card);
+      const summarize = document.createElement('button'); summarize.type = 'button';
+      summarize.textContent = 'Create summary artifact';
+      summarize.addEventListener('click', () => {
+        const documentId = String(documentRecord.document_id || '').trim();
+        if (!documentId) return;
+        document.getElementById('utterance').value =
+          `Summarize ${documentId} to ${documentId}-summary.md`;
+        document.getElementById('chat').requestSubmit();
+      });
+      card.append(title, metadata, button, summarize); panel.append(card);
     });
     if (payload.transformation_boundary) {
       const boundary = document.createElement('p'); boundary.className = 'muted';
