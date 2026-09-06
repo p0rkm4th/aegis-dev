@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "5267bb0",
+  "state_basis_sha": "3d74398",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5267bb0",
-  "deterministic_green_sha": "5267bb0",
-  "last_pushed_sha": "5267bb0",
+  "repository_head_sha": "3d74398",
+  "deterministic_green_sha": "3d74398",
+  "last_pushed_sha": "3d74398",
   "hosted_green_sha": "425ec0b",
   "hosted_ci_green_sha": "425ec0b",
   "hosted_ci_attestation": {
@@ -123,7 +123,8 @@
     "workspace_append_communication": "installed owner proof appended a note to groceries.md, then sent the updated scoped artifact through generic communications with exact provider readback; delivery remains unproven",
     "public_holidays_workspace": "installed owner proof explicitly enabled holiday-reports, fixed bounded public holiday evidence before Workspace mutation, independently verified holidays.md, and preserved the external/non-canonical boundary"
     ,"pack_first_experiment": "Experimental Pack-first harness compares incumbent control, pure Pack-first, and retrieval-assisted Pack-first using compact Pack metadata; dynamic lifecycle, strict fail-closed router validation, and owner-context exclusion are regression-tested. Production cognition remains unchanged and no model tournament result is claimed"
-    ,"food_stable_state": "Current Household groceries remain backward-compatible while deterministic migration exposes stable-ID GroceryItem records and nullable PantryItem records; purchase/consume operations use IDs and Pantry versions, and unknown quantity is never treated as zero"
+    ,"food_stable_state": "Current Household groceries remain backward-compatible while deterministic migration exposes stable-ID GroceryItem records and nullable PantryItem records; purchase/consume operations use IDs and Pantry versions, and unknown quantity is never treated as zero",
+    "food_store_boundary": "Persistent Household store reads stable grocery/Pantry records, migrates legacy grocery JSON idempotently, and rechecks Space membership before structured Pantry reads/inserts; Pack actions still expose the legacy grocery surface pending wiring"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
