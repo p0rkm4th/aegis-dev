@@ -157,6 +157,19 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "air-quality-workspace-to-communication",
+            "label": "Air quality → Workspace → Communication",
+            "description": (
+                "Send a verified air-quality Workspace artifact to the explicitly approved "
+                "communication destination."
+            ),
+            "surfaces": ("Air quality", "Workspace", "Communications"),
+            "authority": (
+                "air-quality evidence remains external; Workspace read and communications send "
+                "require separate Core authorization and provider delivery is not implied"
+            ),
+        },
+        {
             "id": "weather-to-today",
             "label": "Weather → Today",
             "description": "Bring a bounded public forecast into the owner's daily planning view.",
