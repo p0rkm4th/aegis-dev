@@ -131,6 +131,18 @@ def test_air_quality_workspace_communication_composition_preserves_boundaries() 
     assert "delivery is not implied" in composition["authority"]
 
 
+def test_network_inventory_workspace_communication_composition_preserves_boundaries() -> None:
+    composition = next(
+        item
+        for item in available_compositions()
+        if item["id"] == "network-inventory-workspace-to-communication"
+    )
+    assert composition["surfaces"] == ("Systems", "Workspace", "Communications")
+    assert "explicit artifact selection" in composition["authority"]
+    assert "separate Core authorization" in composition["authority"]
+    assert "does not imply delivery" in composition["authority"]
+
+
 def test_capability_need_research_workspace_composition_preserves_non_authority() -> None:
     composition = next(
         item

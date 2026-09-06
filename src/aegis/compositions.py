@@ -522,6 +522,20 @@ def available_compositions() -> tuple[dict[str, object], ...]:
                 "authorization required"
             ),
         },
+        {
+            "id": "network-inventory-workspace-to-communication",
+            "label": "Network inventory → Workspace → Communication",
+            "description": (
+                "Send an explicitly selected, independently verified network inventory artifact "
+                "to one approved communication destination."
+            ),
+            "surfaces": ("Systems", "Workspace", "Communications"),
+            "authority": (
+                "Network read + scoped workspace write/read + communications send; network-reports "
+                "Pack approval, explicit artifact selection, approved destination, and separate "
+                "Core authorization are required; provider acceptance does not imply delivery"
+            ),
+        },
     )
 
 
