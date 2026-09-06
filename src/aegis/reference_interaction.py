@@ -155,7 +155,8 @@ def _ground_argument_provenance(
             and key in {"target", "channel", "account"}
             and isinstance(value, str)
             and re.fullmatch(
-                r"(?:send|text) me (?:(?:the )?grocery list|(?:my )?calendar|"
+                r"(?:send|text) me (?:(?:the )?grocery list|"
+                r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
                 r"the document .+|the health of (?:service )?.+|"
                 r"(?:the )?workspace artifact .+|(?:the )?device status)[?!.,]?",
