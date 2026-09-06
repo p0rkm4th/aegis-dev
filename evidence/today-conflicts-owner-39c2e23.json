@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "today-conflicts-owner",
+  "source_sha": "39c2e2344847bef5a25c1ea03c6d5a858dd5a9c5",
+  "hosted_validation": {"run_id": "34008243511", "conclusion": "success"},
+  "installed_release_sha": "39c2e2344847bef5a25c1ea03c6d5a858dd5a9c5",
+  "owner_runtime": {
+    "service": "active",
+    "today_api": "external_calendar conflicts and boundary returned",
+    "today_surface": "Scheduling conflicts"
+  },
+  "verification": "Today projects the same bounded provider conflict inspection used by Calendar; it does not alter canonical personal state or authorize event actions.",
+  "authority_boundary": "Dashboard visibility and conflict attention remain read-only."
+}
