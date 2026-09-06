@@ -269,6 +269,51 @@ def test_research_message_fixes_evidence_before_generic_send(monkeypatch) -> Non
     assert result.evidence["independent_provider_readback"] is True
 
 
+def test_weather_message_fixes_public_forecast_before_generic_send(monkeypatch) -> None:
+    monkeypatch.setenv("AEGIS_WEATHER_LATITUDE", "41.881832")
+    monkeypatch.setenv("AEGIS_WEATHER_LONGITUDE", "-87.623177")
+    monkeypatch.setenv(
+        "AEGIS_WEATHER_FORECAST_FIXTURE_JSON",
+        '[{"date":"2026-09-07","temperature_max_c":22,"temperature_min_c":12,'
+        '"precipitation_probability_max":20,"sunrise":"06:20","sunset":"19:10"}]',
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "communications.messages.send"
+    )
+    action = card.action.model_copy(
+        update={
+            "arguments": {
+                "target": "scotty",
+                "channel": "sms",
+                "account": "household",
+                "body_source": "public.weather",
+            }
+        }
+    )
+    prepared = prepare_reference_action(action, Principal(id="alice", vault_id="vault"), uuid4())
+    expected_body = prepared.verification.expected["body"]
+    assert isinstance(expected_body, str)
+    assert "2026-09-07" in expected_body
+
+    provider = FixtureCommunicationSendProvider()
+    observation = CommunicationsSendExecutor(provider).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=prepared,
+            idempotency_key="weather-send-1",
+        )
+    )
+    result = reference_packs_module.CommunicationsSendVerifier(provider).verify(
+        observation, prepared.verification
+    )
+    assert result.verified is True
+    assert result.evidence["independent_provider_readback"] is True
+
+
 def test_fixture_send_verifier_rejects_forged_acceptance_without_readback() -> None:
     provider = FixtureCommunicationSendProvider()
     principal = Principal(id="alice", vault_id="vault")

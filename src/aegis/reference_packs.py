@@ -160,6 +160,17 @@ def prepare_reference_action(
                     **args,
                     "body": f"Research notes for: {research_query}\n\n{excerpts}",
                 }
+        elif args.get("body_source") == "public.weather":
+            try:
+                latitude = float(os.environ["AEGIS_WEATHER_LATITUDE"])
+                longitude = float(os.environ["AEGIS_WEATHER_LONGITUDE"])
+                forecast = configured_weather_forecast_provider().forecast(latitude, longitude, 2)
+            except (KeyError, RuntimeError, ValueError) as exc:
+                raise ValueError(f"bounded weather is unavailable: {exc}") from exc
+            body = "Weather forecast:\n" + json.dumps(
+                weather_forecast_evidence(forecast), sort_keys=True
+            )
+            args = {**args, "body": body}
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -404,16 +415,18 @@ def prepare_reference_action(
             files = {search_target_path: "\n".join(lines)}
     elif action.action_id == "weather-reports.forecast.to_workspace":
         report_target_path = args.get("target_path")
-        latitude, longitude, days = args.get("latitude"), args.get("longitude"), args.get("days")
+        report_latitude: object = args.get("latitude")
+        report_longitude: object = args.get("longitude")
+        report_days: object = args.get("days")
         if (
             isinstance(report_target_path, str)
             and report_target_path.strip()
-            and isinstance(latitude, (int, float))
-            and isinstance(longitude, (int, float))
-            and isinstance(days, int)
+            and isinstance(report_latitude, (int, float))
+            and isinstance(report_longitude, (int, float))
+            and isinstance(report_days, int)
         ):
             forecast = configured_weather_forecast_provider().forecast(
-                float(latitude), float(longitude), days
+                float(report_latitude), float(report_longitude), report_days
             )
             content = _weather_forecast_workspace_content(forecast)
             files = {report_target_path: content}
@@ -782,6 +795,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 "reference.communication_body_from_groceries.v1",
                                 "reference.communication_body_from_calendar.v1",
                                 "reference.communication_body_from_research.v1",
+                                "reference.communication_body_from_weather.v1",
                             ),
                         )
                     }
