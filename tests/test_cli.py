@@ -4825,6 +4825,38 @@ def test_browser_app_exposes_principal_scoped_finance_projection():
     assert json.loads(payload)["accounts"][0]["owner"] == "alice"
 
 
+def test_browser_app_routes_owner_controlled_finance_import():
+    principal = Principal(id="alice", vault_id="vault")
+    seen = []
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        finance_import=lambda current, request: (
+            seen.append((current.id, request)) or {"imported_transaction_ids": ["txn-1"]}
+        ),
+        session_token="session-secret",
+    )
+    status, content_type, payload = app.dispatch(
+        "POST",
+        "/api/finance/import",
+        json.dumps(
+            {
+                "account_id": "checking",
+                "source_id": "csv-1",
+                "currency": "USD",
+                "content": "date,amount,description\n2026-09-01,-2.50,Coffee\n",
+            }
+        ).encode(),
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert content_type == "application/json"
+    assert json.loads(payload)["imported_transaction_ids"] == ["txn-1"]
+    assert seen[0][0] == "alice"
+    assert seen[0][1]["account_id"] == "checking"
+
+
 def test_browser_app_exposes_principal_scoped_workspace_inventory():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(

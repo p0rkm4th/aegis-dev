@@ -49,7 +49,7 @@ from .contracts import (
 from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
-from .finance import PostgresFinanceSnapshotStore, summarize_snapshot
+from .finance import FinanceLedger, PostgresFinanceSnapshotStore, summarize_snapshot
 from .gateway_rpc import OpenClawWebSocketChannel
 from .health import ComponentHealth, HealthReport, RuntimeIdentity
 from .holidays import configured_holiday_provider, holidays_evidence
@@ -1226,6 +1226,30 @@ def _finance_state(principal: Principal) -> dict[str, Any]:
                 "Private finance state is Principal-scoped; numbers are canonical snapshot "
                 "facts, not model inference."
             ),
+        }
+    finally:
+        connection.close()
+
+
+def _finance_import(principal: Principal, request: dict[str, Any]) -> dict[str, Any]:
+    """Import one owner-controlled CSV through the private canonical ledger."""
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        report = FinanceLedger(PostgresFinanceSnapshotStore(connection)).import_csv(
+            principal.id,
+            str(request["account_id"]),
+            str(request["content"]),
+            source_id=str(request["source_id"]),
+            currency=str(request.get("currency", "USD")),
+        )
+        return {
+            "source": report.source.__dict__,
+            "imported_transaction_ids": list(report.imported_transaction_ids),
+            "duplicate_rows": list(report.duplicate_rows),
+            "rejected_rows": [list(row) for row in report.rejected_rows],
+            "boundary": "Imported finance rows remain private Principal-scoped canonical state.",
         }
     finally:
         connection.close()
@@ -3735,6 +3759,7 @@ def main() -> int:
                 daily_driver_state=_daily_driver_state,
                 research_state=_research_state,
                 finance_state=_finance_state,
+                finance_import=_finance_import,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
