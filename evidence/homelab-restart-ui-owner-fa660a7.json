@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "homelab-restart-owner-surface",
+  "source_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "hosted_run_id": "34015810725",
+  "hosted_conclusion": "success",
+  "installed_release_sha": "fa660a798fe053b7b50fc1836ba2db48c64ab98c",
+  "rendered_owner_surface": [
+    "Bounded service actions",
+    "Request restart",
+    "independent health verification"
+  ],
+  "systems_inventory_authority": "read-only; controls submit a normal Core request and do not execute directly",
+  "recovery": "initial truncated release-copy command was corrected; the owner service restarted successfully on the full SHA",
+  "postgresql": "healthy"
+}
