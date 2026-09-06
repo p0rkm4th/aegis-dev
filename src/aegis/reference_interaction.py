@@ -912,6 +912,49 @@ def reference_constellation_state(
             host_node_id = f"homelab-host-{service.host_id}"
             source = host_node_id if host_node_id in existing_node_ids else homelab_parent
             edges.append({"source": source, "target": node_id})
+        network_parent = "pack-network" if "pack-network" in existing_node_ids else "domain-network"
+        for scope in sorted(network.scopes.values(), key=lambda item: item.scope_id):
+            node_id = f"network-scope-{scope.scope_id}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": scope.scope_id,
+                    "detail": (
+                        f"Authorized scope · {len(scope.cidrs)} network range(s) · "
+                        f"{'active' if scope.active else 'inactive'}"
+                    ),
+                    "category": "domain",
+                    "detail_view": "systems",
+                }
+            )
+            area_details[node_id] = {
+                "scope_id": scope.scope_id,
+                "cidrs": list(scope.cidrs),
+                "purpose": scope.purpose,
+                "active": scope.active,
+                "authority": "scope context only; each action still requires Core authorization",
+            }
+            edges.append({"source": network_parent, "target": node_id})
+            existing_node_ids.add(node_id)
+        for device in sorted(network.devices.values(), key=lambda item: item.address):
+            node_id = f"network-device-{device.address}"
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": device.hostname or device.address,
+                    "detail": f"Discovered device · {device.address} · not a canonical Host",
+                    "category": "capability",
+                    "detail_view": "systems",
+                }
+            )
+            area_details[node_id] = {
+                "address": device.address,
+                "hostname": device.hostname,
+                "services": list(device.services),
+                "identity": "discovered observation; not a stable consequential identity",
+                "authority": "discovery context only; graph visibility grants no authority",
+            }
+            edges.append({"source": network_parent, "target": node_id})
         objective_rows: list[tuple[Any, Any, Any]] = []
         objective_details: dict[str, dict[str, Any]] = {}
         execute = getattr(connection, "execute", None)
