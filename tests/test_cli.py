@@ -11,6 +11,7 @@ from aegis.cli import (
     _deterministic_composition_action,
     _domain_and_action,
     _ensure_local_identity,
+    _pantry_low_stock_projection,
 )
 from aegis.contracts import (
     ActionSpec,
@@ -44,6 +45,34 @@ from aegis.tasks import (
     ground_task_due_at,
 )
 from aegis.web import _AEGIS_JS, BrowserApp
+
+
+def test_pantry_low_stock_projection_requires_explicit_known_thresholds():
+    items = [
+        {
+            "item_id": "milk",
+            "display_name": "Milk",
+            "quantity": 1,
+            "unit": "carton",
+            "minimum_quantity": 1,
+        },
+        {
+            "item_id": "rice",
+            "display_name": "Rice",
+            "quantity": None,
+            "unit": None,
+            "minimum_quantity": 2,
+        },
+        {
+            "item_id": "beans",
+            "display_name": "Beans",
+            "quantity": 4,
+            "unit": None,
+            "minimum_quantity": 2,
+        },
+    ]
+
+    assert [item["item_id"] for item in _pantry_low_stock_projection(items)] == ["milk"]
 
 
 def test_interaction_boundary_is_public_without_live_runtime():
