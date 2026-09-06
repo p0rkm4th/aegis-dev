@@ -199,6 +199,7 @@
     ,"Verified task Workspace artifact → Communication is proven through the existing scoped artifact sender; installed owner read tasks.md from the authorized Workspace, provider readback accepted the exact message, and delivery remains unproven"
     ,"Today → Communication is a canonical-only owner brief: installed proof fixed open tasks, chores, upcoming shared events, and groceries before generic send; external calendar/public evidence is excluded and delivery remains unproven"
     ,"today-reports is a canonical-only Today → Workspace Pack; installed proof fixed the brief before execution and independently verified today.md in the Principal/objective-scoped Workspace"
+    ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The installed owner now saves a canonical Today brief as today.md through today-reports and independently verifies the scoped Workspace artifact; external evidence is excluded.",
@@ -239,22 +240,22 @@
   },
   "independently_verified_write_capabilities": 9,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 69,
+  "voluntarily_useful_owner_workflows": 70,
   "owner_visible_capability_surfaces": 36,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 43,
+  "cross_capability_workflows": 44,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 9,
     "external_integrations": 3,
-    "cross_domain_compositions": 43,
+    "cross_domain_compositions": 44,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 64,
+    "owner_workflows_completed": 65,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: choose a genuinely new non-credential-blocked provider-neutral capability or composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/today-workspace-owner-14f1f9c.json",
+  "history_artifact": "evidence/today-workspace-communication-owner-14f1f9c.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
