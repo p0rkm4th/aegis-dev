@@ -10,14 +10,14 @@
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "930bb30",
+    "commit_sha": "c1f202a",
     "conclusion": "success",
     "run_id": "34067529967",
     "observed_at": "2026-09-06T22:15:00Z"
   },
-  "installed_release_sha": "930bb30",
-  "running_release_sha": "930bb30",
-  "live_green_sha": "930bb30",
+  "installed_release_sha": "c1f202a",
+  "running_release_sha": "c1f202a",
+  "live_green_sha": "c1f202a",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "930bb30"
+    "release_sha": "c1f202a"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
