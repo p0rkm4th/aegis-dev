@@ -1284,6 +1284,8 @@ def _finance_state(principal: Principal) -> dict[str, Any]:
                     "occurred_at": transaction.occurred_at.isoformat(),
                     "description": transaction.description,
                     "status": getattr(transaction, "status", "posted"),
+                    "provider_transaction_id": transaction.provider_transaction_id,
+                    "source_id": transaction.source_id,
                 }
                 for transaction in snapshot.transactions[:100]
             ],
