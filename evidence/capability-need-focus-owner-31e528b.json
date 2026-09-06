@@ -1,0 +1,23 @@
+{
+  "checkpoint": "capability-need-candidate-focus-owner-proof",
+  "source_sha": "31e528b51e139dffb42da3804c20d196c83c29d5",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": 34030768661,
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "31e528b",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "owner_visible_proof": {
+    "source_state": "owner_input_required CapabilityNeed",
+    "navigation": "Review Packs & capabilities",
+    "focus": "candidate capability is carried into the generic Packs view",
+    "highlight": "matching Pack is marked with Matches candidate capability",
+    "authority": "no enablement, approval, installation, or execution is performed"
+  }
+}
