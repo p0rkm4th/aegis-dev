@@ -1198,6 +1198,14 @@ def resolve_reference_safety_fast_paths(
 ) -> Result | None:
     """Apply reference-Pack safety guards before generic cognition."""
 
+    if re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?(?:tasks|to-?dos)[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        # This is an explicitly addressed communication request; let the
+        # typed communication resolver perform target and send authorization.
+        return None
     if recovered_plan_actions is None:
         result = MultiActionFastPath.resolve(intent)
         if result is not None:
