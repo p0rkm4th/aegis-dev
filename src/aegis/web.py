@@ -130,7 +130,7 @@ class WorkspaceProjection(BaseModel):
 
 class CompositionProjection(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    compositions: tuple[dict[str, Any], ...] = Field(default=(), max_length=20)
+    compositions: tuple[dict[str, Any], ...] = Field(default=(), max_length=50)
 
 
 class PackProjection(BaseModel):
