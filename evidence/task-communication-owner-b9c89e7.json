@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "task-list-to-communication",
+  "source_sha": "b9c89e75691cb0d6fd54d8d20e3af591d4644cc7",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34022938549", "conclusion": "success"},
+  "installed_sha": "b9c89e75691cb0d6fd54d8d20e3af591d4644cc7",
+  "running_sha": "b9c89e75691cb0d6fd54d8d20e3af591d4644cc7",
+  "owner_request": "Text me my open tasks.",
+  "pack_id": "communications",
+  "action_id": "communications.messages.send",
+  "approved_target": {"target": "scotty", "channel": "sms", "account": "household"},
+  "source": "Principal-scoped canonical open tasks",
+  "provider": "fixture communication provider",
+  "result": {"state": "completed", "message": "communication provider accepted and read back the exact message; delivery is not independently proven"},
+  "authority": "communications.send authorization remained required; no model-invented recipient and no delivery claim"
+}
