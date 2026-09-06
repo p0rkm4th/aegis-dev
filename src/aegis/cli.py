@@ -1770,6 +1770,37 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    grocery_send_me = re.fullmatch(
+        r"(?:send|text) me (?:the )?grocery list[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if grocery_send_me is not None:
+        try:
+            approved_targets = configured_communication_targets()
+        except ValueError:
+            approved_targets = frozenset()
+        # "me" is safe to resolve only when the owner has configured one
+        # unambiguous target. Multiple targets require an explicit destination.
+        if approved_targets is not None and len(approved_targets) == 1:
+            target, channel, account = next(iter(approved_targets))
+            card = manager.action_card("communications", "communications.messages.send")
+            if card is None:
+                return None
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={
+                            "arguments": {
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body_source": "canonical.groceries",
+                            }
+                        }
+                    )
+                }
+            )
     if grocery_send is not None:
         card = manager.action_card("communications", "communications.messages.send")
         if card is None:

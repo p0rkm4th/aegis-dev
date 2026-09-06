@@ -742,9 +742,18 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     argument_keys=("target", "body", "channel", "account", "body_source"),
                     argument_grounding={
                         key: ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.EXPLICIT_UTTERANCE,
+                                ArgumentProvenanceKind.APPROVED_DEFAULT,
+                            ),
+                            approved_default="owner.approved_communication_target.v1",
+                        )
+                        for key in ("target", "channel", "account")
+                    }
+                    | {
+                        "body": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
-                        for key in ("target", "body", "channel", "account")
                     }
                     | {
                         "body_source": ArgumentGroundingRule(
