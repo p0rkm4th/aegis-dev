@@ -20,6 +20,7 @@ class PrivateContribution:
 class SharedObligation:
     name: str
     amount: int
+    currency: str = "USD"
 
 
 @dataclass(frozen=True)

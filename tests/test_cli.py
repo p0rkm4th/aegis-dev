@@ -7516,7 +7516,7 @@ def test_task_read_fast_path_filters_structural_get_done_today_request():
 def test_task_read_fast_path_filters_this_week_to_open_current_week():
     from datetime import datetime, timedelta, timezone
 
-    now = datetime.now(timezone.utc)
+    now = datetime(2026, 9, 6, 12, tzinfo=timezone.utc)
     this_week = Task(
         uuid4(), "apartment", "this week task", "alice", due_at=now + timedelta(hours=1)
     )
@@ -7539,7 +7539,8 @@ def test_task_read_fast_path_filters_this_week_to_open_current_week():
     utterance = "What do I need to get done this week?"
     assert TaskReadFastPath.matches(utterance)
     result = TaskReadFastPath(Store()).resolve(
-        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance=utterance)
+        IntentFrame(principal=Principal(id="alice", vault_id="alice-vault"), utterance=utterance),
+        now=now,
     )
     assert result is not None
     assert result.evidence["due_filter"] == "this_week"

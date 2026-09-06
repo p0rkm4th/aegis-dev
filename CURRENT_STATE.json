@@ -19,9 +19,9 @@
   "running_release_sha": "57378ea",
   "live_green_sha": "57378ea",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "pack-first-owner-corpus-expansion",
+  "active_checkpoint": "finance-canonical-fidelity-repair",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "pack-first-owner-corpus-expansion",
+  "current_checkpoint": "finance-canonical-fidelity-repair",
   "active_campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -341,7 +341,9 @@
     "the default loopback Ollama endpoint 127.0.0.1:11434 is unavailable in the current runtime; system Ollama is healthy on 172.18.0.1:11434 and AEGIS_OLLAMA_URL must be set there for model-backed live runs"
   ],
   "active_checkpoint_blockers": [],
-  "project_architecture_blockers": [],
+  "project_architecture_blockers": [
+    "Finance PostgreSQL persistence must preserve Transaction currency, settlement status, provider transaction identity, and source provenance across reload/restart"
+  ],
   "release_blockers": [],
   "research_non_green": ["compound cognition remains bounded research evidence only"],
   "daily_driver_scoreboard": {
@@ -387,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Iterate the isolated Pack-first experiment against its measured routing failures and owner-real corpus; preserve the incumbent production route until safety and objective correctness justify one replacement, while continuing Food/Finance/Homelab utility work.",
+  "next_action": "Repair and prove lossless Finance persistence, strict transaction status, currency-safe balances/affordability, and conservative duplicate reconciliation; then promote and return to Owner-Reality breadth.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }

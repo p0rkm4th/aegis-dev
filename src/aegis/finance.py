@@ -6,7 +6,7 @@ import csv
 import io
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from hashlib import sha256
@@ -18,6 +18,12 @@ from .projections import PrivateContribution, SharedObligation
 from .utterance import has_multiple_question_clauses
 
 
+def _validate_currency(currency: str) -> None:
+    normalized = currency.strip().upper()
+    if len(normalized) != 3 or not normalized.isalpha():
+        raise ValueError("currency must be an ISO-like three-letter code")
+
+
 @dataclass(frozen=True)
 class Account:
     account_id: str
@@ -26,6 +32,10 @@ class Account:
     currency: str = "USD"
     balance_as_of: datetime | None = None
     status: str = "active"
+
+    def __post_init__(self) -> None:
+        _validate_currency(self.currency)
+        object.__setattr__(self, "currency", self.currency.strip().upper())
 
 
 @dataclass(frozen=True)
@@ -39,6 +49,14 @@ class Transaction:
     provider_transaction_id: str | None = None
     status: str = "posted"
     source_id: str = "fixture"
+
+    def __post_init__(self) -> None:
+        _validate_currency(self.currency)
+        status = self.status.strip().lower()
+        if status not in {"pending", "posted"}:
+            raise ValueError("transaction status must be pending or posted")
+        object.__setattr__(self, "currency", self.currency.strip().upper())
+        object.__setattr__(self, "status", status)
 
 
 @dataclass(frozen=True)
@@ -58,6 +76,15 @@ class FinanceImportReport:
     imported_transaction_ids: tuple[str, ...]
     duplicate_rows: tuple[int, ...] = ()
     rejected_rows: tuple[tuple[int, str], ...] = ()
+    reconciliations: tuple["TransactionReconciliation", ...] = ()
+
+
+@dataclass(frozen=True)
+class TransactionReconciliation:
+    left_transaction_id: str
+    right_transaction_id: str
+    classification: str
+    evidence: tuple[str, ...] = ()
 
 
 def import_csv_transactions(
@@ -69,15 +96,14 @@ def import_csv_transactions(
     currency: str = "USD",
     imported_at: datetime | None = None,
 ) -> tuple[tuple[Transaction, ...], FinanceImportReport]:
-    """Parse a bounded owner-controlled CSV without floating-point money."""
+    """Parse a bounded CSV; absent status is explicitly the posted CSV default."""
 
     if not owner_id or not account_id or not source_id:
         raise ValueError("owner, account, and source identities are required")
     if len(content.encode()) > 5_000_000:
         raise ValueError("finance import exceeds size limit")
     currency = currency.strip().upper()
-    if len(currency) != 3 or not currency.isalpha():
-        raise ValueError("currency must be an ISO-like three-letter code")
+    _validate_currency(currency)
     digest = sha256(content.encode()).hexdigest()
     now = imported_at or datetime.now(timezone.utc)
     reader = csv.DictReader(io.StringIO(content))
@@ -161,6 +187,9 @@ class AffordabilityProjection:
     shared_obligations_cents: int
     affordable: bool
     shortfall_cents: int
+    purchase_currency: str = "USD"
+    matching_balance_cents: int = 0
+    reserve_cents: int = 0
 
 
 def summarize_snapshot(snapshot: FinanceSnapshot) -> dict[str, object]:
@@ -244,6 +273,10 @@ class PostgresFinanceSnapshotStore:
                     "amount_cents": transaction.amount_cents,
                     "occurred_at": transaction.occurred_at.isoformat(),
                     "description": transaction.description,
+                    "currency": transaction.currency,
+                    "provider_transaction_id": transaction.provider_transaction_id,
+                    "status": transaction.status,
+                    "source_id": transaction.source_id,
                 }
                 for transaction in snapshot.transactions
             ],
@@ -312,7 +345,7 @@ class PostgresFinanceSnapshotStore:
                 if transaction.get("provider_transaction_id") is not None
                 else None,
                 str(transaction.get("status", "posted")),
-                str(transaction.get("source_id", "fixture")),
+                str(transaction.get("source_id", "legacy-unknown")),
             )
             for transaction in payload.get("transactions", [])
         )
@@ -399,22 +432,66 @@ class FinanceLedger:
             for item in snapshot.transactions
             if item.provider_transaction_id is not None
         }
-        additions = tuple(
-            item
-            for item in transactions
-            if item.transaction_id not in existing_ids
-            and item.provider_transaction_id not in existing_provider_ids
-        )
+        reconciliations: list[TransactionReconciliation] = []
+        updated_transactions = list(snapshot.transactions)
+        additions: list[Transaction] = []
+        for item in transactions:
+            if item.transaction_id in existing_ids:
+                continue
+            if item.provider_transaction_id in existing_provider_ids:
+                index = next(
+                    index
+                    for index, existing in enumerate(updated_transactions)
+                    if existing.provider_transaction_id == item.provider_transaction_id
+                )
+                existing = updated_transactions[index]
+                if existing.status == "pending" and item.status == "posted":
+                    updated_transactions[index] = replace(
+                        existing, status="posted", source_id=item.source_id
+                    )
+                reconciliations.append(
+                    TransactionReconciliation(
+                        existing.transaction_id,
+                        item.transaction_id,
+                        "EXACT_PROVIDER_DUPLICATE",
+                        ("provider_transaction_id",),
+                    )
+                )
+                continue
+            candidate = next(
+                (
+                    existing
+                    for existing in snapshot.transactions
+                    if existing.provider_transaction_id is None
+                    and item.provider_transaction_id is None
+                    and existing.source_id != item.source_id
+                    and existing.account_id == item.account_id
+                    and existing.occurred_at == item.occurred_at
+                    and existing.amount_cents == item.amount_cents
+                    and existing.description == item.description
+                ),
+                None,
+            )
+            if candidate is not None:
+                reconciliations.append(
+                    TransactionReconciliation(
+                        candidate.transaction_id,
+                        item.transaction_id,
+                        "STRONG_CROSS_SOURCE_CANDIDATE",
+                        ("account_id", "occurred_at", "amount_cents", "description"),
+                    )
+                )
+            additions.append(item)
         merged = FinanceSnapshot(
             owner_id=snapshot.owner_id,
             accounts=snapshot.accounts,
-            transactions=snapshot.transactions + additions,
+            transactions=tuple(updated_transactions) + tuple(additions),
             provider_id=snapshot.provider_id,
             captured_at=snapshot.captured_at,
             sources=snapshot.sources + (report.source,),
         )
         self.record_snapshot(merged)
-        return report
+        return replace(report, reconciliations=tuple(reconciliations))
 
     def _snapshot(self, owner_id: str) -> FinanceSnapshot:
         snapshot = (
@@ -436,10 +513,25 @@ class FinanceLedger:
             "captured_at": snapshot.captured_at.isoformat() if snapshot.captured_at else None,
         }
 
-    def total_balance(self, requester: Principal, owner_id: str) -> int:
-        return sum(
-            account.balance_cents for account in self.private_snapshot(requester, owner_id).accounts
-        )
+    def balances_by_currency(self, requester: Principal, owner_id: str) -> dict[str, int]:
+        balances: dict[str, int] = {}
+        for account in self.private_snapshot(requester, owner_id).accounts:
+            currency = account.currency.strip().upper()
+            balances[currency] = balances.get(currency, 0) + account.balance_cents
+        return balances
+
+    def total_balance(
+        self, requester: Principal, owner_id: str, currency: str | None = None
+    ) -> int:
+        """Return one currency only; refuse an implicit mixed-currency total."""
+        balances = self.balances_by_currency(requester, owner_id)
+        if currency is None:
+            if len(balances) > 1:
+                raise ValueError("currency is required for mixed-currency balances")
+            return next(iter(balances.values()), 0)
+        normalized = currency.strip().upper()
+        _validate_currency(normalized)
+        return balances.get(normalized, 0)
 
     def derived_contribution(
         self,
@@ -463,10 +555,18 @@ class FinanceLedger:
         purchase_cents: int,
         obligations: tuple[SharedObligation, ...],
         reserve_cents: int = 0,
+        purchase_currency: str = "USD",
     ) -> AffordabilityProjection:
         if purchase_cents < 0 or reserve_cents < 0:
             raise ValueError("purchase and reserve amounts cannot be negative")
-        balance = self.total_balance(requester, owner_id)
+        purchase_currency = purchase_currency.strip().upper()
+        _validate_currency(purchase_currency)
+        balance = self.total_balance(requester, owner_id, purchase_currency)
+        if any(
+            obligation.currency.strip().upper() != purchase_currency
+            for obligation in obligations
+        ):
+            raise ValueError("obligations must use the purchase currency")
         obligations_total = sum(obligation.amount for obligation in obligations)
         available = balance - obligations_total - reserve_cents
         return AffordabilityProjection(
@@ -474,6 +574,9 @@ class FinanceLedger:
             shared_obligations_cents=obligations_total,
             affordable=available >= purchase_cents,
             shortfall_cents=max(0, purchase_cents - available),
+            purchase_currency=purchase_currency,
+            matching_balance_cents=balance,
+            reserve_cents=reserve_cents,
         )
 
 
