@@ -1,0 +1,31 @@
+{
+  "checkpoint": "capability-need-research-workspace-communication-owner-proof",
+  "source_sha": "0dedbe14d19a90b2c02fa26ee24b0a583554fbb8",
+  "hosted": {"run_id": 34029881535, "conclusion": "success"},
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "0dedbe1",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "source_artifact": {
+    "workspace_id": "fc3a1436-d3e1-59b5-932f-3858c41e5496",
+    "path": "capability-needs/08909857-b723-4215-946b-589635a12e83.md",
+    "sha256": "ce270e8e1ca33c196486ecd86f67550a1401df6f498e1f1d5fa820fc9698fb52"
+  },
+  "request": "Text me the workspace artifact fc3a1436-d3e1-59b5-932f-3858c41e5496 at capability-needs/08909857-b723-4215-946b-589635a12e83.md",
+  "result": {
+    "code": "completed",
+    "objective_id": "9ff53d9a-da3f-4981-acae-8952e1e3a648",
+    "correlation_id": "07845885-7af5-43c4-a22c-2824d71236b9",
+    "status": "PROVIDER_ACCEPTED",
+    "provider_readback": true,
+    "delivery_proven": false
+  },
+  "safety": [
+    "the original CapabilityNeed remains open",
+    "Workspace identity and path were explicit and Principal-scoped",
+    "Workspace read and communications send remained separate permissions",
+    "provider acceptance is not delivery proof"
+  ]
+}
