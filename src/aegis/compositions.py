@@ -24,6 +24,13 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "read document + write scoped workspace; Core authorization required",
         },
         {
+            "id": "document-search-to-workspace",
+            "label": "Document search → Workspace",
+            "description": "Save bounded matches from authorized documents as a verified artifact.",
+            "surfaces": ("Documents", "Workspace"),
+            "authority": "document read + scoped workspace write; Core authorization required",
+        },
+        {
             "id": "research-to-workspace",
             "label": "Research → Workspace",
             "description": "Preserve sourced public research as non-authoritative workspace notes.",
@@ -213,6 +220,57 @@ def document_summary_to_workspace(
         files=artifact.files,
         validated=artifact.validated,
         source=document.source,
+    )
+
+
+def document_search_to_workspace(
+    provider: DocumentProvider,
+    workspaces: WorkspaceManager,
+    *,
+    principal_id: str,
+    objective_id: UUID,
+    query: str,
+    target_path: str,
+    correlation_id: UUID,
+) -> DocumentWorkspaceResult:
+    """Save bounded authorized document matches into an isolated artifact."""
+
+    needle = query.strip().casefold()
+    if not needle:
+        raise ValueError("document search query is required")
+    matches = [
+        document
+        for document in provider.list_documents()
+        if needle in f"{document.title}\n{document.text}".casefold()
+    ][:20]
+    lines = [f"# Document search: {query.strip()[:500]}", ""]
+    for document in matches:
+        lines.extend(
+            (
+                f"## {document.title} ({document.document_id})",
+                "",
+                document.text[:500],
+                "",
+            )
+        )
+    if not matches:
+        lines.append("No authorized documents matched this query.")
+    content = "\n".join(lines)
+    workspace = workspaces.for_objective(principal_id, objective_id)
+    artifact = workspace.write_artifact(
+        {target_path: content},
+        correlation_id,
+        lambda current: (
+            None if current.read(target_path) == content else "document search readback mismatch"
+        ),
+    )
+    return DocumentWorkspaceResult(
+        correlation_id=correlation_id,
+        document_id=f"search:{query.strip()[:100]}",
+        target_path=target_path,
+        files=artifact.files,
+        validated=artifact.validated,
+        source="authorized_document_search",
     )
 
 

@@ -1018,6 +1018,23 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    document_search_workspace = re.fullmatch(
+        r"(?:search|find) (?:my )?documents? for (?P<query>.+?) and save results as "
+        r"(?P<target_path>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120})",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if document_search_workspace is not None:
+        card = manager.action_card("documents", "documents.search_to_workspace")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": document_search_workspace.groupdict()}
+                )
+            }
+        )
     document_search = re.fullmatch(
         r"(?:search|find) (?:my )?documents? for (?P<query>.+)", text, flags=re.IGNORECASE
     )
