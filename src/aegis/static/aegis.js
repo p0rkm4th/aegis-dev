@@ -1449,6 +1449,29 @@ function appendTodaySection(panel, title, value) {
   const heading = document.createElement('h3'); heading.textContent = title;
   section.append(heading, renderDetailValue(value)); panel.append(section);
 }
+function renderFoodCollection(panel, title, items, kind) {
+  const section = document.createElement('section'); section.className = 'detail-card';
+  const heading = document.createElement('h3'); heading.textContent = title; section.append(heading);
+  if (!items.length) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = kind === 'pantry' ? 'No canonical Pantry items recorded yet.' : 'No groceries currently needed.';
+    section.append(empty); panel.append(section); return;
+  }
+  items.forEach(item => {
+    const row = document.createElement('div'); row.className = 'list-row food-row';
+    const name = document.createElement('strong'); name.textContent = item.display_name || item.name || 'Unnamed item';
+    const details = document.createElement('span'); details.className = 'muted';
+    if (kind === 'pantry') {
+      const quantity = item.quantity == null ? 'quantity unknown' : `${item.quantity} ${item.unit || ''}`.trim();
+      details.textContent = `${quantity}${item.storage_location ? ` · ${item.storage_location}` : ''}`;
+    } else {
+      const quantity = item.desired_quantity == null ? 'quantity unknown' : `${item.desired_quantity} ${item.unit || ''}`.trim();
+      details.textContent = `${item.state || 'needed'} · ${quantity}`;
+    }
+    row.append(name, details); section.append(row);
+  });
+  panel.append(section);
+}
 function appendCompletableSection(panel, title, items, utterancePrefix) {
   const section = document.createElement('section'); section.className = 'detail-card';
   const heading = document.createElement('h3'); heading.textContent = title; section.append(heading);
@@ -1532,17 +1555,11 @@ async function loadHousehold() {
     } catch (_) {}
     const canonical = payload.canonical || {};
     appendCompletableSection(panel, 'Open chores', canonical.open_chores || [], 'Mark the chore');
-    appendTodaySection(panel, 'Groceries', canonical.groceries || []);
+    renderFoodCollection(panel, 'Groceries needed', canonical.groceries || [], 'grocery');
     const pantry = canonical.pantry_items || [];
     if (pantry.length) {
-      const pantryRows = pantry.map(item => {
-        const quantity = item.quantity == null ? 'quantity unknown' : `${item.quantity} ${item.unit || ''}`.trim();
-        return `${item.display_name} · ${quantity}${item.storage_location ? ` · ${item.storage_location}` : ''}`;
-      });
-      appendTodaySection(panel, 'Pantry', pantryRows);
-    } else {
-      appendTodaySection(panel, 'Pantry', ['No canonical Pantry items recorded yet.']);
-    }
+      renderFoodCollection(panel, 'Pantry', pantry, 'pantry');
+    } else renderFoodCollection(panel, 'Pantry', [], 'pantry');
     const lowPantry = canonical.pantry_low_items || [];
     const lowSection = document.createElement('section'); lowSection.className = 'detail-card';
     const lowTitle = document.createElement('h3'); lowTitle.textContent = 'Pantry items to review';
