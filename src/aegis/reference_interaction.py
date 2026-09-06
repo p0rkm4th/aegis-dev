@@ -1025,6 +1025,23 @@ def reference_format_result(result: Any) -> str:
             if goals
             else "(none)"
         )
+    if isinstance(evidence.get("conflicts"), list):
+        conflicts = evidence["conflicts"]
+        if not conflicts:
+            return "Calendar conflicts: (none)"
+        return "Calendar conflicts:\n" + "\n".join(
+            f"• {item.get('event_title', 'event')} overlaps "
+            f"{item.get('conflicting_title', 'event')}"
+            for item in conflicts
+            if isinstance(item, dict)
+        )
+    if evidence.get("source") == "external_calendar_fixture" and evidence.get("date"):
+        events = evidence.get("events", [])
+        if not events:
+            return f"Calendar {evidence['date']}: (none)"
+        return f"Calendar {evidence['date']}:\n" + "\n".join(
+            f"• {item['title']}" for item in events if isinstance(item, dict)
+        )
     if evidence.get("obligations") is not None:
         obligations = evidence["obligations"]
         outstanding = [item for item in obligations if not item["settled"]]
