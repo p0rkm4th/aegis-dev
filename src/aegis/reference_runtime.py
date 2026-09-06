@@ -106,6 +106,8 @@ from .reference_packs import (
     PostgresGroceryStateVerifier,
     PostgresPantryListExecutor,
     PostgresPantryListVerifier,
+    PostgresPantryMutationExecutor,
+    PostgresPantryMutationVerifier,
     PublicHolidayExecutor,
     PublicHolidayVerifier,
     PublicHolidayWorkspaceExecutor,
@@ -248,6 +250,14 @@ def default_runtime_registry(
             PostgresPantryListExecutor(store, principal),
             PostgresPantryListVerifier(store, principal),
             {"kitchen.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def pantry_mutation_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresHouseholdStore(connection)
+        return ActionRuntime(
+            PostgresPantryMutationExecutor(store, principal),
+            PostgresPantryMutationVerifier(store, principal),
+            {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
     def grocery_state_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -839,6 +849,9 @@ def default_runtime_registry(
         "kitchen.groceries.list": grocery_list_runtime,
         "kitchen.groceries.add": grocery_add_runtime,
         "kitchen.pantry.list": pantry_list_runtime,
+        "kitchen.pantry.add": pantry_mutation_runtime,
+        "kitchen.pantry.update": pantry_mutation_runtime,
+        "kitchen.pantry.consume": pantry_mutation_runtime,
         "kitchen.groceries.mark_purchased": grocery_state_runtime,
         "kitchen.groceries.remove": grocery_state_runtime,
         "homelab.service.restart": homelab_runtime,

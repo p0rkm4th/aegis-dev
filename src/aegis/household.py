@@ -394,6 +394,24 @@ class PostgresHouseholdStore:
         self.save(space)
         return result
 
+    def update_pantry_item(
+        self, principal: Principal, item: PantryItem, expected_version: int
+    ) -> PantryItem:
+        """Update one Pantry record after rechecking membership and version."""
+        space = self._space_for_food(principal)
+        result = space.update_pantry(principal, item, expected_version)
+        self.save(space)
+        return result
+
+    def consume_pantry_item(
+        self, principal: Principal, item_id: str, quantity: float, expected_version: int
+    ) -> PantryItem:
+        """Consume known Pantry quantity using optimistic version checking."""
+        space = self._space_for_food(principal)
+        result = space.consume_pantry(principal, item_id, quantity, expected_version)
+        self.save(space)
+        return result
+
     def _space_for_food(self, principal: Principal) -> HouseholdSpace:
         space_id = self._space_for(principal)
         members = {
