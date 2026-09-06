@@ -760,6 +760,9 @@ async function loadWorkspace() {
             pre.className = 'detail-card';
             pre.textContent = file.content || '';
             card.append(pre);
+            const digest = document.createElement('p'); digest.className = 'muted';
+            digest.textContent = `Observed SHA-256: ${file.sha256 || 'unavailable'}`;
+            card.append(digest);
           } catch (_) {
             button.textContent = 'File unavailable';
           } finally { button.disabled = false; }
