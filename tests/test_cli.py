@@ -5474,6 +5474,7 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "Approve network-reports in Packs & capabilities" in html
     assert "Bounded discovery" in html
     assert "/api/systems/discover" in html
+    assert "identity ${host.provider_identity || 'not configured'}" in html
 
 
 def test_browser_app_systems_discovery_is_scoped_and_observation_only():
