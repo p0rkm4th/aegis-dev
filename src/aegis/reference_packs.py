@@ -3050,10 +3050,15 @@ class _NoopHomelabRuntime:
 
 def _canonical_homelab_service(connection: Any, principal: Principal, service_id: str) -> Any:
     pack = PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
-    try:
-        return pack.services[service_id]
-    except KeyError as exc:
-        raise ValueError("authorized Homelab service is unavailable") from exc
+    service = pack.services.get(service_id)
+    if service is None:
+        matches = tuple(
+            item for item in pack.services.values() if item.name.casefold() == service_id.casefold()
+        )
+        service = matches[0] if len(matches) == 1 else None
+    if service is None:
+        raise ValueError("authorized Homelab service is unavailable")
+    return service
 
 
 def _homelab_page_files(connection: Any, principal: Principal) -> dict[str, str]:
