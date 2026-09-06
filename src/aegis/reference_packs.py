@@ -167,6 +167,25 @@ def prepare_reference_action(
                     )
                 }
             )
+    elif action.action_id == "calendar.events.cancel":
+        event_id = args.get("event_id")
+        if isinstance(event_id, str) and event_id.strip():
+            verification = action.verification or VerificationContract(kind="custom")
+            return action.model_copy(
+                update={
+                    "verification": verification.model_copy(
+                        update={
+                            "expected": {
+                                "version": 1,
+                                "principal_id": principal.id,
+                                "objective_id": str(objective_id),
+                                "event_id": event_id,
+                                "exists": False,
+                            }
+                        }
+                    )
+                }
+            )
     elif action.action_id == "device-controls.devices.command.execute":
         entity_id = args.get("entity_id")
         expected_state = args.get("expected_state")
@@ -918,6 +937,24 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         for key in ("title", "starts_at", "ends_at")
                     },
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="calendar.events.cancel",
+                        capability="calendar.events.cancel",
+                        required_permissions=("calendar.write",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Cancel an explicitly identified calendar event and read back its absence"
+                    ),
+                    relevance=1,
+                    argument_keys=("event_id",),
+                    argument_grounding={
+                        "event_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -1435,6 +1472,57 @@ class CalendarCreateVerifier:
             reason="calendar event independently read back"
             if verified
             else "calendar event readback did not match the expected event",
+        )
+
+
+class CalendarCancelExecutor:
+    def __init__(self, provider: CalendarWriteProvider) -> None:
+        self.provider = provider
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        event_id = request.action.arguments.get("event_id")
+        if not isinstance(event_id, str) or not event_id.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_cancel": "invalid_event_id"},
+                command_succeeded=False,
+            )
+        try:
+            self.provider.delete_event(event_id)
+        except (RuntimeError, ValueError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"calendar_cancel": {"event_id": event_id, "error": str(exc)}},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"calendar_cancel": {"event_id": event_id}},
+            command_succeeded=True,
+        )
+
+
+class CalendarCancelVerifier:
+    def __init__(self, provider: CalendarWriteProvider) -> None:
+        self.provider = provider
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("calendar_cancel")
+        if not observation.command_succeeded or not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False, evidence={}, reason="calendar cancel did not execute"
+            )
+        event_id = contract.expected.get("event_id")
+        actual = self.provider.get_event(event_id) if isinstance(event_id, str) else None
+        verified = actual is None and contract.expected.get("exists") is False
+        return VerificationResult(
+            verified=verified,
+            evidence={"calendar_event_id": event_id, "provider_readback_absent": actual is None},
+            reason="calendar event absence independently read back"
+            if verified
+            else "calendar event remained present after cancellation",
         )
 
 

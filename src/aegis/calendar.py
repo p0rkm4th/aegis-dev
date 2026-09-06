@@ -34,6 +34,8 @@ class CalendarWriteProvider(Protocol):
 
     def get_event(self, event_id: str) -> CalendarEvent | None: ...
 
+    def delete_event(self, event_id: str) -> None: ...
+
 
 @dataclass(frozen=True)
 class GoogleCalendarWriteProvider:
@@ -100,6 +102,22 @@ class GoogleCalendarWriteProvider:
             raise RuntimeError("Google Calendar readback failed") from exc
         return _google_event(item)
 
+    def delete_event(self, event_id: str) -> None:
+        request = urllib.request.Request(
+            self._url(event_id),
+            headers={"Authorization": f"Bearer {self.access_token}", "Accept": "application/json"},
+            method="DELETE",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds):
+                pass
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return
+            raise RuntimeError("Google Calendar delete failed") from exc
+        except (urllib.error.URLError, TimeoutError) as exc:
+            raise RuntimeError("Google Calendar delete failed") from exc
+
 
 @dataclass
 class FixtureCalendarWriteProvider:
@@ -127,6 +145,9 @@ class FixtureCalendarWriteProvider:
 
     def get_event(self, event_id: str) -> CalendarEvent | None:
         return self.events.get(event_id)
+
+    def delete_event(self, event_id: str) -> None:
+        self.events.pop(event_id, None)
 
 
 @dataclass(frozen=True)
