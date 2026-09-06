@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-document-search",
+  "source_sha": "6eaa5127a24019c59f85ba02b076117225136eeb",
+  "hosted_validation": {"run_id": "34001046372", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "6eaa5127a24019c59f85ba02b076117225136eeb",
+    "running_sha": "6eaa5127a24019c59f85ba02b076117225136eeb",
+    "postgresql": "preserved",
+    "request": "Search my documents for guidance",
+    "objective_id": "2922fbd6-1c9b-472d-8f0e-81eac4c848e6",
+    "correlation_id": "16ed8508-10a9-4072-8733-60982a62fb00",
+    "result": "document readback is structurally valid",
+    "scope": "authorized document provider; bounded result list and snippets"
+  }
+}
