@@ -1,0 +1,24 @@
+{
+  "checkpoint": "capability-need-owner-review-ui",
+  "source_sha": "692b6afc4417ff508afe1468d9e405dba04f9ead",
+  "hosted": {
+    "workflow": "validation",
+    "run_id": 34030465806,
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "692b6af",
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "browser_url": "http://127.0.0.1:18080/"
+  },
+  "owner_visible_change": {
+    "surface": "Objectives",
+    "condition": "candidate.requires_owner_input == true",
+    "action": "Review Packs & capabilities",
+    "effect": "navigates to the generic Packs & capabilities view",
+    "authority": "none; discovery remains separate from installation, enablement, approval, and execution"
+  },
+  "verification": "The installed owner HTML contains the review action after promotion; deterministic UI tests and full validation passed."
+}
