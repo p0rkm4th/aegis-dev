@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-readiness-surface",
+  "source_sha": "e9c68a433b6c1ec01107429492284eb6253b48c0",
+  "hosted_validation": {"run_id": "34000744405", "conclusion": "success"},
+  "owner_runtime": {
+    "installed_sha": "e9c68a433b6c1ec01107429492284eb6253b48c0",
+    "running_sha": "e9c68a433b6c1ec01107429492284eb6253b48c0",
+    "postgresql": "preserved",
+    "route": "/api/daily-driver",
+    "source_basis_sha": "5ac037cdfe0fe2a1959e314fa4e9bf5405b43c1c",
+    "verified_workspace_state": "VERIFIED_LIVE",
+    "cross_capability_workflows": 14,
+    "provider_gates": 4,
+    "rendered_navigation": "Daily driver",
+    "result": "owner-visible capability readiness returned without granting action authority"
+  }
+}
