@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
+  "state_basis_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
-  "deterministic_green_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
-  "last_pushed_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
-  "hosted_green_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
-  "hosted_ci_green_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
+  "repository_head_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "deterministic_green_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "last_pushed_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "hosted_green_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "hosted_ci_green_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
+    "commit_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
     "conclusion": "success",
-    "run_id": "34006162220",
+    "run_id": "34006398094",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
-  "running_release_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
-  "live_green_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1",
+  "installed_release_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "running_release_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
+  "live_green_sha": "710d1d8a5388f6191003ae4e291311e303e7c049",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-calendar-cancel",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "0cc5a9ba68d36391fc65a3dd5df9bb5214b637c1"
+    "release_sha": "710d1d8a5388f6191003ae4e291311e303e7c049"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -137,9 +137,10 @@
     ,"Research view now exposes a bounded Research → Workspace notes action with explicit question/path inputs and a visible non-canonical evidence boundary"
     ,"Calendar view now exposes read-only Calendar + Tasks attention using authorized canonical event/task state and normalizes naive persisted timestamps to UTC"
     ,"calendar.events.cancel is a typed owner-enabled Calendar write with fixture/Google provider deletion and independent get_event absence verification; live Google credentials remain unavailable"
+    ,"calendar.events.update is a typed owner-enabled Calendar write with Core-prepared expected fields and independent provider get_event readback; fixture/Google support is green, live Google credentials remain unavailable"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner Calendar view can cancel an explicitly identified event through calendar.write and independently verify provider absence; live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner Calendar view can update or cancel an explicitly identified event through calendar.write and independently verify provider state; live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -189,7 +190,7 @@
     "owner_workflows_completed": 33,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next owner-useful breadth slice after verified Calendar cancellation; prioritize Calendar update or provider-backed Communications if credentials appear, otherwise add a materially new capability composition and expose it through UI and Constellation.",
-  "history_artifact": "evidence/calendar-cancel-owner-0cc5a9b.json",
+  "next_action": "Advance the next owner-useful breadth slice after verified Calendar update/cancel; prioritize provider-backed Communications if credentials appear, otherwise add a materially new capability composition and expose it through UI and Constellation.",
+  "history_artifact": "evidence/calendar-update-owner-710d1d8.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
