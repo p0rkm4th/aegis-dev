@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
+  "state_basis_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
-  "deterministic_green_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
-  "last_pushed_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
-  "hosted_green_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
-  "hosted_ci_green_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
+  "repository_head_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "deterministic_green_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "last_pushed_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "hosted_green_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "hosted_ci_green_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
+    "commit_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
     "conclusion": "success",
-    "run_id": "34008447513",
+    "run_id": "34008578250",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
-  "running_release_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
-  "live_green_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6",
+  "installed_release_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "running_release_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
+  "live_green_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-communications-readback",
+  "active_checkpoint": "daily-driver-alpha-communications-readback-ui",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "77a3c03d5c1a5affcea274e6a3e1b4cc99d5f4a6"
+    "release_sha": "1247f722ec73f33407f0e6a5bb119fcafb030b54"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -150,9 +150,10 @@
     ,"Calendar owner projection now performs bounded pairwise conflict inspection for timed events and exposes it as read-only scheduling attention; open-ended events are not treated as conflicts"
     ,"Today owner projection now carries the same bounded Calendar conflict attention so scheduling risk is visible on the canonical dashboard without adding mutation authority"
     ,"Communications fixture providers with readback support now independently verify accepted target/channel/account/body; OpenClaw remains acceptance-only and delivery remains unproven"
+    ,"Communications owner outcomes now project provider-readback status separately from delivery proof, so the owner can distinguish acceptance-only records from exact-readback records"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner Calendar view can update or cancel an explicitly identified event through calendar.write and independently verify provider state and now exposes bounded read-only timed-event conflict inspection; Today carries the same scheduling attention, while Calendar and Devices expose typed independently verified Workspace snapshot workflows, Communications verifies exact fixture provider acceptance when readback exists but presents OpenClaw acceptance separately from delivery proof, Objectives makes CapabilityNeed investigation legible, Workspace file inspection exposes observed hashes, Research can create a bounded unsent message draft from fixed external evidence, Compositions explains cross-capability surfaces and authority, and Constellation maps those compositions to Pack nodes with metadata-defined conventional navigation. Live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner Calendar view can update or cancel an explicitly identified event through calendar.write and independently verify provider state and now exposes bounded read-only timed-event conflict inspection; Today carries the same scheduling attention, while Calendar and Devices expose typed independently verified Workspace snapshot workflows, Communications verifies exact fixture provider acceptance when readback exists and now presents that status separately from delivery proof, Objectives makes CapabilityNeed investigation legible, Workspace file inspection exposes observed hashes, Research can create a bounded unsent message draft from fixed external evidence, Compositions explains cross-capability surfaces and authority, and Constellation maps those compositions to Pack nodes with metadata-defined conventional navigation. Live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -202,7 +203,7 @@
     "owner_workflows_completed": 33,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next owner-useful breadth slice after Communications readback; prioritize a configured live provider if credentials appear, otherwise add the next materially useful owner workflow through normal UI and Constellation.",
-  "history_artifact": "evidence/communications-readback-owner-77a3c03.json",
+  "next_action": "Advance the next owner-useful breadth slice after Communications readback UI; prioritize a configured live provider if credentials appear, otherwise add the next materially useful owner workflow through normal UI and Constellation.",
+  "history_artifact": "evidence/communications-readback-ui-owner-1247f72.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
