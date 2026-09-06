@@ -1249,6 +1249,13 @@ async function loadToday() {
     heading.textContent = 'Authorized state requiring attention today';
     panel.append(heading);
     panel.append(renderDetailValue(payload));
+    const report = document.createElement('button'); report.type = 'button';
+    report.textContent = 'Save verified Today brief to Workspace';
+    report.addEventListener('click', () => {
+      document.getElementById('utterance').value = "Save today's brief to Workspace as today.md";
+      document.getElementById('chat').requestSubmit();
+    });
+    panel.append(report);
     const activeObjectives = payload.active_objectives || [];
     appendTodaySection(panel, 'Active objectives', activeObjectives.length
       ? activeObjectives : 'No active objectives.');
