@@ -260,22 +260,22 @@
   },
   "independently_verified_write_capabilities": 12,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 81,
+  "voluntarily_useful_owner_workflows": 82,
   "owner_visible_capability_surfaces": 54,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 57,
+  "cross_capability_workflows": 58,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 12,
     "external_integrations": 3,
-    "cross_domain_compositions": 56,
+    "cross_domain_compositions": 57,
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2,
-  "owner_workflows_completed": 78,
+    "owner_workflows_completed": 79,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/homelab-health-task-owner-349b799.json",
+  "history_artifact": "evidence/homelab-health-task-owner-acceptance-349b799.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
