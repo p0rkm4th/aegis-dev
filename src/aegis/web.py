@@ -123,7 +123,7 @@ class ConstellationProjection(BaseModel):
 
 class WorkspaceProjection(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    workspaces: tuple[dict[str, Any], ...] = Field(default=(), max_length=20)
+    workspaces: tuple[dict[str, Any], ...] = Field(default=(), max_length=50)
 
 
 class CompositionProjection(BaseModel):
