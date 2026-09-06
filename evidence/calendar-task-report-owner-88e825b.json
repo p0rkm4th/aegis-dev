@@ -1,0 +1,18 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-task-attention-to-workspace",
+  "source_sha": "88e825be30636ebdb761d840cfc4e426df2acd26",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34021163184", "conclusion": "success"},
+  "installed_sha": "88e825be30636ebdb761d840cfc4e426df2acd26",
+  "running_sha": "88e825be30636ebdb761d840cfc4e426df2acd26",
+  "owner_request": "Save the tasks due before my calendar events to workspace as attention.md",
+  "pack_id": "calendar-task-reports",
+  "action_id": "calendar-task-reports.to_workspace",
+  "granted_permissions": ["calendar.read", "tasks.read", "workspace.write"],
+  "provider_mode": "configured_calendar_fixture_plus_postgresql_tasks",
+  "workspace_id": "a94ad69a-c033-5ede-843a-42405d9440ec",
+  "artifact": {"path": "attention.md", "sha256": "9427dad6f451ccd271b36cfe616684034a627281075cc477499eabe145b8ffac"},
+  "result": {"state": "completed", "independent_workspace_verification": true, "owner_message": "calendar task attention Workspace artifact independently verified"},
+  "ui": "Workspace inventory exposes attention.md; Constellation exposes Calendar Task Reports.",
+  "truth_boundary": "Calendar and task sources are fixture/canonical local evidence. No calendar/task mutation occurred; Workspace artifact is scoped and independently hash-verified."
+}
