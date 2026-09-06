@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "research-draft-ui-owner",
+  "source_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "hosted_validation": {"run_id": "34007380134", "conclusion": "success"},
+  "installed_release_sha": "f86493c66cc1b38010c6ec6698c91e4fe8df0eca",
+  "owner_runtime": {
+    "service": "active",
+    "surface": "Draft a researched message",
+    "boundary": "Research and create unsent draft"
+  },
+  "verification": "The Research UI invokes the existing communication-drafts action; bounded evidence is fixed before the Workspace draft postcondition is prepared and independently verified.",
+  "authority_boundary": "The draft is unsent; public evidence remains non-canonical and does not grant communication send authority."
+}
