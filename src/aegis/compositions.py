@@ -64,6 +64,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "workspace-artifact-copy",
+            "label": "Workspace artifact copy",
+            "description": (
+                "Copy an authorized Workspace file into a new independently verified artifact."
+            ),
+            "surfaces": ("Workspace",),
+            "authority": (
+                "Principal-scoped Workspace read + scoped Workspace write; source content is "
+                "fixed before mutation and independently verified"
+            ),
+        },
+        {
             "id": "weather-to-task-followup",
             "label": "Weather → Task follow-up",
             "description": "Turn a public weather check into an explicit owner task request.",
