@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8b19108",
+  "state_basis_sha": "e221ff0",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8b19108",
-  "deterministic_green_sha": "8b19108",
-  "last_pushed_sha": "8b19108",
+  "repository_head_sha": "e221ff0",
+  "deterministic_green_sha": "e221ff0",
+  "last_pushed_sha": "e221ff0",
   "hosted_green_sha": "1669ba0",
   "hosted_ci_green_sha": "1669ba0",
   "hosted_ci_attestation": {
@@ -131,6 +131,7 @@
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
     ,"homelab_host_identity": "Homelab Host records persist stable host IDs separately from observed addresses, with provider identity, known addresses, identity evidence, status, and last-observed metadata"
     ,"pack_first_owner_corpus": "Experimental Pack-first corpus now covers Food, Finance, Homelab, Forge, and unsupported owner requests across incumbent, pure Pack-first, and retrieval-assisted variants; deterministic fixture routing and compact context metrics are reported, while production cognition remains unchanged"
+    ,"finance_summary_projection": "Private Finance owner projection separates balances and cash flows by currency, pending from posted transactions, and imported source coverage; no cross-currency aggregation or financial mutation is exposed"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
