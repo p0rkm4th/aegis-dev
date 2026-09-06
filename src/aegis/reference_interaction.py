@@ -161,7 +161,8 @@ def _ground_argument_provenance(
                 r"(?:today(?:'s)?|the) brief|"
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
-                r"the document .+|the health of (?:service )?.+|"
+                r"the document .+|the document search results for .+|"
+                r"the health of (?:service )?.+|"
                 r"(?:the )?workspace artifact .+|(?:the )?device status)[?!.,]?",
                 intent.utterance.strip(),
                 flags=re.IGNORECASE,
@@ -228,6 +229,7 @@ def _ground_argument_provenance(
             "bounded.research",
             "public.weather",
             "canonical.document",
+            "canonical.document_search",
             "canonical.homelab_health",
             "canonical.workspace_artifact",
             "canonical.device_state",
@@ -240,7 +242,8 @@ def _ground_argument_provenance(
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
-                "canonical.document": "document",
+            "canonical.document": "document",
+                "canonical.document_search": "document search results",
                 "canonical.homelab_health": "health",
                 "canonical.workspace_artifact": "workspace artifact",
                 "canonical.device_state": "device status",
@@ -267,6 +270,9 @@ def _ground_argument_provenance(
                     "bounded.research": "reference.communication_body_from_research.v1",
                     "public.weather": "reference.communication_body_from_weather.v1",
                     "canonical.document": "reference.communication_body_from_document.v1",
+                    "canonical.document_search": (
+                        "reference.communication_body_from_document_search.v1"
+                    ),
                     "canonical.homelab_health": (
                         "reference.communication_body_from_homelab_health.v1"
                     ),

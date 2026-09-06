@@ -279,6 +279,29 @@ def prepare_reference_action(
                     **args,
                     "body": f"{document.title}\n\n{document.text[:20_000]}",
                 }
+        elif args.get("body_source") == "canonical.document_search":
+            query = args.get("query")
+            if not isinstance(query, str) or not query.strip():
+                raise ValueError("authorized document search query is unavailable")
+            needle = query.strip().casefold()
+            matches = [
+                document
+                for document in configured_document_provider().list_documents()
+                if needle in f"{document.title}\n{document.text}".casefold()
+            ][:20]
+            lines = [f"Document search: {query.strip()[:500]}", ""]
+            for document in matches:
+                lines.extend(
+                    (
+                        f"## {document.title} ({document.document_id})",
+                        "",
+                        document.text[:500],
+                        "",
+                    )
+                )
+            if not matches:
+                lines.append("No authorized documents matched this query.")
+            args = {**args, "body": "\n".join(lines)}
         elif args.get("body_source") == "canonical.homelab_health":
             service_id = args.get("service")
             if not isinstance(service_id, str) or not service_id.strip() or connection is None:
@@ -1184,6 +1207,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 "reference.communication_body_from_research.v1",
                                 "reference.communication_body_from_weather.v1",
                                 "reference.communication_body_from_document.v1",
+                                "reference.communication_body_from_document_search.v1",
                                 "reference.communication_body_from_homelab_health.v1",
                             ),
                         )
