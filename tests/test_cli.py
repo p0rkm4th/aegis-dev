@@ -4200,6 +4200,21 @@ def test_browser_app_workspace_surface_exposes_sandboxed_static_preview():
     assert "Static preview of ${path}" in html
 
 
+def test_browser_app_documents_surface_exposes_search_to_workspace_composition():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Save results to Workspace" in html
+    assert "Find my documents for ${query} and save results as ${path}" in html
+    assert "independent verification path" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []

@@ -1101,6 +1101,23 @@ async function loadDocuments() {
     const searchBoundary = document.createElement('p'); searchBoundary.className = 'muted';
     searchBoundary.textContent = 'Search is bounded to documents authorized for the current owner.';
     searchSection.append(searchTitle, searchForm, searchBoundary); panel.append(searchSection);
+    const exportForm = document.createElement('form'); exportForm.setAttribute('aria-label', 'Search documents to Workspace');
+    const exportQuery = document.createElement('input'); exportQuery.type = 'search'; exportQuery.required = true;
+    exportQuery.placeholder = 'Search query'; exportQuery.setAttribute('aria-label', 'Workspace search query');
+    const exportPath = document.createElement('input'); exportPath.required = true;
+    exportPath.placeholder = 'Artifact path, e.g. results.md'; exportPath.setAttribute('aria-label', 'Artifact path');
+    const exportSubmit = document.createElement('button'); exportSubmit.type = 'submit'; exportSubmit.textContent = 'Save results to Workspace';
+    exportForm.append(exportQuery, exportPath, exportSubmit);
+    exportForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const query = exportQuery.value.trim(); const path = exportPath.value.trim();
+      if (!query || !path) return;
+      document.getElementById('utterance').value = `Find my documents for ${query} and save results as ${path}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    const exportBoundary = document.createElement('p'); exportBoundary.className = 'muted';
+    exportBoundary.textContent = 'Results become a scoped Workspace artifact only after the normal Core authorization and independent verification path.';
+    searchSection.append(exportForm, exportBoundary);
     documents.forEach(documentRecord => {
       const card = document.createElement('section'); card.className = 'detail-card';
       const title = document.createElement('h3');
