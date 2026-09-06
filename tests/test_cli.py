@@ -5449,6 +5449,8 @@ def test_browser_app_calendar_surface_exposes_read_only_conflict_inspection():
     assert status == 200
     html = payload.decode()
     assert "Scheduling conflicts" in html
+    assert "Send scheduling attention" in html
+    assert "Text me the tasks due before my calendar events" in html
     assert "No overlapping timed events detected." in html
     assert "Conflict inspection is read-only." in html
     assert "Make task: ${first} / ${second}" in html
