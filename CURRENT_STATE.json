@@ -1,18 +1,18 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "1e217bc",
+  "state_basis_sha": "6d3ca2f",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1e217bc",
-  "deterministic_green_sha": "1e217bc",
-  "last_pushed_sha": "1e217bc",
-  "hosted_green_sha": "425ec0b",
-  "hosted_ci_green_sha": "425ec0b",
+  "repository_head_sha": "6d3ca2f",
+  "deterministic_green_sha": "6d3ca2f",
+  "last_pushed_sha": "6d3ca2f",
+  "hosted_green_sha": "5b1c6a7",
+  "hosted_ci_green_sha": "5b1c6a7",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "425ec0b",
+    "commit_sha": "5b1c6a7",
     "conclusion": "success",
-    "run_id": "34054635642",
+    "run_id": "34055698704",
     "observed_at": "2026-09-06T20:05:00Z"
   },
   "installed_release_sha": "39f16fe",
@@ -126,6 +126,7 @@
     ,"food_stable_state": "Current Household groceries remain backward-compatible while deterministic migration exposes stable-ID GroceryItem records and nullable PantryItem records; purchase/consume operations use IDs and Pantry versions, and unknown quantity is never treated as zero",
     "food_store_boundary": "Persistent Household store reads stable grocery/Pantry records, migrates legacy grocery JSON idempotently, and rechecks Space membership before structured Pantry reads/inserts; legacy grocery listing remains compatible while stable-ID state actions are added"
     ,"food_grocery_actions": "Kitchen Pack exposes stable-ID grocery mark_purchased and remove actions through the normal authorization/runtime path; independent verifier rereads current scoped records and rejects stale or changed state"
+    ,"finance_csv_import": "Bounded owner-controlled CSV import emits integer-minor-unit transactions with raw descriptions, optional provider IDs, source/content hash, coverage dates, duplicate-row detection, and explicit partial/rejected-row reporting; no financial mutation exists"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -363,7 +364,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Wire stable-ID Food/Pantry records into the normal Pack actions and owner Food view, preserving the incumbent cognition path; then advance private Finance read/import seams.",
+  "next_action": "Add private Finance snapshot/import projection and owner surface, then advance bounded Homelab identity/read work; preserve Pack-first as experimental and do not claim newer source is installed/live.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
