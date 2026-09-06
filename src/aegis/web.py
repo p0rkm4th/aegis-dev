@@ -988,6 +988,17 @@ async function loadCalendar() {
     const conflictBoundary = document.createElement('p'); conflictBoundary.className = 'muted';
     conflictBoundary.textContent = payload.conflict_boundary || 'Conflict inspection is read-only.';
     conflictSection.append(conflictBoundary); panel.append(conflictSection);
+    const sendAttention = document.createElement('button'); sendAttention.type = 'button';
+    sendAttention.textContent = 'Send scheduling attention';
+    sendAttention.addEventListener('click', () => {
+      document.getElementById('utterance').value =
+        'Text me the tasks due before my calendar events';
+      document.getElementById('chat').requestSubmit();
+    });
+    const attentionBoundary = document.createElement('p'); attentionBoundary.className = 'muted';
+    attentionBoundary.textContent =
+      'Calendar and task state remain read-only context; provider acceptance is not delivery proof.';
+    conflictSection.append(sendAttention, attentionBoundary);
     const holidays = payload.public_holidays?.holidays || [];
     const holidaySection = document.createElement('section'); holidaySection.className = 'detail-card';
     const holidayTitle = document.createElement('h3'); holidayTitle.textContent = 'Public holidays';
