@@ -959,7 +959,10 @@ def _today_state(principal: Principal) -> dict[str, Any]:
                 -item[0],
             )
         )
-        open_tasks = [item[1] for item in open_task_rows[:20]]
+        selected_open_task_rows = open_task_rows[:20]
+        if open_task_rows and open_task_rows[-1] not in selected_open_task_rows:
+            selected_open_task_rows = [*open_task_rows[:19], open_task_rows[-1]]
+        open_tasks = [item[1] for item in selected_open_task_rows]
         completed_tasks = [
             {
                 "title": task.title,
