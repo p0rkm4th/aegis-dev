@@ -1,0 +1,37 @@
+{
+  "source_sha": "74f796964f96349b941d319272ad87636badbcb8",
+  "hosted_validation": {
+    "run_id": "34052939712",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "74f7969",
+    "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+    "provider": "wikipedia",
+    "postgresql": "healthy"
+  },
+  "workflow": [
+    "live Wikimedia evidence was collected through the normal Research path",
+    "the fixed evidence was passed into a scoped Workspace artifact action",
+    "pre-execution expected content was established by Core",
+    "independent Workspace readback verified the resulting artifact",
+    "Tailscale Chromium Workspace view displayed the artifact without browser errors"
+  ],
+  "artifact": {
+    "workspace_id": "7b80b225-4dfb-5914-ab4c-c581b4fcff63",
+    "path": "palworld-live.md",
+    "sha256": "a7aff8db0a38459f006bb0a495dc030baac852bbb2bc15e0ca81c6d58ac81705",
+    "content_checks": {
+      "contains_palworld": true,
+      "contains_pocketpair": true,
+      "unrelated_nintendo_content": false
+    }
+  },
+  "safety": [
+    "Research remained external non-canonical evidence",
+    "Workspace scope remained Principal/objective-scoped",
+    "artifact creation did not grant deployment or external mutation authority"
+  ]
+}
