@@ -510,6 +510,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "surfaces": ("Systems", "Workspace"),
             "authority": "Homelab health read + scoped workspace write; no restart authority",
         },
+        {
+            "id": "network-inventory-to-workspace",
+            "label": "Network inventory → Workspace",
+            "description": (
+                "Preserve authorized network devices and active scopes as a verified artifact."
+            ),
+            "surfaces": ("Systems", "Workspace"),
+            "authority": (
+                "Network read + scoped workspace write; explicit Pack approval and Core "
+                "authorization required"
+            ),
+        },
     )
 
 
