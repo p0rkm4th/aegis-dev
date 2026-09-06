@@ -666,6 +666,7 @@ class BrowserApp:
             except (
                 UnicodeDecodeError,
                 json.JSONDecodeError,
+                KeyError,
                 TypeError,
                 ValueError,
                 ValidationError,
