@@ -1,0 +1,13 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "tasks-household-core-actions",
+  "source_sha": "36f61591b909bb4f2e5397dcdfa4252c5bf91d21",
+  "hosted_validation": {"run_id": "34004663852", "conclusion": "success"},
+  "installed_release_sha": "36f61591b909bb4f2e5397dcdfa4252c5bf91d21",
+  "owner_rendered_surface": {
+    "task_affordance": "Complete the task",
+    "chore_affordance": "Mark the chore",
+    "today_sections": ["completed_tasks", "groceries", "open_chores", "open_tasks", "upcoming_shared_events"]
+  },
+  "authority_boundary": "Completion buttons submit ordinary grounded conversation requests; the UI does not authorize or mutate canonical state directly."
+}
