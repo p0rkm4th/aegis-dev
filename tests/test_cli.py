@@ -196,6 +196,27 @@ def test_deterministic_network_probe_preserves_explicit_endpoint_and_scope():
     }
 
 
+def test_deterministic_device_research_action_preserves_explicit_entity_and_query():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "devices")
+    manager.discover(bundle)
+    manager.install("devices", frozenset({"devices.read"}))
+    manager.enable("devices")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Research the current state of light.desk for why it is off",
+    )
+
+    card = _deterministic_composition_action(intent, manager, Context())
+
+    assert card is not None
+    assert card.action.action_id == "devices.states.research"
+    assert card.action.arguments == {
+        "entity_id": "light.desk",
+        "query": "why it is off",
+    }
+
+
 def test_device_research_context_sanitizes_public_query_and_reads_authorized_state(monkeypatch):
     from aegis import cli
 

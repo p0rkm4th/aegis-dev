@@ -703,6 +703,25 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     summary="Read authorized Home Assistant entity states",
                     relevance=1,
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="devices.states.research",
+                        capability="devices.states.research",
+                        required_permissions=("devices.read",),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary="Explain an authorized device state with bounded public evidence",
+                    relevance=1,
+                    argument_keys=("entity_id", "query"),
+                    argument_grounding={
+                        "entity_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -1766,6 +1785,117 @@ class DeviceStatesVerifier:
             reason="device state readback is structurally valid"
             if verified
             else "device state read failed",
+        )
+
+
+class DeviceResearchExecutor:
+    """Read one authorized device and collect bounded non-authoritative evidence."""
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        entity_id = request.action.arguments.get("entity_id")
+        query = request.action.arguments.get("query")
+        if not isinstance(entity_id, str) or not isinstance(query, str) or not query.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"device_research": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        gateway = (
+            HomeAssistantRestGateway(
+                os.environ["AEGIS_HOME_ASSISTANT_URL"],
+                os.environ["AEGIS_HOME_ASSISTANT_TOKEN"],
+            )
+            if os.environ.get("AEGIS_HOME_ASSISTANT_URL")
+            and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
+            else FixtureDeviceGateway({entity_id: {"state": "off", "attributes": {}}})
+        )
+        try:
+            state = gateway.get_state(entity_id)
+            public_query = query.replace(entity_id, "the smart-home device")
+            evidence = configured_research_service().collect(SearchRequest(public_query))
+        except (OSError, ResearchUnavailable, ValueError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"device_research": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "device_research": {
+                    "entity_id": entity_id,
+                    "state": state.get("state", "unknown"),
+                    "query": public_query,
+                    "sources": [
+                        {
+                            "source_id": item.source_id,
+                            "title": item.title,
+                            "url": item.final_url,
+                            "retrieved_at": item.retrieved_at.isoformat(),
+                        }
+                        for item in evidence.evidence
+                    ],
+                    "authoritative": False,
+                }
+            },
+            command_succeeded=True,
+        )
+
+
+class DeviceResearchVerifier:
+    """Independently reread the device provider before accepting the composition."""
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("device_research")
+        if not observation.command_succeeded or not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="device research did not produce evidence",
+            )
+        entity_id, expected_state, sources = (
+            evidence.get("entity_id"),
+            evidence.get("state"),
+            evidence.get("sources"),
+        )
+        if not isinstance(entity_id, str) or not isinstance(expected_state, str):
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="device identity is invalid"
+            )
+        gateway = (
+            HomeAssistantRestGateway(
+                os.environ["AEGIS_HOME_ASSISTANT_URL"],
+                os.environ["AEGIS_HOME_ASSISTANT_TOKEN"],
+            )
+            if os.environ.get("AEGIS_HOME_ASSISTANT_URL")
+            and os.environ.get("AEGIS_HOME_ASSISTANT_TOKEN")
+            else FixtureDeviceGateway({entity_id: {"state": "off", "attributes": {}}})
+        )
+        try:
+            actual = gateway.get_state(entity_id)
+        except (OSError, ValueError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "readback_error": str(exc)},
+                reason="device provider readback failed",
+            )
+        verified = (
+            actual.get("state") == expected_state and isinstance(sources, list) and bool(sources)
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "device_state": actual.get("state"),
+                "independent_provider_read": True,
+                "source_count": len(sources) if isinstance(sources, list) else 0,
+            },
+            reason=(
+                f"{entity_id} is {expected_state}; bounded public evidence collected"
+                if verified
+                else "device state or research evidence mismatch"
+            ),
         )
 
 
