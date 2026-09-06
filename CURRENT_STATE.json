@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+  "state_basis_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
-  "deterministic_green_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
-  "last_pushed_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
-  "hosted_green_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
-  "hosted_ci_green_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+  "repository_head_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "deterministic_green_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "last_pushed_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "hosted_green_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "hosted_ci_green_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+    "commit_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
     "conclusion": "success",
-    "run_id": "34023685356",
+    "run_id": "34023953149",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
-  "running_release_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
-  "live_green_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6",
+  "installed_release_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "running_release_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "live_green_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-task-communication",
   "checkpoint_status": "complete",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "f4d6a2557c4dd0aa06847392af23982ef4a562a6"
+    "release_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -195,9 +195,10 @@
     ,"generic Communications now accepts an explicit owner request for open tasks; installed owner proof fixed the Principal-scoped canonical task list before send, provider readback accepted the exact message, and delivery remains unproven"
     ,"Tasks → Communication is represented in the generic Compositions owner view and Constellation as composition-tasks-to-communication; selecting it routes to the conventional Compositions detail view and grants no authority"
     ,"task-reports is a dedicated Tasks → Workspace Pack; installed owner proof fixed the canonical open-task snapshot before mutation and independently verified tasks.md in the scoped Workspace, with no task mutation authority"
+    ,"Calendar + Tasks attention → Communication is a bounded generic composition; installed owner proof fixed the authorized attention snapshot, provider readback accepted the exact message, and no delivery or mutation claim was made"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now saves a canonical open-task snapshot through task-reports and independently verifies tasks.md in the scoped Workspace; task mutation authority remains absent.",
+  "daily_driver_checkpoint": "The installed owner now sends bounded Calendar + Tasks attention through the generic approved-target communication path; provider acceptance/readback is distinct from delivery and neither source is mutated.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -235,22 +236,22 @@
   },
   "independently_verified_write_capabilities": 8,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 65,
-  "owner_visible_capability_surfaces": 33,
+  "voluntarily_useful_owner_workflows": 66,
+  "owner_visible_capability_surfaces": 34,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 39,
+  "cross_capability_workflows": 40,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 8,
     "external_integrations": 3,
-    "cross_domain_compositions": 39,
+    "cross_domain_compositions": 40,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
-    "owner_workflows_completed": 60,
+    "owner_workflows_completed": 61,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: choose a genuinely new non-credential-blocked provider-neutral capability or composition. Keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/task-workspace-owner-f4d6a25.json",
+  "history_artifact": "evidence/calendar-task-communication-owner-545d85c.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }

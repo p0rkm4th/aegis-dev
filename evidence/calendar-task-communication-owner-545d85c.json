@@ -1,0 +1,16 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "calendar-task-attention-to-communication",
+  "source_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "hosted": {"provider": "github-actions", "workflow": "validation", "run_id": "34023953149", "conclusion": "success"},
+  "installed_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "running_sha": "545d85c6aba51ef938e99fb6050f386a2d7d5be6",
+  "owner_request": "Text me the tasks due before my calendar events.",
+  "pack_id": "communications",
+  "action_id": "communications.messages.send",
+  "source": "authorized calendar/task attention snapshot",
+  "approved_target": {"target": "scotty", "channel": "sms", "account": "household"},
+  "provider": "fixture communication provider",
+  "result": {"state": "completed", "message": "communication provider accepted and read back the exact message; delivery is not independently proven"},
+  "authority": "calendar/task sources remained read-only; communications.send authorization and approved destination remained required"
+}
