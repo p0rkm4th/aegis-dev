@@ -917,6 +917,16 @@ async function loadCalendar() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(snapshot);
+    const sendSnapshot = document.createElement('button');
+    sendSnapshot.type = 'button'; sendSnapshot.textContent = 'Send calendar snapshot';
+    sendSnapshot.addEventListener('click', () => {
+      document.getElementById('utterance').value = 'Text me my calendar';
+      document.getElementById('chat').requestSubmit();
+    });
+    const sendSnapshotBoundary = document.createElement('p');
+    sendSnapshotBoundary.className = 'muted';
+    sendSnapshotBoundary.textContent = 'Uses the configured owner-approved destination; provider acceptance is not delivery proof.';
+    panel.append(sendSnapshot, sendSnapshotBoundary);
     const draftSection = document.createElement('section'); draftSection.className = 'detail-card';
     const draftTitle = document.createElement('h3'); draftTitle.textContent = 'Draft an agenda message';
     const draftForm = document.createElement('form'); draftForm.setAttribute('aria-label', 'Draft calendar message');
