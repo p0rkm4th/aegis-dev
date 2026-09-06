@@ -8,6 +8,7 @@ incumbent with two Pack-first variants.
 
 from __future__ import annotations
 
+import re
 import time
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
@@ -86,6 +87,14 @@ OWNER_PACK_CORPUS: tuple[PackCase, ...] = (
     PackCase("tell me everything", None),
     PackCase("install this unknown Pack", frozenset()),
 )
+
+_PACK_LIFECYCLE_LANGUAGE = re.compile(r"\b(?:install|enable|approve|grant)\b", re.IGNORECASE)
+
+
+def is_pack_lifecycle_request(utterance: str) -> bool:
+    """Recognize authority language for experimental fail-closed evaluation only."""
+
+    return bool(_PACK_LIFECYCLE_LANGUAGE.search(utterance))
 
 
 @dataclass(frozen=True)
@@ -254,6 +263,20 @@ def _measure_router(
 ) -> PackRouteMeasurement:
     prompt = router_prompt(utterance, catalog)
     started = time.perf_counter()
+    if is_pack_lifecycle_request(utterance):
+        return PackRouteMeasurement(
+            variant=variant,
+            utterance=utterance,
+            status=PackRouterStatus.UNSUPPORTED,
+            selected_pack_ids=(),
+            valid=True,
+            correct=(set() == set(expected_pack_ids)) if expected_pack_ids is not None else None,
+            model_calls=0,
+            prompt_bytes=0,
+            context_bytes=0,
+            latency_ms=(time.perf_counter() - started) * 1_000,
+            failure_category="lifecycle_authority_request",
+        )
     try:
         response = parse_router_response(router(prompt))
         selected = validate_selected_packs(response, manager)
