@@ -1,0 +1,19 @@
+{
+  "checkpoint": "network-inventory-workspace-contract",
+  "source_sha": "8c42fe1",
+  "hosted_validation_run": "34040642446",
+  "installed_release_sha": "8c42fe1",
+  "runtime": {
+    "postgresql": "healthy",
+    "owner_release": "8c42fe1"
+  },
+  "pack": {
+    "pack_id": "network-reports",
+    "permissions": ["network.read", "workspace.write"],
+    "action_id": "network-reports.inventory.to_workspace",
+    "status": "pending explicit owner approval"
+  },
+  "owner_surface": "Systems exposes Save network inventory to Workspace with an explicit Pack-approval boundary.",
+  "postcondition": "Core fixes the authorized network inventory before mutation; the scoped Workspace verifier independently compares the expected artifact hash.",
+  "result": "Contract-green and promoted; no owner artifact is claimed until network-reports is explicitly approved."
+}
