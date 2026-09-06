@@ -1,0 +1,35 @@
+{
+  "campaign": "AEGIS LONG AUTONOMOUS BREADTH EXPANSION",
+  "checkpoint": "homelab-health-communication-ui-owner-proof",
+  "source_sha": "99e0d0a",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34034868730",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "execution_mode": "installed-release",
+    "release_sha": "99e0d0a",
+    "healthy": true,
+    "postgres": "healthy",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "rendered_surface": {
+    "view": "Systems",
+    "control": "Send health status",
+    "request_template": "Text me the health of service ${service.service_id}",
+    "boundary": "Health status is read-only context; Core fixes the observation before communication, and provider acceptance is not delivery proof"
+  },
+  "request": "Text me the health of service acceptance-plex.",
+  "result": {
+    "code": "completed",
+    "message": "communication provider accepted and read back the exact message; delivery is not independently proven",
+    "objective_id": "8ed800ed-4303-44a2-b4ca-93156191b3e9",
+    "correlation_id": "0a94f938-2b53-4b9e-a955-77d48c4e97a9",
+    "provider_status": "PROVIDER_ACCEPTED",
+    "provider_readback_proven": true,
+    "delivery_proven": false
+  },
+  "authority": "health observation remained read-only; no restart, service mutation, or delivery authority was added"
+}
