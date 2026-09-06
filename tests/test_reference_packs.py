@@ -19,6 +19,8 @@ from aegis.reference_packs import (
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    FinanceSummaryExecutor,
+    FinanceSummaryVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
     NetworkInventoryWorkspaceExecutor,
@@ -61,6 +63,57 @@ def test_calendar_conflicts_action_reports_bounded_overlap(monkeypatch) -> None:
     assert observation.command_succeeded is True
     assert len(observation.evidence["conflicts"]) == 1
     assert runtime.verifier.verify(observation, card.action.verification).verified is True
+
+
+def test_finance_summary_runtime_reads_and_rechecks_private_snapshot() -> None:
+    payload = {
+        "accounts": [
+            {
+                "account_id": "checking",
+                "owner_id": "alice",
+                "balance_cents": 10000,
+                "currency": "USD",
+            }
+        ],
+        "transactions": [
+            {
+                "transaction_id": "tx-1",
+                "account_id": "checking",
+                "amount_cents": -2500,
+                "occurred_at": "2026-09-01T00:00:00+00:00",
+                "description": "Groceries",
+                "currency": "USD",
+                "status": "posted",
+                "source_id": "fixture",
+            }
+        ],
+        "sources": [],
+    }
+
+    class Connection:
+        def execute(self, _query, _params):
+            return self
+
+        def fetchone(self):
+            return payload, "private-fixture", None
+
+    principal = Principal(id="alice", vault_id="alice-vault")
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "finance.summary.read"
+    )
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=card.action, idempotency_key="finance-1"
+    )
+    observation = FinanceSummaryExecutor(Connection(), principal).execute(request)
+    result = FinanceSummaryVerifier(Connection(), principal).verify(
+        observation, card.action.verification
+    )
+    assert observation.command_succeeded is True
+    assert result.verified is True
+    assert result.evidence["finance_summary_verified"] is True
 
 
 def test_network_probe_to_workspace_uses_fixed_report_and_independent_readback(
@@ -176,6 +229,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "holidays",
         "air-quality",
         "air-quality-reports",
+        "finance",
     }
 
 

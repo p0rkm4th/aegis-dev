@@ -62,6 +62,7 @@ from .devices import (
     device_states_evidence,
 )
 from .documents import configured_document_provider, documents_evidence
+from .finance import PostgresFinanceSnapshotStore, summarize_snapshot
 from .gateway_rpc import (
     CorrelatedRpcClient,
     OpenClawGatewayRpc,
@@ -1185,6 +1186,25 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
                         )
                     },
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
+            "finance",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="finance.summary.read",
+                        capability="finance.summary.read",
+                        required_permissions=("finance.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary=(
+                        "Read the owner's private Finance balance, cash flow, and bounded "
+                        "transaction summary"
+                    ),
+                    relevance=1,
                 ),
             ),
         ),
@@ -2442,6 +2462,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "device-reports": ("devices.read", "workspace.write"),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
+        "finance": ("finance.read",),
         "calendar-task-attention": ("calendar.read", "tasks.read"),
         "calendar-task-reports": ("calendar.read", "tasks.read", "workspace.write"),
         "task-reports": ("tasks.read", "workspace.write"),
@@ -4658,6 +4679,59 @@ class DocumentsVerifier:
             evidence={"document_count": len(document_rows)},
             reason=(
                 "document readback is structurally valid" if verified else "document read failed"
+            ),
+        )
+
+
+class FinanceSummaryExecutor:
+    """Read the current Principal-private Finance snapshot for one objective."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        snapshot = PostgresFinanceSnapshotStore(self.connection).load(self.principal.id)
+        if snapshot is None:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"finance_summary": "unavailable"},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "finance_summary": summarize_snapshot(snapshot),
+                "provider_id": snapshot.provider_id,
+                "captured_at": snapshot.captured_at.isoformat() if snapshot.captured_at else None,
+            },
+            command_succeeded=True,
+        )
+
+
+class FinanceSummaryVerifier:
+    """Re-read private Finance state instead of trusting executor evidence."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        expected = observation.evidence.get("finance_summary")
+        snapshot = PostgresFinanceSnapshotStore(self.connection).load(self.principal.id)
+        actual = summarize_snapshot(snapshot) if snapshot is not None else None
+        verified = (
+            observation.command_succeeded and isinstance(expected, dict) and actual == expected
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"finance_summary_verified": verified, "summary": actual},
+            reason=(
+                "private Finance summary independently reread"
+                if verified
+                else "private Finance summary read failed or changed"
             ),
         )
 
