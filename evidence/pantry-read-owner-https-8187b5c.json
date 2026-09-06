@@ -1,0 +1,9 @@
+{
+  "checkpoint": "pantry-read-owner-https",
+  "source_sha": "8187b5c",
+  "hosted_validation": {"run_id": "34060598641", "conclusion": "success"},
+  "owner_runtime": {"service": "aegis-owner.service", "release_sha": "8187b5c", "access": "authenticated Tailscale HTTPS", "postgresql": "healthy"},
+  "request": "What's in the pantry?",
+  "result": {"state": "completed", "message": "The pantry contains the following items: canned vegetables, pasta, rice, olive oil, and a loaf of bread.", "objective_id": "8a5032ae-76ab-43f4-89ef-cebc2ad7dc84", "correlation_id": "5370bce0-dea1-4ac4-9a3e-ec91086e94e1"},
+  "interpretation": "The natural Pantry read reached the typed Kitchen Pack path and returned owner-scoped canonical inventory; no quantity or authority was invented."
+}

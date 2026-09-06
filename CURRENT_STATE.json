@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "ab76bc5",
+  "state_basis_sha": "8187b5c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "ab76bc5",
-  "deterministic_green_sha": "ab76bc5",
-  "last_pushed_sha": "ab76bc5",
-  "hosted_green_sha": "ab76bc5",
-  "hosted_ci_green_sha": "acdc86d",
+  "repository_head_sha": "8187b5c",
+  "deterministic_green_sha": "8187b5c",
+  "last_pushed_sha": "8187b5c",
+  "hosted_green_sha": "8187b5c",
+  "hosted_ci_green_sha": "8187b5c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "ab76bc5",
+    "commit_sha": "8187b5c",
     "conclusion": "success",
-    "run_id": "34060293111",
+    "run_id": "34060598641",
     "observed_at": "2026-09-06T20:50:00Z"
   },
-  "installed_release_sha": "ab76bc5",
-  "running_release_sha": "ab76bc5",
-  "live_green_sha": "ab76bc5",
+  "installed_release_sha": "8187b5c",
+  "running_release_sha": "8187b5c",
+  "live_green_sha": "8187b5c",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "pack-first-adversarial-follow-up-experiment",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "ab76bc5"
+    "release_sha": "8187b5c"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -128,6 +128,7 @@
     ,"food_grocery_actions": "Kitchen Pack exposes stable-ID grocery mark_purchased and remove actions through the normal authorization/runtime path; independent verifier rereads current scoped records and rejects stale or changed state"
     ,"finance_csv_import": "Bounded owner-controlled CSV import emits integer-minor-unit transactions with raw descriptions, optional provider IDs, source/content hash, coverage dates, duplicate-row detection, and explicit partial/rejected-row reporting; no financial mutation exists"
     ,"food_owner_projection": "Today/Household owner projection now exposes bounded stable grocery records and Pantry quantities with an explicit unknown-quantity display; no private Finance data is included"
+    ,"pantry_read_owner": "Installed owner HTTPS proof answers a natural Pantry inventory question through the typed Kitchen Pack read path with Principal-scoped canonical records"
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
     ,"finance_summary_owner": "Installed owner proof reaches the enabled generic finance.summary.read Pack through the normal interaction path for a natural spend question; the Finance verifier independently rereads the Principal-scoped snapshot and no financial mutation is exposed"
     ,"food_owner_surface": "Promoted owner HTTPS Today payload exposes stable grocery records and nullable Pantry records; the Household view renders grocery state, desired quantity, known Pantry quantity, and explicit quantity-unknown status without treating missing quantity as zero"
@@ -373,7 +374,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the owner Food/Pantry surface using the existing stable-ID canonical state, then dogfood a bounded Food + private Finance derived read without exposing raw ledger details or adding domain-specific Core routing.",
+  "next_action": "Dogfood a bounded Food + private Finance derived read using canonical grocery/Pantry state and deterministic affordability, without exposing raw ledger details or adding domain-specific Core routing.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
