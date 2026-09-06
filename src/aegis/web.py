@@ -1238,6 +1238,18 @@ async function loadToday() {
     heading.textContent = 'Authorized state requiring attention today';
     panel.append(heading);
     panel.append(renderDetailValue(payload));
+    const activeObjectives = payload.active_objectives || [];
+    appendTodaySection(panel, 'Active objectives', activeObjectives.length
+      ? activeObjectives : 'No active objectives.');
+    if (activeObjectives.length) {
+      const objectivesButton = document.createElement('button'); objectivesButton.type = 'button';
+      objectivesButton.textContent = 'Open active objectives';
+      objectivesButton.addEventListener('click', () => {
+        const objectives = document.querySelector('[data-view="objectives"]');
+        if (objectives) objectives.click();
+      });
+      panel.append(objectivesButton);
+    }
     const capabilityNeeds = payload.capability_needs || [];
     appendTodaySection(panel, 'Capability needs requiring attention', capabilityNeeds.length
       ? capabilityNeeds : 'No unresolved capability needs.');

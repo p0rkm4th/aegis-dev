@@ -6126,6 +6126,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Matches candidate capability" in _INDEX_HTML
     assert "Capability needs requiring attention" in _INDEX_HTML
     assert "Review capability needs" in _INDEX_HTML
+    assert "Active objectives" in _INDEX_HTML
+    assert "Open active objectives" in _INDEX_HTML
     assert 'class="intro"' in _INDEX_HTML
     assert 'id="status-badge"' in _INDEX_HTML
     assert "setOutcomeStatus(result.state)" in _INDEX_HTML

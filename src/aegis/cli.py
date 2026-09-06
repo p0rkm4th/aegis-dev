@@ -1003,6 +1003,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
                ORDER BY updated_at DESC LIMIT 50""",
             (principal.id, principal.vault_id, principal.id),
         ).fetchall()
+        active_objectives: list[dict[str, Any]] = []
         capability_needs: list[dict[str, Any]] = []
         for objective_id, objective_state, payload in objective_rows:
             data = payload if isinstance(payload, dict) else json.loads(str(payload))
@@ -1010,6 +1011,14 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             utterance = (
                 data.get("intent", {}).get("utterance", "") if isinstance(data, dict) else ""
             )
+            if str(objective_state).lower() not in {"completed", "complete"}:
+                active_objectives.append(
+                    {
+                        "objective_id": str(objective_id),
+                        "state": str(objective_state),
+                        "utterance": utterance or "Objective without conversational text",
+                    }
+                )
             for need in needs[:8] if isinstance(needs, list) else ():
                 if not isinstance(need, dict) or need.get("status") in {"resolved", "complete"}:
                     continue
@@ -1040,6 +1049,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
                 "groceries": list(cast(tuple[Any, ...], household.get("groceries", ())))[:50],
             },
             "external_calendar": external,
+            "active_objectives": active_objectives[:20],
             "capability_needs": capability_needs,
             "truth_boundary": (
                 "canonical personal/household state is distinct from external calendar evidence; "
