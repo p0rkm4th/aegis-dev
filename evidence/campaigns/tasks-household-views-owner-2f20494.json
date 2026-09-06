@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "tasks-household-owner-surfaces",
+  "source_sha": "2f20494a68c9b3cb8a2848873197dc4265931707",
+  "hosted_validation": {"run_id": "34004541685", "conclusion": "success"},
+  "installed_release_sha": "2f20494a68c9b3cb8a2848873197dc4265931707",
+  "owner_runtime": {
+    "service": "active",
+    "today_keys": ["open_tasks", "completed_tasks", "open_chores", "groceries", "upcoming_shared_events"],
+    "completed_task_count_observed": 20,
+    "rendered_navigation": ["Tasks", "Household"]
+  },
+  "truth_boundary": "The views project authorized canonical state through /api/today; no action authority is implied by visibility."
+}
