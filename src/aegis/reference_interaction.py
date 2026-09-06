@@ -3555,6 +3555,17 @@ def resolve_reference_pre_model(
         )
 
     task_store = PostgresTaskStore(connection)
+    # Explicit outbound requests must reach the typed communication action
+    # resolver before the broader read-only planning fast path can claim the
+    # same task vocabulary. Recipient grounding and provider authorization
+    # still happen later through the normal Core path.
+    explicit_task_message = re.fullmatch(
+        r"(?:send|text) me (?:my )?(?:open )?(?:tasks|to-?dos)[?!.,]?",
+        utterance.strip(),
+        flags=re.IGNORECASE,
+    )
+    if explicit_task_message is not None:
+        return None
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
