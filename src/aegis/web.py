@@ -1520,6 +1520,17 @@ async function loadTasks() {
     sendBoundary.textContent = 'Canonical task state is fixed before communication; provider acceptance is not delivery proof.';
     panel.append(sendTasks, sendBoundary);
     appendTodaySection(panel, 'Completed', canonical.completed_tasks || []);
+    const saveCompleted = document.createElement('button'); saveCompleted.type = 'button';
+    saveCompleted.textContent = 'Save completed tasks to Workspace';
+    saveCompleted.addEventListener('click', () => {
+      document.getElementById('utterance').value =
+        'Save my completed tasks to workspace as completed.md';
+      document.getElementById('chat').requestSubmit();
+    });
+    const completedBoundary = document.createElement('p'); completedBoundary.className = 'muted';
+    completedBoundary.textContent =
+      'Completed task history is read-only canonical context; the scoped Workspace report is independently verified.';
+    panel.append(saveCompleted, completedBoundary);
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.truth_boundary || 'Task state is canonical authorized state.';
     panel.append(boundary);
