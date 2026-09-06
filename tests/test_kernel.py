@@ -2030,7 +2030,10 @@ def test_three_reference_packs_use_one_generic_execution_pipeline():
     executor = ReferenceExecutor(world)
     verifier = ReferenceVerifier(world)
     principal = Principal(id="alice", vault_id="alice-vault")
-    for pack in reference_packs()[:3]:
+    representative_pack_ids = ("tasks", "kitchen", "homelab")
+    for pack in tuple(
+        pack for pack in reference_packs() if pack.manifest.pack_id in representative_pack_ids
+    ):
         card = pack.cards[0]
         action = card.action.model_copy(
             update={

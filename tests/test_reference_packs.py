@@ -98,6 +98,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "task-reports",
         "today-reports",
         "household-reports",
+        "kitchen-reports",
         "communications",
         "documents",
         "tasks",

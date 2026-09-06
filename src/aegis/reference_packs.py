@@ -135,6 +135,10 @@ def prepare_reference_action(
         target_path = args.get("target_path")
         if isinstance(target_path, str) and target_path.strip():
             files = {target_path: _chores_workspace_content(connection, principal)}
+    elif action.action_id == "kitchen-reports.groceries_to_workspace" and connection is not None:
+        target_path = args.get("target_path")
+        if isinstance(target_path, str) and target_path.strip():
+            files = {target_path: _groceries_workspace_content(connection, principal)}
     elif action.action_id == "communication-drafts.messages.draft":
         if args.get("body_source") == "bounded.research":
             values = (
@@ -683,6 +687,18 @@ def _chores_workspace_content(connection: Any, principal: Principal) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _groceries_workspace_content(connection: Any, principal: Principal) -> str:
+    """Serialize the authorized canonical grocery list into a bounded artifact."""
+
+    items = list(PostgresHouseholdStore(connection).list_groceries(principal))[:100]
+    lines = ["# Grocery list", ""]
+    if not items:
+        lines.append("- None")
+    else:
+        lines.extend(f"- {item}" for item in items)
+    return "\n".join(lines) + "\n"
+
+
 @dataclass(frozen=True)
 class _ReferencePackSpec:
     pack_id: str
@@ -846,6 +862,31 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     relevance=1,
                     semantic_scope="kitchen.shopping_list",
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
+            "kitchen-reports",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen-reports.groceries_to_workspace",
+                        capability="kitchen-reports.groceries_to_workspace",
+                        required_permissions=("kitchen.read", "workspace.write"),
+                        verification=VerificationContract(kind="custom"),
+                    ),
+                    summary=(
+                        "Save the canonical grocery list as an independently verified "
+                        "Workspace report"
+                    ),
+                    relevance=1,
+                    argument_keys=("target_path",),
+                    argument_grounding={
+                        "target_path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
                 ),
             ),
         ),
@@ -1945,6 +1986,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "today-reports": ("household.read", "tasks.read", "workspace.write"),
         "household-reports": ("household.read", "workspace.write"),
         "kitchen": ("kitchen.write", "kitchen.read"),
+        "kitchen-reports": ("kitchen.read", "workspace.write"),
         "homelab": ("homelab.service.restart", "homelab.read"),
         "homelab-reports": ("homelab.read", "workspace.write"),
         "homelab-research": ("homelab.read", "research.read"),
@@ -2374,6 +2416,66 @@ class ChoresWorkspaceVerifier:
                 "household chores Workspace artifact independently verified"
                 if verified
                 else f"household chores Workspace verification failed: {detail}"
+            ),
+        )
+
+
+class GroceryWorkspaceExecutor:
+    """Write the canonical grocery list into the scoped Workspace."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        target_path = request.action.arguments.get("target_path")
+        if not isinstance(target_path, str) or not target_path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"grocery_workspace": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            content = _groceries_workspace_content(self.connection, self.principal)
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_objective(self.principal.id, request.objective_id)
+            artifact = workspace.write_artifact(
+                {target_path: content}, request.action_id, lambda current: None
+            )
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"grocery_workspace": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "composition": "groceries_to_workspace",
+                "files": list(artifact.files),
+                "executor_local_validated": artifact.validated,
+            },
+            command_succeeded=True,
+        )
+
+
+class GroceryWorkspaceVerifier:
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        verified, detail = _verify_workspace_expectation(self.principal, contract)
+        verified = observation.command_succeeded and verified
+        return VerificationResult(
+            verified=verified,
+            evidence={"grocery_workspace_verified": verified, "postcondition": detail},
+            reason=(
+                "grocery Workspace artifact independently verified"
+                if verified
+                else f"grocery Workspace verification failed: {detail}"
             ),
         )
 

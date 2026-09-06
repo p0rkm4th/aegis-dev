@@ -227,6 +227,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "groceries-to-workspace",
+            "label": "Groceries → Workspace",
+            "description": "Preserve the canonical grocery list as a verified scoped artifact.",
+            "surfaces": ("Food", "Workspace"),
+            "authority": (
+                "grocery read + scoped Workspace write; no grocery mutation, Core authorization "
+                "and independent verification required"
+            ),
+        },
+        {
             "id": "calendar-task-attention-to-communication",
             "label": "Calendar + Tasks attention → Communication",
             "description": (

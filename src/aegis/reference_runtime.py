@@ -73,6 +73,8 @@ from .reference_packs import (
     DocumentWorkspaceVerifier,
     FixtureHomelabRestartExecutor,
     FixtureHomelabRestartVerifier,
+    GroceryWorkspaceExecutor,
+    GroceryWorkspaceVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
     HomelabHealthWorkspaceExecutor,
@@ -422,6 +424,19 @@ def default_runtime_registry(
             ),
         )
 
+    def grocery_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            GroceryWorkspaceExecutor(connection, principal),
+            GroceryWorkspaceVerifier(principal),
+            {
+                "kitchen.read": frozenset({Role.OWNER, Role.MEMBER}),
+                "workspace.write": frozenset({Role.OWNER}),
+            },
+            prepare=lambda action, current_principal, objective_id: prepare_reference_action(
+                action, current_principal, objective_id, connection
+            ),
+        )
+
     def weather_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -716,6 +731,7 @@ def default_runtime_registry(
         "task-reports.completed_to_workspace": completed_task_workspace_runtime,
         "today-reports.to_workspace": today_workspace_runtime,
         "household-reports.chores_to_workspace": chores_workspace_runtime,
+        "kitchen-reports.groceries_to_workspace": grocery_workspace_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
         "weather-reports.forecast.to_workspace": weather_workspace_runtime,
