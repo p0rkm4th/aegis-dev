@@ -816,7 +816,7 @@ async function loadDevices() {
         const research = document.createElement('button');
         research.type = 'button'; research.textContent = 'Research state';
         research.addEventListener('click', () => {
-          document.getElementById('utterance').value = `Find documented reasons why ${entity} is currently off`;
+          document.getElementById('utterance').value = `Research the current state of ${entity} for why it is off`;
           document.getElementById('chat').requestSubmit();
         });
         row.append(research, ' ');

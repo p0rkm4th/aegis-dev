@@ -1064,6 +1064,20 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    device_research = re.fullmatch(
+        r"research the current state of (?P<entity_id>[a-zA-Z0-9_.:-]+) for (?P<query>.+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if device_research is not None:
+        card = manager.action_card("devices", "devices.states.research")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": device_research.groupdict()})
+            }
+        )
     network_probe = re.fullmatch(
         r"probe (?P<address>[a-zA-Z0-9_.:-]+) in scope (?P<scope_id>[a-zA-Z0-9_.:-]+) "
         r"on port (?P<port>[0-9]{1,5})",

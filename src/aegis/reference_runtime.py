@@ -42,6 +42,8 @@ from .reference_packs import (
     CommunicationsVerifier,
     DeviceControlExecutor,
     DeviceControlVerifier,
+    DeviceResearchExecutor,
+    DeviceResearchVerifier,
     DeviceSnapshotWorkspaceExecutor,
     DeviceSnapshotWorkspaceVerifier,
     DeviceStatesExecutor,
@@ -332,6 +334,14 @@ def default_runtime_registry(
             {"devices.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
+    def device_research_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection, principal
+        return ActionRuntime(
+            DeviceResearchExecutor(),
+            DeviceResearchVerifier(),
+            {"devices.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
     def device_control_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection
         gateway = (
@@ -424,6 +434,7 @@ def default_runtime_registry(
         "communications.messages.send": communications_send_runtime,
         "communication-drafts.messages.draft": communication_draft_runtime,
         "devices.states.list": devices_runtime,
+        "devices.states.research": device_research_runtime,
         "device-controls.devices.command.execute": device_control_runtime,
         "device-reports.devices.snapshot_to_workspace": device_snapshot_workspace_runtime,
         "documents.export_to_workspace": document_workspace_runtime,
