@@ -1,0 +1,19 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "weather-live-owner",
+  "source_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "hosted_validation": {"run_id": "34009193737", "conclusion": "success"},
+  "installed_release_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
+  "owner_runtime": {
+    "service": "active",
+    "weather_endpoint": "/api/weather",
+    "provider_state": "open_meteo",
+    "coordinates": "41.881832,-87.623177",
+    "temperature_c": 22.7,
+    "apparent_temperature_c": 24.1,
+    "weather_code": 2,
+    "observed_at": "2026-09-06T03:30"
+  },
+  "verification": "The installed owner runtime returned current conditions from the live Open-Meteo HTTPS provider; no fixture override was active. The provider response was parsed through the bounded Weather adapter.",
+  "authority_boundary": "Weather is public evidence only; this read does not create personal truth or mutation authority."
+}

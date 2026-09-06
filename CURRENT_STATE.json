@@ -19,7 +19,7 @@
   "running_release_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
   "live_green_sha": "e1e28b792d39e01b9110a1349d0530ba37ef0d4b",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-weather-read",
+  "active_checkpoint": "daily-driver-alpha-weather-live",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -154,7 +154,7 @@
     ,"Weather is a new provider-neutral public-read capability with explicit coordinate grounding, deterministic fixture coverage, HTTPS-only Open-Meteo adapter validation, owner Weather view, and Pack-driven Constellation representation; current owner proof is fixture-backed and not a live external integration"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The owner now has a bounded Weather view and weather.current.read capability for explicit coordinates, backed by a deterministic fixture in the installed runtime and an HTTPS-only Open-Meteo adapter seam; its public evidence boundary is explicit and it is represented by the generic Weather Pack in Constellation. Calendar conflict follow-up routes to ordinary Tasks, while Calendar/Devices/Communications/Workspace/Research/CapabilityNeed surfaces remain available. Live OpenClaw, Google, and Home Assistant remain pending.",
+  "daily_driver_checkpoint": "The owner now has a bounded Weather view and weather.current.read capability for explicit coordinates, independently exercised against the live HTTPS Open-Meteo provider with current provenance and an explicit public-evidence boundary; deterministic fixture coverage remains available and the generic Weather Pack is represented in Constellation. Calendar conflict follow-up routes to ordinary Tasks, while live OpenClaw, Google, and Home Assistant remain pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -176,7 +176,7 @@
     "groceries": "VERIFIED_LIVE",
     "calendar_read": "INSTALLED",
     "calendar_write": "INSTALLED",
-    "weather": "FIXTURE",
+    "weather": "LIVE",
     "documents": "INSTALLED",
     "communications_read": "INSTALLED",
     "communications_send": "FIXTURE",
@@ -189,7 +189,7 @@
     "constellation": "INSTALLED"
   },
   "independently_verified_write_capabilities": 7,
-  "live_external_integrations": 0,
+  "live_external_integrations": 1,
   "voluntarily_useful_owner_workflows": 35,
   "owner_visible_capability_surfaces": 22,
   "general_purpose_primitives": 1,
@@ -198,7 +198,7 @@
     "owner_visible_views": 17,
     "usable_capability_families": 8,
     "verified_write_capabilities": 7,
-    "external_integrations": 0,
+    "external_integrations": 1,
     "cross_domain_compositions": 18,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
@@ -206,6 +206,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical after the bounded Weather read slice; preserve truthful fixture/public-provider states and continue toward live communications, calendar, device, and homelab utility where configured.",
-  "history_artifact": "evidence/weather-read-owner-e1e28b7.json",
+  "history_artifact": "evidence/weather-live-owner-e1e28b7.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
