@@ -916,6 +916,29 @@ function appendTodaySection(panel, title, value) {
   const heading = document.createElement('h3'); heading.textContent = title;
   section.append(heading, renderDetailValue(value)); panel.append(section);
 }
+function appendCompletableSection(panel, title, items, utterancePrefix) {
+  const section = document.createElement('section'); section.className = 'detail-card';
+  const heading = document.createElement('h3'); heading.textContent = title; section.append(heading);
+  if (!items.length) {
+    const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = 'None recorded.';
+    section.append(empty);
+  }
+  items.forEach(item => {
+    const row = document.createElement('p');
+    row.append(document.createTextNode(item.title || 'Untitled'));
+    if (item.due_at) row.append(document.createTextNode(` · due ${item.due_at}`));
+    const complete = document.createElement('button'); complete.type = 'button';
+    complete.textContent = 'Complete'; complete.style.marginLeft = '.5rem';
+    complete.addEventListener('click', () => {
+      const titleText = String(item.title || '').trim(); if (!titleText) return;
+      const completionSuffix = utterancePrefix.includes('chore') ? ' as complete' : '';
+      document.getElementById('utterance').value = `${utterancePrefix} ${titleText}${completionSuffix}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    row.append(complete); section.append(row);
+  });
+  panel.append(section);
+}
 async function loadTasks() {
   const panel = document.getElementById('detail'); panel.replaceChildren();
   try {
@@ -923,7 +946,7 @@ async function loadTasks() {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Tasks unavailable.');
     const canonical = payload.canonical || {};
-    appendTodaySection(panel, 'Open and due', canonical.open_tasks || []);
+    appendCompletableSection(panel, 'Open and due', canonical.open_tasks || [], 'Complete the task');
     appendTodaySection(panel, 'Completed', canonical.completed_tasks || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.truth_boundary || 'Task state is canonical authorized state.';
@@ -937,7 +960,7 @@ async function loadHousehold() {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'Household unavailable.');
     const canonical = payload.canonical || {};
-    appendTodaySection(panel, 'Open chores', canonical.open_chores || []);
+    appendCompletableSection(panel, 'Open chores', canonical.open_chores || [], 'Mark the chore');
     appendTodaySection(panel, 'Groceries', canonical.groceries || []);
     appendTodaySection(panel, 'Upcoming shared events', canonical.upcoming_shared_events || []);
     const boundary = document.createElement('p'); boundary.className = 'muted';
