@@ -1065,6 +1065,22 @@ async function loadDocuments() {
       ? `${documents.length} authorized document(s)`
       : 'No authorized documents are currently visible.';
     panel.append(heading);
+    const searchSection = document.createElement('section'); searchSection.className = 'detail-card';
+    const searchTitle = document.createElement('h3'); searchTitle.textContent = 'Search authorized documents';
+    const searchForm = document.createElement('form'); searchForm.setAttribute('aria-label', 'Search authorized documents');
+    const searchInput = document.createElement('input'); searchInput.type = 'search'; searchInput.required = true;
+    searchInput.placeholder = 'Search by text'; searchInput.setAttribute('aria-label', 'Document search');
+    const searchSubmit = document.createElement('button'); searchSubmit.type = 'submit'; searchSubmit.textContent = 'Search';
+    searchForm.append(searchInput, searchSubmit);
+    searchForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const query = searchInput.value.trim(); if (!query) return;
+      document.getElementById('utterance').value = `Find my documents for ${query}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    const searchBoundary = document.createElement('p'); searchBoundary.className = 'muted';
+    searchBoundary.textContent = 'Search is bounded to documents authorized for the current owner.';
+    searchSection.append(searchTitle, searchForm, searchBoundary); panel.append(searchSection);
     documents.forEach(documentRecord => {
       const card = document.createElement('section'); card.className = 'detail-card';
       const title = document.createElement('h3');
