@@ -940,15 +940,26 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         now = datetime.now(timezone.utc)
         tasks = PostgresTaskStore(connection).list(principal)
         household = PostgresHouseholdStore(connection).read_snapshot(principal)
-        open_tasks = [
-            {
-                "title": task.title,
-                "due_at": task.due_at.isoformat() if task.due_at else None,
-                "status": task.status.value,
-            }
-            for task in tasks
+        open_task_rows: list[tuple[int, dict[str, object]]] = [
+            (
+                index,
+                {
+                    "title": task.title,
+                    "due_at": task.due_at.isoformat() if task.due_at else None,
+                    "status": task.status.value,
+                },
+            )
+            for index, task in enumerate(tasks)
             if task.status.value == "open"
-        ][:20]
+        ]
+        open_task_rows.sort(
+            key=lambda item: (
+                item[1]["due_at"] is None,
+                item[1]["due_at"] or "",
+                -item[0],
+            )
+        )
+        open_tasks = [item[1] for item in open_task_rows[:20]]
         completed_tasks = [
             {
                 "title": task.title,
