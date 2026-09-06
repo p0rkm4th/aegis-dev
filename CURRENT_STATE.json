@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
+  "state_basis_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5aa43cc690991b01cdc790150a69af975fc277fe",
-  "deterministic_green_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
-  "last_pushed_sha": "5aa43cc690991b01cdc790150a69af975fc277fe",
-  "hosted_green_sha": "5aa43cc690991b01cdc790150a69af975fc277fe",
-  "hosted_ci_green_sha": "5aa43cc690991b01cdc790150a69af975fc277fe",
+  "repository_head_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+  "deterministic_green_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+  "last_pushed_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+  "hosted_green_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+  "hosted_ci_green_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "5aa43cc690991b01cdc790150a69af975fc277fe",
+    "commit_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
     "conclusion": "success",
-    "run_id": "34001635991",
+    "run_id": "34002096370",
     "observed_at": "2026-09-06T02:30:00Z"
   },
-  "installed_release_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
-  "running_release_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
-  "live_green_sha": "7460099ef21fc7f9919ef05b75715a2b7318f1bb",
+  "installed_release_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+  "running_release_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
+  "live_green_sha": "d04e5a3a068f20233fbc28b999c04c284f02a50e",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-document-search-workspace",
   "checkpoint_status": "complete",
@@ -118,6 +118,7 @@
     ,"Daily driver owner surface exposes release-basis capability states, proven breadth metrics, and provider gates; descriptive readiness does not grant action authority"
     ,"documents.search is a bounded generic authorized read action with explicit query grounding and result/snippet limits"
     ,"documents.search_to_workspace composes authorized document search into a pre-execution-fixed, independently verified scoped Workspace artifact"
+    ,"Devices view offers a bounded state-to-research affordance that sanitizes entity IDs from public queries and retains authorized observed state as private mixed evidence; owner proof remains partial because the current model/provider path did not complete synthesis"
   ],
   "current_blockers": [],
   "daily_driver_checkpoint": "The owner can inspect and search authorized documents, save bounded search results into independently verified Workspace artifacts, and inspect truthful Daily driver readiness; live OpenClaw, Google, and Home Assistant providers remain pending.",
@@ -155,22 +156,22 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 0,
-  "voluntarily_useful_owner_workflows": 29,
+  "voluntarily_useful_owner_workflows": 30,
   "owner_visible_capability_surfaces": 18,
   "general_purpose_primitives": 1,
-  "cross_capability_workflows": 15,
+  "cross_capability_workflows": 16,
   "breadth_scoreboard": {
     "owner_visible_views": 16,
     "usable_capability_families": 7,
     "verified_write_capabilities": 7,
     "external_integrations": 0,
-    "cross_domain_compositions": 15,
+    "cross_domain_compositions": 16,
     "capability_need_resolutions": 3,
     "general_purpose_primitives": 1,
     "owner_workflows_completed": 28,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Advance the next owner-useful provider-backed or homelab/device workflow; live OpenClaw, Google, and Home Assistant remain pending, and document search is now available for composition.",
+  "next_action": "Advance the next owner-useful provider-backed or homelab/device workflow; the device-state research affordance is partial, while live OpenClaw, Google, and Home Assistant remain pending.",
   "history_artifact": "evidence/campaigns/document-search-workspace-owner-7460099.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
