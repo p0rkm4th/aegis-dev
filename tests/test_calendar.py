@@ -12,11 +12,18 @@ from aegis.calendar import (
     calendar_events_evidence,
     configured_calendar_provider,
 )
-from aegis.contracts import ExecutionRequest, Principal
+from aegis.contracts import (
+    ExecutionRequest,
+    ExternalEffectAssurance,
+    Observation,
+    Principal,
+    VerificationContract,
+)
 from aegis.documents import Document, FixtureDocumentProvider, documents_evidence
 from aegis.reference_packs import (
     CalendarCancelExecutor,
     CalendarCancelVerifier,
+    CalendarCreateVerifier,
     prepare_reference_action,
     reference_bundles,
 )
@@ -226,6 +233,39 @@ def test_fixture_calendar_can_reconcile_create_by_idempotency_key() -> None:
     )
     created = provider.create_event(event, "correlation:calendar.events.create")
     assert provider.find_event_by_idempotency_key("correlation:calendar.events.create") == created
+
+
+def test_calendar_create_reconciliation_upgrades_unknown_without_mutation() -> None:
+    provider = FixtureCalendarWriteProvider()
+    provider.create_event(
+        CalendarEvent(
+            "pending",
+            "Dinner",
+            datetime(2026, 9, 7, 19, tzinfo=timezone.utc),
+            datetime(2026, 9, 7, 20, tzinfo=timezone.utc),
+        ),
+        "correlation:calendar.events.create",
+    )
+    contract = VerificationContract(
+        kind="custom",
+        expected={
+            "idempotency_key": "correlation:calendar.events.create",
+            "title": "Dinner",
+            "starts_at": "2026-09-07T19:00:00+00:00",
+            "ends_at": "2026-09-07T20:00:00+00:00",
+        },
+    )
+    result = CalendarCreateVerifier(provider).reconcile(
+        Observation(
+            execution_id=uuid4(),
+            command_succeeded=False,
+            assurance=ExternalEffectAssurance.OUTCOME_UNKNOWN,
+            evidence={"outcome": "unknown"},
+        ),
+        contract,
+    )
+    assert result.verified is True
+    assert result.evidence["provider_reconciliation"] is True
 
 
 def test_calendar_cancel_reads_back_provider_absence_and_is_idempotent() -> None:

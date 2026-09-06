@@ -1570,6 +1570,7 @@ def test_executor_exception_is_persisted_as_unknown_and_not_replayed():
     assert second == first
     assert executor.calls == 1
     assert first.evidence["outcome"] == "unknown"
+    assert first.evidence["assurance"] == "OUTCOME_UNKNOWN"
     assert first.evidence["error_type"] == "RuntimeError"
     assert "private gateway detail" not in str(first)
 
