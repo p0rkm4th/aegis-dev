@@ -19,8 +19,8 @@ from importlib import import_module
 from ssl import create_default_context
 from typing import Callable, Protocol, cast
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urljoin, urlsplit, urlunsplit
-from urllib.request import urlopen
+from urllib.parse import quote, unquote, urlencode, urljoin, urlsplit, urlunsplit
+from urllib.request import Request, urlopen
 
 MAX_QUERY_LENGTH = 500
 MAX_CANDIDATES = 5
@@ -351,6 +351,99 @@ class SearxngSearchProvider:
         return tuple(candidates)
 
 
+class WikipediaSearchProvider:
+    """Bounded public Wikimedia search with article pages as evidence sources."""
+
+    provider_id = "wikipedia"
+    endpoint = "https://en.wikipedia.org/w/api.php"
+
+    def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]:
+        query = urlencode(
+            {
+                "action": "query",
+                "list": "search",
+                "srsearch": request.query,
+                "format": "json",
+                "srlimit": request.limit,
+            }
+        )
+        try:
+            http_request = Request(
+                f"{self.endpoint}?{query}",
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "AEGIS bounded research/1.0 (+https://www.mediawiki.org/)",
+                },
+            )
+            with urlopen(http_request, timeout=10.0) as response:
+                body = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(body) > MAX_RESPONSE_BYTES:
+                raise RuntimeError("Wikimedia search response exceeds the bound")
+            payload = json.loads(body)
+        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise RuntimeError("Wikimedia search failed") from exc
+        raw_results = payload.get("query", {}).get("search") if isinstance(payload, dict) else None
+        if not isinstance(raw_results, list):
+            raise RuntimeError("Wikimedia returned no usable search results")
+        candidates: list[SearchCandidate] = []
+        for item in raw_results[: request.limit]:
+            if not isinstance(item, dict) or not isinstance(item.get("title"), str):
+                continue
+            title = item["title"].strip()
+            if not title:
+                continue
+            candidates.append(
+                SearchCandidate(
+                    title=title[:500],
+                    url=(
+                        "https://en.wikipedia.org/wiki/"
+                        + quote(title.replace(" ", "_"), safe="()'!,._-")
+                    ),
+                    snippet=(
+                        str(item["snippet"])[:2_000]
+                        if isinstance(item.get("snippet"), str)
+                        else None
+                    ),
+                )
+            )
+        if not candidates:
+            raise RuntimeError("Wikimedia returned no usable search results")
+        return tuple(candidates)
+
+
+class WikipediaDocumentFetcher:
+    """Fetch bounded article extracts through Wikimedia's documented REST API."""
+
+    def fetch(self, url: str) -> FetchedDocument:
+        parsed = urlsplit(url)
+        if parsed.scheme != "https" or parsed.hostname != "en.wikipedia.org":
+            raise ValueError("Wikimedia source host is not allowed")
+        prefix = "/wiki/"
+        if not parsed.path.startswith(prefix) or not parsed.path[len(prefix) :]:
+            raise ValueError("Wikimedia source path is invalid")
+        title = unquote(parsed.path[len(prefix) :])
+        api_url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + quote(title, safe="")
+        try:
+            request = Request(
+                api_url,
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "AEGIS bounded research/1.0 (+https://www.mediawiki.org/)",
+                },
+            )
+            with urlopen(request, timeout=10.0) as response:
+                body = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(body) > MAX_RESPONSE_BYTES:
+                raise ValueError("Wikimedia source exceeds the response bound")
+            payload = json.loads(body)
+        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+            raise ResearchUnavailable("Wikimedia article fetch failed") from exc
+        text = payload.get("extract") if isinstance(payload, dict) else None
+        if not isinstance(text, str) or not text.strip():
+            raise ResearchUnavailable("Wikimedia article has no readable extract")
+        return FetchedDocument(url, "text/plain", text[:MAX_EXTRACTED_TEXT].encode("utf-8"))
+
+
 class ResearchUnavailable(RuntimeError):
     """No bounded external evidence could be obtained."""
 
@@ -457,6 +550,12 @@ def configured_research_service() -> ResearchService:
             FixtureContentExtractor(),
         )
     endpoint = os.environ.get("AEGIS_SEARCH_ENDPOINT")
+    if os.environ.get("AEGIS_RESEARCH_WIKIPEDIA", "").casefold() in {"1", "true", "yes"}:
+        return ResearchService(
+            WikipediaSearchProvider(),
+            WikipediaDocumentFetcher(),
+            TrafilaturaContentExtractor(),
+        )
     if not endpoint:
         raise ResearchUnavailable("research provider is not configured")
     return ResearchService(
