@@ -1,25 +1,25 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
+  "state_basis_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
-  "deterministic_green_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
-  "last_pushed_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
-  "hosted_green_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
-  "hosted_ci_green_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
+  "repository_head_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "deterministic_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "last_pushed_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "hosted_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "hosted_ci_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
+    "commit_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
     "conclusion": "success",
-    "run_id": "34014400371",
+    "run_id": "34014676486",
     "observed_at": "2026-09-06T04:15:00Z"
   },
-  "installed_release_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
-  "running_release_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
-  "live_green_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f",
+  "installed_release_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "running_release_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
+  "live_green_sha": "419b623d2457d89f96973b0103ffe1603ae8c548",
   "active_milestone": "BREADTH-EXPANSION",
-  "active_checkpoint": "daily-driver-alpha-workspace-file-read",
+  "active_checkpoint": "daily-driver-alpha-workspace-file-read-content",
   "checkpoint_status": "complete",
   "current_checkpoint": "daily-driver-alpha-next-utility-slice",
   "active_campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "994becdab2b77f9a8bfb7e091ab698c4e542fb4f"
+    "release_sha": "419b623d2457d89f96973b0103ffe1603ae8c548"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -119,6 +119,7 @@
     ,"owner proof saved a live Open-Meteo one-day forecast through the Weather Reports Pack into reports/tomorrow.md with independent scoped Workspace verification; public weather remains non-canonical"
     ,"Workspace now exposes a generic workspace.artifacts.list read capability; installed owner proof completed 'Show my workspace artifacts' after explicit workspace.read Pack approval with Principal-scoped inventory"
     ,"Workspace now exposes a generic workspace.artifact.read action with explicit Workspace ID/path grounding; installed owner proof read reports/tomorrow.md through Principal-scoped Core verification"
+    ,"Workspace artifact reads now return bounded verified content through the owner conversation; the read remains Principal-scoped and read-only"
     ,"Weather Reports is Pack-driven in the owner Packs and Constellation surfaces; explicit approval is required for its weather.read + workspace.write boundary"
     ,"owner proof exported authorized Alpha Handbook into handbook-copy.md through the natural document route with independent scoped Workspace verification"
     ,"owner proof summarized authorized Alpha Handbook into handbook-summary.md through the bounded transformation route with independent scoped Workspace verification"
@@ -212,7 +213,7 @@
   },
   "independently_verified_write_capabilities": 7,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 46,
+  "voluntarily_useful_owner_workflows": 47,
   "owner_visible_capability_surfaces": 26,
   "general_purpose_primitives": 1,
   "cross_capability_workflows": 25,
@@ -228,6 +229,6 @@
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next owner-useful vertical: inspect communications/calendar provider availability, then advance the cheapest live provider or independently verified consequential path. Preserve truthful pending states and keep breadth ahead of semantic micro-tuning.",
-  "history_artifact": "evidence/workspace-file-read-owner-994becd.json",
+  "history_artifact": "evidence/workspace-file-read-content-owner-419b623.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
