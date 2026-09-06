@@ -877,6 +877,24 @@ async function loadCalendar() {
     });
     draftSection.append(draftTitle, draftForm); panel.append(draftSection);
     panel.append(renderDetailValue(events));
+    if (events.length) {
+      const cancelSection = document.createElement('section'); cancelSection.className = 'detail-card';
+      const cancelTitle = document.createElement('h3'); cancelTitle.textContent = 'Cancel an authorized event';
+      const cancelNote = document.createElement('p'); cancelNote.className = 'muted';
+      cancelNote.textContent = 'Cancellation uses the provider event ID from the authorized list and requires normal Core authorization plus absence readback.';
+      cancelSection.append(cancelTitle, cancelNote);
+      events.forEach(eventRecord => {
+        if (!eventRecord.event_id) return;
+        const button = document.createElement('button'); button.type = 'button';
+        button.textContent = `Cancel ${eventRecord.title || eventRecord.event_id}`;
+        button.addEventListener('click', () => {
+          document.getElementById('utterance').value = `Cancel calendar event ${eventRecord.event_id}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        cancelSection.append(button);
+      });
+      panel.append(cancelSection);
+    }
     const attention = payload.task_attention || [];
     const attentionSection = document.createElement('section'); attentionSection.className = 'detail-card';
     const attentionTitle = document.createElement('h3'); attentionTitle.textContent = 'Tasks before shared events';

@@ -1308,6 +1308,20 @@ def _deterministic_composition_action(
         text,
         flags=re.IGNORECASE,
     )
+    calendar_cancel = re.fullmatch(
+        r"(?:cancel|delete) (?:the )?(?:calendar )?event (?P<event_id>[a-zA-Z0-9:._-]+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if calendar_cancel is not None:
+        card = manager.action_card("calendar", "calendar.events.cancel")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(update={"arguments": calendar_cancel.groupdict()})
+            }
+        )
     natural_calendar = re.fullmatch(
         r"(?:put|add) (?P<title>.+?) on my calendar (?P<day>today|tomorrow) at "
         r"(?P<hour>\d{1,2})(?::(?P<minute>\d{2}))?\s*(?P<ampm>am|pm)",

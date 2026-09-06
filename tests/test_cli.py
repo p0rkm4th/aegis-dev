@@ -4276,6 +4276,21 @@ def test_browser_app_calendar_surface_exposes_read_only_task_attention():
     assert "Read-only Calendar + Tasks attention" in html
 
 
+def test_browser_app_calendar_surface_exposes_provider_readback_cancellation():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Cancel an authorized event" in html
+    assert "Cancel calendar event ${eventRecord.event_id}" in html
+    assert "absence readback" in html
+
+
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
     principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     seen: list[object] = []

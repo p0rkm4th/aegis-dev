@@ -13,7 +13,12 @@ from aegis.calendar import (
 )
 from aegis.contracts import ExecutionRequest, Principal
 from aegis.documents import Document, FixtureDocumentProvider, documents_evidence
-from aegis.reference_packs import reference_bundles
+from aegis.reference_packs import (
+    CalendarCancelExecutor,
+    CalendarCancelVerifier,
+    prepare_reference_action,
+    reference_bundles,
+)
 from aegis.reference_runtime import default_runtime_registry
 
 
@@ -182,3 +187,36 @@ def test_calendar_create_reads_back_the_provider_event_and_is_idempotent() -> No
     assert verification.verified is True
     assert verification.evidence["provider_readback"] is True
     assert isinstance(runtime.executor.provider, FixtureCalendarWriteProvider)
+
+
+def test_calendar_cancel_reads_back_provider_absence_and_is_idempotent() -> None:
+    provider = FixtureCalendarWriteProvider()
+    created = provider.create_event(
+        CalendarEvent("pending", "Dinner", datetime(2026, 9, 7, tzinfo=timezone.utc)),
+        "cancel-calendar-1",
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "calendar.events.cancel"
+    )
+    principal = Principal(id="alice", vault_id="vault")
+    objective_id = uuid4()
+    action = card.action.model_copy(update={"arguments": {"event_id": created.event_id}})
+    prepared = prepare_reference_action(action, principal, objective_id)
+    executor = CalendarCancelExecutor(provider)
+    verifier = CalendarCancelVerifier(provider)
+    request = ExecutionRequest(
+        objective_id=objective_id,
+        action_id=uuid4(),
+        action=prepared,
+        idempotency_key="cancel-calendar-1",
+    )
+    observation = executor.execute(request)
+    result = verifier.verify(observation, prepared.verification)
+    replay = executor.execute(request)
+    assert result.verified is True
+    assert result.evidence["provider_readback_absent"] is True
+    assert replay.command_succeeded is True
+    assert provider.get_event(created.event_id) is None
