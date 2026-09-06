@@ -1894,6 +1894,41 @@ def _deterministic_composition_action(
                     )
                 }
             )
+    document_send_me = re.fullmatch(
+        r"(?:send|text) me the document (?P<title>.+?)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if document_send_me is not None:
+        matches = [
+            document
+            for document in configured_document_provider().list_documents()
+            if document.title.casefold() == document_send_me.group("title").strip().casefold()
+        ]
+        try:
+            approved_targets = configured_communication_targets()
+        except ValueError:
+            approved_targets = frozenset()
+        if len(matches) == 1 and approved_targets is not None and len(approved_targets) == 1:
+            target, channel, account = next(iter(approved_targets))
+            card = manager.action_card("communications", "communications.messages.send")
+            if card is None:
+                return None
+            return card.model_copy(
+                update={
+                    "action": card.action.model_copy(
+                        update={
+                            "arguments": {
+                                "target": target,
+                                "channel": channel,
+                                "account": account,
+                                "body_source": "canonical.document",
+                                "document_id": matches[0].document_id,
+                            }
+                        }
+                    )
+                }
+            )
     research_send_me = re.fullmatch(
         r"(?:send|text) me (?:the )?research (?:on|about) (?P<query>.+?)[?!.,]?",
         text,

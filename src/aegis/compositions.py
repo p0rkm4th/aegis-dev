@@ -103,6 +103,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "document-to-communication",
+            "label": "Document → Communication",
+            "description": "Send one authorized document to one approved destination.",
+            "surfaces": ("Documents", "Communications"),
+            "authority": (
+                "authorized document read + communications send; explicit approved destination "
+                "and Core authorization required"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",

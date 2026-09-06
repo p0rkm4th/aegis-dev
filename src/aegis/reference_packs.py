@@ -171,6 +171,23 @@ def prepare_reference_action(
                 weather_forecast_evidence(forecast), sort_keys=True
             )
             args = {**args, "body": body}
+        elif args.get("body_source") == "canonical.document":
+            document_id = args.get("document_id")
+            if isinstance(document_id, str) and document_id.strip():
+                document = next(
+                    (
+                        item
+                        for item in configured_document_provider().list_documents()
+                        if item.document_id == document_id
+                    ),
+                    None,
+                )
+                if document is None:
+                    raise ValueError("authorized document is unavailable")
+                args = {
+                    **args,
+                    "body": f"{document.title}\n\n{document.text[:20_000]}",
+                }
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -772,7 +789,15 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Send an explicitly addressed message through an authorized provider",
                     relevance=1,
-                    argument_keys=("target", "body", "channel", "account", "body_source", "query"),
+                    argument_keys=(
+                        "target",
+                        "body",
+                        "channel",
+                        "account",
+                        "body_source",
+                        "query",
+                        "document_id",
+                    ),
                     argument_grounding={
                         key: ArgumentGroundingRule(
                             permitted_provenance=(
@@ -796,12 +821,21 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                                 "reference.communication_body_from_calendar.v1",
                                 "reference.communication_body_from_research.v1",
                                 "reference.communication_body_from_weather.v1",
+                                "reference.communication_body_from_document.v1",
                             ),
                         )
                     }
                     | {
                         "query": ArgumentGroundingRule(
                             permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    }
+                    | {
+                        "document_id": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                            ),
+                            canonical_source="authorized_documents",
                         )
                     },
                 ),
