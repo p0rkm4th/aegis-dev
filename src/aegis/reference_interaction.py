@@ -157,6 +157,7 @@ def _ground_argument_provenance(
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|"
                 r"(?:the )?tasks due before my calendar events|"
+                r"today(?:'s)? brief|"
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
                 r"the document .+|the health of (?:service )?.+|"
@@ -221,6 +222,7 @@ def _ground_argument_provenance(
             "canonical.groceries",
             "canonical.tasks",
             "canonical.calendar_tasks",
+            "canonical.today",
             "canonical.calendar",
             "bounded.research",
             "public.weather",
@@ -233,6 +235,7 @@ def _ground_argument_provenance(
                 "canonical.groceries": "grocery list",
                 "canonical.tasks": "tasks",
                 "canonical.calendar_tasks": "tasks due before my calendar events",
+                "canonical.today": "today brief",
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
@@ -252,45 +255,25 @@ def _ground_argument_provenance(
             provenance[key] = ArgumentProvenance(
                 kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
                 source_spans=spans,
-                derivation=(
-                    "reference.communication_body_from_groceries.v1"
-                    if value == "canonical.groceries"
-                    else (
-                        "reference.communication_body_from_tasks.v1"
-                        if value == "canonical.tasks"
-                        else (
-                            "reference.communication_body_from_calendar_tasks.v1"
-                            if value == "canonical.calendar_tasks"
-                            else (
-                                "reference.communication_body_from_calendar.v1"
-                                if value == "canonical.calendar"
-                                else (
-                                    "reference.communication_body_from_research.v1"
-                                    if value == "bounded.research"
-                                    else (
-                                        "reference.communication_body_from_weather.v1"
-                                        if value == "public.weather"
-                                        else (
-                                            "reference.communication_body_from_document.v1"
-                                            if value == "canonical.document"
-                                            else (
-                                                "reference.communication_body_from_homelab_health.v1"
-                                                if value == "canonical.homelab_health"
-                                                else (
-                                                    "reference.communication_body_from_workspace_artifact.v1"
-                                                    if value == "canonical.workspace_artifact"
-                                                    else (
-                                                        "reference.communication_body_from_device_state.v1"
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                ),
+                derivation={
+                    "canonical.groceries": "reference.communication_body_from_groceries.v1",
+                    "canonical.tasks": "reference.communication_body_from_tasks.v1",
+                    "canonical.calendar_tasks": (
+                        "reference.communication_body_from_calendar_tasks.v1"
+                    ),
+                    "canonical.today": "reference.communication_body_from_today.v1",
+                    "canonical.calendar": "reference.communication_body_from_calendar.v1",
+                    "bounded.research": "reference.communication_body_from_research.v1",
+                    "public.weather": "reference.communication_body_from_weather.v1",
+                    "canonical.document": "reference.communication_body_from_document.v1",
+                    "canonical.homelab_health": (
+                        "reference.communication_body_from_homelab_health.v1"
+                    ),
+                    "canonical.workspace_artifact": (
+                        "reference.communication_body_from_workspace_artifact.v1"
+                    ),
+                    "canonical.device_state": "reference.communication_body_from_device_state.v1",
+                }[value],
             )
             continue
         if key in {"workspace_id", "source_workspace_id"}:
@@ -1226,6 +1209,12 @@ def resolve_reference_safety_fast_paths(
         flags=re.IGNORECASE,
     ):
         return None
+    if re.fullmatch(
+        r"(?:send|text) me (?:today(?:'s)?|the) brief[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     if recovered_plan_actions is None:
         result = MultiActionFastPath.resolve(intent)
         if result is not None:
@@ -1502,6 +1491,12 @@ def resolve_reference_fast_paths(
     """Resolve reference-Pack reads and personal grounding before cognition."""
 
     if recovered_plan_actions is not None:
+        return None
+    if re.fullmatch(
+        r"(?:send|text) me (?:today(?:'s)?|the) brief[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
         return None
     if re.fullmatch(
         r"(?:send|text) me (?:the )?tasks due before my calendar events[?!.,]?",
@@ -3602,6 +3597,12 @@ def resolve_reference_pre_model(
         )
 
     task_store = PostgresTaskStore(connection)
+    if re.fullmatch(
+        r"(?:send|text) me (?:today(?:'s)?|the) brief[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     if re.fullmatch(
         r"(?:send|text) me (?:the )?tasks due before my calendar events[?!.,]?",
         intent.utterance.strip(),

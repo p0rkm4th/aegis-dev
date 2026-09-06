@@ -215,6 +215,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "today-to-communication",
+            "label": "Today → Communication",
+            "description": (
+                "Send a bounded canonical personal/household brief to one approved destination."
+            ),
+            "surfaces": ("Today", "Communications"),
+            "authority": (
+                "canonical task/household reads + communications send; explicit approved "
+                "destination and Core authorization required; external evidence is excluded"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
