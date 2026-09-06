@@ -1,18 +1,18 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "af6e59b",
+  "state_basis_sha": "8b19108",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "af6e59b",
-  "deterministic_green_sha": "af6e59b",
-  "last_pushed_sha": "af6e59b",
-  "hosted_green_sha": "5b1c6a7",
-  "hosted_ci_green_sha": "5b1c6a7",
+  "repository_head_sha": "8b19108",
+  "deterministic_green_sha": "8b19108",
+  "last_pushed_sha": "8b19108",
+  "hosted_green_sha": "1669ba0",
+  "hosted_ci_green_sha": "1669ba0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "5b1c6a7",
+    "commit_sha": "1669ba0",
     "conclusion": "success",
-    "run_id": "34055698704",
+    "run_id": "34056164719",
     "observed_at": "2026-09-06T20:05:00Z"
   },
   "installed_release_sha": "39f16fe",
@@ -130,6 +130,7 @@
     ,"food_owner_projection": "Today/Household owner projection now exposes bounded stable grocery records and Pantry quantities with an explicit unknown-quantity display; no private Finance data is included"
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
     ,"homelab_host_identity": "Homelab Host records persist stable host IDs separately from observed addresses, with provider identity, known addresses, identity evidence, status, and last-observed metadata"
+    ,"pack_first_owner_corpus": "Experimental Pack-first corpus now covers Food, Finance, Homelab, Forge, and unsupported owner requests across incumbent, pure Pack-first, and retrieval-assisted variants; deterministic fixture routing and compact context metrics are reported, while production cognition remains unchanged"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
