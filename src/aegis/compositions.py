@@ -203,6 +203,18 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "calendar-task-attention-to-communication",
+            "label": "Calendar + Tasks attention → Communication",
+            "description": (
+                "Send bounded task attention before calendar events to one approved destination."
+            ),
+            "surfaces": ("Calendar", "Tasks", "Communications"),
+            "authority": (
+                "calendar/task reads + communications send; explicit approved destination "
+                "and Core authorization required; no task or calendar mutation"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
