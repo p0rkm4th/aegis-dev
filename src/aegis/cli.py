@@ -1018,6 +1018,20 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    document_search = re.fullmatch(
+        r"(?:search|find) (?:my )?documents? for (?P<query>.+)", text, flags=re.IGNORECASE
+    )
+    if document_search is not None:
+        card = manager.action_card("documents", "documents.search")
+        if card is None:
+            return None
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": {"query": document_search.group("query").strip()}}
+                )
+            }
+        )
     multi_artifact = re.fullmatch(
         r"(?:create|write) (?:a )?workspace artifact with files "
         r"(?P<path_a>[a-zA-Z0-9][a-zA-Z0-9_./-]{0,120}) containing (?P<content_a>.+?) and "
