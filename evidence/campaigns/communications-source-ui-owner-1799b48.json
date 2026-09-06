@@ -1,0 +1,13 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "communications-canonical-source-ui",
+  "source_sha": "1799b484d76c5fc1a78b0d8ccb27de0b33f1e496",
+  "hosted_validation": {"run_id": "34004362507", "conclusion": "success"},
+  "installed_release_sha": "1799b484d76c5fc1a78b0d8ccb27de0b33f1e496",
+  "owner_rendered_surface": {
+    "source_choice": "Use authorized grocery list",
+    "required_fields": ["target", "channel", "account"],
+    "routing": "Core-resolved canonical source through the normal grounded send request"
+  },
+  "authority_boundary": "The UI source choice does not choose a recipient or grant send authority; provider acceptance remains distinct from delivery."
+}
