@@ -1046,7 +1046,16 @@ def reference_format_result(result: Any) -> str:
         attention = evidence.get("attention", [])
         rows = [
             f"• {item['event_title']}: "
-            + (", ".join(item["task_titles"]) if item.get("task_titles") else "no earlier tasks")
+            + (
+                ", ".join(item["task_titles"])
+                + (
+                    f" … and {item['task_count'] - len(item['task_titles'])} more"
+                    if item.get("task_count", len(item["task_titles"])) > len(item["task_titles"])
+                    else ""
+                )
+                if item.get("task_titles")
+                else "no earlier tasks"
+            )
             for item in attention
             if isinstance(item, dict)
         ]
