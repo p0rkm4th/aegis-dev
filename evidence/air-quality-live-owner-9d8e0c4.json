@@ -1,0 +1,16 @@
+{
+  "kind": "owner_live_capability_proof",
+  "capability": "air-quality.current.read",
+  "source_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+  "hosted_run_id": "34010778344",
+  "installed_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+  "running_sha": "9d8e0c417b7099fab1dd5f9e9c2ab25f1d837347",
+  "provider": "open_meteo_air_quality",
+  "coordinates": {"latitude": 41.881832, "longitude": -87.623177},
+  "reading": {"us_aqi": 56.0, "pm2_5": 6.0, "observed_at": "2026-09-06T04:00"},
+  "owner_api": "/api/air-quality",
+  "constellation_nodes": ["pack-air-quality", "pack-air-quality-area-current"],
+  "boundary": "Public evidence only; not canonical personal truth or medical advice.",
+  "postgresql_preserved": true,
+  "observed_at": "2026-09-06T04:15:00Z"
+}
