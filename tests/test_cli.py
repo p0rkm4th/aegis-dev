@@ -5157,6 +5157,21 @@ def test_browser_app_research_surface_exposes_sourced_communication():
     assert "remains non-canonical; provider acceptance is not delivery proof" in html
 
 
+def test_browser_app_systems_surface_exposes_health_communication():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Send health status" in html
+    assert "Text me the health of service ${service.service_id}" in html
+    assert "Health status is read-only context" in html
+
+
 def test_browser_app_workspace_surface_exposes_scoped_download():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
