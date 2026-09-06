@@ -83,6 +83,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "weather-to-workspace",
+            "label": "Weather → Workspace",
+            "description": "Save a bounded public forecast as a verified scoped report.",
+            "surfaces": ("Weather", "Workspace"),
+            "authority": (
+                "public evidence remains non-canonical; Core authorization and Workspace "
+                "verification are required"
+            ),
+        },
+        {
             "id": "public-holiday-to-task",
             "label": "Public holiday → Task",
             "description": "Prepare an explicit task for an authorized public-holiday date.",
