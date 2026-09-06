@@ -844,6 +844,25 @@ async function loadSystems() {
       document.getElementById('chat').requestSubmit();
     });
     panel.append(report);
+    const probe = document.createElement('section'); probe.className = 'detail-card';
+    const probeTitle = document.createElement('h3'); probeTitle.textContent = 'Probe an authorized network target';
+    const probeForm = document.createElement('form'); probeForm.setAttribute('aria-label', 'Probe network target');
+    const probeFields = [];
+    [['address', 'Address'], ['scope_id', 'Authorized scope'], ['port', 'Port']].forEach(([name, placeholder]) => {
+      const input = document.createElement('input'); input.name = name; input.required = true; input.placeholder = placeholder;
+      input.setAttribute('aria-label', placeholder); probeFields.push(input);
+    });
+    const probeSubmit = document.createElement('button'); probeSubmit.type = 'submit'; probeSubmit.textContent = 'Submit probe';
+    probeForm.append(...probeFields, probeSubmit);
+    probeForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const values = Object.fromEntries(probeFields.map(field => [field.name, field.value.trim()]));
+      if (Object.values(values).some(value => !value)) return;
+      document.getElementById('utterance').value =
+        `Probe ${values.address} in scope ${values.scope_id} on port ${values.port}`;
+      document.getElementById('chat').requestSubmit();
+    });
+    probe.append(probeTitle, probeForm); panel.append(probe);
   } catch (_) {
     panel.textContent = 'Systems inventory is unavailable; no system action was attempted.';
   }

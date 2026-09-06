@@ -594,7 +594,18 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Probe an authorized network target",
                     relevance=1,
-                    argument_keys=("address", "scope_id"),
+                    argument_keys=("address", "scope_id", "port"),
+                    argument_grounding={
+                        "address": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "scope_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "port": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
                 ),
             ),
         ),
