@@ -156,6 +156,7 @@ def _ground_argument_provenance(
             and isinstance(value, str)
             and re.fullmatch(
                 r"(?:send|text) me (?:(?:the )?grocery list|"
+                r"(?:the )?tasks due before my calendar events|"
                 r"(?:my )?(?:open )?(?:tasks|to-?dos)|(?:my )?calendar|"
                 r"(?:the )?research (?:on|about) .+|(?:tomorrow's|the) weather|"
                 r"the document .+|the health of (?:service )?.+|"
@@ -219,6 +220,7 @@ def _ground_argument_provenance(
         if key == "body_source" and value in {
             "canonical.groceries",
             "canonical.tasks",
+            "canonical.calendar_tasks",
             "canonical.calendar",
             "bounded.research",
             "public.weather",
@@ -230,6 +232,7 @@ def _ground_argument_provenance(
             source_phrase = {
                 "canonical.groceries": "grocery list",
                 "canonical.tasks": "tasks",
+                "canonical.calendar_tasks": "tasks due before my calendar events",
                 "canonical.calendar": "calendar",
                 "bounded.research": "research",
                 "public.weather": "weather",
@@ -256,25 +259,29 @@ def _ground_argument_provenance(
                         "reference.communication_body_from_tasks.v1"
                         if value == "canonical.tasks"
                         else (
-                            "reference.communication_body_from_calendar.v1"
-                            if value == "canonical.calendar"
+                            "reference.communication_body_from_calendar_tasks.v1"
+                            if value == "canonical.calendar_tasks"
                             else (
-                                "reference.communication_body_from_research.v1"
-                                if value == "bounded.research"
+                                "reference.communication_body_from_calendar.v1"
+                                if value == "canonical.calendar"
                                 else (
-                                    "reference.communication_body_from_weather.v1"
-                                    if value == "public.weather"
+                                    "reference.communication_body_from_research.v1"
+                                    if value == "bounded.research"
                                     else (
-                                        "reference.communication_body_from_document.v1"
-                                        if value == "canonical.document"
+                                        "reference.communication_body_from_weather.v1"
+                                        if value == "public.weather"
                                         else (
-                                            "reference.communication_body_from_homelab_health.v1"
-                                            if value == "canonical.homelab_health"
+                                            "reference.communication_body_from_document.v1"
+                                            if value == "canonical.document"
                                             else (
-                                                "reference.communication_body_from_workspace_artifact.v1"
-                                                if value == "canonical.workspace_artifact"
+                                                "reference.communication_body_from_homelab_health.v1"
+                                                if value == "canonical.homelab_health"
                                                 else (
-                                                    "reference.communication_body_from_device_state.v1"
+                                                    "reference.communication_body_from_workspace_artifact.v1"
+                                                    if value == "canonical.workspace_artifact"
+                                                    else (
+                                                        "reference.communication_body_from_device_state.v1"
+                                                    )
                                                 )
                                             )
                                         )
@@ -1213,6 +1220,12 @@ def resolve_reference_safety_fast_paths(
         flags=re.IGNORECASE,
     ):
         return None
+    if re.fullmatch(
+        r"(?:send|text) me (?:the )?tasks due before my calendar events[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     if recovered_plan_actions is None:
         result = MultiActionFastPath.resolve(intent)
         if result is not None:
@@ -1489,6 +1502,12 @@ def resolve_reference_fast_paths(
     """Resolve reference-Pack reads and personal grounding before cognition."""
 
     if recovered_plan_actions is not None:
+        return None
+    if re.fullmatch(
+        r"(?:send|text) me (?:the )?tasks due before my calendar events[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
         return None
     utterance = strip_context_reset(intent.utterance)
     if utterance != intent.utterance:
@@ -3583,6 +3602,12 @@ def resolve_reference_pre_model(
         )
 
     task_store = PostgresTaskStore(connection)
+    if re.fullmatch(
+        r"(?:send|text) me (?:the )?tasks due before my calendar events[?!.,]?",
+        intent.utterance.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return None
     # Explicit outbound requests must reach the typed communication action
     # resolver before the broader read-only planning fast path can claim the
     # same task vocabulary. Recipient grounding and provider authorization
