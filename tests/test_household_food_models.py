@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from aegis.household import HouseholdSpace, migrate_grocery_strings, normalize_food_key
+import pytest
+
+from aegis.household import (
+    HouseholdSpace,
+    PantryItem,
+    migrate_grocery_strings,
+    normalize_food_key,
+)
 
 
 def test_legacy_groceries_migrate_to_stable_ids_without_inventing_facts():
@@ -30,3 +37,30 @@ def test_household_space_exposes_structured_food_without_breaking_legacy_project
     space.add_grocery(principal, "Bread", "add-bread-1")
     assert [item.display_name for item in space.grocery_items.values()] == ["Milk", "Bread"]
     assert normalize_food_key("  BREAD  ") == "bread"
+
+
+def test_food_mutations_use_stable_ids_and_reject_stale_pantry_writes():
+    principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"owner"}, groceries=["Milk"])
+    grocery_id = next(iter(space.grocery_items))
+
+    purchased = space.mark_grocery_purchased(principal, grocery_id)
+    assert purchased.state == "purchased"
+    assert purchased.version == 1
+
+    pantry = PantryItem("pantry-milk", "Milk", "milk", quantity=2, unit="carton")
+    space.add_pantry(principal, pantry)
+    consumed = space.consume_pantry(principal, pantry.item_id, 1, expected_version=0)
+    assert consumed.quantity == 1
+    assert consumed.version == 1
+    with pytest.raises(ValueError, match="stale pantry"):
+        space.consume_pantry(principal, pantry.item_id, 1, expected_version=0)
+
+
+def test_unknown_pantry_quantity_is_not_treated_as_zero():
+    principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"owner"})
+    item = PantryItem("pantry-unknown", "Rice", "rice")
+    space.add_pantry(principal, item)
+    with pytest.raises(ValueError, match="quantity is unknown"):
+        space.consume_pantry(principal, item.item_id, 1, expected_version=0)

@@ -76,6 +76,7 @@ class GroceryItem:
     state: str = "needed"
     pantry_item_id: str | None = None
     updated_at: datetime | None = None
+    version: int = 0
 
 
 @dataclass(frozen=True)
@@ -91,6 +92,7 @@ class PantryItem:
     best_by: str | None = None
     minimum_quantity: float | None = None
     updated_at: datetime | None = None
+    version: int = 0
 
 
 def normalize_food_key(display_name: str) -> str:
@@ -141,6 +143,7 @@ class PostgresHouseholdStore:
                     "state": item.state,
                     "pantry_item_id": item.pantry_item_id,
                     "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+                    "version": item.version,
                 }
                 for item in space.grocery_items.values()
             ],
@@ -155,6 +158,7 @@ class PostgresHouseholdStore:
                     "best_by": item.best_by,
                     "minimum_quantity": item.minimum_quantity,
                     "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+                    "version": item.version,
                 }
                 for item in space.pantry_items.values()
             ],
@@ -254,6 +258,7 @@ class PostgresHouseholdStore:
                     if item.get("updated_at")
                     else None
                 ),
+                version=int(item.get("version", 0)),
             )
             for item in payload.get("grocery_items", [])
         }
@@ -282,6 +287,7 @@ class PostgresHouseholdStore:
                     if item.get("updated_at")
                     else None
                 ),
+                version=int(item.get("version", 0)),
             )
             for item in payload.get("pantry_items", [])
         }
@@ -473,6 +479,74 @@ class HouseholdSpace:
         self.grocery_items.update(migrated)
         if idempotency_key is not None:
             self.grocery_mutations[idempotency_key] = item
+
+    def mark_grocery_purchased(self, principal: Principal, grocery_id: str) -> GroceryItem:
+        self._require_member(principal)
+        current = self.grocery_items.get(grocery_id)
+        if current is None:
+            raise KeyError("grocery item is unavailable")
+        updated = GroceryItem(
+            **{**current.__dict__, "state": "purchased", "version": current.version + 1}
+        )
+        self.grocery_items[grocery_id] = updated
+        return updated
+
+    def remove_grocery(self, principal: Principal, grocery_id: str) -> GroceryItem:
+        self._require_member(principal)
+        current = self.grocery_items.get(grocery_id)
+        if current is None:
+            raise KeyError("grocery item is unavailable")
+        updated = GroceryItem(
+            **{**current.__dict__, "state": "removed", "version": current.version + 1}
+        )
+        self.grocery_items[grocery_id] = updated
+        return updated
+
+    def add_pantry(self, principal: Principal, item: PantryItem) -> PantryItem:
+        self._require_member(principal)
+        if not item.display_name.strip():
+            raise ValueError("pantry item is required")
+        current = self.pantry_items.get(item.item_id)
+        if current is not None and current != item:
+            raise ValueError("pantry item id already exists")
+        self.pantry_items[item.item_id] = item
+        return item
+
+    def update_pantry(
+        self, principal: Principal, item: PantryItem, expected_version: int
+    ) -> PantryItem:
+        self._require_member(principal)
+        current = self.pantry_items.get(item.item_id)
+        if current is None:
+            raise KeyError("pantry item is unavailable")
+        if current.version != expected_version:
+            raise ValueError("stale pantry item version")
+        updated = PantryItem(**{**item.__dict__, "version": current.version + 1})
+        self.pantry_items[item.item_id] = updated
+        return updated
+
+    def consume_pantry(
+        self, principal: Principal, item_id: str, quantity: float, expected_version: int
+    ) -> PantryItem:
+        self._require_member(principal)
+        if quantity <= 0:
+            raise ValueError("consumption quantity must be positive")
+        current = self.pantry_items.get(item_id)
+        if current is None:
+            raise KeyError("pantry item is unavailable")
+        if current.version != expected_version:
+            raise ValueError("stale pantry item version")
+        if current.quantity is None:
+            raise ValueError("pantry quantity is unknown")
+        updated = PantryItem(
+            **{
+                **current.__dict__,
+                "quantity": max(0, current.quantity - quantity),
+                "version": current.version + 1,
+            }
+        )
+        self.pantry_items[item_id] = updated
+        return updated
 
     def add_chore(
         self, principal: Principal, chore: Chore, idempotency_key: str | None = None
