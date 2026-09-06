@@ -1,0 +1,33 @@
+{
+  "source_sha": "3282dd6b83523e298b753e3e5f41c10dc2d0a08b",
+  "hosted_validation": {
+    "run_id": "34052714202",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "3282dd6",
+    "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+    "provider": "wikipedia",
+    "postgresql": "healthy"
+  },
+  "workflow": {
+    "request": "Find public information about the Palworld game and summarize it.",
+    "state": "completed",
+    "sources": [
+      "Palworld",
+      "Pocketpair",
+      "Palworld Trading Card Game",
+      "Monster-taming game",
+      "The Game Awards 2024"
+    ],
+    "persisted_projection": "/api/research returned provider_id=wikipedia with query, summary, source links, and retrieval timestamps",
+    "rendered_proof": "Tailscale Chromium Research view displayed Palworld, wikipedia, and the external-evidence boundary with no browser errors"
+  },
+  "safety": [
+    "Wikimedia content remained external evidence and not canonical personal truth",
+    "no action or permission was derived from the research result",
+    "provider is explicit opt-in and bounded to Wikimedia search and article-summary endpoints"
+  ]
+}
