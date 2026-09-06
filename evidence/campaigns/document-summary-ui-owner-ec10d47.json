@@ -1,0 +1,19 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "document-summary-owner-surface",
+  "source_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
+  "hosted_validation": {
+    "run_id": "34002432535",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "ec10d4770ef03668752cb916090d2cb31f7b796a",
+  "request": "Summarize Alpha Handbook to alpha-handbook-summary.md",
+  "result": {
+    "state": "completed",
+    "message": "Done — document summary independently verified",
+    "objective_id": "65d7c0e6-88ae-4b83-8f66-a2970b1f5103",
+    "correlation_id": "9be5e8aa-c4e7-4e7d-91f4-91fae1569f17",
+    "independent_verification": true
+  },
+  "authority_boundary": "The UI submits an explicit title/path request; Core grounding, authorization, scoped Workspace expectation, execution, and independent verification remain authoritative."
+}
