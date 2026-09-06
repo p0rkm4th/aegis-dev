@@ -443,17 +443,26 @@ def test_research_workspace_composition_preserves_sources_and_non_authority(tmp_
     action = card.action.model_copy(
         update={"arguments": {"query": "configuration mode", "target_path": "notes.md"}}
     )
-    runtime = default_runtime_registry(lambda: None).resolve(
-        card, None, Principal(id="alice", vault_id="alice-vault")
-    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    runtime = default_runtime_registry(lambda: None).resolve(card, None, principal)
+    assert runtime.prepare is not None
+    objective_id = uuid4()
+    action = runtime.prepare(action, principal, objective_id)
     observation = runtime.executor.execute(
         ExecutionRequest(
-            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="research-1"
+            objective_id=objective_id,
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="research-1",
         )
     )
     assert observation.command_succeeded is True
     assert observation.evidence["authoritative"] is False
-    assert runtime.verifier.verify(observation, card.action.verification).verified is False
+    assert runtime.verifier.verify(observation, action.verification).verified is True
+    WorkspaceManager(tmp_path).for_objective(principal.id, objective_id).write(
+        "notes.md", "tampered"
+    )
+    assert runtime.verifier.verify(observation, action.verification).verified is False
 
 
 def test_communication_draft_is_scoped_and_unsent(tmp_path, monkeypatch):
