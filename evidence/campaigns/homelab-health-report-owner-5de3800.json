@@ -1,0 +1,18 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "homelab-health-report-owner-surface",
+  "source_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "hosted_validation": {"run_id": "34002782394", "conclusion": "success"},
+  "installed_release_sha": "5de3800924a5e6b33968ab72cd5eb267d0286b13",
+  "request": "Create a homelab health report as health-report.html",
+  "result": {
+    "state": "completed",
+    "message": "Done — Homelab page independently verified",
+    "objective_id": "bd1d3d04-c507-4131-a1a1-bf5b13f4599f",
+    "correlation_id": "ebf332ab-947e-4799-9221-6e8a791f7c16",
+    "files": ["health-report.html", "style.css"],
+    "independent_verification": true,
+    "observed_service": {"service_id": "acceptance-plex", "status": "unavailable"}
+  },
+  "authority_boundary": "The Systems action reads authorized inventory and health only; report creation has Workspace authority, not service restart authority."
+}
