@@ -5126,6 +5126,21 @@ def test_browser_app_documents_surface_exposes_search_to_communication_compositi
     assert "provider acceptance is not delivery proof" in html
 
 
+def test_browser_app_calendar_surface_exposes_snapshot_communication():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode()
+    assert "Send calendar snapshot" in html
+    assert "Text me my calendar" in html
+    assert "configured owner-approved destination" in html
+
+
 def test_browser_app_workspace_surface_exposes_scoped_download():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),
