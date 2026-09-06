@@ -943,6 +943,25 @@ def reference_format_result(result: Any) -> str:
         if len(events) > len(display_events):
             listing += f"\n… and {len(events) - len(display_events)} more"
         return "Events: (none)" if not events else "Events:\n" + listing
+    if isinstance(evidence.get("workspace_inventory"), list):
+        workspaces = evidence["workspace_inventory"]
+        entries = []
+        for item in workspaces[:20]:
+            if not isinstance(item, dict):
+                continue
+            workspace_id = item.get("workspace_id", "unknown workspace")
+            files = item.get("files", [])
+            names = ", ".join(str(path) for path in files[:20]) if isinstance(files, list) else ""
+            entries.append(f"{workspace_id}: {names or '(empty)'}")
+        if not entries:
+            return "Workspace artifacts: (none)"
+        return "Workspace artifacts:\n" + "\n".join(f"• {entry}" for entry in entries)
+    if isinstance(evidence.get("workspace_file"), dict):
+        file_record = evidence["workspace_file"]
+        path = file_record.get("path", "file")
+        content = file_record.get("content")
+        if isinstance(content, str):
+            return f"Workspace file {path}:\n{content[:20_000]}"
     if isinstance(evidence.get("planning"), dict):
         planning = evidence["planning"]
         summaries: list[str] = []

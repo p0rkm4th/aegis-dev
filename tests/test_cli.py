@@ -101,6 +101,27 @@ def test_deterministic_workspace_file_read_preserves_explicit_scope():
     assert card.action.arguments == {"workspace_id": workspace_id, "path": "reports/tomorrow.md"}
 
 
+def test_workspace_read_result_formatter_returns_bounded_file_content():
+    from aegis.reference_interaction import reference_format_result
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Workspace file read is Principal-scoped and structurally valid",
+        evidence={
+            "workspace_file": {
+                "workspace_id": "workspace-1",
+                "path": "report.md",
+                "content": "# Report\n\nAuthorized content",
+            }
+        },
+        correlation_id=uuid4(),
+    )
+
+    formatted = reference_format_result(result)
+    assert formatted == "Workspace file report.md:\n# Report\n\nAuthorized content"
+
+
 def test_deterministic_calendar_workspace_report_action_uses_pack_metadata():
     manager = PackManager()
     bundle = next(
