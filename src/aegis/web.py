@@ -1392,6 +1392,13 @@ async function loadObjectives() {
             needCard.append(candidateTitle, renderDetailValue(candidates));
             candidates.forEach(candidate => {
               if (!candidate || candidate.requires_owner_input !== true) return;
+              const review = document.createElement('button');
+              review.type = 'button'; review.textContent = 'Review Packs & capabilities';
+              review.addEventListener('click', () => {
+                const packs = document.querySelector('[data-view="packs"]');
+                if (packs) packs.click();
+              });
+              needCard.append(review);
               const research = document.createElement('button');
               research.type = 'button'; research.textContent = 'Research candidate path';
               research.addEventListener('click', () => {
