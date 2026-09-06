@@ -200,10 +200,15 @@ class OpenClawCliCommunicationSendProvider:
                 status=SendStatus.SEND_ATTEMPTED,
                 detail="OpenClaw did not return a provider message id",
             )
+        delivered = payload.get("delivered") is True or payload.get("delivery_proven") is True
         result = SendResult(
-            status=SendStatus.PROVIDER_ACCEPTED,
+            status=SendStatus.DELIVERED if delivered else SendStatus.PROVIDER_ACCEPTED,
             provider_message_id=provider_message_id,
-            detail="OpenClaw accepted the outbound message; delivery is not independently proven",
+            detail=(
+                "OpenClaw supplied provider delivery evidence"
+                if delivered
+                else "OpenClaw accepted the outbound message; delivery is not independently proven"
+            ),
         )
         self._accepted[idempotency_key] = result
         return result

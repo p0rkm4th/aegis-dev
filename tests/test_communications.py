@@ -1,3 +1,4 @@
+import subprocess
 from uuid import uuid4
 
 import pytest
@@ -250,6 +251,22 @@ def test_openclaw_cli_provider_adapts_explicit_message_send_without_claiming_del
             "personal",
         ]
     ]
+
+
+def test_openclaw_cli_provider_accepts_explicit_delivery_evidence() -> None:
+    def run(_args: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            _args, 0, '{"messageId":"openclaw-43","delivered":true}\n', ""
+        )
+
+    provider = OpenClawCliCommunicationSendProvider(runner=run)
+    result = provider.send(
+        OutboundMessage(target="scotty", body="hello", channel="sms", account="household"),
+        "delivery-key",
+    )
+
+    assert result.status is SendStatus.DELIVERED
+    assert result.provider_message_id == "openclaw-43"
 
 
 def test_openclaw_cli_provider_downgrades_missing_acceptance() -> None:
