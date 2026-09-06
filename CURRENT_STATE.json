@@ -127,6 +127,7 @@
     "food_store_boundary": "Persistent Household store reads stable grocery/Pantry records, migrates legacy grocery JSON idempotently, and rechecks Space membership before structured Pantry reads/inserts; legacy grocery listing remains compatible while stable-ID state actions are added"
     ,"food_grocery_actions": "Kitchen Pack exposes stable-ID grocery mark_purchased and remove actions through the normal authorization/runtime path; independent verifier rereads current scoped records and rejects stale or changed state"
     ,"finance_csv_import": "Bounded owner-controlled CSV import emits integer-minor-unit transactions with raw descriptions, optional provider IDs, source/content hash, coverage dates, duplicate-row detection, and explicit partial/rejected-row reporting; no financial mutation exists"
+    ,"food_owner_projection": "Today/Household owner projection now exposes bounded stable grocery records and Pantry quantities with an explicit unknown-quantity display; no private Finance data is included"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
