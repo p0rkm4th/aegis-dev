@@ -1673,9 +1673,7 @@ def _deterministic_composition_action(
         flags=re.IGNORECASE,
     )
     if network_report is not None:
-        card = manager.action_card(
-            "network-reports", "network-reports.inventory.to_workspace"
-        )
+        card = manager.action_card("network-reports", "network-reports.inventory.to_workspace")
         if card is None:
             status = manager.status("network-reports")
             return Result(
@@ -1689,9 +1687,7 @@ def _deterministic_composition_action(
             )
         return card.model_copy(
             update={
-                "action": card.action.model_copy(
-                    update={"arguments": network_report.groupdict()}
-                )
+                "action": card.action.model_copy(update={"arguments": network_report.groupdict()})
             }
         )
     document_search_workspace = re.fullmatch(

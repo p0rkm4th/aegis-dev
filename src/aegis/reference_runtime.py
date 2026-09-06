@@ -278,9 +278,7 @@ def default_runtime_registry(
             ),
         )
 
-    def network_inventory_workspace_runtime(
-        connection: Any, principal: Principal
-    ) -> ActionRuntime:
+    def network_inventory_workspace_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         return ActionRuntime(
             NetworkInventoryWorkspaceExecutor(connection, principal),
             NetworkInventoryWorkspaceVerifier(principal),
