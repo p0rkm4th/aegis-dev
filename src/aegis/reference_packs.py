@@ -140,6 +140,9 @@ def prepare_reference_action(
             items = PostgresHouseholdStore(connection).list_groceries(principal)
             body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
             args = {**args, "body": body}
+        elif args.get("body_source") == "canonical.calendar":
+            body = calendar_snapshot_content(configured_calendar_provider().list_events())
+            args = {**args, "body": body}
         target, message_body = args.get("target"), args.get("body")
         channel, account = args.get("channel", "default"), args.get("account")
         if (
@@ -760,6 +763,7 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                             permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
                             approved_derivations=(
                                 "reference.communication_body_from_groceries.v1",
+                                "reference.communication_body_from_calendar.v1",
                             ),
                         )
                     },

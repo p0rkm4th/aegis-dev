@@ -118,6 +118,16 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             "authority": "calendar read + draft + scoped workspace write; no send authority",
         },
         {
+            "id": "calendar-to-communication-send",
+            "label": "Calendar → Communication",
+            "description": "Send an authorized calendar snapshot to one approved destination.",
+            "surfaces": ("Calendar", "Communications"),
+            "authority": (
+                "calendar read + communications send; explicit approved destination and Core "
+                "authorization required; provider delivery remains distinct"
+            ),
+        },
+        {
             "id": "device-to-workspace",
             "label": "Device → Workspace",
             "description": (
