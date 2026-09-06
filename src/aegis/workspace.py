@@ -388,6 +388,29 @@ class WorkspaceManager:
             workspaces.append({"workspace_id": path.name, "files": files})
         return tuple(workspaces)
 
+    def for_workspace_id(self, principal_id: str, workspace_id: str) -> ScopedWorkspace:
+        """Resolve an inventory ID only within the current Principal's scope."""
+
+        if not principal_id or "/" in principal_id or "\\" in principal_id:
+            raise WorkspaceError("principal identity is not a valid workspace scope")
+        try:
+            requested = UUID(workspace_id)
+        except (AttributeError, ValueError) as exc:
+            raise WorkspaceError("workspace identity is invalid") from exc
+        owner_root = self.root / principal_id
+        if not owner_root.is_dir() or owner_root.is_symlink():
+            raise WorkspaceError("workspace is not available for this Principal")
+        candidate = owner_root / str(requested)
+        if not candidate.is_dir() or candidate.is_symlink():
+            raise WorkspaceError("workspace is not available for this Principal")
+        return ScopedWorkspace(
+            candidate,
+            allowed_commands=self.allowed_commands,
+            max_file_bytes=self.max_file_bytes,
+            max_output_bytes=self.max_output_bytes,
+            timeout_seconds=self.timeout_seconds,
+        )
+
 
 def workspace_expected_postcondition(
     principal_id: str, objective_id: UUID, files: dict[str, str]

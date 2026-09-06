@@ -1275,6 +1275,25 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="workspace.artifact.read",
+                        capability="workspace.artifact.read",
+                        required_permissions=("workspace.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read one file from the current owner's scoped Workspace",
+                    relevance=1,
+                    argument_keys=("workspace_id", "path"),
+                    argument_grounding={
+                        "workspace_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                        "path": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="workspace.artifact.create",
                         capability="workspace.artifact.create",
                         required_permissions=("workspace.write",),
@@ -3032,6 +3051,68 @@ class WorkspaceArtifactsListVerifier:
                 "Workspace inventory is Principal-scoped and structurally valid"
                 if verified
                 else "Workspace inventory read failed"
+            ),
+        )
+
+
+class WorkspaceArtifactReadExecutor:
+    """Read one bounded file after resolving its ID within Principal scope."""
+
+    def __init__(self, principal: Principal) -> None:
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        workspace_id = request.action.arguments.get("workspace_id")
+        path = request.action.arguments.get("path")
+        if not isinstance(workspace_id, str) or not isinstance(path, str) or not path.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_file": "invalid_arguments"},
+                command_succeeded=False,
+            )
+        try:
+            workspace = WorkspaceManager(
+                Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+            ).for_workspace_id(self.principal.id, workspace_id)
+            content = workspace.read(path)
+        except (ValueError, OSError) as exc:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"workspace_file": "unavailable", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={
+                "workspace_file": {
+                    "workspace_id": workspace_id,
+                    "path": path,
+                    "content": content,
+                }
+            },
+            command_succeeded=True,
+        )
+
+
+class WorkspaceArtifactReadVerifier:
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        file_record = observation.evidence.get("workspace_file")
+        verified = (
+            observation.command_succeeded
+            and isinstance(file_record, dict)
+            and isinstance(file_record.get("workspace_id"), str)
+            and isinstance(file_record.get("path"), str)
+            and isinstance(file_record.get("content"), str)
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"workspace_file_read": verified},
+            reason=(
+                "Workspace file read is Principal-scoped and structurally valid"
+                if verified
+                else "Workspace file read failed"
             ),
         )
 

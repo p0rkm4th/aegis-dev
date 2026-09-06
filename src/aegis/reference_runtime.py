@@ -84,6 +84,8 @@ from .reference_packs import (
     WeatherWorkspaceExecutor,
     WeatherWorkspaceVerifier,
     WorkspaceArtifactExecutor,
+    WorkspaceArtifactReadExecutor,
+    WorkspaceArtifactReadVerifier,
     WorkspaceArtifactsListExecutor,
     WorkspaceArtifactsListVerifier,
     WorkspaceArtifactVerifier,
@@ -258,6 +260,14 @@ def default_runtime_registry(
         return ActionRuntime(
             WorkspaceArtifactsListExecutor(principal),
             WorkspaceArtifactsListVerifier(),
+            {"workspace.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def workspace_file_read_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        del connection
+        return ActionRuntime(
+            WorkspaceArtifactReadExecutor(principal),
+            WorkspaceArtifactReadVerifier(),
             {"workspace.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
@@ -513,6 +523,7 @@ def default_runtime_registry(
         "network.probe": network_runtime,
         "workspace.artifact.create": workspace_runtime,
         "workspace.artifacts.list": workspace_inventory_runtime,
+        "workspace.artifact.read": workspace_file_read_runtime,
         "calendar.events.list": calendar_runtime,
         "weather.current.read": weather_runtime,
         "weather.forecast.read": weather_forecast_runtime,
