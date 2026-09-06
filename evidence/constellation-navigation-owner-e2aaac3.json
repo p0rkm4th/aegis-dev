@@ -1,0 +1,14 @@
+{
+  "campaign": "daily-driver-alpha",
+  "checkpoint": "constellation-navigation-owner",
+  "source_sha": "e2aaac31015c3643b24bdbef5c58e26fa6fbccc2",
+  "hosted_validation": {"run_id": "34007839821", "conclusion": "success"},
+  "installed_release_sha": "e2aaac31015c3643b24bdbef5c58e26fa6fbccc2",
+  "owner_runtime": {
+    "service": "active",
+    "constellation_projection": "composition nodes returned",
+    "navigation": "metadata-defined detail_view opens registered conventional view"
+  },
+  "verification": "Browser navigation accepts a node detail_view only when that view is registered in the conventional navigation, and composition nodes expose their generic detail metadata.",
+  "authority_boundary": "Selecting or navigating from a Constellation node provides context only; it does not grant permission or action authority."
+}
