@@ -1,0 +1,13 @@
+{
+  "campaign": "AEGIS DAILY-DRIVER ALPHA ACCELERATION",
+  "checkpoint": "daily-driver-alpha-public-holidays-workspace",
+  "source_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "hosted_validation": {"provider": "github-actions", "run_id": "34028093286", "head_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637", "conclusion": "success"},
+  "installed_release_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "owner_runtime": {"service": "aegis-owner.service", "postgresql": "healthy", "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces", "identity": "authenticated owner"},
+  "lifecycle": {"pack_id": "holiday-reports", "approved_permissions": ["calendar.read", "workspace.write"], "approval": "explicit owner approval"},
+  "request": "Save public holidays for US in 2026 to workspace as holidays.md",
+  "result": {"state": "completed", "detail": "public holiday Workspace artifact independently verified", "workspace_id": "78a2f5e5-33ff-5aa3-a0a9-9edcbf14eb0c", "path": "holidays.md", "files": ["holidays.md"], "external_evidence": true, "canonical_personal_state": false},
+  "composition": {"id": "public-holidays-to-workspace", "surfaces": ["Calendar", "Workspace"], "constellation_visible": true},
+  "safety": ["public holiday provider provenance is retained in the artifact", "public dates did not become personal calendar events", "Workspace expectation was fixed before execution and verified independently"]
+}

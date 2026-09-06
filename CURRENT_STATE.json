@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "state_basis_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
-  "deterministic_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
-  "last_pushed_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
-  "hosted_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
-  "hosted_ci_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "repository_head_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "deterministic_green_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "last_pushed_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "hosted_green_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "hosted_ci_green_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+    "commit_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
     "conclusion": "success",
-    "run_id": "34027598518",
+    "run_id": "34028093286",
     "observed_at": "2026-09-06T06:33:00Z"
   },
-  "installed_release_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
-  "running_release_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
-  "live_green_sha": "a874e04ff567bff86930e542e30054bef7edfe48",
+  "installed_release_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "running_release_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
+  "live_green_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637",
   "active_milestone": "BREADTH-EXPANSION",
   "active_checkpoint": "daily-driver-alpha-rearm-next-utility",
   "checkpoint_status": "in_progress",
@@ -39,7 +39,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "14f1f9c08a3e64d9357f04d4b30c086fe5f7fbb1"
+    "release_sha": "8c93456a7dfe9afc7b57a15f80b13c7654a9b637"
   },
   "current_capability_claims": {
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
@@ -54,7 +54,8 @@
     "groceries_workspace": "installed owner proof enabled kitchen-reports explicitly, then saved groceries.md from canonical grocery state with independent scoped Workspace verification; grocery mutation and delivery authority were not added",
     "groceries_workspace_communication": "installed owner proof read groceries.md through scoped Workspace and sent it through generic communications with exact provider readback; delivery remains unproven",
     "workspace_artifact_append": "installed owner proof appended explicit content to an existing explicit Principal-scoped Workspace artifact by ID and independently verified the resulting hash",
-    "workspace_append_communication": "installed owner proof appended a note to groceries.md, then sent the updated scoped artifact through generic communications with exact provider readback; delivery remains unproven"
+    "workspace_append_communication": "installed owner proof appended a note to groceries.md, then sent the updated scoped artifact through generic communications with exact provider readback; delivery remains unproven",
+    "public_holidays_workspace": "installed owner proof explicitly enabled holiday-reports, fixed bounded public holiday evidence before Workspace mutation, independently verified holidays.md, and preserved the external/non-canonical boundary"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -209,7 +210,7 @@
     ,"installed owner proof chained today.md through the scoped Workspace artifact sender; fixture provider readback accepted the exact canonical Today brief as PROVIDER_ACCEPTED, with delivery still unproven"
   ],
   "current_blockers": [],
-  "daily_driver_checkpoint": "The installed owner now appends explicit content to a scoped Workspace artifact, independently verifies it, and sends the updated artifact through generic communications with exact provider readback; delivery remains unproven.",
+  "daily_driver_checkpoint": "The installed owner now explicitly enables holiday-reports, saves bounded public-holiday evidence as holidays.md, and independently verifies the scoped Workspace artifact without making it canonical personal calendar state.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -247,22 +248,22 @@
   },
   "independently_verified_write_capabilities": 10,
   "live_external_integrations": 3,
-  "voluntarily_useful_owner_workflows": 76,
-  "owner_visible_capability_surfaces": 43,
+  "voluntarily_useful_owner_workflows": 77,
+  "owner_visible_capability_surfaces": 44,
   "general_purpose_primitives": 2,
-  "cross_capability_workflows": 50,
+  "cross_capability_workflows": 51,
   "breadth_scoreboard": {
     "owner_visible_views": 20,
     "usable_capability_families": 10,
     "verified_write_capabilities": 10,
     "external_integrations": 3,
-    "cross_domain_compositions": 50,
+    "cross_domain_compositions": 51,
     "capability_need_resolutions": 3,
-    "general_purpose_primitives": 1,
-    "owner_workflows_completed": 71,
+    "general_purpose_primitives": 2,
+    "owner_workflows_completed": 72,
     "new_semantic_special_cases_per_session": 0
   },
   "next_action": "Rearm the next genuinely new non-credential-blocked provider-neutral owner capability or composition; keep OpenClaw delivery, Google Calendar live write, and Home Assistant live control truthfully pending.",
-  "history_artifact": "evidence/workspace-append-communication-owner-a874e04.json",
+  "history_artifact": "evidence/public-holidays-workspace-owner-8c93456.json",
   "migrated_at": "2026-09-05T02:33:23.074799+00:00"
 }
