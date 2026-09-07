@@ -4027,6 +4027,11 @@ def test_cross_domain_planning_projects_needed_groceries_without_inventing_quant
     assert "grocery_items_omitted" not in result.evidence["planning"]
     assert result.evidence["planning"]["affordability"]["purchase_currency"] == "USD"
     assert "balance_cents" not in repr(result.evidence["planning"])
+    assert result.evidence["planning"]["open_tasks"] == []
+    assert result.evidence["planning"]["open_chores"] == []
+    assert result.evidence["planning"]["open_obligations"] == []
+    assert result.evidence["planning"]["memories"] == []
+    assert result.evidence["planning"]["sources"] == ("household_space", "finance")
 
 
 def test_cross_domain_planning_never_absorbs_compound_mutation():

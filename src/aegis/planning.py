@@ -822,9 +822,16 @@ class CrossDomainPlanningFastPath:
     def resolve(self, intent: IntentFrame) -> Result | None:
         if is_mutation_request(intent.utterance) or not self.matches(intent.utterance):
             return None
-        goals = sorted(self.personal.goals.values(), key=lambda goal: goal.created_at)[
-            : self._MAX_CONTEXT_ITEMS
-        ]
+        text = intent.utterance.casefold()
+        general_context_requested = any(
+            any(term in text for term in terms)
+            for terms in (self._PERSONAL_TERMS, self._SHARED_TERMS, self._TASK_TERMS)
+        )
+        goals = tuple(
+            sorted(self.personal.goals.values(), key=lambda goal: goal.created_at)[
+                : self._MAX_CONTEXT_ITEMS
+            ]
+        )
         projects = {project.project_id: project.name for project in self.personal.projects.values()}
         obligations = cast(tuple[Any, ...], self.household_snapshot.get("obligations", ()))
         open_obligations = tuple(item for item in obligations if not item.settled)[
@@ -881,6 +888,12 @@ class CrossDomainPlanningFastPath:
         memory_matches = tuple(
             memory for score, memory in scored_memories if score == highest_memory_score
         )[: self._MAX_CONTEXT_ITEMS]
+        if not general_context_requested:
+            goals = ()
+            open_obligations = ()
+            open_tasks = ()
+            open_chores = ()
+            memory_matches = ()
         priorities = [f"household obligation: {item.title}" for item in open_obligations]
         priorities.extend(f"personal goal: {goal.description}" for goal in goals)
         priorities.extend(f"task: {task.title}" for task in open_tasks)
@@ -920,7 +933,11 @@ class CrossDomainPlanningFastPath:
                 for memory in memory_matches
             ],
             "priority_candidates": priorities,
-            "sources": ("personal_vault", "household_space", "tasks_space"),
+            "sources": (
+                ("personal_vault", "household_space", "tasks_space")
+                if general_context_requested
+                else ("household_space",)
+            ),
         }
         if any(term in intent.utterance.casefold() for term in self._FOOD_TERMS):
             grocery_items = cast(tuple[Any, ...], self.household_snapshot.get("grocery_items", ()))
@@ -973,12 +990,7 @@ class CrossDomainPlanningFastPath:
                 )
                 if key in self.finance
             }
-            planning["sources"] = (
-                "personal_vault",
-                "household_space",
-                "tasks_space",
-                "finance",
-            )
+            planning["sources"] = (*cast(tuple[str, ...], planning["sources"]), "finance")
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
