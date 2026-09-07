@@ -2528,13 +2528,24 @@ def _deterministic_composition_action(
         card = manager.action_card("workspace", "workspace.research_notes.create")
         if card is None:
             return None
+        safe_path_request = re.fullmatch(
+            r"research a safe path for (?P<query>.+?) and save notes as "
+            r"(?P<target_path>[a-z0-9][a-z0-9_./-]{0,120})",
+            text,
+            flags=re.IGNORECASE,
+        )
+        research_query = intent.utterance
+        target_path = matches[-1]
+        if safe_path_request is not None:
+            research_query = safe_path_request.group("query").strip().rstrip("?!.,")
+            target_path = safe_path_request.group("target_path")
         return card.model_copy(
             update={
                 "action": card.action.model_copy(
                     update={
                         "arguments": {
-                            "query": intent.utterance,
-                            "target_path": matches[-1],
+                            "query": research_query,
+                            "target_path": target_path,
                         }
                     }
                 )
