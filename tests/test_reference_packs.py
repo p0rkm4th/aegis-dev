@@ -30,6 +30,8 @@ from aegis.reference_packs import (
     NetworkInventoryWorkspaceVerifier,
     NetworkProbeWorkspaceExecutor,
     NetworkProbeWorkspaceVerifier,
+    PostgresGroceryAddExecutor,
+    PostgresGroceryAddVerifier,
     prepare_reference_action,
     reference_bundles,
     reference_packs,
@@ -161,6 +163,41 @@ def test_finance_summary_runtime_reads_and_rechecks_private_snapshot() -> None:
     assert observation.command_succeeded is True
     assert result.verified is True
     assert result.evidence["finance_summary_verified"] is True
+
+
+def test_local_grocery_add_uses_canonical_store_and_independent_readback() -> None:
+    from aegis.household import HouseholdSpace
+
+    principal = Principal(id="alice", vault_id="vault", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"alice"})
+
+    class Store:
+        def add_grocery(self, _principal, item, idempotency_key):
+            space.add_grocery(principal, item, idempotency_key)
+
+        def grocery_recorded(self, _principal, item, idempotency_key):
+            return space.grocery_mutations.get(idempotency_key) == item
+
+        def list_grocery_items(self, _principal):
+            return tuple(space.grocery_items.values())
+
+    action = ActionSpec(
+        action_id="kitchen.groceries.add",
+        capability="kitchen.groceries.write",
+        arguments={"item": "oat milk"},
+    )
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="grocery-add-1"
+    )
+    executor = PostgresGroceryAddExecutor(Store(), principal)
+    verifier = PostgresGroceryAddVerifier(Store(), principal)
+    observation = executor.execute(request)
+    result = verifier.verify(observation, VerificationContract(kind="readback"))
+
+    assert observation.command_succeeded
+    assert result.verified
+    assert result.evidence["canonical_grocery_recorded"] is True
+    assert [item.display_name for item in space.grocery_items.values()] == ["oat milk"]
 
 
 def test_network_probe_to_workspace_uses_fixed_report_and_independent_readback(

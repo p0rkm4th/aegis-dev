@@ -96,12 +96,12 @@ from .reference_packs import (
     NetworkProbeWorkspaceVerifier,
     ObligationsWorkspaceExecutor,
     ObligationsWorkspaceVerifier,
-    OpenClawGroceryExecutor,
-    OpenClawGroceryVerifier,
     OpenClawHomelabExecutor,
     OpenClawHomelabVerifier,
     OpenClawNetworkProbeExecutor,
     OpenClawNetworkProbeVerifier,
+    PostgresGroceryAddExecutor,
+    PostgresGroceryAddVerifier,
     PostgresGroceryListExecutor,
     PostgresGroceryListVerifier,
     PostgresGroceryStateExecutor,
@@ -228,22 +228,11 @@ def default_runtime_registry(
         )
 
     def grocery_add_runtime(connection: Any, principal: Principal) -> ActionRuntime:
-        channel = openclaw_channel()
         store = PostgresHouseholdStore(connection)
         return ActionRuntime(
-            OpenClawExecutor(
-                OpenClawGroceryExecutor(
-                    channel,
-                    os.environ.get("AEGIS_LIVE_GROCERY_PATH", "/tmp/aegis-alpha-groceries.tsv"),
-                    store,
-                    principal,
-                ),
-                _RuntimePolicy(),
-                _NoApproval(),
-            ),
-            OpenClawGroceryVerifier(store, principal),
+            PostgresGroceryAddExecutor(store, principal),
+            PostgresGroceryAddVerifier(store, principal),
             {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
-            cleanup=channel.close,
         )
 
     def pantry_list_runtime(connection: Any, principal: Principal) -> ActionRuntime:
