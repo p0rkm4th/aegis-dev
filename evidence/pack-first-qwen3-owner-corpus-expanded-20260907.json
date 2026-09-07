@@ -1,0 +1,41 @@
+{
+  "kind": "pack-first-qwen3-owner-corpus-expanded",
+  "source_sha": "f802ad47f929ac7d57d08d5b34c0d3b499b04220",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "corpus_cases": 24,
+  "new_case_classes": ["multi_pack", "correction", "lifecycle_authority", "fresh_food", "fresh_finance", "fresh_homelab", "fresh_forge"],
+  "variants": {
+    "pack_first": {
+      "routing_recall": 0.3684210526315789,
+      "wrong_action_rate": 0.631578947368421,
+      "clarification_rate": 0.125,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 578.3333333333334,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 462.9801189294085,
+      "p95_latency_ms": 845.0975489104167,
+      "failure_category.lifecycle_authority_request": 2.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.8421052631578947,
+      "wrong_action_rate": 0.15789473684210525,
+      "clarification_rate": 0.16666666666666666,
+      "invalid_measurement_rate": 0.041666666666666664,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 249.66666666666666,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 483.6734470445663,
+      "p95_latency_ms": 596.892635920085,
+      "failure_category.ValueError": 1.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    }
+  },
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false
+  },
+  "interpretation": "Retrieval-assisted Pack-first remained substantially better than pure Pack-first after adding fresh multi-domain and correction cases. This run measures the two experimental variants; the incumbent callback was a no-card harness control and is not used for a production decision."
+}
