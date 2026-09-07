@@ -7488,6 +7488,12 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Open Systems" in browser_source
     assert "Review groceries and services" in browser_source
     assert "Show me what groceries we still need and which services are down." in browser_source
+    assert "Plan groceries, budget, and services" in browser_source
+    assert "Grocery ceiling in USD" in browser_source
+    assert (
+        "Can I keep tonight's grocery trip under $${value.toFixed(2)} based on what we need, "
+        "and check why Plex is down." in browser_source
+    )
     assert "no purchase, restart, or financial mutation is performed." in browser_source
     assert "Show authorized detail" in browser_source
     assert "today-overview" in _AEGIS_CSS
