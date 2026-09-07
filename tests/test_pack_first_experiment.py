@@ -162,6 +162,7 @@ def test_router_measurements_keep_pack_first_context_compact_and_exclude_owner_d
     assert assisted.valid and assisted.correct
     assert len(seen) == 2
     assert "dynamic-weather" in seen[0]
+    assert "Read bounded weather conditions" in seen[0]
     assert "secret-grocery-value" in seen[0]
     assert "quantity" not in seen[0]
     assert pure.context_bytes == 0
