@@ -5587,6 +5587,140 @@ def test_browser_forge_review_renders_research_sources_as_safe_links():
     assert "forge-research-sources" in _AEGIS_JS
     assert "noopener noreferrer" in _AEGIS_JS
     assert "['http:', 'https:'].includes(url.protocol)" in _AEGIS_JS
+    assert "/api/forge/quarantine" in _AEGIS_JS
+    assert "not installed, enabled, authorized, or executable" in _AEGIS_JS
+
+
+def test_browser_app_routes_owner_selected_forge_quarantine_without_lifecycle_authority():
+    principal = Principal(id="alice", vault_id="vault")
+    seen: list[tuple[str, dict[str, object]]] = []
+
+    def quarantine(current, request):
+        seen.append((current.id, request))
+        return {
+            "proposal": {"pack_id": "generated-example"},
+            "generated_files": ["README.md", "runtime.py"],
+            "quarantine": {"status": "materialized", "active_registry": "untouched"},
+            "security_warnings": ["stub only"],
+        }
+
+    app = BrowserApp(
+        principal,
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        forge_quarantine=quarantine,
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/forge/quarantine",
+        b'{"objective_id":"11111111-1111-4111-8111-111111111111",'
+        b'"need_id":"22222222-2222-4222-8222-222222222222",'
+        b'"candidate_index":0}',
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload)["quarantine"]["active_registry"] == "untouched"
+    assert seen == [
+        (
+            "alice",
+            {
+                "objective_id": "11111111-1111-4111-8111-111111111111",
+                "need_id": "22222222-2222-4222-8222-222222222222",
+                "candidate_index": 0,
+            },
+        )
+    ]
+
+
+def test_browser_app_rejects_forge_quarantine_without_session():
+    called = False
+
+    def quarantine(_current, _request):
+        nonlocal called
+        called = True
+        return {}
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        forge_quarantine=quarantine,
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/forge/quarantine",
+        b'{"objective_id":"11111111-1111-4111-8111-111111111111",'
+        b'"need_id":"22222222-2222-4222-8222-222222222222",'
+        b'"candidate_index":0}',
+    )
+    assert status == 401
+    assert json.loads(payload)["code"] == "identity_unavailable"
+    assert called is False
+
+
+def test_forge_quarantine_materializes_only_fixed_stub_for_owner_candidate(monkeypatch, tmp_path):
+    from aegis import cli
+
+    need = {
+        "need_id": "22222222-2222-4222-8222-222222222222",
+        "requested_effect": "Set up a Terraria server for the family",
+        "reason": "No enabled ActionCard currently satisfies this requested effect.",
+        "status": "owner_input_required",
+        "investigation": "complete",
+        "candidate_resolutions": [
+            {
+                "kind": "workspace_solution",
+                "capability": "workspace.artifact.create",
+                "requires_owner_input": True,
+            }
+        ],
+    }
+
+    class Result:
+        def fetchone(self):
+            return ({"capability_needs": [need]},)
+
+    class Connection:
+        def execute(self, *_args, **_kwargs):
+            return Result()
+
+        def close(self):
+            pass
+
+    def materialize(proposal, destination, *, preview=False):
+        files = ("README.md", "pack_manifest.json", "runtime.py")
+        if preview:
+            return files
+        destination.mkdir(parents=True)
+        for relative in files:
+            path = destination / relative
+            path.write_text("stub", encoding="utf-8")
+        return files
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setenv("AEGIS_FORGE_QUARANTINE_ROOT", str(tmp_path / "quarantine"))
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    monkeypatch.setattr(cli, "materialize_pack_skeleton", materialize)
+
+    result = cli._forge_quarantine(
+        Principal(id="alice", vault_id="vault"),
+        {
+            "objective_id": "11111111-1111-4111-8111-111111111111",
+            "need_id": "22222222-2222-4222-8222-222222222222",
+            "candidate_index": 0,
+        },
+    )
+
+    assert result["validation"]["status"] == "structurally_validated"
+    assert result["quarantine"]["status"] == "materialized"
+    assert result["quarantine"]["active_registry"] == "untouched"
+    assert result["proposal"]["permissions"] == ["workspace.write"]
+    assert result["proposal"]["dependencies"] == []
+    assert result["security_warnings"]
+    assert (tmp_path / "quarantine").is_dir()
 
 
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():

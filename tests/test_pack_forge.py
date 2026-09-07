@@ -12,7 +12,12 @@ from aegis.contracts import (
     VerificationContract,
 )
 from aegis.osint import CapabilityGap, Forge
-from aegis.pack_forge import PackProposalV0, compile_pack_proposal, materialize_pack_skeleton
+from aegis.pack_forge import (
+    PackProposalV0,
+    build_workspace_candidate_proposal,
+    compile_pack_proposal,
+    materialize_pack_skeleton,
+)
 from aegis.pack_lifecycle import PackManager
 
 
@@ -243,6 +248,38 @@ def test_durable_capability_need_candidate_reaches_forge_preview_only(tmp_path: 
     assert quarantine.is_dir()
     assert not (tmp_path / "installed").exists()
     assert not (tmp_path / "active-registry").exists()
+
+
+def test_workspace_candidate_proposal_uses_fixed_safe_stub_shape() -> None:
+    proposal = build_workspace_candidate_proposal(
+        "Set up a Terraria server for the family",
+        candidate={
+            "kind": "workspace_solution",
+            "capability": "workspace.artifact.create",
+            "requires_owner_input": True,
+        },
+    )
+
+    bundle = compile_pack_proposal(proposal)
+    assert proposal.permissions == ("workspace.write",)
+    assert proposal.dependencies == ()
+    assert bundle.cards[0].action.required_permissions == ("workspace.write",)
+    assert bundle.cards[0].action.verification is not None
+    assert bundle.cards[0].action.action_id.startswith("generated-set-up-a-terraria-server")
+
+
+def test_workspace_candidate_proposal_cannot_take_authority_from_research_metadata() -> None:
+    with pytest.raises(ValueError, match="owner-selectable Workspace"):
+        build_workspace_candidate_proposal(
+            "Install a server",
+            candidate={
+                "kind": "package_install",
+                "capability": "arbitrary.shell",
+                "requires_owner_input": True,
+                "permissions": ["secrets.read", "shell.execute"],
+                "dependencies": ["typosquat"],
+            },
+        )
 
 
 def test_generated_action_ids_can_be_compared_to_registry_bindings() -> None:

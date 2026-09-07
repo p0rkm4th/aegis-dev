@@ -36,6 +36,8 @@ from .communications import configured_communication_targets
 from .compositions import available_compositions, calendar_to_task_attention
 from .contracts import (
     ActionCard,
+    CapabilityNeed,
+    CapabilityNeedStatus,
     Context,
     ExecutionRequest,
     IntentFrame,
@@ -72,6 +74,11 @@ from .identity import (
 from .interaction import InteractionBoundary, InteractionDependencies
 from .network import BoundedNetworkDiscovery, PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
+from .pack_forge import (
+    build_workspace_candidate_proposal,
+    compile_pack_proposal,
+    materialize_pack_skeleton,
+)
 from .pack_lifecycle import PackManager, PackStatus, PackUpgradeStatus, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
@@ -1395,6 +1402,120 @@ def _objectives_state(principal: Principal) -> dict[str, Any]:
                 }
             )
         return {"objectives": objectives}
+    finally:
+        connection.close()
+
+
+def _forge_quarantine(principal: Principal, request: dict[str, Any]) -> dict[str, Any]:
+    """Materialize an owner-selected Forge stub outside every active registry."""
+
+    try:
+        objective_id = UUID(str(request["objective_id"]))
+        need_id = UUID(str(request["need_id"]))
+        candidate_index = int(request["candidate_index"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("Forge candidate request is malformed") from exc
+    if not 0 <= candidate_index < 8:
+        raise ValueError("Forge candidate index is out of bounds")
+
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        row = connection.execute(
+            """SELECT payload FROM objectives
+               WHERE id = %s AND principal_id = %s AND vault_id = %s
+                 AND (space_id IS NULL OR EXISTS (
+                   SELECT 1 FROM space_memberships sm
+                   WHERE sm.principal_id = %s AND sm.space_id = objectives.space_id
+                     AND sm.active = TRUE
+                 ))""",
+            (str(objective_id), principal.id, principal.vault_id, principal.id),
+        ).fetchone()
+        if row is None:
+            raise KeyError("objective is unavailable")
+        payload = row[0] if isinstance(row[0], dict) else json.loads(str(row[0]))
+        raw_need = next(
+            (
+                item
+                for item in payload.get("capability_needs", ())
+                if isinstance(item, dict) and str(item.get("need_id", "")) == str(need_id)
+            ),
+            None,
+        )
+        if raw_need is None:
+            raise KeyError("CapabilityNeed is unavailable")
+        need = CapabilityNeed.model_validate(raw_need)
+        if need.status is not CapabilityNeedStatus.OWNER_INPUT_REQUIRED:
+            raise PermissionError("Forge preview requires an owner-selectable CapabilityNeed")
+        candidates = list(need.candidate_resolutions)
+        if candidate_index >= len(candidates):
+            raise ValueError("Forge candidate is unavailable")
+        candidate = candidates[candidate_index]
+        if candidate.get("requires_owner_input") is not True:
+            raise PermissionError("Forge preview requires explicit owner candidate selection")
+        proposal = build_workspace_candidate_proposal(
+            need.requested_effect,
+            candidate=candidate,
+        )
+        bundle = compile_pack_proposal(proposal)
+        preview_root = Path(
+            os.environ.get("AEGIS_FORGE_QUARANTINE_ROOT", "/tmp/aegis-forge-quarantine")
+        ).expanduser()
+        owner_key = hashlib.sha256(principal.id.encode()).hexdigest()[:24]
+        destination = preview_root / owner_key / bundle.manifest.pack_id
+        preview_files = materialize_pack_skeleton(proposal, destination, preview=True)
+        if destination.exists():
+            if not destination.is_dir():
+                raise ValueError("Forge quarantine path is not a directory")
+            actual_files = tuple(
+                str(path.relative_to(destination))
+                for path in sorted(destination.rglob("*"))
+                if path.is_file()
+            )
+            if actual_files != preview_files:
+                raise ValueError("existing Forge quarantine has an unexpected file set")
+            quarantine_status = "already_materialized"
+        else:
+            materialize_pack_skeleton(proposal, destination)
+            quarantine_status = "materialized"
+        candidate_projection = {
+            key: candidate[key]
+            for key in (
+                "kind",
+                "capability",
+                "status",
+                "requires_owner_input",
+                "description",
+                "research_sources",
+            )
+            if key in candidate
+        }
+        return {
+            "objective_id": str(objective_id),
+            "need_id": str(need_id),
+            "requested_effect": need.requested_effect,
+            "candidate": candidate_projection,
+            "proposal": proposal.model_dump(mode="json"),
+            "validation": {
+                "status": "structurally_validated",
+                "pack_validator": "production PackBundle validator",
+                "generated_runtime": "stub_only",
+            },
+            "generated_files": list(preview_files),
+            "quarantine": {
+                "status": quarantine_status,
+                "quarantine_id": hashlib.sha256(
+                    f"{principal.id}:{bundle.manifest.pack_id}".encode()
+                ).hexdigest()[:16],
+                "active_registry": "untouched",
+            },
+            "security_warnings": [
+                "Research and candidate metadata are untrusted input.",
+                "The generated runtime is a NotImplementedError stub and was not executed.",
+                "The candidate is not installed, enabled, authorized, or granted permissions.",
+                "Owner approval, implementation review, and Pack conformance remain required.",
+            ],
+        }
     finally:
         connection.close()
 
@@ -3915,6 +4036,7 @@ def main() -> int:
                 research_state=_research_state,
                 finance_state=_finance_state,
                 finance_import=_finance_import,
+                forge_quarantine=_forge_quarantine,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")

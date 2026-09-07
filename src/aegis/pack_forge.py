@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field, field_validator
 
-from .contracts import ActionCard, StrictModel
+from .contracts import ActionCard, ActionSpec, StrictModel, VerificationContract
 from .pack_lifecycle import PackBundle, PackManifest, PackUI, validate_pack_bundle
 
 _IDENTIFIER = re.compile(r"^[a-z][a-z0-9_.-]*$")
@@ -47,6 +47,57 @@ class PackProposalV0(StrictModel):
             if not _IDENTIFIER.fullmatch(card.action.capability):
                 raise ValueError("ActionCard capability IDs must use stable identifiers")
         return values
+
+
+def build_workspace_candidate_proposal(
+    requested_effect: str,
+    *,
+    candidate: dict[str, Any],
+) -> PackProposalV0:
+    """Build the one safe candidate shape currently supported by owner Forge review.
+
+    CapabilityNeed research is untrusted input.  The candidate can identify the
+    requested direction, but it cannot choose permissions, dependencies, runtime
+    code, or lifecycle state.  The resulting proposal is therefore a structural
+    Workspace stub with a deliberately unimplemented runtime.
+    """
+
+    if not requested_effect.strip():
+        raise ValueError("Forge candidate requires a requested effect")
+    if (
+        candidate.get("kind") != "workspace_solution"
+        or candidate.get("capability") != "workspace.artifact.create"
+        or candidate.get("requires_owner_input") is not True
+    ):
+        raise ValueError("candidate is not an owner-selectable Workspace solution")
+    normalized = "-".join(requested_effect.casefold().split())[:48].strip("-")
+    if not normalized:
+        raise ValueError("Forge candidate requires a stable requested effect")
+    pack_id = f"generated-{normalized}"
+    action_id = f"{pack_id}.artifact.create"
+    return PackProposalV0(
+        pack_id=pack_id,
+        version="0.1.0",
+        permissions=("workspace.write",),
+        dependencies=(),
+        ui=PackUI(
+            label=f"Candidate · {requested_effect.strip()[:72]}",
+            category="candidate",
+            detail_view="workspace",
+        ),
+        cards=(
+            ActionCard(
+                action=ActionSpec(
+                    action_id=action_id,
+                    capability=f"{pack_id}.artifact.create",
+                    required_permissions=("workspace.write",),
+                    verification=VerificationContract(kind="readback"),
+                ),
+                summary="Prepare a bounded Workspace artifact after implementation review",
+                relevance=1,
+            ),
+        ),
+    )
 
 
 def compile_pack_proposal(proposal: PackProposalV0) -> PackBundle:
