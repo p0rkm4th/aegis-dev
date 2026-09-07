@@ -161,7 +161,7 @@ def _percentile(values: Sequence[float], percentile: float) -> float:
 def _variant_metrics(measurements: Sequence[PackRouteMeasurement]) -> dict[str, float]:
     judged = [item for item in measurements if item.correct is not None]
     correct = sum(item.correct is True for item in judged)
-    return {
+    metrics = {
         "routing_recall": correct / len(judged) if judged else 0.0,
         "wrong_action_rate": (
             sum(item.valid and item.correct is False for item in judged) / len(judged)
@@ -188,6 +188,16 @@ def _variant_metrics(measurements: Sequence[PackRouteMeasurement]) -> dict[str, 
         "p50_latency_ms": _percentile([item.latency_ms for item in measurements], 0.50),
         "p95_latency_ms": _percentile([item.latency_ms for item in measurements], 0.95),
     }
+    metrics["invalid_measurement_rate"] = (
+        sum(not item.valid for item in measurements) / len(measurements) if measurements else 0.0
+    )
+    failure_counts: dict[str, int] = {}
+    for item in measurements:
+        if item.failure_category:
+            failure_counts[item.failure_category] = failure_counts.get(item.failure_category, 0) + 1
+    for category, count in failure_counts.items():
+        metrics[f"failure_category.{category}"] = float(count)
+    return metrics
 
 
 def run_pack_tournament(
