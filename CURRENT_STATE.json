@@ -1,19 +1,19 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
+  "state_basis_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
-  "deterministic_green_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
-  "last_pushed_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
-  "hosted_green_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
-  "hosted_ci_green_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
+  "repository_head_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
+  "deterministic_green_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
+  "last_pushed_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
+  "hosted_green_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
+  "hosted_ci_green_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
+    "commit_sha": "74bfcb3c8e1f44817d7f6dee58f6a3f9b57f051e",
     "conclusion": "success",
-    "run_id": "34115346913",
-    "observed_at": "2026-09-07T11:07:00Z"
+    "run_id": "34116007530",
+    "observed_at": "2026-09-07T11:16:00Z"
   },
   "installed_release_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
   "running_release_sha": "9079ce51bea8670e60aa5d0eade604779cea9cef",
@@ -400,6 +400,7 @@
     ,"owner Today now exposes a bounded Food + Systems review action on c97358a through the authenticated Tailscale shell; it submits the proven read-only grocery-needs/service-health question through normal Core interaction and explicitly discloses that no purchase, restart, or financial mutation is performed"
     ,"owner Today now exposes a bounded Food + Finance + Systems planning handoff on 5c55a75 through the authenticated Tailscale shell; the amount is an explicit USD ceiling, the normal Core response keeps grocery prices unavailable, and the handoff performs no purchase, financial, or service mutation"
     ,"owner Today now groups exact title-and-time upcoming event labels on 9079ce5 through the authenticated Tailscale shell; grouping is display-only, matching entries are disclosed, and Calendar retains each canonical event identity"
+    ,"Fresh Qwen3:8B Pack-first shadow evidence on 74bfcb3 evaluated 34 cases including the exact Food + Homelab and Food + Finance + Homelab owner phrases; the unchanged incumbent led at 0.759 recall / 0.241 wrong-action versus 0.345 / 0.621 for both experimental variants, so production cognition remains incumbent and owner release remains 9079ce5"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
@@ -463,7 +464,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Dogfood the promoted Today Food + Finance + Systems planning and calm event overview through the owner path, then continue the highest-value Food, Homelab, Forge, or UI gap. Forge remains safely stopped before install/enable/authority; Pack-first remains experimental and production cognition remains incumbent.",
+  "next_action": "Continue owner-real utility on the promoted 9079ce5 Today surface, using the fresh Food + Finance + Systems read evidence to choose the next bounded Food, Homelab, Forge, or UI improvement. Pack-first remains experimental after the 74bfcb3 shadow result; production cognition remains incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
