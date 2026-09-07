@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "7d7e975",
+  "state_basis_sha": "f223321",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "7d7e975",
-  "deterministic_green_sha": "7d7e975",
-  "last_pushed_sha": "7d7e975",
-  "hosted_green_sha": "7d7e975",
-  "hosted_ci_green_sha": "7d7e975",
+  "repository_head_sha": "f223321",
+  "deterministic_green_sha": "f223321",
+  "last_pushed_sha": "f223321",
+  "hosted_green_sha": "f223321",
+  "hosted_ci_green_sha": "f223321",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "7d7e9753036687a14fc47a7fdd0e4e53ac5e8deb",
+    "commit_sha": "f2233214b78580a93bc65189b9d8e3e07cac63bd",
     "conclusion": "success",
-    "run_id": "34098375631",
-    "observed_at": "2026-09-07T08:03:14Z"
+    "run_id": "34099395174",
+    "observed_at": "2026-09-07T08:13:55Z"
   },
-  "installed_release_sha": "7d7e975",
-  "running_release_sha": "7d7e975",
-  "live_green_sha": "7d7e975",
+  "installed_release_sha": "f223321",
+  "running_release_sha": "f223321",
+  "live_green_sha": "f223321",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "7d7e9753036687a14fc47a7fdd0e4e53ac5e8deb"
+    "release_sha": "f2233214b78580a93bc65189b9d8e3e07cac63bd"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -90,6 +90,7 @@
     "capability_need_forge_quarantine_punctuation_owner": "Exact owner HTTPS proof on 7e7908e converted the punctuated Minecraft owner_input_required candidate into a production-validated Workspace stub, materialized eight files in persistent quarantine, survived owner-service restart, and left the active registry without a generated Pack",
     "homelab_services_health_owner": "Exact owner HTTPS proof on 913de7c answers a natural collection service-health question from the canonical scoped inventory, independently rereads each provider endpoint, reports Plex unavailable truthfully, and performs no mutation",
     "homelab_inventory_owner": "Exact owner HTTPS proof on 7d7e975 answers a natural Systems inventory question from the canonical scoped PostgreSQL Host/Service inventory, independently reloads it, and does not infer reachability or action authority",
+    "homelab_research_down_wording_owner": "Exact owner HTTPS proof on f223321 routes 'Why is Plex down?' through the existing Homelab research Pack, resolves the uniquely named canonical acceptance-plex service, rereads its unavailable health, and keeps bounded public context non-canonical with no mutation authority",
     "active_objectives_today": "Today projects active canonical objectives with lifecycle state and a read-only handoff to Objectives",
     "active_objectives_constellation": "Constellation projects authorized active objective nodes and links declared candidate capabilities to Pack nodes without granting authority",
     "homelab_health_to_task": "Systems exposes an explicit investigation-task handoff for unhealthy authorized services; health observation does not auto-create tasks or restart services",
@@ -384,6 +385,7 @@
     ,"owner Forge quarantine proof on 7e7908e accepted the punctuated Minecraft CapabilityNeed candidate after deterministic safe slugification; eight stub files persisted across service restart while the active registry and authority remained untouched"
     ,"owner service-health collection proof on 913de7c answered 'What services are down?' through the normal Core route, independently reread the scoped provider state, reported Plex unavailable, and performed no mutation"
     ,"owner Systems inventory proof on 7d7e975 answered 'Show me my systems' through the normal Core route, independently reloaded the scoped PostgreSQL Host/Service inventory, and did not infer reachability or action authority"
+    ,"owner Homelab research proof on f223321 answered 'Why is Plex down?' through the normal Core route, resolved the unique canonical service name, preserved unavailable health and non-canonical public context, and performed no mutation"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."

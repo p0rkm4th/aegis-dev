@@ -1,0 +1,33 @@
+{
+  "evidence_type": "owner_https_homelab_research_down_wording",
+  "source_sha": "f2233214b78580a93bc65189b9d8e3e07cac63bd",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34099395174",
+    "head_sha": "f2233214b78580a93bc65189b9d8e3e07cac63bd",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "access": "authenticated Tailscale HTTPS",
+    "release_sha": "f2233214b78580a93bc65189b9d8e3e07cac63bd",
+    "postgresql": "healthy",
+    "restarted_before_proof": true
+  },
+  "workflow": {
+    "utterance": "Why is Plex down?",
+    "action_id": "homelab-research.service.explain",
+    "pack_id": "homelab-research",
+    "canonical_service": "acceptance-plex",
+    "display_name_resolution": "unique Principal-scoped canonical service name Plex",
+    "observed_status": "unavailable",
+    "result_state": "completed",
+    "verification": "canonical service health reread before bounded public research",
+    "external_evidence": true,
+    "canonical_personal_truth": false,
+    "mutation_performed": false,
+    "authority": "read-only Homelab observation and bounded research; no restart authority"
+  },
+  "observed_at": "2026-09-07T08:16:05Z"
+}
