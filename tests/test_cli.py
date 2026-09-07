@@ -6441,6 +6441,9 @@ def test_browser_app_today_surface_keeps_grocery_identity_while_calming_repeated
     assert "Grocery budget amount in USD" in html
     assert "Can I spend $${value.toFixed(2)} on groceries tonight?" in html
     assert "it never estimates grocery prices or changes financial state" in html
+    assert "todayAttentionLabels" in html
+    assert "${group.count} open records" in html
+    assert "Tasks, Household, and Objectives retain each canonical record." in html
 
 
 def test_browser_app_calendar_surface_exposes_provider_readback_update():
