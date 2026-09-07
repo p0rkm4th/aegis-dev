@@ -1,0 +1,25 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "capability-need-safe-research-owner",
+  "source_sha": "2a3188bc3a3b355490b0ff6eb6bbd1b7f4286841",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34074812736",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "2a3188bc3a3b355490b0ff6eb6bbd1b7f4286841",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "owner_http_proof": {
+    "javascript_status": 200,
+    "javascript_bytes": 140176,
+    "open_need_surface": "No candidate resolution is available yet",
+    "safe_action_surface": "Research safe path",
+    "authority": "presentation only; action submits the normal Core interaction route and grants no installation, enablement, approval, permission, or execution authority"
+  }
+}
