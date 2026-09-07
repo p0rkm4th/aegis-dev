@@ -175,6 +175,49 @@ def test_grocery_read_fast_path_excludes_purchased_and_removed_stable_items() ->
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_grocery_purchase_status_read_uses_one_stable_canonical_record() -> None:
+    class GroceryStore:
+        def list_grocery_items(self, _principal: object) -> tuple[GroceryItem, ...]:
+            return (GroceryItem("oat-id", "oat milk", "oat milk", state="purchased"),)
+
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            raise AssertionError("purchase status must not fall back to legacy strings")
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Did we already buy oat milk?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Yes — oat milk is marked purchased."
+    assert result.evidence["canonical_item"]["grocery_id"] == "oat-id"
+    assert reference_format_result(result) == "Yes — oat milk is marked purchased."
+
+
+def test_grocery_purchase_status_read_blocks_ambiguous_display_names() -> None:
+    class GroceryStore:
+        def list_grocery_items(self, _principal: object) -> tuple[GroceryItem, ...]:
+            return (
+                GroceryItem("oat-needed", "oat milk", "oat milk"),
+                GroceryItem("oat-bought", "oat milk", "oat milk", state="purchased"),
+            )
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="Did we already buy oat milk?",
+        )
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["grocery_status"] == "ambiguous"
+    assert result.evidence["matching_item_ids"] == ["oat-needed", "oat-bought"]
+
+
 def test_grocery_read_fast_path_accepts_punctuated_topic_follow_up() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
