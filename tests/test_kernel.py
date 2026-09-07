@@ -3258,6 +3258,24 @@ def test_ollama_plan_prompt_separates_plan_and_action_shapes():
     assert "optional or 'if clearly stated'" in payload["argument_proposal_rule"]
 
 
+def test_ollama_prompt_does_not_infer_grocery_costs_from_canonical_items():
+    request = ModelRequest(
+        working_set=WorkingSet(
+            intent=IntentFrame(
+                principal=Principal(id="alice", vault_id="alice-vault"),
+                utterance="Can I keep tonight's grocery trip under $80?",
+            ),
+            context=Context(values={"canonical_facts": {"canonical_items": ["rice", "milk"]}}),
+        ),
+        action_cards=(),
+    )
+
+    payload = json.loads(OllamaProvider("qwen3:8b", object())._prompt(request))
+
+    assert "Never estimate or claim a grocery total" in payload["answer_rule"]
+    assert "budget or limit comparison" in payload["answer_rule"]
+
+
 def test_ollama_schema_does_not_accept_model_provenance_metadata():
     schema = OllamaProvider._decision_schema(
         ModelRequest(working_set=WorkingSet(intent=intent()), action_cards=())
@@ -3977,6 +3995,12 @@ def test_cross_domain_planning_recognizes_food_and_finance_owner_question():
     )
 
 
+def test_cross_domain_planning_recognizes_explicit_grocery_budget_limit():
+    assert CrossDomainPlanningFastPath.matches(
+        "Can I keep tonight's grocery trip under $80 based on what we need?"
+    )
+
+
 def test_cross_domain_planning_projects_needed_groceries_without_inventing_quantity():
     alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     personal = PersonalState()
@@ -4026,6 +4050,10 @@ def test_cross_domain_planning_projects_needed_groceries_without_inventing_quant
     ]
     assert "grocery_items_omitted" not in result.evidence["planning"]
     assert result.evidence["planning"]["affordability"]["purchase_currency"] == "USD"
+    assert result.evidence["planning"]["grocery_costs"] == {
+        "available": False,
+        "reason": "canonical grocery records contain no item prices",
+    }
     assert "balance_cents" not in repr(result.evidence["planning"])
     assert "open_tasks" not in result.evidence["planning"]
     assert "open_chores" not in result.evidence["planning"]
