@@ -1,0 +1,28 @@
+{
+  "artifact_type": "owner_homelab_discovery_freshness_proof",
+  "observed_at": "2026-09-06",
+  "source_sha": "92d298797a57836e2db4375e61071d4ca93d7883",
+  "hosted_validation": {
+    "run_id": "34084594951",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "92d298797a57836e2db4375e61071d4ca93d7883",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "postgres": "healthy"
+  },
+  "workflow": {
+    "path": "authenticated HTTPS /api/systems → POST /api/systems/discover → GET /api/systems",
+    "scope_id": "alpha-lab",
+    "scope_purpose": "owned local acceptance lab",
+    "discovery_http_status": 200,
+    "source": "bounded_direct_socket_observation",
+    "observation_count": 1,
+    "timestamped_observations": true,
+    "identity_status": "unmatched_observation",
+    "canonical_host_id": null
+  },
+  "authority_boundary": "Discovery remains an observation only; the response explicitly states it is not a canonical Host and not action authority."
+}
