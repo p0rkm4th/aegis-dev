@@ -1,0 +1,28 @@
+{
+  "evidence_type": "owner_dogfood",
+  "capability": "finance.summary.read",
+  "source_sha": "407c8d4c9b05729f25584b938232bc0a3fa97276",
+  "hosted_run_id": "34103193940",
+  "owner_path": "authenticated Tailscale HTTPS /api/message",
+  "runtime_release_sha": "407c8d4c9b05729f25584b938232bc0a3fa97276",
+  "requests": [
+    {
+      "utterance": "Show me my accounts",
+      "state": "completed",
+      "detail": "private Finance summary independently reread",
+      "presentation": "Finance snapshot with balances by currency and cash flow by settlement state"
+    },
+    {
+      "utterance": "What is my cash flow?",
+      "state": "completed",
+      "detail": "private Finance summary independently reread",
+      "presentation": "Finance snapshot with balances by currency and cash flow by settlement state"
+    }
+  ],
+  "assertions": [
+    "cash-flow wording reaches the existing Finance summary Pack rather than model-only context",
+    "currency buckets and posted/pending settlement states remain visibly separate",
+    "the owner response is derived from independently reread Principal-scoped state",
+    "no financial mutation was invoked"
+  ]
+}
