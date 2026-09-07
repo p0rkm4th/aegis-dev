@@ -1605,7 +1605,13 @@ function renderFoodCollection(panel, title, items, kind) {
     const details = document.createElement('span'); details.className = 'muted';
     if (kind === 'pantry') {
       const quantity = item.quantity == null ? 'quantity unknown' : `${item.quantity} ${item.unit || ''}`.trim();
-      details.textContent = `${quantity}${item.storage_location ? ` · ${item.storage_location}` : ''}`;
+      const pantryDetails = [quantity];
+      if (item.storage_location) pantryDetails.push(item.storage_location);
+      if (item.best_by) pantryDetails.push(`best by ${item.best_by}`);
+      if (item.minimum_quantity != null) {
+        pantryDetails.push(`minimum ${item.minimum_quantity} ${item.unit || ''}`.trim());
+      }
+      details.textContent = pantryDetails.join(' · ');
     } else {
       const quantity = item.desired_quantity == null ? 'quantity unknown' : `${item.desired_quantity} ${item.unit || ''}`.trim();
       details.textContent = `${item.state || 'needed'} · ${quantity}`;
