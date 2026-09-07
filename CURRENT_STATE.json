@@ -15,9 +15,9 @@
     "run_id": "34072185196",
     "observed_at": "2026-09-07T01:11:58Z"
   },
-  "installed_release_sha": "25856c8",
-  "running_release_sha": "25856c8",
-  "live_green_sha": "25856c8",
+  "installed_release_sha": "1fcddce",
+  "running_release_sha": "1fcddce",
+  "live_green_sha": "1fcddce",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "25856c8"
+    "release_sha": "1fcddce"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",

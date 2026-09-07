@@ -1,0 +1,34 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "capability-need-constellation-layer-owner",
+  "source_sha": "1fcddce9cb2a92dc02b33873c479483044af2ec7",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34072876772",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "1fcddce9cb2a92dc02b33873c479483044af2ec7",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "model": "qwen3:8b",
+    "model_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "owner_http_proof": {
+    "static_css_status": 200,
+    "static_css_content_type": "text/css",
+    "static_css_bytes": 13577,
+    "constellation_status": 200,
+    "constellation_nodes": 151,
+    "constellation_edges": 181,
+    "capability_need_nodes": 0,
+    "interpretation": "The owner data had no active unresolved CapabilityNeeds at proof time; no populated-node visual claim is made."
+  },
+  "presentation_contract": {
+    "capability_need_layer": "Capability needs",
+    "authority": "read-only context; graph visibility does not install, enable, approve, grant permission, or execute"
+  }
+}
