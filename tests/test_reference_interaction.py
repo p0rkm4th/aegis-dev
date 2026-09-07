@@ -20,6 +20,7 @@ from aegis.contracts import (
 from aegis.household import (
     Chore,
     ContextualChorePriorityFastPath,
+    GroceryItem,
     GroceryReadFastPath,
     HouseholdEvent,
     HouseholdObligation,
@@ -3173,6 +3174,114 @@ def test_reference_action_grounding_blocks_unknown_completion_target() -> None:
     assert isinstance(result, Result)
     assert result.state.value == "blocked"
     assert "couldn't find" in result.message.lower()
+
+
+def test_grocery_state_grounding_resolves_unique_display_name_to_stable_id() -> None:
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("kitchen",))
+    item = GroceryItem("grocery-rice-1", "Rice", "rice")
+    intent = IntentFrame(principal=principal, utterance="Mark rice as purchased")
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="kitchen.groceries.mark_purchased",
+            capability="kitchen.groceries.write",
+            arguments={"grocery_id": "rice"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Mark one stable-ID grocery item as purchased",
+        relevance=1,
+        argument_keys=("grocery_id",),
+    )
+
+    class Household:
+        def list_grocery_items(self, _principal: Principal) -> tuple[GroceryItem, ...]:
+            return (item,)
+
+    grounded = ground_reference_action(
+        intent,
+        card,
+        task_store=object(),
+        household_store=Household(),  # type: ignore[arg-type]
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+    )
+
+    assert isinstance(grounded, ActionCard)
+    assert grounded.action.arguments == {"grocery_id": "grocery-rice-1"}
+    assert (
+        grounded.action.argument_provenance["grocery_id"].kind
+        is ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT
+    )
+
+
+def test_grocery_state_grounding_blocks_ambiguous_or_missing_display_name() -> None:
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("kitchen",))
+    intent = IntentFrame(principal=principal, utterance="Mark rice as purchased")
+    card = ActionCard(
+        action=ActionSpec(
+            action_id="kitchen.groceries.mark_purchased",
+            capability="kitchen.groceries.write",
+            arguments={"grocery_id": "rice"},
+            verification=VerificationContract(kind="readback"),
+        ),
+        summary="Mark one stable-ID grocery item as purchased",
+        relevance=1,
+        argument_keys=("grocery_id",),
+    )
+
+    class Household:
+        def __init__(self, items: tuple[GroceryItem, ...]) -> None:
+            self.items = items
+
+        def list_grocery_items(self, _principal: Principal) -> tuple[GroceryItem, ...]:
+            return self.items
+
+    common = dict(
+        task_store=object(),
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+    )
+    ambiguous = ground_reference_action(
+        intent,
+        card,
+        household_store=Household(
+            (GroceryItem("grocery-1", "rice", "rice"), GroceryItem("grocery-2", "Rice", "rice"))
+        ),  # type: ignore[arg-type]
+        **common,
+    )
+    missing = ground_reference_action(
+        intent,
+        card,
+        household_store=Household((GroceryItem("grocery-1", "beans", "beans"),)),  # type: ignore[arg-type]
+        **common,
+    )
+
+    assert isinstance(ambiguous, Result)
+    assert ambiguous.state is ObjectiveState.BLOCKED
+    assert "choose one" in ambiguous.message
+    assert isinstance(missing, Result)
+    assert missing.state is ObjectiveState.BLOCKED
+    assert "could not find" in missing.message
+
+
+def test_grocery_state_result_is_rendered_as_the_requested_transition() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        correlation_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="canonical grocery state verified",
+        evidence={
+            "collection": "groceries",
+            "item": {"display_name": "rice", "state": "purchased"},
+        },
+    )
+
+    assert reference_format_result(result) == "Done — marked rice as purchased"
 
 
 def test_obvious_ordinal_resolves_only_authorized_prior_canonical_tasks() -> None:

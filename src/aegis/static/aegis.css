@@ -110,6 +110,7 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .list-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem 0; }
 .list-row + .list-row { border-top: 1px solid var(--line); }
 .list-row > span { min-width: 0; overflow-wrap: anywhere; }
+.food-actions { display: flex; flex-wrap: wrap; gap: .45rem; justify-content: flex-end; }
 .forge-review { border-style: dashed; background: color-mix(in srgb, var(--warning) 5%, var(--surface-1)); }
 .forge-preview { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--surface-1)); }
 .forge-review h6 { margin: 0 0 .35rem; font-size: .82rem; letter-spacing: .04em; }
