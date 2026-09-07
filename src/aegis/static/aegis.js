@@ -1853,6 +1853,25 @@ async function loadObjectives() {
                   ? `Research evidence: ${candidate.research_sources.map(source => source.title || source.url || source.source_id || 'source').join(' · ')}`
                   : 'Research evidence: none recorded';
                 forgeReview.append(provenance);
+                if (candidate.research_sources.length) {
+                  const sourceList = document.createElement('ul');
+                  sourceList.className = 'forge-research-sources';
+                  candidate.research_sources.slice(0, 5).forEach(source => {
+                    if (!source || typeof source.url !== 'string') return;
+                    let url;
+                    try { url = new URL(source.url, window.location.origin); } catch (_) { return; }
+                    if (!['http:', 'https:'].includes(url.protocol)) return;
+                    const item = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = url.href;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = source.title || source.url;
+                    item.append(link);
+                    sourceList.append(item);
+                  });
+                  if (sourceList.childElementCount) forgeReview.append(sourceList);
+                }
               }
               if (candidate.forge_review && typeof candidate.forge_review === 'object') {
                 const lifecycle = document.createElement('p'); lifecycle.className = 'muted';
