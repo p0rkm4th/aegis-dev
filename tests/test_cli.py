@@ -5849,6 +5849,8 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "identity ${host.provider_identity || 'not configured'}" in html
     assert "renderStatusBadge" in html
     assert "system-statuses" in html
+    assert "renderFinanceCoverage" in html
+    assert "renderFinanceTransactions" in html
 
 
 def test_browser_app_systems_discovery_is_scoped_and_observation_only():
