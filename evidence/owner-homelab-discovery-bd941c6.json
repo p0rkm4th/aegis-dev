@@ -1,0 +1,31 @@
+{
+  "artifact_type": "owner_homelab_discovery_read_proof",
+  "observed_at": "2026-09-07T06:14:00Z",
+  "source_sha": "bd941c61778285269813e146dfa4a2ed5e371270",
+  "hosted_validation": {
+    "run_id": "34089055592",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "bd941c61778285269813e146dfa4a2ed5e371270",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "postgres": "healthy",
+    "path": "authenticated Tailscale HTTPS /api/systems/discover and /api/systems"
+  },
+  "workflow": {
+    "scope_id": "alpha-lab",
+    "discover_http_status": 200,
+    "source": "bounded_direct_socket_observation",
+    "observation_count": 1,
+    "observed_services": ["22"],
+    "observation_status": "discovered",
+    "identity_status": "unmatched_observation",
+    "canonical_host_id": null,
+    "timestamped": true,
+    "systems_http_status": 200,
+    "canonical_host_count": 1,
+    "discovered_device_count": 1
+  },
+  "boundary": "Discovery is an authorized read observation only; it does not create a canonical Host, grant action authority, or imply service health."
+}
