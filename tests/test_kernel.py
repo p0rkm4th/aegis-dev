@@ -5167,6 +5167,10 @@ def test_finance_fast_path_yields_compound_questions_to_bounded_cognition():
     assert not FinanceReadFastPath.matches(
         "What do I still need to handle, and can I afford a $5 purchase?"
     )
+    assert not FinanceReadFastPath.matches(
+        "We're running low on groceries, can I spend eighty dollars tonight, "
+        "and check why Plex is down?"
+    )
     assert FinanceReadFastPath.matches("Can I afford a $5 purchase?")
     assert FinanceReadFastPath.matches("Would spending twenty dollars be okay for me?")
     assert FinanceReadFastPath.amount_cents("Would spending twenty five dollars be okay?") == 2500

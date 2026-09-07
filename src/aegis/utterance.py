@@ -16,6 +16,34 @@ _MARK_DONE = re.compile(
 _CONTEXT_RESET_PREFIX = re.compile(
     r"^(?:actually[,:;\s]+)?(?:never\s+mind|forget\s+that|scratch\s+that)[,:;\s\-—–]+"
 )
+_QUESTION_WORDS = (
+    "what",
+    "which",
+    "who",
+    "when",
+    "where",
+    "how",
+    "can",
+    "could",
+    "should",
+    "would",
+    "is",
+    "are",
+    "do",
+    "does",
+    "whether",
+)
+_READ_CLAUSE_STARTS = (
+    "check ",
+    "show ",
+    "tell ",
+    "find ",
+    "list ",
+    "inspect ",
+    "review ",
+    "look ",
+    "see ",
+)
 
 
 def strip_context_reset(utterance: str) -> str:
@@ -79,25 +107,13 @@ def has_multiple_question_clauses(utterance: str) -> bool:
 
     normalized = " ".join(utterance.casefold().split())
     clauses = re.split(r"\s+and\s+", normalized)
-    question_starts = (
-        "what ",
-        "which ",
-        "who ",
-        "when ",
-        "where ",
-        "how ",
-        "can ",
-        "could ",
-        "should ",
-        "would ",
-        "is ",
-        "are ",
-        "do ",
-        "does ",
-    )
     question_clause_count = 0
     for clause in clauses:
-        if clause.startswith(question_starts):
+        starts_question = clause.startswith(tuple(f"{word} " for word in _QUESTION_WORDS))
+        contains_question_word = bool(
+            re.search(r"\b(?:" + "|".join(_QUESTION_WORDS) + r")\b", clause)
+        )
+        if starts_question or contains_question_word or clause.startswith(_READ_CLAUSE_STARTS):
             question_clause_count += 1
     return question_clause_count >= 2
 
