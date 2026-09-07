@@ -1,0 +1,32 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "capability-need-constellation-owner-surface",
+  "source_sha": "25856c8a682b8fa75290bf9c2dc7865986e8a9bb",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34072367614",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "25856c8a682b8fa75290bf9c2dc7865986e8a9bb",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "source_contract": {
+    "focused_test": "test_constellation_state_projects_scoped_active_objective_nodes",
+    "result": "passed",
+    "projection": "active objective -> Capability Need -> known candidate Pack",
+    "authority": "read-only context; graph visibility does not install, enable, approve, grant permission, or execute"
+  },
+  "owner_projection": {
+    "endpoint": "/api/constellation",
+    "http_status": 200,
+    "nodes": 150,
+    "edges": 180,
+    "capability_need_nodes": 0,
+    "interpretation": "The current owner data had no active unresolved CapabilityNeeds, so no populated Capability Need node was available for this session; the deployed renderer is generic and the source contract is regression-tested."
+  }
+}
