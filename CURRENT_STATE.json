@@ -181,7 +181,8 @@
     ,"finance_state_surface_owner": "Exact owner HTTPS proof on a82e1ee serves explicit Finance transaction and import-coverage renderers through Tailscale; the Principal-scoped projection retains currency, settlement status, provider identity, and source identity without financial mutation"
     ,"food_finance_dogfood_owner": "Exact owner HTTPS dogfood through the authenticated message path completed standalone grocery affordability and the bounded Food+Finance grocery-budget question; the evidence records workflow states only and invokes no financial mutation",
     "food_pantry_add_owner": "Exact owner HTTPS dogfood on 9c0fac9 completed Add canned beans to my pantry with an independently verified canonical Pantry readback; PostgreSQL restart preserved item_id pantry-8cca3b51ee24a660 and quantity/unit remained unknown",
-    "food_grocery_add_owner": "Exact owner HTTPS dogfood on 97b2512 completed Add oat milk to groceries through the local Principal-scoped canonical store; independent readback and owner-service restart preserved the stable grocery ID and needed state without OpenClaw"
+    "food_grocery_add_owner": "Exact owner HTTPS dogfood on 97b2512 completed Add oat milk to groceries through the local Principal-scoped canonical store; independent readback and owner-service restart preserved the stable grocery ID and needed state without OpenClaw",
+    "food_grocery_purchase_owner": "Exact owner HTTPS dogfood on 97b2512 completed I bought oat milk through the stable-ID grocery state action; canonical readback changed only that item from needed to purchased at version 1, while broad collection wording remained a safe clarification"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
