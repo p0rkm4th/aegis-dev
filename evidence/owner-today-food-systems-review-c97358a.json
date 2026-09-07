@@ -1,0 +1,30 @@
+{
+  "artifact_type": "owner_today_food_systems_review",
+  "observed_at": "2026-09-07T11:00:00Z",
+  "source_sha": "c97358a0a7cf5d6cb8042d7ebc1ac704e82b078b",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34114195186",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "c97358a0a7cf5d6cb8042d7ebc1ac704e82b078b",
+    "access_path": "https://hades-garuda-x1.tail8ec79a.ts.net",
+    "postgresql": "healthy",
+    "model": "qwen3:8b"
+  },
+  "owner_projection": {
+    "needed_grocery_rows": 7,
+    "canonical_service_rows": 1,
+    "unavailable_service_rows": 1,
+    "mutation_invocations": 0
+  },
+  "workflow": {
+    "utterance": "Show me what groceries we still need and which services are down.",
+    "result_state": "completed",
+    "result_boundary": "canonical grocery needs and independently verified service health were reported as separate read facts; no purchase, restart, or financial mutation occurred",
+    "owner_action_surface": "Today now offers the same request through a normal Core interaction button; the surface is read-only and does not decide provider truth"
+  },
+  "owner_claim_boundary": "The authenticated Tailscale owner path completed the read-only challenge after promotion. This is owner/API proof, not a browser computed-style or screenshot claim; no browser executable is available in the proof environment."
+}
