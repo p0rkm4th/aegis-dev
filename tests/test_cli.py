@@ -14,6 +14,7 @@ from aegis.cli import (
     _pantry_low_stock_projection,
 )
 from aegis.contracts import (
+    ActionCard,
     ActionSpec,
     Context,
     Decision,
@@ -135,6 +136,47 @@ def test_deterministic_finance_read_uses_enabled_pack_for_domain_question():
     card = _deterministic_composition_action(intent, manager, Context())
     assert card is not None
     assert card.action.action_id == "finance.summary.read"
+
+
+def test_deterministic_pantry_add_grounds_explicit_name_and_stable_id():
+    from aegis.household import stable_pantry_item_id
+    from aegis.personal import PersonalState
+    from aegis.reference_interaction import ground_reference_action
+
+    manager = manager_with_reference_cards()
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault", space_ids=("kitchen",)),
+        utterance="Add canned beans to my pantry.",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert isinstance(card, ActionCard)
+    assert card.action.action_id == "kitchen.pantry.add"
+    assert card.action.arguments == {
+        "item_id": stable_pantry_item_id("canned beans"),
+        "display_name": "canned beans",
+    }
+
+    grounded = ground_reference_action(
+        intent,
+        card,
+        task_store=None,
+        household_store=None,
+        personal_state=PersonalState(),
+        goal_task_title=None,
+        goal_chore_title=None,
+        memory_task_title=None,
+        memory_chore_title=None,
+        context=Context(),
+    )
+    assert isinstance(grounded, ActionCard)
+    assert grounded.action.argument_provenance["display_name"].kind.value == ("EXPLICIT_UTTERANCE")
+    assert grounded.action.argument_provenance["item_id"].kind.value == ("DETERMINISTIC_DERIVATION")
+    assert (
+        _argument_provenance_error(
+            grounded.action, intent.utterance, card=grounded, context=Context()
+        )
+        is None
+    )
 
 
 def test_affordability_question_is_not_captured_by_finance_summary_fallback():

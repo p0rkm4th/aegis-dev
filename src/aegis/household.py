@@ -101,6 +101,16 @@ def normalize_food_key(display_name: str) -> str:
     return " ".join(display_name.casefold().split())
 
 
+def stable_pantry_item_id(display_name: str) -> str:
+    """Derive one stable Pantry identity from an explicitly named food."""
+
+    normalized = normalize_food_key(display_name)
+    if not normalized:
+        raise ValueError("pantry item is required")
+    digest = sha256(normalized.encode()).hexdigest()[:16]
+    return f"pantry-{digest}"
+
+
 def migrate_grocery_strings(items: list[str]) -> dict[str, GroceryItem]:
     """Idempotently migrate legacy string groceries to stable-ID records."""
 
