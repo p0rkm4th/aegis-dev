@@ -9,13 +9,16 @@ from aegis.contracts import (
     Context,
     Decision,
     DecisionKind,
+    ExecutionRequest,
     IntentFrame,
     ObjectiveState,
+    Observation,
     Principal,
     Result,
     StructuralAnchor,
     StructuralCoverageSignal,
     VerificationContract,
+    VerificationResult,
 )
 from aegis.finance import FinanceSpendingFastPath
 from aegis.household import (
@@ -34,9 +37,14 @@ from aegis.interaction_context import (
     resolve_obvious_ordinal_item,
 )
 from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
-from aegis.planning import DomainClarificationFastPath, MultiActionFastPath
+from aegis.planning import (
+    CrossDomainPlanningFastPath,
+    DomainClarificationFastPath,
+    MultiActionFastPath,
+)
 from aegis.reference_interaction import (
     _display_due_at,
+    _read_verified_homelab_services_health,
     ground_reference_action,
     reference_fallback_cards,
     reference_format_result,
@@ -60,6 +68,7 @@ from aegis.reference_interaction import (
     resolve_named_obligation_read,
     resolve_personal_obligation_read,
     resolve_reference_fast_paths,
+    resolve_reference_pre_model,
     resolve_reference_safety_fast_paths,
     rewrite_reference_decision,
 )
@@ -3091,6 +3100,173 @@ def test_compound_cross_domain_read_does_not_claim_only_one_result() -> None:
     assert "multiple independent reads" in result.message
 
 
+def test_bounded_systems_planning_is_allowed_past_compound_read_guard() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance=(
+            "We are running low on groceries, can I spend $80 tonight, and check why Plex is down?"
+        ),
+    )
+
+    assert CrossDomainPlanningFastPath.matches(intent.utterance)
+    assert resolve_reference_safety_fast_paths(intent, None, True) is None
+
+
+def test_planning_homelab_health_uses_verifier_evidence(monkeypatch) -> None:
+    expected = [
+        {
+            "service_id": "plex",
+            "name": "Plex",
+            "host_id": "atlas",
+            "status": "unavailable",
+        }
+    ]
+
+    class FakeExecutor:
+        def __init__(self, connection, principal) -> None:
+            self.connection = connection
+            self.principal = principal
+
+        def execute(self, request: ExecutionRequest) -> Observation:
+            assert request.action.action_id == "homelab.services.health"
+            return Observation(
+                execution_id=request.action_id,
+                evidence={
+                    "homelab_services_health": {
+                        "requested_status": None,
+                        "services": [{**expected[0], "status": "wrong"}],
+                    }
+                },
+                command_succeeded=True,
+            )
+
+    class FakeVerifier:
+        def __init__(self, connection, principal) -> None:
+            self.connection = connection
+            self.principal = principal
+
+        def verify(self, observation, contract) -> VerificationResult:
+            assert (
+                observation.evidence["homelab_services_health"]["services"][0]["status"] == "wrong"
+            )
+            assert contract.kind == "readback"
+            return VerificationResult(
+                verified=True,
+                evidence={"independent_services": expected},
+                reason="independent test readback",
+            )
+
+    monkeypatch.setattr("aegis.reference_interaction.HomelabServicesHealthExecutor", FakeExecutor)
+    monkeypatch.setattr("aegis.reference_interaction.HomelabServicesHealthVerifier", FakeVerifier)
+
+    result = _read_verified_homelab_services_health(
+        object(), Principal(id="alice", vault_id="alice-vault"), uuid4()
+    )
+
+    assert result == {
+        "services": expected,
+        "verification": "independent_readback",
+    }
+
+
+def test_pre_model_planning_binds_verified_homelab_health_to_bounded_projection(
+    monkeypatch,
+) -> None:
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    health = {
+        "services": [
+            {
+                "service_id": "plex",
+                "name": "Plex",
+                "host_id": "atlas",
+                "status": "unavailable",
+            }
+        ],
+        "verification": "independent_readback",
+    }
+
+    class FakeHouseholdStore:
+        def __init__(self, connection) -> None:
+            self.connection = connection
+
+        def read_snapshot(self, requested_principal):
+            assert requested_principal is principal
+            return {"grocery_items": ()}
+
+    class FakeTaskStore:
+        def __init__(self, connection) -> None:
+            self.connection = connection
+
+        def list(self, requested_principal):
+            assert requested_principal is principal
+            return ()
+
+    class FakePersonalStore:
+        def __init__(self, connection, vault_id) -> None:
+            assert vault_id == principal.vault_id
+
+        def load_for_principal(self, requested_principal):
+            assert requested_principal is principal
+            return PersonalState()
+
+    class FakeFinanceRead:
+        def __init__(self, ledger) -> None:
+            self.ledger = ledger
+
+        @classmethod
+        def needs_purchase_amount(cls, utterance):
+            return False
+
+        @classmethod
+        def matches(cls, utterance):
+            return False
+
+        def resolve(self, intent, obligations, *, allow_compound=False):
+            assert allow_compound is True
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.COMPLETED,
+                message="affordability",
+                evidence={
+                    "affordable": True,
+                    "purchase_cents": 8000,
+                    "shared_obligations_cents": 0,
+                    "shortfall_cents": 0,
+                    "purchase_currency": "USD",
+                },
+                correlation_id=intent.correlation_id,
+            )
+
+    monkeypatch.setattr("aegis.reference_interaction.PostgresHouseholdStore", FakeHouseholdStore)
+    monkeypatch.setattr("aegis.reference_interaction.PostgresTaskStore", FakeTaskStore)
+    monkeypatch.setattr("aegis.reference_interaction.PostgresPersonalStateStore", FakePersonalStore)
+    monkeypatch.setattr("aegis.reference_interaction.FinanceReadFastPath", FakeFinanceRead)
+    monkeypatch.setattr(
+        "aegis.reference_interaction._read_verified_homelab_services_health",
+        lambda connection, requested_principal, correlation_id: health,
+    )
+
+    result = resolve_reference_pre_model(
+        IntentFrame(
+            principal=principal,
+            utterance=(
+                "We are running low on groceries, can I spend $80 tonight, "
+                "and check why Plex is down?"
+            ),
+        ),
+        object(),
+        principal,
+    )
+
+    assert result is not None
+    assert result.evidence["planning"]["homelab_health"] == health
+    assert result.evidence["planning"]["sources"] == (
+        "household_space",
+        "finance",
+        "homelab",
+    )
+
+
 def test_homelab_down_research_reaches_deterministic_resolver() -> None:
     intent = IntentFrame(
         principal=Principal(id="alice", vault_id="alice-vault"),
@@ -3620,6 +3796,49 @@ def test_reference_planning_display_keeps_budget_separate_from_grocery_cost() ->
         "affordable: yes (budget limit $80.00; shared obligations $1.20)"
     )
     assert "estimated" not in rendered
+
+
+def test_reference_planning_display_includes_verified_systems_health() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Cross-domain planning context assembled from canonical state",
+        correlation_id=uuid4(),
+        evidence={
+            "planning": {
+                "grocery_items": [{"display_name": "milk", "state": "needed"}],
+                "affordability": {
+                    "affordable": True,
+                    "purchase_cents": 8000,
+                    "shared_obligations_cents": 120,
+                    "purchase_currency": "USD",
+                },
+                "homelab_health": {
+                    "services": [
+                        {
+                            "service_id": "plex",
+                            "name": "Plex",
+                            "host_id": "atlas",
+                            "status": "unavailable",
+                        },
+                        {
+                            "service_id": "immich",
+                            "name": "Immich",
+                            "host_id": "atlas",
+                            "status": "http_200",
+                        },
+                    ],
+                    "verification": "independent_readback",
+                },
+            }
+        },
+    )
+
+    assert reference_format_result(result) == (
+        "Planning: groceries needed: milk; "
+        "affordable: yes (purchase $80.00; shared obligations $1.20); "
+        "systems health (independently verified): Plex: unavailable; Immich: healthy"
+    )
 
 
 def test_reference_homelab_research_does_not_claim_a_cause_from_public_context() -> None:
