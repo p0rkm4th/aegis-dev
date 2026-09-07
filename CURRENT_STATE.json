@@ -1,19 +1,19 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "73395a1",
+  "state_basis_sha": "21d6c4e",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "73395a1",
-  "deterministic_green_sha": "73395a1",
-  "last_pushed_sha": "73395a1",
-  "hosted_green_sha": "73395a1",
-  "hosted_ci_green_sha": "73395a1",
+  "repository_head_sha": "21d6c4e",
+  "deterministic_green_sha": "21d6c4e",
+  "last_pushed_sha": "21d6c4e",
+  "hosted_green_sha": "21d6c4e",
+  "hosted_ci_green_sha": "21d6c4e",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "73395a1",
+    "commit_sha": "21d6c4e",
     "conclusion": "success",
-    "run_id": "34071866905",
-    "observed_at": "2026-09-07T01:31:00Z"
+    "run_id": "34072185196",
+    "observed_at": "2026-09-07T01:11:58Z"
   },
   "installed_release_sha": "739cb42",
   "running_release_sha": "739cb42",
