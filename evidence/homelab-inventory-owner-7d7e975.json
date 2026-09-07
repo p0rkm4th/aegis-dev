@@ -1,0 +1,29 @@
+{
+  "evidence_type": "owner_homelab_inventory_read",
+  "source_sha": "7d7e9753036687a14fc47a7fdd0e4e53ac5e8deb",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34098375631",
+    "head_sha": "7d7e9753036687a14fc47a7fdd0e4e53ac5e8deb",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "access": "authenticated Tailscale HTTPS",
+    "release_sha": "7d7e9753036687a14fc47a7fdd0e4e53ac5e8deb",
+    "postgresql": "healthy",
+    "restarted_before_proof": true
+  },
+  "workflow": {
+    "utterance_class": "canonical Systems inventory read",
+    "result_state": "completed",
+    "verification": "independent Principal-scoped PostgreSQL inventory reload",
+    "hosts_observed": 1,
+    "services_observed": 1,
+    "projection_source": "canonical_postgresql_inventory",
+    "action_authority": "core_authorization_required",
+    "reachability_claimed": false,
+    "mutation_performed": false
+  },
+  "observed_at": "2026-09-07T08:03:14Z"
+}
