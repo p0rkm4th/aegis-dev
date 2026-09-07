@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e2898ba",
+  "state_basis_sha": "adb14ce",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e2898ba",
-  "deterministic_green_sha": "e2898ba",
-  "last_pushed_sha": "e2898ba",
-  "hosted_green_sha": "e2898ba",
-  "hosted_ci_green_sha": "e2898ba",
+  "repository_head_sha": "adb14ce",
+  "deterministic_green_sha": "adb14ce",
+  "last_pushed_sha": "adb14ce",
+  "hosted_green_sha": "adb14ce",
+  "hosted_ci_green_sha": "adb14ce",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e2898bae9418e44780f33446c50ea2e752129729",
+    "commit_sha": "adb14ce3f27536ebd7381b1c25092801eb265752",
     "conclusion": "success",
-    "run_id": "34079118869",
-    "observed_at": "2026-09-07T03:19:19Z"
+    "run_id": "34079806523",
+    "observed_at": "2026-09-07T03:32:17Z"
   },
-  "installed_release_sha": "e2898ba",
-  "running_release_sha": "e2898ba",
-  "live_green_sha": "e2898ba",
+  "installed_release_sha": "adb14ce",
+  "running_release_sha": "adb14ce",
+  "live_green_sha": "adb14ce",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "e2898bae9418e44780f33446c50ea2e752129729"
+    "release_sha": "adb14ce3f27536ebd7381b1c25092801eb265752"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -163,6 +163,7 @@
     ,"pack_first_owner_corpus": "Experimental Pack-first corpus now covers Food, Finance, Homelab, Forge, and unsupported owner requests across incumbent, pure Pack-first, and retrieval-assisted variants; deterministic fixture routing and compact context metrics are reported, while production cognition remains unchanged"
     ,"finance_summary_projection": "Private Finance owner projection separates balances and cash flows by currency, pending from posted transactions, and imported source coverage; no cross-currency aggregation or financial mutation is exposed"
     ,"pantry_mutation_capabilities": "Promoted Kitchen Pack exposes stable-ID Pantry add, update, and consume actions with nullable quantities and optimistic version checks; unknown quantity cannot be consumed and no financial or remote authority is added"
+    ,"compound_read_boundary_owner": "Promoted owner HTTPS proof on adb14ce keeps a multi-read Food/Finance/Homelab request from being falsely completed by the standalone Finance fast path; it returns a bounded blocked clarification while standalone affordability remains available"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -335,7 +336,8 @@
     ,"promoted owner proof created and independently verified a Homelab health report with truthful unavailable Plex state; no restart or deployment authority was added"
     ,"household obligations Workspace report is promoted and owner-proven after explicit household-reports approval; 046646c fails closed instead of falling through to task-reports"
     ,"Network Reports is owner-proven after explicit network.read + workspace.write approval; ac5c696 prevents fallback to unrelated routing"
-    ,"Contract-green completed canonical task history → Communications composition is generic and destination-scoped; live provider delivery remains unconfigured"
+    ,"Contract-green completed canonical task history → Communications composition is generic and destination-scoped; live provider delivery remains unconfigured",
+    "promoted owner HTTPS proof on adb14ce preserved standalone affordability and blocked the previously observed partial Finance completion for a three-domain Food/Finance/Homelab read"
   ],
   "current_blockers": [
     "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
