@@ -1,0 +1,74 @@
+{
+  "experiment": "pack-first-owner-reality",
+  "source_revision": "44094739ced05c49aff759be6f13cc1c10ac7bd5",
+  "corpus": {
+    "name": "OWNER_PACK_CORPUS",
+    "cases": 24,
+    "domains": ["Food", "Finance", "Homelab", "Forge", "unsupported", "follow-up"],
+    "dynamic_pack_ids": [
+      "dynamic-food",
+      "dynamic-finance",
+      "dynamic-homelab",
+      "dynamic-forge"
+    ]
+  },
+  "models": {
+    "router": {
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+    },
+    "prefilter": {
+      "provider": "ollama",
+      "model": "nomic-embed-text:latest",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+    }
+  },
+  "metrics": {
+    "incumbent": {
+      "routing_recall": 0.21052631578947367,
+      "wrong_action_rate": 0.7894736842105263,
+      "clarification_rate": 0.0,
+      "model_calls_per_case": 0.0,
+      "prompt_bytes_per_case": 0.0,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 0.0313,
+      "p95_latency_ms": 0.0455
+    },
+    "pack_first": {
+      "routing_recall": 0.42105263157894735,
+      "wrong_action_rate": 0.5789473684210527,
+      "clarification_rate": 0.20833333333333334,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 520.5833333333334,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 557.3,
+      "p95_latency_ms": 945.6,
+      "router_calls": 44,
+      "prompt_tokens": 6634,
+      "output_tokens": 626
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.42105263157894735,
+      "wrong_action_rate": 0.5789473684210527,
+      "clarification_rate": 0.20833333333333334,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 520.5833333333334,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 449.8,
+      "p95_latency_ms": 513.5,
+      "router_calls": 44,
+      "prompt_tokens": 6634,
+      "output_tokens": 626
+    }
+  },
+  "decision": "retain_incumbent",
+  "reason": "Neither Pack-first variant met the promotion rule. Both materially improved the weak fixture incumbent but missed single-domain Homelab/Forge cases and selected only Food for both fresh multi-domain cases; no production routing change is authorized.",
+  "safety": {
+    "lifecycle_requests_fail_closed": true,
+    "dynamic_pack_routing": "covered by deterministic tests; the experiment used enabled dynamic metadata",
+    "production_route_changed": false,
+    "authority_granted": false
+  },
+  "observed_at": "2026-09-07T03:25:00Z"
+}
