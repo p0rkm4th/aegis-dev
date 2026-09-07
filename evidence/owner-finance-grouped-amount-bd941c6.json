@@ -1,0 +1,35 @@
+{
+  "artifact_type": "owner_finance_grouped_amount_proof",
+  "observed_at": "2026-09-07T06:04:00Z",
+  "source_sha": "bd941c61778285269813e146dfa4a2ed5e371270",
+  "hosted_validation": {
+    "run_id": "34089055592",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "bd941c61778285269813e146dfa4a2ed5e371270",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "healthy",
+    "model": "qwen3:8b",
+    "path": "authenticated Tailscale HTTPS /api/message"
+  },
+  "workflow": {
+    "ordinary_amount": {
+      "utterance": "Can I spend $80 on groceries tonight?",
+      "http_status": 200,
+      "state": "completed",
+      "result": "Affordable: yes (purchase $80.00; shared obligations $1.20)"
+    },
+    "grouped_amount": {
+      "utterance": "Can I spend $4,999 on groceries tonight?",
+      "http_status": 200,
+      "state": "completed",
+      "result": "Affordable: no (purchase $4999.00; shared obligations $1.20)",
+      "full_grouped_amount_preserved": true
+    }
+  },
+  "boundary": "Read-only owner affordability proof; no financial mutation or private ledger detail is recorded."
+}
