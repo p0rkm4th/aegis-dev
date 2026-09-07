@@ -135,7 +135,8 @@ def test_deterministic_finance_read_uses_enabled_pack_for_domain_question():
     )
     card = _deterministic_composition_action(intent, manager, Context())
     assert card is not None
-    assert card.action.action_id == "finance.summary.read"
+    assert card.action.action_id == "finance.spending.read"
+    assert card.action.arguments == {"query": "the store"}
 
 
 def test_deterministic_pantry_add_grounds_explicit_name_and_stable_id():

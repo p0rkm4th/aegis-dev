@@ -41,7 +41,12 @@ from .decoding import StrictDecisionDecoder
 from .dispatch import ActionExecutorDispatch, ActionVerifierDispatch
 from .documents import configured_document_provider
 from .embeddings import OllamaEmbeddingProvider, PostgresMemoryVectorIndex
-from .finance import FinanceLedger, FinanceReadFastPath, PostgresFinanceSnapshotStore
+from .finance import (
+    FinanceLedger,
+    FinanceReadFastPath,
+    FinanceSpendingFastPath,
+    PostgresFinanceSnapshotStore,
+)
 from .homelab import PostgresHomelabStore, classify_discovered_device
 from .household import (
     Chore,
@@ -1251,6 +1256,25 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("authorized_owned_obligations") is not None:
         return str(result.message)
+    if isinstance(evidence.get("finance_spending"), dict):
+        spending = evidence["finance_spending"]
+        query = str(spending.get("query") or "the requested focus")
+        totals = spending.get("spend_by_currency", {})
+        if not isinstance(totals, dict) or not totals:
+            return f"Spending for {query}: no matching outflows in the private Finance snapshot."
+        rows: list[str] = []
+        for currency, values in totals.items():
+            if not isinstance(values, dict):
+                continue
+            posted = values.get("posted", 0)
+            pending = values.get("pending", 0)
+            if isinstance(posted, int) and posted:
+                rows.append(f"{currency} posted {posted / 100:.2f}")
+            if isinstance(pending, int) and pending:
+                rows.append(f"{currency} pending {pending / 100:.2f}")
+        if not rows:
+            return f"Spending for {query}: no matching outflows in the private Finance snapshot."
+        return f"Spending for {query}: " + "; ".join(rows)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         if evidence.get("collection") == "pantry":
@@ -2056,6 +2080,11 @@ def resolve_reference_fast_paths(
             correlation_id=intent.correlation_id,
         )
     if re.search(r"\bpantry\b", intent.utterance, flags=re.IGNORECASE):
+        return None
+    # An explicit spending question belongs to the private Finance Pack even
+    # when it mentions groceries. The household list is a different canonical
+    # collection and must not capture it first.
+    if FinanceSpendingFastPath.matches(intent.utterance):
         return None
     task_store = PostgresTaskStore(connection)
     household_store = PostgresHouseholdStore(connection)

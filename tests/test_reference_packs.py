@@ -22,6 +22,8 @@ from aegis.reference_packs import (
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    FinanceSpendingExecutor,
+    FinanceSpendingVerifier,
     FinanceSummaryExecutor,
     FinanceSummaryVerifier,
     HomelabHealthExecutor,
@@ -169,6 +171,83 @@ def test_finance_summary_runtime_reads_and_rechecks_private_snapshot() -> None:
     assert observation.command_succeeded is True
     assert result.verified is True
     assert result.evidence["finance_summary_verified"] is True
+
+
+def test_finance_spending_runtime_reads_and_rechecks_private_projection() -> None:
+    payload = {
+        "accounts": [
+            {
+                "account_id": "checking",
+                "owner_id": "alice",
+                "balance_cents": 10000,
+                "currency": "USD",
+            }
+        ],
+        "transactions": [
+            {
+                "transaction_id": "tx-1",
+                "account_id": "checking",
+                "amount_cents": -2500,
+                "occurred_at": "2026-09-01T00:00:00+00:00",
+                "description": "Grocery store",
+                "currency": "USD",
+                "status": "posted",
+                "source_id": "fixture",
+            },
+            {
+                "transaction_id": "tx-2",
+                "account_id": "checking",
+                "amount_cents": -1000,
+                "occurred_at": "2026-09-02T00:00:00+00:00",
+                "description": "Grocery store",
+                "currency": "USD",
+                "status": "pending",
+                "source_id": "fixture",
+            },
+        ],
+        "sources": [],
+    }
+
+    class Connection:
+        def execute(self, _query, _params):
+            return self
+
+        def fetchone(self):
+            return payload, "private-fixture", None
+
+    principal = Principal(id="alice", vault_id="alice-vault")
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "finance.spending.read"
+    )
+    action = card.action.model_copy(update={"arguments": {"query": "groceries"}})
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="finance-spending-1"
+    )
+    observation = FinanceSpendingExecutor(Connection(), principal).execute(request)
+    result = FinanceSpendingVerifier(Connection(), principal).verify(
+        observation, card.action.verification
+    )
+
+    assert observation.command_succeeded is True
+    assert result.verified is True
+    assert result.evidence["finance_spending_verified"] is True
+    assert (
+        reference_format_result(
+            type(
+                "Result",
+                (),
+                {
+                    "state": type("State", (), {"value": "completed"})(),
+                    "message": "Finance spending read",
+                    "evidence": observation.evidence,
+                },
+            )()
+        )
+        == "Spending for groceries: USD posted 25.00; USD pending 10.00"
+    )
 
 
 def test_local_grocery_add_uses_canonical_store_and_independent_readback() -> None:
