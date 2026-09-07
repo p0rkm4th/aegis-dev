@@ -707,6 +707,24 @@ def test_deterministic_homelab_research_uses_non_mutating_composition():
     assert card.action.arguments["service"] == "acceptance-plex"
 
 
+def test_deterministic_homelab_research_accepts_owner_down_wording():
+    manager = PackManager()
+    bundle = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab-research"
+    )
+    manager.discover(bundle)
+    manager.install("homelab-research", frozenset({"homelab.read", "research.read"}))
+    manager.enable("homelab-research")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Why is Plex down?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "homelab-research.service.explain"
+    assert card.action.arguments == {"service": "Plex"}
+
+
 def test_deterministic_homelab_health_action_uses_explicit_service():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")

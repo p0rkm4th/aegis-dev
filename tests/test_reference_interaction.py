@@ -3062,6 +3062,19 @@ def test_compound_cross_domain_read_does_not_claim_only_one_result() -> None:
     assert "multiple independent reads" in result.message
 
 
+def test_homelab_down_research_reaches_deterministic_resolver() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="Why is Plex down?",
+    )
+    assert (
+        resolve_reference_fast_paths(
+            intent, object(), intent.principal, Context(), None, lambda name: name, True
+        )
+        is None
+    )
+
+
 def test_grocery_collection_has_no_task_priority_semantics() -> None:
     result = resolve_contextual_ordinal_read(
         IntentFrame(
