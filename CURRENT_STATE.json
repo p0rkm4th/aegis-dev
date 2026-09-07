@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "7267675",
+  "state_basis_sha": "51a4752",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "7267675",
-  "deterministic_green_sha": "7267675",
-  "last_pushed_sha": "7267675",
-  "hosted_green_sha": "7267675",
-  "hosted_ci_green_sha": "7267675",
+  "repository_head_sha": "51a4752",
+  "deterministic_green_sha": "51a4752",
+  "last_pushed_sha": "51a4752",
+  "hosted_green_sha": "51a4752",
+  "hosted_ci_green_sha": "51a4752",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "7267675",
+    "commit_sha": "51a4752",
     "conclusion": "success",
-    "run_id": "34069382367",
+    "run_id": "34070350546",
     "observed_at": "2026-09-06T22:15:00Z"
   },
-  "installed_release_sha": "7267675",
-  "running_release_sha": "7267675",
-  "live_green_sha": "7267675",
+  "installed_release_sha": "51a4752",
+  "running_release_sha": "51a4752",
+  "live_green_sha": "51a4752",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "7267675"
+    "release_sha": "51a4752"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -155,7 +155,7 @@
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
-    "Pack-first A/B/C harness remains experimental; Qwen3:8B evidence on an expanded 24-case corpus with the real reference fallback selector shows retrieval-assisted routing at 0.737 recall / 0.158 wrong-action versus incumbent 0.105 / 0.895, but strict-output failures and incomplete recall remain, so production routing remains unchanged",
+    "Pack-first A/B/C harness remains experimental; Qwen3:8B evidence on an expanded 24-case corpus with the real reference fallback selector shows retrieval-assisted routing at 0.737 recall / 0.158 wrong-action versus incumbent 0.105 / 0.895. An explicit anti-hallucination prompt variant regressed recall and was rejected; production routing remains unchanged",
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
@@ -389,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Improve isolated Pack-first strict-output handling and recall, then rerun the 24-case comparison; continue CapabilityNeed → Forge quarantine proof and deepen Homelab read utility.",
+  "next_action": "Use the measured corpus to design a bounded routing improvement or expand evidence before any Pack-first production decision; continue CapabilityNeed → Forge quarantine proof and deepen Homelab read utility.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
