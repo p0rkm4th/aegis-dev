@@ -111,6 +111,12 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .list-row + .list-row { border-top: 1px solid var(--line); }
 .list-row > span { min-width: 0; overflow-wrap: anywhere; }
 .food-actions { display: flex; flex-wrap: wrap; gap: .45rem; justify-content: flex-end; }
+.action-row { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; padding: .75rem 0; }
+.action-row + .action-row { border-top: 1px solid var(--line); }
+.action-row > strong { flex: 1 1 100%; }
+.action-row > .muted { flex: 1 1 100%; font-size: .85rem; overflow-wrap: anywhere; }
+.system-statuses { display: flex; flex: 1 1 100%; flex-wrap: wrap; gap: .35rem; }
+.system-statuses .status-badge { margin: 0; }
 .forge-review { border-style: dashed; background: color-mix(in srgb, var(--warning) 5%, var(--surface-1)); }
 .forge-preview { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--surface-1)); }
 .forge-review h6 { margin: 0 0 .35rem; font-size: .82rem; letter-spacing: .04em; }
@@ -173,6 +179,18 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .status-badge[data-state="verified"],
 .status-badge[data-state="effect_verified"] { border-color: var(--success); color: var(--success); }
 .status-badge[data-state="approval_required"] { border-color: var(--warning); color: var(--warning); }
+.status-badge[data-state="healthy"],
+.status-badge[data-state="reachable"],
+.status-badge[data-state="authorized"],
+.status-badge[data-state="available"],
+.status-badge[data-state="action_available"] { border-color: var(--success); color: var(--success); }
+.status-badge[data-state="unhealthy"],
+.status-badge[data-state="unreachable"],
+.status-badge[data-state="denied"],
+.status-badge[data-state="not_available"] { border-color: var(--danger); color: var(--danger); }
+.status-badge[data-state="canonical"] { border-color: var(--accent); color: var(--accent); }
+.status-badge[data-state="discovered"],
+.status-badge[data-state="reconciliation_candidate"] { border-color: var(--unknown); color: var(--unknown); }
 
 :root[data-theme="light"] {
   --surface-0: #f4f7fa;

@@ -5204,12 +5204,12 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Check a grocery budget" in _AEGIS_JS
     assert "Can I afford $" in _AEGIS_JS
     assert "health_observed_at" in _AEGIS_JS
-    assert "host ${service.host_hostname || service.host_id" in _AEGIS_JS
+    assert "Host ${service.host_hostname || service.host_id" in _AEGIS_JS
     assert "service.host_status || 'unknown'" in _AEGIS_JS
     assert "service.health_source || 'no health source'" in _AEGIS_JS
     assert "service.host_identity_evidence || []" in _AEGIS_JS
-    assert "service.reachability || 'unknown reachability'" in _AEGIS_JS
-    assert "service.authorization_status || 'authorization unknown'" in _AEGIS_JS
+    assert "service.reachability || 'unknown'" in _AEGIS_JS
+    assert "service.authorization_status || 'unknown'" in _AEGIS_JS
     assert "service.action_availability || 'unknown'" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS
     assert "canonical.grocery_items || canonical.groceries" in _AEGIS_JS
@@ -5847,6 +5847,8 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "Bounded discovery" in html
     assert "/api/systems/discover" in html
     assert "identity ${host.provider_identity || 'not configured'}" in html
+    assert "renderStatusBadge" in html
+    assert "system-statuses" in html
 
 
 def test_browser_app_systems_discovery_is_scoped_and_observation_only():

@@ -86,6 +86,15 @@ const lifecycleLabels = Object.freeze({
   unknown: 'Outcome unknown'
 });
 function lifecycleLabel(state) { return lifecycleLabels[state] || state; }
+function renderStatusBadge(label, value) {
+  const badge = document.createElement('span');
+  const displayValue = value || 'unknown';
+  const state = String(displayValue).toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  badge.className = 'status-badge';
+  badge.dataset.state = state;
+  badge.textContent = `${label}: ${displayValue}`;
+  return badge;
+}
 function setOutcomeStatus(state) {
   const badge = document.getElementById('status-badge');
   const normalized = state || 'idle';
@@ -1162,8 +1171,20 @@ async function loadSystems() {
       services.slice(0, 20).forEach(service => {
         if (!service || typeof service.service_id !== 'string') return;
         const row = document.createElement('div'); row.className = 'action-row';
-        const label = document.createElement('span');
-        label.textContent = `${service.name || service.service_id} · ${service.service_id} · host ${service.host_hostname || service.host_id || 'unknown'} (${service.identity_status || 'unknown identity'}; ${service.host_status || 'unknown'}) · ${service.reachability || 'unknown reachability'} · ${service.health || 'unknown'} · ${service.health_source || 'no health source'} observed ${service.health_observed_at || 'unknown'} · ${service.authorization_status || 'authorization unknown'} · action ${service.action_availability || 'unknown'} · provider identity ${service.host_provider_identity || 'not configured'} · evidence ${(service.host_identity_evidence || []).join(', ') || 'none'}`;
+        const label = document.createElement('strong');
+        label.textContent = `${service.name || service.service_id} · ${service.service_id}`;
+        const detail = document.createElement('span'); detail.className = 'muted';
+        detail.textContent = `Host ${service.host_hostname || service.host_id || 'unknown'} · ${service.health_source || 'no health source'} observed ${service.health_observed_at || 'unknown'} · provider identity ${service.host_provider_identity || 'not configured'} · evidence ${(service.host_identity_evidence || []).join(', ') || 'none'}`;
+        const statuses = document.createElement('div'); statuses.className = 'system-statuses';
+        [
+          ['Identity', service.identity_status || 'unknown'],
+          ['Host', service.host_status || 'unknown'],
+          ['Reachability', service.reachability || 'unknown'],
+          ['Health', service.health || 'unknown'],
+          ['Authorization', service.authorization_status || 'unknown'],
+          ['Action', service.action_availability || 'unknown'],
+        ].forEach(([statusLabel, statusValue]) => statuses.append(renderStatusBadge(statusLabel, statusValue)));
+        row.append(label, detail, statuses);
         const restart = document.createElement('button'); restart.type = 'button';
         restart.textContent = 'Request restart through Core';
         restart.setAttribute('aria-label', `Request restart for ${service.service_id}`);
@@ -1178,7 +1199,7 @@ async function loadSystems() {
           document.getElementById('utterance').value = `Text me the health of service ${service.service_id}`;
           document.getElementById('chat').requestSubmit();
         });
-        row.append(label, restart, sendHealth); actions.append(row);
+        row.append(restart, sendHealth); actions.append(row);
         if (service.health && service.health !== 'healthy') {
           const research = document.createElement('button'); research.type = 'button';
           research.textContent = 'Research likely cause';
