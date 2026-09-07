@@ -1,0 +1,27 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "food-ui-structured-grocery-owner",
+  "source_sha": "1684c792574f17ea43b5ed7b3eab6d690bc826e7",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34073327815",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "1684c792574f17ea43b5ed7b3eab6d690bc826e7",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "owner_http_proof": {
+    "endpoint": "/api/today",
+    "http_status": 200,
+    "structured_grocery_records": 6,
+    "legacy_string_records": 6,
+    "served_renderer": "Household prefers canonical.grocery_items and falls back to legacy canonical.groceries",
+    "canonical_fields_observed": ["grocery_id", "display_name", "normalized_key", "desired_quantity", "unit", "state", "version"],
+    "mutation_authority": "unchanged; this is presentation only"
+  }
+}

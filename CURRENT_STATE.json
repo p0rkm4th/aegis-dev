@@ -15,9 +15,9 @@
     "run_id": "34072876772",
     "observed_at": "2026-09-07T01:24:45Z"
   },
-  "installed_release_sha": "1fcddce",
-  "running_release_sha": "1fcddce",
-  "live_green_sha": "1fcddce",
+  "installed_release_sha": "1684c79",
+  "running_release_sha": "1684c79",
+  "live_green_sha": "1684c79",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "1fcddce"
+    "release_sha": "1684c79"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -141,7 +141,7 @@
     ,"pantry_read_owner": "Installed owner HTTPS proof answers a natural Pantry inventory question through the typed Kitchen Pack read path with Principal-scoped canonical records"
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
     ,"finance_summary_owner": "Installed owner proof reaches the enabled generic finance.summary.read Pack through the normal interaction path for a natural spend question; the Finance verifier independently rereads the Principal-scoped snapshot and no financial mutation is exposed"
-    ,"food_owner_surface": "Promoted owner HTTPS Today payload exposes stable grocery records and nullable Pantry records; the Household view renders grocery state, desired quantity, known Pantry quantity, and explicit quantity-unknown status without treating missing quantity as zero"
+    ,"food_owner_surface": "Promoted owner HTTPS Today payload exposes stable grocery records and nullable Pantry records; the Household view renders structured grocery state, desired quantity, known Pantry quantity, and explicit quantity-unknown status without treating missing quantity as zero"
     ,"finance_csv_import_owner": "Promoted owner Finance view accepts bounded owner-controlled CSV imports through an authenticated Principal-scoped route, records source provenance, and rejects unknown accounts as a bounded request error without changing canonical state"
     ,"homelab_host_identity": "Homelab Host records persist stable host IDs separately from observed addresses, with provider identity, known addresses, identity evidence, status, and last-observed metadata"
     ,"homelab_health_owner": "Installed owner HTTPS proof routes natural service-status language to canonical Homelab health and truthfully reports unavailable provider readback instead of returning generic public explanation"
