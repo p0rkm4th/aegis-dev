@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "30a0f46",
+  "state_basis_sha": "c4237df",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "30a0f46",
-  "deterministic_green_sha": "30a0f46",
-  "last_pushed_sha": "30a0f46",
-  "hosted_green_sha": "30a0f46",
-  "hosted_ci_green_sha": "30a0f46",
+  "repository_head_sha": "c4237df",
+  "deterministic_green_sha": "c4237df",
+  "last_pushed_sha": "c4237df",
+  "hosted_green_sha": "c4237df",
+  "hosted_ci_green_sha": "c4237df",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "30a0f4604b4428fccf9716ee0632a110eacd0f34",
+    "commit_sha": "c4237df819bda8763e464a4932c8283c90fb80b6",
     "conclusion": "success",
-    "run_id": "34086275724",
-    "observed_at": "2026-09-07T05:17:00Z"
+    "run_id": "34087171952",
+    "observed_at": "2026-09-07T05:34:22Z"
   },
-  "installed_release_sha": "30a0f46",
-  "running_release_sha": "30a0f46",
-  "live_green_sha": "30a0f46",
+  "installed_release_sha": "c4237df",
+  "running_release_sha": "c4237df",
+  "live_green_sha": "c4237df",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "30a0f4604b4428fccf9716ee0632a110eacd0f34"
+    "release_sha": "c4237df819bda8763e464a4932c8283c90fb80b6"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -151,7 +151,7 @@
     ,"food_pantry_owner": "Owner HTTPS dogfood reads Pantry canonical state successfully; broad unresolved household wording asks for clarification, while the scoped grocery request returns canonical needed items without inference"
     ,"finance_csv_import": "Bounded owner-controlled CSV import emits integer-minor-unit transactions with raw descriptions, optional provider IDs, source/content hash, coverage dates, duplicate-row detection, and explicit partial/rejected-row reporting; no financial mutation exists"
     ,"food_owner_projection": "Today/Household owner projection now exposes bounded stable grocery records and Pantry quantities with an explicit unknown-quantity display; no private Finance data is included"
-    ,"pantry_read_owner": "Installed owner HTTPS proof answers a natural Pantry inventory question through the typed Kitchen Pack read path with Principal-scoped canonical records"
+    ,"pantry_read_owner": "Promoted owner HTTPS proof answers 'What's in the pantry?' through the typed Kitchen Pack read path as 'Pantry: (empty)' with a canonical Pantry verification detail and Principal-scoped records"
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
     ,"finance_summary_owner": "Installed owner proof reaches the enabled generic finance.summary.read Pack through the normal interaction path for a natural spend question; the Finance verifier independently rereads the Principal-scoped snapshot and no financial mutation is exposed"
     ,"food_owner_surface": "Promoted owner HTTPS Today payload exposes stable grocery records and nullable Pantry records; the Household view renders structured grocery state, explicit quantity-unknown status, storage location, best-by, minimum-threshold details, and known out/low-stock labels without treating missing quantity as zero"

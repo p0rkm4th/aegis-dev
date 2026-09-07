@@ -1,0 +1,26 @@
+{
+  "artifact_type": "owner_pantry_read_proof",
+  "observed_at": "2026-09-07",
+  "source_sha": "c4237df819bda8763e464a4932c8283c90fb80b6",
+  "hosted_validation": {
+    "run_id": "34087171952",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "c4237df819bda8763e464a4932c8283c90fb80b6",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded"
+  },
+  "workflow": {
+    "path": "authenticated HTTPS /api/message",
+    "utterance": "What's in the pantry?",
+    "state": "completed",
+    "formatted_message": "Pantry: (empty)",
+    "detail": "canonical Pantry verified",
+    "mutation_attempted": false
+  },
+  "boundary": "The owner currently has no canonical Pantry rows. This proves the typed Pantry read and truthful empty result, not a populated Pantry visual review or a Food mutation."
+}
