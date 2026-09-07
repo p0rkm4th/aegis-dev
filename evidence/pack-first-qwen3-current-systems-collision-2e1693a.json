@@ -1,0 +1,68 @@
+{
+  "experiment": "pack-first-current-systems-collision",
+  "source_revision": "2e1693acce583cb44f533397097020eb6c285e19",
+  "corpus": {
+    "name": "OWNER_PACK_CORPUS",
+    "cases": 32,
+    "domains": ["Food", "Finance", "Homelab", "Forge", "unsupported", "follow-up"],
+    "fresh_focus": "three-domain Food+Finance+Homelab request plus down-wording collision guard"
+  },
+  "models": {
+    "router": {
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+    },
+    "prefilter": {
+      "provider": "ollama",
+      "model": "nomic-embed-text:latest",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+    }
+  },
+  "metrics": {
+    "fixture_incumbent_control": {
+      "routing_recall": 0.8888888888888888,
+      "wrong_action_rate": 0.1111111111111111,
+      "clarification_rate": 0.0,
+      "model_calls_per_case": 0.0
+    },
+    "pack_first": {
+      "routing_recall": 0.48148148148148145,
+      "wrong_action_rate": 0.5185185185185185,
+      "clarification_rate": 0.21875,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 549.4375,
+      "context_bytes_per_case": 0.0,
+      "invalid_measurement_rate": 0.0,
+      "p50_latency_ms": 561.6569760022685,
+      "p95_latency_ms": 701.092827017419
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.48148148148148145,
+      "wrong_action_rate": 0.5185185185185185,
+      "clarification_rate": 0.21875,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 549.4375,
+      "context_bytes_per_case": 0.0,
+      "invalid_measurement_rate": 0.0,
+      "p50_latency_ms": 497.1233120886609,
+      "p95_latency_ms": 597.4180570337921
+    }
+  },
+  "router": {
+    "calls": 60,
+    "prompt_tokens": 9056,
+    "output_tokens": 872,
+    "p50_latency_ms": 529.7838480910286,
+    "p95_latency_ms": 701.0561779607087
+  },
+  "decision": "retain_incumbent",
+  "reason": "Both experimental variants underperformed the deterministic fixture control and omitted Homelab from the fresh three-domain request; no production routing change is authorized.",
+  "safety": {
+    "dynamic_pack_catalog_used": true,
+    "production_route_changed": false,
+    "authority_granted": false,
+    "owner_data_exposed_to_router": false
+  },
+  "interpretation": "This is a shadow routing experiment, not owner capability proof. The lexical down-payment regression is covered by deterministic production tests; Pack-first remains experimental."
+}
