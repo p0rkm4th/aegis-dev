@@ -6447,6 +6447,12 @@ def test_browser_app_today_surface_keeps_grocery_identity_while_calming_repeated
     assert "todayEventOverviewLabels" in html
     assert "${group.count} matching events" in html
     assert "Calendar keeps each canonical event identity separately." in html
+    assert "todayPantryOverviewLabels" in html
+    assert "Pantry check" in html
+    assert "No low-stock projection; known quantities are above minimum or unknown." in html
+    assert (
+        "Unknown Pantry quantities stay unknown; they are not treated as zero or low stock." in html
+    )
 
 
 def test_browser_app_calendar_surface_exposes_provider_readback_update():
