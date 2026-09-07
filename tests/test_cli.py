@@ -6433,7 +6433,10 @@ def test_browser_app_today_surface_keeps_grocery_identity_while_calming_repeated
     html = payload.decode() + _AEGIS_JS
     assert "todayGroceryOverviewLabels" in html
     assert "${group.count} entries" in html
-    assert "matching rows are grouped here, while Household keeps every stable grocery ID separately." in html
+    assert (
+        "matching rows are grouped here, while Household keeps every stable grocery ID separately."
+        in html
+    )
     assert "Check grocery budget" in html
     assert "Grocery budget amount in USD" in html
     assert "Can I spend $${value.toFixed(2)} on groceries tonight?" in html
