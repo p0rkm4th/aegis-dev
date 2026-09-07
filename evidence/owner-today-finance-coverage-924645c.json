@@ -1,0 +1,29 @@
+{
+  "artifact_type": "owner_today_finance_coverage_promotion",
+  "observed_at": "2026-09-07T11:51:00Z",
+  "source_sha": "924645c11d2f43de7e57bc68be856cd2c90810a7",
+  "hosted_validation": {
+    "run_id": "34118574727",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "924645c11d2f43de7e57bc68be856cd2c90810a7",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded",
+    "restart_verified": true
+  },
+  "owner_readback": {
+    "api_finance_status": 200,
+    "provider_state": "available",
+    "account_count": 2,
+    "transaction_count": 3,
+    "coverage_source_count": 2,
+    "captured_at_present": true,
+    "served_static_js_coverage_renderer": true,
+    "currency_buckets_remain_separate": true
+  },
+  "boundary": "Today presents server-provided Finance freshness and coverage metadata without combining currencies, exposing raw private rows, or changing financial state."
+}
