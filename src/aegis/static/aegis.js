@@ -1407,6 +1407,28 @@ async function loadToday() {
         'Show me what groceries we still need and which services are down.';
       document.getElementById('chat').requestSubmit();
     });
+    const compoundForm = document.createElement('form');
+    compoundForm.className = 'today-budget-form today-compound-form';
+    compoundForm.setAttribute('aria-label', 'Plan groceries budget and service review from Today');
+    const compoundAmount = document.createElement('input');
+    compoundAmount.type = 'number';
+    compoundAmount.min = '0.01';
+    compoundAmount.step = '0.01';
+    compoundAmount.required = true;
+    compoundAmount.placeholder = 'Grocery ceiling in USD';
+    compoundAmount.setAttribute('aria-label', 'Grocery ceiling in USD');
+    const compoundSubmit = document.createElement('button');
+    compoundSubmit.type = 'submit';
+    compoundSubmit.textContent = 'Plan groceries, budget, and services';
+    compoundForm.append(compoundAmount, compoundSubmit);
+    compoundForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const value = Number(compoundAmount.value);
+      if (!Number.isFinite(value) || value <= 0) return;
+      document.getElementById('utterance').value =
+        `Can I keep tonight's grocery trip under $${value.toFixed(2)} based on what we need, and check why Plex is down.`;
+      document.getElementById('chat').requestSubmit();
+    });
     const crossDomainBoundary = document.createElement('p');
     crossDomainBoundary.className = 'muted';
     crossDomainBoundary.textContent =
@@ -1415,6 +1437,7 @@ async function loadToday() {
       crossDomainHeading,
       crossDomainDescription,
       crossDomainButton,
+      compoundForm,
       crossDomainBoundary,
     );
     panel.append(crossDomainReview);
