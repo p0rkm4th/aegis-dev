@@ -104,6 +104,14 @@ OWNER_PACK_CORPUS: tuple[PackCase, ...] = (
         frozenset({"dynamic-food", "dynamic-finance"}),
     ),
     PackCase(
+        "can I spend eighty dollars on groceries",
+        frozenset({"dynamic-finance"}),
+    ),
+    PackCase(
+        "can I keep tonight's grocery trip under eighty dollars based on what we need",
+        frozenset({"dynamic-food", "dynamic-finance"}),
+    ),
+    PackCase(
         "check groceries then tell me if Plex is down",
         frozenset({"dynamic-food", "dynamic-homelab"}),
     ),
