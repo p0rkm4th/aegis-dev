@@ -1389,7 +1389,7 @@ def reference_format_result(result: Any) -> str:
         summaries: list[str] = []
         grocery_items = planning.get("grocery_items")
         if isinstance(grocery_items, list):
-            grocery_rows: list[str] = []
+            grocery_counts: dict[str, int] = {}
             for item in grocery_items:
                 if not isinstance(item, dict) or not isinstance(item.get("display_name"), str):
                     continue
@@ -1406,7 +1406,14 @@ def reference_format_result(result: Any) -> str:
                     label += ")"
                 elif isinstance(unit, str) and unit:
                     label += f" ({unit})"
-                grocery_rows.append(label)
+                grocery_counts[label] = grocery_counts.get(label, 0) + 1
+            grocery_rows = [
+                f"{label} ({count} records)" if count > 1 else label
+                for label, count in grocery_counts.items()
+            ]
+            omitted = planning.get("grocery_items_omitted")
+            if isinstance(omitted, int) and omitted > 0:
+                grocery_rows.append(f"… and {omitted} more")
             summaries.append("groceries needed: " + ("; ".join(grocery_rows) or "(none)"))
         affordability = planning.get("affordability")
         if isinstance(affordability, dict) and affordability.get("affordable") is not None:
