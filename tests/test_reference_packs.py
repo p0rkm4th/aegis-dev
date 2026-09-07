@@ -1103,3 +1103,29 @@ def test_document_export_pack_composes_authorized_read_with_workspace(
         DocumentWorkspaceVerifier(principal).verify(observation, card.action.verification).verified
         is False
     )
+
+
+def test_research_workspace_provider_failure_blocks_before_workspace_mutation(monkeypatch) -> None:
+    def unavailable(_request):
+        raise RuntimeError("no usable search results")
+
+    monkeypatch.setattr(
+        reference_packs_module,
+        "configured_research_service",
+        lambda: type("Service", (), {"collect": staticmethod(unavailable)})(),
+    )
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "workspace.research_notes.create"
+    )
+    action = card.action.model_copy(
+        update={"arguments": {"query": "an unavailable topic", "target_path": "notes.md"}}
+    )
+    try:
+        prepare_reference_action(action, Principal(id="alice", vault_id="alice-vault"), uuid4())
+    except ValueError as exc:
+        assert str(exc) == ("bounded research is unavailable; no Workspace mutation was attempted")
+    else:
+        raise AssertionError("unavailable research must not prepare a Workspace mutation")

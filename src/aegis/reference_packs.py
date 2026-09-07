@@ -715,7 +715,12 @@ def prepare_reference_action(
             and isinstance(research_target_path, str)
             and research_target_path.strip()
         ):
-            evidence = configured_research_service().collect(SearchRequest(research_query))
+            try:
+                evidence = configured_research_service().collect(SearchRequest(research_query))
+            except (ResearchUnavailable, RuntimeError) as exc:
+                raise ValueError(
+                    "bounded research is unavailable; no Workspace mutation was attempted"
+                ) from exc
             answer = ResearchAnswer(
                 text="\n\n".join(item.text[:4_000] for item in evidence.evidence),
                 source_kind=KnowledgeSource.EXTERNAL,
