@@ -1017,8 +1017,30 @@ def reference_constellation_state(
             objective_details[node_id] = objective_detail
             objective_linked_packs: set[str] = set()
             needs = data.get("capability_needs", ()) if isinstance(data, dict) else ()
-            for need in needs if isinstance(needs, list) else ():
+            for need_index, need in enumerate(needs if isinstance(needs, list) else ()):
+                if not isinstance(need, dict):
+                    continue
+                requested_effect = str(
+                    need.get("requested_effect")
+                    or need.get("normalized_effect")
+                    or need.get("reason")
+                    or "Unresolved capability requirement"
+                )
+                need_id = str(need.get("need_id") or "").strip()
+                requirement_id = str(need.get("requirement_id") or "").strip()
+                # CapabilityNeed identity is durable when present.  The bounded
+                # index fallback only makes older objective payloads visible; it
+                # does not create or persist a new lifecycle identity.
+                need_key = need_id or requirement_id or str(need_index)
+                need_node_id = f"capability-need-{objective_id}-{need_key}"
+                status = str(need.get("status") or "open")
+                investigation = str(
+                    need.get("investigation")
+                    or need.get("investigation_state")
+                    or "not_started"
+                )
                 candidates = need.get("candidate_resolutions", ()) if isinstance(need, dict) else ()
+                candidate_pack_ids: set[str] = set()
                 for candidate in candidates if isinstance(candidates, list) else ():
                     objective_capability: object = (
                         candidate.get("capability") if isinstance(candidate, dict) else None
@@ -1027,7 +1049,36 @@ def reference_constellation_state(
                         str(objective_capability).split(".", 1)[0] if objective_capability else ""
                     )
                     if pack_id in pack_ids:
+                        candidate_pack_ids.add(pack_id)
                         objective_linked_packs.add(f"pack-{pack_id}")
+                nodes.append(
+                    {
+                        "id": need_node_id,
+                        "label": "Capability Need",
+                        "detail": f"{status} · {requested_effect[:180]}",
+                        "category": "capability",
+                        "detail_view": "objectives",
+                    }
+                )
+                area_details[need_node_id] = {
+                    "objective_id": str(objective_id),
+                    "need_id": need_id or None,
+                    "requirement_id": requirement_id or None,
+                    "requested_effect": requested_effect,
+                    "reason": str(need.get("reason") or ""),
+                    "status": status,
+                    "investigation": investigation,
+                    "candidate_count": len(candidates) if isinstance(candidates, list) else 0,
+                    "candidate_pack_ids": sorted(candidate_pack_ids),
+                    "authority": (
+                        "read-only capability gap context; graph visibility grants no authority; "
+                        "research, preview, and candidate Packs do not install, enable, approve, "
+                        "grant permission, or execute"
+                    ),
+                }
+                edges.append({"source": node_id, "target": need_node_id})
+                for pack_id in sorted(candidate_pack_ids):
+                    edges.append({"source": need_node_id, "target": f"pack-{pack_id}"})
             for source in sorted(objective_linked_packs) or ["aegis"]:
                 edges.append({"source": source, "target": node_id})
         # Composition metadata is a bounded semantic layer above Pack views.

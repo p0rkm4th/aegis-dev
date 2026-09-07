@@ -8349,6 +8349,17 @@ def test_constellation_state_projects_scoped_active_objective_nodes(monkeypatch)
     )
     objective = next(node for node in state["nodes"] if node["id"] == "objective-objective-1")
     assert objective["category"] == "objective"
+    need = next(
+        node
+        for node in state["nodes"]
+        if node["id"].startswith("capability-need-objective-1-")
+    )
+    assert need["label"] == "Capability Need"
+    assert need["category"] == "capability"
+    assert state["details"][need["id"]]["status"] == "open"
+    assert "no authority" in state["details"][need["id"]]["authority"]
+    assert {"source": objective["id"], "target": need["id"]} in state["edges"]
+    assert {"source": need["id"], "target": "pack-workspace"} in state["edges"]
     assert any(
         edge["source"] == "pack-workspace" and edge["target"] == "objective-objective-1"
         for edge in state["edges"]
