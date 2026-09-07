@@ -1387,6 +1387,10 @@ async function loadToday() {
       const financeResponse = await fetchWithTimeout('/api/finance');
       if (financeResponse.ok) appendTodayFinanceSummary(panel, await financeResponse.json());
     } catch (_) { /* Finance is a bounded optional private Today slice. */ }
+    try {
+      const systemsResponse = await fetchWithTimeout('/api/systems');
+      if (systemsResponse.ok) appendTodaySystemsSummary(panel, await systemsResponse.json());
+    } catch (_) { /* Systems is a bounded optional authorized Today slice. */ }
     const technical = document.createElement('details');
     technical.className = 'today-technical detail-card';
     const technicalSummary = document.createElement('summary');
@@ -1615,6 +1619,36 @@ function appendTodayFinanceSummary(panel, payload) {
     if (finance) finance.click();
   });
   section.append(heading, freshness, settlement, boundary, open); panel.append(section);
+}
+function appendTodaySystemsSummary(panel, payload) {
+  if (!payload || !Array.isArray(payload.services)) return;
+  const section = document.createElement('section'); section.className = 'detail-card today-systems-summary';
+  const heading = document.createElement('h3'); heading.textContent = 'Systems needing attention';
+  section.append(heading);
+  const services = payload.services.slice(0, 8);
+  if (!services.length) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = 'No canonical services recorded.'; section.append(empty);
+  }
+  services.forEach(service => {
+    const row = document.createElement('div'); row.className = 'today-system-row';
+    const name = document.createElement('strong'); name.textContent = service.name || service.service_id || 'Unnamed service';
+    const status = document.createElement('span'); status.className = 'status-badge';
+    const health = service.health || 'unknown'; const reachability = service.reachability || 'unknown';
+    status.dataset.status = health === 'healthy' ? 'success' : 'unknown';
+    status.textContent = `${health} · ${reachability}`;
+    const detail = document.createElement('span'); detail.className = 'muted';
+    detail.textContent = `Identity: ${service.identity_status || 'unknown'} · Action: ${service.action_availability || 'not stated'}`;
+    row.append(name, status, detail); section.append(row);
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = payload.action_authority || 'Systems state is read-only context; health does not grant action authority.';
+  const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open Systems';
+  open.addEventListener('click', () => {
+    const systems = document.querySelector('[data-view="systems"]');
+    if (systems) systems.click();
+  });
+  section.append(boundary, open); panel.append(section);
 }
 function renderFoodCollection(panel, title, items, kind) {
   const section = document.createElement('section'); section.className = 'detail-card';
