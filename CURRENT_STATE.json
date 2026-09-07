@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "407c8d4",
+  "state_basis_sha": "55ae0b0",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "407c8d4",
-  "deterministic_green_sha": "407c8d4",
-  "last_pushed_sha": "407c8d4",
-  "hosted_green_sha": "407c8d4",
-  "hosted_ci_green_sha": "407c8d4",
+  "repository_head_sha": "55ae0b0",
+  "deterministic_green_sha": "55ae0b0",
+  "last_pushed_sha": "55ae0b0",
+  "hosted_green_sha": "55ae0b0",
+  "hosted_ci_green_sha": "55ae0b0",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "407c8d4c9b05729f25584b938232bc0a3fa97276",
+    "commit_sha": "55ae0b04e3e56430333a5d0f26b1734dac3616e1",
     "conclusion": "success",
-    "run_id": "34103193940",
-    "observed_at": "2026-09-07T08:55:00Z"
+    "run_id": "34103791815",
+    "observed_at": "2026-09-07T09:05:09Z"
   },
-  "installed_release_sha": "407c8d4",
-  "running_release_sha": "407c8d4",
-  "live_green_sha": "407c8d4",
+  "installed_release_sha": "55ae0b0",
+  "running_release_sha": "55ae0b0",
+  "live_green_sha": "55ae0b0",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "407c8d4c9b05729f25584b938232bc0a3fa97276"
+    "release_sha": "55ae0b04e3e56430333a5d0f26b1734dac3616e1"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -91,6 +91,7 @@
     "homelab_services_health_owner": "Exact owner HTTPS proof on 913de7c answers a natural collection service-health question from the canonical scoped inventory, independently rereads each provider endpoint, reports Plex unavailable truthfully, and performs no mutation",
     "homelab_inventory_owner": "Exact owner HTTPS proof on 7d7e975 answers a natural Systems inventory question from the canonical scoped PostgreSQL Host/Service inventory, independently reloads it, and does not infer reachability or action authority",
     "homelab_research_down_wording_owner": "Exact owner HTTPS proof on f223321 routes 'Why is Plex down?' through the existing Homelab research Pack, resolves the uniquely named canonical acceptance-plex service, rereads its unavailable health, and keeps bounded public context non-canonical with no mutation authority",
+    "homelab_research_bound_owner": "Exact owner HTTPS proof on 55ae0b0 limits the unavailable Plex service research response to one bounded public result while preserving the non-canonical evidence boundary and no mutation authority",
     "homelab_health_filter_owner": "Exact owner HTTPS proof on 655ce1d filters canonical service-health reads by healthy or unhealthy state and completes an unavailable single-service read as observed state rather than failure; independent readback and no mutation authority remain intact",
     "active_objectives_today": "Today projects active canonical objectives with lifecycle state and a read-only handoff to Objectives",
     "active_objectives_constellation": "Constellation projects authorized active objective nodes and links declared candidate capabilities to Pack nodes without granting authority",
