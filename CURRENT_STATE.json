@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "656ef21",
+  "state_basis_sha": "9380612",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "656ef21",
-  "deterministic_green_sha": "656ef21",
-  "last_pushed_sha": "656ef21",
-  "hosted_green_sha": "656ef21",
-  "hosted_ci_green_sha": "656ef21",
+  "repository_head_sha": "9380612",
+  "deterministic_green_sha": "9380612",
+  "last_pushed_sha": "9380612",
+  "hosted_green_sha": "9380612",
+  "hosted_ci_green_sha": "9380612",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "656ef2124c72b4b78ed84ef137f3514425793747",
+    "commit_sha": "93806121069fe861d8d350929d15237972058b43",
     "conclusion": "success",
-    "run_id": "34076357502",
-    "observed_at": "2026-09-07T02:32:03Z"
+    "run_id": "34076786792",
+    "observed_at": "2026-09-07T02:37:39Z"
   },
-  "installed_release_sha": "656ef21",
-  "running_release_sha": "656ef21",
-  "live_green_sha": "656ef21",
+  "installed_release_sha": "9380612",
+  "running_release_sha": "9380612",
+  "live_green_sha": "9380612",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "656ef2124c72b4b78ed84ef137f3514425793747"
+    "release_sha": "93806121069fe861d8d350929d15237972058b43"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -58,6 +58,7 @@
     "capability_need_research_failure_boundary": "Promoted owner proof returns a structured blocked result when bounded research cannot establish a Workspace postcondition; objective state remains blocked across restart and same-correlation retry, with no artifact mutation",
     "capability_need_research_query_fallback": "Promoted owner proof uses at most two deterministic Wikimedia term-pair fallbacks after a long-query miss; Palworld evidence produced a non-canonical, independently verified Workspace note without acquisition or execution authority",
     "capability_need_research_restart": "Promoted owner proof preserves the evidence-backed CapabilityNeed research artifact across service restart and same-correlation repeat with no duplicate Workspace mutation",
+    "capability_need_research_subject_filter": "Promoted owner proof filters unrelated public search candidates before Workspace synthesis; the Palworld note retained one matching source and excluded unrelated Hytale/Nintendo results",
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",
