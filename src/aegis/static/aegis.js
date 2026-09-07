@@ -1623,6 +1623,47 @@ function renderFoodCollection(panel, title, items, kind) {
   });
   panel.append(section);
 }
+function renderFinanceCoverage(panel, coverage) {
+  const section = document.createElement('section'); section.className = 'detail-card';
+  const heading = document.createElement('h3'); heading.textContent = 'Import coverage'; section.append(heading);
+  if (!coverage.length) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = 'Coverage metadata unavailable.'; section.append(empty); panel.append(section); return;
+  }
+  coverage.slice(0, 12).forEach(source => {
+    const row = document.createElement('div'); row.className = 'finance-coverage-row';
+    const title = document.createElement('strong'); title.textContent = source.source_id || 'Unnamed source';
+    const complete = source.complete === true ? 'complete' : source.complete === false ? 'partial' : 'coverage unknown';
+    const badge = renderStatusBadge('Coverage', complete);
+    const detail = document.createElement('span'); detail.className = 'muted';
+    detail.textContent = `${source.source_type || 'unknown source'} · ${source.coverage_start || 'start unknown'} → ${source.coverage_end || 'end unknown'}`;
+    row.append(title, badge, detail); section.append(row);
+  });
+  panel.append(section);
+}
+function renderFinanceTransactions(panel, transactions) {
+  const section = document.createElement('section'); section.className = 'detail-card';
+  const heading = document.createElement('h3'); heading.textContent = 'Recent transactions'; section.append(heading);
+  if (!transactions.length) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = 'No canonical transactions recorded.'; section.append(empty); panel.append(section); return;
+  }
+  transactions.slice(0, 100).forEach(transaction => {
+    const row = document.createElement('div'); row.className = 'finance-transaction-row';
+    const title = document.createElement('strong'); title.textContent = transaction.description || 'Unlabeled transaction';
+    const status = renderStatusBadge('Status', transaction.status || 'unknown');
+    const amount = Number(transaction.amount_minor);
+    const amountText = Number.isFinite(amount)
+      ? `${transaction.currency || 'unknown currency'} ${(amount / 100).toFixed(2)}`
+      : `${transaction.currency || 'unknown currency'} amount unknown`;
+    const detail = document.createElement('span'); detail.className = 'muted';
+    detail.textContent = `${amountText} · ${transaction.occurred_at || 'date unknown'}`;
+    const provenance = document.createElement('span'); provenance.className = 'muted';
+    provenance.textContent = `Provider: ${transaction.provider_transaction_id || 'not supplied'} · Source: ${transaction.source_id || 'unknown'}`;
+    row.append(title, status, detail, provenance); section.append(row);
+  });
+  panel.append(section);
+}
 function appendCompletableSection(panel, title, items, utterancePrefix) {
   const section = document.createElement('section'); section.className = 'detail-card';
   const heading = document.createElement('h3'); heading.textContent = title; section.append(heading);
@@ -1865,7 +1906,7 @@ async function loadFinance() {
       appendTodaySection(panel, 'Cash flow by settlement state', cashFlow.length
         ? cashFlow : ['No cash-flow totals recorded.']);
       const coverage = Array.isArray(summary.coverage) ? summary.coverage : [];
-      appendTodaySection(panel, 'Import coverage', coverage.length ? coverage : ['Coverage metadata unavailable.']);
+      renderFinanceCoverage(panel, coverage);
       appendTodaySection(panel, 'Accounts', payload.accounts || []);
       const spend = payload.summary?.spend_by_description || {};
       const postedSpend = Object.entries(spend).flatMap(([currency, byStatus]) =>
@@ -1873,7 +1914,7 @@ async function loadFinance() {
           `${description} · ${currency} ${(Number(amount) / 100).toFixed(2)}`));
       appendTodaySection(panel, 'Posted spend by description', postedSpend.length
         ? postedSpend : ['No posted outflows recorded.']);
-      appendTodaySection(panel, 'Recent transactions', payload.transactions || []);
+      renderFinanceTransactions(panel, payload.transactions || []);
     }
     const boundary = document.createElement('p'); boundary.className = 'muted';
     boundary.textContent = payload.boundary || 'Finance is private Principal-scoped canonical state.';

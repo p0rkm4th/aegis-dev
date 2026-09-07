@@ -117,6 +117,12 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .action-row > .muted { flex: 1 1 100%; font-size: .85rem; overflow-wrap: anywhere; }
 .system-statuses { display: flex; flex: 1 1 100%; flex-wrap: wrap; gap: .35rem; }
 .system-statuses .status-badge { margin: 0; }
+.finance-coverage-row,
+.finance-transaction-row { display: grid; grid-template-columns: minmax(8rem, 1fr) auto; gap: .35rem .7rem; padding: .65rem 0; }
+.finance-coverage-row + .finance-coverage-row,
+.finance-transaction-row + .finance-transaction-row { border-top: 1px solid var(--line); }
+.finance-coverage-row > .muted,
+.finance-transaction-row > .muted { grid-column: 1 / -1; overflow-wrap: anywhere; }
 .forge-review { border-style: dashed; background: color-mix(in srgb, var(--warning) 5%, var(--surface-1)); }
 .forge-preview { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--surface-1)); }
 .forge-review h6 { margin: 0 0 .35rem; font-size: .82rem; letter-spacing: .04em; }
