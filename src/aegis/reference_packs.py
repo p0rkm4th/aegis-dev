@@ -3593,7 +3593,10 @@ class HomelabResearchExecutor:
             # the canonical service name rather than an internal ID/status
             # string that public indexes cannot usefully resolve.
             query = f"{service.name} software"
-            evidence = configured_research_service().collect(SearchRequest(query))
+            # One bounded top result keeps a service-specific owner question
+            # from becoming a collage of unrelated homonyms. Research remains
+            # external evidence and never supplies action authority.
+            evidence = configured_research_service().collect(SearchRequest(query, limit=1))
         except (PermissionError, ResearchUnavailable, ValueError, RuntimeError) as exc:
             return Observation(
                 execution_id=uuid4(),

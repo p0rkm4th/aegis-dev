@@ -98,10 +98,15 @@ def test_homelab_research_uses_public_service_name_and_preserves_observed_status
     monkeypatch.setattr(
         reference_packs_module, "_health_read", lambda _endpoint: (False, "unavailable")
     )
+
+    def collect_research(request):
+        assert request.limit == 1
+        return evidence
+
     monkeypatch.setattr(
         reference_packs_module,
         "configured_research_service",
-        lambda: SimpleNamespace(collect=lambda request: evidence),
+        lambda: SimpleNamespace(collect=collect_research),
     )
     observation = HomelabResearchExecutor(
         object(), Principal(id="alice", vault_id="vault")
