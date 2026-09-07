@@ -1,0 +1,30 @@
+{
+  "artifact_type": "owner_homelab_research_source_surface",
+  "observed_at": "2026-09-07T12:18:39Z",
+  "source_sha": "4bb5032b6d0fb28aa419c389c41e52478d823c22",
+  "hosted_validation": {
+    "run_id": "34120778369",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "4bb5032b6d0fb28aa419c389c41e52478d823c22",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "restart_verified": true,
+    "postgres": "healthy"
+  },
+  "owner_readback": {
+    "request": "Research why service acceptance-plex is unavailable",
+    "state": "completed",
+    "provider_id": "wikipedia",
+    "query": "Plex software",
+    "immediate_response_source_count": 1,
+    "history_result_count": 6,
+    "history_latest_source_count": 1,
+    "history_latest_retrieved_at_present": true,
+    "service_mutation_attempted": false
+  },
+  "boundary": "Pack-specific Homelab research evidence is projected through the generic owner response and Principal-scoped Research history; public evidence remains non-canonical and does not grant service mutation authority."
+}
