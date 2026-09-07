@@ -1,0 +1,50 @@
+{
+  "kind": "pack-first-qwen3-reference-control-expanded",
+  "source_sha": "f802ad47f929ac7d57d08d5b34c0d3b499b04220",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "registry_packs": 32,
+  "corpus_cases": 24,
+  "variants": {
+    "incumbent_reference_fallback": {
+      "routing_recall": 0.10526315789473684,
+      "wrong_action_rate": 0.8947368421052632,
+      "clarification_rate": 0.0,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.0,
+      "p50_latency_ms": 0.05481299012899399,
+      "p95_latency_ms": 0.10359100997447968
+    },
+    "pack_first": {
+      "routing_recall": 0.3684210526315789,
+      "wrong_action_rate": 0.5263157894736842,
+      "clarification_rate": 0.125,
+      "invalid_measurement_rate": 0.125,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 3823.3333333333335,
+      "p50_latency_ms": 586.8462240323424,
+      "p95_latency_ms": 3584.6649340819567,
+      "failure_category.OllamaResponseError": 1.0,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.7368421052631579,
+      "wrong_action_rate": 0.15789473684210525,
+      "clarification_rate": 0.20833333333333334,
+      "invalid_measurement_rate": 0.125,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 271.2916666666667,
+      "p50_latency_ms": 497.49045597855,
+      "p95_latency_ms": 682.4886590475217,
+      "failure_category.ValueError": 3.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    }
+  },
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false
+  },
+  "interpretation": "Using the actual reference fallback selector and expanded 24-case corpus, retrieval-assisted Pack-first materially reduces wrong-action rate and prompt size but still has strict-output failures and incomplete recall. No production promotion is justified yet."
+}
