@@ -1,0 +1,32 @@
+{
+  "checkpoint": "owner-food-finance-systems-dogfood",
+  "source_sha": "b7a4161107ce808b45547a29df2fddd45ba39c61",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34110699499",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "b7a4161107ce808b45547a29df2fddd45ba39c61",
+    "access_path": "authenticated Tailscale HTTPS",
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy"
+  },
+  "owner_workflows": [
+    {
+      "kind": "Food + Finance read",
+      "request": "Can I spend $80 on groceries tonight?",
+      "state": "completed",
+      "result": "same-currency USD affordability was returned; no financial mutation"
+    },
+    {
+      "kind": "Systems health read",
+      "request": "What services are down?",
+      "state": "completed",
+      "result": "Plex unavailable was independently verified; no restart or other mutation"
+    }
+  ],
+  "interpretation": "Owner-path dogfood confirms useful Food/Finance and Homelab reads after the Today promotion. Evidence records bounded workflow outcomes, not private ledger rows or a live Homelab write capability."
+}

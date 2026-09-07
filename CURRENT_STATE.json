@@ -141,7 +141,7 @@
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
     "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "workspace_content_search_owner_response": "Promoted conversation formatting renders bounded Workspace search matches with workspace ID, relative path, and normalized snippet rather than a generic completion",
-    "ui_showable_alpha": "Owner Tailscale HTTPS asset/API proof on 92d2987: extracted CSS/JS return 200 with expected content types and Today exposes bounded groceries; prior computed-style proof remains historical because no browser executable was available for this promotion",
+    "ui_showable_alpha": "Owner Tailscale HTTPS proof on b7a4161: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance and Systems slices, and Systems status uses the shared Health/Reachability presentation; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
@@ -207,12 +207,12 @@
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
     "scoped workspace independently verifies pre-execution principal/objective-scoped file hashes; delete, mutation, forgery, wrong-scope, symlink, multi-file, restart, and network-isolation regressions are frozen",
-    "owner release 9772aa5 is live with authenticated Workspace inventory and registered artifact action; real-model owner ACTION proof completed with verified owner-proof.txt readback"
+    "promoted owner Workspace runtime exposes authenticated inventory and registered artifact actions with scoped readback; historical artifact proofs remain in evidence"
     ,"provider-neutral external calendar read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"authorized documents read capability is deterministic-green through a generic Pack runtime; live provider acceptance remains pending"
     ,"documents.export_to_workspace is a typed two-permission composition with pre-execution expectation support; installed independent proof completed for Alpha Handbook"
     ,"live owner service now exposes Calendar/Documents/Communications Pack nodes on the promoted release; communications remains discovered until explicit enablement"
-    ,"authenticated browser exposes composition metadata and authority boundaries; live promoted rendering remains pending"
+    ,"authenticated owner browser serves composition metadata and authority boundaries through the promoted static shell; computed-style screenshot review is environment-limited"
     ,"promoted owner dogfood exposes Compositions metadata, Calendar/Documents Pack nodes, and a new verified Workspace artifact"
     ,"communications read capability is deterministic-green through a generic Pack runtime; live owner request is correctly blocked while the Pack remains discovered"
     ,"authenticated owner Packs view exposes lifecycle, permissions, capabilities, actions, health, and explicit approval next steps without changing authority"
