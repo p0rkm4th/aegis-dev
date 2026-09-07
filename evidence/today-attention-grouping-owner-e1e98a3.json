@@ -1,0 +1,41 @@
+{
+  "artifact_type": "owner_today_attention_grouping",
+  "checkpoint": "today-attention-grouping",
+  "observed_at": "2026-09-07T10:51:44Z",
+  "source_sha": "e1e98a37c439e877e8e2f6bb6012d9ad3f6d73bc",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34113485431",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "e1e98a37c439e877e8e2f6bb6012d9ad3f6d73bc",
+    "access_path": "authenticated Tailscale HTTPS",
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy; existing owner volume preserved"
+  },
+  "https_proof": {
+    "/static/aegis.js": {
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "today_attention_grouping": true,
+      "grocery_grouping": true,
+      "budget_handoff": true
+    },
+    "/api/today": {
+      "status": 200,
+      "authenticated": true,
+      "open_tasks": 20,
+      "open_chores": 20,
+      "grocery_rows": 8,
+      "needed_rows": 7
+    }
+  },
+  "behavior": {
+    "attention_overview": "Repeated task, chore, and capability labels are grouped with truthful counts for Today; canonical records and existing completion paths remain in their full views.",
+    "authority": "This is presentation-only. No task, chore, grocery, capability, Finance, or Homelab mutation was invoked."
+  },
+  "owner_claim_boundary": "Static assets and the authenticated Today projection were verified through Tailscale HTTPS. No browser executable is installed in this environment, so this artifact does not claim fresh computed-style or screenshot evidence."
+}
