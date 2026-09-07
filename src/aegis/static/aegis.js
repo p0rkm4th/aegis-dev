@@ -1826,8 +1826,10 @@ async function loadObjectives() {
           if (Array.isArray(candidates) && candidates.length) {
             const candidateTitle = document.createElement('strong'); candidateTitle.textContent = 'Candidate resolutions';
             needCard.append(candidateTitle, renderDetailValue(candidates));
+            let forgeCandidateRendered = false;
             candidates.forEach(candidate => {
               if (!candidate || candidate.requires_owner_input !== true) return;
+              forgeCandidateRendered = true;
               const forgeReview = document.createElement('section');
               forgeReview.className = 'forge-review detail-card';
               forgeReview.setAttribute('aria-label', 'Forge candidate review');
@@ -1899,6 +1901,35 @@ async function loadObjectives() {
               });
               needCard.append(research);
             });
+            if (!forgeCandidateRendered && need.status !== 'resolved' && need.status !== 'complete') {
+              const pending = document.createElement('p'); pending.className = 'muted';
+              pending.textContent = 'No owner-selectable candidate is available yet. Research remains bounded and non-authoritative.';
+              needCard.append(pending);
+              const research = document.createElement('button');
+              research.type = 'button'; research.textContent = 'Research safe path';
+              research.addEventListener('click', () => {
+                const effectText = need.requested_effect || need.normalized_effect || 'this requirement';
+                const needId = need.need_id || need.requirement_id || 'requirement';
+                document.getElementById('utterance').value =
+                  `Research a safe path for ${effectText} and save notes as capability-needs/${needId}.md`;
+                document.getElementById('chat').requestSubmit();
+              });
+              needCard.append(research);
+            }
+          } else if (need.status !== 'resolved' && need.status !== 'complete') {
+            const pending = document.createElement('p'); pending.className = 'muted';
+            pending.textContent = 'No candidate resolution is available yet. Research remains bounded and non-authoritative.';
+            needCard.append(pending);
+            const research = document.createElement('button');
+            research.type = 'button'; research.textContent = 'Research safe path';
+            research.addEventListener('click', () => {
+              const effectText = need.requested_effect || need.normalized_effect || 'this requirement';
+              const needId = need.need_id || need.requirement_id || 'requirement';
+              document.getElementById('utterance').value =
+                `Research a safe path for ${effectText} and save notes as capability-needs/${needId}.md`;
+              document.getElementById('chat').requestSubmit();
+            });
+            needCard.append(research);
           }
           const boundary = document.createElement('p'); boundary.className = 'muted';
           boundary.textContent = 'Investigation is read-only: discovery does not grant installation, enablement, approval, or execution authority.';
