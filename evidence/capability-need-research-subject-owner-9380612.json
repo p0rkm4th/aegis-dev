@@ -1,0 +1,28 @@
+{
+  "kind": "capability-need-research-subject-owner",
+  "release_sha": "93806121069fe861d8d350929d15237972058b43",
+  "hosted_run_id": "34076786792",
+  "owner_path": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "correlation_id": "7083b706-5021-4fba-853a-977bb71f2d6d",
+  "provider": "wikipedia",
+  "result_state": "completed",
+  "workspace_artifact": {
+    "workspace_id": "121d6a42-2a9d-562d-8cc0-6e22dab1f5ff",
+    "path": "capability-needs/palworld-subject.md",
+    "sha256": "5b99f7190ff12f378a7e8920c538d9bcba0891a7468df882fcea2e8ec8650dbe",
+    "content_length": 383,
+    "independent_readback": true,
+    "source_count": 1,
+    "unrelated_hytale_or_nintendo_content": false,
+    "external_evidence_non_canonical": true
+  },
+  "restart_proof": {
+    "service": "aegis-owner.service",
+    "persistent_workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "artifact_visible_after_restart": true,
+    "same_correlation_returned_same_objective": true,
+    "workspace_count_before_repeat": 46,
+    "workspace_count_after_repeat": 46
+  },
+  "boundary": "Research evidence is bounded and non-authoritative; no Pack installation, permission grant, provider mutation, or execution authority was added."
+}
