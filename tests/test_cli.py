@@ -7087,6 +7087,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Save verified Today brief to Workspace" in browser_source
     assert "Send me today's brief" in browser_source
     assert "appendTodayOverview" in browser_source
+    assert "appendTodayBrief" in browser_source
+    assert "Needs attention" in browser_source
+    assert "Recently completed" in browser_source
+    assert "Show authorized detail" in browser_source
     assert "today-overview" in _AEGIS_CSS
     assert "constellation-layer" in _AEGIS_CSS
     assert "categoryLabels" in browser_source

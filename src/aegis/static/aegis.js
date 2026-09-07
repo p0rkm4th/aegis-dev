@@ -1361,7 +1361,13 @@ async function loadToday() {
     heading.textContent = 'Authorized state requiring attention today';
     panel.append(heading);
     appendTodayOverview(panel, payload);
-    panel.append(renderDetailValue(payload));
+    appendTodayBrief(panel, payload);
+    const technical = document.createElement('details');
+    technical.className = 'today-technical detail-card';
+    const technicalSummary = document.createElement('summary');
+    technicalSummary.textContent = 'Show authorized detail';
+    technical.append(technicalSummary, renderDetailValue(payload));
+    panel.append(technical);
     const report = document.createElement('button'); report.type = 'button';
     report.textContent = 'Save verified Today brief to Workspace';
     report.addEventListener('click', () => {
@@ -1463,6 +1469,41 @@ async function loadToday() {
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
+}
+function todayRecordLabel(item) {
+  if (item === null || item === undefined) return '—';
+  if (typeof item !== 'object') return String(item);
+  const title = item.title || item.display_name || item.name || item.requested_effect ||
+    item.utterance || item.event_title || item.service_id || 'Authorized record';
+  const status = item.status && item.status !== 'open' ? ` · ${item.status}` : '';
+  const due = item.due_at ? ` · due ${String(item.due_at).replace('T', ' ')}` : '';
+  const assignee = item.assignee_id ? ` · ${item.assignee_id}` : '';
+  return `${title}${status}${due}${assignee}`;
+}
+function todayRecordLabels(items, prefix, limit) {
+  return (Array.isArray(items) ? items : []).slice(0, limit).map(item =>
+    `${prefix} · ${todayRecordLabel(item)}`);
+}
+function appendTodayBrief(panel, payload) {
+  const canonical = payload.canonical || {};
+  const needs = payload.capability_needs || [];
+  const attention = [
+    ...todayRecordLabels(canonical.open_tasks, 'Task', 8),
+    ...todayRecordLabels(canonical.open_chores, 'Chore', 5),
+    ...todayRecordLabels(needs, 'Capability need', 5),
+  ];
+  appendTodaySection(panel, 'Needs attention', attention.length
+    ? attention : 'Nothing currently needs attention.');
+  const upNext = todayRecordLabels(canonical.upcoming_shared_events, 'Event', 6);
+  appendTodaySection(panel, 'Up next', upNext.length ? upNext : 'No upcoming events recorded.');
+  const groceryItems = Array.isArray(canonical.grocery_items)
+    ? canonical.grocery_items.filter(item => item && item.state !== 'purchased' && item.state !== 'removed')
+    : (canonical.groceries || []);
+  appendTodaySection(panel, 'Grocery list', groceryItems.length
+    ? groceryItems.slice(0, 8).map(item => `Grocery · ${todayRecordLabel(item)}`)
+    : 'No groceries currently needed.');
+  const recent = todayRecordLabels(canonical.completed_tasks, 'Completed', 5);
+  appendTodaySection(panel, 'Recently completed', recent.length ? recent : 'No recent completions recorded.');
 }
 function appendTodayOverview(panel, payload) {
   const canonical = payload.canonical || {};
