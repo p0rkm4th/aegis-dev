@@ -1935,6 +1935,27 @@ function renderFoodCollection(panel, title, items, kind) {
     row.append(name, details); section.append(row);
     if (kind === 'pantry' && item.item_id) {
       const actions = document.createElement('div'); actions.className = 'food-actions';
+      const updateForm = document.createElement('form');
+      updateForm.setAttribute('aria-label', `Set quantity for ${item.display_name || 'Pantry item'}`);
+      const updateQuantity = document.createElement('input'); updateQuantity.type = 'number';
+      updateQuantity.min = '0'; updateQuantity.step = 'any'; updateQuantity.required = true;
+      updateQuantity.placeholder = 'Set quantity';
+      if (item.quantity != null) updateQuantity.value = String(item.quantity);
+      updateQuantity.setAttribute('aria-label', `Known quantity of ${item.display_name || 'Pantry item'}`);
+      const updateUnit = document.createElement('input'); updateUnit.type = 'text'; updateUnit.maxLength = 40;
+      updateUnit.placeholder = 'Unit (optional)'; updateUnit.value = item.unit || '';
+      updateUnit.setAttribute('aria-label', `Unit for ${item.display_name || 'Pantry item'}`);
+      const update = document.createElement('button'); update.type = 'submit'; update.textContent = 'Set quantity';
+      updateForm.append(updateQuantity, updateUnit, update);
+      updateForm.addEventListener('submit', event => {
+        event.preventDefault(); const value = Number(updateQuantity.value);
+        if (!Number.isFinite(value) || value < 0) return;
+        const unitText = updateUnit.value.trim();
+        document.getElementById('utterance').value =
+          `Update pantry item ${item.item_id} named ${item.display_name} quantity ${value}${unitText ? ` unit ${unitText}` : ''} version ${Number(item.version) || 0}`;
+        document.getElementById('chat').requestSubmit();
+      });
+      actions.append(updateForm);
       if (item.quantity != null) {
         const consumeForm = document.createElement('form');
         consumeForm.setAttribute('aria-label', `Consume ${item.display_name || 'Pantry item'}`);

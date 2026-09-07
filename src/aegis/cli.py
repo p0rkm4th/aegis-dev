@@ -1882,6 +1882,37 @@ def _deterministic_composition_action(
                         )
                     }
                 )
+    pantry_update_quantity = re.fullmatch(
+        r"update pantry item (?P<item_id>[a-zA-Z0-9_.:-]+) named (?P<display_name>.+?) quantity "
+        r"(?P<quantity>[0-9]+(?:\.[0-9]+)?)(?: unit (?P<unit>[a-zA-Z0-9_-]+))? version "
+        r"(?P<expected_version>[0-9]+)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if pantry_update_quantity is not None:
+        pantry_card = manager.action_card("kitchen", "kitchen.pantry.update")
+        if pantry_card is not None:
+            display_name = " ".join(pantry_update_quantity.group("display_name").split())
+            quantity = float(pantry_update_quantity.group("quantity"))
+            if quantity.is_integer():
+                quantity = int(quantity)
+            if display_name:
+                pantry_arguments = {
+                    "item_id": pantry_update_quantity.group("item_id"),
+                    "display_name": display_name,
+                    "quantity": quantity,
+                    "expected_version": int(pantry_update_quantity.group("expected_version")),
+                }
+                unit = pantry_update_quantity.group("unit")
+                if unit:
+                    pantry_arguments["unit"] = unit
+                return pantry_card.model_copy(
+                    update={
+                        "action": pantry_card.action.model_copy(
+                            update={"arguments": pantry_arguments}
+                        )
+                    }
+                )
     pantry_consume = re.fullmatch(
         r"(?:consume|use) pantry item (?P<item_id>[a-zA-Z0-9_.:-]+) quantity "
         r"(?P<quantity>[0-9]+(?:\.[0-9]+)?) version (?P<expected_version>[0-9]+)",
