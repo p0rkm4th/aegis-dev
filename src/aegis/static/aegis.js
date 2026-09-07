@@ -1581,6 +1581,24 @@ function renderFoodCollection(panel, title, items, kind) {
       details.textContent = `${item.state || 'needed'} · ${quantity}`;
     }
     row.append(name, details); section.append(row);
+    if (kind === 'grocery' && item.grocery_id && item.state !== 'purchased' && item.state !== 'removed') {
+      const actions = document.createElement('div'); actions.className = 'food-actions';
+      const purchased = document.createElement('button'); purchased.type = 'button';
+      purchased.textContent = 'Mark purchased';
+      purchased.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          `Mark grocery item ${item.grocery_id} as purchased`;
+        document.getElementById('chat').requestSubmit();
+      });
+      const remove = document.createElement('button'); remove.type = 'button';
+      remove.textContent = 'Remove';
+      remove.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          `Remove grocery item ${item.grocery_id}`;
+        document.getElementById('chat').requestSubmit();
+      });
+      actions.append(purchased, remove); row.append(actions);
+    }
   });
   panel.append(section);
 }

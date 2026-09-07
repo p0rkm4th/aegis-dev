@@ -51,6 +51,7 @@ from .household import (
     HouseholdObligation,
     HouseholdReadFastPath,
     PostgresHouseholdStore,
+    normalize_food_key,
 )
 from .identity import PostgresSpacePolicy, Role
 from .interaction import InteractionInputError
@@ -1482,6 +1483,15 @@ def reference_format_result(result: Any) -> str:
         if evidence.get("status") == "completed":
             return f"Done — completed task: {evidence['title']}"
         return f"Done — created task: {evidence['title']}"
+    if evidence.get("collection") == "groceries" and isinstance(evidence.get("item"), dict):
+        item = evidence["item"]
+        name = item.get("display_name", "grocery item")
+        state = item.get("state")
+        if state == "purchased":
+            return f"Done — marked {name} as purchased"
+        if state == "removed":
+            return f"Done — removed {name} from groceries"
+        return f"Done — updated grocery item {name}"
     if evidence.get("item"):
         return f"Done — added {evidence['item']} to groceries"
     return f"Done — {result.message}"
@@ -4087,6 +4097,61 @@ def ground_reference_action(
             update={
                 "action": card.action.model_copy(
                     update={"arguments": read_arguments, "argument_provenance": provenance}
+                )
+            }
+        )
+    if card.action.action_id in {
+        "kitchen.groceries.mark_purchased",
+        "kitchen.groceries.remove",
+    }:
+        # The model may describe a grocery by its owner-visible name, but the
+        # canonical mutation must always execute against one stable ID.  Read
+        # the authorized collection before execution so duplicate names and
+        # missing items fail closed instead of becoming an executor exception.
+        proposed_id = card.action.arguments.get("grocery_id")
+        if not isinstance(proposed_id, str) or not proposed_id.strip():
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="Name the grocery item to change; I will not infer a target.",
+                correlation_id=intent.correlation_id,
+            )
+        if not _utterance_spans(intent.utterance, proposed_id):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="Name the grocery item to change explicitly.",
+                correlation_id=intent.correlation_id,
+            )
+        grocery_items = household_store.list_grocery_items(principal)
+        id_matches = [item for item in grocery_items if item.grocery_id == proposed_id]
+        matches = id_matches or [
+            item
+            for item in grocery_items
+            if normalize_food_key(item.display_name) == normalize_food_key(proposed_id)
+        ]
+        if not matches:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=f"I could not find one grocery item named {proposed_id!r}.",
+                correlation_id=intent.correlation_id,
+            )
+        if len(matches) != 1:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    f"I found {len(matches)} grocery items named {proposed_id!r}. "
+                    "Please choose one by its stable item ID."
+                ),
+                correlation_id=intent.correlation_id,
+            )
+        grocery_item = matches[0]
+        card = card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": {"grocery_id": grocery_item.grocery_id}}
                 )
             }
         )
