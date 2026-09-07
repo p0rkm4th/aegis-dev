@@ -1,0 +1,21 @@
+{
+  "evidence_type": "owner_https_food_finance_budget_truth",
+  "source_sha": "581709a498c2f1ca06122b7dba04629d5c2d571e",
+  "hosted_validation": {
+    "run_id": "34093274889",
+    "conclusion": "success"
+  },
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "installed_release_sha": "581709a498c2f1ca06122b7dba04629d5c2d571e",
+  "request": "Can I keep tonight's grocery trip under $80 based on what we need?",
+  "result": {
+    "state": "completed",
+    "projection": "deterministic Food + Finance read",
+    "grocery_prices_available": false,
+    "budget_limit_currency": "USD",
+    "budget_limit_cents": 8000,
+    "owner_copy_boundary": "grocery prices unavailable; the budget limit is not an estimated grocery total",
+    "grocery_mutation": false,
+    "financial_mutation": false
+  }
+}

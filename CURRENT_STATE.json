@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a4b2045",
+  "state_basis_sha": "581709a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a4b2045",
-  "deterministic_green_sha": "a4b2045",
-  "last_pushed_sha": "a4b2045",
-  "hosted_green_sha": "a4b2045",
-  "hosted_ci_green_sha": "a4b2045",
+  "repository_head_sha": "581709a",
+  "deterministic_green_sha": "581709a",
+  "last_pushed_sha": "581709a",
+  "hosted_green_sha": "581709a",
+  "hosted_ci_green_sha": "581709a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a4b20450f4f6580d7febf65788ceb6d49fd71291",
+    "commit_sha": "581709a498c2f1ca06122b7dba04629d5c2d571e",
     "conclusion": "success",
-    "run_id": "34091627650",
-    "observed_at": "2026-09-07T06:41:17Z"
+    "run_id": "34093274889",
+    "observed_at": "2026-09-07T06:59:09Z"
   },
-  "installed_release_sha": "a4b2045",
-  "running_release_sha": "a4b2045",
-  "live_green_sha": "a4b2045",
+  "installed_release_sha": "581709a",
+  "running_release_sha": "581709a",
+  "live_green_sha": "581709a",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "a4b20450f4f6580d7febf65788ceb6d49fd71291"
+    "release_sha": "581709a498c2f1ca06122b7dba04629d5c2d571e"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -63,6 +63,7 @@
     "capability_need_research_subject_filter": "Promoted owner proof filters unrelated public search candidates before Workspace synthesis; the Palworld note retained one matching source and excluded unrelated Hytale/Nintendo results",
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
+    "food_finance_budget_truth": "Promoted 581709a owner HTTPS proof routes an explicit grocery budget limit through the deterministic Food + Finance projection; grocery prices remain unavailable and the $80 value is never presented as an estimated list total",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",
     "finance_owner_import_fidelity": "Promoted d3e2131 owner proof acknowledges a repeated synthetic CSV source with zero new transactions and preserves one pending USD row with provider/source identity across service restart; no financial external mutation is claimed",
     "finance_mixed_currency_owner": "Installed owner HTTPS proof on 0dc6d54 preserves synthetic EUR/USD account and transaction buckets, keeps pending separate from posted after service restart, and answers affordability without using EUR for a USD purchase; no FX or financial mutation is exposed",
