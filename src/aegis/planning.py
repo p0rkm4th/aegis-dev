@@ -795,7 +795,7 @@ class CrossDomainPlanningFastPath:
         "spending",
     )
     _FOOD_TERMS = ("food", "grocery", "groceries", "pantry", "shopping list")
-    _SYSTEMS_TERMS = (
+    _SYSTEMS_RESOURCE_TERMS = (
         "system",
         "systems",
         "homelab",
@@ -809,10 +809,9 @@ class CrossDomainPlanningFastPath:
         "healthy",
         "reachable",
         "unreachable",
-        "down",
         "offline",
-        "unavailable",
     )
+    _SYSTEMS_STATUS_TERMS = ("down", "offline", "unavailable")
     _BUDGET_NUMBER_WORD = (
         r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
         r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
@@ -846,7 +845,17 @@ class CrossDomainPlanningFastPath:
         """Recognize a bounded systems read without routing arbitrary shell work."""
 
         text = utterance.casefold()
-        return any(term in text for term in cls._SYSTEMS_TERMS)
+        if any(term in text for term in cls._SYSTEMS_RESOURCE_TERMS):
+            return True
+        status_pattern = r"|".join(cls._SYSTEMS_STATUS_TERMS)
+        return (
+            re.search(
+                rf"\bwhy\s+(?:is\s+)?(?:the\s+)?[a-z0-9_.-]+\s+"
+                rf"(?:is\s+)?(?:{status_pattern})\b",
+                text,
+            )
+            is not None
+        )
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
