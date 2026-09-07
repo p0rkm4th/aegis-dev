@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
+  "state_basis_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
-  "deterministic_green_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
-  "last_pushed_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
-  "hosted_green_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
-  "hosted_ci_green_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
+  "repository_head_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "deterministic_green_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "last_pushed_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "hosted_green_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "hosted_ci_green_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
+    "commit_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
     "conclusion": "success",
-    "run_id": "34122782612",
-    "observed_at": "2026-09-07T12:38:43Z"
+    "run_id": "34123328978",
+    "observed_at": "2026-09-07T12:44:47Z"
   },
-  "installed_release_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
-  "running_release_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
-  "live_green_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
+  "installed_release_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "running_release_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "live_green_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "60a8ea538584e8a420e68df25657d48fcda273ae"
+    "release_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -150,7 +150,7 @@
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
     "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "workspace_content_search_owner_response": "Promoted conversation formatting renders bounded Workspace search matches with workspace ID, relative path, and normalized snippet rather than a generic completion",
-    "ui_showable_alpha": "Owner Tailscale HTTPS proof on 60a8ea53: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance, Systems, and recent public-research slices, and the Food view exposes explicit known-quantity Pantry entry plus stable-ID consume controls; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
+    "ui_showable_alpha": "Owner Tailscale HTTPS proof on eb638ecf9: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance, Systems, and recent public-research slices, the Food view exposes explicit known-quantity Pantry entry plus stable-ID consume controls, and Finance exposes a bounded private spending query; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
@@ -179,6 +179,7 @@
     ,"pantry_read_owner": "Promoted owner HTTPS proof answers 'What's in the pantry?' through the typed Kitchen Pack read path as 'Pantry: (empty)' with a canonical Pantry verification detail and Principal-scoped records"
     ,"finance_owner_view": "Authenticated owner browser exposes a Principal-scoped Finance view with provider/source/as-of metadata and bounded balances/transactions; no finance mutation is exposed"
     ,"finance_summary_owner": "Installed owner proof reaches the enabled generic finance.summary.read Pack through the normal interaction path for a natural spend question; the Finance verifier independently rereads the Principal-scoped snapshot and no financial mutation is exposed"
+    ,"finance_spending_query_owner": "Exact owner HTTPS proof on eb638ec completes a private spending question through the normal authenticated message path while the Finance projection retains separate EUR/USD buckets; no payments, transfers, or financial mutation are exposed"
     ,"finance_spending_owner": "Exact owner HTTPS dogfood on 82d152d routes explicit merchant/category spending questions through a generic private Finance projection instead of the Household grocery-list read; missing matches remain truthful and no financial mutation is exposed"
     ,"food_owner_surface": "Promoted owner HTTPS Today payload exposes stable grocery records and nullable Pantry records; the Household view renders structured grocery state, explicit quantity-unknown status, storage location, best-by, minimum-threshold details, and known out/low-stock labels without treating missing quantity as zero"
     ,"finance_csv_import_owner": "Promoted owner Finance view accepts bounded owner-controlled CSV imports through an authenticated Principal-scoped route, records source provenance, and rejects unknown accounts as a bounded request error without changing canonical state"
@@ -480,7 +481,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility on the promoted 60a8ea53 owner surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
+  "next_action": "Continue owner-real utility on the promoted eb638ecf owner surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
