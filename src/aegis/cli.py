@@ -2603,6 +2603,16 @@ def _deterministic_composition_action(
         if card is None:
             return None
         return card
+    systems_inventory_request = re.fullmatch(
+        r"(?:show|list) (?:me )?(?:my |the )?(?:systems|homelab|hosts and services)[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if systems_inventory_request is not None:
+        card = manager.action_card("homelab", "homelab.inventory.read")
+        if card is None:
+            return None
+        return card
     health_request = re.fullmatch(
         r"(?:check|show) health of (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})"
         r"|is (?:service )?(?P<service_name>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120}) "

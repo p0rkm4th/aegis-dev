@@ -755,6 +755,22 @@ def test_deterministic_homelab_services_health_action_accepts_collection_questio
     assert card.action.arguments == {}
 
 
+def test_deterministic_homelab_inventory_action_accepts_systems_question():
+    manager = PackManager()
+    bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
+    manager.discover(bundle)
+    manager.install("homelab", frozenset({"homelab.read", "homelab.service.restart"}))
+    manager.enable("homelab")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="Show me my systems",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "homelab.inventory.read"
+    assert card.action.arguments == {}
+
+
 def test_deterministic_homelab_restart_strips_terminal_punctuation():
     manager = PackManager()
     bundle = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "homelab")
