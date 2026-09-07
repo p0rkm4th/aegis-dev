@@ -1836,7 +1836,7 @@ function appendTodaySystemsSummary(panel, payload) {
     const statuses = document.createElement('div'); statuses.className = 'system-statuses';
     statuses.append(renderStatusBadge('Health', health), renderStatusBadge('Reachability', reachability));
     const detail = document.createElement('span'); detail.className = 'muted';
-    detail.textContent = `Identity: ${service.identity_status || 'unknown'} · Action: ${service.action_availability || 'not stated'}`;
+    detail.textContent = `Observed ${service.health_observed_at || 'unknown'} via ${service.health_source || 'unknown source'} · Identity: ${service.identity_status || 'unknown'} · Action: ${service.action_availability || 'not stated'}`;
     row.append(name, statuses, detail); section.append(row);
   });
   const boundary = document.createElement('p'); boundary.className = 'muted';
