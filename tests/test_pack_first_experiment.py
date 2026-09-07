@@ -279,6 +279,12 @@ def test_owner_corpus_covers_real_frontier_variants_without_sensitive_context():
     assert cases["what should I do about this unsupported capability"] == frozenset(
         {"dynamic-forge"}
     )
+    assert cases["show grocery needs and whether eighty dollars is affordable"] == frozenset(
+        {"dynamic-food", "dynamic-finance"}
+    )
+    assert cases["check groceries then tell me if Plex is down"] == frozenset(
+        {"dynamic-food", "dynamic-homelab"}
+    )
 
 
 def test_pack_lifecycle_language_is_experimental_fail_closed_preflight():
