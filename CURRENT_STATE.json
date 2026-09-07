@@ -65,6 +65,7 @@
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",
     "finance_owner_import_fidelity": "Promoted d3e2131 owner proof acknowledges a repeated synthetic CSV source with zero new transactions and preserves one pending USD row with provider/source identity across service restart; no financial external mutation is claimed",
+    "finance_mixed_currency_owner": "Installed owner HTTPS proof on 0dc6d54 preserves synthetic EUR/USD account and transaction buckets, keeps pending separate from posted after service restart, and answers affordability without using EUR for a USD purchase; no FX or financial mutation is exposed",
     "owner_provenance_proof": "explicit ACTION, temporal ACTION, and task+chore PLAN verified on 25846cd",
     "compound_cognition": "bounded research evidence only; not capability-green",
     "air_quality": "live Open-Meteo public evidence for explicit owner coordinates; not canonical personal truth or medical advice",
@@ -361,6 +362,7 @@
     "owner Food state-preservation repair is installed on 766688d; an attempted normal grocery mutation was blocked truthfully because the configured OpenClaw execution provider is unavailable, so no owner canonical item was changed",
     "owner Homelab discovery freshness proof on 92d2987 returned timestamped bounded observations through the approved alpha-lab scope; observations remain unmatched/non-canonical and non-authoritative",
     "owner Finance import fidelity proof on d3e2131 returned a truthful duplicate-source response and preserved the synthetic pending row after restart; local import is owner-controlled canonical state and not financial external mutation"
+    ,"owner Finance mixed-currency proof on 0dc6d54 preserved synthetic EUR/USD state and pending/provider/source identity through owner-service restart; a USD affordability boundary probe excluded EUR without FX or financial mutation"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
@@ -424,7 +426,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real Homelab/Network read utility and Food/Finance dogfood; next bounded slice is stable service/host health context or a safe Food workflow once its provider is configured. Pack-first remains experimental and production cognition remains incumbent after the fresh Food/Finance evaluation.",
+  "next_action": "Continue owner-real utility from the proven Food + Finance + Homelab read plane; next bounded slice is a useful Food workflow or stable service/host health context once its provider is configured. Pack-first remains experimental and production cognition remains incumbent after the fresh Food/Finance evaluation.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
