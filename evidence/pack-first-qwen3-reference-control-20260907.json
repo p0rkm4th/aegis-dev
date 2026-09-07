@@ -1,0 +1,50 @@
+{
+  "kind": "pack-first-qwen3-reference-control",
+  "source_sha": "2adcdc47274ea611bdc94251c6a2c3a65419f0af",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "registry_packs": 32,
+  "corpus_cases": 16,
+  "variants": {
+    "incumbent_reference_fallback": {
+      "routing_recall": 0.16666666666666666,
+      "wrong_action_rate": 0.8333333333333334,
+      "clarification_rate": 0.0,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.0,
+      "p50_latency_ms": 0.059398007579147816,
+      "p95_latency_ms": 0.09058904834091663
+    },
+    "pack_first": {
+      "routing_recall": 0.4166666666666667,
+      "wrong_action_rate": 0.5,
+      "clarification_rate": 0.125,
+      "invalid_measurement_rate": 0.125,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 3906.8125,
+      "p50_latency_ms": 996.2231080280617,
+      "p95_latency_ms": 2289.547382039018,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 1.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.8333333333333334,
+      "wrong_action_rate": 0.08333333333333333,
+      "clarification_rate": 0.25,
+      "invalid_measurement_rate": 0.125,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 256.4375,
+      "p50_latency_ms": 525.8489480474964,
+      "p95_latency_ms": 580.0287929596379,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 1.0
+    }
+  },
+  "expected_mapping": "dynamic food/finance/homelab cases map to kitchen/finance/homelab; Forge cases are unsupported because no Forge Pack is installed",
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false
+  },
+  "interpretation": "Retrieval-assisted Pack-first outperformed the actual reference fallback selector on this small corpus, with substantially lower wrong-action rate and prompt size than pure Pack-first. This is experimental evidence only; the corpus is small and does not justify automatic production routing promotion."
+}
