@@ -155,7 +155,7 @@
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
-    "Pack-first A/B/C harness remains deterministic-green; a Qwen3:8B ActionCard-summary prompt trial over the 16-case owner-real corpus was rejected after retrieval-assisted recall fell to 0.500 with lower validity, so the compact prompt and production incumbent remain unchanged",
+    "Pack-first A/B/C harness remains experimental; fresh Qwen3:8B reference-control evidence on 16 cases shows retrieval-assisted routing at 0.833 recall / 0.083 wrong-action versus the real fallback selector at 0.167 / 0.833, but the corpus is small and production routing remains unchanged",
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
@@ -389,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Run the owner-real Pack-first tournament with failure-category metrics, then continue the CapabilityNeed → Forge quarantine proof and deepen Homelab read utility; production cognition remains the incumbent.",
+  "next_action": "Expand the Pack-first corpus and compare retrieval-assisted routing against the real production selector before any production-route decision; continue CapabilityNeed → Forge quarantine proof and deepen Homelab read utility.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
