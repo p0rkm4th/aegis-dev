@@ -1256,6 +1256,24 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("authorized_owned_obligations") is not None:
         return str(result.message)
+    capability_needs = evidence.get("capability_needs")
+    if isinstance(capability_needs, list):
+        if not capability_needs:
+            return "Capability needs: (none)"
+        status_filter = evidence.get("status_filter")
+        heading = (
+            "Capability needs requiring your input"
+            if status_filter == "owner_input_required"
+            else "Capability needs"
+        )
+        need_rows = []
+        for need in capability_needs[:20]:
+            if not isinstance(need, dict):
+                continue
+            effect = str(need.get("requested_effect") or "Unspecified capability")
+            status = str(need.get("status") or "open")
+            need_rows.append(f"• {effect} ({status})")
+        return heading + ":\n" + ("\n".join(need_rows) if need_rows else "(none)")
     spending = evidence.get("spending")
     if not isinstance(spending, dict):
         spending = evidence.get("finance_spending")

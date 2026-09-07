@@ -46,6 +46,8 @@ from .contracts import (
     ActionSpec,
     ArgumentGroundingRule,
     ArgumentProvenanceKind,
+    CapabilityNeed,
+    CapabilityNeedStatus,
     ExecutionRequest,
     ExternalEffectAssurance,
     Observation,
@@ -1073,6 +1075,30 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Show tasks",
                     relevance=1,
+                ),
+            ),
+        ),
+        _ReferencePackSpec(
+            "capabilities",
+            "0.1.0",
+            (
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="capabilities.needs.list",
+                        capability="capabilities.needs.read",
+                        required_permissions=("capabilities.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary=(
+                        "Read unresolved Capability Needs and owner-selectable Forge candidates "
+                        "without changing Pack lifecycle or authority"
+                    ),
+                    relevance=1,
+                    argument_keys=("status",),
+                    argument_descriptions={
+                        "status": "optional bounded status filter such as owner_input_required"
+                    },
+                    semantic_scope="capability_acquisition.review",
                 ),
             ),
         ),
@@ -2541,6 +2567,7 @@ def reference_packs() -> tuple[PackBundle, ...]:
         "device-reports": ("devices.read", "workspace.write"),
         "documents": ("documents.read", "workspace.write"),
         "tasks": ("tasks.write", "tasks.read"),
+        "capabilities": ("capabilities.read",),
         "finance": ("finance.read",),
         "calendar-task-attention": ("calendar.read", "tasks.read"),
         "calendar-task-reports": ("calendar.read", "tasks.read", "workspace.write"),
@@ -2585,6 +2612,136 @@ class ReferenceWorld:
     tasks: list[dict[str, Any]] = field(default_factory=list)
     groceries: list[str] = field(default_factory=list)
     services: dict[str, str] = field(default_factory=lambda: {"test-service": "healthy"})
+
+
+def _capability_need_projection(
+    connection: Any, principal: Principal, status_filter: str | None = None
+) -> list[dict[str, Any]]:
+    """Read bounded unresolved CapabilityNeeds in the caller's authorized scope."""
+
+    rows = connection.execute(
+        """SELECT id, state, payload FROM objectives
+           WHERE principal_id = %s AND vault_id = %s
+             AND (space_id IS NULL OR EXISTS (
+               SELECT 1 FROM space_memberships sm
+               WHERE sm.principal_id = %s AND sm.space_id = objectives.space_id
+                 AND sm.active = TRUE
+             ))
+           ORDER BY updated_at DESC LIMIT 50""",
+        (principal.id, principal.vault_id, principal.id),
+    ).fetchall()
+    projected: list[dict[str, Any]] = []
+    for objective_id, objective_state, payload in rows:
+        data = payload if isinstance(payload, dict) else json.loads(str(payload))
+        if not isinstance(data, dict):
+            continue
+        intent = data.get("intent")
+        utterance = intent.get("utterance", "") if isinstance(intent, dict) else ""
+        raw_needs = data.get("capability_needs", ())
+        if not isinstance(raw_needs, list):
+            continue
+        for raw_need in raw_needs:
+            need = CapabilityNeed.model_validate(raw_need)
+            if need.status is CapabilityNeedStatus.RESOLVED:
+                continue
+            if status_filter is not None and need.status.value != status_filter:
+                continue
+            projected.append(
+                {
+                    "need_id": str(need.need_id),
+                    "requirement_id": str(need.requirement_id) if need.requirement_id else None,
+                    "requested_effect": need.requested_effect,
+                    "status": need.status.value,
+                    "investigation": need.investigation.value,
+                    "candidate_count": len(need.candidate_resolutions),
+                    "objective_id": str(objective_id),
+                    "objective_state": str(objective_state),
+                    "objective": str(utterance),
+                }
+            )
+            if len(projected) >= 20:
+                return projected
+    return projected
+
+
+class CapabilityNeedsExecutor:
+    """Read unresolved capability gaps without changing Pack lifecycle state."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        status_filter = request.action.arguments.get("status")
+        valid_filters = {status.value for status in CapabilityNeedStatus}
+        if status_filter is not None and status_filter not in valid_filters:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"capability_needs": "invalid_status_filter"},
+                command_succeeded=False,
+            )
+        try:
+            needs = _capability_need_projection(self.connection, self.principal, status_filter)
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"capability_needs": "unavailable", "reason": str(exc)[:200]},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "capability_needs": needs,
+                "status_filter": status_filter,
+                "authority": (
+                    "read-only capability-gap context; this result does not install, enable, "
+                    "approve, grant permissions, or execute"
+                ),
+            },
+            command_succeeded=True,
+        )
+
+
+class CapabilityNeedsVerifier:
+    """Independently reread scoped CapabilityNeeds before accepting the read."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        expected = observation.evidence.get("capability_needs")
+        status_filter = observation.evidence.get("status_filter")
+        if not observation.command_succeeded or not isinstance(expected, list):
+            return VerificationResult(
+                verified=False,
+                evidence={"capability_needs_verified": False},
+                reason="Capability Need read failed",
+            )
+        try:
+            actual = _capability_need_projection(
+                self.connection,
+                self.principal,
+                status_filter if isinstance(status_filter, str) else None,
+            )
+        except (TypeError, ValueError, json.JSONDecodeError):
+            actual = None
+        verified = actual == expected
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                "capability_needs_verified": verified,
+                "capability_needs": actual if actual is not None else [],
+                "status_filter": status_filter,
+            },
+            reason=(
+                "Capability Needs independently reread"
+                if verified
+                else "Capability Needs changed or could not be reread"
+            ),
+        )
 
 
 class CalendarEventsExecutor:

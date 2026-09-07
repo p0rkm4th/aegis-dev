@@ -54,6 +54,8 @@ from .reference_packs import (
     CalendarTaskAttentionWorkspaceVerifier,
     CalendarUpdateExecutor,
     CalendarUpdateVerifier,
+    CapabilityNeedsExecutor,
+    CapabilityNeedsVerifier,
     ChoresWorkspaceExecutor,
     ChoresWorkspaceVerifier,
     CommunicationDraftExecutor,
@@ -197,6 +199,13 @@ def default_runtime_registry(
             PostgresTaskListExecutor(store, principal),
             PostgresTaskListVerifier(store, principal),
             {"tasks.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def capability_needs_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            CapabilityNeedsExecutor(connection, principal),
+            CapabilityNeedsVerifier(connection, principal),
+            {"capabilities.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
     def calendar_task_attention_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -868,6 +877,7 @@ def default_runtime_registry(
         "tasks.create": task_runtime,
         "tasks.complete": task_runtime,
         "tasks.list": task_list_runtime,
+        "capabilities.needs.list": capability_needs_runtime,
         "tasks.chores.create": household_runtime,
         "tasks.chores.complete": household_runtime,
         "tasks.events.create": event_runtime,

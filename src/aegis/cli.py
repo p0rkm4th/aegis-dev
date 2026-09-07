@@ -1793,6 +1793,23 @@ def _deterministic_composition_action(
         finance_card = manager.action_card("finance", "finance.summary.read")
         if finance_card is not None:
             return finance_card
+    capability_needs_read = (
+        not is_mutation_request(folded)
+        and re.search(r"\bcapability\s+needs?\b|\bcapability\s+gaps?\b", folded)
+        and re.search(r"\b(?:what|which|show|list|review|input|open|pending)\b", folded)
+    )
+    if capability_needs_read:
+        capabilities_card = manager.action_card("capabilities", "capabilities.needs.list")
+        if capabilities_card is not None:
+            status = (
+                "owner_input_required" if re.search(r"\b(?:my|owner)\s+input\b", folded) else None
+            )
+            arguments = {"status": status} if status is not None else {}
+            return capabilities_card.model_copy(
+                update={
+                    "action": capabilities_card.action.model_copy(update={"arguments": arguments})
+                }
+            )
     pantry_add = re.fullmatch(
         r"(?:add|put|store)\s+(?P<display_name>.+?)\s+(?:to|in|into)\s+"
         r"(?:(?:my|the)\s+)?pantry[?!.,]?",
@@ -3923,7 +3940,7 @@ def run_interaction(
             capability_retriever=retrieve_reference_capabilities,
             runtime_registry=runtime_registry,
             pack_bundles=reference_bundles,
-            auto_enable_pack_ids=frozenset(("tasks", "kitchen", "workspace")),
+            auto_enable_pack_ids=frozenset(("tasks", "kitchen", "workspace", "capabilities")),
             action_grounder=ground_reference_action_runtime,
             pre_model_resolver=resolve_reference_pre_model,
             fallback_card_selector=reference_fallback_cards,

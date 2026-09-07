@@ -3827,6 +3827,20 @@ def manager_with_reference_cards() -> PackManager:
     return manager
 
 
+def test_deterministic_capability_need_read_binds_owner_input_filter() -> None:
+    manager = manager_with_reference_cards()
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="What Capability Needs need my input?",
+    )
+
+    card = _deterministic_composition_action(intent, manager, Context())
+
+    assert card is not None
+    assert card.action.action_id == "capabilities.needs.list"
+    assert card.action.arguments == {"status": "owner_input_required"}
+
+
 def test_cli_routes_task_before_food_keyword() -> None:
     domain, card = _domain_and_action(
         "Create a task to buy cat food.", manager_with_reference_cards()
@@ -8475,6 +8489,7 @@ def test_reference_pack_ui_metadata_is_optional_and_non_authoritative():
         "Air Quality",
         "Air Quality Reports",
         "Finance",
+        "Capabilities",
     }
     assert all(bundle.manifest.permissions for bundle in bundles)
 
