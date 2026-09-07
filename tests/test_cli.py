@@ -5092,7 +5092,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Check a grocery budget" in _AEGIS_JS
     assert "Can I afford $" in _AEGIS_JS
     assert "health_observed_at" in _AEGIS_JS
-    assert "host ${service.host_id" in _AEGIS_JS
+    assert "host ${service.host_hostname || service.host_id" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS
     assert "quantity unknown" in _AEGIS_JS
     assert "Groceries needed" in _AEGIS_JS
@@ -7779,7 +7779,7 @@ def test_task_read_fast_path_filters_this_weekday_due_window():
 def test_task_read_fast_path_next_week_uses_next_calendar_week():
     from datetime import datetime, timedelta, timezone
 
-    now = datetime.now(timezone.utc)
+    now = datetime(2026, 9, 6, 12, tzinfo=timezone.utc)
     next_monday = now.date() + timedelta(days=7 - now.weekday())
     first = Task(
         uuid4(),
@@ -7815,7 +7815,8 @@ def test_task_read_fast_path_next_week_uses_next_calendar_week():
         IntentFrame(
             principal=Principal(id="alice", vault_id="alice-vault"),
             utterance="What tasks are due next week?",
-        )
+        ),
+        now=now,
     )
     assert result is not None
     assert result.evidence["due_filter"] == "next_week"
@@ -8160,6 +8161,7 @@ def test_constellation_state_keeps_current_pack_ui_metadata(monkeypatch):
     assert "network-device-192.0.2.20" in node_ids
     assert state["details"]["homelab-host-atlas"]["status"] == "unknown"
     assert state["details"]["homelab-service-plex"]["authority"]
+    assert state["details"]["homelab-service-plex"]["host_identity"]["hostname"] == "atlas"
     assert "not a canonical Host" in next(
         node["detail"] for node in state["nodes"] if node["id"] == "network-device-192.0.2.20"
     )

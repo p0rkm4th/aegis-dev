@@ -1162,7 +1162,7 @@ async function loadSystems() {
         if (!service || typeof service.service_id !== 'string') return;
         const row = document.createElement('div'); row.className = 'action-row';
         const label = document.createElement('span');
-        label.textContent = `${service.name || service.service_id} · ${service.service_id} · host ${service.host_id || 'unknown'} · ${service.health || 'unknown'} · observed ${service.health_observed_at || 'unknown'}`;
+        label.textContent = `${service.name || service.service_id} · ${service.service_id} · host ${service.host_hostname || service.host_id || 'unknown'} · ${service.health || 'unknown'} · observed ${service.health_observed_at || 'unknown'} · identity ${service.host_provider_identity || 'not configured'}`;
         const restart = document.createElement('button'); restart.type = 'button';
         restart.textContent = 'Request restart';
         restart.setAttribute('aria-label', `Request restart for ${service.service_id}`);
