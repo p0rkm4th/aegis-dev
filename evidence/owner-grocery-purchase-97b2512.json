@@ -1,0 +1,40 @@
+{
+  "artifact_type": "owner_grocery_purchase_proof",
+  "observed_at": "2026-09-07T06:31:00Z",
+  "source_sha": "97b2512c4c688b84b8f2e164a6cee408c6625e02",
+  "hosted_validation": {
+    "run_id": "34090789688",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "97b2512c4c688b84b8f2e164a6cee408c6625e02",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "healthy",
+    "path": "authenticated Tailscale HTTPS /api/message and /api/today"
+  },
+  "workflow": {
+    "utterance": "I bought oat milk.",
+    "message_http_status": 200,
+    "state": "completed",
+    "detail": "canonical grocery state verified",
+    "grocery_id": "grocery-1c9ed3a4a207607c",
+    "state_before": "needed",
+    "state_after": "purchased",
+    "version_after": 1,
+    "post_restart_readback": "preserved in the canonical grocery projection",
+    "pantry_read": {
+      "state": "completed",
+      "detail": "canonical Pantry verified",
+      "quantity_boundary": "canned beans quantity unknown"
+    },
+    "broad_need_question": {
+      "utterance": "What do we still need?",
+      "state": "blocked",
+      "boundary": "clarified collection instead of guessing among tasks, chores, groceries, or memories"
+    }
+  },
+  "boundary": "The purchase transition is a local Principal-scoped canonical Food mutation with independent readback. The broad collection question remains a safe clarification; no phrase-specific inference or financial/remote mutation was added."
+}
