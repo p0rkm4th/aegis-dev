@@ -1235,6 +1235,20 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
+        if evidence.get("collection") == "pantry":
+            entries: list[str] = []
+            for item in items:
+                if not isinstance(item, dict):
+                    entries.append(str(item))
+                    continue
+                name = str(item.get("display_name") or item.get("item_id") or "Unnamed item")
+                quantity = item.get("quantity")
+                if quantity is None:
+                    detail = "quantity unknown"
+                else:
+                    detail = f"{quantity} {item.get('unit') or ''}".strip()
+                entries.append(f"{name} ({detail})")
+            return "Pantry: " + (", ".join(entries) if entries else "(empty)")
         counts: dict[str, int] = {}
         order: list[str] = []
         for item in items:

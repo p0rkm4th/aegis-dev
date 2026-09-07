@@ -121,6 +121,24 @@ def test_grocery_read_fast_path_yields_explicit_pantry_reads() -> None:
     assert GroceryReadFastPath.matches("What's in the pantry?") is False
 
 
+def test_reference_formatter_labels_pantry_items_as_pantry() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="canonical Pantry verified",
+        correlation_id=uuid4(),
+        evidence={
+            "collection": "pantry",
+            "canonical_items": [
+                {"item_id": "milk", "display_name": "Milk", "quantity": 2, "unit": "carton"},
+                {"item_id": "rice", "display_name": "Rice", "quantity": None, "unit": None},
+            ],
+        },
+    )
+
+    assert reference_format_result(result) == "Pantry: Milk (2 carton), Rice (quantity unknown)"
+
+
 def test_grocery_read_fast_path_preserves_shopping_list_scope() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
