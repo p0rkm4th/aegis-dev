@@ -19,6 +19,7 @@ from aegis.pack_first_experiment import (
     router_prompt,
     run_pack_tournament,
     selected_cards,
+    semantic_pack_prefilter,
     validate_selected_packs,
 )
 from aegis.pack_lifecycle import PackBundle, PackManager, PackManifest, PackStatus, PackUI
@@ -127,6 +128,24 @@ def test_router_catalog_excludes_non_enabled_packs_but_lifecycle_catalog_remains
     manager.enable("dynamic-weather")
     enabled_catalog = compact_pack_catalog(manager, enabled_only=True)
     assert [entry.pack_id for entry in enabled_catalog] == ["dynamic-weather"]
+
+
+def test_semantic_pack_prefilter_reuses_enabled_card_retrieval_only():
+    manager = dynamic_manager()
+
+    class Embedder:
+        def embed(self, texts):
+            return tuple(
+                (1.0, 0.0) if index == 0 or "weather" in text else (0.0, 1.0)
+                for index, text in enumerate(texts)
+            )
+
+    assert semantic_pack_prefilter("what is the weather", manager, Embedder()) == ()
+    manager.install("dynamic-weather", frozenset())
+    manager.enable("dynamic-weather")
+    assert semantic_pack_prefilter("what is the weather", manager, Embedder()) == (
+        "dynamic-weather",
+    )
 
 
 @pytest.mark.parametrize(

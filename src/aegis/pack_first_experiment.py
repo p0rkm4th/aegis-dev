@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .contracts import ActionCard
 from .pack_lifecycle import PackManager, PackStatus
+from .registry import CapabilityEmbedder
 
 
 class PackRouterStatus(StrEnum):
@@ -333,6 +334,30 @@ def selected_cards(manager: PackManager, pack_ids: Iterable[str]) -> tuple[Actio
         for card in manager.enabled_cards()
         if card.action.action_id.split(".", 1)[0] in allowed
     )
+
+
+def semantic_pack_prefilter(
+    utterance: str,
+    manager: PackManager,
+    embedder: CapabilityEmbedder,
+    *,
+    card_limit: int = 10,
+) -> tuple[str, ...]:
+    """Return a ranked Pack shortlist from existing enabled-card retrieval.
+
+    Retrieval is only a non-authoritative narrowing hint.  The router still
+    validates every selected Pack against lifecycle state before any later
+    experimental stage could use it.
+    """
+
+    if not 1 <= card_limit <= 10:
+        raise ValueError("semantic Pack prefilter card limit must be between one and ten")
+    pack_ids: list[str] = []
+    for card in manager.retrieve_semantic(utterance, embedder, limit=card_limit):
+        pack_id = card.action.action_id.split(".", 1)[0]
+        if pack_id not in pack_ids:
+            pack_ids.append(pack_id)
+    return tuple(pack_ids)
 
 
 def _measure_router(
