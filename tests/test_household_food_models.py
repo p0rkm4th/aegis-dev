@@ -11,6 +11,7 @@ from aegis.household import (
     PantryItem,
     migrate_grocery_strings,
     normalize_food_key,
+    stable_pantry_item_id,
 )
 from aegis.reference_packs import (
     PostgresGroceryStateExecutor,
@@ -30,6 +31,11 @@ def test_legacy_groceries_migrate_to_stable_ids_without_inventing_facts():
     assert all(item.unit is None for item in first.values())
     assert all(item.state == "needed" for item in first.values())
     assert all(item.pantry_item_id is None for item in first.values())
+
+
+def test_pantry_item_id_is_stable_for_the_normalized_explicit_name():
+    assert stable_pantry_item_id("  Canned   Beans ") == stable_pantry_item_id("canned beans")
+    assert stable_pantry_item_id("canned beans").startswith("pantry-")
 
 
 def test_household_space_exposes_structured_food_without_breaking_legacy_projection():

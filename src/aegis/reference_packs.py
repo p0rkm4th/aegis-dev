@@ -1116,6 +1116,15 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     summary="Add a Pantry item without inventing unknown quantities",
                     relevance=1,
                     argument_keys=("item_id", "display_name", "quantity", "unit"),
+                    argument_grounding={
+                        "item_id": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
+                            approved_derivations=("reference.pantry_item_id_from_name.v1",),
+                        ),
+                        "display_name": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        ),
+                    },
                 ),
                 ActionCard(
                     action=ActionSpec(

@@ -65,6 +65,7 @@ from .holidays import configured_holiday_provider, holidays_evidence
 from .homelab import PostgresHomelabStore, classify_discovered_device
 from .household import (
     PostgresHouseholdStore,
+    stable_pantry_item_id,
 )
 from .identity import (
     KeycloakIdentityProvider,
@@ -1779,6 +1780,29 @@ def _deterministic_composition_action(
         finance_card = manager.action_card("finance", "finance.summary.read")
         if finance_card is not None:
             return finance_card
+    pantry_add = re.fullmatch(
+        r"(?:add|put|store)\s+(?P<display_name>.+?)\s+(?:to|in|into)\s+"
+        r"(?:(?:my|the)\s+)?pantry[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if pantry_add is not None:
+        pantry_card = manager.action_card("kitchen", "kitchen.pantry.add")
+        if pantry_card is not None:
+            display_name = " ".join(pantry_add.group("display_name").split())
+            if display_name:
+                return pantry_card.model_copy(
+                    update={
+                        "action": pantry_card.action.model_copy(
+                            update={
+                                "arguments": {
+                                    "item_id": stable_pantry_item_id(display_name),
+                                    "display_name": display_name,
+                                }
+                            }
+                        )
+                    }
+                )
     if not is_mutation_request(folded) and re.search(r"\bpantry\b", folded):
         pantry_card = manager.action_card("kitchen", "kitchen.pantry.list")
         if pantry_card is not None:

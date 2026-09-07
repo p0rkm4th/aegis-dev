@@ -304,6 +304,22 @@ def _ground_argument_provenance(
                     source_spans=spans,
                 )
                 continue
+        if card.action.action_id == "kitchen.pantry.add" and key == "item_id":
+            display_name = card.action.arguments.get("display_name")
+            spans = _utterance_spans(intent.utterance, display_name)
+            if not spans:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="Name the Pantry item explicitly; I will not infer it.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                source_spans=spans,
+                derivation="reference.pantry_item_id_from_name.v1",
+            )
+            continue
         if (
             card.action.action_id
             in {
