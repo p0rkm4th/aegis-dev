@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "51a4752",
+  "state_basis_sha": "279ba82",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "51a4752",
-  "deterministic_green_sha": "51a4752",
-  "last_pushed_sha": "51a4752",
-  "hosted_green_sha": "51a4752",
-  "hosted_ci_green_sha": "51a4752",
+  "repository_head_sha": "279ba82",
+  "deterministic_green_sha": "279ba82",
+  "last_pushed_sha": "279ba82",
+  "hosted_green_sha": "279ba82",
+  "hosted_ci_green_sha": "279ba82",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "51a4752",
+    "commit_sha": "279ba82",
     "conclusion": "success",
-    "run_id": "34070350546",
-    "observed_at": "2026-09-06T22:15:00Z"
+    "run_id": "34070836138",
+    "observed_at": "2026-09-07T00:46:00Z"
   },
-  "installed_release_sha": "51a4752",
-  "running_release_sha": "51a4752",
-  "live_green_sha": "51a4752",
+  "installed_release_sha": "279ba82",
+  "running_release_sha": "279ba82",
+  "live_green_sha": "279ba82",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "51a4752"
+    "release_sha": "279ba82"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",

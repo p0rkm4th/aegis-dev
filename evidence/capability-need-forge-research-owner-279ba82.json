@@ -1,0 +1,23 @@
+{
+  "checkpoint": "capability-need-forge-research-owner",
+  "source_sha": "279ba8299750a3bb02e6827b17d2f23a9d00d8d5",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34070836138",
+    "conclusion": "success"
+  },
+  "owner_proof": {
+    "release_sha": "279ba8299750a3bb02e6827b17d2f23a9d00d8d5",
+    "service": "aegis-owner.service",
+    "postgresql": "healthy",
+    "surface": "Objectives capability-need Forge review",
+    "research_evidence": "bounded source summaries are shown when investigation supplies them",
+    "authority_boundary": "review and research remain non-authoritative; no proposal preparation, installation, enablement, approval, permission grant, or execution"
+  },
+  "verification": [
+    "focused CLI projection test passed",
+    "full deterministic validation passed: 1098 passed, 6 skipped",
+    "owner service health reported the exact promoted release"
+  ]
+}
