@@ -907,6 +907,15 @@ def reference_constellation_state(
                 "host_id": service.host_id,
                 "name": service.name,
                 "health_endpoint_configured": bool(service.health_endpoint),
+                "host_identity": (
+                    {
+                        "hostname": homelab.hosts[service.host_id].hostname,
+                        "provider_identity": homelab.hosts[service.host_id].provider_identity,
+                        "status": homelab.hosts[service.host_id].status,
+                    }
+                    if service.host_id in homelab.hosts
+                    else None
+                ),
                 "authority": "health/read context only; restart still requires Core authorization",
             }
             host_node_id = f"homelab-host-{service.host_id}"
@@ -2758,7 +2767,10 @@ def resolve_contextual_repeat_read(
 
 
 def resolve_contextual_event_temporal_read(
-    intent: IntentFrame, context: Context, snapshot: dict[str, object]
+    intent: IntentFrame,
+    context: Context,
+    snapshot: dict[str, object],
+    now: datetime | None = None,
 ) -> Result | None:
     """Apply a date-only read follow-up to the authorized event collection."""
 
@@ -2781,7 +2793,7 @@ def resolve_contextual_event_temporal_read(
     if temporal is None:
         return None
     follow_up = intent.model_copy(update={"utterance": f"What events are happening {temporal}?"})
-    return HouseholdReadFastPath(snapshot).resolve(follow_up)
+    return HouseholdReadFastPath(snapshot).resolve(follow_up, now=now)
 
 
 def resolve_contextual_event_next_read(

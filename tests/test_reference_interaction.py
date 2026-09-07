@@ -2648,7 +2648,7 @@ def test_contextual_explicit_task_ordinal_accepts_show_form():
 def test_event_temporal_correction_reuses_authorized_event_collection():
     from aegis.household import HouseholdEvent
 
-    now = datetime.now(timezone.utc)
+    now = datetime(2026, 9, 6, 12, tzinfo=timezone.utc)
     context = Context(
         values={
             "referents": {
@@ -2672,6 +2672,7 @@ def test_event_temporal_correction_reuses_authorized_event_collection():
             "chores": (),
             "events": (HouseholdEvent("weekend", "weekend event", now),),
         },
+        now=now,
     )
 
     assert result is not None

@@ -990,6 +990,27 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
         _apply_migrations(connection)
         network = PostgresNetworkStore(connection).load(principal)
         homelab = PostgresHomelabStore(connection).load(principal, _InventoryOnlyHomelabRuntime())
+
+        def service_projection(service: Any) -> dict[str, Any]:
+            host = homelab.hosts.get(service.host_id)
+            return {
+                "service_id": service.service_id,
+                "host_id": service.host_id,
+                "host_hostname": host.hostname if host else None,
+                "host_provider_identity": host.provider_identity if host else None,
+                "host_identity_evidence": list(host.identity_evidence) if host else [],
+                "host_status": host.status if host else "unknown_host",
+                "name": service.name,
+                "health_endpoint_configured": bool(service.health_endpoint),
+                "health": _service_health(service.health_endpoint)
+                if service.health_endpoint
+                else "not_configured",
+                "health_source": "bounded_http_read" if service.health_endpoint else None,
+                "health_observed_at": (
+                    datetime.now(timezone.utc).isoformat() if service.health_endpoint else None
+                ),
+            }
+
         return {
             "source": "canonical_postgresql_inventory",
             "hosts": [
@@ -1008,22 +1029,7 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                 }
                 for host in homelab.hosts.values()
             ],
-            "services": [
-                {
-                    "service_id": service.service_id,
-                    "host_id": service.host_id,
-                    "name": service.name,
-                    "health_endpoint_configured": bool(service.health_endpoint),
-                    "health": _service_health(service.health_endpoint)
-                    if service.health_endpoint
-                    else "not_configured",
-                    "health_source": "bounded_http_read" if service.health_endpoint else None,
-                    "health_observed_at": (
-                        datetime.now(timezone.utc).isoformat() if service.health_endpoint else None
-                    ),
-                }
-                for service in homelab.services.values()
-            ],
+            "services": [service_projection(service) for service in homelab.services.values()],
             "authorized_network_devices": [
                 {
                     "address": device.address,

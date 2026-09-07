@@ -805,7 +805,7 @@ class HouseholdReadFastPath:
             and (text.startswith(cls._READ_PREFIXES) or text in cls._TRIGGERS)
         )
 
-    def resolve(self, intent: IntentFrame) -> Result | None:
+    def resolve(self, intent: IntentFrame, now: datetime | None = None) -> Result | None:
         if not self.matches(intent.utterance):
             return None
         text = intent.utterance.casefold()
@@ -855,7 +855,7 @@ class HouseholdReadFastPath:
         }
         if next_event:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
-            now = datetime.now(timezone.utc)
+            now = now or datetime.now(timezone.utc)
             upcoming = []
             for event in events:
                 starts_at = event.starts_at
@@ -1042,7 +1042,7 @@ class HouseholdReadFastPath:
             events = cast(tuple[HouseholdEvent, ...], self.snapshot["events"])
             date_filter = "all"
             target_date = None
-            now = datetime.now(timezone.utc)
+            now = now or datetime.now(timezone.utc)
             if "tomorrow" in text:
                 target_date = (now + timedelta(days=1)).date()
                 date_filter = "tomorrow"
