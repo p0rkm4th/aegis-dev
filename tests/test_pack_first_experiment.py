@@ -112,6 +112,23 @@ def test_dynamic_pack_is_discovered_and_routed_without_core_special_case():
     )
 
 
+def test_router_catalog_excludes_non_enabled_packs_but_lifecycle_catalog_remains_inspectable():
+    manager = dynamic_manager()
+    lifecycle_catalog = compact_pack_catalog(manager)
+    router_catalog = compact_pack_catalog(manager, enabled_only=True)
+
+    assert lifecycle_catalog[0].status is PackStatus.DISCOVERED
+    assert router_catalog == ()
+
+    manager.install("dynamic-weather", frozenset())
+    installed_catalog = compact_pack_catalog(manager, enabled_only=True)
+    assert installed_catalog == ()
+
+    manager.enable("dynamic-weather")
+    enabled_catalog = compact_pack_catalog(manager, enabled_only=True)
+    assert [entry.pack_id for entry in enabled_catalog] == ["dynamic-weather"]
+
+
 @pytest.mark.parametrize(
     "payload, message",
     [
