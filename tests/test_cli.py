@@ -7486,6 +7486,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "renderStatusBadge('Health', health)" in browser_source
     assert "renderStatusBadge('Reachability', reachability)" in browser_source
     assert "Open Systems" in browser_source
+    assert "Review groceries and services" in browser_source
+    assert "Show me what groceries we still need and which services are down." in browser_source
+    assert "no purchase, restart, or financial mutation is performed." in browser_source
     assert "Show authorized detail" in browser_source
     assert "today-overview" in _AEGIS_CSS
     assert "constellation-layer" in _AEGIS_CSS
