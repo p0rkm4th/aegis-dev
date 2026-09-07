@@ -1,0 +1,41 @@
+{
+  "kind": "owner-finance-surface",
+  "source_sha": "a82e1eec6a1fd0b2263a77acfade05d59069c6ee",
+  "hosted_run_id": "34083160643",
+  "observed_at": "2026-09-07T04:24:10Z",
+  "owner_path": "Tailscale HTTPS",
+  "runtime": {
+    "release_sha": "a82e1eec6a1fd0b2263a77acfade05d59069c6ee",
+    "service": "aegis-owner.service",
+    "postgres_healthy": true
+  },
+  "served_ui": {
+    "root": 200,
+    "css": {"status": 200, "content_type": "text/css; charset=utf-8", "bytes": 15449},
+    "javascript": {"status": 200, "content_type": "text/javascript; charset=utf-8", "bytes": 149902},
+    "finance_transaction_renderer": true,
+    "finance_coverage_renderer": true
+  },
+  "finance_projection": {
+    "provider_state": "available",
+    "account_count": 1,
+    "transaction_count": 1,
+    "transaction_fields": [
+      "account_id",
+      "amount_minor",
+      "currency",
+      "description",
+      "occurred_at",
+      "provider_transaction_id",
+      "source_id",
+      "status",
+      "transaction_id"
+    ]
+  },
+  "safety": {
+    "financial_mutation_invoked": false,
+    "principal_scope_unchanged": true,
+    "browser_computed_style_capture": "not_available: no browser executable is installed in this environment"
+  },
+  "interpretation": "The exact hosted-green Finance UI release is installed and served through the owner HTTPS path. Canonical currency, settlement, provider, and source fields remain server-provided and no financial mutation is exposed."
+}
