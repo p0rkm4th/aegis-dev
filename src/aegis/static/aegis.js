@@ -1839,7 +1839,9 @@ async function loadObjectives() {
               const forgeDetails = document.createElement('p'); forgeDetails.className = 'muted';
               const permissions = Array.isArray(candidate.permissions) && candidate.permissions.length
                 ? ` Requested permissions: ${candidate.permissions.join(', ')}.` : '';
-              forgeDetails.textContent = `Owner review is required before a Pack proposal can be prepared.${permissions}`;
+              const candidateIdentity = [candidate.kind, candidate.capability]
+                .filter(value => typeof value === 'string' && value.trim()).join(' · ');
+              forgeDetails.textContent = `${candidateIdentity || 'Unclassified candidate'} · owner review is required before a Pack proposal can be prepared.${permissions}`;
               const forgeBoundary = document.createElement('p'); forgeBoundary.className = 'muted';
               forgeBoundary.textContent = 'Research and preview do not install, enable, approve, grant permissions, or execute a candidate.';
               forgeReview.append(forgeTitle, forgeStatus, forgeDetails, forgeBoundary);
