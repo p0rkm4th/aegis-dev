@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+  "state_basis_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "09d5161362bb3b696604b798da346993924dfeb8",
-  "deterministic_green_sha": "09d5161362bb3b696604b798da346993924dfeb8",
-  "last_pushed_sha": "09d5161362bb3b696604b798da346993924dfeb8",
-  "hosted_green_sha": "09d5161362bb3b696604b798da346993924dfeb8",
-  "hosted_ci_green_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+  "repository_head_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "deterministic_green_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "last_pushed_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "hosted_green_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "hosted_ci_green_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+    "commit_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
     "conclusion": "success",
-    "run_id": "34117291110",
-    "observed_at": "2026-09-07T11:35:47Z"
+    "run_id": "34117695649",
+    "observed_at": "2026-09-07T11:40:38Z"
   },
-  "installed_release_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
-  "running_release_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
-  "live_green_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
+  "installed_release_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "running_release_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "live_green_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "db7922b5c6255cb67a20770706df6fe13aff8912"
+    "release_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -50,6 +50,7 @@
     "today_actionable_overview": "Promoted Today now presents bounded counts for open tasks, chores, upcoming events, CapabilityNeeds, conflicts, active objectives, and any surfaced unknown outcomes, with navigation to the existing owner views and no new authority",
     "today_owner_readable": "Promoted Today now leads with bounded Needs attention, Up next, Grocery list, Pantry check, and Recently completed sections; the full authorized projection is progressive detail rather than the default reading surface",
     "today_pantry_truthful_overview": "Promoted Today now surfaces canonical Pantry record count and only canonical low-stock projections; unknown quantities remain explicitly unknown and are never presented as zero or low stock",
+    "today_pantry_glance": "Promoted Today includes a Pantry records glance card linked to Household; the count is canonical and display-only, while low-stock meaning remains bounded to the explicit Pantry projection",
     "today_grocery_overview_owner": "Promoted 766688d Today overview includes a bounded Groceries needed card derived from canonical grocery_items, excludes purchased/removed rows, and links to the Household view without adding authority",
     "owner_presentation_assets": "Promoted owner shell presentation CSS is served from the existing static asset route; inline browser CSS was removed without changing Core/API/auth semantics",
     "owner_research_persistence": "Promoted owner Research view loads recent Principal-scoped bounded evidence from /api/research after navigation/reload, including query, summary, sources, provider, retrieval time, and an explicit non-canonical boundary",
@@ -403,6 +404,7 @@
     ,"owner Today now groups exact title-and-time upcoming event labels on 9079ce5 through the authenticated Tailscale shell; grouping is display-only, matching entries are disclosed, and Calendar retains each canonical event identity"
     ,"Fresh Qwen3:8B Pack-first shadow evidence on 74bfcb3 evaluated 34 cases including the exact Food + Homelab and Food + Finance + Homelab owner phrases; the unchanged incumbent led at 0.759 recall / 0.241 wrong-action versus 0.345 / 0.621 for both experimental variants, so production cognition remains incumbent"
     ,"Owner Today Pantry check on db7922b is served through the authenticated Tailscale shell and reports canonical record count, known low-stock projections, and an explicit unknown-quantity boundary without changing Food state"
+    ,"Owner Today Pantry glance on f176b5f is served through the authenticated Tailscale shell after service restart; the canonical Pantry count remains one, the low-stock projection remains empty, and the display-only card adds no mutation"
     ,"Owner-Reality OSS harvest on 09d5161 records bounded design/test reuse recommendations for Grocy, Mealie, Actual Budget, Firefly III Data Importer, ofxtools, and Nmap without adding runtime dependencies or authority"
   ],
   "current_blockers": [
@@ -467,7 +469,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility on the promoted db7922b Today surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
+  "next_action": "Continue owner-real utility on the promoted f176b5f Today surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
