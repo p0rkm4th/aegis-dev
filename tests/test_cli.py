@@ -195,6 +195,45 @@ def test_deterministic_pantry_add_grounds_explicit_name_and_stable_id():
     )
 
 
+def test_deterministic_pantry_known_quantity_add_preserves_explicit_facts():
+    from aegis.household import stable_pantry_item_id
+
+    manager = manager_with_reference_cards()
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault", space_ids=("kitchen",)),
+        utterance="Add pantry item canned beans quantity 3 unit cans",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert isinstance(card, ActionCard)
+    assert card.action.action_id == "kitchen.pantry.add"
+    assert card.action.arguments == {
+        "item_id": stable_pantry_item_id("canned beans"),
+        "display_name": "canned beans",
+        "quantity": 3,
+        "unit": "cans",
+    }
+
+
+def test_deterministic_pantry_consume_uses_stable_id_and_version():
+    manager = manager_with_reference_cards()
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault", space_ids=("kitchen",)),
+        utterance="Consume pantry item pantry-beans quantity 2 version 4",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert isinstance(card, ActionCard)
+    assert card.action.action_id == "kitchen.pantry.consume"
+    assert card.action.arguments == {
+        "item_id": "pantry-beans",
+        "quantity": 2,
+        "expected_version": 4,
+    }
+    zero_intent = intent.model_copy(
+        update={"utterance": "Consume pantry item pantry-beans quantity 0 version 4"}
+    )
+    assert _deterministic_composition_action(zero_intent, manager, Context()) is None
+
+
 def test_affordability_question_is_not_captured_by_finance_summary_fallback():
     from aegis.finance import FinanceReadFastPath
 
@@ -7501,6 +7540,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Recent public research" in browser_source
     assert "Public research is bounded external evidence" in browser_source
     assert "Open Research" in browser_source
+    assert "appendPantryAdd" in browser_source
+    assert "Record known Pantry quantity" in browser_source
+    assert "Consume pantry item ${item.item_id}" in browser_source
+    assert "Set a known quantity before consuming" in browser_source
     assert "Systems needing attention" in browser_source
     assert (
         "Observed ${service.health_observed_at || 'unknown'} via "

@@ -1933,6 +1933,32 @@ function renderFoodCollection(panel, title, items, kind) {
       details.textContent = `${item.state || 'needed'} · ${quantity}`;
     }
     row.append(name, details); section.append(row);
+    if (kind === 'pantry' && item.item_id) {
+      const actions = document.createElement('div'); actions.className = 'food-actions';
+      if (item.quantity != null) {
+        const consumeForm = document.createElement('form');
+        consumeForm.setAttribute('aria-label', `Consume ${item.display_name || 'Pantry item'}`);
+        const consumeQuantity = document.createElement('input'); consumeQuantity.type = 'number';
+        consumeQuantity.min = '0.01'; consumeQuantity.max = String(item.quantity); consumeQuantity.step = 'any';
+        consumeQuantity.value = '1'; consumeQuantity.required = true;
+        consumeQuantity.setAttribute('aria-label', `Quantity of ${item.display_name || 'Pantry item'} to consume`);
+        const consume = document.createElement('button'); consume.type = 'submit'; consume.textContent = 'Consume';
+        consumeForm.append(consumeQuantity, consume);
+        consumeForm.addEventListener('submit', event => {
+          event.preventDefault(); const value = Number(consumeQuantity.value);
+          if (!Number.isFinite(value) || value <= 0 || value > Number(item.quantity)) return;
+          document.getElementById('utterance').value =
+            `Consume pantry item ${item.item_id} quantity ${value} version ${Number(item.version) || 0}`;
+          document.getElementById('chat').requestSubmit();
+        });
+        actions.append(consumeForm);
+      } else {
+        const unknown = document.createElement('span'); unknown.className = 'muted';
+        unknown.textContent = 'Set a known quantity before consuming';
+        actions.append(unknown);
+      }
+      row.append(actions);
+    }
     if (kind === 'grocery' && item.grocery_id && item.state !== 'purchased' && item.state !== 'removed') {
       const actions = document.createElement('div'); actions.className = 'food-actions';
       const purchased = document.createElement('button'); purchased.type = 'button';
@@ -1953,6 +1979,31 @@ function renderFoodCollection(panel, title, items, kind) {
     }
   });
   panel.append(section);
+}
+function appendPantryAdd(panel) {
+  const section = document.createElement('section'); section.className = 'detail-card pantry-add';
+  const heading = document.createElement('h3'); heading.textContent = 'Record known Pantry quantity';
+  const form = document.createElement('form'); form.setAttribute('aria-label', 'Add Pantry item with known quantity');
+  const name = document.createElement('input'); name.type = 'text'; name.maxLength = 120;
+  name.placeholder = 'e.g. rice'; name.setAttribute('aria-label', 'Pantry item name'); name.required = true;
+  const quantity = document.createElement('input'); quantity.type = 'number'; quantity.min = '0.01';
+  quantity.step = 'any'; quantity.placeholder = 'Quantity'; quantity.setAttribute('aria-label', 'Pantry quantity'); quantity.required = true;
+  const unit = document.createElement('input'); unit.type = 'text'; unit.maxLength = 40;
+  unit.placeholder = 'Unit (optional)'; unit.setAttribute('aria-label', 'Pantry unit');
+  const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = 'Record Pantry item';
+  form.append(name, quantity, unit, submit);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const value = Number(quantity.value); const displayName = name.value.trim();
+    if (!displayName || !Number.isFinite(value) || value <= 0) return;
+    const unitText = unit.value.trim();
+    document.getElementById('utterance').value =
+      `Add pantry item ${displayName} quantity ${value}${unitText ? ` unit ${unitText}` : ''}`;
+    document.getElementById('chat').requestSubmit();
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = 'Only the quantity and unit you enter are recorded; no brand, location, or minimum is inferred.';
+  section.append(heading, form, boundary); panel.append(section);
 }
 function renderFinanceCoverage(panel, coverage) {
   const section = document.createElement('section'); section.className = 'detail-card';
@@ -2091,6 +2142,7 @@ async function loadHousehold() {
     if (pantry.length) {
       renderFoodCollection(panel, 'Pantry', pantry, 'pantry');
     } else renderFoodCollection(panel, 'Pantry', [], 'pantry');
+    appendPantryAdd(panel);
     const lowPantry = canonical.pantry_low_items || [];
     const lowSection = document.createElement('section'); lowSection.className = 'detail-card';
     const lowTitle = document.createElement('h3'); lowTitle.textContent = 'Pantry items to review';
