@@ -1,0 +1,35 @@
+{
+  "evidence_type": "owner_dogfood",
+  "capability": "capabilities.needs.list",
+  "source_sha": "6295e32213cefda8e028edcb562822e4cdd9e18a",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34105485532",
+    "head_sha": "6295e32213cefda8e028edcb562822e4cdd9e18a",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "access": "authenticated Tailscale HTTPS",
+    "release_sha": "6295e32213cefda8e028edcb562822e4cdd9e18a",
+    "postgresql": "healthy",
+    "restarted_before_proof": true
+  },
+  "request": {
+    "utterance": "What Capability Needs need my input?",
+    "result_state": "completed",
+    "detail": "Capability Needs independently reread",
+    "status_filter": "owner_input_required",
+    "returned_need_count": 1,
+    "returned_status": "owner_input_required",
+    "authority": "read-only review context; no Pack install, enablement, approval, permission grant, or execution"
+  },
+  "assertions": [
+    "the owner request uses the normal authenticated interaction route",
+    "the Pack executor and verifier use the existing Principal/Vault/Space objective boundary",
+    "the owner-input filter is a bounded Pack-owned deterministic derivation",
+    "the result is independently reread before completion",
+    "Forge lifecycle and execution authority remain unchanged"
+  ]
+}
