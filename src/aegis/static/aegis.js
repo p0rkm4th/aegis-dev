@@ -1131,7 +1131,7 @@ async function loadSystems() {
     ]);
     appendInventory('Discovered devices', Array.isArray(payload.authorized_network_devices) ? payload.authorized_network_devices : [], device => [
       device.hostname || device.address || 'Unnamed device',
-      `${device.address || 'no address'} · ${device.identity_status === 'reconciliation_candidate' ? `possible match: ${device.canonical_host_id}` : 'unmatched observation'} · not canonical Host`
+      `${device.address || 'no address'} · ${device.identity_status === 'reconciliation_candidate' ? `possible match: ${device.canonical_host_id}` : 'unmatched observation'} · ${device.last_observed ? `observed ${device.last_observed}` : 'observation time unknown'} · not canonical Host`
     ]);
     panel.append(inventory);
     const scopes = Array.isArray(payload.active_network_scopes) ? payload.active_network_scopes : [];

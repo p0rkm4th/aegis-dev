@@ -6,6 +6,7 @@ import ipaddress
 import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any, Protocol, cast
 
 from .contracts import AuthorizationRequest, PolicyDecision, Principal
@@ -44,6 +45,7 @@ class DiscoveredDevice:
     address: str
     hostname: str | None = None
     services: tuple[str, ...] = ()
+    observed_at: datetime | None = None
 
 
 @dataclass
@@ -126,7 +128,13 @@ class BoundedNetworkDiscovery:
         for address in candidates[: self.max_hosts]:
             open_ports = tuple(str(port) for port in self.ports if self.probe(address, port))
             if open_ports:
-                observations.append(DiscoveredDevice(address=address, services=open_ports))
+                observations.append(
+                    DiscoveredDevice(
+                        address=address,
+                        services=open_ports,
+                        observed_at=datetime.now(timezone.utc),
+                    )
+                )
         return tuple(observations)
 
 
@@ -177,8 +185,8 @@ class PostgresNetworkStore:
                 str(scope_id), tuple(str(value) for value in values), str(purpose), bool(active)
             )
         devices = {}
-        for address, hostname, services in self.connection.execute(
-            "SELECT address, hostname, services FROM network_devices "
+        for address, hostname, services, observed_at in self.connection.execute(
+            "SELECT address, hostname, services, updated_at FROM network_devices "
             "WHERE space_id = %s ORDER BY address",
             (space_id,),
         ).fetchall():
@@ -187,6 +195,13 @@ class PostgresNetworkStore:
                 str(address),
                 str(hostname) if hostname is not None else None,
                 tuple(str(value) for value in values),
+                observed_at=(
+                    observed_at
+                    if isinstance(observed_at, datetime)
+                    else datetime.fromisoformat(str(observed_at))
+                    if observed_at is not None
+                    else None
+                ),
             )
             devices[device.address] = device
         return HomelabInventory(devices=devices, scopes=scopes)

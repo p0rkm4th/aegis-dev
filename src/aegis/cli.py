@@ -1054,6 +1054,9 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                 {
                     "address": device.address,
                     "hostname": device.hostname,
+                    "last_observed": (
+                        device.observed_at.isoformat() if device.observed_at else None
+                    ),
                     **classify_discovered_device(device, homelab.hosts),
                 }
                 for device in network.devices.values()
@@ -1106,6 +1109,9 @@ def _systems_discover(principal: Principal, request: dict[str, Any]) -> dict[str
                     "address": device.address,
                     "hostname": device.hostname,
                     "services": list(device.services),
+                    "last_observed": (
+                        device.observed_at.isoformat() if device.observed_at else None
+                    ),
                     "status": "discovered",
                     **classify_discovered_device(device, homelab.hosts),
                 }
