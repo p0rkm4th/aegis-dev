@@ -3862,6 +3862,20 @@ def test_cli_routes_shopping_list_read_to_canonical_grocery_action() -> None:
     assert groceries.action.action_id == "kitchen.groceries.list"
 
 
+def test_cli_routes_pantry_read_to_canonical_pantry_action() -> None:
+    pantry = _deterministic_composition_action(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What's in the pantry?",
+        ),
+        manager_with_reference_cards(),
+        Context(),
+    )
+
+    assert pantry is not None
+    assert pantry.action.action_id == "kitchen.pantry.list"
+
+
 def test_local_identity_bootstrap_does_not_reactivate_revoked_membership():
     class Connection:
         def __init__(self) -> None:

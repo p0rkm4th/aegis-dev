@@ -1779,7 +1779,7 @@ def _deterministic_composition_action(
         finance_card = manager.action_card("finance", "finance.summary.read")
         if finance_card is not None:
             return finance_card
-    if not is_mutation_request(folded) and re.search(r"\\bpantry\\b", folded):
+    if not is_mutation_request(folded) and re.search(r"\bpantry\b", folded):
         pantry_card = manager.action_card("kitchen", "kitchen.pantry.list")
         if pantry_card is not None:
             return pantry_card
