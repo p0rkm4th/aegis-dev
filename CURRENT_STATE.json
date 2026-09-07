@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8fe3d8a",
+  "state_basis_sha": "656ef21",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8fe3d8a",
-  "deterministic_green_sha": "1af0cb4",
-  "last_pushed_sha": "8fe3d8a",
-  "hosted_green_sha": "8fe3d8a",
-  "hosted_ci_green_sha": "8fe3d8a",
+  "repository_head_sha": "656ef21",
+  "deterministic_green_sha": "656ef21",
+  "last_pushed_sha": "656ef21",
+  "hosted_green_sha": "656ef21",
+  "hosted_ci_green_sha": "656ef21",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8fe3d8a07753ae97b744fb2a82fc6c32fb482e90",
+    "commit_sha": "656ef2124c72b4b78ed84ef137f3514425793747",
     "conclusion": "success",
-    "run_id": "34075760531",
-    "observed_at": "2026-09-07T02:17:34Z"
+    "run_id": "34076357502",
+    "observed_at": "2026-09-07T02:32:03Z"
   },
-  "installed_release_sha": "8fe3d8a",
-  "running_release_sha": "8fe3d8a",
-  "live_green_sha": "8fe3d8a",
+  "installed_release_sha": "656ef21",
+  "running_release_sha": "656ef21",
+  "live_green_sha": "656ef21",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8fe3d8a07753ae97b744fb2a82fc6c32fb482e90"
+    "release_sha": "656ef2124c72b4b78ed84ef137f3514425793747"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -56,6 +56,8 @@
     "capability_need_investigation_fallback": "Promoted owner HTTPS proof preserves an unsupported consequential objective and records an open CapabilityNeed when bounded investigation is unavailable; the objective/need survives owner-service restart and remains read-only context",
     "capability_need_safe_research_surface": "Promoted owner Objectives view explicitly shows when no candidate resolution is available and offers a bounded Research safe path through the normal Core interaction route; the surface grants no acquisition or execution authority",
     "capability_need_research_failure_boundary": "Promoted owner proof returns a structured blocked result when bounded research cannot establish a Workspace postcondition; objective state remains blocked across restart and same-correlation retry, with no artifact mutation",
+    "capability_need_research_query_fallback": "Promoted owner proof uses at most two deterministic Wikimedia term-pair fallbacks after a long-query miss; Palworld evidence produced a non-canonical, independently verified Workspace note without acquisition or execution authority",
+    "capability_need_research_restart": "Promoted owner proof preserves the evidence-backed CapabilityNeed research artifact across service restart and same-correlation repeat with no duplicate Workspace mutation",
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",
@@ -331,8 +333,7 @@
     ,"Contract-green completed canonical task history → Communications composition is generic and destination-scoped; live provider delivery remains unconfigured"
   ],
   "current_blockers": [
-    "No OpenClaw outbound channel or Google Calendar credential is configured, so live external delivery/write acceptance remains pending; fixture/provider acceptance is not delivery proof.",
-    "Live OpenClaw and Google Calendar provider credentials remain unconfigured; static owner CSS/JS assets are now proven through Tailscale HTTPS."
+    "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
   "known_runtime_limits": [
@@ -393,7 +394,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Defer Pack-first promotion pending a materially safer/generalizing result; advance the next owner-real capability or composition while production cognition remains incumbent.",
+  "next_action": "Continue the next owner-real Food/Finance/Homelab/Forge utility slice; Pack-first remains experimental and production cognition remains incumbent until a safer generalizing result exists.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
