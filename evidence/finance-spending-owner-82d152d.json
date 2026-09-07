@@ -1,0 +1,29 @@
+{
+  "evidence_type": "owner_dogfood",
+  "capability": "finance.spending.read",
+  "source_sha": "82d152d85e67058535cbf9960fac8e5c2c0093aa",
+  "hosted_run_id": "34102423401",
+  "owner_path": "authenticated Tailscale HTTPS /api/message",
+  "runtime_release_sha": "82d152d85e67058535cbf9960fac8e5c2c0093aa",
+  "requests": [
+    {
+      "utterance": "What did I spend on groceries?",
+      "state": "completed",
+      "detail": "private Finance spending projection independently reread",
+      "message": "Spending for groceries: no matching outflows in the private Finance snapshot."
+    },
+    {
+      "utterance": "What did I spend at the store?",
+      "state": "completed",
+      "detail": "private Finance spending projection independently reread",
+      "message": "Spending for the store: no matching outflows in the private Finance snapshot."
+    }
+  ],
+  "assertions": [
+    "spending questions mentioning groceries no longer route to the Household grocery-list read",
+    "private Finance data is read through the normal owner interaction path",
+    "posted and pending totals remain currency-separated",
+    "no financial mutation was invoked",
+    "no matching outflows are reported as unavailable evidence rather than invented spend"
+  ]
+}
