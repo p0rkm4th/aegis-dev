@@ -1841,10 +1841,19 @@ async function loadObjectives() {
                 ? ` Requested permissions: ${candidate.permissions.join(', ')}.` : '';
               const candidateIdentity = [candidate.kind, candidate.capability]
                 .filter(value => typeof value === 'string' && value.trim()).join(' · ');
-              forgeDetails.textContent = `${candidateIdentity || 'Unclassified candidate'} · owner review is required before a Pack proposal can be prepared.${permissions}`;
+              const description = typeof candidate.description === 'string' && candidate.description.trim()
+                ? ` ${candidate.description.trim()}` : '';
+              forgeDetails.textContent = `${candidateIdentity || 'Unclassified candidate'} · owner review is required before a Pack proposal can be prepared.${permissions}${description}`;
               const forgeBoundary = document.createElement('p'); forgeBoundary.className = 'muted';
               forgeBoundary.textContent = 'Research and preview do not install, enable, approve, grant permissions, or execute a candidate.';
               forgeReview.append(forgeTitle, forgeStatus, forgeDetails, forgeBoundary);
+              if (Array.isArray(candidate.research_sources)) {
+                const provenance = document.createElement('p'); provenance.className = 'muted';
+                provenance.textContent = candidate.research_sources.length
+                  ? `Research evidence: ${candidate.research_sources.map(source => source.title || source.url || source.source_id || 'source').join(' · ')}`
+                  : 'Research evidence: none recorded';
+                forgeReview.append(provenance);
+              }
               if (candidate.forge_review && typeof candidate.forge_review === 'object') {
                 const lifecycle = document.createElement('p'); lifecycle.className = 'muted';
                 lifecycle.textContent = `Proposal: ${candidate.forge_review.proposal || 'unknown'} · quarantine: ${candidate.forge_review.quarantine || 'unknown'}`;
