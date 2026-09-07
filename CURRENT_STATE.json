@@ -164,6 +164,7 @@
     ,"finance_summary_projection": "Private Finance owner projection separates balances and cash flows by currency, pending from posted transactions, and imported source coverage; no cross-currency aggregation or financial mutation is exposed"
     ,"pantry_mutation_capabilities": "Promoted Kitchen Pack exposes stable-ID Pantry add, update, and consume actions with nullable quantities and optimistic version checks; unknown quantity cannot be consumed and no financial or remote authority is added"
     ,"compound_read_boundary_owner": "Promoted owner HTTPS proof on adb14ce keeps a multi-read Food/Finance/Homelab request from being falsely completed by the standalone Finance fast path; it returns a bounded blocked clarification while standalone affordability remains available"
+    ,"pack_first_fresh_owner_reality": "Fresh post-Finance Qwen3:8B shadow evidence on c34ade3 measured Pack-first and retrieval-assisted routing at 0.571 recall / 0.429 wrong-action versus the unchanged incumbent at 0.857 / 0.143; lifecycle requests failed closed and production routing remains unchanged"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -337,7 +338,8 @@
     ,"household obligations Workspace report is promoted and owner-proven after explicit household-reports approval; 046646c fails closed instead of falling through to task-reports"
     ,"Network Reports is owner-proven after explicit network.read + workspace.write approval; ac5c696 prevents fallback to unrelated routing"
     ,"Contract-green completed canonical task history → Communications composition is generic and destination-scoped; live provider delivery remains unconfigured",
-    "promoted owner HTTPS proof on adb14ce preserved standalone affordability and blocked the previously observed partial Finance completion for a three-domain Food/Finance/Homelab read"
+    "promoted owner HTTPS proof on adb14ce preserved standalone affordability and blocked the previously observed partial Finance completion for a three-domain Food/Finance/Homelab read",
+    "fresh post-Finance Pack-first owner-reality tournament retained the incumbent after Qwen3:8B shadow routing underperformed on new Food/Finance/Homelab/Forge cases"
   ],
   "current_blockers": [
     "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
