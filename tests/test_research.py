@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
@@ -267,6 +268,39 @@ def test_wikipedia_provider_returns_bounded_article_candidates(
         )
         == "Palworld game palworld"
     )
+
+
+def test_wikipedia_provider_falls_back_to_bounded_term_pair_for_long_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queries: list[str] = []
+
+    class Response(io.BytesIO):
+        def __enter__(self) -> "Response":
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            self.close()
+
+    def open_request(request: object, **_kwargs: object) -> Response:
+        url = getattr(request, "full_url")
+        query = parse_qs(urlsplit(url).query)["srsearch"][0]
+        queries.append(query)
+        payload = (
+            {"query": {"search": []}}
+            if len(queries) == 1
+            else {"query": {"search": [{"title": "Palworld", "snippet": "bounded"}]}}
+        )
+        return Response(json.dumps(payload).encode())
+
+    monkeypatch.setattr("aegis.research.urlopen", open_request)
+
+    result = WikipediaSearchProvider().search(
+        SearchRequest("Set up a Palworld server for the girls and me on easy mode.")
+    )
+
+    assert result[0].title == "Palworld"
+    assert queries == ["Set Palworld server girls easy mode", "Palworld server"]
 
 
 def test_wikipedia_provider_is_explicitly_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
