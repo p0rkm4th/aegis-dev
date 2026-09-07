@@ -1,0 +1,40 @@
+{
+  "evidence_type": "owner_https_homelab_health_filter",
+  "source_sha": "655ce1d3f31269e3d51dfef9f293cf220ceb5de8",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34100799706",
+    "head_sha": "655ce1d3f31269e3d51dfef9f293cf220ceb5de8",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "access": "authenticated Tailscale HTTPS",
+    "release_sha": "655ce1d3f31269e3d51dfef9f293cf220ceb5de8",
+    "postgresql": "healthy",
+    "restarted_before_proof": true
+  },
+  "workflows": [
+    {
+      "utterance": "What services are healthy?",
+      "result_state": "completed",
+      "detail": "Homelab service statuses independently verified",
+      "message": "Healthy services: (none configured)"
+    },
+    {
+      "utterance": "What services are down?",
+      "result_state": "completed",
+      "detail": "Homelab service statuses independently verified",
+      "message": "Unhealthy services: Plex (acceptance-plex): unavailable"
+    },
+    {
+      "utterance": "Is Plex healthy?",
+      "result_state": "completed",
+      "detail": "Homelab health independently verified",
+      "message": "Service health: acceptance-plex — unavailable"
+    }
+  ],
+  "authority": "read-only canonical Homelab health; no mutation or action authority",
+  "observed_at": "2026-09-07T08:32:02Z"
+}
