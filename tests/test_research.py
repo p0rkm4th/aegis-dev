@@ -303,6 +303,33 @@ def test_wikipedia_provider_falls_back_to_bounded_term_pair_for_long_request(
     assert queries == ["Set Palworld server girls easy mode", "Palworld server"]
 
 
+def test_wikipedia_provider_filters_unrelated_candidates_when_subject_matches(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Response(io.BytesIO):
+        def __enter__(self) -> "Response":
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            self.close()
+
+    payload = json.dumps(
+        {
+            "query": {
+                "search": [
+                    {"title": "Palworld", "snippet": "matching subject"},
+                    {"title": "Hytale", "snippet": "unrelated result"},
+                ]
+            }
+        }
+    ).encode()
+    monkeypatch.setattr("aegis.research.urlopen", lambda *_args, **_kwargs: Response(payload))
+
+    result = WikipediaSearchProvider().search(SearchRequest("Palworld server"))
+
+    assert [candidate.title for candidate in result] == ["Palworld"]
+
+
 def test_wikipedia_provider_is_explicitly_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("AEGIS_RESEARCH_FIXTURE_JSON", raising=False)
     monkeypatch.delenv("AEGIS_SEARCH_ENDPOINT", raising=False)

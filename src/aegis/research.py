@@ -467,7 +467,20 @@ class WikipediaSearchProvider:
                     )
                 )
             if candidates:
-                return tuple(candidates)
+                query_terms = {
+                    word.casefold()
+                    for word in re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", search_query)
+                }
+                relevant = tuple(
+                    candidate
+                    for candidate in candidates
+                    if query_terms
+                    & {
+                        word.casefold()
+                        for word in re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", candidate.title)
+                    }
+                )
+                return relevant or tuple(candidates)
         raise RuntimeError("Wikimedia returned no usable search results")
 
 
