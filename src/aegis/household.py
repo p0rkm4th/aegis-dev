@@ -1304,6 +1304,8 @@ class GroceryReadFastPath:
         )
         if is_mutation_request(text):
             return False
+        if re.search(r"\bpantry\b", text):
+            return False
         grocery_noun = re.search(r"\b(?:grocery|groceries)\b", text) is not None
         shopping_list = "shopping list" in text
         natural_shopping = "left to buy" in text
