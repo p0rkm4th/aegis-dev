@@ -68,6 +68,7 @@
     "finance_mixed_currency_owner": "Installed owner HTTPS proof on 0dc6d54 preserves synthetic EUR/USD account and transaction buckets, keeps pending separate from posted after service restart, and answers affordability without using EUR for a USD purchase; no FX or financial mutation is exposed",
     "today_finance_snapshot_owner": "Promoted 444f8a4 Today includes a bounded Principal-scoped Finance snapshot with currency and settlement counts, explicit as-of context, a no-FX boundary, and a link to private Finance detail; no financial mutation is exposed",
     "finance_grouped_amount_owner": "Promoted bd941c6 owner proof preserves grouped affordability amounts such as $4,999 through the normal authenticated path, without changing Finance authority or adding financial mutation",
+    "homelab_discovery_owner": "Promoted bd941c6 owner proof discovers bounded alpha-lab observations through the direct socket provider while keeping discovered identity separate from the canonical Host and restart authority",
     "owner_provenance_proof": "explicit ACTION, temporal ACTION, and task+chore PLAN verified on 25846cd",
     "compound_cognition": "bounded research evidence only; not capability-green",
     "air_quality": "live Open-Meteo public evidence for explicit owner coordinates; not canonical personal truth or medical advice",
@@ -367,6 +368,7 @@
     ,"owner Finance mixed-currency proof on 0dc6d54 preserved synthetic EUR/USD state and pending/provider/source identity through owner-service restart; a USD affordability boundary probe excluded EUR without FX or financial mutation"
     ,"owner Today Finance summary proof on 444f8a4 served through authenticated Tailscale HTTPS after promotion with healthy PostgreSQL, EUR/USD visibility, pending/posted distinction, and no-FX/no-mutation boundary"
     ,"owner grouped Finance amount proof on bd941c6 returned the full synthetic $4,999 affordability amount after service restart; the owner path remained read-only and healthy"
+    ,"owner Homelab discovery proof on bd941c6 returned a timestamped alpha-lab observation while preserving unmatched/discovered status, canonical Host separation, and no action authority"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
