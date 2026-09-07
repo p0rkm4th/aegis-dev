@@ -14,6 +14,13 @@ The provisioned instance uses:
 - the existing Core authorization, verification, correlation, and idempotency
   paths.
 
+Workspace persistence is part of the installed owner boundary. The service
+must set `AEGIS_WORKSPACE_ROOT` to the persistent owner data directory (the
+provisioned instance uses
+`/home/scootz/.local/share/aegis-owner/workspaces`). Do not rely on the
+application default under `/tmp`: the service uses `PrivateTmp=true`, so that
+path is intentionally discarded across a service restart.
+
 The user service is `/home/scootz/.config/systemd/user/aegis-owner.service`.
 Luna can inspect or operate it with:
 

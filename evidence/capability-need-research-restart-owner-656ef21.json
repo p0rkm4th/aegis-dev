@@ -1,0 +1,24 @@
+{
+  "kind": "capability-need-research-restart-owner",
+  "release_sha": "656ef2124c72b4b78ed84ef137f3514425793747",
+  "hosted_run_id": "34076357502",
+  "owner_path": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "provider": "wikipedia",
+  "result_state": "completed",
+  "workspace_artifact": {
+    "path": "capability-needs/restart-proof.md",
+    "workspace_id": "ebe7f558-8f96-53c8-8722-f116f166339d",
+    "independent_readback": true,
+    "external_evidence_non_canonical": true
+  },
+  "restart_proof": {
+    "service": "aegis-owner.service",
+    "persistent_workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
+    "artifact_visible_after_restart": true,
+    "same_correlation_replayed": false,
+    "workspace_count_before_repeat": 45,
+    "workspace_count_after_repeat": 45,
+    "repeat_returned_same_objective": true
+  },
+  "boundary": "Public research remains bounded evidence; no Pack installation, permission grant, provider mutation, or execution authority was added."
+}
