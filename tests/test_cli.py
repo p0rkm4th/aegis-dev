@@ -6451,6 +6451,10 @@ def test_browser_app_today_surface_keeps_grocery_identity_while_calming_repeated
     assert "Pantry records" in html
     assert "Pantry check" in html
     assert "No low-stock projection; known quantities are above minimum or unknown." in html
+    assert "appendTodayGroceryAdd" in html
+    assert "Add to grocery list" in html
+    assert "Submitting the explicit item through normal Core authorization" in html
+    assert "normal Core grounding, authorization, and canonical verification path" in html
     assert (
         "Unknown Pantry quantities stay unknown; they are not treated as zero or low stock." in html
     )
