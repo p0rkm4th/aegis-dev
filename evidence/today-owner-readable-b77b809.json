@@ -1,0 +1,26 @@
+{
+  "kind": "today-owner-readable",
+  "release_sha": "b77b809f77edc309ebf9a28efb33148287e79f99",
+  "hosted_run_id": "34077217385",
+  "owner_path": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "restart_proof": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "postgres": "healthy",
+    "today_projection": {
+      "open_tasks": 20,
+      "open_chores": 20,
+      "up_next_events": 15,
+      "grocery_items": 6,
+      "active_objectives": 20,
+      "capability_needs": 1
+    }
+  },
+  "presentation": {
+    "desktop_and_mobile_shell": "existing promoted responsive shell",
+    "default_sections": ["Needs attention", "Up next", "Grocery list", "Recently completed"],
+    "raw_authorized_projection": "progressive disclosure under Show authorized detail",
+    "api_core_auth_unchanged": true
+  },
+  "boundary": "Today is a presentation of authorized server projections; it does not add authority or fabricate canonical state."
+}
