@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "1af0cb4",
+  "state_basis_sha": "06ab4f7",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1af0cb4",
+  "repository_head_sha": "06ab4f7",
   "deterministic_green_sha": "1af0cb4",
-  "last_pushed_sha": "1af0cb4",
-  "hosted_green_sha": "1af0cb4",
-  "hosted_ci_green_sha": "1af0cb4",
+  "last_pushed_sha": "06ab4f7",
+  "hosted_green_sha": "06ab4f7",
+  "hosted_ci_green_sha": "06ab4f7",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "1af0cb446a094c0a8eef666b8b58647768ea29f3",
+    "commit_sha": "06ab4f72f63faff171f1aaec3e14bebef9cfe0fe",
     "conclusion": "success",
-    "run_id": "34073935313",
-    "observed_at": "2026-09-07T01:44:31Z"
+    "run_id": "34074162198",
+    "observed_at": "2026-09-07T01:48:45Z"
   },
-  "installed_release_sha": "1af0cb4",
-  "running_release_sha": "1af0cb4",
-  "live_green_sha": "1af0cb4",
+  "installed_release_sha": "06ab4f7",
+  "running_release_sha": "06ab4f7",
+  "live_green_sha": "06ab4f7",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "1af0cb446a094c0a8eef666b8b58647768ea29f3"
+    "release_sha": "06ab4f72f63faff171f1aaec3e14bebef9cfe0fe"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
