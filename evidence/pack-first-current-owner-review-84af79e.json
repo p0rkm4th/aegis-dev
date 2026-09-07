@@ -1,0 +1,15 @@
+{
+  "artifact_type": "pack_first_owner_review_shadow",
+  "source_sha": "84af79eed7ed49895d6f0bba1f7762c458b74e50",
+  "model": "qwen3:8b",
+  "corpus_cases": 34,
+  "fresh_owner_cases": 2,
+  "router_calls": 64,
+  "result": "The unchanged incumbent remained the production choice. It measured 0.759 routing recall and 0.241 wrong-action rate; pure and retrieval-assisted Pack-first each measured 0.345 recall and 0.621 wrong-action rate.",
+  "owner_cases": [
+    "show me what groceries we still need and which services are down",
+    "can I keep tonight's grocery trip under eighty dollars based on what we need, and check why Plex is down"
+  ],
+  "safety": "Shadow routing only; dynamic metadata was used, owner canonical data was not exposed, no authority was granted, and production cognition was unchanged.",
+  "observed_at": "2026-09-07T11:12:00Z"
+}
