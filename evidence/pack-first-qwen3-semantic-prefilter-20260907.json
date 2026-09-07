@@ -1,0 +1,44 @@
+{
+  "kind": "pack-first-qwen3-semantic-prefilter",
+  "source_sha": "73395a14389629f889ccf9dcd690a7ec8a774af5",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "embedding_model": "nomic-embed-text:latest",
+  "registry_packs": 32,
+  "corpus_cases": 24,
+  "variants": {
+    "incumbent_reference_fallback": {
+      "routing_recall": 0.10526315789473684,
+      "wrong_action_rate": 0.8947368421052632,
+      "clarification_rate": 0.0,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.0
+    },
+    "pack_first": {
+      "routing_recall": 0.3157894736842105,
+      "wrong_action_rate": 0.631578947368421,
+      "clarification_rate": 0.125,
+      "invalid_measurement_rate": 0.08333333333333333,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 3823.3333333333335,
+      "p50_latency_ms": 511.8700659368187,
+      "p95_latency_ms": 1755.2879579598084
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.5263157894736842,
+      "wrong_action_rate": 0.42105263157894735,
+      "clarification_rate": 0.08333333333333333,
+      "invalid_measurement_rate": 0.08333333333333333,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 892.3333333333334,
+      "p50_latency_ms": 647.8483290411532,
+      "p95_latency_ms": 1044.3730150582267
+    }
+  },
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false
+  },
+  "interpretation": "Using the existing semantic ActionCard retrieval as the non-authoritative prefilter did not meet the Pack-first promotion bar. It improved over pure Pack-first but regressed against the prior reference-fallback prefilter result; production cognition remains incumbent."
+}

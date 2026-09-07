@@ -1,19 +1,19 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "739cb42",
+  "state_basis_sha": "73395a1",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "739cb42",
-  "deterministic_green_sha": "739cb42",
-  "last_pushed_sha": "739cb42",
-  "hosted_green_sha": "739cb42",
-  "hosted_ci_green_sha": "739cb42",
+  "repository_head_sha": "73395a1",
+  "deterministic_green_sha": "73395a1",
+  "last_pushed_sha": "73395a1",
+  "hosted_green_sha": "73395a1",
+  "hosted_ci_green_sha": "73395a1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "739cb42",
+    "commit_sha": "73395a1",
     "conclusion": "success",
-    "run_id": "34071650270",
-    "observed_at": "2026-09-07T01:16:00Z"
+    "run_id": "34071866905",
+    "observed_at": "2026-09-07T01:31:00Z"
   },
   "installed_release_sha": "739cb42",
   "running_release_sha": "739cb42",
@@ -155,7 +155,7 @@
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
-    "Pack-first A/B/C harness remains experimental; prior Qwen3:8B evidence showed retrieval-assisted routing at 0.737 recall / 0.158 wrong-action versus incumbent 0.105 / 0.895, but the fresh enabled-catalog run at 086005b regressed to 0.421 / 0.579 and is non-promotable. Anti-hallucination prompt and ActionCard-summary catalog variants were also rejected; production routing remains unchanged",
+    "Pack-first A/B/C harness remains experimental; prior Qwen3:8B evidence showed retrieval-assisted routing at 0.737 recall / 0.158 wrong-action versus incumbent 0.105 / 0.895, but the fresh enabled-catalog run at 086005b regressed to 0.421 / 0.579 and the semantic ActionCard prefilter at 73395a1 measured 0.526 / 0.421, both non-promotable. Anti-hallucination prompt and ActionCard-summary catalog variants were also rejected; production routing remains unchanged",
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
@@ -389,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Investigate a bounded, non-authoritative Pack prefilter/context improvement against the fresh negative result, or defer routing promotion and advance Homelab read utility; production cognition remains incumbent.",
+  "next_action": "Defer Pack-first promotion pending a materially safer/generalizing result; advance the next owner-real capability or composition while production cognition remains incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
