@@ -1,0 +1,31 @@
+{
+  "artifact_type": "owner_food_pantry_quantity_correction_dogfood",
+  "observed_at": "2026-09-07T13:02:26Z",
+  "source_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "hosted_validation": {
+    "run_id": "34124934321",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "restart_verified": true,
+    "postgres": "healthy"
+  },
+  "owner_http_proof": {
+    "request": "Update pantry item pantry-8cca3b51ee24a660 named canned beans quantity 3 unit cans version 1",
+    "state": "completed",
+    "message": "Done — updated Pantry item canned beans (3.0 cans)",
+    "item_id": "pantry-8cca3b51ee24a660",
+    "quantity": 3.0,
+    "unit": "cans",
+    "version_before": 1,
+    "version_after": 2,
+    "independent_postgres_readback": true,
+    "mutation_path": "authenticated Tailscale HTTPS /api/message through normal Core Pantry action"
+  },
+  "boundary": "The owner-visible response accurately describes the Pantry mutation; stable identity, server-side optimistic versioning, and canonical PostgreSQL readback remain authoritative. This is a local owner Pantry write, not an external-provider mutation."
+}
