@@ -1256,8 +1256,10 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("authorized_owned_obligations") is not None:
         return str(result.message)
-    if isinstance(evidence.get("finance_spending"), dict):
-        spending = evidence["finance_spending"]
+    spending = evidence.get("spending")
+    if not isinstance(spending, dict):
+        spending = evidence.get("finance_spending")
+    if isinstance(spending, dict):
         query = str(spending.get("query") or "the requested focus")
         totals = spending.get("spend_by_currency", {})
         if not isinstance(totals, dict) or not totals:

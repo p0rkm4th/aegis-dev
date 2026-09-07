@@ -6,8 +6,10 @@ import aegis.reference_packs as reference_packs_module
 from aegis.contracts import (
     ActionSpec,
     ExecutionRequest,
+    ObjectiveState,
     Observation,
     Principal,
+    Result,
     VerificationContract,
 )
 from aegis.devices import FixtureDeviceGateway
@@ -234,20 +236,16 @@ def test_finance_spending_runtime_reads_and_rechecks_private_projection() -> Non
     assert observation.command_succeeded is True
     assert result.verified is True
     assert result.evidence["finance_spending_verified"] is True
-    assert (
-        reference_format_result(
-            type(
-                "Result",
-                (),
-                {
-                    "state": type("State", (), {"value": "completed"})(),
-                    "message": "Finance spending read",
-                    "evidence": observation.evidence,
-                },
-            )()
+    rendered = reference_format_result(
+        Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="private Finance spending projection independently reread",
+            evidence=result.evidence,
+            correlation_id=uuid4(),
         )
-        == "Spending for groceries: USD posted 25.00; USD pending 10.00"
     )
+    assert rendered == "Spending for groceries: USD posted 25.00; USD pending 10.00"
 
 
 def test_local_grocery_add_uses_canonical_store_and_independent_readback() -> None:
