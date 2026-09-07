@@ -8350,9 +8350,7 @@ def test_constellation_state_projects_scoped_active_objective_nodes(monkeypatch)
     objective = next(node for node in state["nodes"] if node["id"] == "objective-objective-1")
     assert objective["category"] == "objective"
     need = next(
-        node
-        for node in state["nodes"]
-        if node["id"].startswith("capability-need-objective-1-")
+        node for node in state["nodes"] if node["id"].startswith("capability-need-objective-1-")
     )
     assert need["label"] == "Capability Need"
     assert need["category"] == "capability"

@@ -1035,9 +1035,7 @@ def reference_constellation_state(
                 need_node_id = f"capability-need-{objective_id}-{need_key}"
                 status = str(need.get("status") or "open")
                 investigation = str(
-                    need.get("investigation")
-                    or need.get("investigation_state")
-                    or "not_started"
+                    need.get("investigation") or need.get("investigation_state") or "not_started"
                 )
                 candidates = need.get("candidate_resolutions", ()) if isinstance(need, dict) else ()
                 candidate_pack_ids: set[str] = set()
