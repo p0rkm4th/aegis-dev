@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8cabfd4",
+  "state_basis_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8cabfd4",
-  "deterministic_green_sha": "8cabfd4",
-  "last_pushed_sha": "8cabfd4",
-  "hosted_green_sha": "8cabfd4",
-  "hosted_ci_green_sha": "8cabfd4",
+  "repository_head_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "deterministic_green_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "last_pushed_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "hosted_green_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "hosted_ci_green_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8cabfd496b94c6a90f69044c7b846b0389e31808",
+    "commit_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
     "conclusion": "success",
-    "run_id": "34111568015",
-    "observed_at": "2026-09-07T10:29:35Z"
+    "run_id": "34112793295",
+    "observed_at": "2026-09-07T10:42:20Z"
   },
-  "installed_release_sha": "8cabfd4",
-  "running_release_sha": "8cabfd4",
-  "live_green_sha": "8cabfd4",
+  "installed_release_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "running_release_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "live_green_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8cabfd496b94c6a90f69044c7b846b0389e31808"
+    "release_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -141,7 +141,7 @@
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
     "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "workspace_content_search_owner_response": "Promoted conversation formatting renders bounded Workspace search matches with workspace ID, relative path, and normalized snippet rather than a generic completion",
-    "ui_showable_alpha": "Owner Tailscale HTTPS proof on 8cabfd4: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance and Systems slices, and Systems status uses the shared Health/Reachability presentation; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
+    "ui_showable_alpha": "Owner Tailscale HTTPS proof on 966f544: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance and Systems slices, repeated grocery projections are grouped without merging stable IDs, and the Today budget handoff remains a normal Core chat request; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
@@ -193,6 +193,7 @@
     ,"pack_first_current_food_state_corpus": "Exact-source Qwen3:8B shadow run on cceff77 evaluated 30 owner-real cases after current grocery-state dogfood; retrieval-assisted Pack-first reached 0.48 overall recall and 0.75 on the four new cases, but Food+Finance composition remained non-promotable and production cognition stayed incumbent"
     ,"pack_first_current_systems_collision": "Exact-source Qwen3:8B shadow run on 2e1693a evaluated 32 owner-real cases including the fresh Food+Finance+Homelab request; pure and retrieval-assisted Pack-first both reached 0.481 recall and omitted Homelab from that case, so the experiment remains non-promotable and production cognition stays incumbent"
     ,"today_systems_attention_owner": "Exact owner HTTPS proof on 8cabfd4 serves the extracted Today Systems attention section from the normal static path and the authenticated /api/systems projection; Plex remains visibly unavailable/unreachable with canonical identity and core-authorization-required action state, without mutation authority"
+    ,"today_grocery_budget_handoff_owner": "Exact owner HTTPS proof on 966f544 serves the Today grocery overview and same-currency budget handoff through the extracted static path; the owner projection contains seven needed rows represented by two overview groups, and grouped display does not merge or mutate stable grocery records"
     ,"systems_status_surface_owner": "Exact owner HTTPS proof on 9822a2d serves the structured Systems status presentation through Tailscale, with separate identity, reachability, health, authorization, and action-availability states; the authorized Plex observation remains unavailable and no action was invoked"
     ,"finance_state_surface_owner": "Exact owner HTTPS proof on a82e1ee serves explicit Finance transaction and import-coverage renderers through Tailscale; the Principal-scoped projection retains currency, settlement status, provider identity, and source identity without financial mutation"
     ,"food_finance_dogfood_owner": "Exact owner HTTPS dogfood through the authenticated message path completed standalone grocery affordability and the bounded Food+Finance grocery-budget question; the evidence records workflow states only and invokes no financial mutation",
@@ -458,7 +459,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility from the promoted Food + Finance + Homelab read plane; the bounded three-domain situation review is now proven through the normal Tailscale owner path. Forge remains safely stopped before install/enable/authority. Next bounded slice is the highest-value Food, Finance, Homelab, Forge, UI, or Pack-first experiment gap; Pack-first remains experimental and production cognition remains incumbent.",
+  "next_action": "Continue owner-real utility from the promoted Food + Finance + Homelab read plane; Today now offers a calm grouped grocery overview and a direct same-currency budget handoff. Forge remains safely stopped before install/enable/authority. Next bounded slice is the highest-value Food, Homelab, Forge, UI, or Pack-first experiment gap; Pack-first remains experimental and production cognition remains incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
