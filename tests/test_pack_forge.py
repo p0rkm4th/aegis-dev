@@ -268,6 +268,25 @@ def test_workspace_candidate_proposal_uses_fixed_safe_stub_shape() -> None:
     assert bundle.cards[0].action.action_id.startswith("generated-set-up-a-terraria-server")
 
 
+def test_workspace_candidate_proposal_slugifies_natural_language_punctuation() -> None:
+    proposal = build_workspace_candidate_proposal(
+        "Set up a small Minecraft server for my family.",
+        candidate={
+            "kind": "workspace_solution",
+            "capability": "workspace.artifact.create",
+            "requires_owner_input": True,
+        },
+    )
+
+    assert proposal.pack_id == "generated-set-up-a-small-minecraft-server-for-my-family"
+    assert proposal.pack_id.endswith("family")
+    assert all(
+        character.islower() or character.isdigit() or character == "-"
+        for character in proposal.pack_id
+    )
+    assert compile_pack_proposal(proposal).manifest.pack_id == proposal.pack_id
+
+
 def test_workspace_candidate_proposal_cannot_take_authority_from_research_metadata() -> None:
     with pytest.raises(ValueError, match="owner-selectable Workspace"):
         build_workspace_candidate_proposal(

@@ -70,7 +70,10 @@ def build_workspace_candidate_proposal(
         or candidate.get("requires_owner_input") is not True
     ):
         raise ValueError("candidate is not an owner-selectable Workspace solution")
-    normalized = "-".join(requested_effect.casefold().split())[:48].strip("-")
+    # Natural-language effects are untrusted labels, not Pack identifiers.
+    # Keep the generated namespace deterministic while removing punctuation
+    # (and other non-ASCII identifier characters) before strict validation.
+    normalized = re.sub(r"[^a-z0-9]+", "-", requested_effect.casefold())[:48].strip("-")
     if not normalized:
         raise ValueError("Forge candidate requires a stable requested effect")
     pack_id = f"generated-{normalized}"
