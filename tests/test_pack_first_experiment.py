@@ -336,6 +336,13 @@ def test_owner_corpus_covers_real_frontier_variants_without_sensitive_context():
     assert cases["check groceries then tell me if Plex is down"] == frozenset(
         {"dynamic-food", "dynamic-homelab"}
     )
+    assert cases["show me what groceries we still need and which services are down"] == frozenset(
+        {"dynamic-food", "dynamic-homelab"}
+    )
+    assert cases[
+        "can I keep tonight's grocery trip under eighty dollars based on what we need, "
+        "and check why Plex is down"
+    ] == frozenset({"dynamic-food", "dynamic-finance", "dynamic-homelab"})
 
 
 def test_pack_lifecycle_language_is_experimental_fail_closed_preflight():
