@@ -177,7 +177,10 @@ class Kernel:
                 correlation_id=intent.correlation_id,
             )
         objective = objective.model_copy(
-            update={"action": decision.action, "state": ObjectiveState.VALIDATED}
+            update={
+                "action": decision.action,
+                **({"state": ObjectiveState.VALIDATED} if recovered is None else {}),
+            }
         )
         self.objectives[objective.id] = objective
         self.store.save_objective(objective)
@@ -227,12 +230,28 @@ class Kernel:
             try:
                 prepared = self.action_preparer(decision.action, intent, objective.id)
             except (ValueError, TypeError) as exc:
-                return Result(
+                objective = objective.model_copy(update={"state": ObjectiveState.BLOCKED})
+                self.objectives[objective.id] = objective
+                self.store.save_objective(objective)
+                result = Result(
                     objective_id=objective.id,
                     state=ObjectiveState.BLOCKED,
                     message=f"Action postcondition could not be established: {exc}",
                     correlation_id=intent.correlation_id,
                 )
+                key = f"{intent.correlation_id}:{decision.action.action_id}"
+                self._results[key] = result
+                self.store.save_result(key, result)
+                self.audit.append(
+                    "action.preparation_blocked",
+                    intent.principal.id,
+                    {
+                        "capability": decision.action.capability,
+                        "reason": str(exc),
+                    },
+                    objective_id=objective.id,
+                )
+                return result
             decision = decision.model_copy(update={"action": prepared})
             objective = objective.model_copy(update={"action": prepared})
             self.objectives[objective.id] = objective
