@@ -5419,6 +5419,54 @@ def test_objectives_projection_exposes_forge_review_without_lifecycle_authority(
     }
 
 
+def test_capability_candidate_projection_preserves_bounded_research_evidence(monkeypatch):
+    from aegis import cli
+
+    class Result:
+        def fetchall(self):
+            return [
+                (
+                    "objective-1",
+                    "blocked",
+                    {
+                        "intent": {"utterance": "Set up an unsupported service"},
+                        "capability_needs": [
+                            {
+                                "requested_effect": "service setup",
+                                "requires_owner_input": True,
+                                "candidate_resolutions": (
+                                    {
+                                        "kind": "workspace_solution",
+                                        "capability": "workspace.artifact.create",
+                                        "description": "Prepare a bounded artifact",
+                                        "research_sources": [
+                                            {"title": "Bounded source", "url": "https://example.test"}
+                                        ],
+                                    },
+                                ),
+                            }
+                        ],
+                    },
+                    datetime(2026, 9, 7, tzinfo=timezone.utc),
+                )
+            ]
+
+    class Connection:
+        def execute(self, *_args, **_kwargs):
+            return Result()
+
+        def close(self):
+            pass
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    projection = cli._objectives_state(Principal(id="alice", vault_id="vault"))
+    candidate = projection["objectives"][0]["capability_needs"][0]["candidate_resolutions"][0]
+    assert candidate["description"] == "Prepare a bounded artifact"
+    assert candidate["research_sources"][0]["title"] == "Bounded source"
+
+
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []

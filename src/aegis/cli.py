@@ -3527,6 +3527,7 @@ def run_interaction(
                             "capability": "workspace.artifact.create",
                             "status": "candidate",
                             "requires_owner_input": True,
+                            "research_sources": [],
                             "description": (
                                 "Prepare a bounded candidate artifact after the missing "
                                 "server execution capability is resolved."
@@ -3566,6 +3567,15 @@ def run_interaction(
                             "capability": "workspace.artifact.create",
                             "status": "candidate",
                             "requires_owner_input": True,
+                            "research_sources": [
+                                {
+                                    "source_id": str(item.source_id),
+                                    "title": item.title,
+                                    "url": item.final_url,
+                                    "retrieved_at": item.retrieved_at.isoformat(),
+                                }
+                                for item in evidence.evidence[:5]
+                            ],
                             "description": (
                                 "Prepare a bounded candidate artifact after the missing "
                                 "server execution capability is resolved."
