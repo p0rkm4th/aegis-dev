@@ -1601,6 +1601,19 @@ function appendTodayBrief(panel, payload) {
     groceryNote.textContent = 'The overview is bounded to eight groups; matching rows are grouped here, while Household keeps every stable grocery ID separately.';
     panel.append(groceryNote);
   }
+  const pantryItems = Array.isArray(canonical.pantry_items) ? canonical.pantry_items : [];
+  const pantryLowItems = Array.isArray(canonical.pantry_low_items) ? canonical.pantry_low_items : [];
+  const pantryOverview = todayPantryOverviewLabels(pantryLowItems, 6);
+  appendTodaySection(panel, 'Pantry check', pantryItems.length
+    ? [`${pantryItems.length} canonical pantry record${pantryItems.length === 1 ? '' : 's'}`,
+      ...(pantryOverview.length ? pantryOverview :
+        ['No low-stock projection; known quantities are above minimum or unknown.'])]
+    : 'No canonical Pantry items recorded.');
+  if (pantryItems.some(item => item && item.quantity == null)) {
+    const pantryNote = document.createElement('p'); pantryNote.className = 'muted today-note';
+    pantryNote.textContent = 'Unknown Pantry quantities stay unknown; they are not treated as zero or low stock.';
+    panel.append(pantryNote);
+  }
   const recent = todayRecordLabels(canonical.completed_tasks, 'Completed', 5);
   appendTodaySection(panel, 'Recently completed', recent.length ? recent : 'No recent completions recorded.');
 }
@@ -1635,6 +1648,16 @@ function todayEventOverviewLabels(items, limit) {
   return [...groups.values()].slice(0, limit).map(group => {
     const suffix = group.count > 1 ? ` · ${group.count} matching events` : '';
     return `Event · ${todayRecordLabel(group.record)}${suffix}`;
+  });
+}
+function todayPantryOverviewLabels(items, limit) {
+  return (Array.isArray(items) ? items : []).slice(0, limit).map(item => {
+    const record = item && typeof item === 'object' ? item : {display_name: item};
+    const quantity = record.quantity == null ? 'quantity unknown' :
+      `quantity ${record.quantity}${record.unit ? ` ${record.unit}` : ''}`;
+    const minimum = record.minimum_quantity == null ? '' :
+      ` · minimum ${record.minimum_quantity}${record.unit ? ` ${record.unit}` : ''}`;
+    return `Pantry · ${todayRecordLabel(record)} · ${quantity}${minimum}`;
   });
 }
 function todayAttentionLabels(items, prefix, limit) {
