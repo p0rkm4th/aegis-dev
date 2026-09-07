@@ -1098,6 +1098,12 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     argument_descriptions={
                         "status": "optional bounded status filter such as owner_input_required"
                     },
+                    argument_grounding={
+                        "status": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,),
+                            approved_derivations=("reference.capability_need_status_filter.v1",),
+                        )
+                    },
                     semantic_scope="capability_acquisition.review",
                 ),
             ),

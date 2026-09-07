@@ -301,6 +301,23 @@ def _ground_argument_provenance(
                 }[value],
             )
             continue
+        if card.action.action_id == "capabilities.needs.list" and key == "status":
+            source_spans = _utterance_spans(intent.utterance, "my input")
+            if not source_spans:
+                source_spans = _utterance_spans(intent.utterance, "owner input")
+            if value != "owner_input_required" or not source_spans:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message="I could not safely establish the Capability Need status filter.",
+                    correlation_id=intent.correlation_id,
+                )
+            provenance[key] = ArgumentProvenance(
+                kind=ArgumentProvenanceKind.DETERMINISTIC_DERIVATION,
+                source_spans=source_spans,
+                derivation="reference.capability_need_status_filter.v1",
+            )
+            continue
         if key in {"workspace_id", "source_workspace_id"}:
             spans = _utterance_spans(intent.utterance, value)
             if spans:
