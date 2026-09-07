@@ -337,3 +337,21 @@ def test_follow_up_does_not_retry_without_bounded_context():
     response, count = route_with_one_context_retry("do the other one", manager, router)
     assert response.status is PackRouterStatus.NEED_CONTEXT
     assert count == calls == 1
+
+
+def test_tournament_metrics_preserve_fail_closed_category_distribution():
+    manager = dynamic_manager()
+    manager.install("dynamic-weather", frozenset())
+    manager.enable("dynamic-weather")
+
+    report = run_pack_tournament(
+        (PackCase("what is the weather", frozenset({"dynamic-weather"})),),
+        manager,
+        lambda _utterance: (),
+        lambda _prompt: {"status": "SELECTED", "selected_pack_ids": ["missing-pack"]},
+        lambda _utterance, _manager: (),
+    )
+
+    metrics = report.metrics["pack_first"]
+    assert metrics["invalid_measurement_rate"] == 1.0
+    assert metrics["failure_category.ValueError"] == 1.0
