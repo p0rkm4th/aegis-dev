@@ -138,7 +138,9 @@ def available_compositions() -> tuple[dict[str, object], ...]:
         {
             "id": "homelab-health-to-research",
             "label": "Homelab health → Research",
-            "description": "Research likely causes for an authorized observed service condition.",
+            "description": (
+                "Research bounded public context for an authorized observed service condition."
+            ),
             "surfaces": ("Systems", "Research"),
             "authority": (
                 "authorized health observation + bounded public evidence; "

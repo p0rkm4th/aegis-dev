@@ -112,6 +112,7 @@ def test_homelab_research_uses_public_service_name_and_preserves_observed_status
     result = observation.evidence["homelab_research"]
     assert result["query"] == "Plex software"
     assert result["observed_status"] == "unavailable"
+    assert result["diagnosis_status"] == "unconfirmed"
 
 
 def test_finance_summary_runtime_reads_and_rechecks_private_snapshot() -> None:

@@ -1352,7 +1352,8 @@ def reference_format_result(result: Any) -> str:
         status = research.get("observed_status", "unknown")
         answer = research.get("answer", "No bounded public evidence was returned.")
         return (
-            f"Research for {service} ({status}) — external evidence, not canonical truth:\n{answer}"
+            f"Research for {service} ({status}) — no local cause confirmed; "
+            f"bounded external context, not canonical truth:\n{answer}"
         )
     if evidence.get("obligations") is not None:
         obligations = evidence["obligations"]

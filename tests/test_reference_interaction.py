@@ -3486,6 +3486,28 @@ def test_reference_planning_display_includes_food_and_derived_affordability() ->
     )
 
 
+def test_reference_homelab_research_does_not_claim_a_cause_from_public_context() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Homelab research completed",
+        correlation_id=uuid4(),
+        evidence={
+            "homelab_research": {
+                "service": "acceptance-plex",
+                "observed_status": "unavailable",
+                "diagnosis_status": "unconfirmed",
+                "answer": "Plex is media-server software.",
+            }
+        },
+    )
+
+    assert reference_format_result(result) == (
+        "Research for acceptance-plex (unavailable) — no local cause confirmed; "
+        "bounded external context, not canonical truth:\nPlex is media-server software."
+    )
+
+
 def test_reference_task_display_is_bounded_without_truncating_canonical_evidence() -> None:
     result = Result(
         objective_id=uuid4(),
