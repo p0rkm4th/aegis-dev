@@ -1,0 +1,31 @@
+{
+  "artifact_type": "owner_finance_import_fidelity_proof",
+  "observed_at": "2026-09-07",
+  "source_sha": "d3e2131944fdcdad86f945d2d4f22a6f9dfee4a3",
+  "hosted_validation": {
+    "run_id": "34085331494",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "d3e2131944fdcdad86f945d2d4f22a6f9dfee4a3",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "postgres": "healthy"
+  },
+  "synthetic_fixture": {
+    "account_currency": "USD",
+    "transaction_status": "pending",
+    "provider_transaction_id": "owner-synthetic-pending-92d2987",
+    "source_id": "owner-finance-fidelity-92d2987"
+  },
+  "workflow": {
+    "import_route": "authenticated HTTPS /api/finance/import",
+    "duplicate_import_http_status": 200,
+    "source_already_imported": true,
+    "duplicate_imported_transaction_count": 0,
+    "post_restart_matching_transaction_count": 1,
+    "post_restart_semantics_preserved": true
+  },
+  "boundary": "Synthetic data only; this proves owner-controlled local import/reload fidelity and source deduplication, not financial external mutation."
+}
