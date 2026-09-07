@@ -1387,15 +1387,39 @@ def reference_format_result(result: Any) -> str:
     if isinstance(evidence.get("planning"), dict):
         planning = evidence["planning"]
         summaries: list[str] = []
+        grocery_items = planning.get("grocery_items")
+        if isinstance(grocery_items, list):
+            grocery_rows: list[str] = []
+            for item in grocery_items:
+                if not isinstance(item, dict) or not isinstance(item.get("display_name"), str):
+                    continue
+                label = item["display_name"]
+                quantity = item.get("desired_quantity")
+                unit = item.get("unit")
+                if isinstance(quantity, (int, float)) and not isinstance(quantity, bool):
+                    quantity_text = (
+                        f"{quantity:g}" if isinstance(quantity, float) else str(quantity)
+                    )
+                    label += f" (x{quantity_text}"
+                    if isinstance(unit, str) and unit:
+                        label += f" {unit}"
+                    label += ")"
+                elif isinstance(unit, str) and unit:
+                    label += f" ({unit})"
+                grocery_rows.append(label)
+            summaries.append("groceries needed: " + ("; ".join(grocery_rows) or "(none)"))
         affordability = planning.get("affordability")
         if isinstance(affordability, dict) and affordability.get("affordable") is not None:
             status = "yes" if affordability["affordable"] else "no"
             purchase = affordability.get("purchase_cents")
             obligations = affordability.get("shared_obligations_cents")
+            currency = affordability.get("purchase_currency", "USD")
+            currency_text = str(currency) if isinstance(currency, str) else "USD"
+            symbol = "$" if currency_text == "USD" else f"{currency_text} "
             if isinstance(purchase, int) and isinstance(obligations, int):
                 summaries.append(
-                    f"affordable: {status} (purchase ${purchase / 100:.2f}; "
-                    f"shared obligations ${obligations / 100:.2f})"
+                    f"affordable: {status} (purchase {symbol}{purchase / 100:.2f}; "
+                    f"shared obligations {symbol}{obligations / 100:.2f})"
                 )
             else:
                 summaries.append(f"affordable: {status}")
@@ -3973,21 +3997,24 @@ def resolve_reference_pre_model(
     obligations = tuple(
         SharedObligation(item.title, item.amount) for item in raw_obligations if not item.settled
     )
-    finance: dict[str, Any] | None = None
-    if FinanceReadFastPath.matches(utterance):
-        finance_result = FinanceReadFastPath(
-            FinanceLedger(PostgresFinanceSnapshotStore(connection))
-        ).resolve(intent, obligations)
-        if finance_result is not None:
-            finance = finance_result.evidence
-
     explicit_compound_mutation = (
         is_mutation_request(utterance)
         or MultiActionFastPath.matches(utterance)
         or MultiActionFastPath.task_chore_titles(utterance) is not None
         or MultiActionFastPath.task_event_details(utterance) is not None
     )
-    if not explicit_compound_mutation and CrossDomainPlanningFastPath.matches(utterance):
+    planning_requested = not explicit_compound_mutation and CrossDomainPlanningFastPath.matches(
+        utterance
+    )
+    finance: dict[str, Any] | None = None
+    if FinanceReadFastPath.matches(utterance) or planning_requested:
+        finance_result = FinanceReadFastPath(
+            FinanceLedger(PostgresFinanceSnapshotStore(connection))
+        ).resolve(intent, obligations, allow_compound=planning_requested)
+        if finance_result is not None:
+            finance = finance_result.evidence
+
+    if planning_requested:
         planning_result = CrossDomainPlanningFastPath(
             personal_state,
             household_snapshot,

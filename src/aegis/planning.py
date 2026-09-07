@@ -785,6 +785,7 @@ class CrossDomainPlanningFastPath:
     )
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
     _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget", "purchase")
+    _FOOD_TERMS = ("food", "grocery", "groceries", "pantry", "shopping list")
     _MAX_CONTEXT_ITEMS = 5
 
     def __init__(
@@ -809,6 +810,7 @@ class CrossDomainPlanningFastPath:
                 any(term in text for term in cls._TASK_TERMS)
                 or any(term in text for term in ("need to", "take care of", "prepare")),
                 any(term in text for term in cls._FINANCE_TERMS),
+                any(term in text for term in cls._FOOD_TERMS),
             )
         )
         return domains >= 2 and (
@@ -920,6 +922,41 @@ class CrossDomainPlanningFastPath:
             "priority_candidates": priorities,
             "sources": ("personal_vault", "household_space", "tasks_space"),
         }
+        if any(term in intent.utterance.casefold() for term in self._FOOD_TERMS):
+            grocery_items = cast(tuple[Any, ...], self.household_snapshot.get("grocery_items", ()))
+            needed_groceries = tuple(
+                item for item in grocery_items if getattr(item, "state", "needed") == "needed"
+            )[: self._MAX_CONTEXT_ITEMS]
+            if not grocery_items:
+                # Preserve compatibility with pre-stable-ID household snapshots while
+                # keeping legacy string rows explicitly quantity-unknown.
+                legacy_groceries = cast(
+                    tuple[Any, ...], self.household_snapshot.get("groceries", ())
+                )
+                needed_groceries = tuple(
+                    {
+                        "grocery_id": None,
+                        "display_name": str(item),
+                        "desired_quantity": None,
+                        "unit": None,
+                        "state": "needed",
+                    }
+                    for item in legacy_groceries
+                )[: self._MAX_CONTEXT_ITEMS]
+            planning["grocery_items"] = [
+                (
+                    item
+                    if isinstance(item, dict)
+                    else {
+                        "grocery_id": getattr(item, "grocery_id", None),
+                        "display_name": getattr(item, "display_name", ""),
+                        "desired_quantity": getattr(item, "desired_quantity", None),
+                        "unit": getattr(item, "unit", None),
+                        "state": getattr(item, "state", "needed"),
+                    }
+                )
+                for item in needed_groceries
+            ]
         if self.finance is not None:
             planning["affordability"] = {
                 key: self.finance[key]
@@ -928,6 +965,7 @@ class CrossDomainPlanningFastPath:
                     "purchase_cents",
                     "shared_obligations_cents",
                     "shortfall_cents",
+                    "purchase_currency",
                 )
                 if key in self.finance
             }

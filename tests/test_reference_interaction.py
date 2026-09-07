@@ -3317,6 +3317,44 @@ def test_compact_planning_context_preserves_priority_candidates() -> None:
     ] == {"priority_candidates": candidates}
 
 
+def test_reference_planning_display_includes_food_and_derived_affordability() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Cross-domain planning context assembled from canonical state",
+        correlation_id=uuid4(),
+        evidence={
+            "planning": {
+                "grocery_items": [
+                    {
+                        "display_name": "rice",
+                        "desired_quantity": 6,
+                        "unit": "bags",
+                        "state": "needed",
+                    },
+                    {
+                        "display_name": "milk",
+                        "desired_quantity": None,
+                        "unit": None,
+                        "state": "needed",
+                    },
+                ],
+                "affordability": {
+                    "affordable": True,
+                    "purchase_cents": 8000,
+                    "shared_obligations_cents": 120,
+                    "purchase_currency": "USD",
+                },
+            }
+        },
+    )
+
+    assert reference_format_result(result) == (
+        "Planning: groceries needed: rice (x6 bags); milk; "
+        "affordable: yes (purchase $80.00; shared obligations $1.20)"
+    )
+
+
 def test_reference_task_display_is_bounded_without_truncating_canonical_evidence() -> None:
     result = Result(
         objective_id=uuid4(),
