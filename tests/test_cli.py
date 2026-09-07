@@ -7457,6 +7457,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "appendTodaySystemsSummary" in browser_source
     assert "Systems needing attention" in browser_source
     assert "health does not grant action authority" in browser_source
+    assert "renderStatusBadge('Health', health)" in browser_source
+    assert "renderStatusBadge('Reachability', reachability)" in browser_source
     assert "Open Systems" in browser_source
     assert "Show authorized detail" in browser_source
     assert "today-overview" in _AEGIS_CSS

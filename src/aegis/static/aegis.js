@@ -1633,13 +1633,12 @@ function appendTodaySystemsSummary(panel, payload) {
   services.forEach(service => {
     const row = document.createElement('div'); row.className = 'today-system-row';
     const name = document.createElement('strong'); name.textContent = service.name || service.service_id || 'Unnamed service';
-    const status = document.createElement('span'); status.className = 'status-badge';
     const health = service.health || 'unknown'; const reachability = service.reachability || 'unknown';
-    status.dataset.status = health === 'healthy' ? 'success' : 'unknown';
-    status.textContent = `${health} · ${reachability}`;
+    const statuses = document.createElement('div'); statuses.className = 'system-statuses';
+    statuses.append(renderStatusBadge('Health', health), renderStatusBadge('Reachability', reachability));
     const detail = document.createElement('span'); detail.className = 'muted';
     detail.textContent = `Identity: ${service.identity_status || 'unknown'} · Action: ${service.action_availability || 'not stated'}`;
-    row.append(name, status, detail); section.append(row);
+    row.append(name, statuses, detail); section.append(row);
   });
   const boundary = document.createElement('p'); boundary.className = 'muted';
   boundary.textContent = payload.action_authority || 'Systems state is read-only context; health does not grant action authority.';
