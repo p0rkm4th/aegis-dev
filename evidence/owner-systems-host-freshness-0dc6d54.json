@@ -1,0 +1,29 @@
+{
+  "artifact_type": "owner_systems_host_freshness_surface",
+  "observed_at": "2026-09-07",
+  "source_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
+  "hosted_validation": {
+    "run_id": "34087498514",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded"
+  },
+  "workflow": {
+    "path": "authenticated HTTPS /api/systems plus static Systems view asset",
+    "systems_source": "canonical_postgresql_inventory",
+    "canonical_host_count": 1,
+    "service_count": 1,
+    "discovered_device_count": 1,
+    "host_freshness_rendered_by_asset": true,
+    "canonical_host_freshness": "unknown",
+    "service_health": "unavailable",
+    "service_reachability": "unreachable"
+  },
+  "boundary": "Canonical host identity, observation freshness, service health, and discovery remain separate descriptive read states; no action authority was added. No browser computed-style claim is made because no browser executable is available in this environment."
+}

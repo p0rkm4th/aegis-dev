@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c4237df",
+  "state_basis_sha": "0dc6d54",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c4237df",
-  "deterministic_green_sha": "c4237df",
-  "last_pushed_sha": "c4237df",
-  "hosted_green_sha": "c4237df",
-  "hosted_ci_green_sha": "c4237df",
+  "repository_head_sha": "0dc6d54",
+  "deterministic_green_sha": "0dc6d54",
+  "last_pushed_sha": "0dc6d54",
+  "hosted_green_sha": "0dc6d54",
+  "hosted_ci_green_sha": "0dc6d54",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c4237df819bda8763e464a4932c8283c90fb80b6",
+    "commit_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
     "conclusion": "success",
-    "run_id": "34087171952",
-    "observed_at": "2026-09-07T05:34:22Z"
+    "run_id": "34087498514",
+    "observed_at": "2026-09-07T05:39:00Z"
   },
-  "installed_release_sha": "c4237df",
-  "running_release_sha": "c4237df",
-  "live_green_sha": "c4237df",
+  "installed_release_sha": "0dc6d54",
+  "running_release_sha": "0dc6d54",
+  "live_green_sha": "0dc6d54",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "c4237df819bda8763e464a4932c8283c90fb80b6"
+    "release_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -157,6 +157,7 @@
     ,"food_owner_surface": "Promoted owner HTTPS Today payload exposes stable grocery records and nullable Pantry records; the Household view renders structured grocery state, explicit quantity-unknown status, storage location, best-by, minimum-threshold details, and known out/low-stock labels without treating missing quantity as zero"
     ,"finance_csv_import_owner": "Promoted owner Finance view accepts bounded owner-controlled CSV imports through an authenticated Principal-scoped route, records source provenance, and rejects unknown accounts as a bounded request error without changing canonical state"
     ,"homelab_host_identity": "Homelab Host records persist stable host IDs separately from observed addresses, with provider identity, known addresses, identity evidence, status, and last-observed metadata"
+    ,"homelab_host_freshness_ui": "Promoted Systems view shows canonical-host last-observed freshness explicitly, including unknown freshness, alongside identity/status without granting action authority"
     ,"homelab_health_owner": "Installed owner HTTPS proof routes natural service-status language to canonical Homelab health and truthfully reports unavailable provider readback instead of returning generic public explanation"
     ,"homelab_constellation_identity_owner": "Installed owner HTTPS proof exposes canonical Host and Service nodes linked in Constellation with Systems navigation; status/health remain scoped read context and do not grant action authority"
     ,"network_constellation_context_owner": "Installed owner HTTPS proof exposes the authorized alpha-lab scope separately from discovered localhost, explicitly preserving discovery-versus-canonical identity and non-authority"
