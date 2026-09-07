@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "7e7908e",
+  "state_basis_sha": "913de7c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "7e7908e",
-  "deterministic_green_sha": "7e7908e",
-  "last_pushed_sha": "7e7908e",
-  "hosted_green_sha": "7e7908e",
-  "hosted_ci_green_sha": "7e7908e",
+  "repository_head_sha": "913de7c",
+  "deterministic_green_sha": "913de7c",
+  "last_pushed_sha": "913de7c",
+  "hosted_green_sha": "913de7c",
+  "hosted_ci_green_sha": "913de7c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "7e7908e585070b47c04f495dddd96674d493e82c",
+    "commit_sha": "913de7c668210d3a7ab400b29a6f1fc7bf233bef",
     "conclusion": "success",
-    "run_id": "34096605946",
-    "observed_at": "2026-09-07T07:43:11Z"
+    "run_id": "34097633956",
+    "observed_at": "2026-09-07T07:54:25Z"
   },
-  "installed_release_sha": "7e7908e",
-  "running_release_sha": "7e7908e",
-  "live_green_sha": "7e7908e",
+  "installed_release_sha": "913de7c",
+  "running_release_sha": "913de7c",
+  "live_green_sha": "913de7c",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "7e7908e585070b47c04f495dddd96674d493e82c"
+    "release_sha": "913de7c668210d3a7ab400b29a6f1fc7bf233bef"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -88,6 +88,7 @@
     "capability_need_forge_quarantine": "A durable owner_input_required CapabilityNeed can be converted into a strict PackProposal preview and materialized only under quarantine; the active registry, permissions, installation, enablement, and execution remain untouched",
     "capability_need_forge_quarantine_owner": "Exact owner HTTPS proof on 75f548b converted a fresh owner_input_required Terraria candidate into a production-validated Workspace stub, materialized eight files in the persistent quarantine root, survived owner-service restart, and left the active registry without a generated Pack",
     "capability_need_forge_quarantine_punctuation_owner": "Exact owner HTTPS proof on 7e7908e converted the punctuated Minecraft owner_input_required candidate into a production-validated Workspace stub, materialized eight files in persistent quarantine, survived owner-service restart, and left the active registry without a generated Pack",
+    "homelab_services_health_owner": "Exact owner HTTPS proof on 913de7c answers a natural collection service-health question from the canonical scoped inventory, independently rereads each provider endpoint, reports Plex unavailable truthfully, and performs no mutation",
     "active_objectives_today": "Today projects active canonical objectives with lifecycle state and a read-only handoff to Objectives",
     "active_objectives_constellation": "Constellation projects authorized active objective nodes and links declared candidate capabilities to Pack nodes without granting authority",
     "homelab_health_to_task": "Systems exposes an explicit investigation-task handoff for unhealthy authorized services; health observation does not auto-create tasks or restart services",
@@ -380,6 +381,7 @@
     ,"owner grouped Finance amount proof on bd941c6 returned the full synthetic $4,999 affordability amount after service restart; the owner path remained read-only and healthy"
     ,"owner Homelab discovery proof on bd941c6 returned a timestamped alpha-lab observation while preserving unmatched/discovered status, canonical Host separation, and no action authority"
     ,"owner Forge quarantine proof on 7e7908e accepted the punctuated Minecraft CapabilityNeed candidate after deterministic safe slugification; eight stub files persisted across service restart while the active registry and authority remained untouched"
+    ,"owner service-health collection proof on 913de7c answered 'What services are down?' through the normal Core route, independently reread the scoped provider state, reported Plex unavailable, and performed no mutation"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
@@ -443,7 +445,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility from the proven Food + Finance + Homelab read plane; Forge quarantine now handles natural-language punctuation and remains safely stopped before install/enable/authority. Next bounded slice is useful Homelab/Systems read or Food/Finance owner workflow; Pack-first remains experimental and production cognition remains incumbent.",
+  "next_action": "Continue owner-real utility from the proven Food + Finance + Homelab read plane; Forge quarantine remains safely stopped before install/enable/authority and service-health collection is now a verified read. Next bounded slice is CapabilityNeed/Forge review UI or a useful Food/Finance/Homelab composition; Pack-first remains experimental and production cognition remains incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }

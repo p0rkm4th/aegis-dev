@@ -1,0 +1,34 @@
+{
+  "evidence_type": "owner_homelab_services_health_read",
+  "source_sha": "913de7c668210d3a7ab400b29a6f1fc7bf233bef",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34097633956",
+    "head_sha": "913de7c668210d3a7ab400b29a6f1fc7bf233bef",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "access": "authenticated Tailscale HTTPS",
+    "release_sha": "913de7c668210d3a7ab400b29a6f1fc7bf233bef",
+    "postgresql": "healthy",
+    "restarted_before_proof": true
+  },
+  "workflow": {
+    "utterance_class": "collection service health read",
+    "result_state": "completed",
+    "verification": "independent service status reread",
+    "services_observed": 1,
+    "unavailable_services": 1,
+    "service_statuses": [
+      {
+        "service_id": "acceptance-plex",
+        "status": "unavailable"
+      }
+    ],
+    "systems_projection_source": "canonical_postgresql_inventory",
+    "action_authority": "core_authorization_required",
+    "mutation_performed": false
+  },
+  "observed_at": "2026-09-07T07:54:25Z"
+}
