@@ -7300,6 +7300,12 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "appendTodayBrief" in browser_source
     assert "Needs attention" in browser_source
     assert "Recently completed" in browser_source
+    assert "Private Finance snapshot" in browser_source
+    assert (
+        "Currencies remain separate; AEGIS does not convert or combine balances." in browser_source
+    )
+    assert "Open Finance for private detail" in browser_source
+    assert "today-finance-summary" in browser_source
     assert "Show authorized detail" in browser_source
     assert "today-overview" in _AEGIS_CSS
     assert "constellation-layer" in _AEGIS_CSS

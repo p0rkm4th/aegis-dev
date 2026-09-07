@@ -1383,6 +1383,10 @@ async function loadToday() {
     panel.append(heading);
     appendTodayOverview(panel, payload);
     appendTodayBrief(panel, payload);
+    try {
+      const financeResponse = await fetchWithTimeout('/api/finance');
+      if (financeResponse.ok) appendTodayFinanceSummary(panel, await financeResponse.json());
+    } catch (_) { /* Finance is a bounded optional private Today slice. */ }
     const technical = document.createElement('details');
     technical.className = 'today-technical detail-card';
     const technicalSummary = document.createElement('summary');
@@ -1590,6 +1594,27 @@ function appendTodaySection(panel, title, value) {
   const section = document.createElement('section'); section.className = 'detail-card';
   const heading = document.createElement('h3'); heading.textContent = title;
   section.append(heading, renderDetailValue(value)); panel.append(section);
+}
+function appendTodayFinanceSummary(panel, payload) {
+  if (!payload || payload.provider_state !== 'available') return;
+  const section = document.createElement('section'); section.className = 'detail-card today-finance-summary';
+  const heading = document.createElement('h3'); heading.textContent = 'Private Finance snapshot';
+  const currencies = [...new Set((payload.accounts || []).map(account => account.currency).filter(Boolean))];
+  const transactions = payload.transactions || [];
+  const pending = transactions.filter(transaction => transaction.status === 'pending').length;
+  const posted = transactions.filter(transaction => transaction.status === 'posted').length;
+  const freshness = document.createElement('p'); freshness.className = 'muted';
+  freshness.textContent = `Currencies: ${currencies.join(', ') || 'unknown'} · As of: ${payload.captured_at || 'unknown'}`;
+  const settlement = document.createElement('p'); settlement.className = 'muted';
+  settlement.textContent = `Settlement: ${posted} posted · ${pending} pending · ${transactions.length} recent transaction${transactions.length === 1 ? '' : 's'}`;
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = 'Currencies remain separate; AEGIS does not convert or combine balances. Open Finance for private detail.';
+  const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open Finance';
+  open.addEventListener('click', () => {
+    const finance = document.querySelector('[data-view="finance"]');
+    if (finance) finance.click();
+  });
+  section.append(heading, freshness, settlement, boundary, open); panel.append(section);
 }
 function renderFoodCollection(panel, title, items, kind) {
   const section = document.createElement('section'); section.className = 'detail-card';
