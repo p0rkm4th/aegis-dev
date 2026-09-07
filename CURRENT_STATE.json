@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "50d206d",
+  "state_basis_sha": "93f40ee",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "50d206d",
-  "deterministic_green_sha": "50d206d",
-  "last_pushed_sha": "50d206d",
-  "hosted_green_sha": "50d206d",
-  "hosted_ci_green_sha": "50d206d",
+  "repository_head_sha": "93f40ee",
+  "deterministic_green_sha": "93f40ee",
+  "last_pushed_sha": "93f40ee",
+  "hosted_green_sha": "93f40ee",
+  "hosted_ci_green_sha": "93f40ee",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "50d206de8d780f2bdf34cc5714a46a73ce49df75",
+    "commit_sha": "93f40ee494c7fa7a8850a122a25ebc0880d558c2",
     "conclusion": "success",
-    "run_id": "34081547263",
-    "observed_at": "2026-09-07T04:12:00Z"
+    "run_id": "34081876186",
+    "observed_at": "2026-09-07T04:22:00Z"
   },
-  "installed_release_sha": "50d206d",
-  "running_release_sha": "50d206d",
-  "live_green_sha": "50d206d",
+  "installed_release_sha": "93f40ee",
+  "running_release_sha": "93f40ee",
+  "live_green_sha": "93f40ee",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "50d206de8d780f2bdf34cc5714a46a73ce49df75"
+    "release_sha": "93f40ee494c7fa7a8850a122a25ebc0880d558c2"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -167,6 +167,7 @@
     ,"pack_first_fresh_owner_reality": "Fresh post-Finance Qwen3:8B shadow evidence on c34ade3 measured Pack-first and retrieval-assisted routing at 0.571 recall / 0.429 wrong-action versus the unchanged incumbent at 0.857 / 0.143; lifecycle requests failed closed and production routing remains unchanged"
     ,"food_finance_bounded_projection_owner": "Promoted owner HTTPS proof on eba2ae5 now renders only the requested grocery need and same-currency affordability facts; unrelated task/household/personal sections are omitted and private ledger rows remain absent"
     ,"food_state_target_grounding_owner": "Exact owner HTTPS proof on 50d206d blocks the ambiguous 'Mark rice as purchased' request before mutation because six canonical rice rows share the display name; all six remain needed, and stable-ID action affordances are now emitted by the Food surface"
+    ,"food_state_surface_owner": "Exact owner HTTPS proof on 93f40ee serves the extracted Food UI assets and exposes stable-ID Mark purchased/Remove controls plus a separate Grocery history section; current canonical state remains unchanged"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -343,7 +344,8 @@
     "promoted owner HTTPS proof on adb14ce preserved standalone affordability and blocked the previously observed partial Finance completion for a three-domain Food/Finance/Homelab read",
     "fresh post-Finance Pack-first owner-reality tournament retained the incumbent after Qwen3:8B shadow routing underperformed on new Food/Finance/Homelab/Forge cases",
     "owner dogfood on eba2ae5 confirmed the bounded Food + Finance projection is readable without unrequested empty domain sections",
-    "owner dogfood on 50d206d confirmed ambiguous grocery state changes fail closed before mutation and require a stable item ID"
+    "owner dogfood on 50d206d confirmed ambiguous grocery state changes fail closed before mutation and require a stable item ID",
+    "owner HTTPS proof on 93f40ee confirmed the Food surface serves current-vs-history presentation and stable-ID controls"
   ],
   "current_blockers": [
     "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."

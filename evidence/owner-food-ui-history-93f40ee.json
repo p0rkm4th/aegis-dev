@@ -1,0 +1,21 @@
+{
+  "evidence_type": "owner_food_ui_surface",
+  "source_sha": "93f40ee494c7fa7a8850a122a25ebc0880d558c2",
+  "hosted_run_id": "34081876186",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "runtime_release_sha": "93f40ee494c7fa7a8850a122a25ebc0880d558c2",
+  "routes": {
+    "root": "200 text/html",
+    "css": "200 text/css; charset=utf-8",
+    "javascript": "200 text/javascript; charset=utf-8"
+  },
+  "served_application_assertions": [
+    "root references same-origin /static/aegis.css and /static/aegis.js",
+    "Food renders stable-ID Mark purchased and Remove actions through the normal Core request path",
+    "current groceries and purchased/removed Grocery history are separate owner sections",
+    "canonical grocery rows are returned with stable IDs",
+    "Core/API/auth semantics are unchanged"
+  ],
+  "private_data_included": false,
+  "browser_screenshot": "not captured in this environment"
+}
