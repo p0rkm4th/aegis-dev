@@ -1626,7 +1626,7 @@ async function loadHousehold() {
     } catch (_) {}
     const canonical = payload.canonical || {};
     appendCompletableSection(panel, 'Open chores', canonical.open_chores || [], 'Mark the chore');
-    renderFoodCollection(panel, 'Groceries needed', canonical.groceries || [], 'grocery');
+    renderFoodCollection(panel, 'Groceries needed', canonical.grocery_items || canonical.groceries || [], 'grocery');
     const pantry = canonical.pantry_items || [];
     if (pantry.length) {
       renderFoodCollection(panel, 'Pantry', pantry, 'pantry');

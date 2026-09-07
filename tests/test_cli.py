@@ -5100,6 +5100,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "service.authorization_status || 'authorization unknown'" in _AEGIS_JS
     assert "service.action_availability || 'unknown'" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS
+    assert "canonical.grocery_items || canonical.groceries" in _AEGIS_JS
     assert "quantity unknown" in _AEGIS_JS
     assert "Groceries needed" in _AEGIS_JS
     assert (
