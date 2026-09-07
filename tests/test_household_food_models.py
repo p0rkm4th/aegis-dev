@@ -65,6 +65,18 @@ def test_food_mutations_use_stable_ids_and_reject_stale_pantry_writes():
         space.consume_pantry(principal, pantry.item_id, 1, expected_version=0)
 
 
+def test_adding_grocery_does_not_reset_existing_stable_id_state():
+    principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"owner"}, groceries=["Milk"])
+    milk_id = next(iter(space.grocery_items))
+
+    purchased = space.mark_grocery_purchased(principal, milk_id)
+    space.add_grocery(principal, "Eggs", "add-eggs-1")
+
+    assert space.grocery_items[milk_id] == purchased
+    assert [item.display_name for item in space.grocery_items.values()] == ["Milk", "Eggs"]
+
+
 def test_unknown_pantry_quantity_is_not_treated_as_zero():
     principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
     space = HouseholdSpace("kitchen", {"owner"})
