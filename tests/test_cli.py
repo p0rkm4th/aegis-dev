@@ -98,6 +98,30 @@ def test_deterministic_research_workspace_action_requires_enabled_pack():
     assert card.action.arguments["target_path"] == "notes.md"
 
 
+def test_deterministic_safe_capability_research_extracts_effect_query():
+    manager = PackManager()
+    workspace = next(
+        bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "workspace"
+    )
+    manager.discover(workspace)
+    manager.install("workspace", frozenset({"workspace.read", "workspace.write"}))
+    manager.enable("workspace")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance=(
+            "Research a safe path for Set up a Palworld server for the girls and me on easy mode. "
+            "and save notes as capability-needs/need-123.md"
+        ),
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "workspace.research_notes.create"
+    assert card.action.arguments == {
+        "query": "Set up a Palworld server for the girls and me on easy mode",
+        "target_path": "capability-needs/need-123.md",
+    }
+
+
 def test_deterministic_finance_read_uses_enabled_pack_for_domain_question():
     manager = PackManager()
     finance = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "finance")
