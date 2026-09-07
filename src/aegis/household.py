@@ -556,7 +556,11 @@ class HouseholdSpace:
                 raise ValueError("grocery idempotency key is bound to another item")
         self.groceries.append(item)
         migrated = migrate_grocery_strings(self.groceries)
-        self.grocery_items.update(migrated)
+        # Legacy strings are only a migration source.  Re-running the migration
+        # must not overwrite canonical stable-ID state such as purchased or
+        # removed status, versions, or future quantity metadata.
+        for grocery_id, migrated_item in migrated.items():
+            self.grocery_items.setdefault(grocery_id, migrated_item)
         if idempotency_key is not None:
             self.grocery_mutations[idempotency_key] = item
 
