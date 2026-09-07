@@ -1,0 +1,46 @@
+{
+  "artifact_type": "owner_today_grocery_budget_handoff",
+  "checkpoint": "today-grocery-overview-budget-handoff",
+  "observed_at": "2026-09-07T10:44:41Z",
+  "source_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34112793295",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "966f544abaa48edb183d5d00f66d3b7ba7f18df5",
+    "access_path": "authenticated Tailscale HTTPS",
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy; existing owner volume preserved",
+    "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces"
+  },
+  "https_proof": {
+    "/static/aegis.css": {
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "nonempty_expected_content": true
+    },
+    "/static/aegis.js": {
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "today_grocery_grouping": true,
+      "today_budget_handoff": true
+    },
+    "/api/today": {
+      "status": 200,
+      "authenticated": true,
+      "grocery_rows": 8,
+      "needed_rows": 7,
+      "needed_overview_groups": 2
+    }
+  },
+  "behavior": {
+    "grocery_overview": "Matching display projections are grouped with a truthful count; canonical stable-ID rows remain individually available in Household.",
+    "budget_handoff": "Today submits an explicit USD amount as a normal owner utterance; Core remains responsible for grounding, authorization, same-currency affordability, and the read-only result.",
+    "financial_boundary": "No grocery price estimate, FX conversion, or financial mutation is introduced."
+  },
+  "owner_claim_boundary": "The promoted static assets and authenticated Today API were verified through Tailscale HTTPS. No browser executable is installed in this environment, so this artifact does not claim fresh computed-style or screenshot evidence."
+}
