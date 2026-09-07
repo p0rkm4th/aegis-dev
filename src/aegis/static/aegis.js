@@ -1881,7 +1881,9 @@ async function loadFinance() {
           if (!response.ok) throw new Error(result.error || 'Finance import unavailable.');
           const imported = result.imported_transaction_ids?.length || 0;
           const candidates = result.reconciliations?.length || 0;
-          importStatus.textContent = `Imported ${imported} transaction${imported === 1 ? '' : 's'}; source hash recorded${candidates ? `; ${candidates} duplicate candidate${candidates === 1 ? '' : 's'} need review` : ''}.`;
+          importStatus.textContent = result.source_already_imported
+            ? 'Source already imported; no new transactions were added.'
+            : `Imported ${imported} transaction${imported === 1 ? '' : 's'}; source hash recorded${candidates ? `; ${candidates} duplicate candidate${candidates === 1 ? '' : 's'} need review` : ''}.`;
           await loadFinance();
         } catch (error) { importStatus.textContent = error.message || 'Finance import unavailable.'; }
         finally { importButton.disabled = false; }

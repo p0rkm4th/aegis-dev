@@ -1347,6 +1347,7 @@ def _finance_import(principal: Principal, request: dict[str, Any]) -> dict[str, 
         return {
             "source": _finance_source_projection(report.source),
             "imported_transaction_ids": list(report.imported_transaction_ids),
+            "source_already_imported": report.source_already_imported,
             "duplicate_rows": list(report.duplicate_rows),
             "rejected_rows": [list(row) for row in report.rejected_rows],
             "reconciliations": [item.__dict__ for item in report.reconciliations],

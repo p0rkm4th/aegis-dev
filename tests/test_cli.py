@@ -5900,6 +5900,7 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert "renderFinanceTransactions" in html
     assert "label: 'Groceries needed'" in html
     assert "last_observed" in html
+    assert "source_already_imported" in html
 
 
 def test_browser_app_systems_discovery_is_scoped_and_observation_only():
