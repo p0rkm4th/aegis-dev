@@ -1,0 +1,28 @@
+{
+  "artifact_type": "owner_today_recent_research_surface",
+  "observed_at": "2026-09-07T12:27:50Z",
+  "source_sha": "cb86cf61075e782a56f026c0ef4a0040c807ce53",
+  "hosted_validation": {
+    "run_id": "34121779397",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "cb86cf61075e782a56f026c0ef4a0040c807ce53",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "restart_verified": true,
+    "postgres": "healthy"
+  },
+  "owner_http_proof": {
+    "root_references": ["/static/aegis.css", "/static/aegis.js"],
+    "css_content_type": "text/css; charset=utf-8",
+    "today_source": "/api/today",
+    "research_source": "/api/research",
+    "research_history_result_count": 6,
+    "bounded_today_result_limit": 3,
+    "rendered_browser_computed_style": "unavailable: no browser executable installed in owner environment"
+  },
+  "boundary": "Today surfaces only the existing Principal-scoped bounded public-research projection; evidence remains non-canonical and cannot authorize actions."
+}
