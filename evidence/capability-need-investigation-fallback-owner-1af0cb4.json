@@ -1,0 +1,30 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "capability-need-investigation-fallback-owner",
+  "source_sha": "1af0cb446a094c0a8eef666b8b58647768ea29f3",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34073935313",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "1af0cb446a094c0a8eef666b8b58647768ea29f3",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "owner_http_proof": {
+    "request_class": "unsupported consequential capability",
+    "result_state": "failed",
+    "objective_projection": "durable objective retained with one open CapabilityNeed",
+    "capability_need_status": "open",
+    "capability_need_investigation": "complete",
+    "objectives_status": 200,
+    "constellation_status": 200,
+    "constellation_capability_need_nodes": 1,
+    "restart": "service restarted; fresh authenticated read retained the same objective/need/node",
+    "authority": "read-only context; no install, enable, approval, permission grant, or execution"
+  }
+}
