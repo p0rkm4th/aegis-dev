@@ -1312,7 +1312,10 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         required_permissions=("homelab.read", "research.read"),
                         verification=VerificationContract(kind="readback"),
                     ),
-                    summary="Research likely causes for an authorized Homelab service condition",
+                    summary=(
+                        "Research bounded public context for an authorized "
+                        "Homelab service condition"
+                    ),
                     relevance=1,
                     argument_keys=("service",),
                     argument_grounding={
@@ -3305,6 +3308,7 @@ class HomelabResearchExecutor:
                     "service": service.service_id,
                     "observed_status": status,
                     "observed_healthy": healthy,
+                    "diagnosis_status": "unconfirmed",
                     "query": evidence.query,
                     "answer": answer.text,
                     "provider_id": evidence.provider_id,

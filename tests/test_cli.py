@@ -7324,7 +7324,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Send tomorrow's weather" in browser_source
     assert "Text me tomorrow's weather" in browser_source
     assert "provider acceptance is not delivery proof" in browser_source
-    assert "Research likely cause" in browser_source
+    assert "Research public context" in browser_source
     assert "Research why service ${service.service_id} is unavailable" in browser_source
     assert "Save completed tasks to Workspace" in browser_source
     assert "Save my completed tasks to workspace as completed.md" in browser_source
