@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "364b805",
+  "state_basis_sha": "9822a2d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "364b805",
-  "deterministic_green_sha": "364b805",
-  "last_pushed_sha": "364b805",
-  "hosted_green_sha": "93f40ee",
-  "hosted_ci_green_sha": "93f40ee",
+  "repository_head_sha": "9822a2d",
+  "deterministic_green_sha": "9822a2d",
+  "last_pushed_sha": "9822a2d",
+  "hosted_green_sha": "9822a2d",
+  "hosted_ci_green_sha": "9822a2d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "93f40ee494c7fa7a8850a122a25ebc0880d558c2",
+    "commit_sha": "9822a2dd148b085b3f5e6f856518cf8ea53371ab",
     "conclusion": "success",
-    "run_id": "34081876186",
-    "observed_at": "2026-09-07T04:22:00Z"
+    "run_id": "34082679119",
+    "observed_at": "2026-09-07T04:30:00Z"
   },
-  "installed_release_sha": "93f40ee",
-  "running_release_sha": "93f40ee",
-  "live_green_sha": "93f40ee",
+  "installed_release_sha": "9822a2d",
+  "running_release_sha": "9822a2d",
+  "live_green_sha": "9822a2d",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -169,6 +169,7 @@
     ,"food_state_target_grounding_owner": "Exact owner HTTPS proof on 50d206d blocks the ambiguous 'Mark rice as purchased' request before mutation because six canonical rice rows share the display name; all six remain needed, and stable-ID action affordances are now emitted by the Food surface"
     ,"food_state_surface_owner": "Exact owner HTTPS proof on 93f40ee serves the extracted Food UI assets and exposes stable-ID Mark purchased/Remove controls plus a separate Grocery history section; current canonical state remains unchanged"
     ,"pack_first_post_finance_owner_reality": "Exact-source Qwen3:8B shadow run on 364b805 evaluated 26 owner-real cases, including Finance-only versus Food+Finance distinctions; pure and retrieval-assisted Pack-first remained non-promotable, so production cognition is unchanged"
+    ,"systems_status_surface_owner": "Exact owner HTTPS proof on 9822a2d serves the structured Systems status presentation through Tailscale, with separate identity, reachability, health, authorization, and action-availability states; the authorized Plex observation remains unavailable and no action was invoked"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -347,7 +348,8 @@
     "owner dogfood on eba2ae5 confirmed the bounded Food + Finance projection is readable without unrequested empty domain sections",
     "owner dogfood on 50d206d confirmed ambiguous grocery state changes fail closed before mutation and require a stable item ID",
     "owner HTTPS proof on 93f40ee confirmed the Food surface serves current-vs-history presentation and stable-ID controls",
-    "fresh 364b805 Qwen3:8B Pack-first run covered the post-Finance Food/Finance distinction and retained the production incumbent after all variants misrouted the fresh cases"
+    "fresh 364b805 Qwen3:8B Pack-first run covered the post-Finance Food/Finance distinction and retained the production incumbent after all variants misrouted the fresh cases",
+    "owner HTTPS proof on 9822a2d confirms the Systems UI exposes separately styled identity, reachability, health, authorization, and action-availability states"
   ],
   "current_blockers": [
     "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
@@ -411,7 +413,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-real Food/Finance/Homelab utility slice; Pack-first remains experimental and production cognition remains incumbent after the 364b805 fresh Food/Finance evaluation.",
+  "next_action": "Rearm the next owner-real Food/Finance/Homelab utility slice; Pack-first remains experimental and production cognition remains incumbent after the 364b805 fresh Food/Finance evaluation and 9822a2d Systems UI proof.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
