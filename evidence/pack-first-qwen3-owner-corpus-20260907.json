@@ -1,0 +1,42 @@
+{
+  "kind": "pack-first-qwen3-owner-corpus",
+  "source_sha": "2adcdc47274ea611bdc94251c6a2c3a65419f0af",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "endpoint_class": "owner-local-ollama",
+  "corpus_cases": 16,
+  "variants": {
+    "pack_first": {
+      "routing_recall": 0.4166666666666667,
+      "wrong_action_rate": 0.5833333333333334,
+      "clarification_rate": 0.1875,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 588.0625,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 539.9778180290014,
+      "p95_latency_ms": 956.2602839432657,
+      "failure_category.lifecycle_authority_request": 1.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.9166666666666666,
+      "wrong_action_rate": 0.08333333333333333,
+      "clarification_rate": 0.1875,
+      "invalid_measurement_rate": 0.0625,
+      "model_calls_per_case": 0.9375,
+      "prompt_bytes_per_case": 239.1875,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 489.31396391708404,
+      "p95_latency_ms": 591.9157810276374,
+      "failure_category.ValueError": 1.0,
+      "failure_category.lifecycle_authority_request": 1.0
+    }
+  },
+  "prefilter": "deterministic fixture keyword prefilter; non-authoritative",
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false
+  },
+  "interpretation": "Retrieval-assisted Pack-first materially outperformed pure Pack-first on this corpus and used fewer prompt bytes. The standalone incumbent callback was a no-card harness control rather than the full production selector, so this artifact does not justify a production routing decision."
+}
