@@ -1,0 +1,28 @@
+{
+  "artifact_type": "owner_today_pantry_glance_promotion",
+  "observed_at": "2026-09-07T11:40:38Z",
+  "source_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "hosted_validation": {
+    "run_id": "34117695649",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "f176b5f3d2b6069f25cd44ee3bf5e61ffbd7dd92",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded",
+    "restart_verified": true
+  },
+  "owner_readback": {
+    "api_today_status": 200,
+    "canonical_pantry_records": 1,
+    "canonical_low_stock_records": 0,
+    "canonical_unknown_quantity_records": 1,
+    "glance_card": "Pantry records",
+    "glance_destination": "household",
+    "mutation_attempted": false
+  },
+  "boundary": "The Pantry glance card is a canonical-count navigation aid. It does not infer low stock, treat unknown quantity as zero, or grant Food mutation authority."
+}
