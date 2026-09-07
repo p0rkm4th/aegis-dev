@@ -1,0 +1,28 @@
+{
+  "artifact_type": "owner_today_systems_freshness_promotion",
+  "observed_at": "2026-09-07T11:56:48Z",
+  "source_sha": "a96be12949bc545f2038be485dae682d517beefb",
+  "hosted_validation": {
+    "run_id": "34119057412",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "a96be12949bc545f2038be485dae682d517beefb",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded",
+    "restart_verified": true
+  },
+  "owner_readback": {
+    "api_systems_status": 200,
+    "canonical_host_count": 1,
+    "canonical_service_count": 1,
+    "discovered_observation_count": 1,
+    "service_health_values": ["unavailable"],
+    "served_static_js_freshness_renderer": true,
+    "action_attempted": false
+  },
+  "boundary": "Today presents provider and observation-time context for Systems state. Unavailable health remains observed state; reachability, identity, and action availability are not collapsed into permission."
+}
