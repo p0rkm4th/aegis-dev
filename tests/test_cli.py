@@ -5470,6 +5470,12 @@ def test_capability_candidate_projection_preserves_bounded_research_evidence(mon
     assert candidate["research_sources"][0]["title"] == "Bounded source"
 
 
+def test_browser_forge_review_renders_research_sources_as_safe_links():
+    assert "forge-research-sources" in _AEGIS_JS
+    assert "noopener noreferrer" in _AEGIS_JS
+    assert "['http:', 'https:'].includes(url.protocol)" in _AEGIS_JS
+
+
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []
