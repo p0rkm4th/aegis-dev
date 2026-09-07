@@ -1,0 +1,26 @@
+{
+  "checkpoint": "homelab-systems-evidence-owner",
+  "source_sha": "739cb42bd09e87a9ba88eaa8284229337e024d75",
+  "hosted_validation": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34071650270",
+    "conclusion": "success"
+  },
+  "owner_proof": {
+    "release_sha": "739cb42bd09e87a9ba88eaa8284229337e024d75",
+    "service": "aegis-owner.service",
+    "postgresql": "healthy",
+    "surface": "Systems over owner HTTPS",
+    "projection": {
+      "service_id": "acceptance-plex",
+      "identity_status": "canonical_host",
+      "authorization_status": "space_scoped_read",
+      "reachability": "unreachable",
+      "health": "unavailable",
+      "action_availability": "core_authorization_required",
+      "health_source": "bounded_http_read"
+    },
+    "authority_boundary": "A read observation and a TCP/HTTP result do not grant restart authority."
+  }
+}
