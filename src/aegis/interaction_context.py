@@ -137,6 +137,7 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
             "priority_candidates",
             "memories",
             "affordability",
+            "homelab_health",
         ):
             value = planning.get(key)
             if isinstance(value, (list, tuple)):

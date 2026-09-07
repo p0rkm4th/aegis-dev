@@ -93,6 +93,16 @@ def test_food_finance_affordability_composition_preserves_private_derived_bounda
     assert "no FX" in composition["authority"]
 
 
+def test_food_finance_homelab_review_preserves_read_only_boundaries() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "food-finance-homelab-review"
+    )
+    assert composition["surfaces"] == ("Food", "Finance", "Systems")
+    assert "read-only composition" in composition["authority"]
+    assert "independently reread" in composition["authority"]
+    assert "no cause or mutation" in composition["authority"]
+
+
 def test_workspace_append_composition_is_owner_visible() -> None:
     composition = next(
         item for item in available_compositions() if item["id"] == "workspace-artifact-append"

@@ -28,6 +28,7 @@ from .contracts import (
     Context,
     Decision,
     DecisionKind,
+    ExecutionRequest,
     IntentFrame,
     ObjectiveRequirementProposal,
     ObjectiveSpecProposal,
@@ -84,7 +85,11 @@ from .planning import (
     PlanProgressFastPath,
 )
 from .projections import SharedObligation
-from .reference_packs import reference_bundles
+from .reference_packs import (
+    HomelabServicesHealthExecutor,
+    HomelabServicesHealthVerifier,
+    reference_bundles,
+)
 from .store import PostgresObjectiveStore
 from .tasks import (
     ContextualTaskPriorityFastPath,
@@ -750,6 +755,51 @@ class _ReadOnlyHomelabRuntime:
 
     def health(self, _service: Any) -> bool:
         return False
+
+
+def _read_verified_homelab_services_health(
+    connection: Any, principal: Principal, correlation_id: UUID
+) -> dict[str, object] | None:
+    """Read bounded service health twice without creating action authority."""
+
+    card = next(
+        (
+            card
+            for bundle in reference_bundles()
+            for card in bundle.cards
+            if card.action.action_id == "homelab.services.health"
+        ),
+        None,
+    )
+    if card is None or card.action.verification is None:
+        return None
+    request = ExecutionRequest(
+        objective_id=uuid4(),
+        action_id=uuid4(),
+        action=card.action,
+        idempotency_key=f"planning-homelab-health-{correlation_id}",
+    )
+    observation = HomelabServicesHealthExecutor(connection, principal).execute(request)
+    verification = HomelabServicesHealthVerifier(connection, principal).verify(
+        observation, card.action.verification
+    )
+    if not verification.verified:
+        return None
+    services = verification.evidence.get("independent_services")
+    if not isinstance(services, list) or any(not isinstance(item, dict) for item in services):
+        return None
+    return {
+        "services": [
+            {
+                "service_id": item.get("service_id"),
+                "name": item.get("name"),
+                "host_id": item.get("host_id"),
+                "status": item.get("status"),
+            }
+            for item in services[:20]
+        ],
+        "verification": "independent_readback",
+    }
 
 
 def reference_constellation_state(
@@ -1618,6 +1668,24 @@ def reference_format_result(result: Any) -> str:
                 )
             else:
                 summaries.append(f"affordable: {status}")
+        homelab_health = planning.get("homelab_health")
+        if isinstance(homelab_health, dict):
+            services = homelab_health.get("services")
+            if isinstance(services, list):
+                service_rows = []
+                for item in services:
+                    if not isinstance(item, dict):
+                        continue
+                    name_value = item.get("name", item.get("service_id", "service"))
+                    status_value = item.get("status", "unknown")
+                    name_text = name_value if isinstance(name_value, str) else "service"
+                    status_text = status_value if isinstance(status_value, str) else "unknown"
+                    display_status = "healthy" if status_text == "http_200" else status_text
+                    service_rows.append(f"{name_text}: {display_status}")
+                summaries.append(
+                    "systems health (independently verified): "
+                    + ("; ".join(service_rows) if service_rows else "(none configured)")
+                )
         open_tasks = planning.get("open_tasks")
         if isinstance(open_tasks, list):
             titles = [
@@ -2138,7 +2206,16 @@ def resolve_reference_fast_paths(
     if MultiActionFastPath.matches(intent.utterance):
         return None
     normalized_read = strip_correction_prefix(intent.utterance)
-    if not is_mutation_request(intent.utterance) and has_multiple_question_clauses(normalized_read):
+    bounded_systems_planning = (
+        not is_mutation_request(intent.utterance)
+        and CrossDomainPlanningFastPath.matches(intent.utterance)
+        and CrossDomainPlanningFastPath.systems_requested(intent.utterance)
+    )
+    if (
+        not bounded_systems_planning
+        and not is_mutation_request(intent.utterance)
+        and has_multiple_question_clauses(normalized_read)
+    ):
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.BLOCKED,
@@ -4246,11 +4323,33 @@ def resolve_reference_pre_model(
             finance = finance_result.evidence
 
     if planning_requested:
+        homelab_health = None
+        if CrossDomainPlanningFastPath.systems_requested(utterance):
+            homelab_health = _read_verified_homelab_services_health(
+                connection, principal, intent.correlation_id
+            )
+            if homelab_health is None:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=(
+                        "I couldn't independently verify authorized service health, "
+                        "so I won't combine that result with the other reads."
+                    ),
+                    evidence={
+                        "planning": {
+                            "sources": ("homelab",),
+                            "homelab_health": {"status": "unverified"},
+                        }
+                    },
+                    correlation_id=intent.correlation_id,
+                )
         planning_result = CrossDomainPlanningFastPath(
             personal_state,
             household_snapshot,
             task_store.list(principal),
             finance,
+            homelab_health,
         ).resolve(intent)
         if planning_result is not None:
             return planning_result

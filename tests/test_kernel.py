@@ -3995,6 +3995,61 @@ def test_cross_domain_planning_recognizes_food_and_finance_owner_question():
     )
 
 
+def test_cross_domain_planning_recognizes_food_finance_and_systems_review():
+    utterance = (
+        "We are running low on groceries, can I spend $80 tonight, and check why Plex is down?"
+    )
+
+    assert CrossDomainPlanningFastPath.matches(utterance)
+    assert CrossDomainPlanningFastPath.systems_requested(utterance)
+
+
+def test_cross_domain_planning_projects_independently_verified_systems_health():
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    space = HouseholdSpace("apartment", {alice.id})
+    space.grocery_items["rice-id"] = GroceryItem("rice-id", "rice", "rice")
+    homelab_health = {
+        "services": [
+            {
+                "service_id": "plex",
+                "name": "Plex",
+                "host_id": "atlas",
+                "status": "unavailable",
+            }
+        ],
+        "verification": "independent_readback",
+    }
+    result = CrossDomainPlanningFastPath(
+        PersonalState(),
+        space.snapshot(alice),
+        (),
+        {
+            "affordable": True,
+            "purchase_cents": 8000,
+            "shared_obligations_cents": 0,
+            "shortfall_cents": 0,
+            "purchase_currency": "USD",
+        },
+        homelab_health,
+    ).resolve(
+        IntentFrame(
+            principal=alice,
+            utterance=(
+                "We are running low on groceries, can I spend $80 tonight, "
+                "and check why Plex is down?"
+            ),
+        )
+    )
+
+    assert result is not None
+    planning = result.evidence["planning"]
+    assert planning["grocery_items"][0]["display_name"] == "rice"
+    assert planning["affordability"]["purchase_currency"] == "USD"
+    assert planning["homelab_health"] == homelab_health
+    assert planning["sources"] == ("household_space", "finance", "homelab")
+    assert "balance_cents" not in repr(planning)
+
+
 def test_cross_domain_planning_recognizes_explicit_grocery_budget_limit():
     assert CrossDomainPlanningFastPath.matches(
         "Can I keep tonight's grocery trip under $80 based on what we need?"

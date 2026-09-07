@@ -415,6 +415,21 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "food-finance-homelab-review",
+            "label": "Food + Finance + Systems review",
+            "description": (
+                "Review canonical grocery needs, same-currency private affordability, and "
+                "independently reread authorized Homelab service health in one bounded read."
+            ),
+            "surfaces": ("Food", "Finance", "Systems"),
+            "authority": (
+                "read-only composition; grocery state remains canonical, Finance contributes "
+                "only a derived same-currency projection, service health is independently "
+                "reread, raw private ledger rows stay private, and no cause or mutation is "
+                "inferred"
+            ),
+        },
+        {
             "id": "calendar-task-attention-to-communication",
             "label": "Calendar + Tasks attention → Communication",
             "description": (

@@ -784,8 +784,35 @@ class CrossDomainPlanningFastPath:
         "utilities",
     )
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
-    _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget", "purchase")
+    _FINANCE_TERMS = (
+        "finance",
+        "afford",
+        "affordable",
+        "cost",
+        "budget",
+        "purchase",
+        "spend",
+        "spending",
+    )
     _FOOD_TERMS = ("food", "grocery", "groceries", "pantry", "shopping list")
+    _SYSTEMS_TERMS = (
+        "system",
+        "systems",
+        "homelab",
+        "host",
+        "hosts",
+        "service",
+        "services",
+        "server",
+        "servers",
+        "health",
+        "healthy",
+        "reachable",
+        "unreachable",
+        "down",
+        "offline",
+        "unavailable",
+    )
     _BUDGET_NUMBER_WORD = (
         r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
         r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
@@ -806,11 +833,20 @@ class CrossDomainPlanningFastPath:
         household_snapshot: dict[str, object],
         tasks: tuple[Task, ...],
         finance: dict[str, Any] | None = None,
+        homelab_health: dict[str, object] | None = None,
     ) -> None:
         self.personal = personal
         self.household_snapshot = household_snapshot
         self.tasks = tasks
         self.finance = finance
+        self.homelab_health = homelab_health
+
+    @classmethod
+    def systems_requested(cls, utterance: str) -> bool:
+        """Recognize a bounded systems read without routing arbitrary shell work."""
+
+        text = utterance.casefold()
+        return any(term in text for term in cls._SYSTEMS_TERMS)
 
     @classmethod
     def matches(cls, utterance: str) -> bool:
@@ -827,6 +863,7 @@ class CrossDomainPlanningFastPath:
                 or any(term in text for term in ("need to", "take care of", "prepare")),
                 finance_requested,
                 any(term in text for term in cls._FOOD_TERMS),
+                cls.systems_requested(text),
             )
         )
         return domains >= 2 and (
@@ -1023,6 +1060,9 @@ class CrossDomainPlanningFastPath:
                 if key in self.finance
             }
             planning["sources"] = (*cast(tuple[str, ...], planning["sources"]), "finance")
+        if self.homelab_health is not None:
+            planning["homelab_health"] = self.homelab_health
+            planning["sources"] = (*cast(tuple[str, ...], planning["sources"]), "homelab")
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
