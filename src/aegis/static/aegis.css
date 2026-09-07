@@ -281,6 +281,9 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .today-research-row { display: grid; gap: .25rem; padding: .7rem 0; border-top: 1px solid var(--line); }
 .today-research-row:first-of-type { border-top: 0; }
 .today-research-row p { margin: .15rem 0 0; max-width: 70ch; }
+.food-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .35rem; }
+.food-actions form { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; }
+.food-actions input { width: 7rem; min-width: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
