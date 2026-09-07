@@ -696,8 +696,12 @@ class FinanceReadFastPath:
         self,
         intent: IntentFrame,
         obligations: tuple[SharedObligation, ...] = (),
+        *,
+        allow_compound: bool = False,
     ) -> Result | None:
-        if not self.matches(intent.utterance):
+        if (not allow_compound and not self.matches(intent.utterance)) or (
+            allow_compound and self.amount_cents(intent.utterance) is None
+        ):
             return None
         purchase_cents = self.amount_cents(intent.utterance)
         if purchase_cents is None:

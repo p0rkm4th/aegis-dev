@@ -78,6 +78,7 @@ from aegis.household import (
     Chore,
     ChoreCompletionFastPath,
     ContextualChorePriorityFastPath,
+    GroceryItem,
     HouseholdEvent,
     HouseholdObligation,
     HouseholdReadFastPath,
@@ -3970,6 +3971,63 @@ def test_cross_domain_planning_recognizes_conjoined_finance_memory_read():
     )
 
 
+def test_cross_domain_planning_recognizes_food_and_finance_owner_question():
+    assert CrossDomainPlanningFastPath.matches(
+        "Show grocery needs and whether eighty dollars is affordable"
+    )
+
+
+def test_cross_domain_planning_projects_needed_groceries_without_inventing_quantity():
+    alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    personal = PersonalState()
+    space = HouseholdSpace("apartment", {alice.id})
+    space.grocery_items["rice-id"] = GroceryItem(
+        "rice-id", "rice", "rice", desired_quantity=6, unit="bags"
+    )
+    space.grocery_items["milk-id"] = GroceryItem("milk-id", "milk", "milk")
+    space.grocery_items["bought-id"] = GroceryItem(
+        "bought-id", "bread", "bread", desired_quantity=1, state="purchased"
+    )
+
+    result = CrossDomainPlanningFastPath(
+        personal,
+        space.snapshot(alice),
+        (),
+        {
+            "affordable": True,
+            "purchase_cents": 8000,
+            "shared_obligations_cents": 120,
+            "shortfall_cents": 0,
+            "purchase_currency": "USD",
+        },
+    ).resolve(
+        IntentFrame(
+            principal=alice,
+            utterance="Show grocery needs and whether eighty dollars is affordable",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["planning"]["grocery_items"] == [
+        {
+            "grocery_id": "rice-id",
+            "display_name": "rice",
+            "desired_quantity": 6,
+            "unit": "bags",
+            "state": "needed",
+        },
+        {
+            "grocery_id": "milk-id",
+            "display_name": "milk",
+            "desired_quantity": None,
+            "unit": None,
+            "state": "needed",
+        },
+    ]
+    assert result.evidence["planning"]["affordability"]["purchase_currency"] == "USD"
+    assert "balance_cents" not in repr(result.evidence["planning"])
+
+
 def test_cross_domain_planning_never_absorbs_compound_mutation():
     alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     result = CrossDomainPlanningFastPath(PersonalState(), {}, ()).resolve(
@@ -5113,6 +5171,20 @@ def test_finance_fast_path_yields_compound_questions_to_bounded_cognition():
     assert FinanceReadFastPath.amount_cents("Would spending twenty five dollars be okay?") == 2500
     assert FinanceReadFastPath.amount_cents("spend thirty-five bucks") == 3500
     assert FinanceReadFastPath.matches("Is it okay to spend thirty-five bucks?")
+
+
+def test_finance_fast_path_can_supply_derived_affordability_to_planning_only():
+    ledger = FinanceLedger()
+    ledger.record_snapshot(FinanceSnapshot("alice", (Account("checking", "alice", 10_000),)))
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="Show grocery needs and whether eighty dollars is affordable",
+    )
+    assert not FinanceReadFastPath.matches(intent.utterance)
+    result = FinanceReadFastPath(ledger).resolve(intent, allow_compound=True)
+    assert result is not None
+    assert result.evidence["purchase_cents"] == 8000
+    assert result.evidence["purchase_currency"] == "USD"
 
 
 def test_finance_fast_path_blocks_unsupported_general_balance_reads():

@@ -83,6 +83,16 @@ def test_groceries_workspace_communication_chain_is_non_authoritative() -> None:
     assert "does not imply delivery" in composition["authority"]
 
 
+def test_food_finance_affordability_composition_preserves_private_derived_boundary() -> None:
+    composition = next(
+        item for item in available_compositions() if item["id"] == "food-finance-affordability"
+    )
+    assert composition["surfaces"] == ("Food", "Finance")
+    assert "same-currency" in composition["authority"]
+    assert "raw private ledger rows remain private" in composition["authority"]
+    assert "no FX" in composition["authority"]
+
+
 def test_workspace_append_composition_is_owner_visible() -> None:
     composition = next(
         item for item in available_compositions() if item["id"] == "workspace-artifact-append"

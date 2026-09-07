@@ -399,6 +399,20 @@ def available_compositions() -> tuple[dict[str, object], ...]:
             ),
         },
         {
+            "id": "food-finance-affordability",
+            "label": "Food + Finance affordability",
+            "description": (
+                "Compare an explicit grocery-related purchase with the owner's private, "
+                "same-currency financial projection."
+            ),
+            "surfaces": ("Food", "Finance"),
+            "authority": (
+                "canonical grocery read + derived same-currency affordability only; raw private "
+                "ledger rows remain private, no FX or financial mutation, and Core authorization "
+                "still governs any later action"
+            ),
+        },
+        {
             "id": "calendar-task-attention-to-communication",
             "label": "Calendar + Tasks attention → Communication",
             "description": (
