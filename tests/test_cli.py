@@ -6228,6 +6228,8 @@ def test_browser_app_objectives_surface_exposes_capability_need_investigation_bo
     assert "do not install, enable, approve, grant permissions, or execute" in html
     assert "capability-needs/${needId}.md" in html
     assert "discovery does not grant installation" in html
+    assert "No candidate resolution is available yet" in html
+    assert "Research safe path" in html
 
 
 def test_browser_app_passes_optional_context_correlation_to_shared_boundary():
