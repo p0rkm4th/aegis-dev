@@ -4024,6 +4024,7 @@ def test_cross_domain_planning_projects_needed_groceries_without_inventing_quant
             "state": "needed",
         },
     ]
+    assert "grocery_items_omitted" not in result.evidence["planning"]
     assert result.evidence["planning"]["affordability"]["purchase_currency"] == "USD"
     assert "balance_cents" not in repr(result.evidence["planning"])
 

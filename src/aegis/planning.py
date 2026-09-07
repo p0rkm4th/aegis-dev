@@ -924,16 +924,16 @@ class CrossDomainPlanningFastPath:
         }
         if any(term in intent.utterance.casefold() for term in self._FOOD_TERMS):
             grocery_items = cast(tuple[Any, ...], self.household_snapshot.get("grocery_items", ()))
-            needed_groceries = tuple(
+            all_needed_groceries = tuple(
                 item for item in grocery_items if getattr(item, "state", "needed") == "needed"
-            )[: self._MAX_CONTEXT_ITEMS]
+            )
             if not grocery_items:
                 # Preserve compatibility with pre-stable-ID household snapshots while
                 # keeping legacy string rows explicitly quantity-unknown.
                 legacy_groceries = cast(
                     tuple[Any, ...], self.household_snapshot.get("groceries", ())
                 )
-                needed_groceries = tuple(
+                all_needed_groceries = tuple(
                     {
                         "grocery_id": None,
                         "display_name": str(item),
@@ -942,7 +942,8 @@ class CrossDomainPlanningFastPath:
                         "state": "needed",
                     }
                     for item in legacy_groceries
-                )[: self._MAX_CONTEXT_ITEMS]
+                )
+            needed_groceries = all_needed_groceries[: self._MAX_CONTEXT_ITEMS]
             planning["grocery_items"] = [
                 (
                     item
@@ -957,6 +958,9 @@ class CrossDomainPlanningFastPath:
                 )
                 for item in needed_groceries
             ]
+            omitted_groceries = len(all_needed_groceries) - len(needed_groceries)
+            if omitted_groceries:
+                planning["grocery_items_omitted"] = omitted_groceries
         if self.finance is not None:
             planning["affordability"] = {
                 key: self.finance[key]

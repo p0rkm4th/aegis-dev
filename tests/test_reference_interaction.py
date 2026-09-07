@@ -3339,6 +3339,7 @@ def test_reference_planning_display_includes_food_and_derived_affordability() ->
                         "state": "needed",
                     },
                 ],
+                "grocery_items_omitted": 1,
                 "affordability": {
                     "affordable": True,
                     "purchase_cents": 8000,
@@ -3350,7 +3351,7 @@ def test_reference_planning_display_includes_food_and_derived_affordability() ->
     )
 
     assert reference_format_result(result) == (
-        "Planning: groceries needed: rice (x6 bags); milk; "
+        "Planning: groceries needed: rice (x6 bags); milk; … and 1 more; "
         "affordable: yes (purchase $80.00; shared obligations $1.20)"
     )
 
