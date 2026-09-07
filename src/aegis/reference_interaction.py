@@ -1747,6 +1747,16 @@ def reference_format_result(result: Any) -> str:
         if state == "removed":
             return f"Done — removed {name} from groceries"
         return f"Done — updated grocery item {name}"
+    if evidence.get("collection") == "pantry" and isinstance(evidence.get("item"), dict):
+        item = evidence["item"]
+        name = item.get("display_name", "Pantry item")
+        quantity = item.get("quantity")
+        detail = (
+            "quantity unknown"
+            if quantity is None
+            else f"{quantity} {item.get('unit') or ''}".strip()
+        )
+        return f"Done — updated Pantry item {name} ({detail})"
     if evidence.get("item"):
         return f"Done — added {evidence['item']} to groceries"
     return f"Done — {result.message}"

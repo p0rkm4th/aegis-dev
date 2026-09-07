@@ -177,6 +177,21 @@ def test_reference_formatter_labels_pantry_items_as_pantry() -> None:
     assert reference_format_result(result) == "Pantry: Milk (2 carton), Rice (quantity unknown)"
 
 
+def test_reference_formatter_labels_pantry_mutations_as_pantry() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="canonical Pantry mutation verified",
+        correlation_id=uuid4(),
+        evidence={
+            "collection": "pantry",
+            "item": {"display_name": "Canned beans", "quantity": 3, "unit": "cans"},
+        },
+    )
+
+    assert reference_format_result(result) == "Done — updated Pantry item Canned beans (3 cans)"
+
+
 def test_grocery_read_fast_path_preserves_shopping_list_scope() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:
