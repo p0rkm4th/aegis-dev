@@ -318,6 +318,10 @@ def test_owner_corpus_covers_real_frontier_variants_without_sensitive_context():
     assert cases["show grocery needs and whether eighty dollars is affordable"] == frozenset(
         {"dynamic-food", "dynamic-finance"}
     )
+    assert cases["can I spend eighty dollars on groceries"] == frozenset({"dynamic-finance"})
+    assert cases[
+        "can I keep tonight's grocery trip under eighty dollars based on what we need"
+    ] == frozenset({"dynamic-food", "dynamic-finance"})
     assert cases["check groceries then tell me if Plex is down"] == frozenset(
         {"dynamic-food", "dynamic-homelab"}
     )
