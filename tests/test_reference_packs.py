@@ -25,6 +25,8 @@ from aegis.reference_packs import (
     FinanceSummaryVerifier,
     HomelabHealthExecutor,
     HomelabHealthVerifier,
+    HomelabInventoryExecutor,
+    HomelabInventoryVerifier,
     HomelabResearchExecutor,
     HomelabServicesHealthExecutor,
     HomelabServicesHealthVerifier,
@@ -939,6 +941,40 @@ def test_homelab_services_health_reads_and_rereads_unhealthy_state(monkeypatch) 
     assert observation.evidence["homelab_services_health"]["services"][0]["status"] == "unavailable"
     assert result.verified is True
     assert result.evidence["independent_services"][1]["status"] == "http_200"
+
+
+def test_homelab_inventory_reads_and_rereads_scoped_identity(monkeypatch) -> None:
+    inventory = SimpleNamespace(
+        hosts={
+            "acceptance-atlas": SimpleNamespace(
+                host_id="acceptance-atlas", hostname="atlas", status="unknown"
+            )
+        },
+        services={"acceptance-plex": Service("acceptance-plex", "acceptance-atlas", "Plex", "")},
+    )
+    monkeypatch.setattr(
+        reference_packs_module, "_canonical_homelab_inventory", lambda *_args: inventory
+    )
+    principal = Principal(id="alice", vault_id="alice-vault")
+    action = next(
+        card.action
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "homelab.inventory.read"
+    )
+    observation = HomelabInventoryExecutor(None, principal).execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="inventory-1"
+        )
+    )
+    result = HomelabInventoryVerifier(None, principal).verify(observation, action.verification)
+
+    assert observation.command_succeeded is True
+    assert observation.evidence["homelab_inventory"]["hosts"][0]["host_id"] == "acceptance-atlas"
+    assert result.verified is True
+    assert result.evidence["independent_inventory"]["services"][0]["service_id"] == (
+        "acceptance-plex"
+    )
 
 
 def test_device_controls_pack_returns_structured_scope_denial(monkeypatch) -> None:

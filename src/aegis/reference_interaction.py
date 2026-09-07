@@ -1366,6 +1366,28 @@ def reference_format_result(result: Any) -> str:
             if isinstance(item, dict)
         ]
         return "Service health:\n" + ("\n".join(rows) if rows else "(none configured)")
+    if isinstance(evidence.get("homelab_inventory"), dict):
+        inventory = evidence["homelab_inventory"]
+        hosts = inventory.get("hosts", [])
+        services = inventory.get("services", [])
+        host_rows = [
+            f"• {item.get('hostname', item.get('host_id', 'host'))} "
+            f"({item.get('host_id', 'unknown')}): {item.get('status', 'unknown')}"
+            for item in hosts
+            if isinstance(item, dict)
+        ]
+        service_rows = [
+            f"• {item.get('name', item.get('service_id', 'service'))} "
+            f"({item.get('service_id', 'unknown')}) on {item.get('host_id', 'unknown')}"
+            for item in services
+            if isinstance(item, dict)
+        ]
+        return (
+            "Systems:\nHosts:\n"
+            + ("\n".join(host_rows) if host_rows else "• (none)")
+            + "\nServices:\n"
+            + ("\n".join(service_rows) if service_rows else "• (none)")
+        )
     if evidence.get("obligations") is not None:
         obligations = evidence["obligations"]
         outstanding = [item for item in obligations if not item["settled"]]

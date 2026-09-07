@@ -1251,6 +1251,18 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="homelab.inventory.read",
+                        capability="homelab.inventory.read",
+                        required_permissions=("homelab.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary=(
+                        "Read and independently verify the authorized Host and Service inventory"
+                    ),
+                    relevance=1,
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="homelab.service.health",
                         capability="homelab.service.health",
                         required_permissions=("homelab.read",),
@@ -3294,6 +3306,113 @@ def _canonical_homelab_services(connection: Any, principal: Principal) -> tuple[
 
     pack = PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
     return tuple(sorted(pack.services.values(), key=lambda service: service.service_id))
+
+
+def _canonical_homelab_inventory(connection: Any, principal: Principal) -> Any:
+    """Load the complete Principal-scoped Homelab inventory for a read."""
+
+    return PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
+
+
+class HomelabInventoryExecutor:
+    """Read canonical Hosts and Services without reachability or write authority."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        try:
+            inventory = _canonical_homelab_inventory(self.connection, self.principal)
+            hosts = [
+                {
+                    "host_id": host.host_id,
+                    "hostname": host.hostname,
+                    "status": host.status,
+                }
+                for host in sorted(inventory.hosts.values(), key=lambda item: item.host_id)
+            ]
+            services = [
+                {
+                    "service_id": service.service_id,
+                    "name": service.name,
+                    "host_id": service.host_id,
+                }
+                for service in sorted(inventory.services.values(), key=lambda item: item.service_id)
+            ]
+        except (PermissionError, ValueError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"homelab_inventory": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={"homelab_inventory": {"hosts": hosts, "services": services}},
+            command_succeeded=True,
+        )
+
+
+class HomelabInventoryVerifier:
+    """Reload canonical inventory independently and compare the complete read."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("homelab_inventory")
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab inventory read failed",
+            )
+        if not isinstance(evidence, dict):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab inventory shape failed",
+            )
+        try:
+            inventory = _canonical_homelab_inventory(self.connection, self.principal)
+            expected = {
+                "hosts": [
+                    {
+                        "host_id": host.host_id,
+                        "hostname": host.hostname,
+                        "status": host.status,
+                    }
+                    for host in sorted(inventory.hosts.values(), key=lambda item: item.host_id)
+                ],
+                "services": [
+                    {
+                        "service_id": service.service_id,
+                        "name": service.name,
+                        "host_id": service.host_id,
+                    }
+                    for service in sorted(
+                        inventory.services.values(), key=lambda item: item.service_id
+                    )
+                ],
+            }
+        except (PermissionError, ValueError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "reason": str(exc)},
+                reason="Homelab inventory scope failed",
+            )
+        observed = {key: evidence.get(key) for key in expected}
+        verified = observed == expected
+        return VerificationResult(
+            verified=verified,
+            evidence={**observation.evidence, "independent_inventory": expected},
+            reason="Homelab inventory independently verified"
+            if verified
+            else "Homelab inventory readback failed",
+        )
 
 
 class HomelabServicesHealthExecutor:

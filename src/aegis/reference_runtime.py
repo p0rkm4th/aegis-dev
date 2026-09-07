@@ -86,6 +86,8 @@ from .reference_packs import (
     HomelabHealthExecutor,
     HomelabHealthVerifier,
     HomelabHealthWorkspaceExecutor,
+    HomelabInventoryExecutor,
+    HomelabInventoryVerifier,
     HomelabResearchExecutor,
     HomelabResearchVerifier,
     HomelabServicesHealthExecutor,
@@ -300,6 +302,13 @@ def default_runtime_registry(
         return ActionRuntime(
             HomelabServicesHealthExecutor(connection, principal),
             HomelabServicesHealthVerifier(connection, principal),
+            {"homelab.read": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def homelab_inventory_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            HomelabInventoryExecutor(connection, principal),
+            HomelabInventoryVerifier(connection, principal),
             {"homelab.read": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
@@ -862,6 +871,7 @@ def default_runtime_registry(
         "kitchen.groceries.mark_purchased": grocery_state_runtime,
         "kitchen.groceries.remove": grocery_state_runtime,
         "homelab.service.restart": homelab_runtime,
+        "homelab.inventory.read": homelab_inventory_runtime,
         "homelab.service.health": homelab_health_runtime,
         "homelab.services.health": homelab_services_health_runtime,
         "homelab-research.service.explain": homelab_research_runtime,
