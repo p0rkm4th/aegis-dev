@@ -1683,6 +1683,7 @@ function appendTodayOverview(panel, payload) {
   const groceryItems = Array.isArray(canonical.grocery_items)
     ? canonical.grocery_items.filter(item => item && item.state !== 'purchased' && item.state !== 'removed')
     : (canonical.groceries || []);
+  const pantryItems = Array.isArray(canonical.pantry_items) ? canonical.pantry_items : [];
   const items = [
     {
       label: 'Open tasks', count: (canonical.open_tasks || []).length, view: 'tasks',
@@ -1701,6 +1702,10 @@ function appendTodayOverview(panel, payload) {
       count: groceryItems.length,
       view: 'household',
       attention: groceryItems.length > 0,
+    },
+    {
+      label: 'Pantry records', count: pantryItems.length, view: 'household',
+      attention: false,
     },
     {
       label: 'Capability needs', count: (payload.capability_needs || []).length, view: 'objectives',
