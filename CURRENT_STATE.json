@@ -389,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Pursue a bounded Pack-first improvement that preserves wrong-action safety, or defer routing promotion and advance CapabilityNeed → Forge quarantine proof and Homelab read utility.",
+  "next_action": "Run the next bounded Pack-first safety-preserving experiment against the owner-real corpus, while continuing Homelab read utility; Forge review now exposes bounded research evidence without lifecycle authority.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
