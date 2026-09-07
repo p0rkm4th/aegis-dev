@@ -773,7 +773,7 @@ def _research_state(principal: Principal) -> dict[str, Any]:
         results: list[dict[str, Any]] = []
         for objective_id, state, raw_evidence, message, created_at in rows:
             evidence = raw_evidence if isinstance(raw_evidence, dict) else {}
-            research = evidence.get("research")
+            research = _find_research_evidence(evidence)
             if not isinstance(research, dict):
                 continue
             sources = research.get("sources", ())
@@ -790,13 +790,23 @@ def _research_state(principal: Principal) -> dict[str, Any]:
                 and source.get("title")
                 and source.get("url")
             ]
+            retrieved_at = research.get("retrieved_at")
+            if not isinstance(retrieved_at, str) or not retrieved_at:
+                retrieved_at = next(
+                    (
+                        source["retrieved_at"]
+                        for source in bounded_sources
+                        if source.get("retrieved_at")
+                    ),
+                    "",
+                )
             results.append(
                 {
                     "objective_id": str(objective_id),
                     "state": str(state),
                     "query": str(research.get("query", "")),
                     "provider_id": str(research.get("provider_id", "")),
-                    "retrieved_at": str(research.get("retrieved_at", "")),
+                    "retrieved_at": str(retrieved_at),
                     "summary": str(message or ""),
                     "sources": bounded_sources,
                     "evidence_status": "external evidence; not canonical personal truth",
@@ -816,6 +826,39 @@ def _research_state(principal: Principal) -> dict[str, Any]:
         }
     finally:
         connection.close()
+
+
+def _find_research_evidence(value: Any, *, depth: int = 0) -> dict[str, Any] | None:
+    """Find the bounded public-research envelope in a result projection.
+
+    Some Pack actions keep their evidence under a Pack-specific key (for
+    example ``homelab_research``), and bounded plans keep child evidence under
+    ``steps``.  The browser should expose the same source metadata regardless
+    of which existing Pack produced it, without projecting arbitrary action
+    evidence or private result bodies.
+    """
+
+    if depth > 2 or not isinstance(value, dict):
+        return None
+    if (
+        isinstance(value.get("query"), str)
+        and isinstance(value.get("provider_id"), str)
+        and isinstance(value.get("sources"), list)
+    ):
+        return value
+    for key in ("research", "homelab_research"):
+        nested = value.get(key)
+        found = _find_research_evidence(nested, depth=depth + 1)
+        if found is not None:
+            return found
+    steps = value.get("steps")
+    if isinstance(steps, list):
+        for step in steps[:5]:
+            if isinstance(step, dict):
+                found = _find_research_evidence(step.get("evidence"), depth=depth + 1)
+                if found is not None:
+                    return found
+    return None
 
 
 def _device_state(principal: Principal) -> dict[str, Any]:
@@ -3367,7 +3410,7 @@ def _browser_interaction(
             for step in raw_steps[:5]
             if isinstance(step, dict)
         )
-    research = result.evidence.get("research")
+    research = _find_research_evidence(result.evidence)
     if isinstance(research, dict) and isinstance(research.get("sources"), list):
         response["sources"] = tuple(
             {
