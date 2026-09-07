@@ -900,45 +900,53 @@ class CrossDomainPlanningFastPath:
         priorities.extend(f"chore: {chore.title}" for chore in open_chores)
         priorities.extend(f"personal memory: {memory.content}" for memory in memory_matches)
         planning: dict[str, object] = {
-            "goals": [
-                {
-                    "description": goal.description,
-                    "project": (
-                        projects.get(goal.project_id) if goal.project_id is not None else None
-                    ),
-                }
-                for goal in goals
-            ],
-            "open_obligations": [
-                {"title": item.title, "responsible_id": item.responsible_id}
-                for item in open_obligations
-            ],
-            "open_tasks": [
-                {
-                    "task_id": str(task.task_id),
-                    "title": task.title,
-                    "due_at": task.due_at.isoformat() if task.due_at is not None else None,
-                }
-                for task in open_tasks
-            ],
-            "open_chores": [
-                {"chore_id": str(chore.chore_id), "title": chore.title} for chore in open_chores
-            ],
-            "memories": [
-                {
-                    "content": memory.content,
-                    "occurred_at": memory.occurred_at.isoformat(),
-                    "provenance": memory.provenance.value,
-                }
-                for memory in memory_matches
-            ],
-            "priority_candidates": priorities,
             "sources": (
                 ("personal_vault", "household_space", "tasks_space")
                 if general_context_requested
                 else ("household_space",)
             ),
         }
+        if general_context_requested:
+            planning.update(
+                {
+                    "goals": [
+                        {
+                            "description": goal.description,
+                            "project": (
+                                projects.get(goal.project_id)
+                                if goal.project_id is not None
+                                else None
+                            ),
+                        }
+                        for goal in goals
+                    ],
+                    "open_obligations": [
+                        {"title": item.title, "responsible_id": item.responsible_id}
+                        for item in open_obligations
+                    ],
+                    "open_tasks": [
+                        {
+                            "task_id": str(task.task_id),
+                            "title": task.title,
+                            "due_at": task.due_at.isoformat() if task.due_at is not None else None,
+                        }
+                        for task in open_tasks
+                    ],
+                    "open_chores": [
+                        {"chore_id": str(chore.chore_id), "title": chore.title}
+                        for chore in open_chores
+                    ],
+                    "memories": [
+                        {
+                            "content": memory.content,
+                            "occurred_at": memory.occurred_at.isoformat(),
+                            "provenance": memory.provenance.value,
+                        }
+                        for memory in memory_matches
+                    ],
+                    "priority_candidates": priorities,
+                }
+            )
         if any(term in intent.utterance.casefold() for term in self._FOOD_TERMS):
             grocery_items = cast(tuple[Any, ...], self.household_snapshot.get("grocery_items", ()))
             all_needed_groceries = tuple(
