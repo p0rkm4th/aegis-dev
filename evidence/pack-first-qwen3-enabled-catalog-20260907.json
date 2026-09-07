@@ -1,0 +1,51 @@
+{
+  "kind": "pack-first-qwen3-enabled-catalog",
+  "source_sha": "086005b135103ff8e5ccc27c6dbae4d5414bde54",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "registry_packs": 32,
+  "enabled_catalog_entries": 32,
+  "corpus_cases": 24,
+  "variants": {
+    "incumbent_reference_fallback": {
+      "routing_recall": 0.10526315789473684,
+      "wrong_action_rate": 0.8947368421052632,
+      "clarification_rate": 0.0,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.0
+    },
+    "pack_first": {
+      "routing_recall": 0.3157894736842105,
+      "wrong_action_rate": 0.631578947368421,
+      "clarification_rate": 0.125,
+      "invalid_measurement_rate": 0.08333333333333333,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 3823.3333333333335,
+      "p50_latency_ms": 501.2325400020927,
+      "p95_latency_ms": 1663.6086190119386,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.42105263157894735,
+      "wrong_action_rate": 0.5789473684210527,
+      "clarification_rate": 0.16666666666666666,
+      "invalid_measurement_rate": 0.0,
+      "model_calls_per_case": 0.9166666666666666,
+      "prompt_bytes_per_case": 449.4166666666667,
+      "p50_latency_ms": 532.6424099039286,
+      "p95_latency_ms": 615.5840480932966,
+      "failure_category.lifecycle_authority_request": 2.0
+    }
+  },
+  "comparison": {
+    "previous_retrieval_assisted_recall": 0.7368421052631579,
+    "previous_retrieval_assisted_wrong_action_rate": 0.15789473684210525,
+    "interpretation": "This fresh run is non-promotable: retrieval-assisted routing regressed on both recall and wrong-action rate. The enabled-only catalog safety boundary remains covered by deterministic tests, but production routing is unchanged."
+  },
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false
+  }
+}
