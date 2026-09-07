@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
+  "state_basis_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
-  "deterministic_green_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
-  "last_pushed_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
-  "hosted_green_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
-  "hosted_ci_green_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
+  "repository_head_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "deterministic_green_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "last_pushed_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "hosted_green_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "hosted_ci_green_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
+    "commit_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
     "conclusion": "success",
-    "run_id": "34124173370",
-    "observed_at": "2026-09-07T12:52:34Z"
+    "run_id": "34124934321",
+    "observed_at": "2026-09-07T13:01:18Z"
   },
-  "installed_release_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
-  "running_release_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
-  "live_green_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
+  "installed_release_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "running_release_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
+  "live_green_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8089aebcb558d041d15bbee45c5742079e536fb8"
+    "release_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -58,6 +58,7 @@
     "today_recent_research": "Promoted Today loads up to three recent Principal-scoped public-research projections from /api/research, showing query, provider, bounded source count, retrieval time, and a non-canonical boundary without exposing action authority",
     "food_pantry_quantity_actions": "Promoted Food view offers a normal-Core form for recording an explicitly known Pantry quantity and stable-ID consume controls only for known quantities with optimistic version checks; unknown quantities remain visibly non-consumable and no browser direct-write path exists",
     "food_pantry_quantity_correction": "Promoted Food view lets the owner fill an unknown Pantry quantity through the existing stable-ID kitchen.pantry.update action, preserving omitted unit/location/best-by/minimum metadata and requiring the displayed optimistic version",
+    "food_pantry_quantity_owner_dogfood": "Owner Tailscale HTTPS dogfood on cf242eca completed a stable-ID Pantry quantity correction and independently reread the same PostgreSQL record; the owner response names Pantry accurately and reports 3.0 cans",
     "today_grocery_overview_owner": "Promoted 766688d Today overview includes a bounded Groceries needed card derived from canonical grocery_items, excludes purchased/removed rows, and links to the Household view without adding authority",
     "owner_presentation_assets": "Promoted owner shell presentation CSS is served from the existing static asset route; inline browser CSS was removed without changing Core/API/auth semantics",
     "owner_research_persistence": "Promoted owner Research view loads recent Principal-scoped bounded evidence from /api/research after navigation/reload, including direct and Pack-nested query, summary, sources, provider, retrieval time, and an explicit non-canonical boundary",
@@ -151,7 +152,7 @@
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
     "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "workspace_content_search_owner_response": "Promoted conversation formatting renders bounded Workspace search matches with workspace ID, relative path, and normalized snippet rather than a generic completion",
-    "ui_showable_alpha": "Owner Tailscale HTTPS proof on 8089aebcb: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance, Systems, and recent public-research slices, the Food view exposes explicit Pantry quantity correction plus stable-ID consume controls, and Finance exposes a bounded private spending query; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
+    "ui_showable_alpha": "Owner Tailscale HTTPS proof on cf242eca3: extracted CSS/JS return 200 with expected content types, Today serves bounded Finance, Systems, and recent public-research slices, the Food view exposes explicit Pantry quantity correction plus stable-ID consume controls, and Finance exposes a bounded private spending query; browser-computed-style and screenshot review remain unavailable because no browser executable is installed",
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
@@ -482,7 +483,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility on the promoted 8089aebcb owner surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
+  "next_action": "Continue owner-real utility on the promoted cf242eca3 owner surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
