@@ -128,6 +128,28 @@ def test_finance_spending_question_is_explicit_and_not_a_grocery_list_read() -> 
     assert FinanceSpendingFastPath.matches("Can I spend $80 on groceries tonight?") is False
 
 
+def test_reference_formatter_renders_capability_needs_as_review_only() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Capability Needs independently reread",
+        correlation_id=uuid4(),
+        evidence={
+            "capability_needs": [
+                {
+                    "requested_effect": "Set up a family server",
+                    "status": "owner_input_required",
+                }
+            ],
+            "status_filter": "owner_input_required",
+        },
+    )
+
+    assert reference_format_result(result) == (
+        "Capability needs requiring your input:\n• Set up a family server (owner_input_required)"
+    )
+
+
 def test_reference_formatter_labels_pantry_items_as_pantry() -> None:
     result = Result(
         objective_id=uuid4(),

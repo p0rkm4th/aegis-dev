@@ -1,6 +1,6 @@
 import socket
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import aegis.reference_packs as reference_packs_module
 from aegis.contracts import (
@@ -18,6 +18,8 @@ from aegis.homelab import Service
 from aegis.pack_lifecycle import PackBundle
 from aegis.reference_interaction import reference_format_result
 from aegis.reference_packs import (
+    CapabilityNeedsExecutor,
+    CapabilityNeedsVerifier,
     DeviceControlExecutor,
     DeviceControlVerifier,
     DocumentsExecutor,
@@ -47,6 +49,65 @@ from aegis.reference_packs import (
 )
 from aegis.reference_runtime import default_runtime_registry
 from aegis.workspace import WorkspaceManager
+
+
+def test_capability_needs_read_is_scoped_and_independently_reread() -> None:
+    principal = Principal(id="alice", vault_id="alice-vault")
+    need_id = "11111111-1111-4111-8111-111111111111"
+    objective_id = "22222222-2222-4222-8222-222222222222"
+    rows = [
+        (
+            objective_id,
+            "blocked",
+            {
+                "intent": {"utterance": "Set up the family server"},
+                "capability_needs": [
+                    {
+                        "need_id": need_id,
+                        "requested_effect": "Set up the family server",
+                        "reason": "No enabled capability covers this request.",
+                        "status": "owner_input_required",
+                        "investigation": "complete",
+                        "candidate_resolutions": [{"kind": "workspace_solution"}],
+                    }
+                ],
+            },
+        )
+    ]
+
+    class Cursor:
+        def fetchall(self):
+            return rows
+
+    class Connection:
+        def execute(self, query, parameters):
+            assert "principal_id = %s AND vault_id = %s" in query
+            assert parameters == ("alice", "alice-vault", "alice")
+            return Cursor()
+
+    card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "capabilities.needs.list"
+    )
+    action = card.action.model_copy(update={"arguments": {"status": "owner_input_required"}})
+    request = ExecutionRequest(
+        objective_id=UUID(objective_id),
+        action_id=UUID(need_id),
+        action=action,
+        idempotency_key="capability-needs-read-1",
+    )
+    executor = CapabilityNeedsExecutor(Connection(), principal)
+    verifier = CapabilityNeedsVerifier(Connection(), principal)
+    observation = executor.execute(request)
+
+    assert observation.command_succeeded is True
+    assert observation.evidence["capability_needs"][0]["requested_effect"] == (
+        "Set up the family server"
+    )
+    verification = verifier.verify(observation, action.verification)
+    assert verification.verified is True
 
 
 def test_calendar_conflicts_action_reports_bounded_overlap(monkeypatch) -> None:
@@ -414,6 +475,7 @@ def test_first_party_packs_use_the_generic_pack_bundle_contract() -> None:
         "air-quality",
         "air-quality-reports",
         "finance",
+        "capabilities",
     }
 
 
