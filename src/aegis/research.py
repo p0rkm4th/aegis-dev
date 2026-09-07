@@ -390,58 +390,85 @@ class WikipediaSearchProvider:
         meaningful = [word for word in words if word.casefold() not in stop_words]
         return " ".join(meaningful[:12]) or value
 
-    def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]:
-        query = urlencode(
-            {
-                "action": "query",
-                "list": "search",
-                "srsearch": self._search_query(request.query),
-                "format": "json",
-                "srlimit": request.limit,
-            }
+    @classmethod
+    def _search_queries(cls, value: str) -> tuple[str, ...]:
+        """Return one full query plus two bounded term-pair fallbacks.
+
+        Long owner requests often contain a useful public subject alongside
+        private planning language (for example, ``Palworld server for the
+        girls``).  The full query is tried first.  If Wikimedia has no result,
+        a maximum of two adjacent, high-information term pairs is tried.  This
+        is query shaping only: it neither broadens the evidence authority nor
+        feeds provider output into action selection.
+        """
+
+        primary = cls._search_query(value)
+        words = primary.split()
+        pairs = {f"{left} {right}": len(left) + len(right) for left, right in zip(words, words[1:])}
+        fallbacks = tuple(
+            query
+            for query, _score in sorted(
+                pairs.items(), key=lambda item: (-item[1], item[0].casefold())
+            )[:2]
+            if query != primary
         )
-        try:
-            http_request = Request(
-                f"{self.endpoint}?{query}",
-                headers={
-                    "Accept": "application/json",
-                    "User-Agent": "AEGIS bounded research/1.0 (+https://www.mediawiki.org/)",
-                },
+        return (primary, *fallbacks)
+
+    def search(self, request: SearchRequest) -> tuple[SearchCandidate, ...]:
+        for search_query in self._search_queries(request.query):
+            query = urlencode(
+                {
+                    "action": "query",
+                    "list": "search",
+                    "srsearch": search_query,
+                    "format": "json",
+                    "srlimit": request.limit,
+                }
             )
-            with urlopen(http_request, timeout=10.0) as response:
-                body = response.read(MAX_RESPONSE_BYTES + 1)
-            if len(body) > MAX_RESPONSE_BYTES:
-                raise RuntimeError("Wikimedia search response exceeds the bound")
-            payload = json.loads(body)
-        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
-            raise RuntimeError("Wikimedia search failed") from exc
-        raw_results = payload.get("query", {}).get("search") if isinstance(payload, dict) else None
-        if not isinstance(raw_results, list):
-            raise RuntimeError("Wikimedia returned no usable search results")
-        candidates: list[SearchCandidate] = []
-        for item in raw_results[: request.limit]:
-            if not isinstance(item, dict) or not isinstance(item.get("title"), str):
-                continue
-            title = item["title"].strip()
-            if not title:
-                continue
-            candidates.append(
-                SearchCandidate(
-                    title=title[:500],
-                    url=(
-                        "https://en.wikipedia.org/wiki/"
-                        + quote(title.replace(" ", "_"), safe="()'!,._-")
-                    ),
-                    snippet=(
-                        str(item["snippet"])[:2_000]
-                        if isinstance(item.get("snippet"), str)
-                        else None
-                    ),
+            try:
+                http_request = Request(
+                    f"{self.endpoint}?{query}",
+                    headers={
+                        "Accept": "application/json",
+                        "User-Agent": "AEGIS bounded research/1.0 (+https://www.mediawiki.org/)",
+                    },
                 )
+                with urlopen(http_request, timeout=10.0) as response:
+                    body = response.read(MAX_RESPONSE_BYTES + 1)
+                if len(body) > MAX_RESPONSE_BYTES:
+                    raise RuntimeError("Wikimedia search response exceeds the bound")
+                payload = json.loads(body)
+            except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+                raise RuntimeError("Wikimedia search failed") from exc
+            raw_results = (
+                payload.get("query", {}).get("search") if isinstance(payload, dict) else None
             )
-        if not candidates:
-            raise RuntimeError("Wikimedia returned no usable search results")
-        return tuple(candidates)
+            if not isinstance(raw_results, list):
+                raise RuntimeError("Wikimedia returned no usable search results")
+            candidates: list[SearchCandidate] = []
+            for item in raw_results[: request.limit]:
+                if not isinstance(item, dict) or not isinstance(item.get("title"), str):
+                    continue
+                title = item["title"].strip()
+                if not title:
+                    continue
+                candidates.append(
+                    SearchCandidate(
+                        title=title[:500],
+                        url=(
+                            "https://en.wikipedia.org/wiki/"
+                            + quote(title.replace(" ", "_"), safe="()'!,._-")
+                        ),
+                        snippet=(
+                            str(item["snippet"])[:2_000]
+                            if isinstance(item.get("snippet"), str)
+                            else None
+                        ),
+                    )
+                )
+            if candidates:
+                return tuple(candidates)
+        raise RuntimeError("Wikimedia returned no usable search results")
 
 
 class WikipediaDocumentFetcher:
