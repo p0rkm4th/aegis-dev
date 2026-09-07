@@ -1,0 +1,50 @@
+{
+  "artifact_type": "owner_finance_mixed_currency_read_proof",
+  "observed_at": "2026-09-07T05:50:00Z",
+  "source_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
+  "hosted_validation": {
+    "run_id": "34087498514",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "restart_recovered": true,
+    "postgres": "healthy",
+    "path": "authenticated Tailscale HTTPS /api/finance and /api/message"
+  },
+  "synthetic_fixture": {
+    "account_currencies": ["EUR", "USD"],
+    "transaction_currencies": ["EUR", "USD"],
+    "transaction_statuses": ["pending", "posted"],
+    "pending_provider_transaction_id": "owner-synthetic-eur-provider",
+    "pending_source_id": "owner-synthetic-eur-source",
+    "source_count": 2
+  },
+  "workflow": {
+    "finance_projection": {
+      "http_status": 200,
+      "provider_state": "available",
+      "separate_currency_buckets": true,
+      "pending_and_posted_separate": true,
+      "synthetic_pending_provider_and_source_preserved": true
+    },
+    "ordinary_owner_question": {
+      "utterance": "Can I spend $80 on groceries tonight?",
+      "http_status": 200,
+      "state": "completed",
+      "affordable": true,
+      "financial_mutation": false
+    },
+    "no_fx_boundary_probe": {
+      "utterance": "Can I spend $4999 on groceries tonight?",
+      "http_status": 200,
+      "state": "completed",
+      "affordable": false,
+      "separate_eur_balance_used_for_usd": false,
+      "financial_mutation": false
+    }
+  },
+  "boundary": "Synthetic owner-controlled state only; EUR is visible but never converted or aggregated into USD affordability. No real financial mutation or private ledger details are recorded."
+}
