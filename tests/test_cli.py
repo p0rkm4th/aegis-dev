@@ -6421,6 +6421,25 @@ def test_browser_app_today_surface_exposes_calendar_conflicts():
     assert "Make task: ${first} / ${second}" in html
 
 
+def test_browser_app_today_surface_keeps_grocery_identity_while_calming_repeated_rows():
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_args: "unused",
+        lambda _current: {"nodes": []},
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch("GET", "/")
+    assert status == 200
+    html = payload.decode() + _AEGIS_JS
+    assert "todayGroceryOverviewLabels" in html
+    assert "${group.count} entries" in html
+    assert "matching rows are grouped here, while Household keeps every stable grocery ID separately." in html
+    assert "Check grocery budget" in html
+    assert "Grocery budget amount in USD" in html
+    assert "Can I spend $${value.toFixed(2)} on groceries tonight?" in html
+    assert "it never estimates grocery prices or changes financial state" in html
+
+
 def test_browser_app_calendar_surface_exposes_provider_readback_update():
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),

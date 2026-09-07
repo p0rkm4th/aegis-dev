@@ -1529,10 +1529,32 @@ function appendTodayBrief(panel, payload) {
     ? canonical.grocery_items.filter(item => item && item.state !== 'purchased' && item.state !== 'removed')
     : (canonical.groceries || []);
   appendTodaySection(panel, 'Grocery list', groceryItems.length
-    ? groceryItems.slice(0, 8).map(item => `Grocery · ${todayRecordLabel(item)}`)
+    ? todayGroceryOverviewLabels(groceryItems, 8)
     : 'No groceries currently needed.');
+  if (groceryItems.length > 8) {
+    const groceryNote = document.createElement('p'); groceryNote.className = 'muted today-note';
+    groceryNote.textContent = 'The overview is bounded to eight groups; matching rows are grouped here, while Household keeps every stable grocery ID separately.';
+    panel.append(groceryNote);
+  }
   const recent = todayRecordLabels(canonical.completed_tasks, 'Completed', 5);
   appendTodaySection(panel, 'Recently completed', recent.length ? recent : 'No recent completions recorded.');
+}
+function todayGroceryOverviewLabels(items, limit) {
+  const groups = new Map();
+  (Array.isArray(items) ? items : []).forEach(item => {
+    const record = item && typeof item === 'object' ? item : {display_name: item};
+    const name = String(record.normalized_key || record.display_name || record.name || 'Unnamed grocery').trim();
+    const quantity = record.desired_quantity == null ? null : record.desired_quantity;
+    const unit = record.unit == null ? null : String(record.unit);
+    const key = JSON.stringify([name.toLowerCase(), quantity, unit]);
+    const group = groups.get(key);
+    if (group) group.count += 1;
+    else groups.set(key, {record, count: 1});
+  });
+  return [...groups.values()].slice(0, limit).map(group => {
+    const suffix = group.count > 1 ? ` · ${group.count} entries` : '';
+    return `Grocery · ${todayRecordLabel(group.record)}${suffix}`;
+  });
 }
 function appendTodayOverview(panel, payload) {
   const canonical = payload.canonical || {};
@@ -1618,7 +1640,25 @@ function appendTodayFinanceSummary(panel, payload) {
     const finance = document.querySelector('[data-view="finance"]');
     if (finance) finance.click();
   });
-  section.append(heading, freshness, settlement, boundary, open); panel.append(section);
+  const budgetForm = document.createElement('form'); budgetForm.className = 'today-budget-form';
+  budgetForm.setAttribute('aria-label', 'Check grocery budget from Today');
+  const budgetAmount = document.createElement('input'); budgetAmount.type = 'number';
+  budgetAmount.min = '0.01'; budgetAmount.step = '0.01'; budgetAmount.required = true;
+  budgetAmount.placeholder = 'Amount in USD'; budgetAmount.setAttribute('aria-label', 'Grocery budget amount in USD');
+  const budgetSubmit = document.createElement('button'); budgetSubmit.type = 'submit';
+  budgetSubmit.textContent = 'Check grocery budget';
+  budgetForm.append(budgetAmount, budgetSubmit);
+  budgetForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const value = Number(budgetAmount.value);
+    if (!Number.isFinite(value) || value <= 0) return;
+    document.getElementById('utterance').value =
+      `Can I spend $${value.toFixed(2)} on groceries tonight?`;
+    document.getElementById('chat').requestSubmit();
+  });
+  const budgetBoundary = document.createElement('p'); budgetBoundary.className = 'muted';
+  budgetBoundary.textContent = 'Uses private same-currency data and known obligations; it never estimates grocery prices or changes financial state.';
+  section.append(heading, freshness, settlement, boundary, open, budgetForm, budgetBoundary); panel.append(section);
 }
 function appendTodaySystemsSummary(panel, payload) {
   if (!payload || !Array.isArray(payload.services)) return;
