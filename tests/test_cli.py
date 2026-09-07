@@ -7456,6 +7456,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "today-systems-summary" in browser_source
     assert "appendTodaySystemsSummary" in browser_source
     assert "Systems needing attention" in browser_source
+    assert "All displayed canonical services report healthy and reachable." in browser_source
     assert "health does not grant action authority" in browser_source
     assert "renderStatusBadge('Health', health)" in browser_source
     assert "renderStatusBadge('Reachability', reachability)" in browser_source
