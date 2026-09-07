@@ -1277,6 +1277,38 @@ def reference_format_result(result: Any) -> str:
         if not rows:
             return f"Spending for {query}: no matching outflows in the private Finance snapshot."
         return f"Spending for {query}: " + "; ".join(rows)
+    if evidence.get("finance_summary_verified") is True and isinstance(
+        evidence.get("summary"), dict
+    ):
+        summary = evidence["summary"]
+        balances = summary.get("balances_by_currency", {})
+        balance_rows = (
+            [
+                f"{currency} {int(amount) / 100:.2f}"
+                for currency, amount in balances.items()
+                if isinstance(currency, str) and isinstance(amount, int)
+            ]
+            if isinstance(balances, dict)
+            else []
+        )
+        flow_rows: list[str] = []
+        flows = summary.get("cash_flow_by_currency", {})
+        if isinstance(flows, dict):
+            for currency, values in flows.items():
+                if not isinstance(currency, str) or not isinstance(values, dict):
+                    continue
+                for status in ("posted", "pending"):
+                    amount = values.get(status)
+                    if isinstance(amount, int):
+                        flow_rows.append(f"{currency} {status} {amount / 100:.2f}")
+        lines = ["Finance snapshot:"]
+        if balance_rows:
+            lines.append("Balances: " + "; ".join(balance_rows))
+        if flow_rows:
+            lines.append("Cash flow: " + "; ".join(flow_rows))
+        if len(lines) == 1:
+            lines.append("No balances or cash-flow rows are recorded.")
+        return "\n".join(lines)
     if evidence.get("canonical_items") is not None:
         items = evidence["canonical_items"]
         if evidence.get("collection") == "pantry":
