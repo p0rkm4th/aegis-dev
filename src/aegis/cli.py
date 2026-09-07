@@ -2592,6 +2592,17 @@ def _deterministic_composition_action(
                 "action": card.action.model_copy(update={"arguments": calendar_draft.groupdict()})
             }
         )
+    services_health_request = re.fullmatch(
+        r"(?:what|which) services? (?:are|is) "
+        r"(?:down|unhealthy|unavailable|not healthy)(?: right now| currently)?[?!.,]?",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if services_health_request is not None:
+        card = manager.action_card("homelab", "homelab.services.health")
+        if card is None:
+            return None
+        return card
     health_request = re.fullmatch(
         r"(?:check|show) health of (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120})"
         r"|is (?:service )?(?P<service_name>[a-zA-Z0-9][a-zA-Z0-9_.-]{0,120}) "

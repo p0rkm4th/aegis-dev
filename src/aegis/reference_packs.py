@@ -1265,6 +1265,16 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         )
                     },
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="homelab.services.health",
+                        capability="homelab.services.health",
+                        required_permissions=("homelab.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Read and independently verify all authorized service health states",
+                    relevance=1,
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -3276,6 +3286,105 @@ class HomelabHealthVerifier:
             reason="Homelab health independently verified"
             if verified
             else "Homelab health readback failed",
+        )
+
+
+def _canonical_homelab_services(connection: Any, principal: Principal) -> tuple[Any, ...]:
+    """Load the complete Principal-scoped service set for a bounded read."""
+
+    pack = PostgresHomelabStore(connection).load(principal, _NoopHomelabRuntime())
+    return tuple(sorted(pack.services.values(), key=lambda service: service.service_id))
+
+
+class HomelabServicesHealthExecutor:
+    """Read every authorized service without adding action authority."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        try:
+            services = _canonical_homelab_services(self.connection, self.principal)
+            statuses = []
+            for service in services:
+                status = _health_read(service.health_endpoint)[1]
+                statuses.append(
+                    {
+                        "service_id": service.service_id,
+                        "name": service.name,
+                        "host_id": service.host_id,
+                        "status": status,
+                    }
+                )
+        except (PermissionError, ValueError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"homelab_services_health": "rejected", "reason": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={"homelab_services_health": {"services": statuses}},
+            command_succeeded=True,
+        )
+
+
+class HomelabServicesHealthVerifier:
+    """Independently reread each service and verify the observed status set."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        evidence = observation.evidence.get("homelab_services_health")
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab service health read failed",
+            )
+        if not isinstance(evidence, dict) or not isinstance(evidence.get("services"), list):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="Homelab service health shape failed",
+            )
+        try:
+            services = _canonical_homelab_services(self.connection, self.principal)
+            expected = {
+                service.service_id: {
+                    "service_id": service.service_id,
+                    "name": service.name,
+                    "host_id": service.host_id,
+                    "status": _health_read(service.health_endpoint)[1],
+                }
+                for service in services
+            }
+        except (PermissionError, ValueError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "reason": str(exc)},
+                reason="Homelab service scope failed",
+            )
+        observed = {
+            item.get("service_id"): item
+            for item in evidence["services"]
+            if isinstance(item, dict) and isinstance(item.get("service_id"), str)
+        }
+        verified = len(observed) == len(evidence["services"]) and observed == expected
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "independent_services": list(expected.values()),
+            },
+            reason="Homelab service statuses independently verified"
+            if verified
+            else "Homelab service status readback failed",
         )
 
 

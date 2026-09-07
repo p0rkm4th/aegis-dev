@@ -1357,6 +1357,15 @@ def reference_format_result(result: Any) -> str:
             f"Research for {service} ({status}) — no local cause confirmed; "
             f"bounded external context, not canonical truth:\n{answer}"
         )
+    if isinstance(evidence.get("homelab_services_health"), dict):
+        services = evidence["homelab_services_health"].get("services", [])
+        rows = [
+            f"• {item.get('name', item.get('service_id', 'service'))} "
+            f"({item.get('service_id', 'unknown')}): {item.get('status', 'unknown')}"
+            for item in services
+            if isinstance(item, dict)
+        ]
+        return "Service health:\n" + ("\n".join(rows) if rows else "(none configured)")
     if evidence.get("obligations") is not None:
         obligations = evidence["obligations"]
         outstanding = [item for item in obligations if not item["settled"]]
