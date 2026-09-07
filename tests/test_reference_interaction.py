@@ -107,7 +107,6 @@ def test_grocery_read_fast_path_does_not_substitute_shopping_list_for_inventory(
     principal = Principal(id="alice", vault_id="alice-vault")
     for utterance in (
         "What groceries do we have?",
-        "What's in the pantry?",
         "How much rice is left?",
     ):
         result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
@@ -116,6 +115,10 @@ def test_grocery_read_fast_path_does_not_substitute_shopping_list_for_inventory(
         assert result is not None
         assert result.state is ObjectiveState.BLOCKED
         assert "not pantry" in result.message
+
+
+def test_grocery_read_fast_path_yields_explicit_pantry_reads() -> None:
+    assert GroceryReadFastPath.matches("What's in the pantry?") is False
 
 
 def test_grocery_read_fast_path_preserves_shopping_list_scope() -> None:
