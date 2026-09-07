@@ -1123,7 +1123,7 @@ async function loadSystems() {
     };
     appendInventory('Canonical hosts', Array.isArray(payload.hosts) ? payload.hosts : [], host => [
       host.hostname || host.host_id || 'Unnamed host',
-      `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'} · identity ${host.provider_identity || 'not configured'} · evidence ${(host.identity_evidence || []).join(', ') || 'none'}`
+      `${host.host_id || 'unknown id'} · ${host.address || 'no address'} · ${host.status || 'unknown'} · last observed ${host.last_observed || 'unknown'} · identity ${host.provider_identity || 'not configured'} · evidence ${(host.identity_evidence || []).join(', ') || 'none'}`
     ]);
     appendInventory('Authorized network scopes', Array.isArray(payload.active_network_scopes) ? payload.active_network_scopes : [], scope => [
       scope.scope_id || 'Unnamed scope',

@@ -5266,6 +5266,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Can I afford $" in _AEGIS_JS
     assert "health_observed_at" in _AEGIS_JS
     assert "Host ${service.host_hostname || service.host_id" in _AEGIS_JS
+    assert "last observed ${host.last_observed || 'unknown'}" in _AEGIS_JS
     assert "service.host_status || 'unknown'" in _AEGIS_JS
     assert "service.health_source || 'no health source'" in _AEGIS_JS
     assert "service.host_identity_evidence || []" in _AEGIS_JS
