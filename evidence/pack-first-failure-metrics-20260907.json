@@ -1,0 +1,24 @@
+{
+  "artifact": "pack-first-failure-metrics",
+  "recorded_at": "2026-09-07",
+  "source_sha": "2adcdc47274ea611bdc94251c6a2c3a65419f0af",
+  "scope": "isolated deterministic Pack-first tournament harness",
+  "production_route_changed": false,
+  "measurements": {
+    "invalid_measurement_rate": 1.0,
+    "failure_category.ValueError": 1.0
+  },
+  "fixture": {
+    "request": "what is the weather",
+    "router_output": {
+      "status": "SELECTED",
+      "selected_pack_ids": ["missing-pack"]
+    },
+    "expected_behavior": "fail closed before execution and retain the classification"
+  },
+  "validation": {
+    "command": ".venv/bin/pytest -q tests/test_pack_first_experiment.py",
+    "result": "16 passed",
+    "interpretation": "This artifact proves measurement coverage, not Pack-first production superiority."
+  }
+}
