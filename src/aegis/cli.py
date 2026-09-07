@@ -1853,18 +1853,20 @@ def _deterministic_composition_action(
                 }
             )
     homelab_research = re.fullmatch(
-        r"research why (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]*) is unavailable[?!.,]?",
+        r"research why (?:service )?(?P<service>[a-zA-Z0-9][a-zA-Z0-9_.-]*) is "
+        r"(?:unavailable|down|offline|unreachable|not responding)[?!.,]?|"
+        r"why is (?:service )?(?P<why_service>[a-zA-Z0-9][a-zA-Z0-9_.-]*) "
+        r"(?:down|offline|unreachable|not responding|unavailable)[?!.,]?",
         text,
         flags=re.IGNORECASE,
     )
     if homelab_research is not None:
         card = manager.action_card("homelab-research", "homelab-research.service.explain")
         if card is not None:
+            service = homelab_research.group("service") or homelab_research.group("why_service")
             return card.model_copy(
                 update={
-                    "action": card.action.model_copy(
-                        update={"arguments": homelab_research.groupdict()}
-                    )
+                    "action": card.action.model_copy(update={"arguments": {"service": service}})
                 }
             )
     calendar_task_attention = re.fullmatch(

@@ -1981,7 +1981,10 @@ def resolve_reference_fast_paths(
     ):
         return None
     if re.fullmatch(
-        r"research why (?:service )?[a-zA-Z0-9][a-zA-Z0-9_.-]* is unavailable[?!.,]?",
+        r"research why (?:service )?[a-zA-Z0-9][a-zA-Z0-9_.-]* is "
+        r"(?:unavailable|down|offline|unreachable|not responding)[?!.,]?|"
+        r"why is (?:service )?[a-zA-Z0-9][a-zA-Z0-9_.-]* "
+        r"(?:down|offline|unreachable|not responding|unavailable)[?!.,]?",
         intent.utterance.strip(),
         flags=re.IGNORECASE,
     ):
