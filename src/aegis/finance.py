@@ -591,7 +591,10 @@ class FinanceLedger:
 class FinanceReadFastPath:
     """Deterministic affordability read using private state only below Core."""
 
-    _AMOUNT = re.compile(r"(?:\$\s*|usd\s*)(\d+(?:\.\d{1,2})?)", re.IGNORECASE)
+    _AMOUNT = re.compile(
+        r"(?:\$\s*|usd\s*)((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?)",
+        re.IGNORECASE,
+    )
     _SPOKEN_AMOUNT = re.compile(
         r"\b(?P<amount>(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
         r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
@@ -683,7 +686,7 @@ class FinanceReadFastPath:
 
         numeric = cls._AMOUNT.search(utterance)
         if numeric is not None:
-            return round(float(numeric.group(1)) * 100)
+            return round(float(numeric.group(1).replace(",", "")) * 100)
         spoken = cls._SPOKEN_AMOUNT.search(utterance)
         if spoken is None:
             return None
