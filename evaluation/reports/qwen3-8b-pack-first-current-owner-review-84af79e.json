@@ -1,0 +1,79 @@
+{
+  "experiment": "pack-first-current-owner-review",
+  "source_revision": "84af79eed7ed49895d6f0bba1f7762c458b74e50",
+  "corpus": {
+    "name": "OWNER_PACK_CORPUS",
+    "cases": 34,
+    "fresh_cases": [
+      "show me what groceries we still need and which services are down",
+      "can I keep tonight's grocery trip under eighty dollars based on what we need, and check why Plex is down"
+    ],
+    "domains": ["Food", "Finance", "Homelab", "Forge", "unsupported", "follow-up"]
+  },
+  "models": {
+    "router": {
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41"
+    },
+    "prefilter": {
+      "provider": "ollama",
+      "model": "nomic-embed-text:latest",
+      "digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+    }
+  },
+  "metrics": {
+    "incumbent": {
+      "routing_recall": 0.7586206896551724,
+      "wrong_action_rate": 0.2413793103448276,
+      "clarification_rate": 0.0,
+      "model_calls_per_case": 0.0,
+      "prompt_bytes_per_case": 0.0,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 0.02102798316627741,
+      "p95_latency_ms": 0.0260230153799057
+    },
+    "pack_first": {
+      "routing_recall": 0.3448275862068966,
+      "wrong_action_rate": 0.6206896551724138,
+      "clarification_rate": 0.11764705882352941,
+      "model_calls_per_case": 0.9411764705882353,
+      "prompt_bytes_per_case": 601.4705882352941,
+      "context_bytes_per_case": 0.0,
+      "invalid_measurement_rate": 0.029411764705882353,
+      "failure_category.lifecycle_authority_request": 2.0,
+      "failure_category.ValueError": 1.0,
+      "router_calls": 64,
+      "prompt_tokens": 10404,
+      "output_tokens": 1049,
+      "p50_latency_ms": 579.8361439956352,
+      "p95_latency_ms": 1002.7053399244323
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.3448275862068966,
+      "wrong_action_rate": 0.6206896551724138,
+      "clarification_rate": 0.08823529411764706,
+      "model_calls_per_case": 0.9411764705882353,
+      "prompt_bytes_per_case": 601.4705882352941,
+      "context_bytes_per_case": 0.0,
+      "invalid_measurement_rate": 0.029411764705882353,
+      "failure_category.lifecycle_authority_request": 2.0,
+      "failure_category.ValueError": 1.0,
+      "router_calls": 64,
+      "prompt_tokens": 10404,
+      "output_tokens": 1049,
+      "p50_latency_ms": 466.65346599183977,
+      "p95_latency_ms": 845.5383060500026
+    }
+  },
+  "decision": "retain_incumbent",
+  "reason": "Both Pack-first variants underperformed the unchanged incumbent on the fresh owner phrases and the complete corpus. No production routing change is authorized.",
+  "safety": {
+    "dynamic_pack_catalog_used": true,
+    "lifecycle_requests_fail_closed": true,
+    "production_route_changed": false,
+    "authority_granted": false,
+    "owner_data_exposed_to_router": false
+  },
+  "observed_at": "2026-09-07T11:12:00Z"
+}
