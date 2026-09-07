@@ -4082,12 +4082,21 @@ def test_run_interaction_unresolved_investigation_reports_installed_capabilities
 
 def test_default_runtime_registry_covers_kitchen_mutation(monkeypatch):
     from aegis import cli
-    from aegis.reference_packs import reference_bundles
+    from aegis.contracts import Principal
+    from aegis.reference_packs import PostgresGroceryAddExecutor, reference_bundles
 
     registry = cli._default_runtime_registry(lambda: object())
     assert "kitchen.groceries.add" in registry.action_ids()
     expected = {card.action.action_id for bundle in reference_bundles() for card in bundle.cards}
     assert set(registry.action_ids()) == expected
+    add_card = next(
+        card
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "kitchen.groceries.add"
+    )
+    runtime = registry.resolve(add_card, object(), Principal(id="alice", vault_id="vault"))
+    assert isinstance(runtime.executor, PostgresGroceryAddExecutor)
 
 
 def test_browser_interaction_threads_pack_runtime_registry_to_shared_boundary(monkeypatch):

@@ -6364,6 +6364,95 @@ class PostgresGroceryListVerifier:
         )
 
 
+class PostgresGroceryAddExecutor:
+    """Execute a local canonical grocery addition with idempotent storage."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "kitchen.groceries.add":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        item = request.action.arguments.get("item")
+        if not isinstance(item, str) or not item.strip():
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"reason": "item is required"},
+                command_succeeded=False,
+            )
+        try:
+            self.store.add_grocery(self.principal, item.strip(), request.idempotency_key)
+        except (KeyError, TypeError, ValueError, PermissionError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"error": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "groceries",
+                "item": item.strip(),
+                "idempotency_key": request.idempotency_key,
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresGroceryAddVerifier:
+    """Independently reread the canonical grocery mutation by idempotency key."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        item = observation.evidence.get("item")
+        idempotency_key = observation.evidence.get("idempotency_key")
+        if (
+            contract.kind != "readback"
+            or not observation.command_succeeded
+            or not isinstance(item, str)
+            or not isinstance(idempotency_key, str)
+        ):
+            return VerificationResult(
+                verified=False,
+                evidence=observation.evidence,
+                reason="canonical grocery mutation evidence is unavailable",
+            )
+        try:
+            recorded = self.store.grocery_recorded(self.principal, item, idempotency_key)
+            actual = list(self.store.list_grocery_items(self.principal))
+        except (KeyError, TypeError, ValueError, PermissionError) as exc:
+            return VerificationResult(
+                verified=False,
+                evidence={**observation.evidence, "readback_error": str(exc)},
+                reason="canonical grocery mutation readback failed",
+            )
+        present = any(record.display_name == item for record in actual)
+        verified = recorded and present
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "canonical_grocery_recorded": recorded,
+                "canonical_item_present": present,
+            },
+            reason=(
+                "canonical grocery mutation verified"
+                if verified
+                else "canonical grocery mutation changed or is unavailable"
+            ),
+        )
+
+
 class PostgresGroceryStateExecutor:
     """Execute bounded stable-ID grocery state transitions in canonical storage."""
 
