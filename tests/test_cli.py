@@ -5261,6 +5261,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "renderFoodCollection" in _AEGIS_JS
     assert "canonical.grocery_items || canonical.groceries" in _AEGIS_JS
     assert "quantity unknown" in _AEGIS_JS
+    assert "pantryDetails.unshift('out')" in _AEGIS_JS
+    assert "pantryDetails.unshift('low stock')" in _AEGIS_JS
     assert "best by ${item.best_by}" in _AEGIS_JS
     assert "minimum ${item.minimum_quantity}" in _AEGIS_JS
     assert "Groceries needed" in _AEGIS_JS

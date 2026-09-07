@@ -1606,6 +1606,10 @@ function renderFoodCollection(panel, title, items, kind) {
     if (kind === 'pantry') {
       const quantity = item.quantity == null ? 'quantity unknown' : `${item.quantity} ${item.unit || ''}`.trim();
       const pantryDetails = [quantity];
+      if (item.quantity === 0) pantryDetails.unshift('out');
+      else if (item.quantity != null && item.minimum_quantity != null && item.quantity <= item.minimum_quantity) {
+        pantryDetails.unshift('low stock');
+      }
       if (item.storage_location) pantryDetails.push(item.storage_location);
       if (item.best_by) pantryDetails.push(`best by ${item.best_by}`);
       if (item.minimum_quantity != null) {
