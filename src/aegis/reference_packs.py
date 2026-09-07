@@ -3287,7 +3287,14 @@ class HomelabHealthVerifier:
                 evidence={**observation.evidence, "reason": str(exc)},
                 reason="Homelab service scope failed",
             )
-        verified = healthy and status == "http_200"
+        expected_status = evidence.get("attempt_status")
+        expected_healthy = evidence.get("attempt_healthy")
+        verified = (
+            isinstance(expected_status, str)
+            and isinstance(expected_healthy, bool)
+            and status == expected_status
+            and healthy == expected_healthy
+        )
         return VerificationResult(
             verified=verified,
             evidence={

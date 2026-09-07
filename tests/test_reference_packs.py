@@ -14,6 +14,7 @@ from aegis.devices import FixtureDeviceGateway
 from aegis.documents import Document, FixtureDocumentProvider
 from aegis.homelab import Service
 from aegis.pack_lifecycle import PackBundle
+from aegis.reference_interaction import reference_format_result
 from aegis.reference_packs import (
     DeviceControlExecutor,
     DeviceControlVerifier,
@@ -903,6 +904,42 @@ def test_homelab_health_verifier_performs_independent_second_read(monkeypatch) -
     assert (
         HomelabHealthVerifier(None, principal).verify(observation, action.verification).verified
         is False
+    )
+
+
+def test_homelab_health_unavailable_state_is_verified_when_second_read_agrees(monkeypatch) -> None:
+    service = SimpleNamespace(service_id="acceptance-plex", health_endpoint="https://health.test")
+    monkeypatch.setattr("aegis.reference_packs._canonical_homelab_service", lambda *_args: service)
+    reads = iter(((False, "unavailable"), (False, "unavailable")))
+    monkeypatch.setattr("aegis.reference_packs._health_read", lambda _endpoint: next(reads))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    action = next(
+        card.action
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "homelab.service.health"
+    ).model_copy(update={"arguments": {"service": "acceptance-plex"}})
+    observation = HomelabHealthExecutor(None, principal).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="health-unavailable-1",
+        )
+    )
+    result = HomelabHealthVerifier(None, principal).verify(observation, action.verification)
+
+    assert result.verified is True
+    assert result.evidence["independent_status"] == "unavailable"
+    assert (
+        reference_format_result(
+            SimpleNamespace(
+                state=SimpleNamespace(value="completed"),
+                evidence=result.evidence,
+                message=result.reason,
+            )
+        )
+        == "Service health: acceptance-plex — unavailable"
     )
 
 

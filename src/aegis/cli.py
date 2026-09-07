@@ -2596,7 +2596,8 @@ def _deterministic_composition_action(
         )
     services_health_request = re.fullmatch(
         r"(?:what|which) services? (?:are|is) "
-        r"(?:down|unhealthy|unavailable|not healthy)(?: right now| currently)?[?!.,]?",
+        r"(?:down|unhealthy|unavailable|not healthy|healthy|up|available|reachable)"
+        r"(?: right now| currently)?[?!.,]?",
         text,
         flags=re.IGNORECASE,
     )
