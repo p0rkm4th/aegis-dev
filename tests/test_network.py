@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pytest
 
+from aegis.contracts import Principal
 from aegis.homelab import Host, classify_discovered_device
 from aegis.network import (
     AuthorizedNetworkScope,
     BoundedNetworkDiscovery,
     DiscoveredDevice,
     HomelabInventory,
+    PostgresNetworkStore,
     ScopeDenied,
 )
 
@@ -50,7 +54,10 @@ def test_bounded_discovery_returns_observations_without_promoting_hosts() -> Non
 
     found = BoundedNetworkDiscovery(probe, max_hosts=4, ports=(22, 443)).discover(inventory, "lab")
 
-    assert found == (DiscoveredDevice("192.0.2.2", services=("443",)),)
+    assert len(found) == 1
+    assert found[0].address == "192.0.2.2"
+    assert found[0].services == ("443",)
+    assert found[0].observed_at is not None
     assert len(seen) == 8
     assert inventory.devices == {}
 
@@ -96,5 +103,36 @@ def test_loopback_scope_does_not_turn_aliases_into_devices() -> None:
 
     found = BoundedNetworkDiscovery(probe, ports=(22, 443)).discover(inventory, "local")
 
-    assert found == (DiscoveredDevice("127.0.0.1", services=("22", "443")),)
+    assert len(found) == 1
+    assert found[0].address == "127.0.0.1"
+    assert found[0].services == ("22", "443")
+    assert found[0].observed_at is not None
     assert seen == [("127.0.0.1", 22), ("127.0.0.1", 443)]
+
+
+def test_postgres_network_load_preserves_discovery_observation_time():
+    observed_at = datetime(2026, 9, 6, 18, 30, tzinfo=timezone.utc)
+
+    class Connection:
+        def execute(self, query, params=()):
+            del params
+            if "SELECT 1" in query:
+                return type("Result", (), {"fetchone": lambda self: (1,)})()
+            if "network_scopes" in query:
+                return type("Result", (), {"fetchall": lambda self: []})()
+            if "network_devices" in query:
+                return type(
+                    "Result",
+                    (),
+                    {
+                        "fetchall": lambda self: [
+                            ("192.0.2.20", "observed-box", ["443"], observed_at)
+                        ]
+                    },
+                )()
+            raise AssertionError(f"unexpected query: {query}")
+
+    principal = Principal(id="alice", vault_id="alice-vault", space_ids=("lab",))
+    inventory = PostgresNetworkStore(Connection()).load(principal)
+
+    assert inventory.devices["192.0.2.20"].observed_at == observed_at
