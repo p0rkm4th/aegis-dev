@@ -1,0 +1,34 @@
+{
+  "artifact_type": "owner_grocery_add_proof",
+  "observed_at": "2026-09-07T06:28:59Z",
+  "source_sha": "97b2512c4c688b84b8f2e164a6cee408c6625e02",
+  "hosted_validation": {
+    "run_id": "34090789688",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "97b2512c4c688b84b8f2e164a6cee408c6625e02",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "healthy",
+    "path": "authenticated Tailscale HTTPS /api/message and /api/today"
+  },
+  "workflow": {
+    "utterance": "Add oat milk to groceries.",
+    "message_http_status": 200,
+    "state": "completed",
+    "detail": "canonical grocery mutation verified",
+    "grocery_id": "grocery-1c9ed3a4a207607c",
+    "display_name": "oat milk",
+    "normalized_key": "oat milk",
+    "state_after_add": "needed",
+    "desired_quantity": null,
+    "unit": null,
+    "post_restart_health_ready": true,
+    "post_restart_grocery_id": "grocery-1c9ed3a4a207607c",
+    "post_restart_state": "needed"
+  },
+  "boundary": "This is a local Principal-scoped canonical Food mutation. The local OpenClaw external adapter remains regression-covered but is not required for grocery-list state. Quantity and unit remain unknown; no quantity was invented, and no remote or financial mutation occurred."
+}
