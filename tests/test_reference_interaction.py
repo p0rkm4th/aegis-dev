@@ -156,6 +156,25 @@ def test_grocery_read_fast_path_preserves_shopping_list_scope() -> None:
     assert result.evidence["canonical_items"] == ["rice"]
 
 
+def test_grocery_read_fast_path_excludes_purchased_and_removed_stable_items() -> None:
+    class GroceryStore:
+        def list_groceries(self, _principal: object) -> tuple[str, ...]:
+            raise AssertionError("legacy grocery strings must not replace stable state")
+
+        def list_needed_groceries(self, _principal: object) -> tuple[str, ...]:
+            return ("rice",)
+
+    result = GroceryReadFastPath(cast(PostgresHouseholdStore, GroceryStore())).resolve(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="What groceries do we still need?",
+        )
+    )
+
+    assert result is not None
+    assert result.evidence["canonical_items"] == ["rice"]
+
+
 def test_grocery_read_fast_path_accepts_punctuated_topic_follow_up() -> None:
     class GroceryStore:
         def list_groceries(self, _principal: object) -> tuple[str, ...]:

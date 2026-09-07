@@ -377,6 +377,15 @@ class PostgresHouseholdStore:
         }
         return tuple(self.load(space_id, members).grocery_items.values())
 
+    def list_needed_groceries(self, principal: Principal) -> tuple[str, ...]:
+        """Read only current shopping needs, excluding purchased/removed records."""
+
+        return tuple(
+            item.display_name
+            for item in self.list_grocery_items(principal)
+            if item.state == "needed"
+        )
+
     def list_pantry_items(self, principal: Principal) -> tuple[PantryItem, ...]:
         """Read canonical Pantry records for an active Space member."""
         space_id = self._space_for(principal)
@@ -1380,6 +1389,12 @@ class GroceryReadFastPath:
                 evidence={"semantic_scope": "kitchen.shopping_list", "applicability": "CLARIFY"},
                 correlation_id=intent.correlation_id,
             )
+        list_needed = getattr(self.store, "list_needed_groceries", None)
+        canonical_items = (
+            list(list_needed(intent.principal))
+            if callable(list_needed)
+            else list(self.store.list_groceries(intent.principal))
+        )
         return Result(
             objective_id=uuid4(),
             state=ObjectiveState.COMPLETED,
@@ -1387,7 +1402,7 @@ class GroceryReadFastPath:
             evidence={
                 "collection": "groceries",
                 "semantic_scope": "kitchen.shopping_list",
-                "canonical_items": list(self.store.list_groceries(intent.principal)),
+                "canonical_items": canonical_items,
             },
             correlation_id=intent.correlation_id,
         )

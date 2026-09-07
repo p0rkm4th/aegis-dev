@@ -1709,9 +1709,13 @@ def build_reference_fallback_context(
     )
     if not any(marker in lowered for marker in canonical_markers):
         return Context(values=values, sources=context.sources)
-    facts["canonical_items"] = list(
-        dict.fromkeys(str(item) for item in household_store.list_groceries(principal))
-    )[:20]
+    list_needed = getattr(household_store, "list_needed_groceries", None)
+    groceries = (
+        list_needed(principal)
+        if callable(list_needed)
+        else household_store.list_groceries(principal)
+    )
+    facts["canonical_items"] = list(dict.fromkeys(str(item) for item in groceries))[:20]
     facts["canonical_item_scope"] = "kitchen.shopping_list"
     read_snapshot = getattr(household_store, "read_snapshot", None)
     snapshot = read_snapshot(principal) if callable(read_snapshot) else {}
@@ -2570,7 +2574,12 @@ def resolve_contextual_grocery_membership_read(
     prior_items = those.get("candidates")
     if not isinstance(prior_items, list) or not prior_items:
         return None
-    current_items = tuple(store.list_groceries(intent.principal))
+    list_needed = getattr(store, "list_needed_groceries", None)
+    current_items = tuple(
+        list_needed(intent.principal)
+        if callable(list_needed)
+        else store.list_groceries(intent.principal)
+    )
     unique_current_items = tuple(dict.fromkeys(current_items))
     matches = tuple(
         item
@@ -2632,7 +2641,12 @@ def resolve_contextual_grocery_quantity_read(
     prior_items = those.get("candidates")
     if not isinstance(prior_items, list) or not prior_items:
         return None
-    current_items = tuple(store.list_groceries(intent.principal))
+    list_needed = getattr(store, "list_needed_groceries", None)
+    current_items = tuple(
+        list_needed(intent.principal)
+        if callable(list_needed)
+        else store.list_groceries(intent.principal)
+    )
     matches = tuple(
         item
         for item in dict.fromkeys(current_items)
@@ -2696,7 +2710,12 @@ def resolve_contextual_grocery_other_read(
     anchor = prior_items[0]
     if not isinstance(anchor, str):
         return None
-    current_items = tuple(store.list_groceries(intent.principal))
+    list_needed = getattr(store, "list_needed_groceries", None)
+    current_items = tuple(
+        list_needed(intent.principal)
+        if callable(list_needed)
+        else store.list_groceries(intent.principal)
+    )
     other_items = tuple(
         item for item in dict.fromkeys(current_items) if item.casefold() != anchor.casefold()
     )
