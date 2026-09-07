@@ -1,0 +1,28 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "food-finance-affordability-owner-dogfood",
+  "source_sha": "1fcddce9cb2a92dc02b33873c479483044af2ec7",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "1fcddce9cb2a92dc02b33873c479483044af2ec7",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "request": {
+    "utterance": "Can I spend $80 on groceries tonight?",
+    "result": "completed",
+    "message_boundary": "private Finance summary independently reread",
+    "financial_mutation": false
+  },
+  "bounded_readback": {
+    "finance_endpoint": "/api/finance",
+    "finance_currency_buckets": ["USD"],
+    "finance_transaction_count": 1,
+    "food_endpoint": "/api/today",
+    "grocery_record_count": 6,
+    "pantry_low_record_count": 0,
+    "capability_need_count": 0,
+    "interpretation": "Food and private Finance remain separate canonical projections; no private ledger rows were copied into Food or Constellation."
+  }
+}
