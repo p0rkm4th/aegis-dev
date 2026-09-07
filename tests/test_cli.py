@@ -8581,6 +8581,112 @@ def test_browser_interaction_exposes_canonical_result_status(monkeypatch):
     assert payload["objective_id"] == str(result.objective_id)
 
 
+def test_browser_interaction_projects_pack_research_sources(monkeypatch):
+    from aegis import cli
+
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Homelab research verified",
+        correlation_id=uuid4(),
+        evidence={
+            "homelab_research": {
+                "query": "Plex software",
+                "provider_id": "fixture-research",
+                "sources": [
+                    {
+                        "source_id": "source-1",
+                        "title": "Plex",
+                        "url": "https://example.test/plex",
+                        "retrieved_at": "2026-09-07T12:00:00+00:00",
+                    }
+                ],
+            }
+        },
+    )
+    monkeypatch.setattr(cli, "run_interaction", lambda *_: result)
+
+    payload = cli._browser_interaction(
+        "Research why service acceptance-plex is unavailable",
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",)),
+    )
+
+    assert payload["sources"] == (
+        {
+            "source_id": "source-1",
+            "title": "Plex",
+            "url": "https://example.test/plex",
+            "retrieved_at": "2026-09-07T12:00:00+00:00",
+        },
+    )
+
+
+def test_research_state_projects_nested_pack_research_sources(monkeypatch):
+    from aegis import cli
+
+    objective_id = uuid4()
+    created_at = datetime(2026, 9, 7, 12, tzinfo=timezone.utc)
+    source = {
+        "source_id": "source-1",
+        "title": "Plex",
+        "url": "https://example.test/plex",
+        "retrieved_at": created_at.isoformat(),
+    }
+
+    class Query:
+        def fetchall(self):
+            return [
+                (
+                    objective_id,
+                    "completed",
+                    {
+                        "steps": [
+                            {
+                                "evidence": {
+                                    "homelab_research": {
+                                        "query": "Plex software",
+                                        "provider_id": "fixture-research",
+                                        "sources": [source],
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "Homelab research verified",
+                    created_at,
+                )
+            ]
+
+    class Connection:
+        def execute(self, *_args, **_kwargs):
+            return Query()
+
+        def close(self):
+            pass
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+
+    projection = cli._research_state(
+        Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
+    )
+
+    assert projection["results"] == [
+        {
+            "objective_id": str(objective_id),
+            "state": "completed",
+            "query": "Plex software",
+            "provider_id": "fixture-research",
+            "retrieved_at": created_at.isoformat(),
+            "summary": "Homelab research verified",
+            "sources": [source],
+            "evidence_status": "external evidence; not canonical personal truth",
+            "recorded_at": created_at.isoformat(),
+        }
+    ]
+
+
 def test_cli_formats_safe_cross_domain_planning_summary():
     from aegis import cli
 
