@@ -1,0 +1,35 @@
+{
+  "artifact_type": "owner_today_pantry_truthful_overview",
+  "observed_at": "2026-09-07T11:31:00Z",
+  "source_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
+  "hosted_validation": {
+    "code_run_id": "34116630638",
+    "state_alignment_run_id": "34116903663",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded",
+    "restart_verified": true
+  },
+  "https_proof": {
+    "/api/today": {
+      "status": 200,
+      "authenticated": true,
+      "canonical_pantry_records": 1,
+      "canonical_low_stock_records": 0,
+      "canonical_unknown_quantity_records": 1,
+      "canonical_grocery_records": 8
+    },
+    "/static/aegis.js": {
+      "status": 200,
+      "today_pantry_renderer": true,
+      "unknown_quantity_boundary": true
+    }
+  },
+  "owner_claim_boundary": "Today surfaces the canonical Pantry record count and low-stock projection without treating unknown quantity as zero or low stock. The slice is display-only and performs no Food, Finance, or Homelab mutation."
+}
