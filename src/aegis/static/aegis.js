@@ -1556,8 +1556,9 @@ function todayRecordLabel(item) {
     item.utterance || item.event_title || item.service_id || 'Authorized record';
   const status = item.status && item.status !== 'open' ? ` · ${item.status}` : '';
   const due = item.due_at ? ` · due ${String(item.due_at).replace('T', ' ')}` : '';
+  const starts = item.starts_at ? ` · starts ${String(item.starts_at).replace('T', ' ')}` : '';
   const assignee = item.assignee_id ? ` · ${item.assignee_id}` : '';
-  return `${title}${status}${due}${assignee}`;
+  return `${title}${status}${due}${starts}${assignee}`;
 }
 function todayRecordLabels(items, prefix, limit) {
   return (Array.isArray(items) ? items : []).slice(0, limit).map(item =>
@@ -1579,8 +1580,15 @@ function appendTodayBrief(panel, payload) {
     attentionNote.textContent = 'Repeated task, chore, or capability labels are counted here for a calm overview; Tasks, Household, and Objectives retain each canonical record.';
     panel.append(attentionNote);
   }
-  const upNext = todayRecordLabels(canonical.upcoming_shared_events, 'Event', 6);
+  const upcomingEvents = Array.isArray(canonical.upcoming_shared_events)
+    ? canonical.upcoming_shared_events : [];
+  const upNext = todayEventOverviewLabels(upcomingEvents, 6);
   appendTodaySection(panel, 'Up next', upNext.length ? upNext : 'No upcoming events recorded.');
+  if (upcomingEvents.length > upNext.length) {
+    const eventNote = document.createElement('p'); eventNote.className = 'muted today-note';
+    eventNote.textContent = 'Matching title-and-time entries are grouped here; Calendar keeps each canonical event identity separately.';
+    panel.append(eventNote);
+  }
   const groceryItems = Array.isArray(canonical.grocery_items)
     ? canonical.grocery_items.filter(item => item && item.state !== 'purchased' && item.state !== 'removed')
     : (canonical.groceries || []);
@@ -1611,6 +1619,22 @@ function todayGroceryOverviewLabels(items, limit) {
   return [...groups.values()].slice(0, limit).map(group => {
     const suffix = group.count > 1 ? ` · ${group.count} entries` : '';
     return `Grocery · ${todayRecordLabel(group.record)}${suffix}`;
+  });
+}
+function todayEventOverviewLabels(items, limit) {
+  const groups = new Map();
+  (Array.isArray(items) ? items : []).forEach(item => {
+    const record = item && typeof item === 'object' ? item : {title: item};
+    const title = String(record.title || record.event_title || 'Authorized event').trim();
+    const starts = String(record.starts_at || record.start || '').trim();
+    const key = JSON.stringify([title.toLowerCase(), starts]);
+    const group = groups.get(key);
+    if (group) group.count += 1;
+    else groups.set(key, {record, count: 1});
+  });
+  return [...groups.values()].slice(0, limit).map(group => {
+    const suffix = group.count > 1 ? ` · ${group.count} matching events` : '';
+    return `Event · ${todayRecordLabel(group.record)}${suffix}`;
   });
 }
 function todayAttentionLabels(items, prefix, limit) {

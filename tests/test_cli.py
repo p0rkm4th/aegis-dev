@@ -6444,6 +6444,9 @@ def test_browser_app_today_surface_keeps_grocery_identity_while_calming_repeated
     assert "todayAttentionLabels" in html
     assert "${group.count} open records" in html
     assert "Tasks, Household, and Objectives retain each canonical record." in html
+    assert "todayEventOverviewLabels" in html
+    assert "${group.count} matching events" in html
+    assert "Calendar keeps each canonical event identity separately." in html
 
 
 def test_browser_app_calendar_surface_exposes_provider_readback_update():
