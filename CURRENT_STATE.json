@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "bd941c6",
+  "state_basis_sha": "9c0fac9",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "bd941c6",
-  "deterministic_green_sha": "bd941c6",
-  "last_pushed_sha": "bd941c6",
-  "hosted_green_sha": "bd941c6",
-  "hosted_ci_green_sha": "bd941c6",
+  "repository_head_sha": "9c0fac9",
+  "deterministic_green_sha": "9c0fac9",
+  "last_pushed_sha": "9c0fac9",
+  "hosted_green_sha": "9c0fac9",
+  "hosted_ci_green_sha": "9c0fac9",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "bd941c61778285269813e146dfa4a2ed5e371270",
+    "commit_sha": "9c0fac93d79a058e45c4abcff2688ba8fc8e424e",
     "conclusion": "success",
-    "run_id": "34089055592",
-    "observed_at": "2026-09-07T06:01:00Z"
+    "run_id": "34089974438",
+    "observed_at": "2026-09-07T06:15:00Z"
   },
-  "installed_release_sha": "bd941c6",
-  "running_release_sha": "bd941c6",
-  "live_green_sha": "bd941c6",
+  "installed_release_sha": "9c0fac9",
+  "running_release_sha": "9c0fac9",
+  "live_green_sha": "9c0fac9",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "bd941c61778285269813e146dfa4a2ed5e371270"
+    "release_sha": "9c0fac93d79a058e45c4abcff2688ba8fc8e424e"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -179,7 +179,8 @@
     ,"pack_first_post_finance_owner_reality": "Exact-source Qwen3:8B shadow run on 364b805 evaluated 26 owner-real cases, including Finance-only versus Food+Finance distinctions; pure and retrieval-assisted Pack-first remained non-promotable, so production cognition is unchanged"
     ,"systems_status_surface_owner": "Exact owner HTTPS proof on 9822a2d serves the structured Systems status presentation through Tailscale, with separate identity, reachability, health, authorization, and action-availability states; the authorized Plex observation remains unavailable and no action was invoked"
     ,"finance_state_surface_owner": "Exact owner HTTPS proof on a82e1ee serves explicit Finance transaction and import-coverage renderers through Tailscale; the Principal-scoped projection retains currency, settlement status, provider identity, and source identity without financial mutation"
-    ,"food_finance_dogfood_owner": "Exact owner HTTPS dogfood through the authenticated message path completed standalone grocery affordability and the bounded Food+Finance grocery-budget question; the evidence records workflow states only and invokes no financial mutation"
+    ,"food_finance_dogfood_owner": "Exact owner HTTPS dogfood through the authenticated message path completed standalone grocery affordability and the bounded Food+Finance grocery-budget question; the evidence records workflow states only and invokes no financial mutation",
+    "food_pantry_add_owner": "Exact owner HTTPS dogfood on 9c0fac9 completed Add canned beans to my pantry with an independently verified canonical Pantry readback; PostgreSQL restart preserved item_id pantry-8cca3b51ee24a660 and quantity/unit remained unknown"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
