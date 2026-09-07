@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "93f40ee",
+  "state_basis_sha": "364b805",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "93f40ee",
-  "deterministic_green_sha": "93f40ee",
-  "last_pushed_sha": "93f40ee",
+  "repository_head_sha": "364b805",
+  "deterministic_green_sha": "364b805",
+  "last_pushed_sha": "364b805",
   "hosted_green_sha": "93f40ee",
   "hosted_ci_green_sha": "93f40ee",
   "hosted_ci_attestation": {
@@ -168,6 +168,7 @@
     ,"food_finance_bounded_projection_owner": "Promoted owner HTTPS proof on eba2ae5 now renders only the requested grocery need and same-currency affordability facts; unrelated task/household/personal sections are omitted and private ledger rows remain absent"
     ,"food_state_target_grounding_owner": "Exact owner HTTPS proof on 50d206d blocks the ambiguous 'Mark rice as purchased' request before mutation because six canonical rice rows share the display name; all six remain needed, and stable-ID action affordances are now emitted by the Food surface"
     ,"food_state_surface_owner": "Exact owner HTTPS proof on 93f40ee serves the extracted Food UI assets and exposes stable-ID Mark purchased/Remove controls plus a separate Grocery history section; current canonical state remains unchanged"
+    ,"pack_first_post_finance_owner_reality": "Exact-source Qwen3:8B shadow run on 364b805 evaluated 26 owner-real cases, including Finance-only versus Food+Finance distinctions; pure and retrieval-assisted Pack-first remained non-promotable, so production cognition is unchanged"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
@@ -345,7 +346,8 @@
     "fresh post-Finance Pack-first owner-reality tournament retained the incumbent after Qwen3:8B shadow routing underperformed on new Food/Finance/Homelab/Forge cases",
     "owner dogfood on eba2ae5 confirmed the bounded Food + Finance projection is readable without unrequested empty domain sections",
     "owner dogfood on 50d206d confirmed ambiguous grocery state changes fail closed before mutation and require a stable item ID",
-    "owner HTTPS proof on 93f40ee confirmed the Food surface serves current-vs-history presentation and stable-ID controls"
+    "owner HTTPS proof on 93f40ee confirmed the Food surface serves current-vs-history presentation and stable-ID controls",
+    "fresh 364b805 Qwen3:8B Pack-first run covered the post-Finance Food/Finance distinction and retained the production incumbent after all variants misrouted the fresh cases"
   ],
   "current_blockers": [
     "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
@@ -409,7 +411,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-real Food/Finance/Homelab utility slice; Pack-first remains experimental and production cognition remains incumbent until a safer generalizing result exists.",
+  "next_action": "Rearm the next owner-real Food/Finance/Homelab utility slice; Pack-first remains experimental and production cognition remains incumbent after the 364b805 fresh Food/Finance evaluation.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
