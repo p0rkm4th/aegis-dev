@@ -1,0 +1,41 @@
+{
+  "checkpoint": "owner-food-finance-homelab-review",
+  "source_sha": "2e1693acce583cb44f533397097020eb6c285e19",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34108987068",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "2e1693acce583cb44f533397097020eb6c285e19",
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "owner_request": {
+    "workflow": "Food + Finance + Systems situation review",
+    "objective_id": "6ed2123d-15cf-4d3e-95aa-f57e220feb9",
+    "correlation_id": "ff14d201-bd38-4caf-b610-32d3d03d8720",
+    "state": "completed",
+    "result_boundary": [
+      "canonical grocery needs were bounded and grocery prices remained unavailable",
+      "Finance contributed derived same-currency affordability only",
+      "authorized service health was independently reread",
+      "the unavailable Plex observation did not claim a cause",
+      "no mutation was invoked"
+    ]
+  },
+  "adversarial_regression": {
+    "input_boundary": "unrelated down-payment wording is not treated as Homelab service context",
+    "production_cognition": "incumbent unchanged",
+    "pack_first": "experimental corpus only"
+  },
+  "owner_surface": {
+    "composition_id": "food-finance-homelab-review",
+    "available_through": "authenticated /api/compositions",
+    "authority": "read-only composition; graph and presentation visibility grant no authority"
+  },
+  "interpretation": "This is owner-path proof for one bounded read composition and an adversarial lexical regression, not evidence of financial mutation, infrastructure control, or a general compound-query capability."
+}
