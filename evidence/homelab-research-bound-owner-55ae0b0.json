@@ -1,0 +1,23 @@
+{
+  "evidence_type": "owner_dogfood",
+  "capability": "homelab-research.service.explain",
+  "source_sha": "55ae0b04e3e56430333a5d0f26b1734dac3616e1",
+  "hosted_run_id": "34103791815",
+  "owner_path": "authenticated Tailscale HTTPS /api/message",
+  "runtime_release_sha": "55ae0b04e3e56430333a5d0f26b1734dac3616e1",
+  "request": {
+    "utterance": "Why is Plex down?",
+    "state": "completed",
+    "detail": "Homelab state was reread and bounded external research is non-canonical",
+    "observed_service_status": "unavailable",
+    "external_evidence_sources": 1,
+    "canonical_local_cause_confirmed": false,
+    "mutation_invoked": false
+  },
+  "assertions": [
+    "the canonical acceptance-plex service is reread before public research",
+    "the public research result is bounded to one top result for the service question",
+    "public evidence remains non-canonical and cannot grant restart authority",
+    "the owner response preserves unavailable local state without claiming recovery"
+  ]
+}
