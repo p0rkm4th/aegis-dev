@@ -1,0 +1,29 @@
+{
+  "artifact_type": "owner_today_grocery_entry_promotion",
+  "observed_at": "2026-09-07T11:45:45Z",
+  "source_sha": "1760dc485397bc18ea74406f7e7cbdb97b06ab05",
+  "hosted_validation": {
+    "run_id": "34118143405",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "1760dc485397bc18ea74406f7e7cbdb97b06ab05",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded",
+    "restart_verified": true
+  },
+  "owner_readback": {
+    "api_today_status": 200,
+    "served_static_js_status": 200,
+    "grocery_entry_form": true,
+    "submission_route": "existing chat/Core interaction path",
+    "browser_direct_grocery_write": false,
+    "canonical_pantry_records": 1,
+    "canonical_unknown_quantity_records": 1,
+    "canonical_grocery_records": 8
+  },
+  "boundary": "Today provides a convenient explicit item entry point but delegates grounding, authorization, persistence, and verification to the existing Core interaction path."
+}
