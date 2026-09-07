@@ -90,6 +90,7 @@ OWNER_PACK_CORPUS: tuple[PackCase, ...] = (
     PackCase("which pantry items are low", frozenset({"dynamic-food"})),
     PackCase("can I afford eighty dollars for groceries", frozenset({"dynamic-finance"})),
     PackCase("which services are unhealthy", frozenset({"dynamic-homelab"})),
+    PackCase("what services are down", frozenset({"dynamic-homelab"})),
     PackCase("show authorized network observations", frozenset({"dynamic-homelab"})),
     PackCase("what should I do about this unsupported capability", frozenset({"dynamic-forge"})),
     PackCase("make a report from the host inventory", frozenset({"dynamic-homelab"})),
