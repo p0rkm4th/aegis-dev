@@ -278,8 +278,7 @@ def router_prompt(utterance: str, catalog: Sequence[PackCatalogEntry]) -> str:
     for entry in catalog:
         lines.append(
             f"- {entry.pack_id} | {entry.label} | {entry.category} | {entry.status.value} | "
-            f"capabilities: {', '.join(entry.capabilities[:6])} | "
-            f"summaries: {'; '.join(entry.action_summaries[:3])}"
+            f"capabilities: {', '.join(entry.capabilities[:6])}"
         )
     lines.append(
         'Return JSON only: {"status":"SELECTED|NO_VALID_PACK|NEED_CONTEXT|UNSUPPORTED",'

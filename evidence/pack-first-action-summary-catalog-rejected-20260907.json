@@ -1,0 +1,20 @@
+{
+  "kind": "pack-first-action-summary-catalog-experiment",
+  "source_sha": "54acc858bb2aef7c789141879827de2646192c20",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "corpus_cases": 24,
+  "change": "Included up to three existing ActionCard summaries per Pack in the router catalog line.",
+  "baseline_retrieval_assisted": {
+    "routing_recall": 0.7368421052631579,
+    "wrong_action_rate": 0.15789473684210525,
+    "prompt_bytes_per_case": 271.2916666666667
+  },
+  "variant_retrieval_assisted": {
+    "routing_recall": 0.7894736842105263,
+    "wrong_action_rate": 0.21052631578947367,
+    "prompt_bytes_per_case": 283.5416666666667
+  },
+  "decision": "REJECT",
+  "interpretation": "The summary metadata increased recall but worsened wrong-action rate and prompt size. The safety regression outweighs the recall gain; the catalog remains capability-only and production routing is unchanged."
+}
