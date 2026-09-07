@@ -7496,6 +7496,11 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "today-finance-summary" in browser_source
     assert "today-systems-summary" in browser_source
     assert "appendTodaySystemsSummary" in browser_source
+    assert "today-research-summary" in browser_source
+    assert "appendTodayResearchSummary" in browser_source
+    assert "Recent public research" in browser_source
+    assert "Public research is bounded external evidence" in browser_source
+    assert "Open Research" in browser_source
     assert "Systems needing attention" in browser_source
     assert (
         "Observed ${service.health_observed_at || 'unknown'} via "
