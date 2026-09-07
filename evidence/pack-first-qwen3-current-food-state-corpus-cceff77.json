@@ -1,0 +1,105 @@
+{
+  "kind": "pack-first-qwen3-current-food-state-corpus",
+  "source_sha": "cceff7701ded84139b5d2fbdb753967ae042d140",
+  "hosted_run_id": "34094906266",
+  "observed_at": "2026-09-07T07:23:23Z",
+  "model": "qwen3:8b",
+  "embedding_model": "nomic-embed-text:latest",
+  "endpoint_class": "owner-local-ollama",
+  "corpus_cases": 30,
+  "new_cases": [
+    "what groceries do we still need",
+    "what's in the pantry right now",
+    "did we already buy oat milk",
+    "can I keep tonight's grocery trip under eighty dollars based on what we still need"
+  ],
+  "variants": {
+    "incumbent": {
+      "routing_recall": 0.16,
+      "wrong_action_rate": 0.84,
+      "clarification_rate": 0.0,
+      "model_calls_per_case": 0.0,
+      "prompt_bytes_per_case": 0.0,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 0.0658979406580329,
+      "p95_latency_ms": 0.09268405847251415,
+      "invalid_measurement_rate": 0.0
+    },
+    "pack_first": {
+      "routing_recall": 0.36,
+      "wrong_action_rate": 0.6,
+      "clarification_rate": 0.1,
+      "model_calls_per_case": 0.9333333333333333,
+      "prompt_bytes_per_case": 3896.1666666666665,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 1050.4374779993668,
+      "p95_latency_ms": 2316.924648010172,
+      "invalid_measurement_rate": 0.06666666666666667,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.48,
+      "wrong_action_rate": 0.52,
+      "clarification_rate": 0.06666666666666667,
+      "model_calls_per_case": 0.9333333333333333,
+      "prompt_bytes_per_case": 839.1333333333333,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 625.5438899388537,
+      "p95_latency_ms": 911.3748390227556,
+      "invalid_measurement_rate": 0.03333333333333333,
+      "failure_category.ValueError": 1.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    }
+  },
+  "new_case_results": [
+    {
+      "utterance": "what groceries do we still need",
+      "expected_pack_ids": ["kitchen"],
+      "incumbent": {"selected_pack_ids": ["kitchen"], "correct": true},
+      "pack_first": {"selected_pack_ids": ["kitchen"], "correct": true},
+      "retrieval_assisted_pack_first": {"selected_pack_ids": ["kitchen"], "correct": true}
+    },
+    {
+      "utterance": "what's in the pantry right now",
+      "expected_pack_ids": ["kitchen"],
+      "incumbent": {"selected_pack_ids": ["kitchen"], "correct": true},
+      "pack_first": {"selected_pack_ids": ["kitchen"], "correct": true},
+      "retrieval_assisted_pack_first": {"selected_pack_ids": ["kitchen"], "correct": true}
+    },
+    {
+      "utterance": "did we already buy oat milk",
+      "expected_pack_ids": ["kitchen"],
+      "incumbent": {"selected_pack_ids": ["kitchen", "tasks"], "correct": false},
+      "pack_first": {"selected_pack_ids": [], "status": "NO_VALID_PACK", "correct": false},
+      "retrieval_assisted_pack_first": {"selected_pack_ids": ["kitchen"], "correct": true}
+    },
+    {
+      "utterance": "can I keep tonight's grocery trip under eighty dollars based on what we still need",
+      "expected_pack_ids": ["finance", "kitchen"],
+      "incumbent": {"selected_pack_ids": ["kitchen"], "correct": false},
+      "pack_first": {"selected_pack_ids": ["kitchen", "kitchen-reports"], "correct": false},
+      "retrieval_assisted_pack_first": {"selected_pack_ids": ["kitchen"], "correct": false}
+    }
+  ],
+  "router": {
+    "calls": 56,
+    "prompt_tokens": 29873,
+    "output_tokens": 1052,
+    "elapsed_ms": 54313.1
+  },
+  "new_case_probe": {
+    "router_calls": 8,
+    "prompt_tokens": 4108,
+    "output_tokens": 116,
+    "elapsed_ms": 4080.7,
+    "retrieval_assisted_routing_recall": 0.75
+  },
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false,
+    "catalog_source": "enabled reference Pack metadata only"
+  },
+  "interpretation": "The expanded corpus records a repeatable retrieval-assisted advantage on current grocery state wording, but no Pack-first variant meets the promotion bar on overall routing or the Food+Finance budget composition. Production cognition remains the incumbent; the experiment stays isolated."
+}
