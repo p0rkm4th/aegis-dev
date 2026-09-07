@@ -1,0 +1,52 @@
+{
+  "artifact_type": "owner_capability_need_forge_quarantine",
+  "observed_at": "2026-09-07T03:01:50Z",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "source_sha": "75f548b134f86dda1b70e40a88c36029f127fdc0",
+  "hosted_validation": {
+    "run_id": "34078023534",
+    "conclusion": "success"
+  },
+  "objective_id": "1012e91f-1ea7-4d96-97d0-a1a6a3cfbd19",
+  "need_id": "e832602c-4977-4d24-a9c7-67f1698086f2",
+  "requested_effect": "Set up a Terraria server for the family on easy mode.",
+  "owner_result": {
+    "need_status": "owner_input_required",
+    "candidate_kind": "workspace_solution",
+    "candidate_capability": "workspace.artifact.create",
+    "proposal_pack_id": "generated-set-up-a-terraria-server-for-the-family-on-easy",
+    "proposal_permissions": ["workspace.write"],
+    "proposal_dependencies": [],
+    "validation": "structurally_validated by the production PackBundle validator",
+    "generated_files": [
+      "README.md",
+      "__init__.py",
+      "pack_manifest.json",
+      "provenance/OSS.md",
+      "registry.py",
+      "runtime.py",
+      "tests/test_pack_contract.py",
+      "verifier.py"
+    ],
+    "quarantine_status_before_restart": "materialized",
+    "quarantine_status_after_restart": "already_materialized",
+    "quarantine_id": "1282de3cb627752e"
+  },
+  "restart": {
+    "service": "aegis-owner.service",
+    "status": "active",
+    "objective_need_survived": true,
+    "repeat_did_not_enter_active_registry": true
+  },
+  "active_pack_registry": {
+    "pack_count": 33,
+    "generated_pack_present": false
+  },
+  "boundaries": [
+    "Candidate metadata and research sources remained non-authoritative.",
+    "Generated runtime and verifier are NotImplementedError stubs and were not executed.",
+    "The candidate was not installed, enabled, authorized, or granted permissions.",
+    "Owner approval, implementation review, and Pack conformance remain required."
+  ],
+  "notes": "Owner HTTPS proof covers unsupported objective, owner selection, strict proposal validation, quarantined skeleton, restart persistence, and no active-registry mutation."
+}
