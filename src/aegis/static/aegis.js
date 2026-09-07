@@ -1391,6 +1391,33 @@ async function loadToday() {
       const systemsResponse = await fetchWithTimeout('/api/systems');
       if (systemsResponse.ok) appendTodaySystemsSummary(panel, await systemsResponse.json());
     } catch (_) { /* Systems is a bounded optional authorized Today slice. */ }
+    const crossDomainReview = document.createElement('section');
+    crossDomainReview.className = 'detail-card today-cross-domain-review';
+    const crossDomainHeading = document.createElement('h3');
+    crossDomainHeading.textContent = 'Review tonight';
+    const crossDomainDescription = document.createElement('p');
+    crossDomainDescription.className = 'muted';
+    crossDomainDescription.textContent =
+      'Ask one bounded read-only question about groceries and service health.';
+    const crossDomainButton = document.createElement('button');
+    crossDomainButton.type = 'button';
+    crossDomainButton.textContent = 'Review groceries and services';
+    crossDomainButton.addEventListener('click', () => {
+      document.getElementById('utterance').value =
+        'Show me what groceries we still need and which services are down.';
+      document.getElementById('chat').requestSubmit();
+    });
+    const crossDomainBoundary = document.createElement('p');
+    crossDomainBoundary.className = 'muted';
+    crossDomainBoundary.textContent =
+      'Food and Systems remain separate canonical reads; no purchase, restart, or financial mutation is performed.';
+    crossDomainReview.append(
+      crossDomainHeading,
+      crossDomainDescription,
+      crossDomainButton,
+      crossDomainBoundary,
+    );
+    panel.append(crossDomainReview);
     const technical = document.createElement('details');
     technical.className = 'today-technical detail-card';
     const technicalSummary = document.createElement('summary');
