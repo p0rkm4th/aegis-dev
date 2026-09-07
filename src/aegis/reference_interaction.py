@@ -1363,14 +1363,32 @@ def reference_format_result(result: Any) -> str:
         status = evidence.get("independent_status", health.get("attempt_status", "unknown"))
         return f"Service health: {service} — {status}"
     if isinstance(evidence.get("homelab_services_health"), dict):
-        services = evidence["homelab_services_health"].get("services", [])
+        health = evidence["homelab_services_health"]
+        services = health.get("services", [])
+        requested_status = health.get("requested_status")
+        if isinstance(requested_status, str) and requested_status.casefold() in {
+            "healthy",
+            "up",
+            "available",
+            "reachable",
+        }:
+            heading = "Healthy services"
+        elif isinstance(requested_status, str) and requested_status.casefold() in {
+            "down",
+            "unhealthy",
+            "unavailable",
+            "not healthy",
+        }:
+            heading = "Unhealthy services"
+        else:
+            heading = "Service health"
         rows = [
             f"• {item.get('name', item.get('service_id', 'service'))} "
             f"({item.get('service_id', 'unknown')}): {item.get('status', 'unknown')}"
             for item in services
             if isinstance(item, dict)
         ]
-        return "Service health:\n" + ("\n".join(rows) if rows else "(none configured)")
+        return f"{heading}:\n" + ("\n".join(rows) if rows else "(none configured)")
     if isinstance(evidence.get("homelab_inventory"), dict):
         inventory = evidence["homelab_inventory"]
         hosts = inventory.get("hosts", [])

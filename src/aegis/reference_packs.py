@@ -1286,6 +1286,12 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     ),
                     summary="Read and independently verify all authorized service health states",
                     relevance=1,
+                    argument_keys=("status",),
+                    argument_grounding={
+                        "status": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
                 ),
             ),
         ),
@@ -3223,6 +3229,19 @@ def _health_read(endpoint: str) -> tuple[bool, str]:
         return False, "unavailable"
 
 
+def _normalize_homelab_health_filter(value: object) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError("invalid Homelab health filter")
+    folded = value.casefold()
+    if folded in {"healthy", "up", "available", "reachable"}:
+        return "healthy"
+    if folded in {"down", "unhealthy", "unavailable", "not healthy"}:
+        return "unhealthy"
+    raise ValueError("invalid Homelab health filter")
+
+
 class HomelabHealthExecutor:
     def __init__(self, connection: Any, principal: Principal) -> None:
         self.connection = connection
@@ -3430,11 +3449,16 @@ class HomelabServicesHealthExecutor:
         self.principal = principal
 
     def execute(self, request: ExecutionRequest) -> Observation:
+        requested_status = request.action.arguments.get("status")
         try:
+            normalized_filter = _normalize_homelab_health_filter(requested_status)
             services = _canonical_homelab_services(self.connection, self.principal)
             statuses = []
             for service in services:
                 status = _health_read(service.health_endpoint)[1]
+                healthy = status == "http_200"
+                if normalized_filter is not None and healthy != (normalized_filter == "healthy"):
+                    continue
                 statuses.append(
                     {
                         "service_id": service.service_id,
@@ -3451,7 +3475,12 @@ class HomelabServicesHealthExecutor:
             )
         return Observation(
             execution_id=request.action_id,
-            evidence={"homelab_services_health": {"services": statuses}},
+            evidence={
+                "homelab_services_health": {
+                    "requested_status": requested_status,
+                    "services": statuses,
+                }
+            },
             command_succeeded=True,
         )
 
@@ -3481,15 +3510,21 @@ class HomelabServicesHealthVerifier:
             )
         try:
             services = _canonical_homelab_services(self.connection, self.principal)
-            expected = {
-                service.service_id: {
+            requested_status = evidence.get("requested_status")
+            normalized_filter = _normalize_homelab_health_filter(requested_status)
+            expected = {}
+            for service in services:
+                status = _health_read(service.health_endpoint)[1]
+                if normalized_filter is not None and (status == "http_200") != (
+                    normalized_filter == "healthy"
+                ):
+                    continue
+                expected[service.service_id] = {
                     "service_id": service.service_id,
                     "name": service.name,
                     "host_id": service.host_id,
-                    "status": _health_read(service.health_endpoint)[1],
+                    "status": status,
                 }
-                for service in services
-            }
         except (PermissionError, ValueError) as exc:
             return VerificationResult(
                 verified=False,
