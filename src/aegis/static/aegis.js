@@ -2280,6 +2280,7 @@ async function loadFinance() {
         document.getElementById('chat').requestSubmit();
       });
       affordability.append(affordabilityTitle, affordabilityHint, affordabilityForm); panel.append(affordability);
+      appendFinanceSpendingQuery(panel);
       const summary = payload.summary || {};
       const balances = Object.entries(summary.balances_by_currency || {}).map(([currency, amount]) =>
         `${currency} ${(Number(amount) / 100).toFixed(2)}`);
@@ -2305,6 +2306,25 @@ async function loadFinance() {
     boundary.textContent = payload.boundary || 'Finance is private Principal-scoped canonical state.';
     panel.append(boundary);
   } catch (_) { panel.textContent = 'Finance is unavailable; no financial state was changed.'; }
+}
+function appendFinanceSpendingQuery(panel) {
+  const section = document.createElement('section'); section.className = 'detail-card finance-spending-query';
+  const heading = document.createElement('h3'); heading.textContent = 'Explore private spending';
+  const hint = document.createElement('p'); hint.className = 'muted';
+  hint.textContent = 'Ask about a merchant or category using the private Finance projection; the original rows remain unchanged.';
+  const form = document.createElement('form'); form.setAttribute('aria-label', 'Explore private spending');
+  const query = document.createElement('input'); query.type = 'search'; query.maxLength = 80;
+  query.placeholder = 'e.g. groceries or hardware'; query.setAttribute('aria-label', 'Merchant or category'); query.required = true;
+  const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = 'Explore spending';
+  form.append(query, submit);
+  form.addEventListener('submit', event => {
+    event.preventDefault(); const value = query.value.trim(); if (!value) return;
+    document.getElementById('utterance').value = `What did I spend on ${value}?`;
+    document.getElementById('chat').requestSubmit();
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = 'Private, read-only, currency-separated, and grounded in the available Finance data; no payments or transfers are possible here.';
+  section.append(heading, hint, form, boundary); panel.append(section);
 }
 async function loadObjectives() {
   const panel = document.getElementById('detail');

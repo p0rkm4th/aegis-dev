@@ -7533,6 +7533,10 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     )
     assert "Open Finance for private detail" in browser_source
     assert "today-finance-summary" in browser_source
+    assert "appendFinanceSpendingQuery" in browser_source
+    assert "Explore private spending" in browser_source
+    assert "What did I spend on ${value}?" in browser_source
+    assert "no payments or transfers are possible here" in browser_source
     assert "today-systems-summary" in browser_source
     assert "appendTodaySystemsSummary" in browser_source
     assert "today-research-summary" in browser_source
