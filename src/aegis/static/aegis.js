@@ -1779,6 +1779,11 @@ function appendTodayFinanceSummary(panel, payload) {
   const posted = transactions.filter(transaction => transaction.status === 'posted').length;
   const freshness = document.createElement('p'); freshness.className = 'muted';
   freshness.textContent = `Currencies: ${currencies.join(', ') || 'unknown'} · As of: ${payload.captured_at || 'unknown'}`;
+  const coverage = Array.isArray(payload.summary?.coverage) ? payload.summary.coverage : [];
+  const coverageState = !coverage.length ? 'unknown' :
+    coverage.every(source => source && source.complete === true) ? 'complete' : 'partial or unknown';
+  const coverageLine = document.createElement('p'); coverageLine.className = 'muted';
+  coverageLine.textContent = `Import coverage: ${coverageState} · ${coverage.length || 'no'} source${coverage.length === 1 ? '' : 's'}`;
   const settlement = document.createElement('p'); settlement.className = 'muted';
   settlement.textContent = `Settlement: ${posted} posted · ${pending} pending · ${transactions.length} recent transaction${transactions.length === 1 ? '' : 's'}`;
   const boundary = document.createElement('p'); boundary.className = 'muted';
@@ -1806,7 +1811,7 @@ function appendTodayFinanceSummary(panel, payload) {
   });
   const budgetBoundary = document.createElement('p'); budgetBoundary.className = 'muted';
   budgetBoundary.textContent = 'Uses private same-currency data and known obligations; it never estimates grocery prices or changes financial state.';
-  section.append(heading, freshness, settlement, boundary, open, budgetForm, budgetBoundary); panel.append(section);
+  section.append(heading, freshness, coverageLine, settlement, boundary, open, budgetForm, budgetBoundary); panel.append(section);
 }
 function appendTodaySystemsSummary(panel, payload) {
   if (!payload || !Array.isArray(payload.services)) return;

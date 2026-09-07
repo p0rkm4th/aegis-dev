@@ -7487,6 +7487,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Needs attention" in browser_source
     assert "Recently completed" in browser_source
     assert "Private Finance snapshot" in browser_source
+    assert "Import coverage: ${coverageState}" in browser_source
+    assert "partial or unknown" in browser_source
     assert (
         "Currencies remain separate; AEGIS does not convert or combine balances." in browser_source
     )
