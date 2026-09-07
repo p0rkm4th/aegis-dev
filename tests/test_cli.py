@@ -3582,6 +3582,91 @@ def test_interaction_boundary_persists_fast_path_result_for_status_recovery(monk
     assert replay == first
 
 
+def test_interaction_boundary_persists_capability_need_when_investigation_fails(monkeypatch):
+    from aegis import interaction
+
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+
+    class QueryResult:
+        def fetchone(self):
+            return None
+
+        def fetchall(self):
+            return []
+
+    class Connection:
+        def close(self):
+            pass
+
+        def execute(self, *_args, **_kwargs):
+            return QueryResult()
+
+    class Store:
+        def __init__(self):
+            self.objective = None
+            self.result = None
+
+        def get_objective_by_correlation(self, _correlation, _principal):
+            return None
+
+        def correlation_bound(self, _correlation):
+            return False
+
+        def save_objective(self, objective):
+            self.objective = objective
+
+        def save_result(self, _key, result):
+            self.result = result
+
+    store = Store()
+    monkeypatch.setattr(interaction, "PostgresObjectiveStore", lambda _connection: store)
+    boundary = InteractionBoundary(
+        InteractionDependencies(
+            connect=lambda _url: Connection(),
+            required=lambda name: (
+                "postgresql://example" if name == "AEGIS_DATABASE_URL" else "http://ollama.example"
+            ),
+            apply_migrations=lambda _connection: None,
+            ensure_local_identity=lambda _connection, _principal: None,
+            select_action=lambda _utterance, _manager: (_ for _ in ()).throw(
+                InteractionInputError("semantic action resolution required")
+            ),
+            openclaw_channel=lambda: None,
+            local_identity=lambda: False,
+            fallback_card_selector=lambda *_args: (),
+            plan_runner=lambda *_args: None,
+            unresolved_requirement_investigator=lambda *_args: Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.FAILED,
+                message="research provider unavailable",
+                evidence={"authoritative": False},
+                correlation_id=correlation_id,
+                retryable=True,
+            ),
+        )
+    )
+    monkeypatch.setattr(
+        boundary,
+        "_fallback_decision",
+        lambda *_args: Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification=(
+                "I could not map that consequential objective to an available task capability."
+            ),
+        ),
+    )
+
+    result = boundary.run("Set up a server", principal, correlation_id)
+
+    assert result.state is ObjectiveState.FAILED
+    assert result.evidence["capability_needs"][0]["status"] == "open"
+    assert result.evidence["capability_needs"][0]["requested_effect"] == ("Set up a server")
+    assert store.objective is not None
+    assert len(store.objective.capability_needs) == 1
+    assert store.objective.capability_needs[0].requested_effect == "Set up a server"
+
+
 def manager_with_reference_cards() -> PackManager:
     manager = PackManager()
     for pack in reference_packs():
