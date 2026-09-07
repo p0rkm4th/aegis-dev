@@ -1,0 +1,23 @@
+{
+  "kind": "owner-food-finance-dogfood",
+  "source_sha": "a82e1eec6a1fd0b2263a77acfade05d59069c6ee",
+  "repository_evidence_sha": "268c62beeb6caf4394a9c893c9753f55edae3384",
+  "hosted_run_id": "34083405047",
+  "observed_at": "2026-09-07T04:32:43Z",
+  "owner_path": "Tailscale HTTPS /api/message",
+  "runtime": {
+    "release_sha": "a82e1eec6a1fd0b2263a77acfade05d59069c6ee",
+    "service": "aegis-owner.service",
+    "postgres_healthy": true
+  },
+  "workflows": [
+    {"request_class": "standalone grocery affordability", "http_status": 200, "state": "completed", "mutation": false},
+    {"request_class": "bounded Food+Finance grocery budget", "http_status": 200, "state": "completed", "mutation": false}
+  ],
+  "privacy": {
+    "private_amounts_recorded": false,
+    "ledger_rows_recorded": false,
+    "evidence_is_bounded_workflow_metadata": true
+  },
+  "interpretation": "The promoted owner can answer the two real Food/Finance read workflows through the normal authenticated interaction path. This evidence makes no claim about financial mutation and records no private ledger values."
+}
