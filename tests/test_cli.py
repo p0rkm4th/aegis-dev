@@ -5373,6 +5373,52 @@ def test_browser_app_exposes_objective_capability_needs():
     assert json.loads(payload)["objectives"][0]["capability_needs"][0]["status"] == "open"
 
 
+def test_objectives_projection_exposes_forge_review_without_lifecycle_authority(monkeypatch):
+    from aegis import cli
+
+    class Result:
+        def fetchall(self):
+            return [
+                (
+                    "objective-1",
+                    "blocked",
+                    {
+                        "intent": {"utterance": "Set up an unsupported service"},
+                        "capability_needs": [
+                            {
+                                "requested_effect": "service setup",
+                                "requires_owner_input": True,
+                                "candidate_resolutions": (),
+                            }
+                        ],
+                    },
+                    datetime(2026, 9, 7, tzinfo=timezone.utc),
+                )
+            ]
+
+    class Connection:
+        def execute(self, *_args, **_kwargs):
+            return Result()
+
+        def close(self):
+            pass
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    projection = cli._objectives_state(Principal(id="alice", vault_id="vault"))
+    review = projection["objectives"][0]["capability_needs"][0]["forge_review"]
+    assert review == {
+        "stage": "candidate",
+        "proposal": "not_prepared",
+        "quarantine": "not_materialized",
+        "authority": (
+            "review only; research and preview do not install, enable, approve, "
+            "grant permissions, or execute"
+        ),
+    }
+
+
 def test_browser_app_routes_pack_enablement_through_explicit_owner_callback():
     principal = Principal(id="alice", vault_id="vault")
     seen: list[tuple[str, dict[str, object]]] = []
@@ -6031,6 +6077,8 @@ def test_browser_app_objectives_surface_exposes_capability_need_investigation_bo
     assert "Forge review · candidate only" in html
     assert "Unclassified candidate" in html
     assert "Research and preview do not install" in html
+    assert "candidate.forge_review.proposal" in html
+    assert "quarantine: ${candidate.forge_review.quarantine" in html
     assert "do not install, enable, approve, grant permissions, or execute" in html
     assert "capability-needs/${needId}.md" in html
     assert "discovery does not grant installation" in html
