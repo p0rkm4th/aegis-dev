@@ -1,0 +1,33 @@
+{
+  "artifact_type": "owner_food_pantry_quantity_actions",
+  "observed_at": "2026-09-07T12:38:43Z",
+  "source_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
+  "hosted_validation": {
+    "run_id": "34122782612",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "60a8ea538584e8a420e68df25657d48fcda273ae",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "restart_verified": true,
+    "postgres": "healthy"
+  },
+  "owner_http_proof": {
+    "root_references": ["/static/aegis.css", "/static/aegis.js"],
+    "food_assets": [
+      "Record known Pantry quantity",
+      "Consume pantry item ${item.item_id}",
+      "Set a known quantity before consuming"
+    ],
+    "canonical_pantry_records": 1,
+    "canonical_grocery_records": 8,
+    "needed_grocery_records": 7,
+    "unknown_pantry_quantities": 1,
+    "all_pantry_records_have_stable_ids": true,
+    "mutation_path": "normal authenticated Core interaction; no direct browser store write"
+  },
+  "boundary": "Pantry quantity and consumption remain canonical Food actions with server-side validation and optimistic version checks; unknown quantity is not treated as zero and does not receive a consume control."
+}
