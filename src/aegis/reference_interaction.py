@@ -1357,6 +1357,11 @@ def reference_format_result(result: Any) -> str:
             f"Research for {service} ({status}) — no local cause confirmed; "
             f"bounded external context, not canonical truth:\n{answer}"
         )
+    if isinstance(evidence.get("homelab_health"), dict):
+        health = evidence["homelab_health"]
+        service = health.get("service", "service")
+        status = evidence.get("independent_status", health.get("attempt_status", "unknown"))
+        return f"Service health: {service} — {status}"
     if isinstance(evidence.get("homelab_services_health"), dict):
         services = evidence["homelab_services_health"].get("services", [])
         rows = [
