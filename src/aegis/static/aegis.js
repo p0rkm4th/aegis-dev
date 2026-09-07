@@ -1516,22 +1516,29 @@ function todayRecordLabels(items, prefix, limit) {
 function appendTodayBrief(panel, payload) {
   const canonical = payload.canonical || {};
   const needs = payload.capability_needs || [];
-  const attention = [
-    ...todayRecordLabels(canonical.open_tasks, 'Task', 8),
-    ...todayRecordLabels(canonical.open_chores, 'Chore', 5),
-    ...todayRecordLabels(needs, 'Capability need', 5),
-  ];
+  const taskAttention = todayAttentionLabels(canonical.open_tasks, 'Task', 8);
+  const choreAttention = todayAttentionLabels(canonical.open_chores, 'Chore', 5);
+  const needAttention = todayAttentionLabels(needs, 'Capability need', 5);
+  const attention = [...taskAttention, ...choreAttention, ...needAttention];
   appendTodaySection(panel, 'Needs attention', attention.length
     ? attention : 'Nothing currently needs attention.');
+  const rawAttentionCount = (canonical.open_tasks || []).length
+    + (canonical.open_chores || []).length + needs.length;
+  if (rawAttentionCount > attention.length) {
+    const attentionNote = document.createElement('p'); attentionNote.className = 'muted today-note';
+    attentionNote.textContent = 'Repeated task, chore, or capability labels are counted here for a calm overview; Tasks, Household, and Objectives retain each canonical record.';
+    panel.append(attentionNote);
+  }
   const upNext = todayRecordLabels(canonical.upcoming_shared_events, 'Event', 6);
   appendTodaySection(panel, 'Up next', upNext.length ? upNext : 'No upcoming events recorded.');
   const groceryItems = Array.isArray(canonical.grocery_items)
     ? canonical.grocery_items.filter(item => item && item.state !== 'purchased' && item.state !== 'removed')
     : (canonical.groceries || []);
+  const groceryOverview = todayGroceryOverviewLabels(groceryItems, 8);
   appendTodaySection(panel, 'Grocery list', groceryItems.length
-    ? todayGroceryOverviewLabels(groceryItems, 8)
+    ? groceryOverview
     : 'No groceries currently needed.');
-  if (groceryItems.length > 8) {
+  if (groceryItems.length > groceryOverview.length) {
     const groceryNote = document.createElement('p'); groceryNote.className = 'muted today-note';
     groceryNote.textContent = 'The overview is bounded to eight groups; matching rows are grouped here, while Household keeps every stable grocery ID separately.';
     panel.append(groceryNote);
@@ -1554,6 +1561,23 @@ function todayGroceryOverviewLabels(items, limit) {
   return [...groups.values()].slice(0, limit).map(group => {
     const suffix = group.count > 1 ? ` · ${group.count} entries` : '';
     return `Grocery · ${todayRecordLabel(group.record)}${suffix}`;
+  });
+}
+function todayAttentionLabels(items, prefix, limit) {
+  const groups = new Map();
+  (Array.isArray(items) ? items : []).forEach(item => {
+    const record = item && typeof item === 'object' ? item : {title: item};
+    const title = String(record.title || record.requested_effect || record.display_name || 'Authorized record').trim();
+    const status = String(record.status || (record.completed === false ? 'open' : '')).toLowerCase();
+    const assignee = String(record.assignee_id || '').trim().toLowerCase();
+    const key = JSON.stringify([title.toLowerCase(), status, assignee]);
+    const group = groups.get(key);
+    if (group) group.count += 1;
+    else groups.set(key, {record, count: 1});
+  });
+  return [...groups.values()].slice(0, limit).map(group => {
+    const suffix = group.count > 1 ? ` · ${group.count} open records` : '';
+    return `${prefix} · ${todayRecordLabel(group.record)}${suffix}`;
   });
 }
 function appendTodayOverview(panel, payload) {
