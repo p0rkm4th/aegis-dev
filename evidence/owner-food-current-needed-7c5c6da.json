@@ -1,0 +1,18 @@
+{
+  "evidence_type": "owner_https_food_current_needed",
+  "source_sha": "7c5c6da3acb97080b6d9b201511ad73fd61430b4",
+  "hosted_validation": {
+    "run_id": "34093962624",
+    "conclusion": "success"
+  },
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "installed_release_sha": "7c5c6da3acb97080b6d9b201511ad73fd61430b4",
+  "request": "What groceries do we still need?",
+  "result": {
+    "state": "completed",
+    "projection": "Principal-scoped stable-ID needed grocery records",
+    "purchased_and_removed_rows_excluded": true,
+    "legacy_fallback_preserved": true,
+    "grocery_mutation": false
+  }
+}
