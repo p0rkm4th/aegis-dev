@@ -5019,6 +5019,53 @@ def test_browser_app_routes_owner_controlled_finance_import():
     assert seen[0][1]["account_id"] == "checking"
 
 
+def test_finance_import_projection_serializes_source_datetimes(monkeypatch):
+    from aegis import cli
+    from aegis.finance import FinanceImportReport, ImportSource
+
+    imported_at = datetime(2026, 9, 6, 18, 30, tzinfo=timezone.utc)
+
+    class Connection:
+        def close(self):
+            pass
+
+    class Ledger:
+        def __init__(self, _store):
+            pass
+
+        def import_csv(self, *_args, **_kwargs):
+            return FinanceImportReport(
+                source=ImportSource(
+                    "source-1",
+                    "csv",
+                    "hash-1",
+                    imported_at,
+                    imported_at,
+                    imported_at,
+                    True,
+                ),
+                imported_transaction_ids=("transaction-1",),
+            )
+
+    monkeypatch.setenv("AEGIS_DATABASE_URL", "postgresql://example")
+    monkeypatch.setattr(cli.psycopg, "connect", lambda *_args, **_kwargs: Connection())
+    monkeypatch.setattr(cli, "_apply_migrations", lambda _connection: None)
+    monkeypatch.setattr(cli, "FinanceLedger", Ledger)
+
+    result = cli._finance_import(
+        Principal(id="alice", vault_id="vault"),
+        {
+            "account_id": "checking",
+            "source_id": "source-1",
+            "content": "date,amount,description\n2026-09-06,1.00,Test\n",
+            "currency": "USD",
+        },
+    )
+
+    assert result["source"]["imported_at"] == imported_at.isoformat()
+    assert result["source"]["coverage_start"] == imported_at.isoformat()
+
+
 def test_browser_app_rejects_finance_import_for_unknown_private_account():
     principal = Principal(id="alice", vault_id="vault")
     app = BrowserApp(

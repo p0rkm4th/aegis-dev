@@ -55,6 +55,7 @@ from .feedback_triage import harvest_defect_candidates
 from .finance import (
     FinanceLedger,
     FinanceReadFastPath,
+    ImportSource,
     PostgresFinanceSnapshotStore,
     summarize_snapshot,
 )
@@ -1344,7 +1345,7 @@ def _finance_import(principal: Principal, request: dict[str, Any]) -> dict[str, 
             currency=str(request.get("currency", "USD")),
         )
         return {
-            "source": report.source.__dict__,
+            "source": _finance_source_projection(report.source),
             "imported_transaction_ids": list(report.imported_transaction_ids),
             "duplicate_rows": list(report.duplicate_rows),
             "rejected_rows": [list(row) for row in report.rejected_rows],
@@ -1353,6 +1354,20 @@ def _finance_import(principal: Principal, request: dict[str, Any]) -> dict[str, 
         }
     finally:
         connection.close()
+
+
+def _finance_source_projection(source: ImportSource) -> dict[str, Any]:
+    """Return the JSON-safe bounded provenance projection for an import result."""
+
+    return {
+        "source_id": source.source_id,
+        "source_type": source.source_type,
+        "content_hash": source.content_hash,
+        "imported_at": source.imported_at.isoformat(),
+        "coverage_start": source.coverage_start.isoformat() if source.coverage_start else None,
+        "coverage_end": source.coverage_end.isoformat() if source.coverage_end else None,
+        "complete": source.complete,
+    }
 
 
 def _objectives_state(principal: Principal) -> dict[str, Any]:
