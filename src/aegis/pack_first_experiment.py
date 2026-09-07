@@ -92,6 +92,22 @@ OWNER_PACK_CORPUS: tuple[PackCase, ...] = (
     PackCase("show authorized network observations", frozenset({"dynamic-homelab"})),
     PackCase("what should I do about this unsupported capability", frozenset({"dynamic-forge"})),
     PackCase("make a report from the host inventory", frozenset({"dynamic-homelab"})),
+    PackCase("add oat milk to my list", frozenset({"dynamic-food"})),
+    PackCase("what did the hardware store cost last month", frozenset({"dynamic-finance"})),
+    PackCase("is the Plex service healthy", frozenset({"dynamic-homelab"})),
+    PackCase(
+        "what can I safely investigate for this missing ability", frozenset({"dynamic-forge"})
+    ),
+    PackCase(
+        "show grocery needs and whether eighty dollars is affordable",
+        frozenset({"dynamic-food", "dynamic-finance"}),
+    ),
+    PackCase(
+        "check groceries then tell me if Plex is down",
+        frozenset({"dynamic-food", "dynamic-homelab"}),
+    ),
+    PackCase("no, the other service", None),
+    PackCase("enable that Pack for me", frozenset()),
 )
 
 _PACK_LIFECYCLE_LANGUAGE = re.compile(r"\b(?:install|enable|approve|grant)\b", re.IGNORECASE)
