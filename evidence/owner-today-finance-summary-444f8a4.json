@@ -1,0 +1,31 @@
+{
+  "artifact_type": "owner_today_finance_summary_proof",
+  "observed_at": "2026-09-07T05:59:00Z",
+  "source_sha": "444f8a4e423a65d385d75348cd90e1583c80077d",
+  "hosted_validation": {
+    "run_id": "34088723580",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "444f8a4e423a65d385d75348cd90e1583c80077d",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "healthy",
+    "path": "authenticated Tailscale HTTPS"
+  },
+  "owner_proof": {
+    "root_http_status": 200,
+    "static_javascript_http_status": 200,
+    "static_marker_served": true,
+    "today_http_status": 200,
+    "finance_http_status": 200,
+    "today_private_finance_summary": "rendered by the promoted static owner shell when the Principal-scoped Finance projection is available",
+    "currencies_visible_to_owner": ["EUR", "USD"],
+    "settlement_states_visible_to_owner": ["pending", "posted"],
+    "no_fx_boundary_visible": true,
+    "finance_mutation": false
+  },
+  "boundary": "This proves an owner-visible bounded Finance summary in Today and links to private detail; it does not expose raw ledger rows in Today or add financial mutation authority."
+}
