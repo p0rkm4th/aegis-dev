@@ -1332,6 +1332,22 @@ def _finance_import(principal: Principal, request: dict[str, Any]) -> dict[str, 
 def _objectives_state(principal: Principal) -> dict[str, Any]:
     """Project bounded canonical objective lifecycle and CapabilityNeeds."""
 
+    def candidate_projection(candidate: dict[str, Any]) -> dict[str, Any]:
+        """Expose Forge review stages without changing Pack lifecycle state."""
+
+        projected = dict(candidate)
+        if candidate.get("requires_owner_input") is True:
+            projected["forge_review"] = {
+                "stage": "candidate",
+                "proposal": "not_prepared",
+                "quarantine": "not_materialized",
+                "authority": (
+                    "review only; research and preview do not install, enable, approve, "
+                    "grant permissions, or execute"
+                ),
+            }
+        return projected
+
     connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
     try:
         _apply_migrations(connection)
@@ -1360,7 +1376,9 @@ def _objectives_state(principal: Principal) -> dict[str, Any]:
                     "utterance": data.get("intent", {}).get("utterance", "")
                     if isinstance(data, dict)
                     else "",
-                    "capability_needs": [item for item in needs[:8] if isinstance(item, dict)],
+                    "capability_needs": [
+                        candidate_projection(item) for item in needs[:8] if isinstance(item, dict)
+                    ],
                 }
             )
         return {"objectives": objectives}

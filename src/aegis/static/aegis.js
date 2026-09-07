@@ -1845,6 +1845,11 @@ async function loadObjectives() {
               const forgeBoundary = document.createElement('p'); forgeBoundary.className = 'muted';
               forgeBoundary.textContent = 'Research and preview do not install, enable, approve, grant permissions, or execute a candidate.';
               forgeReview.append(forgeTitle, forgeStatus, forgeDetails, forgeBoundary);
+              if (candidate.forge_review && typeof candidate.forge_review === 'object') {
+                const lifecycle = document.createElement('p'); lifecycle.className = 'muted';
+                lifecycle.textContent = `Proposal: ${candidate.forge_review.proposal || 'unknown'} · quarantine: ${candidate.forge_review.quarantine || 'unknown'}`;
+                forgeReview.append(lifecycle);
+              }
               needCard.append(forgeReview);
               const review = document.createElement('button');
               review.type = 'button'; review.textContent = 'Review Packs & capabilities';
