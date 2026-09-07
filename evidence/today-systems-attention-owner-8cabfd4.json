@@ -1,0 +1,30 @@
+{
+  "checkpoint": "today-systems-attention",
+  "source_sha": "8cabfd496b94c6a90f69044c7b846b0389e31808",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34111568015",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "8cabfd496b94c6a90f69044c7b846b0389e31808",
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "behavior": {
+    "healthy_and_reachable_services": "excluded from Systems needing attention",
+    "unhealthy_or_unreachable_services": "included with separate Health and Reachability badges",
+    "action_authority": "read-only Systems context; no authority granted by presentation"
+  },
+  "owner_projection": {
+    "service_id": "acceptance-plex",
+    "health": "unavailable",
+    "reachability": "unreachable",
+    "identity_status": "canonical_host",
+    "action_availability": "core_authorization_required"
+  },
+  "interpretation": "The owner Today Systems card now reports only attention-worthy services while preserving explicit canonical identity and action-authority boundaries. No service mutation was invoked."
+}
