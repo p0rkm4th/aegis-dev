@@ -5440,7 +5440,10 @@ def test_capability_candidate_projection_preserves_bounded_research_evidence(mon
                                         "capability": "workspace.artifact.create",
                                         "description": "Prepare a bounded artifact",
                                         "research_sources": [
-                                            {"title": "Bounded source", "url": "https://example.test"}
+                                            {
+                                                "title": "Bounded source",
+                                                "url": "https://example.test",
+                                            }
                                         ],
                                     },
                                 ),
