@@ -1685,7 +1685,15 @@ async function loadHousehold() {
     } catch (_) {}
     const canonical = payload.canonical || {};
     appendCompletableSection(panel, 'Open chores', canonical.open_chores || [], 'Mark the chore');
-    renderFoodCollection(panel, 'Groceries needed', canonical.grocery_items || canonical.groceries || [], 'grocery');
+    const groceryItems = canonical.grocery_items || canonical.groceries || [];
+    const currentGroceries = groceryItems.filter(
+      item => !item || !item.state || (item.state !== 'purchased' && item.state !== 'removed')
+    );
+    const groceryHistory = groceryItems.filter(
+      item => item && (item.state === 'purchased' || item.state === 'removed')
+    );
+    renderFoodCollection(panel, 'Groceries needed', currentGroceries, 'grocery');
+    if (groceryHistory.length) renderFoodCollection(panel, 'Grocery history', groceryHistory, 'grocery-history');
     const pantry = canonical.pantry_items || [];
     if (pantry.length) {
       renderFoodCollection(panel, 'Pantry', pantry, 'pantry');
