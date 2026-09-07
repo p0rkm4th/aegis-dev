@@ -1,0 +1,37 @@
+{
+  "kind": "owner-systems-status-surface",
+  "source_sha": "9822a2dd148b085b3f5e6f856518cf8ea53371ab",
+  "hosted_run_id": "34082679119",
+  "observed_at": "2026-09-07T04:24:10Z",
+  "owner_path": "Tailscale HTTPS",
+  "runtime": {
+    "release_sha": "9822a2dd148b085b3f5e6f856518cf8ea53371ab",
+    "service": "aegis-owner.service",
+    "postgres_healthy": true
+  },
+  "static_assets": {
+    "root": 200,
+    "css": {"status": 200, "content_type": "text/css; charset=utf-8", "bytes": 15043},
+    "javascript": {"status": 200, "content_type": "text/javascript; charset=utf-8", "bytes": 147164},
+    "structured_system_status_renderer_served": true,
+    "system_status_styles_served": true
+  },
+  "systems_projection": {
+    "canonical_hosts": 1,
+    "services": [
+      {
+        "service_id": "acceptance-plex",
+        "health": "unavailable",
+        "reachability": "unreachable",
+        "authorization_status": "space_scoped_read",
+        "action_availability": "core_authorization_required"
+      }
+    ]
+  },
+  "safety": {
+    "core_or_authorization_changed": false,
+    "remote_action_invoked": false,
+    "browser_computed_style_capture": "not_available: no browser executable is installed in this environment"
+  },
+  "interpretation": "The exact hosted-green UI release is installed and served through the owner HTTPS path. Systems state is presented as separate epistemic dimensions; unavailable health is not rendered as a successful action state."
+}
