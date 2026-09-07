@@ -1623,12 +1623,18 @@ function appendTodayFinanceSummary(panel, payload) {
 function appendTodaySystemsSummary(panel, payload) {
   if (!payload || !Array.isArray(payload.services)) return;
   const section = document.createElement('section'); section.className = 'detail-card today-systems-summary';
-  const heading = document.createElement('h3'); heading.textContent = 'Systems needing attention';
+  const allServices = payload.services.slice(0, 8);
+  const services = allServices.filter(service =>
+    service.health !== 'healthy' || service.reachability !== 'reachable');
+  const heading = document.createElement('h3');
+  heading.textContent = services.length ? 'Systems needing attention' : 'Systems health';
   section.append(heading);
-  const services = payload.services.slice(0, 8);
   if (!services.length) {
     const empty = document.createElement('p'); empty.className = 'muted';
-    empty.textContent = 'No canonical services recorded.'; section.append(empty);
+    empty.textContent = allServices.length
+      ? 'All displayed canonical services report healthy and reachable.'
+      : 'No canonical services recorded.';
+    section.append(empty);
   }
   services.forEach(service => {
     const row = document.createElement('div'); row.className = 'today-system-row';
