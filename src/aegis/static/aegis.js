@@ -1529,6 +1529,9 @@ function appendTodayBrief(panel, payload) {
 function appendTodayOverview(panel, payload) {
   const canonical = payload.canonical || {};
   const external = payload.external_calendar || {};
+  const groceryItems = Array.isArray(canonical.grocery_items)
+    ? canonical.grocery_items.filter(item => item && item.state !== 'purchased' && item.state !== 'removed')
+    : (canonical.groceries || []);
   const items = [
     {
       label: 'Open tasks', count: (canonical.open_tasks || []).length, view: 'tasks',
@@ -1541,6 +1544,12 @@ function appendTodayOverview(panel, payload) {
     {
       label: 'Up next', count: (canonical.upcoming_shared_events || []).length, view: 'calendar',
       attention: false,
+    },
+    {
+      label: 'Groceries needed',
+      count: groceryItems.length,
+      view: 'household',
+      attention: groceryItems.length > 0,
     },
     {
       label: 'Capability needs', count: (payload.capability_needs || []).length, view: 'objectives',
