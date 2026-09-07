@@ -39,7 +39,7 @@ from .dispatch import (
 )
 from .gateway_rpc import OpenClawWebSocketChannel
 from .identity import PostgresSpacePolicy
-from .interaction_cognition import decide_fallback
+from .interaction_cognition import _unresolved_investigation_result, decide_fallback
 from .interaction_context import authorized_context_evidence
 from .interaction_context import context_from_prior_result as _context_from_prior_result
 from .interaction_context import with_continuation_context as _with_continuation_context
@@ -706,7 +706,14 @@ class InteractionBoundary:
                         intent,
                         fallback_context,
                         fallback_cards,
-                        self.dependencies.unresolved_requirement_investigator,
+                        lambda current_intent, current_context, effects: (
+                            _unresolved_investigation_result(
+                                self.dependencies,
+                                current_intent,
+                                current_context,
+                                effects,
+                            )
+                        ),
                     )
                     if isinstance(resolution, Result):
                         return persist_fast_result(resolution)
