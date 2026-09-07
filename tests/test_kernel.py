@@ -1669,6 +1669,41 @@ def test_typed_unknown_assurance_is_observed_even_without_evidence_marker():
     assert persisted.action.verification.expected == {"fixed_before_execution": True}
 
 
+def test_action_preparation_block_persists_blocked_objective_and_result():
+    action = ActionSpec(
+        action_id="workspace.research_notes.create",
+        capability="workspace.research_notes.create",
+        verification=VerificationContract(kind="custom"),
+    )
+    kernel = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ACTION, action=action)),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        Executor(),
+        Verifier(True),
+        action_preparer=lambda _current, _intent, _objective_id: (_ for _ in ()).throw(
+            ValueError("bounded research is unavailable; no Workspace mutation was attempted")
+        ),
+    )
+
+    first = kernel.run(intent())
+    second = kernel.run(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="same request",
+            correlation_id=first.correlation_id,
+        )
+    )
+
+    assert first.state is ObjectiveState.BLOCKED
+    assert first.retryable is False
+    assert second == first
+    persisted = kernel.store.get_objective(first.objective_id)
+    assert persisted is not None
+    assert persisted.state is ObjectiveState.BLOCKED
+    assert kernel.store.get_result(f"{first.correlation_id}:{action.action_id}") == first
+
+
 def test_verifier_exception_is_a_truthful_failed_result():
     class FailingVerifier:
         def verify(self, observation, contract):
