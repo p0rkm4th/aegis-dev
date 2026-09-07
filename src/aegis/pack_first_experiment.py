@@ -145,7 +145,7 @@ def route_with_one_context_retry(
         validate_selected_packs(response, manager)
         return response
 
-    response = route(router_prompt(utterance, compact_pack_catalog(manager)))
+    response = route(router_prompt(utterance, compact_pack_catalog(manager, enabled_only=True)))
     calls = 1
     if response.status is PackRouterStatus.NEED_CONTEXT and context is not None:
         bounded = (
@@ -155,7 +155,11 @@ def route_with_one_context_retry(
             f"referent_ids: {list(context.referent_ids[:8])}\n"
             f"objective_requirements: {list(context.objective_requirements[:8])}\n"
         )
-        response = route(router_prompt(utterance, compact_pack_catalog(manager)) + "\n" + bounded)
+        response = route(
+            router_prompt(utterance, compact_pack_catalog(manager, enabled_only=True))
+            + "\n"
+            + bounded
+        )
         calls += 1
     return response, calls
 
@@ -247,13 +251,18 @@ def run_pack_tournament(
 
 
 def compact_pack_catalog(
-    manager: PackManager, pack_ids: Iterable[str] | None = None
+    manager: PackManager,
+    pack_ids: Iterable[str] | None = None,
+    *,
+    enabled_only: bool = False,
 ) -> tuple[PackCatalogEntry, ...]:
-    """Expose only Pack metadata; never canonical owner data."""
+    """Expose Pack metadata; router catalogs may be restricted to enabled Packs."""
 
     allowed = set(pack_ids) if pack_ids is not None else None
     entries: list[PackCatalogEntry] = []
     for bundle, status, _grants in manager.lifecycle_snapshot():
+        if enabled_only and status is not PackStatus.ENABLED:
+            continue
         pack_id = bundle.manifest.pack_id
         if allowed is not None and pack_id not in allowed:
             continue
@@ -422,7 +431,7 @@ def measure_pack_first(
         utterance,
         manager,
         router,
-        compact_pack_catalog(manager),
+        compact_pack_catalog(manager, enabled_only=True),
         expected_pack_ids,
     )
 
@@ -442,6 +451,6 @@ def measure_retrieval_assisted_pack_first(
         utterance,
         manager,
         router,
-        compact_pack_catalog(manager, candidate_ids),
+        compact_pack_catalog(manager, candidate_ids, enabled_only=True),
         expected_pack_ids,
     )
