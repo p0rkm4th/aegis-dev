@@ -1,0 +1,29 @@
+{
+  "artifact_type": "owner_finance_spending_query",
+  "observed_at": "2026-09-07T12:44:47Z",
+  "source_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "hosted_validation": {
+    "run_id": "34123328978",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "eb638ecf9ea364d7a21ee1958821748a366d9561",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "restart_verified": true,
+    "postgres": "healthy"
+  },
+  "owner_http_proof": {
+    "request": "What did I spend on groceries?",
+    "state": "completed",
+    "financial_mutation_actions": [],
+    "finance_provider_state": "available",
+    "finance_account_count": 2,
+    "finance_transaction_count": 3,
+    "finance_currencies": ["EUR", "USD"],
+    "finance_summary_buckets": ["EUR", "USD"]
+  },
+  "boundary": "The Finance form routes to the existing private read path. Canonical rows remain Principal-scoped, currency-separated, and unchanged; no payment, transfer, or financial write path is exposed."
+}
