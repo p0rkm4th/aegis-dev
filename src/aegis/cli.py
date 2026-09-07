@@ -993,6 +993,11 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
 
         def service_projection(service: Any) -> dict[str, Any]:
             host = homelab.hosts.get(service.host_id)
+            health = (
+                _service_health(service.health_endpoint)
+                if service.health_endpoint
+                else "not_configured"
+            )
             return {
                 "service_id": service.service_id,
                 "host_id": service.host_id,
@@ -1000,11 +1005,19 @@ def _systems_state(principal: Principal) -> dict[str, Any]:
                 "host_provider_identity": host.provider_identity if host else None,
                 "host_identity_evidence": list(host.identity_evidence) if host else [],
                 "host_status": host.status if host else "unknown_host",
+                "identity_status": "canonical_host" if host else "unresolved_host",
+                "authorization_status": "space_scoped_read" if host else "unresolved",
                 "name": service.name,
                 "health_endpoint_configured": bool(service.health_endpoint),
-                "health": _service_health(service.health_endpoint)
-                if service.health_endpoint
-                else "not_configured",
+                "health": health,
+                "reachability": (
+                    "not_configured"
+                    if health == "not_configured"
+                    else "unreachable"
+                    if health in {"unavailable", "invalid_endpoint"}
+                    else "reachable"
+                ),
+                "action_availability": "core_authorization_required",
                 "health_source": "bounded_http_read" if service.health_endpoint else None,
                 "health_observed_at": (
                     datetime.now(timezone.utc).isoformat() if service.health_endpoint else None
