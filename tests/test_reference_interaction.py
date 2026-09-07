@@ -3112,6 +3112,27 @@ def test_bounded_systems_planning_is_allowed_past_compound_read_guard() -> None:
     assert resolve_reference_safety_fast_paths(intent, None, True) is None
 
 
+def test_unrelated_down_payment_compound_read_remains_blocked() -> None:
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="What groceries do we need and can I afford the down payment?",
+    )
+
+    result = resolve_reference_fast_paths(
+        intent,
+        object(),
+        intent.principal,
+        Context(),
+        None,
+        lambda name: name,
+        True,
+    )
+
+    assert result is not None
+    assert result.state is ObjectiveState.BLOCKED
+    assert "multiple independent reads" in result.message
+
+
 def test_planning_homelab_health_uses_verifier_evidence(monkeypatch) -> None:
     expected = [
         {

@@ -4004,6 +4004,13 @@ def test_cross_domain_planning_recognizes_food_finance_and_systems_review():
     assert CrossDomainPlanningFastPath.systems_requested(utterance)
 
 
+def test_cross_domain_planning_does_not_treat_down_payment_as_systems_context():
+    utterance = "What groceries do we need and can I afford the down payment?"
+
+    assert CrossDomainPlanningFastPath.matches(utterance)
+    assert not CrossDomainPlanningFastPath.systems_requested(utterance)
+
+
 def test_cross_domain_planning_projects_independently_verified_systems_health():
     alice = Principal(id="alice", vault_id="alice-vault", space_ids=("apartment",))
     space = HouseholdSpace("apartment", {alice.id})
