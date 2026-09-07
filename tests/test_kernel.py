@@ -3999,6 +3999,9 @@ def test_cross_domain_planning_recognizes_explicit_grocery_budget_limit():
     assert CrossDomainPlanningFastPath.matches(
         "Can I keep tonight's grocery trip under $80 based on what we need?"
     )
+    assert CrossDomainPlanningFastPath.matches(
+        "Can I keep tonight's grocery trip under eighty dollars based on what we still need?"
+    )
 
 
 def test_cross_domain_planning_projects_needed_groceries_without_inventing_quantity():

@@ -1216,6 +1216,8 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     if evidence.get("referent") == "prior_result":
         return str(result.message)
+    if evidence.get("grocery_status") is not None:
+        return str(result.message)
     if evidence.get("priority_basis") and evidence.get("task") is not None:
         return str(result.message)
     if evidence.get("priority_basis") and evidence.get("authorized_event_priority") is not None:

@@ -1295,6 +1295,12 @@ class ContextualChorePriorityFastPath:
 class GroceryReadFastPath:
     """Handle an unambiguous grocery-list read from canonical household state."""
 
+    _PURCHASE_STATUS_QUESTION = re.compile(
+        r"^(?:did|have|has)\s+(?:we|i|you)\s+(?:already\s+)?"
+        r"(?:buy|bought|purchase|purchased)\s+(.+)$",
+        re.IGNORECASE,
+    )
+
     _READ_PREFIXES = (
         "what",
         "show",
@@ -1321,6 +1327,8 @@ class GroceryReadFastPath:
         text = re.sub(
             r"^(?:can you tell me|could you tell me|can you|could you|please)\s+", "", text
         )
+        if cls._PURCHASE_STATUS_QUESTION.fullmatch(text.strip(".!?")) is not None:
+            return True
         if is_mutation_request(text):
             return False
         if re.search(r"\bpantry\b", text):
@@ -1343,6 +1351,11 @@ class GroceryReadFastPath:
     def resolve(self, intent: IntentFrame) -> Result | None:
         if not self.matches(intent.utterance):
             return None
+        purchase_status = self._PURCHASE_STATUS_QUESTION.fullmatch(
+            strip_correction_prefix(intent.utterance).strip().strip(".!?")
+        )
+        if purchase_status is not None:
+            return self._resolve_purchase_status(intent, purchase_status.group(1))
         if re.search(r"\b(?:due|urgent|priority|prioritize)\b", intent.utterance.casefold()) and (
             "first" in intent.utterance.casefold()
             or "earliest" in intent.utterance.casefold()
@@ -1403,6 +1416,85 @@ class GroceryReadFastPath:
                 "collection": "groceries",
                 "semantic_scope": "kitchen.shopping_list",
                 "canonical_items": canonical_items,
+            },
+            correlation_id=intent.correlation_id,
+        )
+
+    def _resolve_purchase_status(self, intent: IntentFrame, requested_name: str) -> Result:
+        """Answer purchase status from one exact stable grocery record."""
+
+        list_items = getattr(self.store, "list_grocery_items", None)
+        if not callable(list_items):
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I can check purchase status only when structured grocery records are "
+                    "available; I will not infer it from legacy text."
+                ),
+                correlation_id=intent.correlation_id,
+            )
+        normalized = normalize_food_key(requested_name)
+        matches = tuple(
+            item
+            for item in list_items(intent.principal)
+            if normalize_food_key(item.display_name) == normalized
+        )
+        if not matches:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    f"I do not have a canonical grocery record for {requested_name.strip()!r}; "
+                    "I will not infer whether it was purchased."
+                ),
+                evidence={
+                    "collection": "groceries",
+                    "grocery_status": "unavailable",
+                    "requested_name": requested_name.strip(),
+                },
+                correlation_id=intent.correlation_id,
+            )
+        if len(matches) != 1:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    f"I found {len(matches)} canonical grocery records named "
+                    f"{matches[0].display_name!r}; I need a stable item ID to distinguish them."
+                ),
+                evidence={
+                    "collection": "groceries",
+                    "grocery_status": "ambiguous",
+                    "requested_name": matches[0].display_name,
+                    "matching_item_ids": [item.grocery_id for item in matches],
+                },
+                correlation_id=intent.correlation_id,
+            )
+        item = matches[0]
+        if item.state == "purchased":
+            message = f"Yes — {item.display_name} is marked purchased."
+        elif item.state == "needed":
+            message = f"No — {item.display_name} is still needed."
+        elif item.state == "removed":
+            message = f"{item.display_name} is marked removed, not purchased."
+        else:
+            message = (
+                f"I cannot determine whether {item.display_name} was purchased from its "
+                "unresolved state."
+            )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=message,
+            evidence={
+                "collection": "groceries",
+                "grocery_status": item.state,
+                "canonical_item": {
+                    "grocery_id": item.grocery_id,
+                    "display_name": item.display_name,
+                    "state": item.state,
+                },
             },
             correlation_id=intent.correlation_id,
         )

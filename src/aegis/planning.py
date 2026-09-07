@@ -786,9 +786,16 @@ class CrossDomainPlanningFastPath:
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
     _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget", "purchase")
     _FOOD_TERMS = ("food", "grocery", "groceries", "pantry", "shopping list")
+    _BUDGET_NUMBER_WORD = (
+        r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+        r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|"
+        r"thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)"
+    )
     _BUDGET_LIMIT = re.compile(
         r"\b(?:under|below|within|up to)\s+(?:\$\s*\d[\d,]*(?:\.\d{1,2})?|"
-        r"\d[\d,]*(?:\.\d{1,2})?\s+(?:dollars?|bucks?))\b",
+        r"\d[\d,]*(?:\.\d{1,2})?\s+(?:dollars?|bucks?)|"
+        rf"{_BUDGET_NUMBER_WORD}(?:[-\s]+{_BUDGET_NUMBER_WORD}){{0,3}}\s+"
+        r"(?:dollars?|bucks?))\b",
         re.IGNORECASE,
     )
     _MAX_CONTEXT_ITEMS = 5
