@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "2a3188b",
+  "state_basis_sha": "8fe3d8a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "2a3188b",
+  "repository_head_sha": "8fe3d8a",
   "deterministic_green_sha": "1af0cb4",
-  "last_pushed_sha": "2a3188b",
-  "hosted_green_sha": "2a3188b",
-  "hosted_ci_green_sha": "2a3188b",
+  "last_pushed_sha": "8fe3d8a",
+  "hosted_green_sha": "8fe3d8a",
+  "hosted_ci_green_sha": "8fe3d8a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "2a3188bc3a3b355490b0ff6eb6bbd1b7f4286841",
+    "commit_sha": "8fe3d8a07753ae97b744fb2a82fc6c32fb482e90",
     "conclusion": "success",
-    "run_id": "34074812736",
-    "observed_at": "2026-09-07T02:01:06Z"
+    "run_id": "34075760531",
+    "observed_at": "2026-09-07T02:17:34Z"
   },
-  "installed_release_sha": "2a3188b",
-  "running_release_sha": "2a3188b",
-  "live_green_sha": "2a3188b",
+  "installed_release_sha": "8fe3d8a",
+  "running_release_sha": "8fe3d8a",
+  "live_green_sha": "8fe3d8a",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "2a3188bc3a3b355490b0ff6eb6bbd1b7f4286841"
+    "release_sha": "8fe3d8a07753ae97b744fb2a82fc6c32fb482e90"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -55,6 +55,7 @@
     "capability_need_constellation": "Promoted Constellation renders each authorized unresolved CapabilityNeed as read-only objective-linked context with known candidate Pack links; authenticated owner proof now shows one populated open Capability Need node after an unsupported objective, and graph visibility does not install, enable, approve, grant permission, or execute",
     "capability_need_investigation_fallback": "Promoted owner HTTPS proof preserves an unsupported consequential objective and records an open CapabilityNeed when bounded investigation is unavailable; the objective/need survives owner-service restart and remains read-only context",
     "capability_need_safe_research_surface": "Promoted owner Objectives view explicitly shows when no candidate resolution is available and offers a bounded Research safe path through the normal Core interaction route; the surface grants no acquisition or execution authority",
+    "capability_need_research_failure_boundary": "Promoted owner proof returns a structured blocked result when bounded research cannot establish a Workspace postcondition; objective state remains blocked across restart and same-correlation retry, with no artifact mutation",
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",

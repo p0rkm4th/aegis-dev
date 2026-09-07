@@ -1,0 +1,28 @@
+{
+  "campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "checkpoint": "capability-need-research-safety-owner",
+  "source_sha": "8fe3d8a07753ae97b744fb2a82fc6c32fb482e90",
+  "hosted": {
+    "provider": "github-actions",
+    "workflow": "validation",
+    "run_id": "34075760531",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "execution_mode": "installed-release",
+    "release_sha": "8fe3d8a07753ae97b744fb2a82fc6c32fb482e90",
+    "postgres": "healthy; persistent owner acceptance volume preserved",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "owner_http_proof": {
+    "request_class": "bounded CapabilityNeed research path",
+    "http_result": 200,
+    "result_state": "blocked",
+    "detail_boundary": "bounded research is unavailable; no Workspace mutation was attempted",
+    "objective_projection_state": "blocked",
+    "same_correlation_after_restart": "same objective ID and blocked result; no preparation replay",
+    "workspace_candidate_artifact": "absent",
+    "authority": "no installation, enablement, approval, permission grant, or execution"
+  }
+}
