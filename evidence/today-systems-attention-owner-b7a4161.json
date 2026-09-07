@@ -1,0 +1,36 @@
+{
+  "checkpoint": "today-systems-attention",
+  "source_sha": "b7a4161107ce808b45547a29df2fddd45ba39c61",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34110699499",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "release_sha": "b7a4161107ce808b45547a29df2fddd45ba39c61",
+    "health": "healthy",
+    "ready": true,
+    "postgresql": "healthy",
+    "access_path": "authenticated Tailscale HTTPS"
+  },
+  "static_asset_proof": {
+    "path": "/static/aegis.css",
+    "status": 200,
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 15697,
+    "expected_responsive_tokens": true,
+    "today_renderer": "appendTodaySystemsSummary served from /static/aegis.js",
+    "shared_status_primitives": ["Health", "Reachability"]
+  },
+  "owner_projection": {
+    "path": "/api/systems",
+    "service_id": "acceptance-plex",
+    "health": "unavailable",
+    "reachability": "unreachable",
+    "identity_status": "canonical_host",
+    "action_availability": "core_authorization_required",
+    "authority": "read-only inventory; health does not grant action authority"
+  },
+  "interpretation": "Today provides a bounded owner handoff to Systems using existing authenticated state. This HTTP/static proof does not claim browser-computed-style or screenshot evidence where no browser executable is available."
+}
