@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "3e1b4f3",
+  "state_basis_sha": "92d2987",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "3e1b4f3",
-  "deterministic_green_sha": "3e1b4f3",
-  "last_pushed_sha": "3e1b4f3",
-  "hosted_green_sha": "3e1b4f3",
-  "hosted_ci_green_sha": "3e1b4f3",
+  "repository_head_sha": "92d2987",
+  "deterministic_green_sha": "92d2987",
+  "last_pushed_sha": "92d2987",
+  "hosted_green_sha": "92d2987",
+  "hosted_ci_green_sha": "92d2987",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "3e1b4f3e131c7dba9a9d3f81645feeded38df1e3",
+    "commit_sha": "92d298797a57836e2db4375e61071d4ca93d7883",
     "conclusion": "success",
-    "run_id": "34083764848",
-    "observed_at": "2026-09-07T04:38:00Z"
+    "run_id": "34084594951",
+    "observed_at": "2026-09-07T04:52:00Z"
   },
-  "installed_release_sha": "3e1b4f3",
-  "running_release_sha": "3e1b4f3",
-  "live_green_sha": "3e1b4f3",
+  "installed_release_sha": "92d2987",
+  "running_release_sha": "92d2987",
+  "live_green_sha": "92d2987",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,14 +42,14 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "a82e1eec6a1fd0b2263a77acfade05d59069c6ee"
+    "release_sha": "92d298797a57836e2db4375e61071d4ca93d7883"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
     "constellation_destination": "Promoted owner UI exposes Constellation as an explicit destination that opens the authorized Pack/domain/capability map; selection remains context/navigation and never authority",
     "today_actionable_overview": "Promoted Today now presents bounded counts for open tasks, chores, upcoming events, CapabilityNeeds, conflicts, active objectives, and any surfaced unknown outcomes, with navigation to the existing owner views and no new authority",
     "today_owner_readable": "Promoted Today now leads with bounded Needs attention, Up next, Grocery list, and Recently completed sections; the full authorized projection is progressive detail rather than the default reading surface",
-    "today_grocery_overview_owner": "Promoted 3e1b4f3 Today overview includes a bounded Groceries needed card derived from canonical grocery_items, excludes purchased/removed rows, and links to the Household view without adding authority",
+    "today_grocery_overview_owner": "Promoted 766688d Today overview includes a bounded Groceries needed card derived from canonical grocery_items, excludes purchased/removed rows, and links to the Household view without adding authority",
     "owner_presentation_assets": "Promoted owner shell presentation CSS is served from the existing static asset route; inline browser CSS was removed without changing Core/API/auth semantics",
     "owner_research_persistence": "Promoted owner Research view loads recent Principal-scoped bounded evidence from /api/research after navigation/reload, including query, summary, sources, provider, retrieval time, and an explicit non-canonical boundary",
     "daily_driver_readiness_ui": "Promoted Daily driver view renders readable capability states and provider gates from packaged release truth; status is descriptive and grants no authority",
@@ -124,11 +124,12 @@
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
     "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "workspace_content_search_owner_response": "Promoted conversation formatting renders bounded Workspace search matches with workspace ID, relative path, and normalized snippet rather than a generic completion",
-    "ui_showable_alpha": "Owner Tailscale HTTPS asset/API proof on 3e1b4f3: extracted CSS/JS return 200 with expected content types and Today exposes bounded groceries; prior computed-style proof remains historical because no browser executable was available for this promotion",
+    "ui_showable_alpha": "Owner Tailscale HTTPS asset/API proof on 92d2987: extracted CSS/JS return 200 with expected content types and Today exposes bounded groceries; prior computed-style proof remains historical because no browser executable was available for this promotion",
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
     "bounded_network_discovery_owner_surface": "Promoted Systems UI exposes scope-specific bounded discovery through authenticated POST /api/systems/discover; unknown scopes fail closed, loopback aliases collapse to one local observation, and discovered results remain visibly non-canonical",
+    "homelab_discovery_observation_freshness": "Promoted 92d2987 Systems API and UI carry the persisted observation timestamp for bounded network discovery; last-observed context is descriptive only and does not promote an observation to a canonical Host or action authority",
     "homelab_discovery_reconciliation_candidate": "Promoted Systems inventory classifies a discovered observation as a reconciliation candidate only when hostname, known address, and existing identity evidence agree; address-only observations remain unmatched and no candidate is promoted or authorized",
     "constellation_discovery_identity": "Promoted Constellation Network nodes mirror Systems identity classification, showing candidate versus unmatched observation while retaining explicit noncanonical and no-authority boundaries",
     "today_workspace_communication_surface": "installed owner APIs expose the canonical Today → Workspace → Communication relationship in Compositions and Constellation; each step retains separate Core authorization",
@@ -354,10 +355,12 @@
     "fresh 364b805 Qwen3:8B Pack-first run covered the post-Finance Food/Finance distinction and retained the production incumbent after all variants misrouted the fresh cases",
     "owner HTTPS proof on 9822a2d confirms the Systems UI exposes separately styled identity, reachability, health, authorization, and action-availability states",
     "owner HTTPS proof on a82e1ee confirms Finance state is served with explicit transaction/provenance renderers and PostgreSQL remains healthy after promotion",
-    "owner dogfood on a82e1ee completed standalone affordability and Food+Finance grocery-budget reads through the real owner message path without financial mutation"
+    "owner dogfood on a82e1ee completed standalone affordability and Food+Finance grocery-budget reads through the real owner message path without financial mutation",
+    "owner Food state-preservation repair is installed on 766688d; an attempted normal grocery mutation was blocked truthfully because the configured OpenClaw execution provider is unavailable, so no owner canonical item was changed",
+    "owner Homelab discovery freshness proof on 92d2987 returned timestamped bounded observations through the approved alpha-lab scope; observations remain unmatched/non-canonical and non-authoritative"
   ],
   "current_blockers": [
-    "Live OpenClaw outbound and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
+    "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
   "known_runtime_limits": [
@@ -418,7 +421,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Rearm the next owner-real Food/Finance/Homelab utility slice after the promoted Today grocery overview; Pack-first remains experimental and production cognition remains incumbent after the fresh Food/Finance evaluation and Systems/Finance UI proof.",
+  "next_action": "Continue owner-real Homelab/Network read utility and Food/Finance dogfood; next bounded slice is stable service/host health context or a safe Food workflow once its provider is configured. Pack-first remains experimental and production cognition remains incumbent after the fresh Food/Finance evaluation.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
