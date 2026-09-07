@@ -166,6 +166,56 @@ def test_pantry_pack_mutations_preserve_unknowns_and_verify_scoped_state():
     assert not failed.command_succeeded
 
 
+def test_pantry_quantity_update_preserves_unspecified_metadata():
+    principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
+    space = HouseholdSpace("kitchen", {"owner"})
+    original = PantryItem(
+        item_id="pantry-beans",
+        display_name="Canned beans",
+        normalized_key="canned beans",
+        unit="can",
+        storage_location="shelf",
+        best_by="2026-10-01",
+        minimum_quantity=2,
+    )
+    space.add_pantry(principal, original)
+
+    class Store:
+        def list_pantry_items(self, _principal):
+            return tuple(space.pantry_items.values())
+
+        def update_pantry_item(self, _principal, item, expected_version):
+            return space.update_pantry(principal, item, expected_version)
+
+    action = ActionSpec(
+        action_id="kitchen.pantry.update",
+        capability="kitchen.pantry.write",
+        arguments={
+            "item_id": "pantry-beans",
+            "display_name": "Canned beans",
+            "quantity": 3,
+            "expected_version": 0,
+        },
+    )
+    observation = PostgresPantryMutationExecutor(Store(), principal).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="pantry-update-1",
+        )
+    )
+
+    assert observation.command_succeeded
+    updated = observation.evidence["item"]
+    assert updated["quantity"] == 3
+    assert updated["unit"] == "can"
+    assert updated["storage_location"] == "shelf"
+    assert updated["best_by"] == "2026-10-01"
+    assert updated["minimum_quantity"] == 2
+    assert updated["version"] == 1
+
+
 def test_grocery_state_action_uses_id_and_independent_current_read():
     principal = SimpleNamespace(id="owner", space_ids=("kitchen",))
     space = HouseholdSpace("kitchen", {"owner"}, groceries=["Milk"])

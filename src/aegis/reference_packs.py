@@ -7137,6 +7137,16 @@ class PostgresPantryMutationExecutor:
                 expected_version = args.get("expected_version")
                 if not isinstance(expected_version, int):
                     raise ValueError("expected_version is required")
+                current = next(
+                    (
+                        candidate
+                        for candidate in self.store.list_pantry_items(self.principal)
+                        if candidate.item_id == item_id
+                    ),
+                    None,
+                )
+                if current is None:
+                    raise KeyError("pantry item is unavailable")
                 item = self.store.update_pantry_item(
                     self.principal,
                     PantryItem(
@@ -7144,19 +7154,25 @@ class PostgresPantryMutationExecutor:
                         display_name=display_name.strip(),
                         normalized_key=" ".join(display_name.casefold().split()),
                         quantity=(
-                            float(args["quantity"]) if args.get("quantity") is not None else None
+                            float(args["quantity"])
+                            if args.get("quantity") is not None
+                            else current.quantity
                         ),
-                        unit=str(args["unit"]) if args.get("unit") is not None else None,
+                        unit=(str(args["unit"]) if args.get("unit") is not None else current.unit),
                         storage_location=(
                             str(args["storage_location"])
                             if args.get("storage_location") is not None
-                            else None
+                            else current.storage_location
                         ),
-                        best_by=(str(args["best_by"]) if args.get("best_by") is not None else None),
+                        best_by=(
+                            str(args["best_by"])
+                            if args.get("best_by") is not None
+                            else current.best_by
+                        ),
                         minimum_quantity=(
                             float(args["minimum_quantity"])
                             if args.get("minimum_quantity") is not None
-                            else None
+                            else current.minimum_quantity
                         ),
                     ),
                     expected_version,

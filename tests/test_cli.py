@@ -234,6 +234,26 @@ def test_deterministic_pantry_consume_uses_stable_id_and_version():
     assert _deterministic_composition_action(zero_intent, manager, Context()) is None
 
 
+def test_deterministic_pantry_quantity_update_uses_stable_id_and_version():
+    manager = manager_with_reference_cards()
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault", space_ids=("kitchen",)),
+        utterance=(
+            "Update pantry item pantry-beans named canned beans quantity 3 unit cans version 4"
+        ),
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert isinstance(card, ActionCard)
+    assert card.action.action_id == "kitchen.pantry.update"
+    assert card.action.arguments == {
+        "item_id": "pantry-beans",
+        "display_name": "canned beans",
+        "quantity": 3,
+        "unit": "cans",
+        "expected_version": 4,
+    }
+
+
 def test_affordability_question_is_not_captured_by_finance_summary_fallback():
     from aegis.finance import FinanceReadFastPath
 
@@ -7548,6 +7568,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "Record known Pantry quantity" in browser_source
     assert "Consume pantry item ${item.item_id}" in browser_source
     assert "Set a known quantity before consuming" in browser_source
+    assert "Set quantity for ${item.display_name || 'Pantry item'}" in browser_source
+    assert "Record known Pantry quantity" in browser_source
     assert "Systems needing attention" in browser_source
     assert (
         "Observed ${service.health_observed_at || 'unknown'} via "
