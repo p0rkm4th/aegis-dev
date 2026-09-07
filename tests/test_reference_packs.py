@@ -26,6 +26,8 @@ from aegis.reference_packs import (
     HomelabHealthExecutor,
     HomelabHealthVerifier,
     HomelabResearchExecutor,
+    HomelabServicesHealthExecutor,
+    HomelabServicesHealthVerifier,
     NetworkInventoryWorkspaceExecutor,
     NetworkInventoryWorkspaceVerifier,
     NetworkProbeWorkspaceExecutor,
@@ -900,6 +902,43 @@ def test_homelab_health_verifier_performs_independent_second_read(monkeypatch) -
         HomelabHealthVerifier(None, principal).verify(observation, action.verification).verified
         is False
     )
+
+
+def test_homelab_services_health_reads_and_rereads_unhealthy_state(monkeypatch) -> None:
+    services = (
+        Service("acceptance-plex", "acceptance-atlas", "Plex", "https://plex.test/health"),
+        Service("acceptance-immich", "acceptance-atlas", "Immich", "https://immich.test/health"),
+    )
+    monkeypatch.setattr(
+        reference_packs_module, "_canonical_homelab_services", lambda *_args: services
+    )
+    reads = iter(
+        (
+            (False, "unavailable"),
+            (True, "http_200"),
+            (False, "unavailable"),
+            (True, "http_200"),
+        )
+    )
+    monkeypatch.setattr(reference_packs_module, "_health_read", lambda _endpoint: next(reads))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    action = next(
+        card.action
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "homelab.services.health"
+    )
+    observation = HomelabServicesHealthExecutor(None, principal).execute(
+        ExecutionRequest(
+            objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="health-all-1"
+        )
+    )
+    result = HomelabServicesHealthVerifier(None, principal).verify(observation, action.verification)
+
+    assert observation.command_succeeded is True
+    assert observation.evidence["homelab_services_health"]["services"][0]["status"] == "unavailable"
+    assert result.verified is True
+    assert result.evidence["independent_services"][1]["status"] == "http_200"
 
 
 def test_device_controls_pack_returns_structured_scope_denial(monkeypatch) -> None:
