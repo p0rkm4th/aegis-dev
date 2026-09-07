@@ -1,0 +1,85 @@
+{
+  "kind": "pack-first-qwen3-post-finance-owner-reality",
+  "source_sha": "364b805711fdead8d3d43fe4f99012f91381efb2",
+  "observed_at": "2026-09-07T04:15:10Z",
+  "model": "qwen3:8b",
+  "endpoint_class": "owner-local-ollama",
+  "corpus_cases": 26,
+  "fresh_cases": [
+    "can I spend eighty dollars on groceries",
+    "can I keep tonight's grocery trip under eighty dollars based on what we need"
+  ],
+  "variants": {
+    "incumbent": {
+      "routing_recall": 0.09523809523809523,
+      "wrong_action_rate": 0.9047619047619048,
+      "clarification_rate": 0.0,
+      "model_calls_per_case": 0.0,
+      "prompt_bytes_per_case": 0.0,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 0.05223299376666546,
+      "p95_latency_ms": 0.08579797577112913,
+      "invalid_measurement_rate": 0.0
+    },
+    "pack_first": {
+      "routing_recall": 0.2857142857142857,
+      "wrong_action_rate": 0.6666666666666666,
+      "clarification_rate": 0.11538461538461539,
+      "model_calls_per_case": 0.9230769230769231,
+      "prompt_bytes_per_case": 3852.1153846153848,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 1020.4251389950514,
+      "p95_latency_ms": 2332.7815419761464,
+      "invalid_measurement_rate": 0.07692307692307693,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    },
+    "retrieval_assisted_pack_first": {
+      "routing_recall": 0.42857142857142855,
+      "wrong_action_rate": 0.5238095238095238,
+      "clarification_rate": 0.07692307692307693,
+      "model_calls_per_case": 0.9230769230769231,
+      "prompt_bytes_per_case": 870.0384615384615,
+      "context_bytes_per_case": 0.0,
+      "p50_latency_ms": 637.9653800977394,
+      "p95_latency_ms": 1159.6580450423062,
+      "invalid_measurement_rate": 0.07692307692307693,
+      "failure_category.ValueError": 2.0,
+      "failure_category.lifecycle_authority_request": 2.0
+    }
+  },
+  "fresh_case_results": [
+    {
+      "utterance": "can I spend eighty dollars on groceries",
+      "expected_pack_ids": ["finance"],
+      "measurements": {
+        "incumbent": {"selected_pack_ids": ["kitchen"], "correct": false},
+        "pack_first": {"selected_pack_ids": ["kitchen"], "correct": false},
+        "retrieval_assisted_pack_first": {"selected_pack_ids": ["kitchen"], "correct": false}
+      }
+    },
+    {
+      "utterance": "can I keep tonight's grocery trip under eighty dollars based on what we need",
+      "expected_pack_ids": ["finance", "kitchen"],
+      "measurements": {
+        "incumbent": {"selected_pack_ids": ["kitchen"], "correct": false},
+        "pack_first": {"selected_pack_ids": ["kitchen", "kitchen-reports"], "correct": false},
+        "retrieval_assisted_pack_first": {"selected_pack_ids": ["kitchen"], "correct": false}
+      }
+    }
+  ],
+  "provider_diagnostics": {
+    "router_calls": 48,
+    "prompt_tokens": 25798,
+    "output_tokens": 958,
+    "elapsed_ms": 55731.2,
+    "embedding_model": "nomic-embed-text"
+  },
+  "safety": {
+    "production_route_changed": false,
+    "authority_or_execution_used": false,
+    "owner_data_exposed_to_router": false,
+    "catalog_source": "installed reference Pack metadata only"
+  },
+  "interpretation": "The fresh Food/Finance distinctions were non-promotable: both selected the wrong Pack set in all three variants. Pure Pack-first and retrieval-assisted Pack-first also remain below the incumbent promotion bar on the expanded corpus. The installed reference registry has no Forge Pack, so Forge cases were treated as unsupported for this run. Production cognition remains the incumbent."
+}
