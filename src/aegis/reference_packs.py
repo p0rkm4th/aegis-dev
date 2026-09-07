@@ -222,7 +222,13 @@ def prepare_reference_action(
         "device-communications.state.send",
     }:
         if args.get("body_source") == "canonical.groceries" and connection is not None:
-            items = PostgresHouseholdStore(connection).list_groceries(principal)
+            household_store = PostgresHouseholdStore(connection)
+            list_needed = getattr(household_store, "list_needed_groceries", None)
+            items = (
+                list_needed(principal)
+                if callable(list_needed)
+                else household_store.list_groceries(principal)
+            )
             body = "Grocery list:\n" + "\n".join(f"- {item}" for item in items)
             args = {**args, "body": body}
         elif args.get("body_source") == "canonical.chores" and connection is not None:
@@ -909,7 +915,13 @@ def _obligations_workspace_content(connection: Any, principal: Principal) -> str
 def _groceries_workspace_content(connection: Any, principal: Principal) -> str:
     """Serialize the authorized canonical grocery list into a bounded artifact."""
 
-    items = list(PostgresHouseholdStore(connection).list_groceries(principal))[:100]
+    household_store = PostgresHouseholdStore(connection)
+    list_needed = getattr(household_store, "list_needed_groceries", None)
+    items = list(
+        list_needed(principal)
+        if callable(list_needed)
+        else household_store.list_groceries(principal)
+    )[:100]
     lines = ["# Grocery list", ""]
     if not items:
         lines.append("- None")
@@ -6336,7 +6348,7 @@ class PostgresGroceryListExecutor:
             execution_id=request.action_id,
             evidence={
                 "collection": "groceries",
-                "items": list(self.store.list_groceries(self.principal)),
+                "items": list(self.store.list_needed_groceries(self.principal)),
             },
             command_succeeded=True,
         )
@@ -6357,7 +6369,7 @@ class PostgresGroceryListVerifier:
                 verified=False, evidence=observation.evidence, reason="grocery list read failed"
             )
         expected = observation.evidence.get("items")
-        actual = list(self.store.list_groceries(self.principal))
+        actual = list(self.store.list_needed_groceries(self.principal))
         verified = expected == actual
         return VerificationResult(
             verified=verified,
