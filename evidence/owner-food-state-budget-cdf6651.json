@@ -1,0 +1,32 @@
+{
+  "kind": "owner-food-state-budget-proof",
+  "release_sha": "cdf6651f8bad8d9f9188f824ce327234a8266461",
+  "hosted_run_id": "34095844175",
+  "owner_path": "authenticated Tailscale HTTPS",
+  "observed_at": "2026-09-07T07:33:15Z",
+  "postgresql": "healthy",
+  "workflows": {
+    "grocery_purchase_status": {
+      "state": "COMPLETED",
+      "detail": "canonical stable-ID grocery read",
+      "mutation": false
+    },
+    "spoken_grocery_budget_limit": {
+      "state": "COMPLETED",
+      "detail": "bounded Food + Finance planning read",
+      "grocery_prices": "unavailable",
+      "budget_currency": "USD",
+      "financial_mutation": false
+    }
+  },
+  "restart": {
+    "service": "aegis-owner.service",
+    "status": "active",
+    "release_sha": "cdf6651f8bad8d9f9188f824ce327234a8266461"
+  },
+  "safety": {
+    "private_finance_rows_recorded": false,
+    "remote_provider_mutation": false,
+    "authority_expanded": false
+  }
+}
