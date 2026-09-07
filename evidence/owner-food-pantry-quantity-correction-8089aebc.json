@@ -1,0 +1,38 @@
+{
+  "artifact_type": "owner_food_pantry_quantity_correction",
+  "observed_at": "2026-09-07T12:54:20Z",
+  "source_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
+  "hosted_validation": {
+    "run_id": "34124173370",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "8089aebcb558d041d15bbee45c5742079e536fb8",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "restart_verified": true,
+    "postgres": "healthy"
+  },
+  "owner_http_proof": {
+    "root_references": ["/static/aegis.css", "/static/aegis.js"],
+    "food_assets": [
+      "Set quantity for ${item.display_name || 'Pantry item'}",
+      "Consume pantry item ${item.item_id}",
+      "Set a known quantity before consuming"
+    ],
+    "canonical_pantry_records": 1,
+    "unknown_pantry_quantities": 1,
+    "all_pantry_records_have_stable_ids": true,
+    "mutation_path": "normal authenticated Core interaction; no direct browser store write",
+    "quantity_update_contract": "stable item_id plus displayed optimistic version",
+    "metadata_preservation": [
+      "unit",
+      "storage_location",
+      "best_by",
+      "minimum_quantity"
+    ]
+  },
+  "boundary": "The owner can record a known Pantry quantity through kitchen.pantry.update before consuming it. The executor preserves omitted canonical metadata, and server-side optimistic version checks remain authoritative; this proof does not claim that owner Pantry data was mutated during acceptance."
+}
