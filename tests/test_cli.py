@@ -5096,6 +5096,9 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "service.host_status || 'unknown'" in _AEGIS_JS
     assert "service.health_source || 'no health source'" in _AEGIS_JS
     assert "service.host_identity_evidence || []" in _AEGIS_JS
+    assert "service.reachability || 'unknown reachability'" in _AEGIS_JS
+    assert "service.authorization_status || 'authorization unknown'" in _AEGIS_JS
+    assert "service.action_availability || 'unknown'" in _AEGIS_JS
     assert "renderFoodCollection" in _AEGIS_JS
     assert "quantity unknown" in _AEGIS_JS
     assert "Groceries needed" in _AEGIS_JS
@@ -5590,7 +5593,7 @@ def test_browser_app_systems_surface_exposes_core_routed_restart_affordance():
     assert status == 200
     html = payload.decode() + _AEGIS_JS
     assert "Bounded service actions" in html
-    assert "Request restart" in html
+    assert "Request restart through Core" in html
     assert "independent health verification" in html
     assert "Save network inventory to Workspace" in html
     assert "Approve network-reports in Packs & capabilities" in html
