@@ -1,19 +1,19 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "266cfb2",
+  "state_basis_sha": "086005b",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "266cfb2",
-  "deterministic_green_sha": "266cfb2",
-  "last_pushed_sha": "266cfb2",
-  "hosted_green_sha": "266cfb2",
-  "hosted_ci_green_sha": "266cfb2",
+  "repository_head_sha": "086005b",
+  "deterministic_green_sha": "086005b",
+  "last_pushed_sha": "086005b",
+  "hosted_green_sha": "086005b",
+  "hosted_ci_green_sha": "086005b",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "266cfb2",
+    "commit_sha": "086005b",
     "conclusion": "success",
-    "run_id": "34071071590",
-    "observed_at": "2026-09-07T00:52:00Z"
+    "run_id": "34071280065",
+    "observed_at": "2026-09-07T01:02:00Z"
   },
   "installed_release_sha": "266cfb2",
   "running_release_sha": "266cfb2",
@@ -155,7 +155,7 @@
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
-    "Pack-first A/B/C harness remains experimental; Qwen3:8B evidence on an expanded 24-case corpus with the real reference fallback selector shows retrieval-assisted routing at 0.737 recall / 0.158 wrong-action versus incumbent 0.105 / 0.895. Anti-hallucination prompt and ActionCard-summary catalog variants both failed the safety gate and were rejected; production routing remains unchanged",
+    "Pack-first A/B/C harness remains experimental; Qwen3:8B evidence on an expanded 24-case corpus with the real reference fallback selector shows retrieval-assisted routing at 0.737 recall / 0.158 wrong-action versus incumbent 0.105 / 0.895. Anti-hallucination prompt and ActionCard-summary catalog variants both failed the safety gate and were rejected; the experimental router now receives only enabled Packs, while production routing remains unchanged",
     "detailed historical checkpoints moved to evidence/campaigns",
     "browser UI has capability-oriented navigation, Pack-derived Constellation areas, and a promoted authenticated owner runtime",
     "unsupported objectives persist as typed CapabilityNeed state with bounded capability inventory investigation and concrete candidate resolutions",
@@ -389,7 +389,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Run the next bounded Pack-first safety-preserving experiment against the owner-real corpus, while continuing Homelab read utility; Forge review now exposes bounded research evidence without lifecycle authority.",
+  "next_action": "Run a fresh Qwen3:8B Pack-first measurement with the enabled-only catalog boundary, then decide whether evidence supports one experimental route; continue Homelab read utility.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
