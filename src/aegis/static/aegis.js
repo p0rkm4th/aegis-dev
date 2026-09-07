@@ -1838,6 +1838,17 @@ function appendTodaySystemsSummary(panel, payload) {
     const detail = document.createElement('span'); detail.className = 'muted';
     detail.textContent = `Observed ${service.health_observed_at || 'unknown'} via ${service.health_source || 'unknown source'} · Identity: ${service.identity_status || 'unknown'} · Action: ${service.action_availability || 'not stated'}`;
     row.append(name, statuses, detail); section.append(row);
+    if (service.health && service.health !== 'healthy' && service.service_id) {
+      const research = document.createElement('button'); research.type = 'button';
+      research.className = 'today-system-research'; research.textContent = 'Research public context';
+      research.setAttribute('aria-label', `Research public context for ${service.service_id}`);
+      research.addEventListener('click', () => {
+        document.getElementById('utterance').value =
+          `Research why service ${service.service_id} is unavailable`;
+        document.getElementById('chat').requestSubmit();
+      });
+      row.append(research);
+    }
   });
   const boundary = document.createElement('p'); boundary.className = 'muted';
   boundary.textContent = payload.action_authority || 'Systems state is read-only context; health does not grant action authority.';

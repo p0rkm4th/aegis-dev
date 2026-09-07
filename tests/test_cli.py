@@ -7501,6 +7501,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
         "Observed ${service.health_observed_at || 'unknown'} via "
         "${service.health_source || 'unknown source'}" in browser_source
     )
+    assert "today-system-research" in browser_source
+    assert "Research why service ${service.service_id} is unavailable" in browser_source
     assert "All displayed canonical services report healthy and reachable." in browser_source
     assert "health does not grant action authority" in browser_source
     assert "renderStatusBadge('Health', health)" in browser_source
