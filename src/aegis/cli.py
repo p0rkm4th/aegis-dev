@@ -2596,7 +2596,7 @@ def _deterministic_composition_action(
         )
     services_health_request = re.fullmatch(
         r"(?:what|which) services? (?:are|is) "
-        r"(?:down|unhealthy|unavailable|not healthy|healthy|up|available|reachable)"
+        r"(?P<status>down|unhealthy|unavailable|not healthy|healthy|up|available|reachable)"
         r"(?: right now| currently)?[?!.,]?",
         text,
         flags=re.IGNORECASE,
@@ -2605,7 +2605,13 @@ def _deterministic_composition_action(
         card = manager.action_card("homelab", "homelab.services.health")
         if card is None:
             return None
-        return card
+        return card.model_copy(
+            update={
+                "action": card.action.model_copy(
+                    update={"arguments": {"status": services_health_request.group("status")}}
+                )
+            }
+        )
     systems_inventory_request = re.fullmatch(
         r"(?:show|list) (?:me )?(?:my |the )?(?:systems|homelab|hosts and services)[?!.,]?",
         text,

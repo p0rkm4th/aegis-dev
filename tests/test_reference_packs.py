@@ -980,6 +980,54 @@ def test_homelab_services_health_reads_and_rereads_unhealthy_state(monkeypatch) 
     assert result.evidence["independent_services"][1]["status"] == "http_200"
 
 
+def test_homelab_services_health_filter_is_applied_to_independent_readback(monkeypatch) -> None:
+    services = (
+        Service("acceptance-plex", "acceptance-atlas", "Plex", "https://plex.test/health"),
+        Service("acceptance-immich", "acceptance-atlas", "Immich", "https://immich.test/health"),
+    )
+    monkeypatch.setattr(
+        reference_packs_module, "_canonical_homelab_services", lambda *_args: services
+    )
+    reads = iter(
+        (
+            (False, "unavailable"),
+            (True, "http_200"),
+            (False, "unavailable"),
+            (True, "http_200"),
+        )
+    )
+    monkeypatch.setattr(reference_packs_module, "_health_read", lambda _endpoint: next(reads))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    action = next(
+        card.action
+        for bundle in reference_bundles()
+        for card in bundle.cards
+        if card.action.action_id == "homelab.services.health"
+    ).model_copy(update={"arguments": {"status": "down"}})
+    observation = HomelabServicesHealthExecutor(None, principal).execute(
+        ExecutionRequest(
+            objective_id=uuid4(),
+            action_id=uuid4(),
+            action=action,
+            idempotency_key="health-filter-1",
+        )
+    )
+    result = HomelabServicesHealthVerifier(None, principal).verify(observation, action.verification)
+
+    assert result.verified is True
+    assert observation.evidence["homelab_services_health"] == {
+        "requested_status": "down",
+        "services": [
+            {
+                "service_id": "acceptance-plex",
+                "name": "Plex",
+                "host_id": "acceptance-atlas",
+                "status": "unavailable",
+            }
+        ],
+    }
+
+
 def test_homelab_inventory_reads_and_rereads_scoped_identity(monkeypatch) -> None:
     inventory = SimpleNamespace(
         hosts={

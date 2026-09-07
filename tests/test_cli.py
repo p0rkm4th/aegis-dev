@@ -770,7 +770,7 @@ def test_deterministic_homelab_services_health_action_accepts_collection_questio
     card = _deterministic_composition_action(intent, manager, Context())
     assert card is not None
     assert card.action.action_id == "homelab.services.health"
-    assert card.action.arguments == {}
+    assert card.action.arguments == {"status": "down"}
 
 
 def test_deterministic_homelab_services_health_action_accepts_healthy_collection_question():
@@ -786,7 +786,7 @@ def test_deterministic_homelab_services_health_action_accepts_healthy_collection
     card = _deterministic_composition_action(intent, manager, Context())
     assert card is not None
     assert card.action.action_id == "homelab.services.health"
-    assert card.action.arguments == {}
+    assert card.action.arguments == {"status": "healthy"}
 
 
 def test_deterministic_homelab_inventory_action_accepts_systems_question():
