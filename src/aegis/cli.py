@@ -1785,7 +1785,8 @@ def _deterministic_composition_action(
         not FinanceReadFastPath.matches(folded)
         and not is_mutation_request(folded)
         and re.search(
-            r"\b(?:finance|money|spend|spent|transaction|transactions|account|accounts|purchase)\b",
+            r"\b(?:finance|money|spend|spent|transaction|transactions|account|accounts|purchase)\b"
+            r"|\bcash\s+flow\b",
             folded,
         )
     ):

@@ -173,6 +173,18 @@ def test_finance_summary_runtime_reads_and_rechecks_private_snapshot() -> None:
     assert observation.command_succeeded is True
     assert result.verified is True
     assert result.evidence["finance_summary_verified"] is True
+    rendered = reference_format_result(
+        Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message="private Finance summary independently reread",
+            evidence=result.evidence,
+            correlation_id=uuid4(),
+        )
+    )
+    assert rendered == (
+        "Finance snapshot:\nBalances: USD 100.00\nCash flow: USD posted -25.00; USD pending 0.00"
+    )
 
 
 def test_finance_spending_runtime_reads_and_rechecks_private_projection() -> None:

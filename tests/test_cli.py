@@ -139,6 +139,21 @@ def test_deterministic_finance_read_uses_enabled_pack_for_domain_question():
     assert card.action.arguments == {"query": "the store"}
 
 
+def test_deterministic_finance_summary_covers_cash_flow_wording():
+    manager = PackManager()
+    finance = next(bundle for bundle in reference_bundles() if bundle.manifest.pack_id == "finance")
+    manager.discover(finance)
+    manager.install("finance", frozenset({"finance.read"}))
+    manager.enable("finance")
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="vault"),
+        utterance="What is my cash flow?",
+    )
+    card = _deterministic_composition_action(intent, manager, Context())
+    assert card is not None
+    assert card.action.action_id == "finance.summary.read"
+
+
 def test_deterministic_pantry_add_grounds_explicit_name_and_stable_id():
     from aegis.household import stable_pantry_item_id
     from aegis.personal import PersonalState
