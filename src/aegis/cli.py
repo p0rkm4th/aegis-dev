@@ -55,6 +55,7 @@ from .feedback_triage import harvest_defect_candidates
 from .finance import (
     FinanceLedger,
     FinanceReadFastPath,
+    FinanceSpendingFastPath,
     ImportSource,
     PostgresFinanceSnapshotStore,
     summarize_snapshot,
@@ -1764,6 +1765,17 @@ def _deterministic_composition_action(
 
     text = " ".join(intent.utterance.split())
     folded = text.casefold()
+    spending_query = FinanceSpendingFastPath.query(text)
+    if spending_query is not None:
+        spending_card = manager.action_card("finance", "finance.spending.read")
+        if spending_card is not None:
+            return spending_card.model_copy(
+                update={
+                    "action": spending_card.action.model_copy(
+                        update={"arguments": {"query": spending_query}}
+                    )
+                }
+            )
     # A zero-argument read Pack should remain usable when cognition declines
     # to emit an action proposal.  This is a generic capability fallback: it
     # is scoped to an enabled Pack/card and a small domain vocabulary, not to

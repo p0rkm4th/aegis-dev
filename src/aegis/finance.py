@@ -236,6 +236,56 @@ def summarize_snapshot(snapshot: FinanceSnapshot) -> dict[str, object]:
     }
 
 
+def summarize_spending(snapshot: FinanceSnapshot, query: str) -> dict[str, object]:
+    """Return a bounded, private outflow projection for one explicit query.
+
+    Matching is deliberately deterministic and conservative: every meaningful
+    query token must occur in the canonical transaction description. The small
+    ``-ies`` normalization handles ordinary singular/plural wording such as
+    ``grocery``/``groceries`` without turning model inference into financial
+    categorization.
+    """
+
+    def token(value: str) -> str:
+        normalized = value.casefold()
+        return normalized[:-3] + "y" if normalized.endswith("ies") else normalized
+
+    ignored = {"a", "an", "at", "for", "in", "my", "on", "our", "the", "we"}
+    terms = tuple(
+        token(item) for item in re.findall(r"[a-z0-9]+", query.casefold()) if item not in ignored
+    )
+    matches: list[dict[str, object]] = []
+    totals: dict[str, dict[str, int]] = {}
+    for transaction in snapshot.transactions:
+        if transaction.amount_cents >= 0:
+            continue
+        description_tokens = {
+            token(item) for item in re.findall(r"[a-z0-9]+", transaction.description.casefold())
+        }
+        if terms and not all(term in description_tokens for term in terms):
+            continue
+        currency = transaction.currency.upper()
+        by_status = totals.setdefault(currency, {"posted": 0, "pending": 0})
+        by_status[transaction.status] += -transaction.amount_cents
+        matches.append(
+            {
+                "transaction_id": transaction.transaction_id,
+                "description": transaction.description,
+                "amount_cents": -transaction.amount_cents,
+                "currency": currency,
+                "occurred_at": transaction.occurred_at.isoformat(),
+                "status": transaction.status,
+            }
+        )
+    return {
+        "query": query,
+        "matched_transaction_count": len(matches),
+        "spend_by_currency": totals,
+        "transactions": matches[:20],
+        "transactions_omitted": max(0, len(matches) - 20),
+    }
+
+
 class FinancialProvider(Protocol):
     def snapshot(self, owner_id: str) -> FinanceSnapshot: ...
 
@@ -734,3 +784,40 @@ class FinanceReadFastPath:
             },
             correlation_id=intent.correlation_id,
         )
+
+
+class FinanceSpendingFastPath:
+    """Recognize an explicit generic spending read without inspecting state."""
+
+    _TEMPORAL = re.compile(
+        r"\b(?:today|yesterday|tomorrow|this|last|next|week|month|year|quarter)\b",
+        re.IGNORECASE,
+    )
+    _FOCUS = re.compile(
+        r"\b(?:on|at|for)\s+(?P<query>[a-z0-9][a-z0-9 &'/-]{0,80}?)(?:[?!.,]|$)",
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def query(cls, utterance: str) -> str | None:
+        text = " ".join(utterance.split()).strip()
+        folded = text.casefold()
+        if has_multiple_question_clauses(folded):
+            return None
+        if not re.match(r"^(?:what|how much)\b", folded):
+            return None
+        if not re.search(r"\b(?:spend|spent|spending)\b", folded):
+            return None
+        if FinanceReadFastPath.matches(text):
+            return None
+        focus = cls._FOCUS.search(text)
+        if focus is None:
+            return None
+        value = " ".join(focus.group("query").split()).strip()
+        if not value or cls._TEMPORAL.search(value):
+            return None
+        return value
+
+    @classmethod
+    def matches(cls, utterance: str) -> bool:
+        return cls.query(utterance) is not None

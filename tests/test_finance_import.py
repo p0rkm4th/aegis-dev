@@ -12,6 +12,7 @@ from aegis.finance import (
     Transaction,
     import_csv_transactions,
     summarize_snapshot,
+    summarize_spending,
 )
 from aegis.projections import SharedObligation
 
@@ -243,6 +244,41 @@ def test_finance_summary_keeps_currencies_and_pending_flow_separate():
     assert summary["spend_by_description"] == {
         "USD": {"posted": {"Food": 500}, "pending": {"Hold": 700}}
     }
+
+
+def test_finance_spending_projection_matches_explicit_description_and_status() -> None:
+    snapshot = FinanceSnapshot(
+        "alice",
+        (
+            Account("usd", "alice", 10_000, currency="USD"),
+            Account("eur", "alice", 8_000, currency="EUR"),
+        ),
+        (
+            Transaction("coffee-1", "usd", -500, datetime(2026, 9, 1), "Coffee shop"),
+            Transaction(
+                "grocery-1",
+                "usd",
+                -2_500,
+                datetime(2026, 9, 2),
+                "Grocery store",
+                status="pending",
+            ),
+            Transaction("grocery-2", "eur", -1_200, datetime(2026, 9, 3), "Grocery store", "EUR"),
+        ),
+    )
+
+    projection = summarize_spending(snapshot, "groceries")
+
+    assert projection["matched_transaction_count"] == 2
+    assert projection["spend_by_currency"] == {
+        "USD": {"posted": 0, "pending": 2_500},
+        "EUR": {"posted": 1_200, "pending": 0},
+    }
+    assert [item["transaction_id"] for item in projection["transactions"]] == [
+        "grocery-1",
+        "grocery-2",
+    ]
+    assert summarize_spending(snapshot, "hardware")["spend_by_currency"] == {}
 
 
 def test_affordability_is_currency_scoped_and_rejects_mixed_obligations():

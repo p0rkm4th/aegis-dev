@@ -62,7 +62,7 @@ from .devices import (
     device_states_evidence,
 )
 from .documents import configured_document_provider, documents_evidence
-from .finance import PostgresFinanceSnapshotStore, summarize_snapshot
+from .finance import PostgresFinanceSnapshotStore, summarize_snapshot, summarize_spending
 from .gateway_rpc import (
     CorrelatedRpcClient,
     OpenClawGatewayRpc,
@@ -1231,6 +1231,28 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                         "transaction summary"
                     ),
                     relevance=1,
+                ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="finance.spending.read",
+                        capability="finance.spending.read",
+                        required_permissions=("finance.read",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary=(
+                        "Read private spending totals for an explicit description focus, "
+                        "keeping currencies and settlement states separate"
+                    ),
+                    relevance=1,
+                    argument_keys=("query",),
+                    argument_descriptions={
+                        "query": "Explicit merchant or description focus to search"
+                    },
+                    argument_grounding={
+                        "query": ArgumentGroundingRule(
+                            permitted_provenance=(ArgumentProvenanceKind.EXPLICIT_UTTERANCE,)
+                        )
+                    },
                 ),
             ),
         ),
@@ -5040,6 +5062,67 @@ class FinanceSummaryVerifier:
                 "private Finance summary independently reread"
                 if verified
                 else "private Finance summary read failed or changed"
+            ),
+        )
+
+
+class FinanceSpendingExecutor:
+    """Read a deterministic private spending projection for one focus."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        query = request.action.arguments.get("query")
+        if not isinstance(query, str) or not query.strip():
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"finance_spending": "invalid_query"},
+                command_succeeded=False,
+            )
+        snapshot = PostgresFinanceSnapshotStore(self.connection).load(self.principal.id)
+        if snapshot is None:
+            return Observation(
+                execution_id=uuid4(),
+                evidence={"finance_spending": "unavailable"},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=uuid4(),
+            evidence={"finance_spending": summarize_spending(snapshot, query)},
+            command_succeeded=True,
+        )
+
+
+class FinanceSpendingVerifier:
+    """Independently reread the private snapshot before accepting the projection."""
+
+    def __init__(self, connection: Any, principal: Principal) -> None:
+        self.connection = connection
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, _contract: VerificationContract
+    ) -> VerificationResult:
+        expected = observation.evidence.get("finance_spending")
+        query = expected.get("query") if isinstance(expected, dict) else None
+        snapshot = PostgresFinanceSnapshotStore(self.connection).load(self.principal.id)
+        actual = (
+            summarize_spending(snapshot, query)
+            if snapshot is not None and isinstance(query, str)
+            else None
+        )
+        verified = (
+            observation.command_succeeded and isinstance(expected, dict) and actual == expected
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={"finance_spending_verified": verified, "spending": actual},
+            reason=(
+                "private Finance spending projection independently reread"
+                if verified
+                else "private Finance spending projection read failed or changed"
             ),
         )
 

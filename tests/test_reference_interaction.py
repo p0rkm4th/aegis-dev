@@ -17,6 +17,7 @@ from aegis.contracts import (
     StructuralCoverageSignal,
     VerificationContract,
 )
+from aegis.finance import FinanceSpendingFastPath
 from aegis.household import (
     Chore,
     ContextualChorePriorityFastPath,
@@ -119,6 +120,12 @@ def test_grocery_read_fast_path_does_not_substitute_shopping_list_for_inventory(
 
 def test_grocery_read_fast_path_yields_explicit_pantry_reads() -> None:
     assert GroceryReadFastPath.matches("What's in the pantry?") is False
+
+
+def test_finance_spending_question_is_explicit_and_not_a_grocery_list_read() -> None:
+    assert FinanceSpendingFastPath.query("What did I spend on groceries?") == "groceries"
+    assert FinanceSpendingFastPath.query("What did I spend at the store?") == "the store"
+    assert FinanceSpendingFastPath.matches("Can I spend $80 on groceries tonight?") is False
 
 
 def test_reference_formatter_labels_pantry_items_as_pantry() -> None:

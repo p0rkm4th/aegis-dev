@@ -77,6 +77,8 @@ from .reference_packs import (
     DocumentsVerifier,
     DocumentWorkspaceExecutor,
     DocumentWorkspaceVerifier,
+    FinanceSpendingExecutor,
+    FinanceSpendingVerifier,
     FinanceSummaryExecutor,
     FinanceSummaryVerifier,
     FixtureHomelabRestartExecutor,
@@ -709,6 +711,13 @@ def default_runtime_registry(
             {"finance.read": frozenset({Role.OWNER})},
         )
 
+    def finance_spending_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        return ActionRuntime(
+            FinanceSpendingExecutor(connection, principal),
+            FinanceSpendingVerifier(connection, principal),
+            {"finance.read": frozenset({Role.OWNER})},
+        )
+
     def communications_runtime(connection: Any, principal: Principal) -> ActionRuntime:
         del connection, principal
         return ActionRuntime(
@@ -912,6 +921,7 @@ def default_runtime_registry(
         "documents.list": documents_runtime,
         "documents.search": documents_runtime,
         "finance.summary.read": finance_summary_runtime,
+        "finance.spending.read": finance_spending_runtime,
         "communications.messages.list": communications_runtime,
         "communications.messages.send": communications_send_runtime,
         "workspace-communications.artifact.send": workspace_communications_runtime,
