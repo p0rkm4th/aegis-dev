@@ -1,19 +1,19 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
+  "state_basis_sha": "09d5161362bb3b696604b798da346993924dfeb8",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
-  "deterministic_green_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
-  "last_pushed_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
-  "hosted_green_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
-  "hosted_ci_green_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
+  "repository_head_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+  "deterministic_green_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+  "last_pushed_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+  "hosted_green_sha": "09d5161362bb3b696604b798da346993924dfeb8",
+  "hosted_ci_green_sha": "09d5161362bb3b696604b798da346993924dfeb8",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
+    "commit_sha": "09d5161362bb3b696604b798da346993924dfeb8",
     "conclusion": "success",
-    "run_id": "34116630638",
-    "observed_at": "2026-09-07T11:29:04Z"
+    "run_id": "34117291110",
+    "observed_at": "2026-09-07T11:35:47Z"
   },
   "installed_release_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
   "running_release_sha": "db7922b5c6255cb67a20770706df6fe13aff8912",
@@ -403,6 +403,7 @@
     ,"owner Today now groups exact title-and-time upcoming event labels on 9079ce5 through the authenticated Tailscale shell; grouping is display-only, matching entries are disclosed, and Calendar retains each canonical event identity"
     ,"Fresh Qwen3:8B Pack-first shadow evidence on 74bfcb3 evaluated 34 cases including the exact Food + Homelab and Food + Finance + Homelab owner phrases; the unchanged incumbent led at 0.759 recall / 0.241 wrong-action versus 0.345 / 0.621 for both experimental variants, so production cognition remains incumbent"
     ,"Owner Today Pantry check on db7922b is served through the authenticated Tailscale shell and reports canonical record count, known low-stock projections, and an explicit unknown-quantity boundary without changing Food state"
+    ,"Owner-Reality OSS harvest on 09d5161 records bounded design/test reuse recommendations for Grocy, Mealie, Actual Budget, Firefly III Data Importer, ofxtools, and Nmap without adding runtime dependencies or authority"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
@@ -466,7 +467,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility on the promoted db7922b Today surface. Use the next bounded Food, Finance, Homelab, Forge, or UI gap found in owner dogfood; Pack-first remains experimental after the 74bfcb3 shadow result and production cognition remains incumbent.",
+  "next_action": "Continue owner-real utility on the promoted db7922b Today surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
