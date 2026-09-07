@@ -1,0 +1,38 @@
+{
+  "evidence_type": "owner_capability_need_forge_quarantine",
+  "source_sha": "7e7908e585070b47c04f495dddd96674d493e82c",
+  "hosted_validation": {
+    "workflow": "validation",
+    "run_id": "34096605946",
+    "head_sha": "7e7908e585070b47c04f495dddd96674d493e82c",
+    "conclusion": "success"
+  },
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "access": "authenticated Tailscale HTTPS",
+    "release_sha": "7e7908e585070b47c04f495dddd96674d493e82c",
+    "postgresql": "healthy",
+    "restarted_after_quarantine": true
+  },
+  "request": {
+    "kind": "unsupported owner objective with owner_input_required CapabilityNeed",
+    "candidate_kind": "workspace_solution",
+    "candidate_capability": "workspace.artifact.create",
+    "candidate_requires_owner_input": true,
+    "prior_regression": "punctuated requested effect was rejected as invalid Forge candidate"
+  },
+  "quarantine_result": {
+    "status": "materialized",
+    "pack_id": "generated-set-up-a-small-minecraft-server-for-my-family",
+    "generated_file_count": 8,
+    "runtime": "NotImplementedError stub; not executed",
+    "active_registry": "untouched",
+    "generated_pack_in_active_registry": false,
+    "persisted_across_restart": true,
+    "authority_changes": false,
+    "permissions_granted": false,
+    "pack_enabled": false,
+    "pack_installed": false
+  },
+  "observed_at": "2026-09-07T07:43:11Z"
+}
