@@ -1601,6 +1601,7 @@ function appendTodayBrief(panel, payload) {
     groceryNote.textContent = 'The overview is bounded to eight groups; matching rows are grouped here, while Household keeps every stable grocery ID separately.';
     panel.append(groceryNote);
   }
+  appendTodayGroceryAdd(panel);
   const pantryItems = Array.isArray(canonical.pantry_items) ? canonical.pantry_items : [];
   const pantryLowItems = Array.isArray(canonical.pantry_low_items) ? canonical.pantry_low_items : [];
   const pantryOverview = todayPantryOverviewLabels(pantryLowItems, 6);
@@ -1616,6 +1617,27 @@ function appendTodayBrief(panel, payload) {
   }
   const recent = todayRecordLabels(canonical.completed_tasks, 'Completed', 5);
   appendTodaySection(panel, 'Recently completed', recent.length ? recent : 'No recent completions recorded.');
+}
+function appendTodayGroceryAdd(panel) {
+  const section = document.createElement('section'); section.className = 'detail-card today-grocery-add';
+  const heading = document.createElement('h3'); heading.textContent = 'Add to grocery list';
+  const form = document.createElement('form'); form.setAttribute('aria-label', 'Add grocery item from Today');
+  const input = document.createElement('input'); input.type = 'text'; input.maxLength = 120;
+  input.placeholder = 'e.g. milk'; input.setAttribute('aria-label', 'Grocery item name'); input.required = true;
+  const submit = document.createElement('button'); submit.type = 'submit'; submit.textContent = 'Add item';
+  const status = document.createElement('p'); status.className = 'muted'; status.setAttribute('aria-live', 'polite');
+  form.append(input, submit);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const name = input.value.trim().replace(/\s+/g, ' ');
+    if (!name) return;
+    document.getElementById('utterance').value = `Add ${name} to my grocery list`;
+    status.textContent = 'Submitting the explicit item through normal Core authorization…';
+    document.getElementById('chat').requestSubmit();
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = 'The named item goes through the normal Core grounding, authorization, and canonical verification path.';
+  section.append(heading, form, status, boundary); panel.append(section);
 }
 function todayGroceryOverviewLabels(items, limit) {
   const groups = new Map();
