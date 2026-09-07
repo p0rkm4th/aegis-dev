@@ -3486,6 +3486,38 @@ def test_reference_planning_display_includes_food_and_derived_affordability() ->
     )
 
 
+def test_reference_planning_display_keeps_budget_separate_from_grocery_cost() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Cross-domain planning context assembled from canonical state",
+        correlation_id=uuid4(),
+        evidence={
+            "planning": {
+                "grocery_items": [{"display_name": "milk", "state": "needed"}],
+                "grocery_costs": {
+                    "available": False,
+                    "reason": "canonical grocery records contain no item prices",
+                },
+                "affordability": {
+                    "affordable": True,
+                    "purchase_cents": 8000,
+                    "shared_obligations_cents": 120,
+                    "purchase_currency": "USD",
+                },
+            }
+        },
+    )
+
+    rendered = reference_format_result(result)
+
+    assert rendered == (
+        "Planning: groceries needed: milk; grocery prices: unavailable; "
+        "affordable: yes (budget limit $80.00; shared obligations $1.20)"
+    )
+    assert "estimated" not in rendered
+
+
 def test_reference_homelab_research_does_not_claim_a_cause_from_public_context() -> None:
     result = Result(
         objective_id=uuid4(),

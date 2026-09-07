@@ -786,6 +786,11 @@ class CrossDomainPlanningFastPath:
     _TASK_TERMS = ("task", "tasks", "to-do", "todo")
     _FINANCE_TERMS = ("finance", "afford", "affordable", "cost", "budget", "purchase")
     _FOOD_TERMS = ("food", "grocery", "groceries", "pantry", "shopping list")
+    _BUDGET_LIMIT = re.compile(
+        r"\b(?:under|below|within|up to)\s+(?:\$\s*\d[\d,]*(?:\.\d{1,2})?|"
+        r"\d[\d,]*(?:\.\d{1,2})?\s+(?:dollars?|bucks?))\b",
+        re.IGNORECASE,
+    )
     _MAX_CONTEXT_ITEMS = 5
 
     def __init__(
@@ -803,13 +808,17 @@ class CrossDomainPlanningFastPath:
     @classmethod
     def matches(cls, utterance: str) -> bool:
         text = utterance.casefold()
+        budget_limit_requested = cls._BUDGET_LIMIT.search(text) is not None
+        finance_requested = any(term in text for term in cls._FINANCE_TERMS) or (
+            budget_limit_requested
+        )
         domains = sum(
             (
                 any(term in text for term in cls._PERSONAL_TERMS),
                 any(term in text for term in cls._SHARED_TERMS),
                 any(term in text for term in cls._TASK_TERMS)
                 or any(term in text for term in ("need to", "take care of", "prepare")),
-                any(term in text for term in cls._FINANCE_TERMS),
+                finance_requested,
                 any(term in text for term in cls._FOOD_TERMS),
             )
         )
@@ -817,6 +826,7 @@ class CrossDomainPlanningFastPath:
             any(term in text for term in cls._PLANNING_TERMS)
             or ("which" in text and "should" in text)
             or " and " in text
+            or budget_limit_requested
         )
 
     def resolve(self, intent: IntentFrame) -> Result | None:
@@ -986,6 +996,13 @@ class CrossDomainPlanningFastPath:
             omitted_groceries = len(all_needed_groceries) - len(needed_groceries)
             if omitted_groceries:
                 planning["grocery_items_omitted"] = omitted_groceries
+            # Grocery identity and quantity are canonical here, but this Pack
+            # does not carry item prices. The Finance amount below is a user's
+            # affordability/budget comparison, never an estimated list total.
+            planning["grocery_costs"] = {
+                "available": False,
+                "reason": "canonical grocery records contain no item prices",
+            }
         if self.finance is not None:
             planning["affordability"] = {
                 key: self.finance[key]

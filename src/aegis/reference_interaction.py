@@ -1447,6 +1447,12 @@ def reference_format_result(result: Any) -> str:
             if isinstance(omitted, int) and omitted > 0:
                 grocery_rows.append(f"… and {omitted} more")
             summaries.append("groceries needed: " + ("; ".join(grocery_rows) or "(none)"))
+        grocery_costs = planning.get("grocery_costs")
+        grocery_prices_unavailable = (
+            isinstance(grocery_costs, dict) and grocery_costs.get("available") is False
+        )
+        if grocery_prices_unavailable:
+            summaries.append("grocery prices: unavailable")
         affordability = planning.get("affordability")
         if isinstance(affordability, dict) and affordability.get("affordable") is not None:
             status = "yes" if affordability["affordable"] else "no"
@@ -1455,9 +1461,10 @@ def reference_format_result(result: Any) -> str:
             currency = affordability.get("purchase_currency", "USD")
             currency_text = str(currency) if isinstance(currency, str) else "USD"
             symbol = "$" if currency_text == "USD" else f"{currency_text} "
+            amount_label = "budget limit" if grocery_prices_unavailable else "purchase"
             if isinstance(purchase, int) and isinstance(obligations, int):
                 summaries.append(
-                    f"affordable: {status} (purchase {symbol}{purchase / 100:.2f}; "
+                    f"affordable: {status} ({amount_label} {symbol}{purchase / 100:.2f}; "
                     f"shared obligations {symbol}{obligations / 100:.2f})"
                 )
             else:
