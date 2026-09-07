@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "92d2987",
+  "state_basis_sha": "d3e2131",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "92d2987",
-  "deterministic_green_sha": "92d2987",
-  "last_pushed_sha": "92d2987",
-  "hosted_green_sha": "92d2987",
-  "hosted_ci_green_sha": "92d2987",
+  "repository_head_sha": "d3e2131",
+  "deterministic_green_sha": "d3e2131",
+  "last_pushed_sha": "d3e2131",
+  "hosted_green_sha": "d3e2131",
+  "hosted_ci_green_sha": "d3e2131",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "92d298797a57836e2db4375e61071d4ca93d7883",
+    "commit_sha": "d3e2131944fdcdad86f945d2d4f22a6f9dfee4a3",
     "conclusion": "success",
-    "run_id": "34084594951",
-    "observed_at": "2026-09-07T04:52:00Z"
+    "run_id": "34085331494",
+    "observed_at": "2026-09-07T05:10:00Z"
   },
-  "installed_release_sha": "92d2987",
-  "running_release_sha": "92d2987",
-  "live_green_sha": "92d2987",
+  "installed_release_sha": "d3e2131",
+  "running_release_sha": "d3e2131",
+  "live_green_sha": "d3e2131",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "92d298797a57836e2db4375e61071d4ca93d7883"
+    "release_sha": "d3e2131944fdcdad86f945d2d4f22a6f9dfee4a3"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -64,6 +64,7 @@
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",
+    "finance_owner_import_fidelity": "Promoted d3e2131 owner proof acknowledges a repeated synthetic CSV source with zero new transactions and preserves one pending USD row with provider/source identity across service restart; no financial external mutation is claimed",
     "owner_provenance_proof": "explicit ACTION, temporal ACTION, and task+chore PLAN verified on 25846cd",
     "compound_cognition": "bounded research evidence only; not capability-green",
     "air_quality": "live Open-Meteo public evidence for explicit owner coordinates; not canonical personal truth or medical advice",
@@ -357,7 +358,8 @@
     "owner HTTPS proof on a82e1ee confirms Finance state is served with explicit transaction/provenance renderers and PostgreSQL remains healthy after promotion",
     "owner dogfood on a82e1ee completed standalone affordability and Food+Finance grocery-budget reads through the real owner message path without financial mutation",
     "owner Food state-preservation repair is installed on 766688d; an attempted normal grocery mutation was blocked truthfully because the configured OpenClaw execution provider is unavailable, so no owner canonical item was changed",
-    "owner Homelab discovery freshness proof on 92d2987 returned timestamped bounded observations through the approved alpha-lab scope; observations remain unmatched/non-canonical and non-authoritative"
+    "owner Homelab discovery freshness proof on 92d2987 returned timestamped bounded observations through the approved alpha-lab scope; observations remain unmatched/non-canonical and non-authoritative",
+    "owner Finance import fidelity proof on d3e2131 returned a truthful duplicate-source response and preserved the synthetic pending row after restart; local import is owner-controlled canonical state and not financial external mutation"
   ],
   "current_blockers": [
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
