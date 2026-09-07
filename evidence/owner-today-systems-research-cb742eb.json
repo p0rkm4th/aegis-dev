@@ -1,0 +1,28 @@
+{
+  "artifact_type": "owner_today_systems_research_promotion",
+  "observed_at": "2026-09-07T12:02:57Z",
+  "source_sha": "cb742eb916fcd4390696e83efaf74c0c263cce27",
+  "hosted_validation": {
+    "run_id": "34119534303",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "cb742eb916fcd4390696e83efaf74c0c263cce27",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded",
+    "restart_verified": true
+  },
+  "owner_readback": {
+    "api_systems_status": 200,
+    "canonical_host_count": 1,
+    "canonical_service_count": 1,
+    "unhealthy_service_count": 1,
+    "served_static_js_today_research_action": true,
+    "submission_route": "existing chat/Core interaction path",
+    "service_mutation_attempted": false
+  },
+  "boundary": "Today makes public-context investigation easier for an unhealthy canonical service, while service state, authorization, and all mutations remain Core-owned."
+}
