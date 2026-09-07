@@ -1054,7 +1054,7 @@ def reference_constellation_state(
                         "id": need_node_id,
                         "label": "Capability Need",
                         "detail": f"{status} · {requested_effect[:180]}",
-                        "category": "capability",
+                        "category": "capability_need",
                         "detail_view": "objectives",
                     }
                 )

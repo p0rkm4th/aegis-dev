@@ -91,12 +91,14 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .constellation-layer-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .75rem; }
 .constellation-layer-core .constellation-layer-nodes { grid-template-columns: minmax(12rem, 18rem); justify-content: center; }
 .constellation-layer-capability .constellation-layer-nodes,
+.constellation-layer-capability_need .constellation-layer-nodes,
 .constellation-layer-objective .constellation-layer-nodes,
 .constellation-layer-composition .constellation-layer-nodes { padding-left: clamp(.5rem, 4vw, 2.5rem); border-left: 2px solid color-mix(in srgb, var(--accent) 28%, var(--line)); }
 .node { width: 100%; min-height: 7rem; text-align: left; }
 .node[data-category="core"] { grid-column: 1 / -1; justify-self: center; width: min(18rem, 100%); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel-raised)); text-align: center; }
 .node[data-category="domain"] { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .node[data-category="capability"] { min-height: 5rem; font-size: .9rem; }
+.node[data-category="capability_need"] { min-height: 5rem; border-color: color-mix(in srgb, var(--warning) 55%, var(--border)); background: color-mix(in srgb, var(--warning) 7%, var(--panel-raised)); font-size: .9rem; }
 .node[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 .15rem color-mix(in srgb, var(--accent) 25%, transparent); }
 .view-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
 .view-summary h2 { margin: 0; font-size: 1rem; }

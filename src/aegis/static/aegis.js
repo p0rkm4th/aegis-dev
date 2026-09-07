@@ -617,9 +617,10 @@ async function loadState() {
   });
   const categoryLabels = {
     core: 'AEGIS', domain: 'Domains & Packs', capability: 'Semantic areas',
-    objective: 'Active objectives', composition: 'Bounded relationships',
+    capability_need: 'Capability needs', objective: 'Active objectives',
+    composition: 'Bounded relationships',
   };
-  const categoryOrder = ['core', 'domain', 'capability', 'objective', 'composition'];
+  const categoryOrder = ['core', 'domain', 'capability', 'capability_need', 'objective', 'composition'];
   nodes.replaceChildren(...categoryOrder.filter(category => constellationGroups.has(category)).map(category => {
     const layer = document.createElement('section');
     layer.className = `constellation-layer constellation-layer-${category}`;
