@@ -1,0 +1,22 @@
+{
+  "kind": "pack-first-router-prompt-experiment",
+  "source_sha": "24da7b72205070f4b28821e763647831c87ccbb8",
+  "observed_at": "2026-09-07",
+  "model": "qwen3:8b",
+  "corpus_cases": 24,
+  "change": "Added explicit prompt instructions not to invent Pack IDs and to select all applicable Packs.",
+  "baseline": {
+    "retrieval_assisted_recall": 0.7368421052631579,
+    "retrieval_assisted_wrong_action_rate": 0.15789473684210525,
+    "retrieval_assisted_invalid_measurement_rate": 0.125,
+    "retrieval_assisted_prompt_bytes_per_case": 271.2916666666667
+  },
+  "variant": {
+    "retrieval_assisted_recall": 0.5789473684210527,
+    "retrieval_assisted_wrong_action_rate": 0.42105263157894735,
+    "retrieval_assisted_invalid_measurement_rate": 0.0,
+    "retrieval_assisted_prompt_bytes_per_case": 450.4166666666667
+  },
+  "decision": "REJECT",
+  "interpretation": "The extra prompt wording increased prompt size and materially worsened recall and wrong-action rate. It is reverted; production routing remains unchanged."
+}

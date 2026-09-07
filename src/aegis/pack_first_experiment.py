@@ -281,11 +281,6 @@ def router_prompt(utterance: str, catalog: Sequence[PackCatalogEntry]) -> str:
             f"capabilities: {', '.join(entry.capabilities[:6])}"
         )
     lines.append(
-        "Select only Pack IDs listed above. Never invent, install, enable, or approve a Pack. "
-        "If no listed Pack fits, return NO_VALID_PACK with an empty selection. "
-        "For a multi-domain request, select each applicable listed Pack."
-    )
-    lines.append(
         'Return JSON only: {"status":"SELECTED|NO_VALID_PACK|NEED_CONTEXT|UNSUPPORTED",'
         '"selected_pack_ids":["pack-id"]}'
     )

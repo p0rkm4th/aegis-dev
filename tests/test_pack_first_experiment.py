@@ -165,7 +165,6 @@ def test_router_measurements_keep_pack_first_context_compact_and_exclude_owner_d
     assert "secret-grocery-value" in seen[0]
     assert "quantity" not in seen[0]
     assert pure.context_bytes == 0
-    assert "Never invent, install, enable, or approve a Pack" in seen[0]
 
 
 def test_incumbent_is_measured_as_control_without_router_call():
