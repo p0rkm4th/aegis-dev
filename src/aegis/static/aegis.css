@@ -111,8 +111,11 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .list-row + .list-row { border-top: 1px solid var(--line); }
 .list-row > span { min-width: 0; overflow-wrap: anywhere; }
 .forge-review { border-style: dashed; background: color-mix(in srgb, var(--warning) 5%, var(--surface-1)); }
+.forge-preview { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 8%, var(--surface-1)); }
 .forge-review h6 { margin: 0 0 .35rem; font-size: .82rem; letter-spacing: .04em; }
+.forge-preview h6 { margin: 0 0 .35rem; font-size: .82rem; letter-spacing: .04em; }
 .forge-review p { margin: .35rem 0 0; }
+.forge-preview p { margin: .35rem 0 0; }
 .status-badge[data-state="candidate"] { border-color: var(--warning); color: var(--warning); }
 
 @media (max-width: 36rem) {

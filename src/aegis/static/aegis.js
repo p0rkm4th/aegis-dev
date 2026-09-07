@@ -1923,6 +1923,45 @@ async function loadObjectives() {
                 forgeReview.append(lifecycle);
               }
               needCard.append(forgeReview);
+              const quarantine = document.createElement('button');
+              quarantine.type = 'button';
+              quarantine.textContent = 'Prepare quarantined skeleton';
+              quarantine.addEventListener('click', async () => {
+                quarantine.disabled = true;
+                quarantine.textContent = 'Preparing…';
+                try {
+                  const response = await apiFetch('/api/forge/quarantine', {
+                    method: 'POST', headers: {'content-type': 'application/json'},
+                    body: JSON.stringify({
+                      objective_id: objective.objective_id,
+                      need_id: need.need_id,
+                      candidate_index: candidates.indexOf(candidate)
+                    })
+                  });
+                  const result = await response.json();
+                  if (!response.ok) throw new Error(result.error || 'Forge quarantine was denied.');
+                  const preview = document.createElement('section');
+                  preview.className = 'forge-preview detail-card';
+                  preview.setAttribute('aria-label', 'Forge quarantine result');
+                  const previewTitle = document.createElement('h6');
+                  previewTitle.textContent = `Forge validation · ${result.quarantine?.status || 'unknown'}`;
+                  const previewBoundary = document.createElement('p');
+                  previewBoundary.className = 'muted';
+                  previewBoundary.textContent = 'Quarantined structural skeleton only. It is not installed, enabled, authorized, or executable.';
+                  const files = document.createElement('p');
+                  files.className = 'muted';
+                  files.textContent = `Generated files: ${(result.generated_files || []).join(', ')}`;
+                  const warnings = document.createElement('p');
+                  warnings.className = 'muted';
+                  warnings.textContent = (result.security_warnings || []).join(' ');
+                  preview.append(previewTitle, previewBoundary, files, warnings);
+                  quarantine.replaceWith(preview);
+                } catch (_) {
+                  quarantine.disabled = false;
+                  quarantine.textContent = 'Quarantine preparation denied';
+                }
+              });
+              needCard.append(quarantine);
               const review = document.createElement('button');
               review.type = 'button'; review.textContent = 'Review Packs & capabilities';
               review.addEventListener('click', () => {

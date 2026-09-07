@@ -44,6 +44,7 @@ DailyDriverState = Callable[[Principal], dict[str, Any]]
 ResearchState = Callable[[Principal], dict[str, Any]]
 FinanceState = Callable[[Principal], dict[str, Any]]
 FinanceImport = Callable[[Principal, dict[str, Any]], dict[str, Any]]
+ForgeQuarantine = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -168,6 +169,15 @@ class SystemsDiscoverRequest(BaseModel):
     scope_id: str = Field(min_length=1, max_length=100)
 
 
+class ForgeQuarantineRequest(BaseModel):
+    """Owner-selected CapabilityNeed candidate for safe Forge materialization."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    objective_id: UUID
+    need_id: UUID
+    candidate_index: int = Field(ge=0, le=7)
+
+
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
@@ -258,6 +268,7 @@ class BrowserApp:
         research_state: ResearchState | None = None,
         finance_state: FinanceState | None = None,
         finance_import: FinanceImport | None = None,
+        forge_quarantine: ForgeQuarantine | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -288,6 +299,7 @@ class BrowserApp:
         self.research_state = research_state
         self.finance_state = finance_state
         self.finance_import = finance_import
+        self.forge_quarantine = forge_quarantine
 
     def dispatch(
         self,
@@ -738,6 +750,29 @@ class BrowserApp:
                     HTTPStatus.BAD_REQUEST, "invalid_request", "invalid Pack enablement request"
                 )
             return self._json(HTTPStatus.OK, result)
+        if method == "POST" and route == "/api/forge/quarantine":
+            if self.forge_quarantine is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                forge_request = ForgeQuarantineRequest.model_validate(
+                    json.loads(body.decode("utf-8"))
+                )
+                result = self.forge_quarantine(principal, forge_request.model_dump(mode="json"))
+                if not isinstance(result, dict):
+                    raise ValueError("Forge quarantine result must be an object")
+            except PermissionError as exc:
+                return self._error(HTTPStatus.FORBIDDEN, "action_denied", str(exc))
+            except (KeyError, TypeError, ValueError, ValidationError, json.JSONDecodeError):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid Forge candidate"
+                )
+            except OSError:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "forge_unavailable",
+                    "Forge quarantine is unavailable",
+                )
+            return self._json(HTTPStatus.OK, result)
         if method == "POST" and route == "/api/workspace":
             if self.workspace_create is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -963,6 +998,7 @@ def serve(
     research_state: ResearchState | None = None,
     finance_state: FinanceState | None = None,
     finance_import: FinanceImport | None = None,
+    forge_quarantine: ForgeQuarantine | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -996,6 +1032,7 @@ def serve(
         research_state=research_state,
         finance_state=finance_state,
         finance_import=finance_import,
+        forge_quarantine=forge_quarantine,
     )
 
     class Handler(BaseHTTPRequestHandler):
