@@ -1,0 +1,44 @@
+{
+  "artifact_type": "owner_today_asset_and_api_proof",
+  "observed_at": "2026-09-06",
+  "source_sha": "3e1b4f3e131c7dba9a9d3f81645feeded38df1e3",
+  "hosted_validation": {
+    "run_id": "34083764848",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "3e1b4f3e131c7dba9a9d3f81645feeded38df1e3",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "owner_runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "postgres": "healthy",
+    "model": "qwen3:8b"
+  },
+  "https_proof": {
+    "root": {
+      "status": 200,
+      "session_token_meta": true,
+      "references_css": true,
+      "references_js": true
+    },
+    "/static/aegis.css": {
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "bytes": 15449,
+      "expected_design_token": true
+    },
+    "/static/aegis.js": {
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "bytes": 150176,
+      "today_grocery_renderer": true
+    },
+    "/api/today": {
+      "status": 200,
+      "authenticated": true,
+      "authorized_grocery_items": 6,
+      "current_grocery_items": 6
+    }
+  },
+  "owner_claim_boundary": "The promoted release delivers the extracted CSS/JS through the actual Tailscale HTTPS path and the authenticated Today API exposes the bounded grocery projection. No browser executable was available in the owner-proof environment, so this artifact does not claim fresh computed-style or screenshot evidence."
+}
