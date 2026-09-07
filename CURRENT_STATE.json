@@ -15,9 +15,9 @@
     "run_id": "34072185196",
     "observed_at": "2026-09-07T01:11:58Z"
   },
-  "installed_release_sha": "739cb42",
-  "running_release_sha": "739cb42",
-  "live_green_sha": "739cb42",
+  "installed_release_sha": "25856c8",
+  "running_release_sha": "25856c8",
+  "live_green_sha": "25856c8",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "739cb42"
+    "release_sha": "25856c8"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -51,7 +51,8 @@
     "owner_presentation_assets": "Promoted owner shell presentation CSS is served from the existing static asset route; inline browser CSS was removed without changing Core/API/auth semantics",
     "owner_research_persistence": "Promoted owner Research view loads recent Principal-scoped bounded evidence from /api/research after navigation/reload, including query, summary, sources, provider, retrieval time, and an explicit non-canonical boundary",
     "daily_driver_readiness_ui": "Promoted Daily driver view renders readable capability states and provider gates from packaged release truth; status is descriptive and grants no authority",
-    "constellation_layered_map": "Promoted Constellation renders the dynamic authorized hierarchy in bounded AEGIS, domain/Pack, semantic-area, objective, and relationship layers; selection remains navigation/context only",
+    "constellation_layered_map": "Promoted Constellation renders the dynamic authorized hierarchy in bounded AEGIS, domain/Pack, semantic-area, objective, Capability Need, and relationship layers; selection remains navigation/context only",
+    "capability_need_constellation": "Promoted Constellation renders each authorized unresolved CapabilityNeed as read-only objective-linked context with known candidate Pack links; graph visibility does not install, enable, approve, grant permission, or execute. The current owner projection had no active unresolved needs, so populated-node rendering remains source-contract proven rather than data-populated in this session",
     "provenance_boundary": "Pack-neutral ACTION and bounded PLAN arguments are Core-verified before authorization",
     "finance_canonical_fidelity": "Promoted Finance storage preserves account, transaction, import-source, and snapshot provenance semantics across PostgreSQL reload and owner-service restart; transaction status is strict and affordability is currency-scoped with no FX",
     "finance_owner_provenance": "Owner Finance view now exposes transaction provider and import-source identity alongside status, currency, coverage, and as-of evidence; fields are read-only canonical projection",
