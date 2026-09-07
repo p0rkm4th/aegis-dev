@@ -1,0 +1,25 @@
+{
+  "evidence_type": "owner_food_state_grounding",
+  "source_sha": "50d206de8d780f2bdf34cc5714a46a73ce49df75",
+  "hosted_run_id": "34081547263",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net",
+  "runtime_release_sha": "50d206de8d780f2bdf34cc5714a46a73ce49df75",
+  "request": "Mark rice as purchased",
+  "result_state": "blocked",
+  "result_detail": "The authorized collection contained six canonical rice rows, so AEGIS required one stable item ID before any mutation.",
+  "canonical_before": {
+    "rice_rows": 6,
+    "rice_needed_rows": 6
+  },
+  "canonical_after": {
+    "rice_rows": 6,
+    "rice_needed_rows": 6
+  },
+  "assertions": [
+    "ambiguous display-name mutation failed closed",
+    "no canonical grocery state changed",
+    "stable-ID selection is required for duplicate names",
+    "Core/API/auth semantics were unchanged"
+  ],
+  "private_data_included": false
+}
