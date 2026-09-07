@@ -77,6 +77,7 @@ class FinanceImportReport:
     duplicate_rows: tuple[int, ...] = ()
     rejected_rows: tuple[tuple[int, str], ...] = ()
     reconciliations: tuple["TransactionReconciliation", ...] = ()
+    source_already_imported: bool = False
 
 
 @dataclass(frozen=True)
@@ -427,7 +428,7 @@ class FinanceLedger:
             imported_at=imported_at,
         )
         if any(source.content_hash == report.source.content_hash for source in snapshot.sources):
-            return report
+            return replace(report, imported_transaction_ids=(), source_already_imported=True)
         existing_ids = {item.transaction_id for item in snapshot.transactions}
         existing_provider_ids = {
             item.provider_transaction_id

@@ -104,7 +104,9 @@ def test_ledger_import_merges_once_and_preserves_prior_snapshot():
     second = ledger.import_csv("alice", "checking", content, source_id="upload-1")
     snapshot = ledger.private_snapshot(type("Principal", (), {"id": "alice"})(), "alice")
 
-    assert first.imported_transaction_ids == second.imported_transaction_ids
+    assert first.imported_transaction_ids == ("upload-1:bank-1",)
+    assert second.imported_transaction_ids == ()
+    assert second.source_already_imported
     assert len(snapshot.transactions) == 1
     assert len(snapshot.sources) == 1
 
