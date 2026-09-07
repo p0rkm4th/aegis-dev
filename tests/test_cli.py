@@ -7453,6 +7453,11 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     )
     assert "Open Finance for private detail" in browser_source
     assert "today-finance-summary" in browser_source
+    assert "today-systems-summary" in browser_source
+    assert "appendTodaySystemsSummary" in browser_source
+    assert "Systems needing attention" in browser_source
+    assert "health does not grant action authority" in browser_source
+    assert "Open Systems" in browser_source
     assert "Show authorized detail" in browser_source
     assert "today-overview" in _AEGIS_CSS
     assert "constellation-layer" in _AEGIS_CSS
