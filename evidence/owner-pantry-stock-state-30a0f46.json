@@ -1,0 +1,29 @@
+{
+  "artifact_type": "owner_pantry_stock_state_surface",
+  "observed_at": "2026-09-07",
+  "source_sha": "30a0f4604b4428fccf9716ee0632a110eacd0f34",
+  "hosted_validation": {
+    "run_id": "34086275724",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "30a0f4604b4428fccf9716ee0632a110eacd0f34",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded"
+  },
+  "https_proof": {
+    "root_status": 200,
+    "css_status": 200,
+    "javascript_status": 200,
+    "javascript_contains_stock_state_renderer": true,
+    "javascript_content_type": "text/javascript; charset=utf-8"
+  },
+  "owner_projection": {
+    "pantry_item_count": 0,
+    "populated_pantry_visual_review": "not applicable; owner canonical projection currently has no Pantry rows"
+  },
+  "boundary": "The UI labels only explicit known out/low-stock values; unknown quantity remains unknown. No canonical Food state was mutated. No computed-style or screenshot claim is made because no browser executable is available in this environment."
+}
