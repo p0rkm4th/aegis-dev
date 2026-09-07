@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9c0fac9",
+  "state_basis_sha": "97b2512",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9c0fac9",
-  "deterministic_green_sha": "9c0fac9",
-  "last_pushed_sha": "9c0fac9",
-  "hosted_green_sha": "9c0fac9",
-  "hosted_ci_green_sha": "9c0fac9",
+  "repository_head_sha": "97b2512",
+  "deterministic_green_sha": "97b2512",
+  "last_pushed_sha": "97b2512",
+  "hosted_green_sha": "97b2512",
+  "hosted_ci_green_sha": "97b2512",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9c0fac93d79a058e45c4abcff2688ba8fc8e424e",
+    "commit_sha": "97b2512c4c688b84b8f2e164a6cee408c6625e02",
     "conclusion": "success",
-    "run_id": "34089974438",
-    "observed_at": "2026-09-07T06:15:00Z"
+    "run_id": "34090789688",
+    "observed_at": "2026-09-07T06:25:00Z"
   },
-  "installed_release_sha": "9c0fac9",
-  "running_release_sha": "9c0fac9",
-  "live_green_sha": "9c0fac9",
+  "installed_release_sha": "97b2512",
+  "running_release_sha": "97b2512",
+  "live_green_sha": "97b2512",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-reality-daily-driver",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "9c0fac93d79a058e45c4abcff2688ba8fc8e424e"
+    "release_sha": "97b2512c4c688b84b8f2e164a6cee408c6625e02"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -180,7 +180,8 @@
     ,"systems_status_surface_owner": "Exact owner HTTPS proof on 9822a2d serves the structured Systems status presentation through Tailscale, with separate identity, reachability, health, authorization, and action-availability states; the authorized Plex observation remains unavailable and no action was invoked"
     ,"finance_state_surface_owner": "Exact owner HTTPS proof on a82e1ee serves explicit Finance transaction and import-coverage renderers through Tailscale; the Principal-scoped projection retains currency, settlement status, provider identity, and source identity without financial mutation"
     ,"food_finance_dogfood_owner": "Exact owner HTTPS dogfood through the authenticated message path completed standalone grocery affordability and the bounded Food+Finance grocery-budget question; the evidence records workflow states only and invokes no financial mutation",
-    "food_pantry_add_owner": "Exact owner HTTPS dogfood on 9c0fac9 completed Add canned beans to my pantry with an independently verified canonical Pantry readback; PostgreSQL restart preserved item_id pantry-8cca3b51ee24a660 and quantity/unit remained unknown"
+    "food_pantry_add_owner": "Exact owner HTTPS dogfood on 9c0fac9 completed Add canned beans to my pantry with an independently verified canonical Pantry readback; PostgreSQL restart preserved item_id pantry-8cca3b51ee24a660 and quantity/unit remained unknown",
+    "food_grocery_add_owner": "Exact owner HTTPS dogfood on 97b2512 completed Add oat milk to groceries through the local Principal-scoped canonical store; independent readback and owner-service restart preserved the stable grocery ID and needed state without OpenClaw"
   },
   "current_partials": [
     "fresh adversarial provenance corpus and deterministic safety regressions exist",
