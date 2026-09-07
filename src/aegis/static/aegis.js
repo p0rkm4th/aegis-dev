@@ -1391,6 +1391,10 @@ async function loadToday() {
       const systemsResponse = await fetchWithTimeout('/api/systems');
       if (systemsResponse.ok) appendTodaySystemsSummary(panel, await systemsResponse.json());
     } catch (_) { /* Systems is a bounded optional authorized Today slice. */ }
+    try {
+      const researchResponse = await fetchWithTimeout('/api/research');
+      if (researchResponse.ok) appendTodayResearchSummary(panel, await researchResponse.json());
+    } catch (_) { /* Research is a bounded optional public-evidence Today slice. */ }
     const crossDomainReview = document.createElement('section');
     crossDomainReview.className = 'detail-card today-cross-domain-review';
     const crossDomainHeading = document.createElement('h3');
@@ -1856,6 +1860,46 @@ function appendTodaySystemsSummary(panel, payload) {
   open.addEventListener('click', () => {
     const systems = document.querySelector('[data-view="systems"]');
     if (systems) systems.click();
+  });
+  section.append(boundary, open); panel.append(section);
+}
+function appendTodayResearchSummary(panel, payload) {
+  const results = Array.isArray(payload && payload.results)
+    ? payload.results.filter(item => item && typeof item === 'object').slice(0, 3) : [];
+  const section = document.createElement('section');
+  section.className = 'detail-card today-research-summary';
+  const heading = document.createElement('h3'); heading.textContent = 'Recent public research';
+  section.append(heading);
+  if (!results.length) {
+    const empty = document.createElement('p'); empty.className = 'muted';
+    empty.textContent = 'No saved public research result is available yet.';
+    section.append(empty);
+  }
+  results.forEach(item => {
+    const row = document.createElement('div'); row.className = 'today-research-row';
+    const query = String(item.query || '').trim().slice(0, 160) || 'Untitled research';
+    const title = document.createElement('strong'); title.textContent = query;
+    const sourceCount = Array.isArray(item.sources) ? item.sources.length : 0;
+    const provider = String(item.provider_id || 'bounded provider').trim().slice(0, 80);
+    const retrieved = String(item.retrieved_at || 'unknown').trim().slice(0, 80);
+    const metadata = document.createElement('span'); metadata.className = 'muted';
+    metadata.textContent = `${provider} · ${sourceCount} bounded source${sourceCount === 1 ? '' : 's'} · retrieved ${retrieved}`;
+    row.append(title, metadata);
+    const summary = String(item.summary || '').trim().slice(0, 320);
+    if (summary) {
+      const excerpt = document.createElement('p'); excerpt.className = 'muted';
+      excerpt.textContent = summary;
+      row.append(excerpt);
+    }
+    section.append(row);
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = (payload && payload.boundary)
+    || 'Public research is bounded external evidence; it is not canonical personal truth and does not authorize actions.';
+  const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open Research';
+  open.addEventListener('click', () => {
+    const research = document.querySelector('[data-view="research"]');
+    if (research) research.click();
   });
   section.append(boundary, open); panel.append(section);
 }
