@@ -1,0 +1,80 @@
+{
+  "artifact_type": "owner_reality_oss_harvest",
+  "checked_at": "2026-09-07",
+  "scope": "Food, Finance, and Homelab provider/domain planning",
+  "entries": [
+    {
+      "project": "Grocy",
+      "version_or_date_checked": "4.6.0 latest release observed",
+      "license": "MIT",
+      "maintenance_signal": "Active release history; repository documents stock overview, shopping list, meal plan, and chores",
+      "relevant_assets": ["stock identity", "shopping-list state", "stock quantities", "expiration", "stock transitions"],
+      "classification": ["DESIGN-HARVEST", "TEST-HARVEST"],
+      "security_implications": "Use only as a local design/test reference; its data model does not grant AEGIS authority",
+      "dependency_implications": "No runtime dependency or compatibility requirement",
+      "recommended_reuse": "Borrow stable stock/shopping-list state distinctions and edge cases for AEGIS Food tests; retain AEGIS canonical Principal/Space ownership",
+      "source": "https://github.com/grocy/grocy"
+    },
+    {
+      "project": "Mealie",
+      "version_or_date_checked": "3.24.0 latest release observed",
+      "license": "AGPL-3.0",
+      "maintenance_signal": "Active self-hosted recipe/meal planner with REST API and shopping-list features",
+      "relevant_assets": ["ingredient representation", "recipe-to-shopping-list relationship", "REST API boundary"],
+      "classification": ["DESIGN-HARVEST"],
+      "security_implications": "Recipe/ingredient data is not AEGIS canonical Pantry truth; do not import or expose it without explicit scope",
+      "dependency_implications": "AGPL and broad recipe scope make direct embedding disproportionate for the current Pantry minimum",
+      "recommended_reuse": "Study ingredient/list relationships only; keep AEGIS Food stable IDs and unknown-value semantics independent",
+      "source": "https://github.com/mealie-recipes/mealie"
+    },
+    {
+      "project": "Actual Budget",
+      "version_or_date_checked": "repository and API reference checked 2026-09-07",
+      "license": "MIT",
+      "maintenance_signal": "Active local-first finance repository",
+      "relevant_assets": ["importTransactions API", "added/updated/error import result", "imported-id duplicate handling", "pending/cleared import options"],
+      "classification": ["DESIGN-HARVEST", "TEST-HARVEST"],
+      "security_implications": "Private ledger semantics remain Principal-scoped in AEGIS; external import behavior cannot replace canonical provenance",
+      "dependency_implications": "No dependency selected until an owner-controlled Actual adapter is actually needed",
+      "recommended_reuse": "Use import/reconciliation cases to expand AEGIS import tests; do not add the TypeScript application as a runtime dependency",
+      "source": "https://github.com/actualbudget/actual"
+    },
+    {
+      "project": "Firefly III Data Importer",
+      "version_or_date_checked": "repository README and importer docs checked 2026-09-07",
+      "license": "AGPL-3.0",
+      "maintenance_signal": "Separate importer application with CLI/API automation and CSV/CAMT support",
+      "relevant_assets": ["CSV import", "CAMT.052", "CAMT.053", "bounded import report", "duplicate/import configuration boundaries"],
+      "classification": ["DESIGN-HARVEST", "TEST-HARVEST", "REJECT"],
+      "security_implications": "Importer is a separate application; uploaded financial records and bearer tokens require an explicit boundary",
+      "dependency_implications": "AGPL and PHP service boundary are not justified for the current local CSV path",
+      "recommended_reuse": "Harvest file-coverage and import-report test cases; do not vendor, embed, or make it an AEGIS runtime dependency",
+      "source": "https://github.com/firefly-iii/data-importer"
+    },
+    {
+      "project": "ofxtools",
+      "version_or_date_checked": "1.1.1 checked 2026-09-07",
+      "license": "GPL-3.0-only",
+      "maintenance_signal": "PyPI release 1.1.1 published 2026-06-12; Python >=3.10",
+      "relevant_assets": ["OFX/QFX parsing", "structured financial statement model"],
+      "classification": ["ADAPT", "TEST-HARVEST"],
+      "security_implications": "Treat bank files as hostile input; bound file size, parse work, and validation before canonical writes",
+      "dependency_implications": "GPL-3.0-only requires license/product review before adding it to AEGIS",
+      "recommended_reuse": "Evaluate in an isolated parser experiment if OFX/QFX owner demand appears; CSV remains the current import path",
+      "source": "https://pypi.org/project/ofxtools/"
+    },
+    {
+      "project": "Nmap",
+      "version_or_date_checked": "NPSL and legal notices checked 2026-09-07",
+      "license": "Nmap Public Source License",
+      "maintenance_signal": "Established external network discovery tool with maintained upstream legal documentation",
+      "relevant_assets": ["typed scan profiles", "XML output parsing", "bounded discovery observations"],
+      "classification": ["ADAPT", "REJECT"],
+      "security_implications": "No model-supplied raw flags; bound scope/rate/privilege and keep discovered objects distinct from authorized canonical Hosts",
+      "dependency_implications": "Do not vendor or redistribute; an owner-installed executable may be considered only after product/license review",
+      "recommended_reuse": "Use typed profile/output concepts for a future owner-installed adapter; direct socket discovery remains the current safe path",
+      "source": "https://nmap.org/npsl/"
+    }
+  ],
+  "decision": "No OSS candidate is a current production dependency. AEGIS keeps canonical state, authorization, and provider boundaries independent of harvested designs."
+}
