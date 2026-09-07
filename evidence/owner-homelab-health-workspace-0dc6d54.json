@@ -1,0 +1,28 @@
+{
+  "artifact_type": "owner_homelab_health_workspace_dogfood",
+  "observed_at": "2026-09-07",
+  "source_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
+  "hosted_validation": {
+    "run_id": "34087498514",
+    "conclusion": "success"
+  },
+  "installed_release_sha": "0dc6d5419af35133c57c52432b7e26073a3a3f07",
+  "owner_url": "https://hades-garuda-x1.tail8ec79a.ts.net/",
+  "runtime": {
+    "service": "aegis-owner.service",
+    "health": "healthy",
+    "ready": true,
+    "postgres": "connection and schema succeeded"
+  },
+  "workflow": {
+    "path": "authenticated HTTPS /api/message → scoped Workspace file read",
+    "request_state": "completed",
+    "artifact_workspace_id": "6eca42de-7a2a-53c1-a2e6-53b95e17cf15",
+    "artifact_path": "owner-health-20260907.html",
+    "post_restart_content_bytes": 444,
+    "same_correlation_after_restart_state": "completed",
+    "same_correlation_after_restart_artifact_matches": 1,
+    "service_health_context": "unavailable; preserved as observed provider state"
+  },
+  "boundary": "This is a bounded Homelab read-to-Workspace composition with scoped artifact verification. Repeating the same correlation after restart returned the prior result and did not duplicate the artifact. It adds no restart or communications authority."
+}
