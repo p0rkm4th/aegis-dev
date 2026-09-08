@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
+  "state_basis_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
-  "deterministic_green_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
-  "last_pushed_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
-  "hosted_green_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
-  "hosted_ci_green_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
+  "repository_head_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "deterministic_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "last_pushed_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "hosted_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "hosted_ci_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
+    "commit_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
     "conclusion": "success",
-    "run_id": "34187994735",
+    "run_id": "34188434135",
     "observed_at": "2026-09-08T04:38:00Z"
   },
-  "installed_release_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
-  "running_release_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
-  "live_green_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8",
+  "installed_release_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "running_release_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "live_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "replacement-project-context-1",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8"
+    "release_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -59,12 +59,12 @@
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS Chat now provides a conversation-first surface with safe Markdown/tables/fenced code, response copy, associated research sources, truthful activity states, jump-to-latest behavior, deterministic thread labels, a phone-visible composer/Send action, and the first bounded owner-file attachment boundary.",
-    "remaining": "Chat and files are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file workflow and decide whether normal conversation still requires ChatGPT; the next engineering replacement gap is authorized Project/Developer context."
+    "current": "Installed AEGIS Chat now provides a conversation-first surface with safe Markdown/tables/fenced code, response copy, associated research sources, truthful activity states, jump-to-latest behavior, deterministic thread labels, a phone-visible composer/Send action, a bounded owner-file attachment boundary, and a Principal-scoped registered AEGIS Project view.",
+    "remaining": "Chat, files, and read-only Project context are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; the next engineering replacement gap is typed Project inspection and a supervised coding worker."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "0310d378b4461a42e2722f8c19082a79a012bdf8", "blocker": "Coherent Chat tranche is installed with rich responses, copy/code/source UX, conversation-first layout, and mobile composer; Scotty must decide whether normal conversation still feels clunky."},
-    "files": {"state": "ENGINEERING_GREEN", "basis_sha": "81822ffa2c08a7f034f9f9585cc94948ead50fe8", "blocker": "Installed owner route, persistent bounded extraction, Principal/conversation scoping, reload identity, and untrusted Chat context are proven; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
+    "files": {"state": "ENGINEERING_GREEN", "basis_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb", "blocker": "Installed owner route, persistent bounded extraction, Principal/conversation scoping, reload identity, and untrusted Chat context are proven; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
     "codex": {"state": "RED", "blocker": "No registered-repository coding worker workflow in AEGIS yet."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
   },
@@ -182,7 +182,7 @@
     "workspace_inventory_filter": "Promoted Workspace view filters the already-authorized scoped inventory by workspace ID or file name without exposing host paths or changing authority",
     "workspace_content_search": "Contract-green and owner-visible Workspace content search scans only the current Principal's bounded inventory, returns bounded snippets, and remains read-only",
     "workspace_content_search_owner_response": "Promoted conversation formatting renders bounded Workspace search matches with workspace ID, relative path, and normalized snippet rather than a generic completion",
-    "ui_showable_alpha": "Installed owner browser proof on 81822ffa serves conversation-first Chat with safe rich response presentation, copy/source affordances, bounded attachment controls, Today/Finance/Systems slices, and the Food/Finance owner surfaces; desktop and 390px headless layout checks show no horizontal overflow, while human acceptance remains pending",
+    "ui_showable_alpha": "Installed owner browser proof on cdb9164 serves conversation-first Chat with safe rich response presentation, copy/source affordances, bounded attachment controls, Today/Finance/Systems slices, and the Food/Finance owner surfaces; desktop and 390px headless layout checks show no horizontal overflow, while human acceptance remains pending",
     "network_probe_direct_owner": "Installed owner proof on 04deb22 routes the explicit authorized network probe through the bounded direct socket provider, verifies reachability independently, and fails an out-of-scope target closed; no shell or OpenClaw execution authority is added",
     "network_probe_workspace_owner": "Installed owner proof on 39f16fe probes the explicitly authorized alpha-lab endpoint, creates probe-report.md in a Principal/objective-scoped Workspace, and independently verifies the fixed report hash; the network probe and Workspace permissions remain separate from restart authority",
     "bounded_network_discovery_contract": "Contract-green bounded discovery enumerates only IPv4 hosts inside an active authorized network scope with capped ports/hosts; results remain observations and do not persist, canonicalize, or grant action authority",
@@ -515,7 +515,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Begin the smallest authorized Project/Developer context tranche: inspect existing repository/workspace boundaries and current coding-worker interfaces, then design only the registered-repository read/inspect path; do not bind a worker or widen authority before the contract is clear. Keep Chat/files installed-green and do not ask Scotty to retest micro-patches.",
+  "next_action": "Begin typed read-only inspection for the registered AEGIS Project using only allowed paths; keep worker execution, modification, commit, and push authority disabled until the inspect contract and independent verification path are proven. Keep Chat/files installed-green and do not ask Scotty to retest micro-patches.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
