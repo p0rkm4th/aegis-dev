@@ -546,6 +546,7 @@ class InteractionBoundary:
                     prior_objective.recovery if prior_objective is not None else RecoveryState(),
                     classify_recovery(result),
                 )
+                recovery_audit_payload: dict[str, Any] | None = None
                 if (
                     recovery.disposition.value != "none"
                     or recovery.reason is not None
@@ -554,29 +555,16 @@ class InteractionBoundary:
                 ):
                     evidence["recovery"] = recovery.model_dump(mode="json")
                     result = result.model_copy(update={"evidence": evidence})
-                    if connection.__class__.__module__.startswith("psycopg"):
-                        try:
-                            PostgresAuditLog(connection).append(
-                                "objective.owner_blocked"
-                                if recovery.disposition.value == "owner_blocked"
-                                else "objective.recovery_classified",
-                                principal.id,
-                                {
-                                    "disposition": recovery.disposition.value,
-                                    "reason": recovery.reason.value if recovery.reason else None,
-                                    "steps_consumed": recovery.steps_consumed,
-                                    "capability_investigations_consumed": (
-                                        recovery.capability_investigations_consumed
-                                    ),
-                                    "provider_retries_consumed": recovery.provider_retries_consumed,
-                                    "failure_fingerprint": recovery.last_failure_fingerprint,
-                                },
-                                objective_id=result.objective_id,
-                            )
-                        except Exception:
-                            # Recovery truth remains persisted even if audit storage is
-                            # temporarily unavailable; no authority is widened.
-                            pass
+                    recovery_audit_payload = {
+                        "disposition": recovery.disposition.value,
+                        "reason": recovery.reason.value if recovery.reason else None,
+                        "steps_consumed": recovery.steps_consumed,
+                        "capability_investigations_consumed": (
+                            recovery.capability_investigations_consumed
+                        ),
+                        "provider_retries_consumed": recovery.provider_retries_consumed,
+                        "failure_fingerprint": recovery.last_failure_fingerprint,
+                    }
                 save_objective(
                     Objective(
                         id=result.objective_id,
@@ -587,6 +575,24 @@ class InteractionBoundary:
                         recovery=recovery,
                     )
                 )
+                is_postgres_connection = connection.__class__.__module__.startswith("psycopg")
+                if recovery_audit_payload is not None and is_postgres_connection:
+                    try:
+                        PostgresAuditLog(connection).append(
+                            "objective.owner_blocked"
+                            if recovery.disposition.value == "owner_blocked"
+                            else "objective.recovery_classified",
+                            principal.id,
+                            recovery_audit_payload,
+                            objective_id=result.objective_id,
+                        )
+                    except Exception:
+                        # Recovery truth remains persisted even if audit storage is
+                        # temporarily unavailable; no authority is widened.
+                        try:
+                            connection.rollback()
+                        except Exception:
+                            pass
                 objective_store.save_result(f"interaction:{intent.correlation_id}", result)
                 return result
 
