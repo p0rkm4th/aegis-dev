@@ -38,6 +38,7 @@ SystemsScopeConfigure = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 ProjectState = Callable[[Principal], dict[str, Any]]
 ProjectInspection = Callable[[Principal, str, str | None], dict[str, Any]]
 DeveloperInspect = Callable[[Principal, str, str], dict[str, Any]]
+DeveloperModify = Callable[[Principal, str, str, bool], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -302,6 +303,7 @@ class BrowserApp:
         project_state: ProjectState | None = None,
         project_inspection: ProjectInspection | None = None,
         developer_inspect: DeveloperInspect | None = None,
+        developer_modify: DeveloperModify | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -347,6 +349,7 @@ class BrowserApp:
         self.project_state = project_state
         self.project_inspection = project_inspection
         self.developer_inspect = developer_inspect
+        self.developer_modify = developer_modify
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -766,6 +769,38 @@ class BrowserApp:
                 )
             return self._json(HTTPStatus.OK, projects_projection)
         project_prefix = "/api/projects/"
+        if method == "POST" and route.startswith(project_prefix) and route.endswith("/modify"):
+            if self.developer_modify is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            project_id = route[len(project_prefix) : -len("/modify")]
+            try:
+                payload = json.loads(body)
+                if (
+                    not project_id
+                    or not isinstance(payload, dict)
+                    or set(payload) != {"objective", "confirm"}
+                    or not isinstance(payload["objective"], str)
+                    or not isinstance(payload["confirm"], bool)
+                ):
+                    raise ValueError("invalid modification request")
+                result = self.developer_modify(
+                    principal, project_id, payload["objective"], payload["confirm"]
+                )
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "project access denied"
+                )
+            except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid modification request"
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "developer_unavailable",
+                    "developer modification unavailable",
+                )
+            return self._json(HTTPStatus.OK, result)
         if method == "POST" and route.startswith(project_prefix) and route.endswith("/inspect"):
             if self.developer_inspect is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1390,6 +1425,7 @@ def serve(
     project_state: ProjectState | None = None,
     project_inspection: ProjectInspection | None = None,
     developer_inspect: DeveloperInspect | None = None,
+    developer_modify: DeveloperModify | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -1438,6 +1474,7 @@ def serve(
         project_state=project_state,
         project_inspection=project_inspection,
         developer_inspect=developer_inspect,
+        developer_modify=developer_modify,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,

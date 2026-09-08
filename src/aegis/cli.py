@@ -54,7 +54,7 @@ from .contracts import (
     WorkingSet,
 )
 from .conversation import PostgresConversationStore
-from .developer import CodexInspectWorker
+from .developer import CodexInspectWorker, CodexModifyWorker
 from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
@@ -858,6 +858,13 @@ def _project_inspection(
 def _developer_inspect(principal: Principal, project_id: str, question: str) -> dict[str, Any]:
     project = _project_registry().registered_for_principal(principal.id, project_id)
     return CodexInspectWorker().inspect(project, question)
+
+
+def _developer_modify(
+    principal: Principal, project_id: str, objective: str, confirm: bool
+) -> dict[str, Any]:
+    project = _project_registry().registered_for_principal(principal.id, project_id)
+    return CodexModifyWorker().modify(project, objective, confirm)
 
 
 def _conversation_store() -> PostgresConversationStore:
@@ -4758,6 +4765,7 @@ def main() -> int:
                 project_state=_project_state,
                 project_inspection=_project_inspection,
                 developer_inspect=_developer_inspect,
+                developer_modify=_developer_modify,
                 weather_state=_weather_state,
                 air_quality_state=_air_quality_state,
                 today_state=_today_state,

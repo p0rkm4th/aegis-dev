@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from aegis.developer import CodexInspectWorker, DeveloperWorkerError
+from aegis.developer import CodexInspectWorker, CodexModifyWorker, DeveloperWorkerError
 from aegis.projects import RegisteredProject
 
 
@@ -56,3 +56,44 @@ def test_codex_inspect_worker_uses_read_only_snapshot_and_sanitized_environment(
 def test_codex_inspect_worker_rejects_empty_question(tmp_path: Path) -> None:
     with pytest.raises(DeveloperWorkerError, match="question is required"):
         CodexInspectWorker().inspect(_project(tmp_path), " ")
+
+
+def test_codex_modify_requires_confirmation_without_running_worker(tmp_path: Path) -> None:
+    project = _project(tmp_path)
+    result = CodexModifyWorker().modify(project, "Fix the bug", False)
+    assert result["state"] == "approval_required"
+    assert (project.repository / "src" / "main.py").read_text() == "print('safe')"
+
+
+def test_codex_modify_applies_only_allowlisted_change_and_runs_gate(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project = _project(tmp_path)
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **kwargs: Any) -> Any:
+        calls.append(command)
+
+        class Completed:
+            returncode = 0
+            stdout = ""
+
+        if command[:4] == ["git", "-C", str(project.repository), "status"]:
+            return Completed()
+        if "exec" in command:
+            snapshot = Path(command[command.index("--cd") + 1])
+            (snapshot / "src" / "main.py").write_text("print('changed')", encoding="utf-8")
+            output = Path(command[command.index("-o") + 1])
+            output.write_text("changed entry point", encoding="utf-8")
+            return Completed()
+        assert command == ["bash", "scripts/validate.sh"]
+        return Completed()
+
+    monkeypatch.setattr("aegis.developer.subprocess.run", fake_run)
+    result = CodexModifyWorker().modify(project, "Change the entry point", True)
+
+    assert result["state"] == "modified"
+    assert result["changed_paths"] == ("src/main.py",)
+    assert result["tests"] == "scripts/validate.sh passed"
+    assert (project.repository / "src" / "main.py").read_text() == "print('changed')"
+    assert any(command == ["bash", "scripts/validate.sh"] for command in calls)
