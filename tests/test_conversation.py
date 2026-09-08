@@ -44,12 +44,13 @@ def test_conversation_store_returns_recent_bounded_window_in_order():
         # Equal timestamps exercise the stable UUID tie-breaker for the newest pair.
         messages[-2] = (*messages[-2][:5], base + timedelta(seconds=101))
         messages[-1] = (*messages[-1][:5], base + timedelta(seconds=101))
-        connection.executemany(
-            "INSERT INTO conversation_messages "
-            "(id, conversation_id, principal_id, role, display_text, created_at) "
-            "VALUES (%s, %s, %s, %s, %s, %s)",
-            messages,
-        )
+        with connection.cursor() as cursor:
+            cursor.executemany(
+                "INSERT INTO conversation_messages "
+                "(id, conversation_id, principal_id, role, display_text, created_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s)",
+                messages,
+            )
         connection.execute(
             "INSERT INTO conversation_messages "
             "(id, conversation_id, principal_id, role, display_text, created_at) "
