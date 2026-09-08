@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+import aegis.cli as cli
 from aegis import InteractionBoundary, InteractionDependencies, InteractionInputError
 from aegis.cli import (
     _daily_driver_state,
@@ -9139,3 +9140,24 @@ def test_constellation_graph_keeps_record_rows_in_detail_views(monkeypatch):
 
 def _deny() -> dict[str, object]:
     raise PermissionError("revoked")
+
+
+def test_owner_status_reports_service_and_readiness(monkeypatch, capsys):
+    values = {"ActiveState": "active", "Environment": ""}
+    monkeypatch.setattr(cli, "_owner_service_value", values.get)
+    monkeypatch.setattr(cli, "_owner_http_probe", lambda _url, _path: (True, "HTTP 200"))
+
+    assert cli._owner_operation("status", False) == 0
+    output = capsys.readouterr().out
+    assert "AEGIS owner status" in output
+    assert "service: active" in output
+    assert "readiness: READY" in output
+
+
+def test_owner_open_uses_configured_private_url(monkeypatch, capsys):
+    monkeypatch.setenv("AEGIS_PRIVATE_URL", "https://aegis.tailnet.example")
+    monkeypatch.setattr(cli, "_owner_http_probe", lambda _url, _path: (True, "HTTP 200"))
+    monkeypatch.setattr(cli.webbrowser, "open", lambda _url: False)
+
+    assert cli._owner_operation("open", False) == 0
+    assert "https://aegis.tailnet.example/" in capsys.readouterr().out
