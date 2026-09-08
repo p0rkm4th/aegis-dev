@@ -49,6 +49,9 @@ ConversationList = Callable[[Principal], list[dict[str, Any]]]
 ConversationCreate = Callable[[Principal], dict[str, Any]]
 ConversationMessages = Callable[[Principal, UUID], list[dict[str, Any]]]
 ConversationAppend = Callable[[Principal, UUID, str, str, UUID | None], None]
+MemoryList = Callable[[Principal], list[dict[str, Any]]]
+MemoryCorrect = Callable[[Principal, UUID, str], dict[str, Any]]
+MemoryRemove = Callable[[Principal, UUID], None]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -182,6 +185,17 @@ class ForgeQuarantineRequest(BaseModel):
     candidate_index: int = Field(ge=0, le=7)
 
 
+class MemoryCorrectionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    memory_id: UUID
+    content: str = Field(min_length=1, max_length=2_000)
+
+
+class MemoryRemovalRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    memory_id: UUID
+
+
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
@@ -194,6 +208,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="finance">Finance</button>
+<button type="button" data-view="memory">Memory</button>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="documents">Documents</button>
 </div>
@@ -278,6 +293,9 @@ class BrowserApp:
         conversation_create: ConversationCreate | None = None,
         conversation_messages: ConversationMessages | None = None,
         conversation_append: ConversationAppend | None = None,
+        memory_list: MemoryList | None = None,
+        memory_correct: MemoryCorrect | None = None,
+        memory_remove: MemoryRemove | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -313,6 +331,9 @@ class BrowserApp:
         self.conversation_create = conversation_create
         self.conversation_messages = conversation_messages
         self.conversation_append = conversation_append
+        self.memory_list = memory_list
+        self.memory_correct = memory_correct
+        self.memory_remove = memory_remove
 
     def dispatch(
         self,
@@ -400,6 +421,56 @@ class BrowserApp:
                     HTTPStatus.SERVICE_UNAVAILABLE,
                     "conversation_unavailable",
                     "conversation unavailable",
+                )
+        if method == "GET" and route == "/api/memory":
+            if self.memory_list is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                return self._json(HTTPStatus.OK, {"memories": self.memory_list(principal)})
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "memory_unavailable", "memory unavailable"
+                )
+        if method == "POST" and route in {"/api/memory/correct", "/api/memory/remove"}:
+            if len(body) > _MAX_BODY_BYTES:
+                return self._error(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "request_too_large", "request too large"
+                )
+            try:
+                payload = json.loads(body)
+                if route.endswith("/correct"):
+                    memory_request = MemoryCorrectionRequest.model_validate(payload)
+                    if self.memory_correct is None:
+                        return self._error(
+                            HTTPStatus.NOT_FOUND, "route_not_found", "route not found"
+                        )
+                    return self._json(
+                        HTTPStatus.OK,
+                        self.memory_correct(
+                            principal, memory_request.memory_id, memory_request.content
+                        ),
+                    )
+                removal_request = MemoryRemovalRequest.model_validate(payload)
+                if self.memory_remove is None:
+                    return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+                self.memory_remove(principal, removal_request.memory_id)
+                return self._json(
+                    HTTPStatus.OK,
+                    {"removed": True, "memory_id": str(removal_request.memory_id)},
+                )
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (LookupError, ValueError):
+                return self._error(HTTPStatus.NOT_FOUND, "memory_not_found", "memory not found")
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "memory_unavailable", "memory unavailable"
                 )
         conversation_prefix = "/api/conversations/"
         if method == "GET" and route.startswith(conversation_prefix):
@@ -1077,6 +1148,9 @@ def serve(
     conversation_create: ConversationCreate | None = None,
     conversation_messages: ConversationMessages | None = None,
     conversation_append: ConversationAppend | None = None,
+    memory_list: MemoryList | None = None,
+    memory_correct: MemoryCorrect | None = None,
+    memory_remove: MemoryRemove | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1115,6 +1189,9 @@ def serve(
         conversation_create=conversation_create,
         conversation_messages=conversation_messages,
         conversation_append=conversation_append,
+        memory_list=memory_list,
+        memory_correct=memory_correct,
+        memory_remove=memory_remove,
     )
 
     class Handler(BaseHTTPRequestHandler):

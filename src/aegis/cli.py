@@ -704,6 +704,45 @@ def _conversation_append(
     _conversation_store().append(principal.id, conversation_id, role, text, correlation_id)
 
 
+def _personal_store() -> PostgresPersonalStateStore:
+    return PostgresPersonalStateStore(
+        psycopg.connect(_required("AEGIS_DATABASE_URL")), _required("AEGIS_VAULT_ID")
+    )
+
+
+def _memory_payload(memory: Any) -> dict[str, Any]:
+    return {
+        "memory_id": str(memory.memory_id),
+        "content": memory.content,
+        "occurred_at": memory.occurred_at.isoformat(),
+        "provenance": memory.provenance.value,
+        "entity_ids": [str(entity_id) for entity_id in memory.entity_ids],
+        "superseded_by": str(memory.superseded_by) if memory.superseded_by else None,
+    }
+
+
+def _memory_list(principal: Principal) -> list[dict[str, Any]]:
+    state = _personal_store().load_for_principal(principal)
+    return [
+        _memory_payload(memory)
+        for memory in sorted(
+            state.memories.values(), key=lambda item: item.occurred_at, reverse=True
+        )[:100]
+    ]
+
+
+def _memory_correct(principal: Principal, memory_id: UUID, content: str) -> dict[str, Any]:
+    store = _personal_store()
+    state = store.load_for_principal(principal)
+    corrected = state.correct_memory(memory_id, content, datetime.now().astimezone())
+    store.save(state)
+    return {"memory": _memory_payload(corrected)}
+
+
+def _memory_remove(principal: Principal, memory_id: UUID) -> None:
+    _personal_store().remove_memory(principal, memory_id)
+
+
 def _weather_state(principal: Principal) -> dict[str, Any]:
     """Expose public weather only for explicitly configured owner coordinates."""
 
@@ -4476,6 +4515,9 @@ def main() -> int:
                 conversation_create=_conversation_create,
                 conversation_messages=_conversation_messages,
                 conversation_append=_conversation_append,
+                memory_list=_memory_list,
+                memory_correct=_memory_correct,
+                memory_remove=_memory_remove,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
