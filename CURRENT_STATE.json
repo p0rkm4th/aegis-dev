@@ -48,7 +48,7 @@
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
     "conversation": {"state": "ENGINEERING_GREEN", "basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e", "owner_acceptance": "pending Scotty walkthrough"},
     "memory": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real remember/recall/correction/removal walkthrough"},
-    "finance": {"state": "RED", "blocker": "actual owner import remains unbuilt"},
+    "finance": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real CSV import and useful question walkthrough"},
     "homelab": {"state": "ENGINEERING_GREEN", "blocker": "owner configuration UX remains partial"},
     "tasks": {"state": "ENGINEERING_GREEN", "blocker": "reminder surfacing remains partial"},
     "research_workspace": {"state": "ENGINEERING_GREEN", "basis_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215"},
