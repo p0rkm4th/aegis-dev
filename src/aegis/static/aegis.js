@@ -1954,6 +1954,8 @@ async function loadToday() {
       });
       panel.append(needsButton);
     }
+    const todayMoreMarker = document.createComment('optional Today detail');
+    panel.append(todayMoreMarker);
     const conflicts = payload.external_calendar?.conflicts || [];
     appendTodaySection(panel, 'Scheduling conflicts', conflicts.length
       ? conflicts : 'No overlapping timed events detected.');
@@ -2012,6 +2014,19 @@ async function loadToday() {
         panel.append(button);
       });
     }
+    const todayMore = document.createElement('details');
+    todayMore.className = 'detail-card today-more';
+    const todayMoreSummary = document.createElement('summary');
+    todayMoreSummary.textContent = 'More Today';
+    const todayMoreContent = document.createElement('div');
+    let optionalNode = todayMoreMarker.nextSibling;
+    while (optionalNode) {
+      const nextNode = optionalNode.nextSibling;
+      todayMoreContent.append(optionalNode);
+      optionalNode = nextNode;
+    }
+    todayMore.append(todayMoreSummary, todayMoreContent);
+    todayMoreMarker.replaceWith(todayMore);
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
