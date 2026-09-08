@@ -1858,9 +1858,9 @@ async function loadToday() {
         appendTodayDeveloperJobs(panel, developerPayload.jobs || []);
       }
     } catch (_) { /* Developer jobs are a bounded optional owner attention slice. */ }
-    const crossDomainReview = document.createElement('section');
+    const crossDomainReview = document.createElement('details');
     crossDomainReview.className = 'detail-card today-cross-domain-review';
-    const crossDomainHeading = document.createElement('h3');
+    const crossDomainHeading = document.createElement('summary');
     crossDomainHeading.textContent = 'Review tonight';
     const crossDomainDescription = document.createElement('p');
     crossDomainDescription.className = 'muted';

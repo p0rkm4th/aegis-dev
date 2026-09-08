@@ -5605,6 +5605,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert _AEGIS_JS.strip()
     assert "--surface-0" in _AEGIS_CSS
     assert '.product-nav button[aria-current="page"]' in _AEGIS_CSS
+    assert "today-cross-domain-review" in _AEGIS_JS
+    assert "const crossDomainReview = document.createElement('details')" in _AEGIS_JS
     assert "Finance account" in _AEGIS_JS
     assert "accountSelect.value" in _AEGIS_JS
     assert "Add to groceries" in _AEGIS_JS
