@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
+  "state_basis_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
   "active_branch": "aegis-dev",
   "repository_head_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "deterministic_green_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "last_pushed_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "hosted_green_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "hosted_ci_green_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
+  "deterministic_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "last_pushed_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "hosted_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "hosted_ci_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
+    "commit_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
     "conclusion": "success",
-    "run_id": "34287148226",
+    "run_id": "34292044768",
     "observed_at": "2026-09-08T22:40:00Z"
   },
-  "installed_release_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "running_release_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "live_green_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
+  "installed_release_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "running_release_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "live_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "daily-driver-semantics-conversation-first-sprint-s1",
   "checkpoint_status": "active_repair",
@@ -58,6 +58,14 @@
     "private_phone": {"state": "ENGINEERING_GREEN", "basis_sha": "b84692e6a64d736d7efdeaf7f6cf1ae849758c58", "owner_acceptance": "pending Scotty opening the private URL on phone"},
     "upgrade_rollback": {"state": "ENGINEERING_GREEN", "basis_sha": "d5ca12db1736248d4141fb8980c1d3721f36414c", "owner_acceptance": "pending ordinary-owner upgrade/rollback walkthrough"},
     "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
+  },
+  "daily_driver_semantics": {
+    "state": "PRODUCT_RED / ACTIVE_REPAIR",
+    "basis_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+    "desired_state_sets": "ENGINEERING_GREEN installed for bounded Grocery clear/all-matching/explicit-set planning and postcondition verification; cross-domain proof and natural owner acceptance pending",
+    "compound_preflight": "ENGINEERING_GREEN installed; complete bounded plan is formed before local collection mutation",
+    "completion_fidelity": "ENGINEERING_GREEN installed; effect objectives cannot complete from answer-only fallback",
+    "owner_blocker": "The supplied owner session remains OWNER_REJECTED because ordinary Grocery language exposed internal IDs and lost follow-up context."
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
