@@ -17,6 +17,7 @@ from aegis.contracts import (
     Principal,
     ProposedPlan,
     ProposedPlanStep,
+    SelectionCardinality,
     VerificationContract,
 )
 from aegis.decoding import InvalidDecision, StrictDecisionDecoder
@@ -29,6 +30,7 @@ from aegis.planning import (
     materialize_proposed_plan,
     materialize_validated_plan,
     objective_requirements_satisfied,
+    parse_collection_mutation,
 )
 
 
@@ -45,6 +47,21 @@ def card(action_id: str, *arguments: str) -> ActionCard:
         relevance=1,
         argument_keys=arguments,
     )
+
+
+def test_collection_mutation_parser_preserves_owner_outcome_cardinality():
+    assert (
+        parse_collection_mutation("clear my grocery list").cardinality
+        is SelectionCardinality.CURRENT_COLLECTION
+    )
+    assert (
+        parse_collection_mutation("remove all rice from my grocery list").cardinality
+        is SelectionCardinality.ALL_MATCHING
+    )
+    explicit = parse_collection_mutation("remove rice, milk, and doritos from my grocery list")
+    assert explicit is not None
+    assert explicit.cardinality is SelectionCardinality.EXPLICIT_SET
+    assert explicit.selectors == ("rice", "milk", "doritos")
 
 
 def test_proposed_plan_materializes_only_candidate_authority():

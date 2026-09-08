@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, cast
 from uuid import UUID, uuid4, uuid5
@@ -15,6 +16,7 @@ from .contracts import (
     ObjectiveState,
     ProposedPlan,
     Result,
+    SelectionCardinality,
     ValidatedPlan,
     ValidatedPlanStep,
 )
@@ -35,6 +37,55 @@ _WEEKDAYS = (
 
 class PlanValidationError(ValueError):
     """Raised when an untrusted plan proposal exceeds its authorized working set."""
+
+
+@dataclass(frozen=True)
+class CollectionMutationSpec:
+    """Owner-language collection intent before canonical grounding."""
+
+    collection: str
+    operation: str
+    cardinality: SelectionCardinality
+    selectors: tuple[str, ...] = ()
+
+
+def parse_collection_mutation(utterance: str) -> CollectionMutationSpec | None:
+    """Parse bounded outcome/set language without selecting records or authority."""
+
+    text = " ".join(utterance.casefold().strip().rstrip(".!?").split())
+    if not re.search(r"\b(?:grocery|groceries|shopping list)\b", text):
+        return None
+    if re.search(r"\b(?:clear|empty)\b", text) and re.search(
+        r"\b(?:grocery|groceries|shopping list)\b", text
+    ):
+        return CollectionMutationSpec(
+            "groceries", "remove", SelectionCardinality.CURRENT_COLLECTION
+        )
+    operation = "remove" if re.search(r"\b(?:remove|delete|take)\b", text) else None
+    if operation is None:
+        return None
+    all_match = re.search(r"\b(?:all|every|remaining)\s+(.+?)\s+from\b", text)
+    if all_match:
+        selector = all_match.group(1).strip()
+        if selector and selector not in {"items", "groceries"}:
+            return CollectionMutationSpec(
+                "groceries", operation, SelectionCardinality.ALL_MATCHING, (selector,)
+            )
+    named = re.search(
+        r"\b(?:remove|delete|take)\s+(.+?)\s+from\s+"
+        r"(?:my\s+)?(?:grocery|groceries|shopping list)\b",
+        text,
+    )
+    if named:
+        raw = named.group(1).strip()
+        parts = [part.strip() for part in re.split(r"\s*,\s*|\s+and\s+", raw) if part.strip()]
+        parts = [re.sub(r"^and\s+", "", part).strip() for part in parts]
+        if parts:
+            cardinality = (
+                SelectionCardinality.ONE if len(parts) == 1 else SelectionCardinality.EXPLICIT_SET
+            )
+            return CollectionMutationSpec("groceries", operation, cardinality, tuple(parts))
+    return None
 
 
 def materialize_proposed_plan(

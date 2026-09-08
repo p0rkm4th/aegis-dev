@@ -527,6 +527,28 @@ def test_ordinary_model_answer_cannot_self_label_as_external_evidence() -> None:
     assert result.evidence["authoritative"] is False
 
 
+def test_effect_objective_cannot_complete_from_answer_only() -> None:
+    result = resolve_fallback_decision(
+        Decision(
+            kind=DecisionKind.ANSWER,
+            answer="Here are instructions; the requested change is done.",
+            semantic_mode="ACTION",
+            objective_spec=ObjectiveSpecProposal(
+                requirements=(ObjectiveRequirementProposal(action_ref="kitchen.groceries.remove"),)
+            ),
+        ),
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="clear my grocery list",
+        ),
+        Context(),
+        (),
+    )
+    assert isinstance(result, Result)
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["completion_blocked"] == "effect_requires_verified_action"
+
+
 def test_unknown_consequential_clarification_preserves_open_objective() -> None:
     result = resolve_fallback_decision(
         Decision(

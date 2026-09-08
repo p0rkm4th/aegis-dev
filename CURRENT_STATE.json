@@ -19,9 +19,9 @@
   "running_release_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
   "live_green_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "compounding-utility-owner-correction-v1",
-  "checkpoint_status": "installed_green",
-  "current_checkpoint": "compounding-utility-owner-correction-v1",
+  "active_checkpoint": "daily-driver-semantics-conversation-first-sprint-s1",
+  "checkpoint_status": "active_repair",
+  "current_checkpoint": "daily-driver-semantics-conversation-first-sprint-s1",
   "active_campaign": "OBJECTIVE RUNTIME + RECOVERY-FIRST AUTONOMY",
   "primary_proving_domains": ["Objective recovery coordination", "CapabilityNeed investigation", "Owner acceptance"],
   "parallel_lane": "Recovery V1 bounded vertical slice; no Developer expansion",
@@ -73,8 +73,19 @@
   "owner_escape_metric": {
     "state": "owner_feedback",
     "last_escape_application": "ChatGPT",
-    "reason": "Scotty reports installed AEGIS Chat is still clunky.",
-    "next_evidence": "Scotty can now open the installed private URL, send one normal follow-up, switch to an older Recent thread, reload, and verify the selected thread remains selected; record whether he still leaves AEGIS for normal conversation."
+    "reason": "Owner grocery outcome/set/compound requests exposed internal IDs, rejected safe bounded actions, and lost the grocery concept during follow-up; installed Chat also remains clunky.",
+    "next_evidence": "Run the installed semantic canary and then one natural owner session; measure whether the owner can express an outcome without leaving for ChatGPT."
+  },
+  "owner_daily_driver_semantics": "PRODUCT_RED / ACTIVE_REPAIR",
+  "owner_conversation_acceptance": "OWNER_REJECTED",
+  "owner_acceptance_incident": {
+    "application_escape": "ChatGPT",
+    "classification": ["semantic_outcome", "set_selection", "compound_execution", "conversation_continuity", "ui"],
+    "summary": "Clear grocery list was rejected, all-rice and single-rice requests exposed stable-ID homework, a three-item request failed preflight, and follow-up 'grocery' lost the introduced context.",
+    "owner_interventions": "multiple; product acceptance failed",
+    "internal_id_requests_exposed": true,
+    "false_completion": "not established by this session",
+    "status": "failed_owner_acceptance / active_repair"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",

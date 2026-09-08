@@ -1220,6 +1220,26 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                     relevance=1,
                     argument_keys=("grocery_id",),
                 ),
+                ActionCard(
+                    action=ActionSpec(
+                        action_id="kitchen.groceries.remove_set",
+                        capability="kitchen.groceries.write",
+                        required_permissions=("kitchen.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Remove a bounded, canonically grounded set of grocery items",
+                    relevance=1,
+                    argument_keys=("grocery_ids",),
+                    argument_grounding={
+                        "grocery_ids": ArgumentGroundingRule(
+                            permitted_provenance=(
+                                ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                            ),
+                            canonical_source="household.grocery_items",
+                        )
+                    },
+                    semantic_scope="kitchen.shopping_list",
+                ),
             ),
         ),
         _ReferencePackSpec(
@@ -7048,6 +7068,72 @@ class PostgresGroceryStateVerifier:
             reason="canonical grocery state verified"
             if verified
             else "canonical grocery state changed or is unavailable",
+        )
+
+
+class PostgresGroceryCollectionExecutor:
+    """Execute one bounded, Core-grounded grocery set mutation."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        ids = request.action.arguments.get("grocery_ids")
+        if (
+            not isinstance(ids, (list, tuple))
+            or not ids
+            or not all(isinstance(item, str) for item in ids)
+        ):
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"reason": "grounded grocery set is required"},
+                command_succeeded=False,
+            )
+        try:
+            changed = self.store.remove_groceries(self.principal, tuple(ids))
+        except (KeyError, TypeError, ValueError, PermissionError) as exc:
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"error": str(exc)},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "groceries",
+                "grocery_ids": list(ids),
+                "changed": [item.__dict__ for item in changed],
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresGroceryCollectionVerifier:
+    """Verify the requested grocery postcondition from fresh canonical state."""
+
+    def __init__(self, store: PostgresHouseholdStore, principal: Any) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        del contract
+        ids = observation.evidence.get("grocery_ids", [])
+        current = tuple(
+            item for item in self.store.list_grocery_items(self.principal) if item.state == "needed"
+        )
+        remaining = [item.grocery_id for item in current if item.grocery_id in ids]
+        verified = observation.command_succeeded and not remaining
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "remaining_grounded_ids": remaining,
+                "needed_count": len(current),
+            },
+            reason="grocery postcondition verified" if verified else "grocery postcondition failed",
         )
 
 
