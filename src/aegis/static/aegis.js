@@ -249,7 +249,10 @@ function renderAttachments() {
   list.replaceChildren(...conversationAttachments.map(attachment => {
     const item = document.createElement('li');
     const label = document.createElement('span');
-    label.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB`;
+    const extraction = attachment.extraction_state === 'extracted'
+      ? 'Ready for next message'
+      : `Extraction ${attachment.extraction_state || 'unknown'}`;
+    label.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB · ${extraction}`;
     const remove = document.createElement('button');
     remove.type = 'button'; remove.className = 'attachment-remove';
     remove.textContent = 'Remove';
