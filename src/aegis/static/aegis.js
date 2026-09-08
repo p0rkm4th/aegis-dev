@@ -18,6 +18,7 @@ let conversationSessionId = null;
 let conversationLoaded = false;
 let conversationContextCorrelationId = null;
 let conversationAttachments = [];
+let pendingAttachmentIds = new Set();
 let selectedNode = null;
 let renderedNodeCards = new Map();
 let renderedNodeText = new Map();
@@ -126,6 +127,27 @@ function clearPendingRequest() {
 }
 const draftStoragePrefix = 'aegis.chat.draft.';
 function draftStorageKey(conversationId) { return `${draftStoragePrefix}${conversationId}`; }
+const pendingAttachmentStoragePrefix = 'aegis.chat.pending-attachments.';
+function pendingAttachmentStorageKey(conversationId) {
+  return `${pendingAttachmentStoragePrefix}${conversationId}`;
+}
+function persistPendingAttachments() {
+  if (!conversationSessionId) return;
+  try {
+    localStorage.setItem(
+      pendingAttachmentStorageKey(conversationSessionId), JSON.stringify([...pendingAttachmentIds]));
+  } catch (_) { /* optional pending attachment continuity. */ }
+}
+function restorePendingAttachments(conversationId, attachments) {
+  pendingAttachmentIds = new Set();
+  try {
+    const saved = JSON.parse(localStorage.getItem(pendingAttachmentStorageKey(conversationId)) || '[]');
+    if (Array.isArray(saved)) {
+      const available = new Set(attachments.map(attachment => attachment.attachment_id));
+      pendingAttachmentIds = new Set(saved.filter(id => available.has(id)));
+    }
+  } catch (_) { /* optional pending attachment continuity. */ }
+}
 function persistDraft() {
   if (!conversationSessionId) return;
   const value = document.getElementById('utterance').value;
@@ -254,20 +276,26 @@ function renderAttachments() {
   list.replaceChildren(...conversationAttachments.map(attachment => {
     const item = document.createElement('li');
     const label = document.createElement('span');
+    const pending = pendingAttachmentIds.has(attachment.attachment_id);
     const extraction = attachment.extraction_state === 'extracted'
       ? 'Ready for next message'
       : `Extraction ${attachment.extraction_state || 'unknown'}`;
-    label.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB · ${extraction}`;
+    label.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB · ${
+      pending ? extraction : 'Stored in this conversation'}`;
     const remove = document.createElement('button');
     remove.type = 'button'; remove.className = 'attachment-remove';
-    remove.textContent = 'Remove';
-    remove.setAttribute('aria-label', `Remove ${attachment.original_filename} from the next message`);
+    remove.textContent = pending ? 'Remove from next message' : 'Use in next message';
+    remove.setAttribute('aria-label', `${pending ? 'Remove' : 'Use'} ${attachment.original_filename} ${
+      pending ? 'from' : 'in'} the next message`);
     remove.addEventListener('click', () => {
-      conversationAttachments = conversationAttachments.filter(itemRecord =>
-        itemRecord.attachment_id !== attachment.attachment_id);
+      if (pending) pendingAttachmentIds.delete(attachment.attachment_id);
+      else pendingAttachmentIds.add(attachment.attachment_id);
+      persistPendingAttachments();
       renderAttachments();
       document.getElementById('attachment-status').textContent =
-        'Attachment removed from the next message; stored file remains available in this conversation.';
+        pending
+          ? 'Attachment remains stored in this conversation and is no longer included automatically.'
+          : 'Attachment selected for the next message.';
     });
     item.append(label, remove);
     return item;
@@ -278,6 +306,7 @@ async function loadAttachments(conversationId) {
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error || 'attachments unavailable');
   conversationAttachments = payload.attachments || [];
+  restorePendingAttachments(conversationId, conversationAttachments);
   renderAttachments();
 }
 function encodeAttachment(bytes) {
@@ -313,7 +342,8 @@ async function loadConversation(conversationId) {
   try { sessionStorage.setItem(sessionStorageKey, conversationId); } catch (_) { /* optional */ }
   renderConversation(payload.messages || []);
   restoreDraft(conversationId);
-  try { await loadAttachments(conversationId); } catch (_) { conversationAttachments = []; renderAttachments(); }
+  try { await loadAttachments(conversationId); }
+  catch (_) { conversationAttachments = []; pendingAttachmentIds = new Set(); renderAttachments(); }
 }
 async function initializeConversation() {
   const response = await apiFetch('/api/conversations');
@@ -360,7 +390,7 @@ function updateChatProjectContext() {
   });
 }
 document.getElementById('chat-project').addEventListener('change', event => {
-  if (event.currentTarget.value && conversationAttachments.length) {
+  if (event.currentTarget.value && pendingAttachmentIds.size) {
     event.currentTarget.value = '';
     document.getElementById('attachment-status').textContent =
       'Remove attached files before using Project context.';
@@ -405,7 +435,8 @@ async function uploadAttachment(file) {
         media_type: file.type || 'text/plain', content_base64: content})});
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'attachment unavailable');
-    conversationAttachments = [...conversationAttachments, payload]; renderAttachments();
+    conversationAttachments = [...conversationAttachments, payload];
+    pendingAttachmentIds.add(payload.attachment_id); persistPendingAttachments(); renderAttachments();
     status.textContent = 'Attached. Ask AEGIS about it.';
   } catch (error) { status.textContent = error.message || 'Attachment unavailable.'; }
   finally { input.disabled = false; input.value = ''; }
@@ -607,6 +638,7 @@ function clearAuthorizedDisplays() {
   empty.textContent = 'Your conversation will appear here.';
   document.getElementById('conversation').append(empty);
   clearConversationContext();
+  pendingAttachmentIds = new Set();
   pendingCorrelationId = null;
   recoveryPollAttempts = 0;
   clearPendingRequest();
@@ -3473,7 +3505,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   try {
     const selectedProject = document.getElementById('chat-project').value;
     const requestBody = {utterance, correlation_id:correlationId, session_id:conversationSessionId,
-      attachment_ids: conversationAttachments.map(attachment => attachment.attachment_id)};
+      attachment_ids: [...pendingAttachmentIds]};
     if (selectedProject) requestBody.project_id = selectedProject;
     if (!pendingCorrelationId && conversationContextCorrelationId)
       requestBody.context_correlation_id = conversationContextCorrelationId;
@@ -3524,6 +3556,9 @@ document.getElementById('chat').addEventListener('submit', async event => {
       } else {
         pendingCorrelationId = null; pendingOutcomeUnknown = false; send.textContent = 'Send';
         clearPendingRequest();
+        pendingAttachmentIds = new Set(); persistPendingAttachments(); renderAttachments();
+        document.getElementById('attachment-status').textContent =
+          'Attachments remain stored in this conversation and are no longer included automatically.';
         input.value = ''; clearDraft(); resizeComposer();
         if (result.state === 'completed' && result.correlation_id)
           persistConversationContext(result.correlation_id);
