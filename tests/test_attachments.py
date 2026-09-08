@@ -62,9 +62,7 @@ class _Connection:
                 )
             )
         if sql.startswith("SELECT id, original_filename, extracted_text"):
-            return _Result(
-                rows=((self.attachment_id, "notes.md", "# Notes\nOwner data"),)
-            )
+            return _Result(rows=((self.attachment_id, "notes.md", "# Notes\nOwner data"),))
         raise AssertionError(f"unexpected SQL: {sql}")
 
     def commit(self) -> None:
