@@ -28,6 +28,7 @@ from uuid import UUID, uuid4
 import psycopg
 
 from .air_quality import air_quality_evidence, configured_air_quality_provider
+from .attachments import PostgresAttachmentStore
 from .audit import PostgresAuditLog
 from .calendar import (
     CalendarEvent,
@@ -851,6 +852,34 @@ def _conversation_append(
     principal: Principal, conversation_id: UUID, role: str, text: str, correlation_id: UUID | None
 ) -> None:
     _conversation_store().append(principal.id, conversation_id, role, text, correlation_id)
+
+
+def _attachment_store() -> PostgresAttachmentStore:
+    return PostgresAttachmentStore(
+        lambda: psycopg.connect(_required("AEGIS_DATABASE_URL")),
+        _apply_migrations,
+        Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces")),
+    )
+
+
+def _attachment_list(principal: Principal, conversation_id: UUID) -> list[dict[str, Any]]:
+    return _attachment_store().list(principal.id, conversation_id)
+
+
+def _attachment_create(
+    principal: Principal,
+    conversation_id: UUID,
+    filename: str,
+    media_type: str,
+    content: bytes,
+) -> dict[str, Any]:
+    return _attachment_store().create(principal.id, conversation_id, filename, media_type, content)
+
+
+def _attachment_context(
+    principal: Principal, conversation_id: UUID, attachment_ids: list[UUID]
+) -> str:
+    return _attachment_store().context(principal.id, conversation_id, attachment_ids)
 
 
 def _personal_store(principal: Principal) -> PostgresPersonalStateStore:
@@ -4712,6 +4741,9 @@ def main() -> int:
                 conversation_create=_conversation_create,
                 conversation_messages=_conversation_messages,
                 conversation_append=_conversation_append,
+                attachment_list=_attachment_list,
+                attachment_create=_attachment_create,
+                attachment_context=_attachment_context,
                 memory_list=_memory_list,
                 memory_correct=_memory_correct,
                 memory_remove=_memory_remove,
