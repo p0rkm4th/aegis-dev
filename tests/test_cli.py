@@ -5625,6 +5625,9 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert 'id="chat-project-status"' in _INDEX_HTML
     assert 'id="clear-chat-project"' in _INDEX_HTML
     assert "updateChatProjectContext" in _AEGIS_JS
+    assert "aegis.chat.draft." in _AEGIS_JS
+    assert "restoreDraft" in _AEGIS_JS
+    assert "input.value = ''; clearDraft(); resizeComposer();" in _AEGIS_JS
     assert "pantry_low_items" in _AEGIS_JS
     assert "Canonical inventory" in _AEGIS_JS
     assert "Canonical and observed inventory" in _AEGIS_JS

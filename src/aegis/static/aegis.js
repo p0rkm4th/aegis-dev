@@ -124,6 +124,26 @@ function persistPendingRequest(utterance, correlationId, outcomeUnknown = false)
 function clearPendingRequest() {
   try { sessionStorage.removeItem(pendingStorageKey); } catch (_) { /* optional storage */ }
 }
+const draftStoragePrefix = 'aegis.chat.draft.';
+function draftStorageKey(conversationId) { return `${draftStoragePrefix}${conversationId}`; }
+function persistDraft() {
+  if (!conversationSessionId) return;
+  const value = document.getElementById('utterance').value;
+  try {
+    if (value && value.length <= 20_000) localStorage.setItem(draftStorageKey(conversationSessionId), value);
+    else localStorage.removeItem(draftStorageKey(conversationSessionId));
+  } catch (_) { /* local draft continuity is optional. */ }
+}
+function restoreDraft(conversationId) {
+  const input = document.getElementById('utterance');
+  try { input.value = localStorage.getItem(draftStorageKey(conversationId)) || ''; }
+  catch (_) { input.value = ''; }
+  resizeComposer();
+}
+function clearDraft(conversationId = conversationSessionId) {
+  if (!conversationId) return;
+  try { localStorage.removeItem(draftStorageKey(conversationId)); } catch (_) { /* optional */ }
+}
 function resizeComposer() {
   const input = document.getElementById('utterance');
   input.style.height = 'auto';
@@ -250,6 +270,7 @@ async function loadConversation(conversationId) {
   restoreConversationContext(conversationId);
   try { sessionStorage.setItem(sessionStorageKey, conversationId); } catch (_) { /* optional */ }
   renderConversation(payload.messages || []);
+  restoreDraft(conversationId);
   try { await loadAttachments(conversationId); } catch (_) { conversationAttachments = []; renderAttachments(); }
 }
 async function initializeConversation() {
@@ -308,7 +329,7 @@ document.getElementById('recent-conversations').addEventListener('change', event
   if (event.target.value) loadConversation(event.target.value).catch(() => {});
 });
 const composer = document.getElementById('utterance');
-composer.addEventListener('input', resizeComposer);
+composer.addEventListener('input', () => { resizeComposer(); persistDraft(); });
 composer.addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
@@ -3433,6 +3454,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
       } else {
         pendingCorrelationId = null; pendingOutcomeUnknown = false; send.textContent = 'Send';
         clearPendingRequest();
+        input.value = ''; clearDraft(); resizeComposer();
         if (result.state === 'completed' && result.correlation_id)
           persistConversationContext(result.correlation_id);
       }
