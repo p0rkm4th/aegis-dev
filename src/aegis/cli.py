@@ -79,7 +79,7 @@ from .identity import (
     Role,
 )
 from .interaction import InteractionBoundary, InteractionDependencies
-from .network import BoundedNetworkDiscovery, PostgresNetworkStore
+from .network import AuthorizedNetworkScope, BoundedNetworkDiscovery, PostgresNetworkStore
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_forge import (
     build_workspace_candidate_proposal,
@@ -1540,6 +1540,34 @@ def _systems_discover(principal: Principal, request: dict[str, Any]) -> dict[str
         }
     finally:
         connection.close()
+
+
+def _systems_scope_configure(principal: Principal, request: dict[str, Any]) -> dict[str, Any]:
+    """Persist one explicitly confirmed authorized network scope."""
+
+    scope_id = request.get("scope_id")
+    cidrs = request.get("cidrs")
+    purpose = request.get("purpose")
+    if not isinstance(scope_id, str) or not isinstance(purpose, str):
+        raise ValueError("scope_id and purpose are required")
+    if not isinstance(cidrs, list) or not cidrs or not all(isinstance(cidr, str) for cidr in cidrs):
+        raise ValueError("at least one CIDR is required")
+    scope = AuthorizedNetworkScope(
+        scope_id.strip(), tuple(cidr.strip() for cidr in cidrs), purpose.strip()
+    )
+    connection = psycopg.connect(_required("AEGIS_DATABASE_URL"))
+    try:
+        _apply_migrations(connection)
+        PostgresNetworkStore(connection).save_scope(principal, scope)
+    finally:
+        connection.close()
+    return {
+        "scope_id": scope.scope_id,
+        "cidrs": list(scope.cidrs),
+        "purpose": scope.purpose,
+        "active": scope.active,
+        "authority": "explicit owner-confirmed read scope; no Host or service action authority",
+    }
 
 
 def _today_state(principal: Principal) -> dict[str, Any]:
@@ -4667,6 +4695,7 @@ def main() -> int:
                 device_state=_device_state,
                 systems_state=_systems_state,
                 systems_discover=_systems_discover,
+                systems_scope_configure=_systems_scope_configure,
                 weather_state=_weather_state,
                 air_quality_state=_air_quality_state,
                 today_state=_today_state,

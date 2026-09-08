@@ -30,6 +30,7 @@ CalendarState = Callable[[Principal], dict[str, Any]]
 DeviceState = Callable[[Principal], dict[str, Any]]
 SystemsState = Callable[[Principal], dict[str, Any]]
 SystemsDiscover = Callable[[Principal, dict[str, Any]], dict[str, Any]]
+SystemsScopeConfigure = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -176,6 +177,14 @@ class SystemsDiscoverRequest(BaseModel):
     scope_id: str = Field(min_length=1, max_length=100)
 
 
+class SystemsScopeConfigureRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    scope_id: str = Field(min_length=1, max_length=100)
+    cidrs: tuple[str, ...] = Field(min_length=1, max_length=8)
+    purpose: str = Field(min_length=1, max_length=300)
+    confirm: bool
+
+
 class ForgeQuarantineRequest(BaseModel):
     """Owner-selected CapabilityNeed candidate for safe Forge materialization."""
 
@@ -277,6 +286,7 @@ class BrowserApp:
         device_state: DeviceState | None = None,
         systems_state: SystemsState | None = None,
         systems_discover: SystemsDiscover | None = None,
+        systems_scope_configure: SystemsScopeConfigure | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -315,6 +325,7 @@ class BrowserApp:
         self.device_state = device_state
         self.systems_state = systems_state
         self.systems_discover = systems_discover
+        self.systems_scope_configure = systems_scope_configure
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -856,6 +867,37 @@ class BrowserApp:
             ) as exc:
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
             return self._json(HTTPStatus.OK, result)
+        if method == "POST" and route == "/api/systems/scopes":
+            if self.systems_scope_configure is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            if len(body) > _MAX_BODY_BYTES:
+                return self._error(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "request_too_large", "request too large"
+                )
+            try:
+                scope_request = SystemsScopeConfigureRequest.model_validate(json.loads(body))
+                if not scope_request.confirm:
+                    raise ValueError("explicit confirmation is required")
+                result = self.systems_scope_configure(
+                    principal, scope_request.model_dump(mode="json", exclude={"confirm"})
+                )
+                return self._json(HTTPStatus.OK, result)
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (
+                json.JSONDecodeError,
+                UnicodeDecodeError,
+                ValidationError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", str(exc))
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "state_unavailable", "systems state unavailable"
+                )
         if method == "POST" and route == "/api/packs/enable":
             if self.pack_enable is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1132,6 +1174,7 @@ def serve(
     device_state: DeviceState | None = None,
     systems_state: SystemsState | None = None,
     systems_discover: SystemsDiscover | None = None,
+    systems_scope_configure: SystemsScopeConfigure | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -1173,6 +1216,7 @@ def serve(
         device_state=device_state,
         systems_state=systems_state,
         systems_discover=systems_discover,
+        systems_scope_configure=systems_scope_configure,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,

@@ -1195,6 +1195,34 @@ async function loadSystems() {
       `${device.address || 'no address'} · ${device.identity_status === 'reconciliation_candidate' ? `possible match: ${device.canonical_host_id}` : 'unmatched observation'} · ${device.last_observed ? `observed ${device.last_observed}` : 'observation time unknown'} · not canonical Host`
     ]);
     panel.append(inventory);
+    const scopeConfig = document.createElement('section'); scopeConfig.className = 'detail-card';
+    const scopeTitle = document.createElement('h3'); scopeTitle.textContent = 'Add an authorized network scope';
+    const scopeHint = document.createElement('p'); scopeHint.className = 'muted';
+    scopeHint.textContent = 'Explicit confirmation stores a bounded read scope. It does not create a Host or authorize service actions.';
+    const scopeForm = document.createElement('form'); scopeForm.setAttribute('aria-label', 'Add authorized network scope');
+    const scopeId = document.createElement('input'); scopeId.required = true; scopeId.maxLength = 100;
+    scopeId.placeholder = 'Scope name'; scopeId.setAttribute('aria-label', 'Network scope name');
+    const cidrs = document.createElement('input'); cidrs.required = true; cidrs.maxLength = 500;
+    cidrs.placeholder = 'CIDR, e.g. 192.168.1.0/24'; cidrs.setAttribute('aria-label', 'Network CIDRs');
+    const purpose = document.createElement('input'); purpose.required = true; purpose.maxLength = 300;
+    purpose.placeholder = 'Purpose'; purpose.setAttribute('aria-label', 'Network scope purpose');
+    const confirm = document.createElement('input'); confirm.type = 'checkbox'; confirm.required = true;
+    const confirmLabel = document.createElement('label'); confirmLabel.append(confirm, ' I explicitly authorize read-only discovery in this scope');
+    const saveScope = document.createElement('button'); saveScope.type = 'submit'; saveScope.textContent = 'Save scope';
+    const scopeStatus = document.createElement('p'); scopeStatus.className = 'muted'; scopeStatus.setAttribute('aria-live', 'polite');
+    scopeForm.append(scopeId, cidrs, purpose, confirmLabel, saveScope);
+    scopeForm.addEventListener('submit', async event => {
+      event.preventDefault(); saveScope.disabled = true; scopeStatus.textContent = 'Saving…';
+      try {
+        const result = await apiFetch('/api/systems/scopes', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({scope_id: scopeId.value.trim(), cidrs: cidrs.value.split(',').map(value => value.trim()).filter(Boolean), purpose: purpose.value.trim(), confirm: confirm.checked})});
+        const payload = await result.json();
+        if (!result.ok) throw new Error(payload.error || 'Scope could not be saved.');
+        scopeStatus.textContent = 'Scope saved. It remains read-only and non-canonical until separately observed.';
+        scopeForm.reset(); await loadSystems();
+      } catch (error) { scopeStatus.textContent = error.message || 'Scope could not be saved.'; }
+      finally { saveScope.disabled = false; }
+    });
+    scopeConfig.append(scopeTitle, scopeHint, scopeForm, scopeStatus); panel.append(scopeConfig);
     const scopes = Array.isArray(payload.active_network_scopes) ? payload.active_network_scopes : [];
     if (scopes.length) {
       const discovery = document.createElement('section'); discovery.className = 'detail-card';
