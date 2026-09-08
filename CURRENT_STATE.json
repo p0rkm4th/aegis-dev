@@ -19,9 +19,9 @@
   "running_release_sha": "e72af8b896b9914c3dd11585a36d708e8738fbb5",
   "live_green_sha": "e72af8b896b9914c3dd11585a36d708e8738fbb5",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "replacement-chat-feedback-1",
-  "checkpoint_status": "in_progress",
-  "current_checkpoint": "replacement-chat-feedback-1",
+  "active_checkpoint": "H12-owner-acceptance-standby",
+  "checkpoint_status": "owner_acceptance_pending",
+  "current_checkpoint": "H12-owner-acceptance-standby",
   "active_campaign": "AEGIS REPLACEMENT-CLASS DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -72,7 +72,7 @@
     "state": "owner_feedback",
     "last_escape_application": "ChatGPT",
     "reason": "Scotty reports installed AEGIS Chat is still clunky.",
-    "next_evidence": "After the coherent Chat tranche, ask for one natural conversation session and record whether he still leaves AEGIS for normal conversation."
+    "next_evidence": "Scotty's smallest next action is one natural installed Chat follow-up; record whether he still leaves AEGIS for normal conversation, then use the visible feedback control."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -515,7 +515,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Keep automatic commit/push disabled; prepare the smallest review-boundary tranche only if owner use requires it. Maintain the installed durable job state, and prioritize real Scotty escape evidence over more synthetic Developer architecture.",
+  "next_action": "Owner-acceptance standby: Scotty can open the private URL, send one normal follow-up, use a real file/project question, or approve one bounded coding change. Keep automatic commit/push disabled and follow real escape evidence; do not add speculative architecture while waiting.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
