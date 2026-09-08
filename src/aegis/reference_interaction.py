@@ -4096,8 +4096,8 @@ def run_reference_plan(
                             state=ObjectiveState.BLOCKED,
                             message=(
                                 f"I found {count} grocery items named {selector!r}. "
-                        "Tell me whether to remove all of them or name a "
-                        "human-readable distinction."
+                                "Tell me whether to remove all of them or name a "
+                                "human-readable distinction."
                             )
                             if count
                             else f"I could not find grocery item {selector!r}.",
