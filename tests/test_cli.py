@@ -5627,6 +5627,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "updateChatProjectContext" in _AEGIS_JS
     assert "setChatControlsBusy" in _AEGIS_JS
     assert "AEGIS is working… conversation controls are temporarily paused." in _AEGIS_JS
+    assert "intro.hidden = messages.length > 0" in _AEGIS_JS
     assert "aegis.chat.draft." in _AEGIS_JS
     assert "restoreDraft" in _AEGIS_JS
     assert "input.value = ''; clearDraft(); resizeComposer();" in _AEGIS_JS
