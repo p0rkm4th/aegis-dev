@@ -1575,6 +1575,22 @@ def _today_state(principal: Principal) -> dict[str, Any]:
         if latest_open_task is not None and latest_open_task not in selected_open_task_rows:
             selected_open_task_rows = [*open_task_rows[:19], latest_open_task]
         open_tasks = [item[1] for item in selected_open_task_rows]
+        due_reminders = []
+        for task in tasks:
+            if task.status.value != "open" or task.due_at is None:
+                continue
+            due_at = task.due_at
+            if due_at.tzinfo is None:
+                due_at = due_at.replace(tzinfo=timezone.utc)
+            if due_at <= now:
+                due_reminders.append(
+                    {
+                        "title": task.title,
+                        "due_at": due_at.isoformat(),
+                        "status": task.status.value,
+                    }
+                )
+        due_reminders = due_reminders[:10]
         completed_tasks = [
             {
                 "title": task.title,
@@ -1676,6 +1692,7 @@ def _today_state(principal: Principal) -> dict[str, Any]:
             "generated_at": now.isoformat(),
             "canonical": {
                 "open_tasks": open_tasks,
+                "due_reminders": due_reminders,
                 "completed_tasks": completed_tasks,
                 "open_chores": chores,
                 "upcoming_shared_events": events,
