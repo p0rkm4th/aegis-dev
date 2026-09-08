@@ -5624,11 +5624,14 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Ready for next message" in _AEGIS_JS
     assert "Remove attached files before using Project context." in _AEGIS_JS
     assert "attachmentsBlocked" in _AEGIS_JS
+    assert "pendingAttachmentIds" in _AEGIS_JS
+    assert "Stored in this conversation" in _AEGIS_JS
+    assert "attachment_ids: [...pendingAttachmentIds]" in _AEGIS_JS
     assert 'id="attachment-dropzone"' in _INDEX_HTML
     assert 'id="chat-project"' in _INDEX_HTML
     assert "project_id" in _AEGIS_JS
     assert "read-only" in _AEGIS_JS
-    assert "from the next message" in _AEGIS_JS
+    assert "Remove from next message" in _AEGIS_JS
     assert "Developer work" in _AEGIS_JS
     assert "Open Developer work" in _AEGIS_JS
     assert 'id="chat-project-status"' in _INDEX_HTML
