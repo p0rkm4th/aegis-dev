@@ -21,7 +21,7 @@ sdist="$(find "$dist_dir" -maxdepth 1 -type f -name '*.tar.gz' -print -quit)"
 test -n "$wheel"
 test -n "$sdist"
 python -m pip install --no-deps --target "$install_dir" "$wheel"
-PYTHONPATH="$install_dir" python -c 'from aegis.migrations import validate_migrations; migrations = validate_migrations(); assert migrations and migrations[-1] == "018_attachments.sql"'
+PYTHONPATH="$install_dir" python -c 'from aegis.migrations import validate_migrations, validate_packaged_migrations; source = validate_migrations("migrations"); packaged = validate_packaged_migrations(); assert source == packaged and source'
 
 python -m pip install --no-deps --prefix "$prefix_dir" "$wheel"
 site_dir="$(find "$prefix_dir" -type d -path '*/site-packages' -print -quit)"
@@ -34,4 +34,4 @@ python -m pip install --no-deps --prefix "$sdist_prefix_dir" "$sdist"
 sdist_site_dir="$(find "$sdist_prefix_dir" -type d -path '*/site-packages' -print -quit)"
 test -x "$sdist_prefix_dir/bin/aegis"
 PYTHONPATH="$sdist_site_dir" "$sdist_prefix_dir/bin/aegis" --help >/dev/null
-PYTHONPATH="$sdist_site_dir" python -c 'from aegis.migrations import validate_migrations; assert validate_migrations()[-1] == "018_attachments.sql"'
+PYTHONPATH="$sdist_site_dir" python -c 'from aegis.migrations import validate_migrations, validate_packaged_migrations; source = validate_migrations("migrations"); packaged = validate_packaged_migrations(); assert source == packaged and source'

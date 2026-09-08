@@ -65,7 +65,7 @@ def test_codex_modify_requires_confirmation_without_running_worker(tmp_path: Pat
     assert (project.repository / "src" / "main.py").read_text() == "print('safe')"
 
 
-def test_codex_modify_applies_only_allowlisted_change_and_runs_gate(
+def test_codex_modify_proposes_then_applies_only_exact_allowlisted_change(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     project = _project(tmp_path)
@@ -80,20 +80,30 @@ def test_codex_modify_applies_only_allowlisted_change_and_runs_gate(
 
         if command[:4] == ["git", "-C", str(project.repository), "status"]:
             return Completed()
+        if command[:4] == ["git", "-C", str(project.repository), "rev-parse"]:
+            Completed.stdout = "base-sha\n"
+            return Completed()
         if "exec" in command:
             snapshot = Path(command[command.index("--cd") + 1])
             (snapshot / "src" / "main.py").write_text("print('changed')", encoding="utf-8")
             output = Path(command[command.index("-o") + 1])
             output.write_text("changed entry point", encoding="utf-8")
             return Completed()
-        assert command == ["bash", "scripts/validate.sh"]
         return Completed()
 
     monkeypatch.setattr("aegis.developer.subprocess.run", fake_run)
+    monkeypatch.setattr(CodexModifyWorker, "_validate_candidate", lambda *args: None)
     result = CodexModifyWorker().modify(project, "Change the entry point", True)
 
-    assert result["state"] == "modified"
+    assert result["state"] == "approval_required"
     assert result["changed_paths"] == ("src/main.py",)
-    assert result["tests"] == "scripts/validate.sh passed"
+    assert result["authority"] == "candidate only; no repository mutation"
+    assert (project.repository / "src" / "main.py").read_text() == "print('safe')"
+    with pytest.raises(DeveloperWorkerError, match="digest"):
+        CodexModifyWorker().apply_approved(project, str(result["proposal_id"]), "wrong-digest")
+    applied = CodexModifyWorker().apply_approved(
+        project, str(result["proposal_id"]), str(result["diff_digest"])
+    )
+    assert applied["state"] == "modified"
     assert (project.repository / "src" / "main.py").read_text() == "print('changed')"
-    assert any(command == ["bash", "scripts/validate.sh"] for command in calls)
+    assert all(command != ["bash", "scripts/validate.sh"] for command in calls)

@@ -88,6 +88,36 @@ def test_project_registry_rejects_unscoped_or_invalid_registration(tmp_path: Pat
         ProjectRegistry(config).for_principal("alice")
 
 
+def test_project_registry_rejects_symlinked_repository_and_scope(tmp_path: Path) -> None:
+    real = tmp_path / "real"
+    real.mkdir()
+    link = tmp_path / "repo-link"
+    link.symlink_to(real, target_is_directory=True)
+    config = tmp_path / "projects.json"
+    _write_registry(config, link)
+    with pytest.raises(ProjectRegistryError, match="symlink"):
+        ProjectRegistry(config).for_principal("alice")
+
+    config.write_text(
+        json.dumps(
+            {
+                "projects": [
+                    {
+                        "project_id": "aegis",
+                        "name": "AEGIS",
+                        "repository": str(real),
+                        "allowed_paths": ["."],
+                        "principal_ids": ["alice"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ProjectRegistryError, match="invalid"):
+        ProjectRegistry(config).for_principal("alice")
+
+
 def test_browser_projects_route_preserves_owner_boundary() -> None:
     app = BrowserApp(
         Principal(id="alice", vault_id="vault"),

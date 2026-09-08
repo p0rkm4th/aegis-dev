@@ -38,7 +38,7 @@ SystemsScopeConfigure = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 ProjectState = Callable[[Principal], dict[str, Any]]
 ProjectInspection = Callable[[Principal, str, str | None], dict[str, Any]]
 DeveloperInspect = Callable[[Principal, str, str], dict[str, Any]]
-DeveloperModify = Callable[[Principal, str, str, bool], dict[str, Any]]
+DeveloperModify = Callable[..., dict[str, Any]]
 DeveloperJobs = Callable[[Principal], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
@@ -794,14 +794,41 @@ class BrowserApp:
                 if (
                     not project_id
                     or not isinstance(payload, dict)
-                    or set(payload) != {"objective", "confirm"}
+                    or not set(payload).issubset(
+                        {"objective", "confirm", "proposal_id", "diff_digest"}
+                    )
+                    or set(payload) - {"objective", "confirm", "proposal_id", "diff_digest"}
+                    or "objective" not in payload
+                    or "confirm" not in payload
                     or not isinstance(payload["objective"], str)
                     or not isinstance(payload["confirm"], bool)
+                    or ("proposal_id" in payload and not isinstance(payload["proposal_id"], str))
+                    or ("diff_digest" in payload and not isinstance(payload["diff_digest"], str))
                 ):
                     raise ValueError("invalid modification request")
-                result = self.developer_modify(
-                    principal, project_id, payload["objective"], payload["confirm"]
-                )
+                try:
+                    result = self.developer_modify(
+                        principal,
+                        project_id,
+                        payload["objective"],
+                        payload["confirm"],
+                        payload.get("proposal_id"),
+                        payload.get("diff_digest"),
+                    )
+                except TypeError as exc:
+                    # Keep the adapter compatible with narrow test/in-process
+                    # callbacks while production callbacks use exact approval.
+                    if payload.get("proposal_id") or payload.get("diff_digest"):
+                        raise
+                    try:
+                        result = self.developer_modify(
+                            principal,
+                            project_id,
+                            payload["objective"],
+                            payload["confirm"],
+                        )
+                    except TypeError:
+                        raise exc
             except PermissionError:
                 return self._error(
                     HTTPStatus.FORBIDDEN, "state_access_denied", "project access denied"

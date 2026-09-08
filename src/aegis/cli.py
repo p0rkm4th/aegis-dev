@@ -870,7 +870,12 @@ def _developer_inspect(principal: Principal, project_id: str, question: str) -> 
 
 
 def _developer_modify(
-    principal: Principal, project_id: str, objective: str, confirm: bool
+    principal: Principal,
+    project_id: str,
+    objective: str,
+    confirm: bool,
+    proposal_id: str | None = None,
+    diff_digest: str | None = None,
 ) -> dict[str, Any]:
     project = _project_registry().registered_for_principal(principal.id, project_id)
     jobs = _developer_job_store()
@@ -879,8 +884,19 @@ def _developer_modify(
         project_id,
         "modify",
         objective,
-        "queued" if confirm else "approval_required",
+        "approval_required",
     )
+    worker = CodexModifyWorker()
+    if proposal_id:
+        if not diff_digest:
+            raise DeveloperWorkerError("approved modification digest is required")
+        try:
+            result = worker.apply_approved(project, proposal_id, diff_digest)
+        except DeveloperWorkerError as exc:
+            failed = jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
+            return {"job_id": failed["job_id"], "state": "failed", "error": str(exc)}
+        completed = jobs.update(principal.id, UUID(job["job_id"]), "completed", result=result)
+        return {"job_id": completed["job_id"], **result}
     if not confirm:
         return {
             "job_id": job["job_id"],
@@ -888,14 +904,13 @@ def _developer_modify(
             "project_id": project_id,
             "authority": "no files changed; explicit owner confirmation is required",
         }
-    jobs.update(principal.id, UUID(job["job_id"]), "running")
     try:
-        result = CodexModifyWorker().modify(project, objective, True)
+        result = worker.modify(project, objective, True)
     except DeveloperWorkerError as exc:
         failed = jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
         return {"job_id": failed["job_id"], "state": "failed", "error": str(exc)}
-    completed = jobs.update(principal.id, UUID(job["job_id"]), "completed", result=result)
-    return {"job_id": completed["job_id"], **result}
+    approval = jobs.update(principal.id, UUID(job["job_id"]), "approval_required", result=result)
+    return {"job_id": approval["job_id"], **result}
 
 
 def _developer_job_store() -> PostgresDeveloperJobStore:

@@ -67,6 +67,8 @@ class ScopedWorkspace:
         max_open_files: int = 64,
         max_workspace_files: int = 50,
         max_workspace_bytes: int = 10_000_000,
+        read_only_binds: tuple[tuple[Path, str], ...] = (),
+        extra_path: tuple[str, ...] = (),
     ) -> None:
         if (
             max_file_bytes <= 0
@@ -93,6 +95,8 @@ class ScopedWorkspace:
         self.max_open_files = max_open_files
         self.max_workspace_files = max_workspace_files
         self.max_workspace_bytes = max_workspace_bytes
+        self.read_only_binds = read_only_binds
+        self.extra_path = extra_path
 
     def _path(self, relative: str) -> Path:
         candidate = (self.root / relative).resolve()
@@ -212,7 +216,7 @@ class ScopedWorkspace:
             "--clearenv",
             "--setenv",
             "PATH",
-            "/usr/bin:/bin",
+            ":".join((*self.extra_path, "/usr/bin", "/bin")),
             "--",
             prlimit,
             f"--cpu={self.max_cpu_seconds}",
@@ -223,6 +227,12 @@ class ScopedWorkspace:
             "--",
             *argv,
         ]
+        bind_args: list[str] = []
+        for host, target in self.read_only_binds:
+            if not host.is_absolute() or not host.is_dir() or host.is_symlink():
+                raise WorkspaceError("read-only sandbox bind is unavailable")
+            bind_args.extend(("--ro-bind", str(host), target))
+        command[command.index("--chdir") : command.index("--chdir")] = bind_args
 
         def establish_process_group() -> None:
             """Give timeout cleanup a process-group boundary around bwrap."""

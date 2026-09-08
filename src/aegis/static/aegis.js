@@ -1235,17 +1235,31 @@ async function loadProjects() {
         const modifyButton = document.createElement('button'); modifyButton.type = 'submit';
         modifyButton.textContent = 'Modify and test';
         const modifyResult = document.createElement('div'); modifyResult.className = 'project-answer';
+        let proposal = null;
         modify.addEventListener('submit', async event => {
           event.preventDefault(); modifyButton.disabled = true; modifyResult.textContent = 'Working…';
           try {
             const response = await apiFetch(`/api/projects/${encodeURIComponent(project.project_id)}/modify`, {
               method: 'POST', headers: {'content-type': 'application/json'},
-              body: JSON.stringify({objective: objective.value.trim(), confirm: confirm.checked})});
+              body: JSON.stringify(proposal
+                ? {objective: objective.value.trim(), confirm: true,
+                   proposal_id: proposal.proposal_id, diff_digest: proposal.diff_digest}
+                : {objective: objective.value.trim(), confirm: confirm.checked})});
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || 'Modification unavailable.');
-            modifyResult.textContent = result.diff
-              ? `${result.authority || ''}\n${result.diff}`
-              : (result.authority || result.state || 'No change reported.');
+            if (result.state === 'approval_required' && result.proposal_id) {
+              proposal = result;
+              modifyButton.textContent = 'Apply this exact change';
+              confirmLabel.hidden = true;
+              modifyResult.textContent = `Review the validated change before applying it.\n${result.diff || ''}`;
+            } else {
+              proposal = null;
+              modifyButton.textContent = 'Propose and validate';
+              confirmLabel.hidden = false;
+              modifyResult.textContent = result.diff
+                ? `${result.authority || ''}\n${result.diff}`
+                : (result.authority || result.state || 'No change reported.');
+            }
           } catch (error) { modifyResult.textContent = error.message || 'Modification unavailable.'; }
           finally { modifyButton.disabled = false; }
         });

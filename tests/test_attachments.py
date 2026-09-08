@@ -48,6 +48,8 @@ class _Connection:
                 )
             )
         if sql.startswith("SELECT id, original_filename, media_type"):
+            if len(params) == 3 and self.attachment_id is None:
+                return _Result()
             return _Result(
                 rows=(
                     (
