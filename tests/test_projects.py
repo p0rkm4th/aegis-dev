@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -148,3 +149,29 @@ def test_browser_developer_inspection_route_is_explicit_and_bounded() -> None:
     )
     assert status == 200
     assert json.loads(payload)["authority"] == "untrusted worker evidence; no repository mutation"
+
+
+def test_browser_developer_modify_route_requires_explicit_confirmation() -> None:
+    seen: list[tuple[str, bool]] = []
+
+    def modify(_current: Any, project_id: str, objective: str, confirm: bool) -> dict[str, object]:
+        assert objective == "Fix the bug"
+        seen.append((project_id, confirm))
+        return {"state": "approval_required"}
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        developer_modify=modify,
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/projects/aegis/modify",
+        b'{"objective":"Fix the bug","confirm":false}',
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload) == {"state": "approval_required"}
+    assert seen == [("aegis", False)]

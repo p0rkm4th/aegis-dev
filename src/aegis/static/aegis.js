@@ -1015,6 +1015,32 @@ async function loadProjects() {
           finally { askButton.disabled = false; }
         });
         ask.append(question, askButton); card.append(ask, answer);
+        const modify = document.createElement('form'); modify.className = 'project-modify-form';
+        const objective = document.createElement('input'); objective.type = 'text';
+        objective.required = true; objective.maxLength = 2000;
+        objective.placeholder = 'Describe a bounded code change';
+        objective.setAttribute('aria-label', `Describe a code change for ${project.name}`);
+        const confirmLabel = document.createElement('label');
+        const confirm = document.createElement('input'); confirm.type = 'checkbox'; confirm.required = true;
+        confirmLabel.append(confirm, document.createTextNode(' I approve a working-tree change and test run'));
+        const modifyButton = document.createElement('button'); modifyButton.type = 'submit';
+        modifyButton.textContent = 'Modify and test';
+        const modifyResult = document.createElement('div'); modifyResult.className = 'project-answer';
+        modify.addEventListener('submit', async event => {
+          event.preventDefault(); modifyButton.disabled = true; modifyResult.textContent = 'Working…';
+          try {
+            const response = await apiFetch(`/api/projects/${encodeURIComponent(project.project_id)}/modify`, {
+              method: 'POST', headers: {'content-type': 'application/json'},
+              body: JSON.stringify({objective: objective.value.trim(), confirm: confirm.checked})});
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Modification unavailable.');
+            modifyResult.textContent = result.diff
+              ? `${result.authority || ''}\n${result.diff}`
+              : (result.authority || result.state || 'No change reported.');
+          } catch (error) { modifyResult.textContent = error.message || 'Modification unavailable.'; }
+          finally { modifyButton.disabled = false; }
+        });
+        modify.append(objective, confirmLabel, modifyButton); card.append(modify, modifyResult);
         const inspect = document.createElement('button');
         inspect.type = 'button'; inspect.textContent = 'Inspect registered files';
         inspect.addEventListener('click', async () => {
