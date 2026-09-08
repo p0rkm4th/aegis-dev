@@ -663,6 +663,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   document.getElementById('view-title').textContent = viewCopy[0];
   document.getElementById('view-description').textContent = viewCopy[1];
   if (activeView === 'research') { input.focus(); loadResearch(); }
+  if (activeView === 'projects') loadProjects();
   if (activeView === 'workspace') loadWorkspace();
   if (activeView === 'compositions') loadCompositions();
   if (activeView === 'packs') loadPacks();
@@ -959,6 +960,43 @@ async function loadWorkspace() {
     applyWorkspaceFilter();
   } catch (_) {
     panel.textContent = 'Workspace inventory is unavailable; no artifact state was changed.';
+  }
+}
+async function loadProjects() {
+  const panel = document.getElementById('detail');
+  panel.replaceChildren();
+  try {
+    const response = await apiFetch('/api/projects');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Projects unavailable.');
+    const projects = payload.projects || [];
+    const intro = document.createElement('p');
+    intro.textContent = projects.length
+      ? 'Registered project context is read-only until a typed developer action is approved.'
+      : 'No projects are registered yet. A project must be explicitly registered before AEGIS can inspect it.';
+    panel.append(intro);
+    projects.forEach(project => {
+      const card = document.createElement('section'); card.className = 'detail-card';
+      const title = document.createElement('h3'); title.textContent = project.name;
+      const state = document.createElement('p'); state.className = 'status-badge';
+      state.dataset.state = project.repository_state || 'unavailable';
+      state.textContent = project.repository_state === 'ready' ? 'Registered · ready' : 'Registered · unavailable';
+      card.append(title, state);
+      const metadata = document.createElement('p'); metadata.className = 'muted';
+      metadata.textContent = `${project.remote || 'Local repository'} · default branch ${project.default_branch}`;
+      card.append(metadata);
+      if (project.allowed_paths?.length) {
+        const scope = document.createElement('p'); scope.className = 'muted';
+        scope.textContent = `Read scope: ${project.allowed_paths.join(', ')}`;
+        card.append(scope);
+      } else {
+        const scope = document.createElement('p'); scope.className = 'muted';
+        scope.textContent = 'Read scope: repository root'; card.append(scope);
+      }
+      panel.append(card);
+    });
+  } catch (_) {
+    panel.textContent = 'Project context is unavailable; no repository state was changed.';
   }
 }
 async function loadCalendar() {

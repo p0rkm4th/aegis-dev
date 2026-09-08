@@ -35,6 +35,7 @@ DeviceState = Callable[[Principal], dict[str, Any]]
 SystemsState = Callable[[Principal], dict[str, Any]]
 SystemsDiscover = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 SystemsScopeConfigure = Callable[[Principal, dict[str, Any]], dict[str, Any]]
+ProjectState = Callable[[Principal], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -238,6 +239,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="communications">Communications</button>
 <button type="button" data-view="daily-driver">Daily driver</button>
 <button type="button" data-view="research">Research</button>
+<button type="button" data-view="projects">Projects</button>
 <button type="button" data-view="packs">Packs</button>
 <button type="button" data-view="objectives">Objectives</button>
 <button type="button" data-view="constellation">Constellation</button>
@@ -295,6 +297,7 @@ class BrowserApp:
         systems_state: SystemsState | None = None,
         systems_discover: SystemsDiscover | None = None,
         systems_scope_configure: SystemsScopeConfigure | None = None,
+        project_state: ProjectState | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -337,6 +340,7 @@ class BrowserApp:
         self.systems_state = systems_state
         self.systems_discover = systems_discover
         self.systems_scope_configure = systems_scope_configure
+        self.project_state = project_state
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -737,6 +741,24 @@ class BrowserApp:
                     "systems state unavailable",
                 )
             return self._json(HTTPStatus.OK, systems_projection)
+        if method == "GET" and route == "/api/projects":
+            if self.project_state is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                projects_projection = self.project_state(principal)
+                if not isinstance(projects_projection, dict):
+                    raise ValueError("Projects state must be an object")
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "state_unavailable",
+                    "Projects state unavailable",
+                )
+            return self._json(HTTPStatus.OK, projects_projection)
         if method == "POST" and route == "/api/systems/discover":
             if self.systems_discover is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1303,6 +1325,7 @@ def serve(
     systems_state: SystemsState | None = None,
     systems_discover: SystemsDiscover | None = None,
     systems_scope_configure: SystemsScopeConfigure | None = None,
+    project_state: ProjectState | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -1348,6 +1371,7 @@ def serve(
         systems_state=systems_state,
         systems_discover=systems_discover,
         systems_scope_configure=systems_scope_configure,
+        project_state=project_state,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,

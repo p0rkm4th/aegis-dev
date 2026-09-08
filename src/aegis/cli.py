@@ -90,6 +90,7 @@ from .pack_forge import (
 from .pack_lifecycle import PackManager, PackStatus, PackUpgradeStatus, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import PostgresPersonalStateStore
+from .projects import ProjectRegistry
 from .reference_interaction import (
     build_reference_fallback_context_runtime,
     ground_reference_action_runtime,
@@ -828,6 +829,19 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 
     root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
     return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
+
+
+def _project_state(principal: Principal) -> dict[str, Any]:
+    """Expose only explicitly registered, Principal-scoped project metadata."""
+
+    configured = os.environ.get("AEGIS_PROJECTS_FILE")
+    path = (
+        Path(configured)
+        if configured
+        else Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
+        / "projects.json"
+    )
+    return {"projects": ProjectRegistry(path).for_principal(principal.id)}
 
 
 def _conversation_store() -> PostgresConversationStore:
@@ -4725,6 +4739,7 @@ def main() -> int:
                 systems_state=_systems_state,
                 systems_discover=_systems_discover,
                 systems_scope_configure=_systems_scope_configure,
+                project_state=_project_state,
                 weather_state=_weather_state,
                 air_quality_state=_air_quality_state,
                 today_state=_today_state,
