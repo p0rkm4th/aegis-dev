@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
+  "state_basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
-  "deterministic_green_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
-  "last_pushed_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
-  "hosted_green_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
-  "hosted_ci_green_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
+  "repository_head_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "deterministic_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "last_pushed_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "hosted_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "hosted_ci_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
+    "commit_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
     "conclusion": "success",
-    "run_id": "34228039584",
-    "observed_at": "2026-09-08T12:27:00Z"
+    "run_id": "34228306151",
+    "observed_at": "2026-09-08T12:58:00Z"
   },
-  "installed_release_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
-  "running_release_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
-  "live_green_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc",
+  "installed_release_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "running_release_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "live_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "chatgpt-replacement-chat-tranche-1",
   "checkpoint_status": "owner_acceptance_pending",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc"
+    "release_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -55,15 +55,15 @@
     "unsupported": {"state": "ENGINEERING_GREEN", "basis_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582", "owner_acceptance": "ordinary unsupported request must be exercised by Scotty; advanced CapabilityNeed/Forge detail remains available"},
     "private_phone": {"state": "ENGINEERING_GREEN", "basis_sha": "b84692e6a64d736d7efdeaf7f6cf1ae849758c58", "owner_acceptance": "pending Scotty opening the private URL on phone"},
     "upgrade_rollback": {"state": "ENGINEERING_GREEN", "basis_sha": "d5ca12db1736248d4141fb8980c1d3721f36414c", "owner_acceptance": "pending ordinary-owner upgrade/rollback walkthrough"},
-    "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
+    "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS Chat now provides a focused conversation surface with bounded, human-readable recent-thread titles derived from the first owner message; populated threads hide onboarding copy, and in-flight requests pause context-changing controls with an explicit explanation.",
+    "current": "Installed AEGIS Chat now provides bounded recent-thread titles, focused populated threads, explicit in-flight control locking, and a visible active destination on responsive navigation; rich response, file, project, and feedback surfaces remain available.",
     "remaining": "Chat, files, Project context, and the approval-bound durable MODIFY path are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; Codex replacement remains RED until a real owner workflow validates review and commit policy."
   },
   "replacement_product_matrix": {
-    "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "e553a9152299de3b77353d42fa62d7cf09c594dc", "blocker": "Installed Chat now labels recent threads by bounded owner-message titles, keeps populated threads focused, and pauses context-changing controls during work; Scotty must decide whether normal conversation still feels clunky."},
+    "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379", "blocker": "Installed Chat labels recent threads, keeps populated threads focused, pauses context-changing controls during work, and highlights the active responsive destination; Scotty must decide whether normal conversation still feels clunky."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
     "codex": {"state": "RED", "basis_sha": "09642b882c971bdd53dceb6ba6ecd5b72e1a53f1", "blocker": "Installed read-only inspection is reachable from explicit Chat project context, durable job status is now surfaced in Today and Projects, and approval-bound MODIFY plus persisted review remain available; no real owner-approved change has been exercised, and review, commit, and push authority remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
