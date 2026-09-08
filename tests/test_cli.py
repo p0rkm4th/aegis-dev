@@ -5619,6 +5619,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert 'id="chat-project"' in _INDEX_HTML
     assert "project_id" in _AEGIS_JS
     assert "read-only" in _AEGIS_JS
+    assert "from the next message" in _AEGIS_JS
     assert "pantry_low_items" in _AEGIS_JS
     assert "Canonical inventory" in _AEGIS_JS
     assert "Canonical and observed inventory" in _AEGIS_JS
