@@ -150,6 +150,22 @@ function resizeComposer() {
   input.style.height = `${Math.min(input.scrollHeight, 176)}px`;
   input.style.overflowY = input.scrollHeight > 176 ? 'auto' : 'hidden';
 }
+function setChatControlsBusy(busy) {
+  const ids = [
+    'new-conversation', 'recent-conversations', 'chat-project',
+    'clear-chat-project', 'attachment-file', 'attachment-dropzone'
+  ];
+  ids.forEach(id => {
+    const control = document.getElementById(id);
+    if (control) control.disabled = busy;
+  });
+  const form = document.getElementById('chat');
+  if (form) form.dataset.busy = busy ? 'true' : 'false';
+  const hint = document.getElementById('composer-hint');
+  if (hint) hint.textContent = busy
+    ? 'AEGIS is working… conversation controls are temporarily paused.'
+    : 'Enter to send · Shift+Enter for a new line';
+}
 function copyPlainText(text, button) {
   const copied = () => { button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1400); };
   if (navigator.clipboard?.writeText) {
@@ -3394,6 +3410,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const correlationId = pendingCorrelationId || crypto.randomUUID();
   if (!pendingCorrelationId) appendConversationMessage('owner-message', `You: ${utterance}`);
   send.disabled = true; input.disabled = true;
+  setChatControlsBusy(true);
   form.setAttribute('aria-busy', 'true');
   persistPendingRequest(utterance, correlationId);
   document.getElementById('activity').textContent = 'Working…';
@@ -3488,6 +3505,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   } finally {
     clearTimeout(timeout);
     form.setAttribute('aria-busy', 'false');
+    setChatControlsBusy(false);
     send.disabled = false; input.disabled = false;
   }
 });
