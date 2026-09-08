@@ -229,6 +229,11 @@ function conversationTitle(messages, fallback = 'Current conversation') {
   const title = first.display_text.trim().replace(/\s+/g, ' ');
   return title.length > 48 ? `${title.slice(0, 45)}…` : title;
 }
+function conversationOptionTitle(item) {
+  const title = typeof item.title === 'string' ? item.title.trim().replace(/\s+/g, ' ') : '';
+  if (title) return title.length > 48 ? `${title.slice(0, 45)}…` : title;
+  return `Conversation · ${new Date(item.updated_at).toLocaleString()}`;
+}
 function renderAttachments() {
   const list = document.getElementById('attachments');
   list.replaceChildren(...conversationAttachments.map(attachment => {
@@ -304,7 +309,7 @@ async function initializeConversation() {
   const selector = document.getElementById('recent-conversations');
   selector.replaceChildren(...conversations.map(item => {
     const option = document.createElement('option'); option.value = item.conversation_id;
-    option.textContent = new Date(item.updated_at).toLocaleString(); return option;
+    option.textContent = conversationOptionTitle(item); return option;
   }));
   selector.value = current.conversation_id;
   await loadConversation(current.conversation_id);
