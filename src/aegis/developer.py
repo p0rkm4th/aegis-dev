@@ -21,6 +21,19 @@ MAX_INSPECT_RESULT = 100_000
 MAX_MODIFY_OBJECTIVE = 2_000
 MAX_DIFF_RESULT = 100_000
 MAX_MODIFY_FILES = 50
+_PRIVATE_PARTS = {
+    ".aws",
+    ".env",
+    ".git",
+    ".netrc",
+    ".npmrc",
+    ".pypirc",
+    ".ssh",
+    "credentials",
+    "secrets",
+    "id_rsa",
+    "id_ed25519",
+}
 
 
 class DeveloperWorkerError(RuntimeError):
@@ -49,6 +62,12 @@ def _path_components(path: Path) -> tuple[Path, ...]:
         current = current / part
         components.append(current)
     return tuple(components)
+
+
+def _private_part(part: str) -> bool:
+    return (
+        part in _PRIVATE_PARTS or part.startswith(".env") or part.endswith((".pem", ".key", ".crt"))
+    )
 
 
 class CodexInspectWorker:
@@ -152,11 +171,7 @@ class CodexInspectWorker:
                     if item.is_symlink() or not item.is_file():
                         continue
                     if any(
-                        part == ".git"
-                        or part == ".env"
-                        or part.startswith(".env")
-                        or part.endswith((".pem", ".key", ".crt"))
-                        for part in item.relative_to(project.repository).parts
+                        _private_part(part) for part in item.relative_to(project.repository).parts
                     ):
                         continue
                     target = destination / item.relative_to(project.repository)
@@ -384,14 +399,11 @@ class CodexModifyWorker(CodexInspectWorker):
 
     @staticmethod
     def _copy_repository(repository: Path, destination: Path) -> None:
-        ignored = {".git", ".env", ".ssh", ".venv", "__pycache__", "node_modules"}
+        ignored = {".venv", "__pycache__", "node_modules"}
         for item in repository.rglob("*"):
             relative = item.relative_to(repository)
             if item.is_symlink() or any(
-                part in ignored
-                or part.startswith(".env")
-                or part.endswith((".pem", ".key", ".crt"))
-                for part in relative.parts
+                part in ignored or _private_part(part) for part in relative.parts
             ):
                 continue
             target = destination / relative
