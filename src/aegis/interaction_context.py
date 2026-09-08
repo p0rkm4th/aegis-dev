@@ -5,9 +5,17 @@ from __future__ import annotations
 import re
 from datetime import datetime, timezone
 from typing import Any, Literal, cast
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from .contracts import Context, Decision, DecisionKind, Principal, Result
+from .contracts import (
+    Context,
+    Decision,
+    DecisionKind,
+    IntentFrame,
+    ObjectiveState,
+    Principal,
+    Result,
+)
 
 _MAX_CONTEXT_TURN_CHARS = 500
 _MAX_CONTEXT_CANDIDATES = 10
@@ -146,6 +154,14 @@ def compact_context_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
                 compact_planning[key] = value
         if compact_planning:
             compact["planning"] = compact_planning
+    concept = evidence.get("introduced_concept")
+    if isinstance(concept, dict):
+        compact["introduced_concept"] = {
+            key: value
+            for key, value in concept.items()
+            if key in {"kind", "collection", "count", "owner_explanation"}
+            and isinstance(value, (str, int))
+        }
     return compact
 
 
@@ -156,6 +172,39 @@ def authorized_context_evidence(context: Context) -> dict[str, Any]:
     if not isinstance(raw, dict):
         return {}
     return compact_context_evidence(raw)
+
+
+def resolve_introduced_concept_read(intent: IntentFrame, context: Context) -> Result | None:
+    """Explain a bounded assistant-introduced term without resetting context."""
+
+    facts = context.values.get("canonical_facts")
+    concept = facts.get("introduced_concept") if isinstance(facts, dict) else None
+    if not isinstance(concept, dict) or concept.get("kind") != "record_identifier":
+        return None
+    text = " ".join(intent.utterance.casefold().split()).strip(".!?")
+    if not re.search(r"\b(?:id|ids|identifier|identifiers)\b", text) and text not in {
+        "grocery",
+        "groceries",
+        "shopping list",
+    }:
+        return None
+    collection = str(concept.get("collection") or "records")
+    count = concept.get("count")
+    count_text = f" There are {count} matching records." if isinstance(count, int) else ""
+    return Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message=(
+            f"Those are internal identifiers I use when several {collection} records "
+            f"have the same name. You normally should not need to type them.{count_text}"
+        ),
+        evidence={
+            "collection": collection,
+            "introduced_concept": dict(concept),
+            "continuation_context": "authorized_prior_result",
+        },
+        correlation_id=intent.correlation_id,
+    )
 
 
 def resolve_obvious_ordinal(

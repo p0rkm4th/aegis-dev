@@ -33,6 +33,7 @@ from aegis.household import (
 from aegis.interaction_cognition import _structural_write_failure
 from aegis.interaction_context import (
     compact_context_evidence,
+    resolve_introduced_concept_read,
     resolve_obvious_ordinal,
     resolve_obvious_ordinal_item,
 )
@@ -79,6 +80,32 @@ from aegis.reference_interaction import (
     rewrite_reference_decision,
 )
 from aegis.tasks import PostgresTaskStore, Task, requested_task_due_at
+
+
+def test_follow_up_explains_internal_identifier_concept_without_resetting_domain():
+    result = resolve_introduced_concept_read(
+        IntentFrame(
+            principal=Principal(id="alice", vault_id="alice-vault"),
+            utterance="wtf is there item ids?",
+        ),
+        Context(
+            values={
+                "prior_objective_id": str(uuid4()),
+                "canonical_facts": {
+                    "introduced_concept": {
+                        "kind": "record_identifier",
+                        "collection": "grocery",
+                        "count": 6,
+                    }
+                },
+            },
+            sources=("authorized_canonical_result",),
+        ),
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert "internal identifiers" in result.message
+    assert "6 matching records" in result.message
 
 
 def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> None:
@@ -3627,7 +3654,8 @@ def test_grocery_state_grounding_blocks_ambiguous_or_missing_display_name() -> N
 
     assert isinstance(ambiguous, Result)
     assert ambiguous.state is ObjectiveState.BLOCKED
-    assert "choose one" in ambiguous.message
+    assert "human-readable distinction" in ambiguous.message
+    assert "stable item ID" not in ambiguous.message
     assert isinstance(missing, Result)
     assert missing.state is ObjectiveState.BLOCKED
     assert "could not find" in missing.message
