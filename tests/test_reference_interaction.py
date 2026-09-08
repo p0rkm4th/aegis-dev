@@ -36,7 +36,13 @@ from aegis.interaction_context import (
     resolve_obvious_ordinal,
     resolve_obvious_ordinal_item,
 )
-from aegis.personal import MemoryRecord, PersonalMemoryFastPath, PersonalState, Provenance
+from aegis.personal import (
+    ExplicitMemoryCapture,
+    MemoryRecord,
+    PersonalMemoryFastPath,
+    PersonalState,
+    Provenance,
+)
 from aegis.planning import (
     CrossDomainPlanningFastPath,
     DomainClarificationFastPath,
@@ -91,6 +97,25 @@ def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> No
             )
         )
         assert result is None, utterance
+
+
+def test_explicit_memory_capture_requires_owner_intent_and_preserves_provenance() -> None:
+    from datetime import datetime, timezone
+
+    state = PersonalState()
+    capture = ExplicitMemoryCapture(state, datetime(2026, 9, 7, tzinfo=timezone.utc))
+    principal = Principal(id="alice", vault_id="alice-vault")
+    assert (
+        capture.resolve(IntentFrame(principal=principal, utterance="I prefer dark mode.")) is None
+    )
+    result = capture.resolve(
+        IntentFrame(principal=principal, utterance="Remember that I prefer dark mode.")
+    )
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Remembered: I prefer dark mode"
+    assert len(state.memories) == 1
+    assert next(iter(state.memories.values())).provenance is Provenance.EXPLICIT_USER
 
 
 def test_memory_fast_path_yields_domain_questions_to_installed_capabilities() -> None:

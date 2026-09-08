@@ -70,7 +70,12 @@ from .kernel import Kernel
 from .network import PostgresNetworkStore
 from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
-from .personal import PersonalMemoryFastPath, PersonalState, PostgresPersonalStateStore
+from .personal import (
+    ExplicitMemoryCapture,
+    PersonalMemoryFastPath,
+    PersonalState,
+    PostgresPersonalStateStore,
+)
 from .planning import (
     ContextualCrossDomainPriorityFastPath,
     ContextualMutationGuard,
@@ -2310,6 +2315,11 @@ def resolve_reference_fast_paths(
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
+    memory_capture = ExplicitMemoryCapture(personal_state)
+    result = memory_capture.resolve(intent)
+    if result is not None:
+        PostgresPersonalStateStore(connection, principal.vault_id).save(personal_state)
+        return result
     result = resolve_contextual_event_next_read(intent, context, snapshot)
     if result is not None:
         return result
