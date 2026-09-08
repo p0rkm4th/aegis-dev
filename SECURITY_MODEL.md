@@ -100,6 +100,14 @@ Important abuse paths include:
   make source/install/runtime mismatches diagnosable without exposing secrets.
 - Use tamper-evident correlated audit records for identity, policy,
   execution, observation, verification, and feedback events.
+- Treat recovery evidence as untrusted content. Recovery classification and
+  budgets are Core-owned persisted state; model output, research text, and
+  CapabilityNeed candidates cannot authorize retry, broaden scope, enable a
+  Pack, or convert an external UNKNOWN outcome into a retry.
+- Keep recovery synchronous and bounded in V1. Repeated failure fingerprints
+  stop recovery, consumed budgets survive persistence/restart, and owner
+  blockage is emitted only when owner input can genuinely resolve the
+  obstacle.
 
 ## Testable security invariants
 
