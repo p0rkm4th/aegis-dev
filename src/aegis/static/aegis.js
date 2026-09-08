@@ -1631,6 +1631,9 @@ function todayRecordLabels(items, prefix, limit) {
 }
 function appendTodayBrief(panel, payload) {
   const canonical = payload.canonical || {};
+  const dueReminders = todayRecordLabels(canonical.due_reminders, 'Reminder', 10);
+  appendTodaySection(panel, 'Due reminders', dueReminders.length
+    ? dueReminders : 'No due reminders.');
   const needs = payload.capability_needs || [];
   const taskAttention = todayAttentionLabels(canonical.open_tasks, 'Task', 8);
   const choreAttention = todayAttentionLabels(canonical.open_chores, 'Chore', 5);
