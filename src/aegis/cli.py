@@ -879,6 +879,24 @@ def _developer_modify(
 ) -> dict[str, Any]:
     project = _project_registry().registered_for_principal(principal.id, project_id)
     jobs = _developer_job_store()
+    worker = CodexModifyWorker()
+    if proposal_id:
+        if not diff_digest:
+            raise DeveloperWorkerError("approved modification digest is required")
+        job = jobs.get(principal.id, UUID(proposal_id))
+        if job["project_id"] != project_id or job["kind"] != "modify":
+            raise DeveloperWorkerError("modification proposal is not owned by this project")
+        if job["state"] != "approval_required":
+            raise DeveloperWorkerError("modification proposal is not awaiting approval")
+        try:
+            result = worker.apply_approved(
+                project, proposal_id, diff_digest, persisted_record=job["result"]
+            )
+        except DeveloperWorkerError as exc:
+            failed = jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
+            return {"job_id": failed["job_id"], "state": "failed", "error": str(exc)}
+        completed = jobs.update(principal.id, UUID(job["job_id"]), "completed", result=result)
+        return {"job_id": completed["job_id"], **result}
     job = jobs.create(
         principal.id,
         project_id,
@@ -886,17 +904,6 @@ def _developer_modify(
         objective,
         "approval_required",
     )
-    worker = CodexModifyWorker()
-    if proposal_id:
-        if not diff_digest:
-            raise DeveloperWorkerError("approved modification digest is required")
-        try:
-            result = worker.apply_approved(project, proposal_id, diff_digest)
-        except DeveloperWorkerError as exc:
-            failed = jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
-            return {"job_id": failed["job_id"], "state": "failed", "error": str(exc)}
-        completed = jobs.update(principal.id, UUID(job["job_id"]), "completed", result=result)
-        return {"job_id": completed["job_id"], **result}
     if not confirm:
         return {
             "job_id": job["job_id"],
@@ -905,11 +912,15 @@ def _developer_modify(
             "authority": "no files changed; explicit owner confirmation is required",
         }
     try:
-        result = worker.modify(project, objective, True)
+        result = worker.modify(project, objective, True, proposal_id=job["job_id"])
     except DeveloperWorkerError as exc:
         failed = jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
         return {"job_id": failed["job_id"], "state": "failed", "error": str(exc)}
-    approval = jobs.update(principal.id, UUID(job["job_id"]), "approval_required", result=result)
+    proposal = worker.last_proposal
+    if proposal is None:
+        raise DeveloperWorkerError("modification proposal was not captured")
+    persisted = proposal.record()
+    approval = jobs.update(principal.id, UUID(job["job_id"]), "approval_required", result=persisted)
     return {"job_id": approval["job_id"], **result}
 
 

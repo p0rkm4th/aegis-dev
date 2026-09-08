@@ -5,7 +5,12 @@ from typing import Any
 
 import pytest
 
-from aegis.developer import CodexInspectWorker, CodexModifyWorker, DeveloperWorkerError
+from aegis.developer import (
+    _PROPOSALS,
+    CodexInspectWorker,
+    CodexModifyWorker,
+    DeveloperWorkerError,
+)
 from aegis.projects import RegisteredProject
 
 
@@ -93,7 +98,8 @@ def test_codex_modify_proposes_then_applies_only_exact_allowlisted_change(
 
     monkeypatch.setattr("aegis.developer.subprocess.run", fake_run)
     monkeypatch.setattr(CodexModifyWorker, "_validate_candidate", lambda *args: None)
-    result = CodexModifyWorker().modify(project, "Change the entry point", True)
+    worker = CodexModifyWorker()
+    result = worker.modify(project, "Change the entry point", True)
 
     assert result["state"] == "approval_required"
     assert result["changed_paths"] == ("src/main.py",)
@@ -101,8 +107,14 @@ def test_codex_modify_proposes_then_applies_only_exact_allowlisted_change(
     assert (project.repository / "src" / "main.py").read_text() == "print('safe')"
     with pytest.raises(DeveloperWorkerError, match="digest"):
         CodexModifyWorker().apply_approved(project, str(result["proposal_id"]), "wrong-digest")
+    assert worker.last_proposal is not None
+    persisted = worker.last_proposal.record()
+    _PROPOSALS.pop(str(result["proposal_id"]), None)
     applied = CodexModifyWorker().apply_approved(
-        project, str(result["proposal_id"]), str(result["diff_digest"])
+        project,
+        str(result["proposal_id"]),
+        str(result["diff_digest"]),
+        persisted_record=persisted,
     )
     assert applied["state"] == "modified"
     assert (project.repository / "src" / "main.py").read_text() == "print('changed')"

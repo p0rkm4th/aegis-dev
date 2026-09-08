@@ -77,6 +77,23 @@ class PostgresDeveloperJobStore:
         finally:
             connection.close()
 
+    def get(self, principal_id: str, job_id: UUID) -> dict[str, Any]:
+        """Load one Principal-owned job for an exact approval transition."""
+
+        connection = self._connection()
+        try:
+            row = connection.execute(
+                "SELECT id, project_id, kind, objective, state, result, error, "
+                "created_at, updated_at FROM developer_jobs "
+                "WHERE id = %s AND principal_id = %s",
+                (job_id, principal_id),
+            ).fetchone()
+            if row is None:
+                raise PermissionError("developer job is not owned by principal")
+            return self._row(row)
+        finally:
+            connection.close()
+
     def reconcile_running(self, principal_id: str) -> builtin_list[dict[str, Any]]:
         connection = self._connection()
         try:
