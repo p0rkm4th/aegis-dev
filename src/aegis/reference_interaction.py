@@ -1331,21 +1331,26 @@ def reference_format_result(result: Any) -> str:
     capability_needs = evidence.get("capability_needs")
     if isinstance(capability_needs, list):
         if not capability_needs:
-            return "Capability needs: (none)"
+            return "I don't have an unresolved request waiting for your input."
         status_filter = evidence.get("status_filter")
-        heading = (
-            "Capability needs requiring your input"
-            if status_filter == "owner_input_required"
-            else "Capability needs"
-        )
-        need_rows = []
+        effects: list[str] = []
         for need in capability_needs[:20]:
             if not isinstance(need, dict):
                 continue
             effect = str(need.get("requested_effect") or "Unspecified capability")
-            status = str(need.get("status") or "open")
-            need_rows.append(f"• {effect} ({status})")
-        return heading + ":\n" + ("\n".join(need_rows) if need_rows else "(none)")
+            if effect not in effects:
+                effects.append(effect)
+        if status_filter == "owner_input_required":
+            subject = "; ".join(effects) if effects else "that request"
+            return (
+                f"I can't do {subject} yet. I need your choice about the available approach. "
+                "The safe next step is to review the options; nothing has been installed or run."
+            )
+        subject = "; ".join(effects) if effects else "that request"
+        return (
+            f"I can't do {subject} yet because I don't have an enabled capability for it. "
+            "I can investigate safe options without installing or running anything."
+        )
     spending = evidence.get("spending")
     if not isinstance(spending, dict):
         spending = evidence.get("finance_spending")
