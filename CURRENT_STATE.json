@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
+  "state_basis_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
-  "deterministic_green_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
-  "last_pushed_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
-  "hosted_green_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
-  "hosted_ci_green_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
+  "repository_head_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
+  "deterministic_green_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
+  "last_pushed_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
+  "hosted_green_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
+  "hosted_ci_green_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
+    "commit_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
     "conclusion": "success",
-    "run_id": "34257031085",
-    "observed_at": "2026-09-08T17:31:00Z"
+    "run_id": "34257603680",
+    "observed_at": "2026-09-08T17:38:00Z"
   },
-  "installed_release_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
-  "running_release_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
-  "live_green_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe",
+  "installed_release_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
+  "running_release_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
+  "live_green_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-acceptance-standby",
   "checkpoint_status": "owner_acceptance_pending",
@@ -63,7 +63,7 @@
     "remaining": "This is engineering evidence, not owner acceptance. Scotty still needs a natural integrated session; Codex remains RED until the owner exercises bounded review, and no commit/push/arbitrary shell authority exists."
   },
   "replacement_product_matrix": {
-    "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "f1cdbc6adae8738c926fb1dc0efe10c5c70b0dfe", "blocker": "Installed Chat keeps the composer docked with attachments and draft state, and labels the active thread deterministically beside New/Recent controls; Scotty must decide whether normal conversation still feels clunky."},
+    "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "8ab735e7ad3d5ddc509be0fe75dc5edc72c472f6", "blocker": "Installed Chat returns the newest bounded 100-message window in chronological order after reload; Scotty must decide whether normal conversation remains clunky."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
     "codex": {"state": "RED", "basis_sha": "12976378e980defd75cb7f661a44ccaf81d41a54", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, persists exact candidate bytes/hashes/diff digest in the durable job, explicitly disables worker network/config rules, and applies only an exact approval; hostile-validator proof covers host files/network/Git/background processes. Owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
@@ -457,7 +457,7 @@
     "Attachment atomicity and migration source/package parity are installed exact-hosted-green; hostile owner-boundary evidence remains regression coverage.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at f1cdbc6. Owner status/doctor/open work as ordinary installed commands; the conversation composer is anchored as one owner-facing dock, and the active thread has a clear deterministic title beside New/Recent controls. The security checkpoint closes Developer MODIFY proposal/approval/apply, disposable validation, hostile isolation proof, explicit worker network denial, project containment, attachment atomicity, and migration packaging truth without adding commit, push, arbitrary shell, or new authority. Scotty remains the next source of acceptance evidence.",
+  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at 8ab735e. The long-thread repair returns the newest bounded 100-message window in chronological order, preserves tied-timestamp determinism and Principal isolation, and is smoke-tested through the installed PostgreSQL path. The Daily-Driver Alpha owner-value override is recorded in MASTER_ROADMAP.md. Codex remains RED; Scotty is the next source of acceptance evidence.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
