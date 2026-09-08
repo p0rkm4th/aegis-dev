@@ -92,9 +92,10 @@ const errorLabels = Object.freeze({
 function errorLabel(code) { return errorLabels[code] || 'Request failed'; }
 const lifecycleLabels = Object.freeze({
   proposed: 'Proposed', validated: 'Validated', authorized: 'Authorized',
-  approval_required: 'Approval required', executing: 'Executing', observed: 'Observed',
-  verified: 'Verified', completed: 'Completed', failed: 'Failed', blocked: 'Blocked',
-  unknown: 'Outcome unknown'
+  approval_required: 'Approval required', executing: 'Working', observed: 'Checking',
+  provider_accepted: 'Provider accepted', effect_verified: 'Effect verified',
+  reconciliation_pending: 'Reconciliation pending', verified: 'Verified',
+  completed: 'Completed', failed: 'Failed', blocked: 'Blocked', unknown: 'Outcome unknown'
 });
 function lifecycleLabel(state) { return lifecycleLabels[state] || state; }
 function renderStatusBadge(label, value) {
@@ -128,7 +129,33 @@ function resizeComposer() {
   input.style.height = `${Math.min(input.scrollHeight, 176)}px`;
   input.style.overflowY = input.scrollHeight > 176 ? 'auto' : 'hidden';
 }
-function appendConversationMessage(kind, text) {
+function copyPlainText(text, button) {
+  const copied = () => { button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1400); };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(copied).catch(() => { button.textContent = 'Copy unavailable'; });
+    return;
+  }
+  const fallback = document.createElement('textarea'); fallback.value = text;
+  fallback.setAttribute('readonly', ''); fallback.className = 'sr-only'; document.body.append(fallback);
+  fallback.select();
+  try { document.execCommand('copy'); copied(); } catch (_) { button.textContent = 'Copy unavailable'; }
+  fallback.remove();
+}
+function renderSourceBlock(sources) {
+  if (!Array.isArray(sources) || !sources.length) return null;
+  const details = document.createElement('details'); details.className = 'message-sources';
+  const summary = document.createElement('summary'); summary.textContent = `Sources (${sources.length})`;
+  const list = document.createElement('ul');
+  sources.slice(0, 5).forEach(source => {
+    const item = document.createElement('li'); const link = document.createElement('a');
+    link.textContent = source.title || source.url || 'Source'; link.href = source.url;
+    link.target = '_blank'; link.rel = 'noopener noreferrer'; item.append(link);
+    if (source.retrieved_at) item.append(document.createTextNode(` · retrieved ${source.retrieved_at}`));
+    list.append(item);
+  });
+  details.append(summary, list); return details;
+}
+function appendConversationMessage(kind, text, renderedHtml = null, sources = []) {
   const conversation = document.getElementById('conversation');
   conversation.querySelector('.conversation-empty')?.remove();
   const wasNearBottom = conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 80;
@@ -143,11 +170,26 @@ function appendConversationMessage(kind, text) {
   speaker.textContent = label;
   const content = document.createElement('p');
   content.className = 'message-content';
-  content.textContent = body;
+  if (!owner && renderedHtml) content.innerHTML = renderedHtml;
+  else content.textContent = body;
   line.append(speaker, content);
+  if (!owner) {
+    const actions = document.createElement('div'); actions.className = 'message-actions';
+    const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'message-copy';
+    copy.textContent = 'Copy'; copy.setAttribute('aria-label', 'Copy AEGIS response');
+    copy.addEventListener('click', () => copyPlainText(body, copy)); actions.append(copy); line.append(actions);
+    const sourceBlock = renderSourceBlock(sources); if (sourceBlock) line.append(sourceBlock);
+  }
   conversation.append(line);
-  if (wasNearBottom || kind === 'aegis-message')
+  if (wasNearBottom || kind === 'owner-message')
     line.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+  else if (kind === 'aegis-message') document.getElementById('jump-latest').hidden = false;
+}
+function conversationTitle(messages, fallback = 'Current conversation') {
+  const first = messages.find(message => message.role === 'owner' && message.display_text);
+  if (!first) return fallback;
+  const title = first.display_text.trim().replace(/\s+/g, ' ');
+  return title.length > 48 ? `${title.slice(0, 45)}…` : title;
 }
 function renderConversation(messages) {
   const conversation = document.getElementById('conversation');
@@ -158,7 +200,11 @@ function renderConversation(messages) {
   }
   messages.forEach(message => appendConversationMessage(
     message.role === 'owner' ? 'owner-message' : 'aegis-message',
-    `${message.role === 'owner' ? 'You' : 'AEGIS'}: ${message.display_text}`));
+    `${message.role === 'owner' ? 'You' : 'AEGIS'}: ${message.display_text}`,
+    message.role === 'aegis' ? message.rendered_html : null,
+    message.sources || []));
+  const selected = document.querySelector(`#recent-conversations option[value="${conversationSessionId}"]`);
+  if (selected) selected.textContent = conversationTitle(messages, selected.textContent);
 }
 async function loadConversation(conversationId) {
   const response = await apiFetch(`/api/conversations/${conversationId}`);
@@ -207,6 +253,16 @@ composer.addEventListener('keydown', event => {
   }
 });
 resizeComposer();
+document.getElementById('jump-latest').addEventListener('click', () => {
+  const conversation = document.getElementById('conversation');
+  conversation.scrollTo({top: conversation.scrollHeight, behavior: 'smooth'});
+  document.getElementById('jump-latest').hidden = true;
+});
+document.getElementById('conversation').addEventListener('scroll', event => {
+  const conversation = event.currentTarget;
+  if (conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 80)
+    document.getElementById('jump-latest').hidden = true;
+});
 function restorePendingRequest() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(pendingStorageKey) || 'null');
@@ -3036,7 +3092,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   send.disabled = true; input.disabled = true;
   form.setAttribute('aria-busy', 'true');
   persistPendingRequest(utterance, correlationId);
-  document.getElementById('activity').textContent = 'Status: working';
+  document.getElementById('activity').textContent = 'Working…';
   setOutcomeStatus('executing');
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
@@ -3050,17 +3106,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     const result = await response.json();
     const answer = result.message || result.error || 'No response';
     document.getElementById('answer').textContent = answer;
-    appendConversationMessage('aegis-message', `AEGIS: ${answer}`);
-    const sources = document.getElementById('research-sources');
-    const researchPanel = document.getElementById('research-panel');
-    sources.replaceChildren();
-    (result.sources || []).forEach(source => {
-      const item = document.createElement('li');
-      const link = document.createElement('a');
-      link.textContent = `${source.title} · retrieved ${source.retrieved_at}`;
-      link.href = source.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
-      item.append(link); sources.append(item);
-    });
+    appendConversationMessage('aegis-message', `AEGIS: ${answer}`, result.rendered_html, result.sources || []);
     if (result.sources && result.sources.length) {
       latestResearch = {
         query: utterance,
@@ -3071,10 +3117,9 @@ document.getElementById('chat').addEventListener('submit', async event => {
       };
       renderResearchSummary();
     }
-    researchPanel.hidden = !(result.sources && result.sources.length);
     if (result.steps && result.steps.length) document.getElementById('step-status').textContent =
       result.steps.map(step =>
-        `${step.action_id}: ${lifecycleLabel(step.state)} · ${step.message}`).join(' | ');
+        `${lifecycleLabel(step.state)} · ${step.message}`).join(' · ');
     else document.getElementById('step-status').textContent = '';
     if (result.state) {
       const outcomeUnknown = result.evidence && result.evidence.assurance === 'OUTCOME_UNKNOWN';

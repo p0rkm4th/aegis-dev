@@ -7,7 +7,7 @@ name = "aegis-core"
 version = "0.1.0.dev1"
 description = "Aegis local-first semantic intelligence core"
 requires-python = ">=3.11"
-dependencies = ["pydantic>=2.7,<3", "psycopg[binary]>=3.2,<4"]
+dependencies = ["Markdown>=3.7,<4", "pydantic>=2.7,<3", "psycopg[binary]>=3.2,<4"]
 
 [project.scripts]
 aegis = "aegis.cli:main"
@@ -19,6 +19,7 @@ dev = [
     "pytest>=8,<9",
     "ruff>=0.6,<1",
     "mypy>=1.11,<2",
+    "types-Markdown>=3.10,<4",
     "copier==9.18.1",
 ]
 live = ["cryptography>=43,<51", "websocket-client>=1.8,<2"]

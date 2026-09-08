@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from .contracts import ObjectiveState, Principal, RequestStatus
 from .health import HealthReport
+from .presentation import render_safe_markdown
 
 Interaction = Callable[[str, Principal, UUID], str | dict[str, Any]]
 ContextualInteraction = Callable[[str, Principal, UUID, UUID | None], str | dict[str, Any]]
@@ -107,6 +108,7 @@ class BrowserMessage(BaseModel):
     retryable: bool | None = None
     steps: tuple[BrowserStep, ...] | None = Field(default=None, max_length=5)
     sources: tuple[BrowserSource, ...] | None = Field(default=None, max_length=5)
+    rendered_html: str | None = None
 
 
 class ConstellationNode(BaseModel):
@@ -238,20 +240,18 @@ _INDEX_HTML = """<!doctype html>
 </nav>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
 <div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
+<div class="conversation-tools"><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label></div>
+<h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol><button id="jump-latest" class="jump-latest" type="button" hidden>Jump to latest</button>
+<div class="chat-progress" aria-live="polite"><p id="activity" class="muted" aria-atomic="true"></p><p id="step-status" class="muted"></p><p id="status-badge" class="status-badge" data-state="idle">Ready</p></div>
 <form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
-<div class="conversation-tools"><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label></div>
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
-<p id="answer" class="sr-only" aria-live="polite"></p><p id="status-badge" class="status-badge" data-state="idle" aria-live="polite">Ready</p><p id="step-status" class="muted"
-aria-live="polite"></p><div id="detail" class="muted" role="region"
+<details class="chat-advanced"><summary>Response details</summary><p id="answer" class="muted" aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
 <p id="feedback" hidden>Was this useful?
 <button type="button" data-feedback="helpful">Helpful</button>
 <button type="button" data-feedback="not_helpful">Not helpful</button>
-<span id="feedback-status" class="muted" aria-live="polite"></span></p>
-<p id="activity" class="muted" aria-live="polite" aria-atomic="true"></p>
-<details id="research-panel" class="research-sources" hidden><summary>External research evidence</summary><ul id="research-sources" aria-live="polite"></ul></details>
-<h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol></section>
+<span id="feedback-status" class="muted" aria-live="polite"></span></p></details></section>
 <details class="secondary" aria-label="Canonical state"><summary>Canonical state</summary><div class="state-tools"><h2 class="sr-only">Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
@@ -504,7 +504,14 @@ class BrowserApp:
                     "conversation_unavailable",
                     "conversation unavailable",
                 )
-            return self._json(HTTPStatus.OK, {"messages": messages})
+            rendered_messages = [
+                {
+                    **message,
+                    "rendered_html": render_safe_markdown(str(message.get("display_text", ""))),
+                }
+                for message in messages
+            ]
+            return self._json(HTTPStatus.OK, {"messages": rendered_messages})
         if method == "GET" and route == "/api/constellation":
             try:
                 state = ConstellationProjection.model_validate(self.state(principal))
@@ -1109,9 +1116,19 @@ class BrowserApp:
                 )
             try:
                 response = BrowserMessage.model_validate(
-                    {"message": message, "correlation_id": correlation_id, "session_id": session_id}
+                    {
+                        "message": message,
+                        "rendered_html": render_safe_markdown(message),
+                        "correlation_id": correlation_id,
+                        "session_id": session_id,
+                    }
                     if isinstance(message, str)
-                    else {**message, "correlation_id": correlation_id, "session_id": session_id}
+                    else {
+                        **message,
+                        "rendered_html": render_safe_markdown(str(message.get("message", ""))),
+                        "correlation_id": correlation_id,
+                        "session_id": session_id,
+                    }
                 )
             except (TypeError, ValidationError):
                 return self._error(
