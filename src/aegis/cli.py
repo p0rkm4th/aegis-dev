@@ -11,6 +11,7 @@ import re
 import socket
 import sqlite3
 import subprocess
+import time
 import urllib.error
 import urllib.request
 import webbrowser
@@ -560,6 +561,138 @@ def _owner_release_truth() -> dict[str, Any]:
     return {"installed_release": installed, "running_release": running}
 
 
+def _owner_release_root() -> Path | None:
+    environment = _owner_service_value("Environment") or ""
+    for entry in environment.split():
+        if not entry.startswith("PYTHONPATH="):
+            continue
+        source_root = Path(entry.split("=", 1)[1]).resolve()
+        if source_root.name == "src" and re.fullmatch(r"[0-9a-f]{40}", source_root.parent.name):
+            return source_root.parent.parent
+    configured = os.environ.get("AEGIS_OWNER_RELEASE_ROOT")
+    return Path(configured).expanduser() if configured else None
+
+
+def _owner_release_candidates() -> list[Path]:
+    root = _owner_release_root()
+    if root is None or not root.is_dir():
+        return []
+    return sorted(
+        (
+            path
+            for path in root.iterdir()
+            if path.is_dir()
+            and re.fullmatch(r"[0-9a-f]{40}", path.name)
+            and (path / "src" / "aegis" / "cli.py").is_file()
+        ),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+
+
+def _owner_release_dropin() -> Path | None:
+    paths = _owner_service_value("DropInPaths") or ""
+    for item in paths.split():
+        candidate = Path(item)
+        if candidate.name == "release.conf":
+            return candidate
+    return None
+
+
+def _owner_release_target(action: str, requested: str | None) -> Path | None:
+    candidates = _owner_release_candidates()
+    current = _owner_release_truth()["running_release"]
+    if requested is not None:
+        if not re.fullmatch(r"[0-9a-f]{40}", requested):
+            return None
+        return next((path for path in candidates if path.name == requested), None)
+    if action == "upgrade":
+        return next((path for path in candidates if path.name != current), None)
+    return next((path for path in candidates if path.name != current), None)
+
+
+def _owner_switch_release(action: str, requested: str | None, as_json: bool) -> int:
+    target = _owner_release_target(action, requested)
+    dropin = _owner_release_dropin()
+    current = _owner_release_truth()["running_release"]
+    if target is None or dropin is None:
+        message = "no suitable versioned owner release is available"
+        if as_json:
+            _print_json_error("owner_release_unavailable", message)
+        else:
+            print(f"Not completed — {message}")
+        return 1
+    if target.name == current:
+        message = "requested release is already running"
+        if as_json:
+            _print_json_error("owner_release_unchanged", message)
+        else:
+            print(f"Not completed — {message}")
+        return 1
+    original = ""
+    try:
+        original = dropin.read_text(encoding="utf-8")
+        updated = re.sub(
+            r"^Environment=PYTHONPATH=.*$",
+            f"Environment=PYTHONPATH={target / 'src'}",
+            original,
+            flags=re.MULTILINE,
+        )
+        updated = re.sub(
+            r"^Environment=AEGIS_CURRENT_STATE_PATH=.*$",
+            f"Environment=AEGIS_CURRENT_STATE_PATH={target / 'CURRENT_STATE.json'}",
+            updated,
+            flags=re.MULTILINE,
+        )
+        if updated == original or "PYTHONPATH=" not in updated:
+            raise ValueError("owner release configuration is incomplete")
+        dropin.write_text(updated, encoding="utf-8")
+        reload_result = subprocess.run(
+            ["systemctl", "--user", "daemon-reload"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        restart_result = subprocess.run(
+            ["systemctl", "--user", "restart", "aegis-owner.service"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        time.sleep(1)
+        healthy, detail = _owner_http_probe(
+            "http://127.0.0.1:" + os.environ.get("AEGIS_OWNER_PORT", "18080"), "/api/ready"
+        )
+        if reload_result.returncode or restart_result.returncode or not healthy:
+            raise RuntimeError(f"new release is not ready ({detail})")
+    except (OSError, subprocess.SubprocessError, ValueError, RuntimeError) as exc:
+        try:
+            if original:
+                dropin.write_text(original, encoding="utf-8")
+            subprocess.run(["systemctl", "--user", "daemon-reload"], check=False, timeout=10)
+            subprocess.run(
+                ["systemctl", "--user", "restart", "aegis-owner.service"], check=False, timeout=20
+            )
+        except (OSError, subprocess.SubprocessError):
+            pass
+        message = f"release switch failed; previous release restoration attempted: {exc}"
+        if as_json:
+            _print_json_error("owner_release_failed", message)
+        else:
+            print(f"Not completed — {message}")
+        return 1
+    payload = {"action": action, "release": target.name, "previous_release": current, "ready": True}
+    if as_json:
+        print(json.dumps(payload))
+    else:
+        print(
+            f"AEGIS owner {action}: running {target.name}; PostgreSQL and Workspace were preserved."
+        )
+    return 0
+
+
 def _owner_http_probe(url: str, path: str) -> tuple[bool, str]:
     try:
         with urllib.request.urlopen(url.rstrip("/") + path, timeout=3) as response:
@@ -582,6 +715,8 @@ def _owner_url() -> tuple[str, bool]:
 
 
 def _owner_operation(action: str, as_json: bool) -> int:
+    if action in {"upgrade", "rollback"}:
+        return _owner_switch_release(action, None, as_json)
     if action == "restart":
         result = subprocess.run(
             ["systemctl", "--user", "restart", "aegis-owner.service"],
@@ -4388,14 +4523,16 @@ def main() -> int:
     parser.add_argument(
         "owner_action",
         nargs="?",
-        choices=("status", "doctor", "open", "restart", "logs"),
+        choices=("status", "doctor", "open", "restart", "logs", "upgrade", "rollback"),
         help=argparse.SUPPRESS,
     )
     args = parser.parse_args()
     if args.owner_action is not None and args.command != "owner":
         parser.error("owner_action requires the owner command")
     if args.command == "owner" and args.owner_action is None:
-        parser.error("owner requires one of: status, doctor, open, restart, logs")
+        parser.error(
+            "owner requires one of: status, doctor, open, restart, logs, upgrade, rollback"
+        )
     if args.json and not (
         args.check or args.once is not None or args.feedback or args.command == "owner"
     ):
