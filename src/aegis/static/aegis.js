@@ -292,14 +292,20 @@ function renderAttachments() {
       else pendingAttachmentIds.add(attachment.attachment_id);
       persistPendingAttachments();
       renderAttachments();
-      document.getElementById('attachment-status').textContent =
-        pending
-          ? 'Attachment remains stored in this conversation and is no longer included automatically.'
-          : 'Attachment selected for the next message.';
     });
     item.append(label, remove);
     return item;
   }));
+  const status = document.getElementById('attachment-status');
+  if (!status) return;
+  const pendingCount = pendingAttachmentIds.size;
+  if (pendingCount) {
+    status.textContent = `${pendingCount} file${pendingCount === 1 ? '' : 's'} selected for the next message.`;
+  } else if (conversationAttachments.length) {
+    status.textContent = `${conversationAttachments.length} stored file${conversationAttachments.length === 1 ? '' : 's'} available; none will be sent automatically.`;
+  } else {
+    status.textContent = '';
+  }
 }
 async function loadAttachments(conversationId) {
   const response = await apiFetch(`/api/attachments?conversation_id=${conversationId}`);
@@ -437,7 +443,6 @@ async function uploadAttachment(file) {
     if (!response.ok) throw new Error(payload.error || 'attachment unavailable');
     conversationAttachments = [...conversationAttachments, payload];
     pendingAttachmentIds.add(payload.attachment_id); persistPendingAttachments(); renderAttachments();
-    status.textContent = 'Attached. Ask AEGIS about it.';
   } catch (error) { status.textContent = error.message || 'Attachment unavailable.'; }
   finally { input.disabled = false; input.value = ''; }
 }
