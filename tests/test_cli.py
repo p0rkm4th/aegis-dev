@@ -8299,7 +8299,8 @@ def test_task_read_fast_path_filters_weekday_without_due_verb():
     from datetime import datetime, timedelta, timezone
 
     now = datetime.now(timezone.utc)
-    target = (now + timedelta(days=(0 - now.weekday()) % 7)).date()
+    local_now = now.astimezone()
+    target = (local_now + timedelta(days=(0 - local_now.weekday()) % 7)).date()
     monday_task = Task(
         uuid4(),
         "apartment",
