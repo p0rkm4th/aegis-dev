@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
+  "state_basis_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
-  "deterministic_green_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
-  "last_pushed_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
-  "hosted_green_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
-  "hosted_ci_green_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
+  "repository_head_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "deterministic_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "last_pushed_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "hosted_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "hosted_ci_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
+    "commit_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
     "conclusion": "success",
-    "run_id": "34124934321",
+    "run_id": "34181803739",
     "observed_at": "2026-09-07T13:01:18Z"
   },
-  "installed_release_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
-  "running_release_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
-  "live_green_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e",
+  "installed_release_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "running_release_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "live_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-harness-H2-H3",
+  "active_checkpoint": "owner-harness-H4-memory",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-harness-H2-H3",
+  "current_checkpoint": "owner-harness-H4-memory",
   "active_campaign": "AEGIS OWNER HARNESS / ACTUAL DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -42,12 +42,12 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e"
+    "release_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
     "conversation": {"state": "ENGINEERING_GREEN", "basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e", "owner_acceptance": "pending Scotty walkthrough"},
-    "memory": {"state": "RED", "blocker": "natural remember/recall and inspection loop not yet verified"},
+    "memory": {"state": "RED", "basis_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c", "blocker": "capture is installed; recall and inspection/edit/remove remain"},
     "finance": {"state": "RED", "blocker": "actual owner import remains unbuilt"},
     "homelab": {"state": "ENGINEERING_GREEN", "blocker": "owner configuration UX remains partial"},
     "tasks": {"state": "ENGINEERING_GREEN", "blocker": "reminder surfacing remains partial"},
@@ -58,9 +58,9 @@
     "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
   },
   "owner_value_checkpoint": {
-    "previous": "Browser chat existed but its visible transcript vanished on reload, browser reopen, or service restart.",
-    "current": "Installed AEGIS stores Principal-scoped bounded conversation turns in PostgreSQL and resumes them after owner-service restart.",
-    "remaining": "Scotty must personally confirm normal browser reload/close-reopen usability and a bounded follow-up before owner acceptance."
+    "previous": "Installed AEGIS stored durable conversation turns, but explicit personal memory capture was not available through normal conversation.",
+    "current": "Installed AEGIS accepts an explicit Remember request and persists the display-safe memory with EXPLICIT_USER provenance in the Principal's canonical personal store.",
+    "remaining": "Memory inspection/edit/remove UI and Scotty's real remember/recall acceptance remain; conversation owner acceptance is also pending."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
