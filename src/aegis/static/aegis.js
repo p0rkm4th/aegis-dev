@@ -1791,6 +1791,13 @@ async function loadToday() {
       const researchResponse = await fetchWithTimeout('/api/research');
       if (researchResponse.ok) appendTodayResearchSummary(panel, await researchResponse.json());
     } catch (_) { /* Research is a bounded optional public-evidence Today slice. */ }
+    try {
+      const developerResponse = await fetchWithTimeout('/api/developer/jobs');
+      if (developerResponse.ok) {
+        const developerPayload = await developerResponse.json();
+        appendTodayDeveloperJobs(panel, developerPayload.jobs || []);
+      }
+    } catch (_) { /* Developer jobs are a bounded optional owner attention slice. */ }
     const crossDomainReview = document.createElement('section');
     crossDomainReview.className = 'detail-card today-cross-domain-review';
     const crossDomainHeading = document.createElement('h3');
@@ -1948,6 +1955,26 @@ async function loadToday() {
   } catch (_) {
     panel.textContent = 'Today state is unavailable; no canonical state was changed.';
   }
+}
+function appendTodayDeveloperJobs(panel, jobs) {
+  const bounded = (Array.isArray(jobs) ? jobs : []).slice(0, 6);
+  if (!bounded.length) return;
+  const section = document.createElement('section'); section.className = 'detail-card today-developer-jobs';
+  const title = document.createElement('h3'); title.textContent = 'Developer work'; section.append(title);
+  bounded.forEach(job => {
+    const row = document.createElement('div'); row.className = 'today-developer-job';
+    const badge = document.createElement('span'); badge.className = 'status-badge';
+    badge.dataset.state = job.state || 'unknown'; badge.textContent = job.state || 'unknown';
+    const description = document.createElement('span');
+    description.textContent = `${job.kind || 'job'} · ${job.objective || 'No objective recorded'}`;
+    row.append(badge, description); section.append(row);
+  });
+  const boundary = document.createElement('p'); boundary.className = 'muted';
+  boundary.textContent = 'Developer status is scoped to you; review results and approvals in Projects.';
+  section.append(boundary);
+  const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open Developer work';
+  open.addEventListener('click', () => document.querySelector('[data-view="projects"]')?.click());
+  section.append(open); panel.append(section);
 }
 function todayRecordLabel(item) {
   if (item === null || item === undefined) return '—';
