@@ -1,31 +1,31 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
+  "state_basis_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
-  "deterministic_green_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
-  "last_pushed_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
-  "hosted_green_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
-  "hosted_ci_green_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
+  "repository_head_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
+  "deterministic_green_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
+  "last_pushed_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
+  "hosted_green_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
+  "hosted_ci_green_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
+    "commit_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
     "conclusion": "success",
-    "run_id": "34230948764",
-    "observed_at": "2026-09-08T13:18:16Z"
+    "run_id": "34232208608",
+    "observed_at": "2026-09-08T13:29:54Z"
   },
-  "installed_release_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
-  "running_release_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
-  "live_green_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc",
+  "installed_release_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
+  "running_release_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
+  "live_green_sha": "fde036e59ee951c46cf74dce89715b0df1a47253",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-harness-ui-today-tranche-1",
-  "checkpoint_status": "owner_acceptance_pending",
-  "current_checkpoint": "owner-harness-ui-today-tranche-1",
+  "active_checkpoint": "developer-boundary-hardening",
+  "checkpoint_status": "engineering_green_owner_acceptance_pending",
+  "current_checkpoint": "developer-boundary-hardening",
   "active_campaign": "AEGIS REPLACEMENT-CLASS DAILY DRIVER",
-  "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
-  "parallel_lane": "UI / UX",
-  "experimental_lane": "Pack-first cognition tournament (isolated; production incumbent unchanged)",
+  "primary_proving_domains": ["Developer boundary hardening", "Attachment atomicity", "Owner acceptance"],
+  "parallel_lane": "Owner acceptance standby; no new UI tranche while security checkpoint closes",
+  "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
     "model": "qwen3:8b",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc"
+    "release_sha": "fde036e59ee951c46cf74dce89715b0df1a47253"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -59,13 +59,13 @@
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS now summarizes exactly which conversation files are selected for the next message and which remain stored only, preserving explicit attachment continuity without silent reuse; Project context and pending files remain mutually clear, alongside focused Chat and calmer Today UI.",
-    "remaining": "Chat, files, Project context, and the approval-bound durable MODIFY path are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; Codex replacement remains RED until a real owner workflow validates review and commit policy."
+    "current": "Installed AEGIS now has an exact-hosted-green Developer boundary: migration smoke validates source/package parity, MODIFY candidates stay disposable until exact owner approval, validation runs in a bounded network-isolated workspace, project scopes reject symlink/whole-repo ambiguity, and attachment writes are transactionally staged.",
+    "remaining": "This is engineering evidence, not owner acceptance. Scotty still needs a natural integrated session; Codex remains RED until the owner exercises bounded review, and no commit/push/arbitrary shell authority exists."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379", "blocker": "Installed Chat labels recent threads, keeps populated threads focused, pauses context-changing controls during work, and highlights the active responsive destination; Scotty must decide whether normal conversation still feels clunky."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
-    "codex": {"state": "RED", "basis_sha": "09642b882c971bdd53dceb6ba6ecd5b72e1a53f1", "blocker": "Installed read-only inspection is reachable from explicit Chat project context, durable job status is now surfaced in Today and Projects, and approval-bound MODIFY plus persisted review remain available; no real owner-approved change has been exercised, and review, commit, and push authority remain disabled."},
+    "codex": {"state": "RED", "basis_sha": "fde036e59ee951c46cf74dce89715b0df1a47253", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, exposes exact hashes/diff digest, and applies only an exact approval; owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
   },
   "owner_escape_metric": {
@@ -453,10 +453,11 @@
   ],
   "current_blockers": [
     "H2/H3 engineering proof is installed; Scotty's human browser reload/close-reopen and bounded follow-up acceptance is still pending.",
-    "H12 integrated owner walkthrough remains BLOCKED_ON_OWNER_ACCEPTANCE; Chat replacement is installed-green and the file attachment tranche is still under engineering proof.",
+    "Developer boundary hardening is installed exact-hosted-green at fde036e; final owner acceptance remains pending and Codex replacement stays RED until an owner exercises the bounded review flow.",
+    "Attachment atomicity and migration source/package parity are installed exact-hosted-green; hostile owner-boundary evidence remains regression coverage.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
+  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at fde036e. The current security checkpoint closes Developer MODIFY proposal/approval/apply, disposable validation, project containment, attachment atomicity, and migration packaging truth without adding commit, push, arbitrary shell, or new authority. Scotty remains the next source of acceptance evidence.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
