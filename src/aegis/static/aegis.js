@@ -266,6 +266,10 @@ function conversationTitle(messages, fallback = 'Current conversation') {
   const title = first.display_text.trim().replace(/\s+/g, ' ');
   return title.length > 48 ? `${title.slice(0, 45)}…` : title;
 }
+function updateConversationTitle(messages) {
+  const heading = document.getElementById('conversation-title');
+  if (heading) heading.textContent = conversationTitle(messages);
+}
 function conversationOptionTitle(item) {
   const title = typeof item.title === 'string' ? item.title.trim().replace(/\s+/g, ' ') : '';
   if (title) return title.length > 48 ? `${title.slice(0, 45)}…` : title;
@@ -328,6 +332,7 @@ function renderConversation(messages) {
   if (intro) intro.hidden = messages.length > 0;
   conversation.replaceChildren();
   if (!messages.length) {
+    updateConversationTitle(messages);
     const empty = document.createElement('li'); empty.className = 'conversation-empty';
     empty.textContent = 'Your conversation will appear here.'; conversation.append(empty); return;
   }
@@ -336,6 +341,7 @@ function renderConversation(messages) {
     `${message.role === 'owner' ? 'You' : 'AEGIS'}: ${message.display_text}`,
     message.role === 'aegis' ? message.rendered_html : null,
     message.sources || []));
+  updateConversationTitle(messages);
   const selected = document.querySelector(`#recent-conversations option[value="${conversationSessionId}"]`);
   if (selected) selected.textContent = conversationTitle(messages, selected.textContent);
 }

@@ -7677,6 +7677,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "let initialTheme = 'dark';" in browser_source
     assert 'class="conversation-panel"' in browser_source
     assert 'class="composer-dock"' in browser_source
+    assert 'id="conversation-title"' in browser_source
+    assert "function updateConversationTitle(messages)" in browser_source
     assert '<nav class="product-nav" aria-label="AEGIS views">' in browser_source
     assert '<div class="nav-group nav-primary" aria-label="Everyday">' in browser_source
     assert '<div class="nav-group nav-advanced" aria-label="Explore">' in browser_source
