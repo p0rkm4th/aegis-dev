@@ -51,6 +51,8 @@ def test_codex_inspect_worker_uses_read_only_snapshot_and_sanitized_environment(
     command = seen["command"]
     assert isinstance(command, list)
     assert "--sandbox" in command and command[command.index("--sandbox") + 1] == "read-only"
+    assert "sandbox_workspace_write.network_access=false" in command
+    assert "--ignore-user-config" in command and "--ignore-rules" in command
     assert "--ask-for-approval" in command
     assert seen["snapshot_files"] == ["src/main.py"]
     assert isinstance(seen["env"], dict)
