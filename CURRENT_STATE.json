@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "state_basis_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
   "active_branch": "aegis-dev",
   "repository_head_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2",
-  "deterministic_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
-  "last_pushed_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
-  "hosted_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
-  "hosted_ci_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "deterministic_green_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
+  "last_pushed_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
+  "hosted_green_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
+  "hosted_ci_green_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+    "commit_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
     "conclusion": "success",
-    "run_id": "34292044768",
+    "run_id": "34292570738",
     "observed_at": "2026-09-08T22:40:00Z"
   },
-  "installed_release_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
-  "running_release_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
-  "live_green_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+  "installed_release_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
+  "running_release_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
+  "live_green_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "daily-driver-semantics-conversation-first-sprint-s1",
   "checkpoint_status": "active_repair",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2"
+    "release_sha": "dbdc334000def6cd5d853b09698ad63465293dd4"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4", "owner_acceptance": "status, doctor, and open are available as ordinary installed commands; Scotty's normal-use acceptance remains pending"},
@@ -61,7 +61,7 @@
   },
   "daily_driver_semantics": {
     "state": "PRODUCT_RED / ACTIVE_REPAIR",
-    "basis_sha": "91c20f4ae4005e5c6fb323d44a6b5e45652131e3",
+    "basis_sha": "dbdc334000def6cd5d853b09698ad63465293dd4",
     "desired_state_sets": "ENGINEERING_GREEN installed for bounded Grocery clear/all-matching/explicit-set planning and postcondition verification; cross-domain proof and natural owner acceptance pending",
     "compound_preflight": "ENGINEERING_GREEN installed; complete bounded plan is formed before local collection mutation",
     "completion_fidelity": "ENGINEERING_GREEN installed; effect objectives cannot complete from answer-only fallback",
