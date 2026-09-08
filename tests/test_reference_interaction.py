@@ -180,7 +180,9 @@ def test_reference_formatter_renders_capability_needs_as_review_only() -> None:
     )
 
     assert reference_format_result(result) == (
-        "Capability needs requiring your input:\n• Set up a family server (owner_input_required)"
+        "I can't do Set up a family server yet. I need your choice about the available "
+        "approach. The safe next step is to review the options; nothing has been installed "
+        "or run."
     )
 
 
