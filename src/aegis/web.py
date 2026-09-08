@@ -253,7 +253,7 @@ _INDEX_HTML = """<!doctype html>
 </nav>
 <div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
 <div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
-<div class="conversation-tools"><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label></div>
+<div class="conversation-tools"><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label><label for="chat-project">Project context <select id="chat-project"><option value="">None · normal AEGIS</option></select></label></div>
 <h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol><button id="jump-latest" class="jump-latest" type="button" hidden>Jump to latest</button>
 <div class="chat-progress" aria-live="polite"><p id="activity" class="muted" aria-atomic="true"></p><p id="step-status" class="muted"></p><p id="status-badge" class="status-badge" data-state="idle">Ready</p></div>
 <form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
@@ -1286,6 +1286,7 @@ class BrowserApp:
                     "context_correlation_id",
                     "session_id",
                     "attachment_ids",
+                    "project_id",
                 }
                 if unknown_fields:
                     raise ValueError("request contains undocumented fields")
@@ -1317,6 +1318,16 @@ class BrowserApp:
                 if not isinstance(attachment_values, list) or len(attachment_values) > 3:
                     raise ValueError("attachment_ids must be a list of at most three UUIDs")
                 attachment_ids = [UUID(str(value)) for value in attachment_values]
+                project_value = payload.get("project_id")
+                chat_project_id: str | None
+                if project_value is None:
+                    chat_project_id = None
+                elif isinstance(project_value, str) and 0 < len(project_value.strip()) <= 100:
+                    chat_project_id = project_value.strip()
+                else:
+                    raise ValueError("invalid project context")
+                if chat_project_id and attachment_ids:
+                    raise ValueError("project context cannot be combined with attachments")
             except (json.JSONDecodeError, UnicodeDecodeError):
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", "invalid request")
             except (ValueError, KeyError, TypeError) as exc:
@@ -1331,7 +1342,20 @@ class BrowserApp:
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", validation_message)
             try:
                 interaction_utterance = utterance
-                if attachment_ids:
+                message: str | dict[str, Any]
+                if chat_project_id:
+                    if self.developer_inspect is None:
+                        raise ValueError("project context is unavailable")
+                    project_result = self.developer_inspect(principal, chat_project_id, utterance)
+                    answer = str(project_result.get("answer", "")).strip()
+                    if not answer:
+                        raise ValueError("project inspection returned no answer")
+                    message = {
+                        "message": answer,
+                        "state": "completed",
+                        "detail": "Read-only project inspection; worker output is untrusted evidence.",
+                    }
+                elif attachment_ids:
                     if self.attachment_context is None:
                         raise ValueError("attachments are unavailable")
                     attachment_data = self.attachment_context(principal, session_id, attachment_ids)
@@ -1347,12 +1371,13 @@ class BrowserApp:
                     self.conversation_append(
                         principal, session_id, "owner", utterance, correlation_id
                     )
-                if self.contextual_interaction is not None:
-                    message = self.contextual_interaction(
-                        interaction_utterance, principal, correlation_id, context_correlation_id
-                    )
-                else:
-                    message = self.interaction(interaction_utterance, principal, correlation_id)
+                if not chat_project_id:
+                    if self.contextual_interaction is not None:
+                        message = self.contextual_interaction(
+                            interaction_utterance, principal, correlation_id, context_correlation_id
+                        )
+                    else:
+                        message = self.interaction(interaction_utterance, principal, correlation_id)
             except PermissionError:
                 return self._error(HTTPStatus.FORBIDDEN, "request_denied", "request denied")
             except Exception:

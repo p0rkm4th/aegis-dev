@@ -256,6 +256,18 @@ async function initializeConversation() {
   selector.value = current.conversation_id;
   await loadConversation(current.conversation_id);
 }
+async function loadChatProjects() {
+  const selector = document.getElementById('chat-project');
+  try {
+    const response = await apiFetch('/api/projects');
+    const payload = await response.json();
+    if (!response.ok) return;
+    (payload.projects || []).forEach(project => {
+      if (project.repository_state !== 'ready') return;
+      selector.append(new Option(`${project.name} · read-only`, project.project_id));
+    });
+  } catch (_) { /* Project context is optional. */ }
+}
 document.getElementById('new-conversation').addEventListener('click', async () => {
   const response = await apiFetch('/api/conversations', {method: 'POST'});
   const conversation = await response.json();
@@ -3313,8 +3325,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
   try {
+    const selectedProject = document.getElementById('chat-project').value;
     const requestBody = {utterance, correlation_id:correlationId, session_id:conversationSessionId,
       attachment_ids: conversationAttachments.map(attachment => attachment.attachment_id)};
+    if (selectedProject) requestBody.project_id = selectedProject;
     if (!pendingCorrelationId && conversationContextCorrelationId)
       requestBody.context_correlation_id = conversationContextCorrelationId;
     const response = await apiFetch('/api/message', {method:'POST',
@@ -3419,7 +3433,7 @@ document.querySelectorAll('[data-feedback]').forEach(button =>
 }));
 restorePendingRequest();
 recoverPendingRequest();
-initializeConversation().catch(() => {
+Promise.all([initializeConversation(), loadChatProjects()]).catch(() => {
   document.getElementById('activity').textContent =
     'Conversation history is unavailable; the owner service needs attention.';
 });
