@@ -17,6 +17,7 @@ let pendingOutcomeUnknown = false;
 let conversationSessionId = null;
 let conversationLoaded = false;
 let conversationContextCorrelationId = null;
+let conversationAttachments = [];
 let selectedNode = null;
 let renderedNodeCards = new Map();
 let renderedNodeText = new Map();
@@ -191,6 +192,28 @@ function conversationTitle(messages, fallback = 'Current conversation') {
   const title = first.display_text.trim().replace(/\s+/g, ' ');
   return title.length > 48 ? `${title.slice(0, 45)}…` : title;
 }
+function renderAttachments() {
+  const list = document.getElementById('attachments');
+  list.replaceChildren(...conversationAttachments.map(attachment => {
+    const item = document.createElement('li');
+    item.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB`;
+    return item;
+  }));
+}
+async function loadAttachments(conversationId) {
+  const response = await apiFetch(`/api/attachments?conversation_id=${conversationId}`);
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error || 'attachments unavailable');
+  conversationAttachments = payload.attachments || [];
+  renderAttachments();
+}
+function encodeAttachment(bytes) {
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize)
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  return btoa(binary);
+}
 function renderConversation(messages) {
   const conversation = document.getElementById('conversation');
   conversation.replaceChildren();
@@ -214,6 +237,7 @@ async function loadConversation(conversationId) {
   restoreConversationContext(conversationId);
   try { sessionStorage.setItem(sessionStorageKey, conversationId); } catch (_) { /* optional */ }
   renderConversation(payload.messages || []);
+  try { await loadAttachments(conversationId); } catch (_) { conversationAttachments = []; renderAttachments(); }
 }
 async function initializeConversation() {
   const response = await apiFetch('/api/conversations');
@@ -253,6 +277,24 @@ composer.addEventListener('keydown', event => {
   }
 });
 resizeComposer();
+document.getElementById('attachment-file').addEventListener('change', async event => {
+  const input = event.currentTarget; const file = input.files?.[0];
+  if (!file) return;
+  const status = document.getElementById('attachment-status');
+  if (file.size > 200000) { status.textContent = 'File is over the 200 KB limit.'; input.value = ''; return; }
+  status.textContent = 'Reading file…'; input.disabled = true;
+  try {
+    const content = encodeAttachment(new Uint8Array(await file.arrayBuffer()));
+    const response = await apiFetch('/api/attachments', {method: 'POST', headers: {'content-type': 'application/json'},
+      body: JSON.stringify({conversation_id: conversationSessionId, filename: file.name,
+        media_type: file.type || 'text/plain', content_base64: content})});
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'attachment unavailable');
+    conversationAttachments = [...conversationAttachments, payload]; renderAttachments();
+    status.textContent = 'Attached. Ask AEGIS about it.';
+  } catch (error) { status.textContent = error.message || 'Attachment unavailable.'; }
+  finally { input.disabled = false; input.value = ''; }
+});
 document.getElementById('jump-latest').addEventListener('click', () => {
   const conversation = document.getElementById('conversation');
   conversation.scrollTo({top: conversation.scrollHeight, behavior: 'smooth'});
@@ -3097,7 +3139,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), messageTimeoutMs);
   try {
-    const requestBody = {utterance, correlation_id:correlationId, session_id:conversationSessionId};
+    const requestBody = {utterance, correlation_id:correlationId, session_id:conversationSessionId,
+      attachment_ids: conversationAttachments.map(attachment => attachment.attachment_id)};
     if (!pendingCorrelationId && conversationContextCorrelationId)
       requestBody.context_correlation_id = conversationContextCorrelationId;
     const response = await apiFetch('/api/message', {method:'POST',

@@ -4142,7 +4142,7 @@ def test_cli_migration_source_fallback_executes_sql(monkeypatch):
 
     cli._apply_migrations(connection)
 
-    assert len(connection.statements) == 17
+    assert len(connection.statements) == 18
     assert connection.statements[0].startswith("-- PostgreSQL canonical schema")
     assert connection.committed is True
 
@@ -5224,6 +5224,78 @@ def test_browser_app_denies_conversation_access_for_other_principal():
     )
     assert status == 403
     assert json.loads(payload)["code"] == "state_access_denied"
+
+
+def test_browser_app_uploads_lists_and_contextualizes_bounded_attachment():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    conversation_id = uuid4()
+    attachment_id = uuid4()
+    captured: list[str] = []
+
+    def create(_principal, requested_conversation, filename, media_type, content):
+        assert requested_conversation == conversation_id
+        assert filename == "notes.md"
+        assert media_type == "text/markdown"
+        assert content == b"# Notes"
+        return {
+            "attachment_id": str(attachment_id),
+            "original_filename": filename,
+            "media_type": media_type,
+            "byte_size": len(content),
+            "sha256": "hash",
+            "extraction_state": "extracted",
+            "created_at": "2026-09-08T00:00:00+00:00",
+        }
+
+    app = BrowserApp(
+        principal,
+        lambda utterance, *_: captured.append(utterance) or "summarized",
+        lambda _: {"nodes": []},
+        session_token="session-secret",
+        attachment_list=lambda _principal, requested: (
+            [{"attachment_id": str(attachment_id), "original_filename": "notes.md"}]
+            if requested == conversation_id
+            else []
+        ),
+        attachment_create=create,
+        attachment_context=lambda _principal, requested, ids: (
+            "[Untrusted attachment data: notes.md]\n# Notes"
+            if requested == conversation_id and ids
+            else ""
+        ),
+    )
+    upload = json.dumps(
+        {
+            "conversation_id": str(conversation_id),
+            "filename": "notes.md",
+            "media_type": "text/markdown",
+            "content_base64": "IyBOb3Rlcw==",
+        }
+    ).encode()
+    status, _, payload = app.dispatch(
+        "POST", "/api/attachments", upload, headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 201
+    assert json.loads(payload)["attachment_id"] == str(attachment_id)
+    status, _, payload = app.dispatch(
+        "GET",
+        f"/api/attachments?conversation_id={conversation_id}",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload)["attachments"][0]["original_filename"] == "notes.md"
+    body = json.dumps(
+        {
+            "utterance": "Summarize this.",
+            "session_id": str(conversation_id),
+            "attachment_ids": [str(attachment_id)],
+        }
+    ).encode()
+    status, _, _ = app.dispatch(
+        "POST", "/api/message", body, headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert "untrusted owner-provided file data" in captured[0]
 
 
 def test_browser_app_exposes_principal_scoped_research_history():
