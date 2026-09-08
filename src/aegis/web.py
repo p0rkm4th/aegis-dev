@@ -260,6 +260,7 @@ _INDEX_HTML = """<!doctype html>
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
 <div class="attachment-tools"><label class="attachment-picker" for="attachment-file">Attach a file<input id="attachment-file" type="file" accept=".txt,.md,.csv,.json,.py,.js,.ts,.css,.html,.sql,.toml,.yaml,.yml,.ini,.cfg,.conf,.log" /></label><div id="attachment-dropzone" class="attachment-dropzone" role="button" tabindex="0" aria-label="Drop a text file to attach">Drop a text file here</div><span id="attachment-status" class="muted" aria-live="polite"></span><ul id="attachments" aria-label="Conversation attachments"></ul></div>
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
+<p id="draft-status" class="muted" aria-live="polite"></p>
 <details class="chat-advanced"><summary>Response details</summary><p id="answer" class="muted" aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
 </details><p id="feedback" class="feedback-inline" hidden>Was this useful?

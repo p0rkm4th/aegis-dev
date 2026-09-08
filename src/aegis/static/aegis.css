@@ -64,6 +64,7 @@ details summary { cursor: pointer; color: var(--muted, var(--text-muted)); font-
 #chat { display: flex; align-items: flex-end; gap: .7rem; margin: 1rem 0 1.5rem; }
 #utterance { flex: 1; min-width: 0; min-height: 3.25rem; max-height: 11rem; padding: .85rem 1rem; overflow-y: hidden; resize: none; border: 1px solid var(--border); border-radius: .8rem; background: var(--bg); color: var(--text-strong); font: inherit; line-height: 1.45; }
 #composer-hint { margin: .35rem 0 1rem; font-size: .78rem; }
+#draft-status { margin: -.7rem 0 1rem; font-size: .78rem; }
 .conversation-tools { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; margin-bottom: .35rem; }
 .conversation-tools label { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .35rem; min-width: 0; }
 #recent-conversations { max-width: 100%; min-width: 0; }

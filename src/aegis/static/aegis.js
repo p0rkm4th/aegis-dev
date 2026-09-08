@@ -129,20 +129,30 @@ function draftStorageKey(conversationId) { return `${draftStoragePrefix}${conver
 function persistDraft() {
   if (!conversationSessionId) return;
   const value = document.getElementById('utterance').value;
+  const status = document.getElementById('draft-status');
   try {
-    if (value && value.length <= 20_000) localStorage.setItem(draftStorageKey(conversationSessionId), value);
-    else localStorage.removeItem(draftStorageKey(conversationSessionId));
+    if (value && value.length <= 20_000) {
+      localStorage.setItem(draftStorageKey(conversationSessionId), value);
+      if (status) status.textContent = 'Draft saved on this device.';
+    } else {
+      localStorage.removeItem(draftStorageKey(conversationSessionId));
+      if (status) status.textContent = '';
+    }
   } catch (_) { /* local draft continuity is optional. */ }
 }
 function restoreDraft(conversationId) {
   const input = document.getElementById('utterance');
   try { input.value = localStorage.getItem(draftStorageKey(conversationId)) || ''; }
   catch (_) { input.value = ''; }
+  const status = document.getElementById('draft-status');
+  if (status) status.textContent = input.value ? 'Draft restored from this device.' : '';
   resizeComposer();
 }
 function clearDraft(conversationId = conversationSessionId) {
   if (!conversationId) return;
   try { localStorage.removeItem(draftStorageKey(conversationId)); } catch (_) { /* optional */ }
+  const status = document.getElementById('draft-status');
+  if (status) status.textContent = '';
 }
 function resizeComposer() {
   const input = document.getElementById('utterance');
