@@ -7607,8 +7607,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "candidate.requires_owner_input" in browser_source
     assert "pendingCapabilityFocus" in browser_source
     assert "Matches candidate capability" in browser_source
-    assert "Capability needs requiring attention" in browser_source
-    assert "Review capability needs" in browser_source
+    assert "Requests needing your input" in browser_source
+    assert "Review possible approaches" in browser_source
     assert "Active objectives" in browser_source
     assert "Open active objectives" in browser_source
     assert "Create investigation task" in browser_source
