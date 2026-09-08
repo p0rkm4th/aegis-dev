@@ -2,9 +2,9 @@
   "schema_version": 2,
   "state_basis_sha": "5c6ff2b4b87902b3bc034b64e80de789bf0750c4",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "5c6ff2b4b87902b3bc034b64e80de789bf0750c4",
+  "repository_head_sha": "baedbbfbb8d702da3971fe6420a8029f66d7eac2",
   "deterministic_green_sha": "5c6ff2b4b87902b3bc034b64e80de789bf0750c4",
-  "last_pushed_sha": "5c6ff2b4b87902b3bc034b64e80de789bf0750c4",
+  "last_pushed_sha": "baedbbfbb8d702da3971fe6420a8029f66d7eac2",
   "hosted_green_sha": "5c6ff2b4b87902b3bc034b64e80de789bf0750c4",
   "hosted_ci_green_sha": "5c6ff2b4b87902b3bc034b64e80de789bf0750c4",
   "hosted_ci_attestation": {
