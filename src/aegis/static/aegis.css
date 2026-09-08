@@ -66,6 +66,8 @@ details summary { cursor: pointer; color: var(--muted, var(--text-muted)); font-
 #composer-hint { margin: .35rem 0 1rem; font-size: .78rem; }
 #draft-status { margin: -.7rem 0 1rem; font-size: .78rem; }
 .conversation-tools { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; margin-bottom: .35rem; }
+.conversation-heading { display: flex; flex: 1 1 12rem; flex-direction: column; min-width: 0; gap: .05rem; }
+.conversation-heading strong { overflow: hidden; color: var(--text-strong); font-size: .95rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
 .conversation-tools label { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .35rem; min-width: 0; }
 #recent-conversations { max-width: 100%; min-width: 0; }
 button { padding: .75rem 1rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--panel-raised); color: var(--text-strong); font: inherit; cursor: pointer; }
@@ -145,6 +147,7 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
   #chat { align-items: flex-end; flex-direction: row; }
   #chat button { width: auto; flex: 0 0 auto; min-height: 3.25rem; }
   .conversation-tools { align-items: stretch; }
+  .conversation-heading { flex: 1 1 100%; }
   .conversation-tools label { flex: 1 1 9rem; }
   #recent-conversations { flex: 1 1 9rem; }
   #conversation { gap: .65rem; margin-top: 1.25rem; }
