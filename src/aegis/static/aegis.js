@@ -55,19 +55,29 @@ try {
     sessionStorage.setItem(sessionStorageKey, conversationSessionId);
   }
 } catch (_) { conversationSessionId = crypto.randomUUID(); }
-try {
-  const savedContext = localStorage.getItem(contextStorageKey);
-  if (savedContext &&
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedContext))
-    conversationContextCorrelationId = savedContext;
-} catch (_) { /* local storage is optional */ }
+function conversationContextKey(conversationId) {
+  return `${contextStorageKey}.${conversationId}`;
+}
+function restoreConversationContext(conversationId) {
+  conversationContextCorrelationId = null;
+  try {
+    const savedContext = localStorage.getItem(conversationContextKey(conversationId));
+    if (savedContext &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(savedContext))
+      conversationContextCorrelationId = savedContext;
+  } catch (_) { /* local storage is optional */ }
+}
 function persistConversationContext(correlationId) {
   conversationContextCorrelationId = correlationId;
-  try { localStorage.setItem(contextStorageKey, correlationId); } catch (_) { /* optional */ }
+  try {
+    if (conversationSessionId) localStorage.setItem(conversationContextKey(conversationSessionId), correlationId);
+  } catch (_) { /* optional */ }
 }
 function clearConversationContext() {
   conversationContextCorrelationId = null;
-  try { localStorage.removeItem(contextStorageKey); } catch (_) { /* optional */ }
+  try {
+    if (conversationSessionId) localStorage.removeItem(conversationContextKey(conversationSessionId));
+  } catch (_) { /* optional */ }
 }
 const retryableCodes = new Set([
   'identity_unavailable', 'state_unavailable', 'request_unavailable', 'request_timeout'
@@ -145,6 +155,7 @@ async function loadConversation(conversationId) {
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error || 'conversation unavailable');
   conversationSessionId = conversationId; conversationLoaded = true;
+  restoreConversationContext(conversationId);
   try { sessionStorage.setItem(sessionStorageKey, conversationId); } catch (_) { /* optional */ }
   renderConversation(payload.messages || []);
 }
