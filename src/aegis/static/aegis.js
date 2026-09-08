@@ -994,6 +994,27 @@ async function loadProjects() {
         scope.textContent = 'Read scope: repository root'; card.append(scope);
       }
       if (project.repository_state === 'ready') {
+        const ask = document.createElement('form'); ask.className = 'project-inspect-form';
+        const question = document.createElement('input'); question.type = 'text';
+        question.required = true; question.maxLength = 2000;
+        question.placeholder = 'Ask about this registered project';
+        question.setAttribute('aria-label', `Ask about ${project.name}`);
+        const askButton = document.createElement('button'); askButton.type = 'submit';
+        askButton.textContent = 'Inspect';
+        const answer = document.createElement('div'); answer.className = 'project-answer';
+        ask.addEventListener('submit', async event => {
+          event.preventDefault(); askButton.disabled = true; answer.textContent = 'Inspecting…';
+          try {
+            const response = await apiFetch(`/api/projects/${encodeURIComponent(project.project_id)}/inspect`, {
+              method: 'POST', headers: {'content-type': 'application/json'},
+              body: JSON.stringify({question: question.value.trim()})});
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Inspection unavailable.');
+            answer.textContent = `${result.answer || ''} (${result.authority || 'worker evidence'})`;
+          } catch (error) { answer.textContent = error.message || 'Inspection unavailable.'; }
+          finally { askButton.disabled = false; }
+        });
+        ask.append(question, askButton); card.append(ask, answer);
         const inspect = document.createElement('button');
         inspect.type = 'button'; inspect.textContent = 'Inspect registered files';
         inspect.addEventListener('click', async () => {

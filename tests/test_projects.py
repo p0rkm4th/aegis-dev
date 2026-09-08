@@ -125,3 +125,26 @@ def test_browser_project_inspection_route_is_bounded() -> None:
         "path": "src/main.py",
         "principal": "alice",
     }
+
+
+def test_browser_developer_inspection_route_is_explicit_and_bounded() -> None:
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        developer_inspect=lambda current, project_id, question: {
+            "project_id": project_id,
+            "question": question,
+            "principal": current.id,
+            "authority": "untrusted worker evidence; no repository mutation",
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "POST",
+        "/api/projects/aegis/inspect",
+        b'{"question":"Where is conversation persistence implemented?"}',
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload)["authority"] == "untrusted worker evidence; no repository mutation"
