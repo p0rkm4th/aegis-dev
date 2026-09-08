@@ -1,5 +1,7 @@
 import shutil
 import socket
+import subprocess
+import textwrap
 from pathlib import Path
 from uuid import uuid4
 
@@ -59,26 +61,108 @@ def test_workspace_network_namespace_cannot_reach_parent_loopback(tmp_path: Path
 def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path: Path) -> None:
     sentinel = tmp_path / "host-sentinel.txt"
     sentinel.write_text("unchanged", encoding="utf-8")
-    workspace = ScopedWorkspace(tmp_path / "disposable", allowed_commands=("python3",))
-    script = (
-        "from pathlib import Path; import socket; import subprocess; import time; "
-        f"host=Path({str(sentinel)!r}); "
-        "Path('validator-mutation.txt').write_text('only disposable'); "
-        "print('host-visible' if host.exists() else 'host-hidden'); "
-        "s=socket.socket(); s.settimeout(0.2); "
-        "\ntry: s.connect(('127.0.0.1', 9)); print('network-open') "
-        "\nexcept OSError: print('network-closed'); "
-        "child=subprocess.Popen(['python3','-c','import time; time.sleep(5)']); "
-        "Path('child.pid').write_text(str(child.pid)); time.sleep(0.1)"
+    host_home = tmp_path / "host-home"
+    host_home.mkdir()
+    (host_home / "secret").write_text("home-secret", encoding="utf-8")
+    host_ssh = host_home / ".ssh"
+    host_ssh.mkdir()
+    (host_ssh / "id_ed25519").write_text("ssh-secret", encoding="utf-8")
+    host_codex = tmp_path / "host-codex"
+    host_codex.mkdir()
+    (host_codex / "secret").write_text("codex-secret", encoding="utf-8")
+    host_unexpected = tmp_path / "unexpected-host-file"
+    host_repo = tmp_path / "host-repo"
+    host_repo.mkdir()
+    (host_repo / "tracked.txt").write_text("unchanged", encoding="utf-8")
+    subprocess.run(("git", "init", "--quiet", str(host_repo)), check=True)
+    before_git = subprocess.check_output(
+        ("git", "-C", str(host_repo), "status", "--porcelain"), text=True
     )
-    result = workspace.run(("python3", "-c", script), uuid4())
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(1)
+    port = listener.getsockname()[1]
+    workspace = ScopedWorkspace(tmp_path / "disposable", allowed_commands=("python3",))
+    script = textwrap.dedent(
+        f"""
+        from pathlib import Path
+        import os
+        import socket
+        import subprocess
+        import time
+
+        host = Path({str(sentinel)!r})
+        ssh = Path({str(host_ssh)!r})
+        unexpected = Path({str(host_unexpected)!r})
+        repo = Path({str(host_repo)!r})
+        print('home-secret' if os.environ.get('HOME') and
+              Path(os.environ['HOME']).exists() else 'home-hidden')
+        print('ssh-secret' if ssh.exists() and any(ssh.iterdir()) else 'ssh-hidden')
+        print('codex-secret' if os.environ.get('CODEX_HOME') else 'codex-hidden')
+        Path('validator-mutation.txt').write_text('only disposable')
+        try:
+            host.write_text('changed')
+        except OSError:
+            print('host-file-blocked')
+        try:
+            unexpected.write_text('created')
+        except OSError:
+            print('unexpected-file-blocked')
+        subprocess.run(['git', '-C', str(repo), 'commit', '-am', 'bad'], check=False)
+        subprocess.run(['git', '-C', str(repo), 'push'], check=False)
+        s = socket.socket()
+        s.settimeout(0.2)
+        try:
+            s.connect(('127.0.0.1', {port}))
+            print('network-open')
+        except OSError:
+            print('network-closed')
+        child = subprocess.Popen(['python3', '-c', 'import time; time.sleep(5)'])
+        Path('child.pid').write_text(str(child.pid))
+        time.sleep(0.1)
+        """
+    )
+    try:
+        result = workspace.run(("python3", "-c", script), uuid4())
+    finally:
+        listener.close()
     assert result.returncode == 0
-    assert "host-hidden" in result.stdout
+    assert "home-hidden" in result.stdout
+    assert "ssh-hidden" in result.stdout
+    assert "codex-hidden" in result.stdout
+    assert "host-file-blocked" in result.stdout
+    assert "unexpected-file-blocked" in result.stdout
+    assert "home-secret" not in result.stdout
+    assert "ssh-secret" not in result.stdout
+    assert "codex-secret" not in result.stdout
     assert "network-closed" in result.stdout
     assert sentinel.read_text(encoding="utf-8") == "unchanged"
+    assert not host_unexpected.exists()
+    assert host_repo.joinpath("tracked.txt").read_text() == "unchanged"
+    assert (
+        subprocess.check_output(("git", "-C", str(host_repo), "status", "--porcelain"), text=True)
+        == before_git
+    )
     assert (workspace.root / "validator-mutation.txt").read_text() == "only disposable"
     child_pid = int((workspace.root / "child.pid").read_text())
     assert not Path(f"/proc/{child_pid}").exists()
+
+    nonzero = workspace.run(
+        (
+            "python3",
+            "-c",
+            "from pathlib import Path; Path('nonzero.txt').write_text('kept'); raise SystemExit(7)",
+        ),
+        uuid4(),
+    )
+    zero = workspace.run(
+        ("python3", "-c", "from pathlib import Path; Path('zero.txt').write_text('kept')"),
+        uuid4(),
+    )
+    assert nonzero.returncode == 7
+    assert zero.returncode == 0
+    assert (workspace.root / "nonzero.txt").read_text() == "kept"
+    assert (workspace.root / "zero.txt").read_text() == "kept"
 
 
 @pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
