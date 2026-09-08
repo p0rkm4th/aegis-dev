@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pytest
 
@@ -149,6 +150,37 @@ def test_browser_developer_inspection_route_is_explicit_and_bounded() -> None:
     )
     assert status == 200
     assert json.loads(payload)["authority"] == "untrusted worker evidence; no repository mutation"
+
+
+def test_browser_chat_project_context_uses_read_only_inspector() -> None:
+    seen: list[tuple[str, str, str]] = []
+
+    def inspect(current: Principal, project_id: str, question: str) -> dict[str, object]:
+        seen.append((current.id, project_id, question))
+        return {"answer": "Conversation persistence is in the conversation store."}
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        developer_inspect=inspect,
+        session_token="session-secret",
+    )
+    body = json.dumps(
+        {
+            "utterance": "Where is conversation persistence implemented?",
+            "session_id": str(uuid4()),
+            "project_id": "aegis",
+        }
+    ).encode()
+    status, _, payload = app.dispatch(
+        "POST", "/api/message", body, headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert json.loads(payload)["message"] == (
+        "Conversation persistence is in the conversation store."
+    )
+    assert seen == [("alice", "aegis", "Where is conversation persistence implemented?")]
 
 
 def test_browser_developer_modify_route_requires_explicit_confirmation() -> None:
