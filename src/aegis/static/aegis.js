@@ -134,7 +134,17 @@ function appendConversationMessage(kind, text) {
   const wasNearBottom = conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 80;
   const line = document.createElement('li');
   line.className = kind;
-  line.textContent = text;
+  const owner = kind === 'owner-message';
+  const label = owner ? 'You' : 'AEGIS';
+  const prefix = `${label}: `;
+  const body = text.startsWith(prefix) ? text.slice(prefix.length) : text;
+  const speaker = document.createElement('span');
+  speaker.className = 'message-speaker';
+  speaker.textContent = label;
+  const content = document.createElement('p');
+  content.className = 'message-content';
+  content.textContent = body;
+  line.append(speaker, content);
   conversation.append(line);
   if (wasNearBottom || kind === 'aegis-message')
     line.scrollIntoView({block: 'nearest', behavior: 'smooth'});
