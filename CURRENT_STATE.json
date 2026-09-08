@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
+  "state_basis_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
-  "deterministic_green_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
-  "last_pushed_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
-  "hosted_green_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
-  "hosted_ci_green_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
+  "repository_head_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "deterministic_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "last_pushed_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "hosted_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "hosted_ci_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
+    "commit_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
     "conclusion": "success",
-    "run_id": "34183425935",
+    "run_id": "34183645776",
     "observed_at": "2026-09-07T13:01:18Z"
   },
-  "installed_release_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
-  "running_release_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
-  "live_green_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f",
+  "installed_release_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "running_release_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "live_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-harness-H6-homelab-configuration",
+  "active_checkpoint": "owner-harness-H9-unsupported-ux",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-harness-H6-homelab-configuration",
+  "current_checkpoint": "owner-harness-H9-unsupported-ux",
   "active_campaign": "AEGIS OWNER HARNESS / ACTUAL DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f"
+    "release_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -52,15 +52,15 @@
     "homelab": {"state": "ENGINEERING_GREEN", "basis_sha": "2344e741dbd3da8bd0ac8919eddf622bba4eb10f", "owner_acceptance": "scope configuration is installed; Scotty's actual authorized network/service walkthrough remains"},
     "tasks": {"state": "ENGINEERING_GREEN", "basis_sha": "1c34ad3735bbbde50236c9b035d7a966c83aa29b", "owner_acceptance": "due reminders are installed; Scotty's real reminder/reschedule/completion walkthrough remains"},
     "research_workspace": {"state": "ENGINEERING_GREEN", "basis_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215"},
-    "unsupported": {"state": "ENGINEERING_GREEN", "blocker": "ordinary owner UX remains partial"},
+    "unsupported": {"state": "ENGINEERING_GREEN", "basis_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582", "owner_acceptance": "ordinary unsupported request must be exercised by Scotty; advanced CapabilityNeed/Forge detail remains available"},
     "private_phone": {"state": "ENGINEERING_GREEN", "basis_sha": "b84692e6a64d736d7efdeaf7f6cf1ae849758c58", "owner_acceptance": "pending Scotty opening the private URL on phone"},
     "upgrade_rollback": {"state": "ENGINEERING_GREEN", "basis_sha": "d5ca12db1736248d4141fb8980c1d3721f36414c", "owner_acceptance": "pending ordinary-owner upgrade/rollback walkthrough"},
     "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
   },
   "owner_value_checkpoint": {
-    "previous": "Installed Systems exposed authorized inventory but required code/SQL changes to add a network scope.",
-    "current": "Installed Systems lets the owner explicitly confirm a bounded network scope from the browser; scope creation remains separate from Host identity, discovery, and service action authority.",
-    "remaining": "Scotty must choose any real authorized scope, then personally exercise the integrated memory, conversation, reminder, Finance, Homelab, and phone workflows."
+    "previous": "Unsupported responses exposed internal CapabilityNeed wording instead of a normal owner explanation.",
+    "current": "Installed AEGIS explains missing capability in owner language, offers a safe next step, and does not claim installation or execution authority.",
+    "remaining": "Scotty must exercise one genuinely useful unsupported request and complete the integrated memory, conversation, reminder, Finance, Homelab, and phone walkthrough."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
