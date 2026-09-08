@@ -39,6 +39,7 @@ ProjectState = Callable[[Principal], dict[str, Any]]
 ProjectInspection = Callable[[Principal, str, str | None], dict[str, Any]]
 DeveloperInspect = Callable[[Principal, str, str], dict[str, Any]]
 DeveloperModify = Callable[[Principal, str, str, bool], dict[str, Any]]
+DeveloperJobs = Callable[[Principal], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -304,6 +305,7 @@ class BrowserApp:
         project_inspection: ProjectInspection | None = None,
         developer_inspect: DeveloperInspect | None = None,
         developer_modify: DeveloperModify | None = None,
+        developer_jobs: DeveloperJobs | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -350,6 +352,7 @@ class BrowserApp:
         self.project_inspection = project_inspection
         self.developer_inspect = developer_inspect
         self.developer_modify = developer_modify
+        self.developer_jobs = developer_jobs
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -769,6 +772,18 @@ class BrowserApp:
                 )
             return self._json(HTTPStatus.OK, projects_projection)
         project_prefix = "/api/projects/"
+        if method == "GET" and route == "/api/developer/jobs":
+            if self.developer_jobs is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                jobs = self.developer_jobs(principal)
+            except PermissionError:
+                return self._error(HTTPStatus.FORBIDDEN, "state_access_denied", "job access denied")
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE, "developer_unavailable", "job state unavailable"
+                )
+            return self._json(HTTPStatus.OK, jobs)
         if method == "POST" and route.startswith(project_prefix) and route.endswith("/modify"):
             if self.developer_modify is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1426,6 +1441,7 @@ def serve(
     project_inspection: ProjectInspection | None = None,
     developer_inspect: DeveloperInspect | None = None,
     developer_modify: DeveloperModify | None = None,
+    developer_jobs: DeveloperJobs | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -1475,6 +1491,7 @@ def serve(
         project_inspection=project_inspection,
         developer_inspect=developer_inspect,
         developer_modify=developer_modify,
+        developer_jobs=developer_jobs,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,

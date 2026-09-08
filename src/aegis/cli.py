@@ -54,7 +54,8 @@ from .contracts import (
     WorkingSet,
 )
 from .conversation import PostgresConversationStore
-from .developer import CodexInspectWorker, CodexModifyWorker
+from .developer import CodexInspectWorker, CodexModifyWorker, DeveloperWorkerError
+from .developer_jobs import PostgresDeveloperJobStore
 from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
@@ -857,14 +858,54 @@ def _project_inspection(
 
 def _developer_inspect(principal: Principal, project_id: str, question: str) -> dict[str, Any]:
     project = _project_registry().registered_for_principal(principal.id, project_id)
-    return CodexInspectWorker().inspect(project, question)
+    jobs = _developer_job_store()
+    job = jobs.create(principal.id, project_id, "inspect", question, "running")
+    try:
+        result = CodexInspectWorker().inspect(project, question)
+    except DeveloperWorkerError as exc:
+        jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
+        raise
+    jobs.update(principal.id, UUID(job["job_id"]), "completed", result=result)
+    return {"job_id": job["job_id"], **result}
 
 
 def _developer_modify(
     principal: Principal, project_id: str, objective: str, confirm: bool
 ) -> dict[str, Any]:
     project = _project_registry().registered_for_principal(principal.id, project_id)
-    return CodexModifyWorker().modify(project, objective, confirm)
+    jobs = _developer_job_store()
+    job = jobs.create(
+        principal.id,
+        project_id,
+        "modify",
+        objective,
+        "queued" if confirm else "approval_required",
+    )
+    if not confirm:
+        return {
+            "job_id": job["job_id"],
+            "state": "approval_required",
+            "project_id": project_id,
+            "authority": "no files changed; explicit owner confirmation is required",
+        }
+    jobs.update(principal.id, UUID(job["job_id"]), "running")
+    try:
+        result = CodexModifyWorker().modify(project, objective, True)
+    except DeveloperWorkerError as exc:
+        failed = jobs.update(principal.id, UUID(job["job_id"]), "failed", error=str(exc))
+        return {"job_id": failed["job_id"], "state": "failed", "error": str(exc)}
+    completed = jobs.update(principal.id, UUID(job["job_id"]), "completed", result=result)
+    return {"job_id": completed["job_id"], **result}
+
+
+def _developer_job_store() -> PostgresDeveloperJobStore:
+    return PostgresDeveloperJobStore(
+        lambda: psycopg.connect(_required("AEGIS_DATABASE_URL")), _apply_migrations
+    )
+
+
+def _developer_jobs(principal: Principal) -> dict[str, Any]:
+    return {"jobs": _developer_job_store().reconcile_running(principal.id)}
 
 
 def _conversation_store() -> PostgresConversationStore:
@@ -4766,6 +4807,7 @@ def main() -> int:
                 project_inspection=_project_inspection,
                 developer_inspect=_developer_inspect,
                 developer_modify=_developer_modify,
+                developer_jobs=_developer_jobs,
                 weather_state=_weather_state,
                 air_quality_state=_air_quality_state,
                 today_state=_today_state,

@@ -6115,6 +6115,7 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "016_audit_chain_head.sql",
         "017_conversations.sql",
         "018_attachments.sql",
+        "019_developer_jobs.sql",
     )
 
 
