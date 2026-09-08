@@ -56,6 +56,29 @@ def test_workspace_network_namespace_cannot_reach_parent_loopback(tmp_path: Path
 
 
 @pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
+def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path: Path) -> None:
+    sentinel = tmp_path / "host-sentinel.txt"
+    sentinel.write_text("unchanged", encoding="utf-8")
+    workspace = ScopedWorkspace(tmp_path / "disposable", allowed_commands=("python3",))
+    script = (
+        "from pathlib import Path; import socket; import subprocess; import time; "
+        f"host=Path({str(sentinel)!r}); "
+        "Path('validator-mutation.txt').write_text('only disposable'); "
+        "print('host-visible' if host.exists() else 'host-hidden'); "
+        "s=socket.socket(); s.settimeout(0.2); "
+        "\ntry: s.connect(('127.0.0.1', 9)); print('network-open') "
+        "\nexcept OSError: print('network-closed'); "
+        "subprocess.Popen(['python3','-c','import time; time.sleep(5)']); time.sleep(0.1)"
+    )
+    result = workspace.run(("python3", "-c", script), uuid4())
+    assert result.returncode == 0
+    assert "host-hidden" in result.stdout
+    assert "network-closed" in result.stdout
+    assert sentinel.read_text(encoding="utf-8") == "unchanged"
+    assert (workspace.root / "validator-mutation.txt").read_text() == "only disposable"
+
+
+@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
 @pytest.mark.skipif(shutil.which("prlimit") is None, reason="prlimit is not installed")
 def test_workspace_run_applies_resource_limits_inside_sandbox(tmp_path: Path) -> None:
     workspace = ScopedWorkspace(

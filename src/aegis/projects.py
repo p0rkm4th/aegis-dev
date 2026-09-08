@@ -10,7 +10,18 @@ from pathlib import Path
 from typing import Any
 
 _PROJECT_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
-_PRIVATE_NAMES = {".git", ".env", ".ssh"}
+_PRIVATE_NAMES = {
+    ".aws",
+    ".git",
+    ".netrc",
+    ".npmrc",
+    ".pypirc",
+    ".ssh",
+    "credentials",
+    "secrets",
+    "id_rsa",
+    "id_ed25519",
+}
 
 
 def _has_symlink_component(path: Path) -> bool:
@@ -30,7 +41,12 @@ def _valid_relative_scope(value: str) -> bool:
         and "\\" not in value
         and ".." not in path.parts
         and value not in {".", ".."}
-        and not any(part in _PRIVATE_NAMES or part.startswith(".env") for part in path.parts)
+        and not any(
+            part in _PRIVATE_NAMES
+            or part.startswith(".env")
+            or part.endswith((".pem", ".key", ".crt"))
+            for part in path.parts
+        )
     )
 
 
