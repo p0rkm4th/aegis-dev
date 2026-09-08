@@ -282,6 +282,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
   .product-nav.show-advanced { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .conversation-panel { min-height: auto; padding: 1rem; }
   #conversation { min-height: 8rem; max-height: min(52vh, 30rem); }
+  #conversation:has(.conversation-empty) { min-height: 4rem; }
   .message-actions { justify-content: stretch; }
   .message-copy { min-height: 2.25rem; }
   #detail dl { grid-template-columns: minmax(0, 1fr); }
