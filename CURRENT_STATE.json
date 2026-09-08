@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "state_basis_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
-  "deterministic_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
-  "last_pushed_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
-  "hosted_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
-  "hosted_ci_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "repository_head_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
+  "deterministic_green_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
+  "last_pushed_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
+  "hosted_green_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
+  "hosted_ci_green_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+    "commit_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
     "conclusion": "success",
-    "run_id": "34183645776",
+    "run_id": "34183824195",
     "observed_at": "2026-09-07T13:01:18Z"
   },
-  "installed_release_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
-  "running_release_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
-  "live_green_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582",
+  "installed_release_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
+  "running_release_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
+  "live_green_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-harness-H9-unsupported-ux",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582"
+    "release_sha": "18961a3361faf6444ace115ddb456537a2e84eaf"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -58,8 +58,8 @@
     "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
   },
   "owner_value_checkpoint": {
-    "previous": "Unsupported responses exposed internal CapabilityNeed wording instead of a normal owner explanation.",
-    "current": "Installed AEGIS explains missing capability in owner language, offers a safe next step, and does not claim installation or execution authority.",
+    "previous": "Unsupported chat responses were improved, but Today/Objectives still led with internal capability terminology.",
+    "current": "Installed AEGIS uses owner language across chat, Today, and Objectives while retaining advanced Forge detail only in the review surface.",
     "remaining": "Scotty must exercise one genuinely useful unsupported request and complete the integrated memory, conversation, reminder, Finance, Homelab, and phone walkthrough."
   },
   "current_capability_claims": {
