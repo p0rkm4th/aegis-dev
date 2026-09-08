@@ -704,9 +704,9 @@ def _conversation_append(
     _conversation_store().append(principal.id, conversation_id, role, text, correlation_id)
 
 
-def _personal_store() -> PostgresPersonalStateStore:
+def _personal_store(principal: Principal) -> PostgresPersonalStateStore:
     return PostgresPersonalStateStore(
-        psycopg.connect(_required("AEGIS_DATABASE_URL")), _required("AEGIS_VAULT_ID")
+        psycopg.connect(_required("AEGIS_DATABASE_URL")), principal.vault_id
     )
 
 
@@ -722,7 +722,7 @@ def _memory_payload(memory: Any) -> dict[str, Any]:
 
 
 def _memory_list(principal: Principal) -> list[dict[str, Any]]:
-    state = _personal_store().load_for_principal(principal)
+    state = _personal_store(principal).load_for_principal(principal)
     return [
         _memory_payload(memory)
         for memory in sorted(
@@ -732,7 +732,7 @@ def _memory_list(principal: Principal) -> list[dict[str, Any]]:
 
 
 def _memory_correct(principal: Principal, memory_id: UUID, content: str) -> dict[str, Any]:
-    store = _personal_store()
+    store = _personal_store(principal)
     state = store.load_for_principal(principal)
     corrected = state.correct_memory(memory_id, content, datetime.now().astimezone())
     store.save(state)
@@ -740,7 +740,7 @@ def _memory_correct(principal: Principal, memory_id: UUID, content: str) -> dict
 
 
 def _memory_remove(principal: Principal, memory_id: UUID) -> None:
-    _personal_store().remove_memory(principal, memory_id)
+    _personal_store(principal).remove_memory(principal, memory_id)
 
 
 def _weather_state(principal: Principal) -> dict[str, Any]:
