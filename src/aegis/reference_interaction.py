@@ -62,6 +62,7 @@ from .household import (
 from .identity import PostgresSpacePolicy, Role
 from .interaction import InteractionInputError
 from .interaction_context import (
+    resolve_introduced_concept_read,
     resolve_obvious_ordinal,
     resolve_obvious_ordinal_item,
     resolve_unique_prior_task_reference,
@@ -2138,6 +2139,9 @@ def resolve_reference_fast_paths(
     utterance = strip_context_reset(intent.utterance)
     if utterance != intent.utterance:
         intent = intent.model_copy(update={"utterance": utterance})
+    concept_result = resolve_introduced_concept_read(intent, context)
+    if concept_result is not None:
+        return concept_result
     if re.fullmatch(
         r"(?:show|find|check) (?:my )?calendar conflicts[?!.,]?",
         intent.utterance.strip(),
@@ -4114,7 +4118,7 @@ def run_reference_plan(
                 )
             collection_card = next(
                 card
-                for card in manager.retrieve("kitchen")
+                for card in manager.enabled_cards()
                 if card.action.action_id == "kitchen.groceries.remove_set"
             )
             plan_actions = (
@@ -4574,8 +4578,23 @@ def ground_reference_action(
                 state=ObjectiveState.BLOCKED,
                 message=(
                     f"I found {len(matches)} grocery items named {proposed_id!r}. "
-                    "Please choose one by its stable item ID."
+                    "Would you like me to remove all of them, or can you give me a "
+                    "human-readable distinction?"
                 ),
+                evidence={
+                    "collection": "groceries",
+                    "canonical_items": [
+                        item.display_name for item in grocery_items if item.state == "needed"
+                    ],
+                    "introduced_concept": {
+                        "kind": "record_identifier",
+                        "collection": "grocery",
+                        "count": len(matches),
+                        "owner_explanation": (
+                            "internal identifier used to distinguish duplicate records"
+                        ),
+                    },
+                },
                 correlation_id=intent.correlation_id,
             )
         grocery_item = matches[0]
