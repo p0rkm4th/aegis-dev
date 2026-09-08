@@ -186,8 +186,8 @@ body { background: var(--surface-0); color: var(--text-strong); }
   letter-spacing: .1em;
   text-transform: uppercase;
 }
-.workspace { grid-column: 2 !important; grid-row: 2 !important; max-width: none !important; width: 100% !important; }
-.conversation-panel { border-radius: 1.1rem; box-shadow: var(--elevation); }
+.workspace { grid-column: 2 !important; grid-row: 2 !important; align-self: start; max-width: none !important; width: 100% !important; }
+.conversation-panel { display: flex; flex-direction: column; min-height: min(78vh, 58rem); border-radius: 1.1rem; box-shadow: var(--elevation); }
 .status-badge[data-state="unknown"],
 .status-badge[data-state="reconciliation_pending"] {
   border-color: color-mix(in srgb, var(--unknown) 70%, var(--line));
@@ -210,6 +210,35 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .status-badge[data-state="canonical"] { border-color: var(--accent); color: var(--accent); }
 .status-badge[data-state="discovered"],
 .status-badge[data-state="reconciliation_candidate"] { border-color: var(--unknown); color: var(--unknown); }
+.chat-progress { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem .75rem; min-height: 2rem; margin: .75rem 0 .35rem; }
+.chat-progress #activity, .chat-progress #step-status { flex: 1 1 100%; margin: 0; }
+.chat-progress .status-badge { margin: 0; }
+.chat-advanced { margin-top: .75rem; color: var(--text-muted); font-size: .85rem; }
+.chat-advanced > summary { padding: .35rem 0; }
+.chat-advanced #answer { color: var(--text-muted); white-space: pre-wrap; }
+#conversation { flex: 1 1 auto; min-height: 14rem; max-height: min(64vh, 52rem); }
+#conversation .message-content > :first-child { margin-top: 0; }
+#conversation .message-content > :last-child { margin-bottom: 0; }
+#conversation .message-content h1,
+#conversation .message-content h2,
+#conversation .message-content h3,
+#conversation .message-content h4 { margin: 1rem 0 .45rem; line-height: 1.25; }
+#conversation .message-content p { margin: .55rem 0; }
+#conversation .message-content ul,
+#conversation .message-content ol { margin: .55rem 0; padding-left: 1.35rem; }
+#conversation .message-content blockquote { margin: .7rem 0; padding: .15rem .85rem; border-left: 3px solid var(--accent); color: var(--text-muted); }
+#conversation .message-content code { padding: .12rem .3rem; border-radius: .3rem; background: var(--surface-0); font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+#conversation .message-content pre { max-width: 100%; margin: .75rem 0; padding: .8rem; overflow-x: auto; border: 1px solid var(--line); border-radius: .55rem; background: var(--surface-0); }
+#conversation .message-content pre code { padding: 0; background: transparent; white-space: pre; }
+#conversation .message-content table { display: block; max-width: 100%; margin: .75rem 0; overflow-x: auto; border-collapse: collapse; }
+#conversation .message-content th, #conversation .message-content td { padding: .4rem .55rem; border: 1px solid var(--line); text-align: left; white-space: nowrap; }
+#conversation .message-content th { background: color-mix(in srgb, var(--accent) 10%, var(--surface-0)); }
+.message-actions { display: flex; justify-content: flex-end; margin-top: .55rem; }
+.message-copy { padding: .3rem .55rem; color: var(--text-muted); font-size: .75rem; }
+.message-sources { margin-top: .65rem; padding-top: .45rem; border-top: 1px solid var(--line); font-size: .82rem; }
+.message-sources summary { cursor: pointer; color: var(--accent); }
+.message-sources ul { margin: .4rem 0 0; padding-left: 1.1rem; }
+.jump-latest { align-self: center; margin: .35rem 0; padding: .4rem .7rem; border-color: var(--accent); color: var(--accent); font-size: .8rem; }
 
 :root[data-theme="light"] {
   --surface-0: #f4f7fa;
@@ -251,7 +280,10 @@ body { background: var(--surface-0); color: var(--text-strong); }
   .product-nav.show-advanced .nav-advanced button { display: block !important; }
   .product-nav .nav-more { display: block; grid-column: 1 / -1; text-align: center; }
   .product-nav.show-advanced { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .conversation-panel { padding: 1rem; }
+  .conversation-panel { min-height: calc(100vh - 7.5rem); padding: 1rem; }
+  #conversation { min-height: 12rem; max-height: none; }
+  .message-actions { justify-content: stretch; }
+  .message-copy { min-height: 2.25rem; }
   #detail dl { grid-template-columns: minmax(0, 1fr); }
 }
 

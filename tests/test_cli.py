@@ -5146,6 +5146,7 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     assert status == 200
     response = json.loads(payload)
     assert response["message"] == "canonical answer"
+    assert "rendered_html" in response
     assert response["correlation_id"] == "00000000-0000-4000-8000-000000000001"
     assert UUID(response["session_id"])
     assert seen == [("Show my tasks.", "alice")]
@@ -5200,7 +5201,9 @@ def test_browser_app_persists_principal_scoped_conversation_turns():
         headers={"X-Aegis-Session": "session-secret"},
     )
     assert status == 200
-    assert json.loads(payload)["messages"][0]["display_text"] == "hello"
+    message = json.loads(payload)["messages"][0]
+    assert message["display_text"] == "hello"
+    assert message["rendered_html"] == "<p>hello</p>"
 
 
 def test_browser_app_denies_conversation_access_for_other_principal():
