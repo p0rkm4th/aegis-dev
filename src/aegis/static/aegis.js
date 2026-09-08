@@ -992,6 +992,25 @@ async function loadProjects() {
           const error = document.createElement('p'); error.className = 'muted';
           error.textContent = job.error; item.append(error);
         }
+        const result = job.result || {};
+        if (Object.keys(result).length) {
+          const disclosure = document.createElement('details');
+          const summary = document.createElement('summary'); summary.textContent = 'View job result';
+          disclosure.append(summary);
+          const resultText = document.createElement('pre'); resultText.className = 'job-result';
+          const lines = [];
+          if (result.answer) lines.push(result.answer);
+          if (Array.isArray(result.changed_paths) && result.changed_paths.length) {
+            lines.push(`Changed files: ${result.changed_paths.join(', ')}`);
+          }
+          if (typeof result.tests_passed === 'boolean') {
+            lines.push(`Independent tests: ${result.tests_passed ? 'passed' : 'failed'}`);
+          }
+          if (result.authority) lines.push(`Authority: ${result.authority}`);
+          if (result.diff) lines.push(result.diff);
+          resultText.textContent = lines.join('\n\n') || 'No owner-readable result was recorded.';
+          disclosure.append(resultText); item.append(disclosure);
+        }
         jobsList.append(item);
       });
       jobsSection.append(jobsList); panel.append(jobsSection);
