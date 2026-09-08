@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
+  "state_basis_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
-  "deterministic_green_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
-  "last_pushed_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
-  "hosted_green_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
-  "hosted_ci_green_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
+  "repository_head_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
+  "deterministic_green_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
+  "last_pushed_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
+  "hosted_green_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
+  "hosted_ci_green_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
+    "commit_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
     "conclusion": "success",
-    "run_id": "34233968831",
-    "observed_at": "2026-09-08T13:52:11Z"
+    "run_id": "34234422703",
+    "observed_at": "2026-09-08T14:02:43Z"
   },
-  "installed_release_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
-  "running_release_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
-  "live_green_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac",
+  "installed_release_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
+  "running_release_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
+  "live_green_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-acceptance-standby",
   "checkpoint_status": "owner_acceptance_pending",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac"
+    "release_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -65,7 +65,7 @@
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379", "blocker": "Installed Chat labels recent threads, keeps populated threads focused, pauses context-changing controls during work, and highlights the active responsive destination; Scotty must decide whether normal conversation still feels clunky."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
-    "codex": {"state": "RED", "basis_sha": "ad3fb129343d3eb3961a74556e488ba0cfc648ac", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, persists exact candidate bytes/hashes/diff digest in the durable job, and applies only an exact approval; owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
+    "codex": {"state": "RED", "basis_sha": "191e34ae3823ce025fab76d6bfb5931842d23e90", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, persists exact candidate bytes/hashes/diff digest in the durable job, and applies only an exact approval; hostile-validator proof covers host files/network/Git/background processes. Owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
   },
   "owner_escape_metric": {
@@ -453,11 +453,11 @@
   ],
   "current_blockers": [
     "H2/H3 engineering proof is installed; Scotty's human browser reload/close-reopen and bounded follow-up acceptance is still pending.",
-    "Developer boundary hardening is installed exact-hosted-green at ad3fb129; final owner acceptance remains pending and Codex replacement stays RED until an owner exercises the bounded review flow.",
+    "Developer boundary hardening is installed exact-hosted-green at 191e34ae; final owner acceptance remains pending and Codex replacement stays RED until an owner exercises the bounded review flow.",
     "Attachment atomicity and migration source/package parity are installed exact-hosted-green; hostile owner-boundary evidence remains regression coverage.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at ad3fb129. The current security checkpoint closes Developer MODIFY proposal/approval/apply, disposable validation, project containment, attachment atomicity, and migration packaging truth without adding commit, push, arbitrary shell, or new authority. Scotty remains the next source of acceptance evidence.",
+  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at 191e34ae. The current security checkpoint closes Developer MODIFY proposal/approval/apply, disposable validation, hostile isolation proof, project containment, attachment atomicity, and migration packaging truth without adding commit, push, arbitrary shell, or new authority. Scotty remains the next source of acceptance evidence.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
