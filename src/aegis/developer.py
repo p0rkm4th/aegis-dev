@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
 import hashlib
 import os
 import shutil
@@ -11,6 +13,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import unified_diff
 from pathlib import Path
+from typing import Any, cast
 from uuid import uuid4
 
 from .projects import RegisteredProject, validate_registered_project
@@ -50,6 +53,56 @@ class ModifyProposal:
     hashes: dict[str, str]
     diff: str
     diff_digest: str
+
+    def record(self) -> dict[str, object]:
+        return {
+            "proposal_id": self.proposal_id,
+            "project_id": self.project_id,
+            "base_sha": self.base_sha,
+            "changed_paths": tuple(sorted(self.changed)),
+            "deleted_paths": self.deleted,
+            "candidate_bytes": {
+                path: base64.b64encode(content).decode("ascii")
+                for path, content in self.changed.items()
+            },
+            "changed_hashes": self.hashes,
+            "diff": self.diff,
+            "diff_digest": self.diff_digest,
+            "validation": "passed in disposable isolated workspace",
+        }
+
+    @classmethod
+    def from_record(cls, record: dict[str, object]) -> ModifyProposal:
+        raw = cast(dict[str, Any], record)
+        try:
+            changed = {
+                str(path): base64.b64decode(str(value), validate=True)
+                for path, value in dict(raw["candidate_bytes"]).items()
+            }
+            deleted = tuple(str(path) for path in raw["deleted_paths"])
+            hashes = {str(path): str(value) for path, value in dict(raw["changed_hashes"]).items()}
+            proposal = cls(
+                str(raw["proposal_id"]),
+                str(raw["project_id"]),
+                str(raw["base_sha"]),
+                changed,
+                deleted,
+                hashes,
+                str(raw["diff"]),
+                str(raw["diff_digest"]),
+            )
+        except (KeyError, TypeError, ValueError, binascii.Error) as exc:
+            raise DeveloperWorkerError("persisted modification proposal is invalid") from exc
+        if tuple(sorted(changed)) != tuple(str(path) for path in raw["changed_paths"]):
+            raise DeveloperWorkerError("persisted modification paths do not match candidate bytes")
+        if any(
+            hashlib.sha256(content).hexdigest() != hashes.get(path)
+            for path, content in changed.items()
+        ):
+            raise DeveloperWorkerError("persisted modification hashes do not match candidate bytes")
+        if hashlib.sha256(proposal.diff.encode("utf-8")).hexdigest() != proposal.diff_digest:
+            raise DeveloperWorkerError("persisted modification diff digest does not match diff")
+        return proposal
 
 
 _PROPOSALS: dict[str, ModifyProposal] = {}
@@ -185,8 +238,16 @@ class CodexInspectWorker:
 class CodexModifyWorker(CodexInspectWorker):
     """Propose and apply exact owner-approved changes without Git authority."""
 
+    def __init__(self, executable: str = "codex", timeout_seconds: int = 90) -> None:
+        super().__init__(executable, timeout_seconds)
+        self.last_proposal: ModifyProposal | None = None
+
     def modify(
-        self, project: RegisteredProject, objective: str, confirm: bool
+        self,
+        project: RegisteredProject,
+        objective: str,
+        confirm: bool,
+        proposal_id: str | None = None,
     ) -> dict[str, object]:
         if not isinstance(objective, str) or not objective.strip():
             raise DeveloperWorkerError("modification objective is required")
@@ -198,7 +259,8 @@ class CodexModifyWorker(CodexInspectWorker):
                 "project_id": project.project_id,
                 "authority": "no files changed; explicit owner confirmation is required",
             }
-        proposal = self.propose(project, objective)
+        proposal = self.propose(project, objective, proposal_id=proposal_id)
+        self.last_proposal = proposal
         return {
             "state": "approval_required",
             "project_id": project.project_id,
@@ -212,7 +274,9 @@ class CodexModifyWorker(CodexInspectWorker):
             "authority": "candidate only; no repository mutation",
         }
 
-    def propose(self, project: RegisteredProject, objective: str) -> ModifyProposal:
+    def propose(
+        self, project: RegisteredProject, objective: str, *, proposal_id: str | None = None
+    ) -> ModifyProposal:
         """Generate and validate a candidate without touching the registered checkout."""
         try:
             validate_registered_project(project)
@@ -285,7 +349,7 @@ class CodexModifyWorker(CodexInspectWorker):
             }
             diff_digest = hashlib.sha256(diff.encode("utf-8")).hexdigest()
             proposal = ModifyProposal(
-                str(uuid4()),
+                proposal_id or str(uuid4()),
                 project.project_id,
                 base_sha,
                 changed_bytes,
@@ -298,10 +362,17 @@ class CodexModifyWorker(CodexInspectWorker):
             return proposal
 
     def apply_approved(
-        self, project: RegisteredProject, proposal_id: str, diff_digest: str
+        self,
+        project: RegisteredProject,
+        proposal_id: str,
+        diff_digest: str,
+        persisted_record: dict[str, object] | None = None,
     ) -> dict[str, object]:
         """Apply only the immutable candidate whose exact digest the owner approved."""
         proposal = _PROPOSALS.get(proposal_id)
+        if proposal is None and persisted_record is not None:
+            proposal = ModifyProposal.from_record(persisted_record)
+            _PROPOSALS[proposal_id] = proposal
         if proposal is None or proposal.project_id != project.project_id:
             raise DeveloperWorkerError("modification proposal is unavailable")
         if proposal.diff_digest != diff_digest:
@@ -318,6 +389,13 @@ class CodexModifyWorker(CodexInspectWorker):
         before = self._files(project.repository)
         self._apply_exact(project.repository, proposal)
         after = self._files(project.repository)
+        approved_paths = set(proposal.changed) | set(proposal.deleted)
+        actual_paths = {
+            path for path in set(before) | set(after) if before.get(path) != after.get(path)
+        }
+        if actual_paths != approved_paths:
+            self._restore_files(project.repository, before, after, proposal)
+            raise DeveloperWorkerError("applied modification changed an unapproved path set")
         for path, expected in proposal.hashes.items():
             actual = hashlib.sha256(after[path]).hexdigest()
             if actual != expected:

@@ -50,18 +50,17 @@ class _Connection:
         if sql.startswith("SELECT id, original_filename, media_type"):
             if len(params) == 3 and self.attachment_id is None:
                 return _Result()
+            row = (
+                self.attachment_id,
+                "notes.md",
+                "text/markdown",
+                7,
+                "digest",
+                "extracted",
+                self.created_at,
+            )
             return _Result(
-                rows=(
-                    (
-                        self.attachment_id,
-                        "notes.md",
-                        "text/markdown",
-                        7,
-                        "digest",
-                        "extracted",
-                        self.created_at,
-                    ),
-                )
+                row if len(params) == 3 else None, rows=() if len(params) == 3 else (row,)
             )
         if sql.startswith("SELECT id, original_filename, extracted_text"):
             return _Result(rows=((self.attachment_id, "notes.md", "# Notes\nOwner data"),))
@@ -69,6 +68,9 @@ class _Connection:
 
     def commit(self) -> None:
         self.committed = True
+
+    def rollback(self) -> None:
+        return None
 
     def close(self) -> None:
         self.closed = True
@@ -92,6 +94,50 @@ def test_attachment_store_persists_bounded_owner_file_and_context(tmp_path: Path
     assert stored == [expected]
     assert store.list("alice", conversation_id)[0]["attachment_id"] == str(attachment_id)
     assert "Untrusted attachment data" in store.context("alice", conversation_id, [attachment_id])
+
+
+def test_repeated_identical_upload_reuses_one_canonical_payload(tmp_path: Path) -> None:
+    conversation_id = uuid4()
+    connection = _Connection(conversation_id)
+    store = PostgresAttachmentStore(lambda: connection, lambda _: None, tmp_path)
+    first = store.create("alice", conversation_id, "notes.md", "text/markdown", b"same")
+    second = store.create("alice", conversation_id, "renamed.md", "text/markdown", b"same")
+
+    assert second["attachment_id"] == first["attachment_id"]
+    payloads = list((tmp_path / "attachments" / "alice" / str(conversation_id)).iterdir())
+    assert len(payloads) == 1
+
+
+def test_database_failure_removes_staged_attachment_payload(tmp_path: Path) -> None:
+    conversation_id = uuid4()
+
+    class FailingInsert(_Connection):
+        def execute(self, sql: str, params: tuple[Any, ...] = ()) -> _Result:
+            if sql.startswith("INSERT INTO conversation_attachments"):
+                raise RuntimeError("database failure")
+            return super().execute(sql, params)
+
+    connection = FailingInsert(conversation_id)
+    store = PostgresAttachmentStore(lambda: connection, lambda _: None, tmp_path)
+    with pytest.raises(RuntimeError, match="database failure"):
+        store.create("alice", conversation_id, "notes.md", "text/markdown", b"same")
+    payload_root = tmp_path / "attachments"
+    assert not payload_root.exists() or not list(payload_root.rglob("*.md"))
+
+
+def test_commit_failure_removes_final_attachment_payload(tmp_path: Path) -> None:
+    conversation_id = uuid4()
+
+    class FailingCommit(_Connection):
+        def commit(self) -> None:
+            raise RuntimeError("commit failure")
+
+    connection = FailingCommit(conversation_id)
+    store = PostgresAttachmentStore(lambda: connection, lambda _: None, tmp_path)
+    with pytest.raises(RuntimeError, match="commit failure"):
+        store.create("alice", conversation_id, "notes.md", "text/markdown", b"same")
+    payload_root = tmp_path / "attachments"
+    assert not payload_root.exists() or not list(payload_root.rglob("*.md"))
 
 
 def test_attachment_store_denies_unowned_conversation_before_writing(tmp_path: Path) -> None:
