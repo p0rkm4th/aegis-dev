@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "state_basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
-  "deterministic_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
-  "last_pushed_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
-  "hosted_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
-  "hosted_ci_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "repository_head_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
+  "deterministic_green_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
+  "last_pushed_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
+  "hosted_green_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
+  "hosted_ci_green_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+    "commit_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
     "conclusion": "success",
-    "run_id": "34181803739",
+    "run_id": "34182262692",
     "observed_at": "2026-09-07T13:01:18Z"
   },
-  "installed_release_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
-  "running_release_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
-  "live_green_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c",
+  "installed_release_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
+  "running_release_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
+  "live_green_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-harness-H4-memory",
   "checkpoint_status": "in_progress",
@@ -42,12 +42,12 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c"
+    "release_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
     "conversation": {"state": "ENGINEERING_GREEN", "basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e", "owner_acceptance": "pending Scotty walkthrough"},
-    "memory": {"state": "RED", "basis_sha": "e705ab1ddd92f7c3e67a186ebefb7543716c1b8c", "blocker": "capture is installed; recall and inspection/edit/remove remain"},
+    "memory": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real remember/recall/correction/removal walkthrough"},
     "finance": {"state": "RED", "blocker": "actual owner import remains unbuilt"},
     "homelab": {"state": "ENGINEERING_GREEN", "blocker": "owner configuration UX remains partial"},
     "tasks": {"state": "ENGINEERING_GREEN", "blocker": "reminder surfacing remains partial"},
@@ -58,9 +58,9 @@
     "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
   },
   "owner_value_checkpoint": {
-    "previous": "Installed AEGIS stored durable conversation turns, but explicit personal memory capture was not available through normal conversation.",
-    "current": "Installed AEGIS accepts an explicit Remember request and persists the display-safe memory with EXPLICIT_USER provenance in the Principal's canonical personal store.",
-    "remaining": "Memory inspection/edit/remove UI and Scotty's real remember/recall acceptance remain; conversation owner acceptance is also pending."
+    "previous": "Installed AEGIS accepted explicit memory capture, but memory could not be inspected or corrected through the owner shell.",
+    "current": "Installed AEGIS exposes Principal-scoped memory records with provenance and bounded correction/removal controls, while normal explicit Remember/recall remains available.",
+    "remaining": "Scotty must personally use the memory loop; conversation owner acceptance and real Finance import remain larger daily-driver gaps."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
