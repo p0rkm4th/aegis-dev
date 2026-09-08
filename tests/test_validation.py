@@ -27,3 +27,6 @@ def test_alpha_launcher_has_environment_fallback_and_actionable_failure():
     assert "sys.version_info >= (3, 11)" in launcher
     assert "import aegis.cli" in launcher
     assert "could not find a usable Python environment" in launcher
+    assert (root / "scripts" / "aegis").stat().st_mode & 0o111
+    assert "systemctl --user show aegis-owner.service" in launcher
+    assert "readlink -f" in launcher
