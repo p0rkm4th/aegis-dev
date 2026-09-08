@@ -309,6 +309,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
   .nav-group { display: contents; }
   .product-nav button { padding: .65rem .45rem; text-align: center; font-size: .82rem; }
   .nav-primary button:nth-child(7) { display: none !important; }
+  .nav-primary button:nth-of-type(n+5) { display: none !important; }
   .product-nav.show-advanced .nav-primary button:nth-child(7) { display: block !important; }
   .nav-advanced button { display: none !important; }
   .nav-advanced button[aria-current="page"] { display: block !important; }
@@ -368,4 +369,24 @@ body { background: var(--surface-0); color: var(--text-strong); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
+
+/* Conversation-first shell: healthy diagnostics and orientation copy stay quiet. */
+.conversation-panel { gap: .15rem; }
+.intro { padding: 0; margin: -.25rem 0 .45rem; }
+.intro p { font-size: .86rem; }
+.health-line { margin-bottom: .35rem; }
+.view-summary { margin-bottom: .5rem; }
+.conversation-tools { padding: .45rem .6rem; border: 1px solid var(--line); border-radius: .75rem; background: color-mix(in srgb, var(--surface-1) 70%, transparent); }
+.conversation-tools label { font-size: .8rem; color: var(--text-muted); }
+.conversation-tools select { max-width: 15rem; }
+.conversation-heading { flex-basis: 10rem; }
+#conversation { border-top: 1px solid var(--line); padding-top: .85rem; }
+.secondary { opacity: .82; }
+
+@media (min-width: 53rem) {
+  .product-nav { max-height: calc(100vh - 5rem); overflow-y: auto !important; }
+  .conversation-panel { padding-inline: clamp(1.25rem, 3vw, 3rem); }
+  #conversation { max-width: 66rem; width: 100%; align-self: center; }
+  .composer-dock { padding-inline: clamp(0rem, 2vw, 1.5rem); }
 }

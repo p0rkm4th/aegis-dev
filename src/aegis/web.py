@@ -226,6 +226,7 @@ _INDEX_HTML = """<!doctype html>
 <nav class="product-nav" aria-label="AEGIS views">
 <div class="nav-group nav-primary" aria-label="Everyday">
 <span class="nav-group-label">Everyday</span>
+<button type="button" data-view="home" aria-current="page">Chat</button>
 <button type="button" data-view="home" aria-current="page">Today</button>
 <button type="button" data-view="tasks">Tasks</button>
 <button type="button" data-view="calendar">Calendar</button>
@@ -251,7 +252,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="compositions">Compositions</button>
 </div>
 </nav>
-<div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><h2>What can I help you with?</h2><p>Ask naturally. I’ll keep track of your authorized information and tell you clearly what happened.</p></div>
+<div class="workspace"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div><div class="intro"><p>Ask naturally. AEGIS will keep the conversation and show what happened.</p></div>
 <div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
 <div class="conversation-tools"><div class="conversation-heading"><span class="eyebrow">Conversation</span><strong id="conversation-title">Current conversation</strong></div><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label><label for="chat-project">Project context <select id="chat-project"><option value="">None · normal AEGIS</option></select></label><span id="chat-project-status" class="muted" aria-live="polite"></span><button id="clear-chat-project" type="button" hidden>Clear context</button></div>
 <h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol><button id="jump-latest" class="jump-latest" type="button" hidden>Jump to latest</button>

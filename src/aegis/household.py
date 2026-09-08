@@ -454,6 +454,20 @@ class PostgresHouseholdStore:
         self.save(space)
         return result
 
+    def remove_groceries(
+        self, principal: Principal, grocery_ids: tuple[str, ...]
+    ) -> tuple[GroceryItem, ...]:
+        """Atomically remove a bounded, already-grounded grocery set."""
+        if not grocery_ids or len(grocery_ids) > 100:
+            raise ValueError("grocery set is empty or exceeds the bounded mutation limit")
+        space = self._space_for_food(principal)
+        current = tuple(space.grocery_items.get(item_id) for item_id in grocery_ids)
+        if any(item is None or item.state != "needed" for item in current):
+            raise KeyError("one or more grocery items are no longer current")
+        results = tuple(space.remove_grocery(principal, item_id) for item_id in grocery_ids)
+        self.save(space)
+        return results
+
     def read_snapshot(self, principal: Principal) -> dict[str, object]:
         """Read shared household state after rechecking current membership."""
         space_id = self._space_for(principal)

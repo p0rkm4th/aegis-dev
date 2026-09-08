@@ -77,6 +77,15 @@ class LearningCandidateKind(StrEnum):
     OWNER_CORRECTION = "owner_correction"
 
 
+class SelectionCardinality(StrEnum):
+    """Semantic selection shape; it never grants mutation authority."""
+
+    ONE = "one"
+    ALL_MATCHING = "all_matching"
+    EXPLICIT_SET = "explicit_set"
+    CURRENT_COLLECTION = "current_collection"
+
+
 class LearningDisposition(StrEnum):
     """Core decision for an ephemeral learning candidate."""
 

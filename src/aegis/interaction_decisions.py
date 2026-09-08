@@ -73,6 +73,20 @@ def resolve_fallback_decision(
     """
 
     if decision.kind is DecisionKind.ANSWER:
+        if decision.objective_spec is not None or decision.semantic_mode == "ACTION":
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I received an explanation, but the requested change is not verified. "
+                    "No action was completed."
+                ),
+                evidence={
+                    "authoritative": False,
+                    "completion_blocked": "effect_requires_verified_action",
+                },
+                correlation_id=intent.correlation_id,
+            )
         evidence: dict[str, Any] = {
             "provenance": "model_generated",
             "authoritative": False,

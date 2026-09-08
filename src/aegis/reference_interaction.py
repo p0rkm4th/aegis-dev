@@ -89,6 +89,7 @@ from .planning import (
     PersonalTaskComposer,
     PlanModificationFastPath,
     PlanProgressFastPath,
+    parse_collection_mutation,
 )
 from .projections import SharedObligation
 from .reference_packs import (
@@ -4065,6 +4066,71 @@ def run_reference_plan(
     plan_actions: tuple[ActionSpec, ...] | None
     if recovered_plan_actions is not None:
         plan_actions = recovered_plan_actions
+    elif (collection := parse_collection_mutation(intent.utterance)) is not None:
+        if collection.collection != "groceries":
+            plan_actions = None
+        else:
+            household_store = PostgresHouseholdStore(connection)
+            needed = tuple(
+                item
+                for item in household_store.list_grocery_items(principal)
+                if item.state == "needed"
+            )
+            if collection.cardinality.value == "current_collection":
+                selected = needed
+            elif collection.cardinality.value == "all_matching":
+                key = normalize_food_key(collection.selectors[0])
+                selected = tuple(item for item in needed if item.normalized_key == key)
+            else:
+                selected_items: list[Any] = []
+                for selector in collection.selectors:
+                    matches = tuple(
+                        item
+                        for item in needed
+                        if item.normalized_key == normalize_food_key(selector)
+                    )
+                    if len(matches) != 1:
+                        count = len(matches)
+                        return Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=(
+                                f"I found {count} grocery items named {selector!r}. "
+                        "Tell me whether to remove all of them or name a "
+                        "human-readable distinction."
+                            )
+                            if count
+                            else f"I could not find grocery item {selector!r}.",
+                            correlation_id=intent.correlation_id,
+                        )
+                    selected_items.extend(matches)
+                selected = tuple(selected_items)
+            if not selected:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.COMPLETED,
+                    message="Your grocery list is already empty for that request.",
+                    correlation_id=intent.correlation_id,
+                )
+            collection_card = next(
+                card
+                for card in manager.retrieve("kitchen")
+                if card.action.action_id == "kitchen.groceries.remove_set"
+            )
+            plan_actions = (
+                collection_card.action.model_copy(
+                    update={
+                        "arguments": {"grocery_ids": [item.grocery_id for item in selected]},
+                        "argument_provenance": {
+                            "grocery_ids": ArgumentProvenance(
+                                kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                                canonical_ref="household.grocery_items",
+                                derivation="reference.grocery.collection_selection.v1",
+                            )
+                        },
+                    }
+                ),
+            )
     elif (plan_titles := MultiActionFastPath.task_chore_titles(intent.utterance)) is not None:
         task_card = next(
             card for card in manager.retrieve("tasks") if card.action.action_id == "tasks.create"
@@ -4111,8 +4177,7 @@ def run_reference_plan(
             correlation_id=intent.correlation_id,
             retryable=True,
         )
-    task_cards = tuple(manager.retrieve("tasks"))
-    cards_by_id = {card.action.action_id: card for card in task_cards}
+    cards_by_id = {card.action.action_id: card for card in manager.enabled_cards()}
     try:
         plan_cards = tuple(cards_by_id[action.action_id] for action in plan_actions)
     except KeyError:

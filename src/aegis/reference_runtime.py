@@ -110,6 +110,8 @@ from .reference_packs import (
     OpenClawNetworkProbeVerifier,
     PostgresGroceryAddExecutor,
     PostgresGroceryAddVerifier,
+    PostgresGroceryCollectionExecutor,
+    PostgresGroceryCollectionVerifier,
     PostgresGroceryListExecutor,
     PostgresGroceryListVerifier,
     PostgresGroceryStateExecutor,
@@ -271,6 +273,14 @@ def default_runtime_registry(
         return ActionRuntime(
             PostgresGroceryStateExecutor(store, principal),
             PostgresGroceryStateVerifier(store, principal),
+            {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def grocery_collection_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresHouseholdStore(connection)
+        return ActionRuntime(
+            PostgresGroceryCollectionExecutor(store, principal),
+            PostgresGroceryCollectionVerifier(store, principal),
             {"kitchen.write": frozenset({Role.OWNER, Role.MEMBER})},
         )
 
@@ -889,6 +899,7 @@ def default_runtime_registry(
         "kitchen.pantry.consume": pantry_mutation_runtime,
         "kitchen.groceries.mark_purchased": grocery_state_runtime,
         "kitchen.groceries.remove": grocery_state_runtime,
+        "kitchen.groceries.remove_set": grocery_collection_runtime,
         "homelab.service.restart": homelab_runtime,
         "homelab.inventory.read": homelab_inventory_runtime,
         "homelab.service.health": homelab_health_runtime,
