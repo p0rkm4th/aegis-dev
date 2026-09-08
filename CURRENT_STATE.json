@@ -1,27 +1,27 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "state_basis_sha": "17fce653777bb005b3210911647b256db6157b1f",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
-  "deterministic_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
-  "last_pushed_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
-  "hosted_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
-  "hosted_ci_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "repository_head_sha": "17fce653777bb005b3210911647b256db6157b1f",
+  "deterministic_green_sha": "17fce653777bb005b3210911647b256db6157b1f",
+  "last_pushed_sha": "17fce653777bb005b3210911647b256db6157b1f",
+  "hosted_green_sha": "17fce653777bb005b3210911647b256db6157b1f",
+  "hosted_ci_green_sha": "17fce653777bb005b3210911647b256db6157b1f",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+    "commit_sha": "17fce653777bb005b3210911647b256db6157b1f",
     "conclusion": "success",
-    "run_id": "34228306151",
-    "observed_at": "2026-09-08T12:51:32Z"
+    "run_id": "34228649040",
+    "observed_at": "2026-09-08T13:03:00Z"
   },
-  "installed_release_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
-  "running_release_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
-  "live_green_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379",
+  "installed_release_sha": "17fce653777bb005b3210911647b256db6157b1f",
+  "running_release_sha": "17fce653777bb005b3210911647b256db6157b1f",
+  "live_green_sha": "17fce653777bb005b3210911647b256db6157b1f",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "chatgpt-replacement-chat-tranche-1",
+  "active_checkpoint": "owner-harness-ui-today-tranche-1",
   "checkpoint_status": "owner_acceptance_pending",
-  "current_checkpoint": "chatgpt-replacement-chat-tranche-1",
+  "current_checkpoint": "owner-harness-ui-today-tranche-1",
   "active_campaign": "AEGIS REPLACEMENT-CLASS DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379"
+    "release_sha": "17fce653777bb005b3210911647b256db6157b1f"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -55,11 +55,11 @@
     "unsupported": {"state": "ENGINEERING_GREEN", "basis_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582", "owner_acceptance": "ordinary unsupported request must be exercised by Scotty; advanced CapabilityNeed/Forge detail remains available"},
     "private_phone": {"state": "ENGINEERING_GREEN", "basis_sha": "b84692e6a64d736d7efdeaf7f6cf1ae849758c58", "owner_acceptance": "pending Scotty opening the private URL on phone"},
     "upgrade_rollback": {"state": "ENGINEERING_GREEN", "basis_sha": "d5ca12db1736248d4141fb8980c1d3721f36414c", "owner_acceptance": "pending ordinary-owner upgrade/rollback walkthrough"},
-    "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "2f73f7acfb8588dd4a4a5d50f75cdf361964c379", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
+    "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "17fce653777bb005b3210911647b256db6157b1f", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS Chat now provides bounded recent-thread titles, focused populated threads, explicit in-flight control locking, and a visible active destination on responsive navigation; rich response, file, project, and feedback surfaces remain available.",
+    "current": "Installed AEGIS Today now keeps immediate attention prominent and collapses optional grocery/service planning behind Review tonight; Chat remains focused with readable recent-thread titles, truthful in-flight controls, and visible navigation context.",
     "remaining": "Chat, files, Project context, and the approval-bound durable MODIFY path are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; Codex replacement remains RED until a real owner workflow validates review and commit policy."
   },
   "replacement_product_matrix": {
@@ -78,7 +78,7 @@
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
     "constellation_destination": "Promoted owner UI exposes Constellation as an explicit destination that opens the authorized Pack/domain/capability map; selection remains context/navigation and never authority",
     "today_actionable_overview": "Promoted Today now presents bounded counts for open tasks, chores, upcoming events, CapabilityNeeds, conflicts, active objectives, and any surfaced unknown outcomes, with navigation to the existing owner views and no new authority",
-    "today_owner_readable": "Promoted Today now leads with bounded Needs attention, Up next, Grocery list, Pantry check, and Recently completed sections; the full authorized projection is progressive detail rather than the default reading surface",
+    "today_owner_readable": "Promoted Today now leads with bounded Needs attention, Up next, Grocery list, Pantry check, and Recently completed sections; optional cross-domain evening planning is collapsed behind Review tonight, and the full authorized projection remains progressive detail rather than the default reading surface",
     "today_pantry_truthful_overview": "Promoted Today now surfaces canonical Pantry record count and only canonical low-stock projections; unknown quantities remain explicitly unknown and are never presented as zero or low stock",
     "today_pantry_glance": "Promoted Today includes a Pantry records glance card linked to Household; the count is canonical and display-only, while low-stock meaning remains bounded to the explicit Pantry projection",
     "today_grocery_entry": "Promoted Today includes an explicit grocery item entry affordance that submits through the existing Core grounding, authorization, canonical write, and verification path; the browser does not write directly",
