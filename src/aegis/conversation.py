@@ -64,9 +64,10 @@ class PostgresConversationStore:
                 "SELECT m.id, m.role, m.display_text, m.created_at, m.correlation_id "
                 "FROM conversation_messages m JOIN conversations c ON c.id = m.conversation_id "
                 "WHERE c.id = %s AND c.principal_id = %s AND m.principal_id = %s "
-                "ORDER BY m.created_at ASC LIMIT %s",
+                "ORDER BY m.created_at DESC, m.id DESC LIMIT %s",
                 (conversation_id, principal_id, principal_id, limit),
             ).fetchall()
+            rows = reversed(rows)
             return [
                 {
                     "message_id": str(row[0]),

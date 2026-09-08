@@ -419,6 +419,8 @@ inspect authoritative current state
 -> continue
 ```
 
+> **DAILY-DRIVER-ALPHA OVERRIDE:** During Daily Driver Alpha, observed owner pain and owner value outrank earliest-unmet-checkpoint sequencing. Implement one bounded owner-useful increment, run affected deterministic regressions and one representative owner workflow, promote when genuinely green, then stop for owner evidence. Resume checkpoint sequencing only when it serves the observed owner-value frontier or Management explicitly directs it.
+
 ## 3.1 Checkpoint status vocabulary
 
 Every checkpoint should be one of:
