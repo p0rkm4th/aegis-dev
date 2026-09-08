@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
+  "state_basis_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
-  "deterministic_green_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
-  "last_pushed_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
-  "hosted_green_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
-  "hosted_ci_green_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
+  "repository_head_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
+  "deterministic_green_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
+  "last_pushed_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
+  "hosted_green_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
+  "hosted_ci_green_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
+    "commit_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
     "conclusion": "success",
-    "run_id": "34189668194",
+    "run_id": "34190148725",
     "observed_at": "2026-09-08T04:38:00Z"
   },
-  "installed_release_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
-  "running_release_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
-  "live_green_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f",
+  "installed_release_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
+  "running_release_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
+  "live_green_sha": "375f1332212e68983a17fb7d501f1a2001771a0a",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "replacement-project-context-1",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f"
+    "release_sha": "375f1332212e68983a17fb7d501f1a2001771a0a"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -60,12 +60,12 @@
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
     "current": "Installed AEGIS Chat now provides a conversation-first surface with safe Markdown/tables/fenced code, response copy, associated research sources, truthful activity states, jump-to-latest behavior, deterministic thread labels, a phone-visible composer/Send action, a bounded owner-file attachment boundary, and a Principal-scoped registered AEGIS Project view with bounded read-only inspection.",
-    "remaining": "Chat, files, Project context, and the approval-bound MODIFY path are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; the next engineering replacement gap is durable job/review/commit supervision."
+    "remaining": "Chat, files, Project context, and the approval-bound durable MODIFY path are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; Codex replacement remains RED until a real owner workflow validates review and commit policy."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "0310d378b4461a42e2722f8c19082a79a012bdf8", "blocker": "Coherent Chat tranche is installed with rich responses, copy/code/source UX, conversation-first layout, and mobile composer; Scotty must decide whether normal conversation still feels clunky."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb", "blocker": "Installed owner route, persistent bounded extraction, Principal/conversation scoping, reload identity, and untrusted Chat context are proven; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
-    "codex": {"state": "RED", "basis_sha": "f722336cc74482b6144b3e7c09f14e6f9638505f", "blocker": "Installed read-only inspection and explicit approval-bound MODIFY with independent validation are available; no real owner-approved change has been exercised, and review, commit, push, and durable job supervision remain."},
+    "codex": {"state": "RED", "basis_sha": "375f1332212e68983a17fb7d501f1a2001771a0a", "blocker": "Installed read-only inspection, explicit approval-bound MODIFY, independent validation, and durable job lifecycle are available; no real owner-approved change has been exercised, and review, commit, and push authority remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
   },
   "owner_escape_metric": {
@@ -515,7 +515,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Add durable Developer job state around the installed inspect/MODIFY worker: queued/running/approval-required/completed/failed/interrupted, bounded result and diff, restart-truthful interruption, and explicit review/commit boundary. Keep automatic push disabled and do not ask Scotty to retest micro-patches.",
+  "next_action": "Keep automatic commit/push disabled; prepare the smallest review-boundary tranche only if owner use requires it. Maintain the installed durable job state, and prioritize real Scotty escape evidence over more synthetic Developer architecture.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
