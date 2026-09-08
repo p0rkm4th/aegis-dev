@@ -4142,7 +4142,7 @@ def test_cli_migration_source_fallback_executes_sql(monkeypatch):
 
     cli._apply_migrations(connection)
 
-    assert len(connection.statements) == 16
+    assert len(connection.statements) == 17
     assert connection.statements[0].startswith("-- PostgreSQL canonical schema")
     assert connection.committed is True
 
@@ -5149,6 +5149,52 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
     assert response["correlation_id"] == "00000000-0000-4000-8000-000000000001"
     assert UUID(response["session_id"])
     assert seen == [("Show my tasks.", "alice")]
+
+
+def test_browser_app_persists_principal_scoped_conversation_turns():
+    principal = Principal(id="alice", vault_id="alice-vault")
+    conversation_id = uuid4()
+    rows: list[tuple[str, str, str]] = []
+
+    def append(current, current_conversation, role, text, correlation):
+        key = (str(current_conversation), str(correlation), role)
+        if current.id != "alice":
+            raise PermissionError("wrong principal")
+        if key not in {(item[0], item[1], item[2]) for item in rows}:
+            rows.append((key[0], key[1], role))
+
+    app = BrowserApp(
+        principal,
+        lambda *_: "persistent answer",
+        lambda _: {"nodes": []},
+        session_token="session-secret",
+        conversation_list=lambda current: [{"conversation_id": str(conversation_id)}],
+        conversation_messages=lambda current, requested: (
+            [{"message_id": str(uuid4()), "role": "owner", "display_text": "hello"}]
+            if current.id == "alice" and requested == conversation_id
+            else []
+        ),
+        conversation_append=append,
+    )
+    body = json.dumps(
+        {
+            "utterance": "hello",
+            "session_id": str(conversation_id),
+            "correlation_id": str(uuid4()),
+        }
+    ).encode()
+    status, _, _ = app.dispatch(
+        "POST", "/api/message", body, headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert len(rows) == 2
+    status, _, payload = app.dispatch(
+        "GET",
+        f"/api/conversations/{conversation_id}",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload)["messages"][0]["display_text"] == "hello"
 
 
 def test_browser_app_exposes_principal_scoped_research_history():

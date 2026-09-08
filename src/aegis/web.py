@@ -45,6 +45,10 @@ ResearchState = Callable[[Principal], dict[str, Any]]
 FinanceState = Callable[[Principal], dict[str, Any]]
 FinanceImport = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 ForgeQuarantine = Callable[[Principal, dict[str, Any]], dict[str, Any]]
+ConversationList = Callable[[Principal], list[dict[str, Any]]]
+ConversationCreate = Callable[[Principal], dict[str, Any]]
+ConversationMessages = Callable[[Principal, UUID], list[dict[str, Any]]]
+ConversationAppend = Callable[[Principal, UUID, str, str, UUID | None], None]
 PrincipalProvider = Callable[[], Principal]
 HealthProvider = Callable[[], HealthReport | dict[str, Any]]
 RequestStatusProvider = Callable[[Principal, UUID], RequestStatus | dict[str, Any]]
@@ -212,6 +216,7 @@ _INDEX_HTML = """<!doctype html>
 <div class="view-summary"><h2 id="view-title">Today</h2><p id="view-description">Your conversation and authorized world at a glance.</p></div>
 <form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
+<div class="conversation-tools"><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label></div>
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
 <p id="answer" class="sr-only" aria-live="polite"></p><p id="status-badge" class="status-badge" data-state="idle" aria-live="polite">Ready</p><p id="step-status" class="muted"
 aria-live="polite"></p><div id="detail" class="muted" role="region"
@@ -269,6 +274,10 @@ class BrowserApp:
         finance_state: FinanceState | None = None,
         finance_import: FinanceImport | None = None,
         forge_quarantine: ForgeQuarantine | None = None,
+        conversation_list: ConversationList | None = None,
+        conversation_create: ConversationCreate | None = None,
+        conversation_messages: ConversationMessages | None = None,
+        conversation_append: ConversationAppend | None = None,
     ) -> None:
         self.principal_provider = principal if callable(principal) else lambda: principal
         self.interaction = interaction
@@ -300,6 +309,10 @@ class BrowserApp:
         self.finance_state = finance_state
         self.finance_import = finance_import
         self.forge_quarantine = forge_quarantine
+        self.conversation_list = conversation_list
+        self.conversation_create = conversation_create
+        self.conversation_messages = conversation_messages
+        self.conversation_append = conversation_append
 
     def dispatch(
         self,
@@ -364,6 +377,52 @@ class BrowserApp:
                 )
         else:
             return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+        if method == "GET" and route == "/api/conversations":
+            if self.conversation_list is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                return self._json(
+                    HTTPStatus.OK, {"conversations": self.conversation_list(principal)}
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "conversation_unavailable",
+                    "conversation unavailable",
+                )
+        if method == "POST" and route == "/api/conversations":
+            if self.conversation_create is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                return self._json(HTTPStatus.CREATED, self.conversation_create(principal))
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "conversation_unavailable",
+                    "conversation unavailable",
+                )
+        conversation_prefix = "/api/conversations/"
+        if method == "GET" and route.startswith(conversation_prefix):
+            if self.conversation_messages is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            try:
+                conversation_id = UUID(route[len(conversation_prefix) :])
+                messages = self.conversation_messages(principal, conversation_id)
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "state access denied"
+                )
+            except (ValueError, TypeError):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid conversation"
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "conversation_unavailable",
+                    "conversation unavailable",
+                )
+            return self._json(HTTPStatus.OK, {"messages": messages})
         if method == "GET" and route == "/api/constellation":
             try:
                 state = ConstellationProjection.model_validate(self.state(principal))
@@ -919,6 +978,10 @@ class BrowserApp:
                 validation_message = detail if detail in safe_messages else "invalid request"
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid_request", validation_message)
             try:
+                if self.conversation_append is not None:
+                    self.conversation_append(
+                        principal, session_id, "owner", utterance, correlation_id
+                    )
                 if self.contextual_interaction is not None:
                     message = self.contextual_interaction(
                         utterance, principal, correlation_id, context_correlation_id
@@ -943,6 +1006,17 @@ class BrowserApp:
                     "request_unavailable",
                     "request unavailable",
                 )
+            if self.conversation_append is not None:
+                try:
+                    self.conversation_append(
+                        principal, session_id, "aegis", response.message, correlation_id
+                    )
+                except Exception:
+                    return self._error(
+                        HTTPStatus.SERVICE_UNAVAILABLE,
+                        "conversation_unavailable",
+                        "conversation unavailable",
+                    )
             return self._json(HTTPStatus.OK, response.model_dump(mode="json", exclude_none=True))
         return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
 
@@ -999,6 +1073,10 @@ def serve(
     finance_state: FinanceState | None = None,
     finance_import: FinanceImport | None = None,
     forge_quarantine: ForgeQuarantine | None = None,
+    conversation_list: ConversationList | None = None,
+    conversation_create: ConversationCreate | None = None,
+    conversation_messages: ConversationMessages | None = None,
+    conversation_append: ConversationAppend | None = None,
 ) -> None:
     """Serve the proof using callbacks supplied by the Core/client composition root."""
 
@@ -1033,6 +1111,10 @@ def serve(
         finance_state=finance_state,
         finance_import=finance_import,
         forge_quarantine=forge_quarantine,
+        conversation_list=conversation_list,
+        conversation_create=conversation_create,
+        conversation_messages=conversation_messages,
+        conversation_append=conversation_append,
     )
 
     class Handler(BaseHTTPRequestHandler):

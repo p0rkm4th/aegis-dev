@@ -51,6 +51,7 @@ from .contracts import (
     Result,
     WorkingSet,
 )
+from .conversation import PostgresConversationStore
 from .documents import configured_document_provider, documents_evidence
 from .embeddings import OllamaEmbeddingProvider
 from .feedback_triage import harvest_defect_candidates
@@ -663,6 +664,30 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 
     root = Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
     return {"workspaces": WorkspaceManager(root).list_for_principal(principal.id)}
+
+
+def _conversation_store() -> PostgresConversationStore:
+    return PostgresConversationStore(
+        lambda: psycopg.connect(_required("AEGIS_DATABASE_URL")), _apply_migrations
+    )
+
+
+def _conversation_list(principal: Principal) -> list[dict[str, Any]]:
+    return _conversation_store().list(principal.id)
+
+
+def _conversation_create(principal: Principal) -> dict[str, Any]:
+    return _conversation_store().create(principal.id)
+
+
+def _conversation_messages(principal: Principal, conversation_id: UUID) -> list[dict[str, Any]]:
+    return _conversation_store().messages(principal.id, conversation_id)
+
+
+def _conversation_append(
+    principal: Principal, conversation_id: UUID, role: str, text: str, correlation_id: UUID | None
+) -> None:
+    _conversation_store().append(principal.id, conversation_id, role, text, correlation_id)
 
 
 def _weather_state(principal: Principal) -> dict[str, Any]:
@@ -4433,6 +4458,10 @@ def main() -> int:
                 finance_state=_finance_state,
                 finance_import=_finance_import,
                 forge_quarantine=_forge_quarantine,
+                conversation_list=_conversation_list,
+                conversation_create=_conversation_create,
+                conversation_messages=_conversation_messages,
+                conversation_append=_conversation_append,
             )
         except OSError as exc:
             print(f"Not completed — {_browser_startup_error(exc, args.port)}")
