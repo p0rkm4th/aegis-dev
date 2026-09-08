@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
+  "state_basis_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
-  "deterministic_green_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
-  "last_pushed_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
-  "hosted_green_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
-  "hosted_ci_green_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
+  "repository_head_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
+  "deterministic_green_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
+  "last_pushed_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
+  "hosted_green_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
+  "hosted_ci_green_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
+    "commit_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
     "conclusion": "success",
     "run_id": "34124934321",
     "observed_at": "2026-09-07T13:01:18Z"
   },
-  "installed_release_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
-  "running_release_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
-  "live_green_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215",
+  "installed_release_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
+  "running_release_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
+  "live_green_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-harness-H1-H2",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "1ac7189b9aa8aaf8688ef907f9de8dffae14d215"
+    "release_sha": "259de714fb1fa3ef2506343ad19eb93ccca36156"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
