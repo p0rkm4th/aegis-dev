@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
+  "state_basis_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
-  "deterministic_green_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
-  "last_pushed_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
-  "hosted_green_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
-  "hosted_ci_green_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
+  "repository_head_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
+  "deterministic_green_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
+  "last_pushed_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
+  "hosted_green_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
+  "hosted_ci_green_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
+    "commit_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
     "conclusion": "success",
-    "run_id": "34284252178",
-    "observed_at": "2026-09-08T18:45:00Z"
+    "run_id": "34285357202",
+    "observed_at": "2026-09-08T22:21:38Z"
   },
-  "installed_release_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
-  "running_release_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
-  "live_green_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c",
+  "installed_release_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
+  "running_release_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
+  "live_green_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "recovery-first-autonomy-v1",
   "checkpoint_status": "installed_green",
@@ -42,11 +42,11 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c"
+    "release_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4", "owner_acceptance": "status, doctor, and open are available as ordinary installed commands; Scotty's normal-use acceptance remains pending"},
-    "objective_recovery": {"state": "ENGINEERING_GREEN", "basis_sha": "c1bb0d6b25ccce7103a38c1b8a19858df4429d2c", "owner_acceptance": "installed generic recovery canary is green; owner-visible unsupported/investigable canary remains pending"},
+    "objective_recovery": {"state": "ENGINEERING_GREEN", "basis_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d", "owner_acceptance": "installed generic recovery canary is green; Palworld-style unsupported request now performs bounded public investigation and returns truthful blocked/open evidence without adding capability or permission; Scotty's owner acceptance remains pending"},
     "conversation": {"state": "ENGINEERING_GREEN", "basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e", "owner_acceptance": "pending Scotty walkthrough"},
     "memory": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real remember/recall/correction/removal walkthrough"},
     "finance": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real CSV import and useful question walkthrough"},
@@ -60,8 +60,8 @@
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS now classifies an unsupported open objective as bounded INTERNAL_BLOCKED recovery, persists its budget/fingerprint, and keeps owner blockage separate; Kernel authority and external UNKNOWN semantics remain unchanged.",
-    "remaining": "Scotty's owner-visible recovery canary is pending. Codex remains RED and no Developer expansion is part of this slice."
+    "current": "Installed AEGIS now classifies unsupported open objectives as bounded INTERNAL_BLOCKED recovery, investigates through authorized public evidence, persists budget/fingerprint, and keeps owner blockage separate; the installed Palworld-style canary returned truthful blocked/open evidence without adding capability or permission.",
+    "remaining": "Scotty's owner acceptance is pending. Codex remains RED and no Developer expansion is part of this slice."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "d24a0b98c08af0d6a5466a4edc00d9254b4d7f5b", "blocker": "Installed Chat resumes the selected thread after reload, returns the newest bounded window, and keeps the composer/thread identity visible; Scotty can now perform the natural Chat and reload test."},
