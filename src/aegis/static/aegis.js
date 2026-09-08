@@ -537,6 +537,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     calendar: ['Calendar', 'Events and appointments currently visible to you.'],
     household: ['Household', 'Shared chores, groceries, and obligations.'],
     finance: ['Finance', 'Private balances and imported transactions with freshness.'],
+    memory: ['Memory', 'Explicit personal memories with provenance and bounded controls.'],
     systems: ['Systems', 'Authorized hosts, services, and network state.'],
     weather: ['Weather', 'Current public conditions for explicit coordinates.'],
     'air-quality': ['Air quality', 'Current public air quality for explicit coordinates.'],
@@ -569,6 +570,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'tasks') loadTasks();
   if (activeView === 'household') loadHousehold();
   if (activeView === 'finance') loadFinance();
+  if (activeView === 'memory') loadMemory();
   if (activeView === 'objectives') loadObjectives();
   if (activeView === 'constellation') {
     document.querySelector('.secondary').open = true;
@@ -2290,6 +2292,53 @@ async function loadHousehold() {
     boundary.textContent = payload.truth_boundary || 'Household state is canonical authorized state.';
     panel.append(boundary);
   } catch (_) { panel.textContent = 'Household state is unavailable; no canonical state was changed.'; }
+}
+async function loadMemory() {
+  const panel = document.getElementById('detail'); panel.replaceChildren();
+  try {
+    const response = await apiFetch('/api/memory');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || 'Memory unavailable.');
+    const memories = Array.isArray(payload.memories) ? payload.memories : [];
+    const intro = document.createElement('p'); intro.className = 'muted';
+    intro.textContent = 'Only explicit memories are stored. Corrections preserve provenance; removal is permanent.';
+    panel.append(intro);
+    if (!memories.length) {
+      const empty = document.createElement('p'); empty.textContent = 'No personal memories recorded yet.';
+      panel.append(empty); return;
+    }
+    memories.forEach(memory => {
+      const section = document.createElement('section'); section.className = 'detail-card memory-card';
+      const content = document.createElement('p'); content.textContent = memory.content || '';
+      const metadata = document.createElement('p'); metadata.className = 'muted';
+      metadata.textContent = `${memory.provenance || 'unknown'} · ${memory.occurred_at || 'time unknown'} · private memory`;
+      const edit = document.createElement('textarea'); edit.rows = 2; edit.maxLength = 2000;
+      edit.value = memory.content || ''; edit.setAttribute('aria-label', 'Correct memory');
+      const correct = document.createElement('button'); correct.type = 'button'; correct.textContent = 'Save correction';
+      const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Remove';
+      const status = document.createElement('p'); status.className = 'muted'; status.setAttribute('aria-live', 'polite');
+      correct.addEventListener('click', async () => {
+        const value = edit.value.trim(); if (!value) { status.textContent = 'Enter a memory first.'; return; }
+        correct.disabled = true; status.textContent = 'Saving correction…';
+        try {
+          const result = await apiFetch('/api/memory/correct', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({memory_id: memory.memory_id, content: value})});
+          if (!result.ok) throw new Error((await result.json()).error || 'Correction unavailable.');
+          status.textContent = 'Correction saved with provenance.'; await loadMemory();
+        } catch (error) { status.textContent = error.message || 'Correction unavailable.'; }
+        finally { correct.disabled = false; }
+      });
+      remove.addEventListener('click', async () => {
+        if (!confirm('Remove this memory?')) return;
+        remove.disabled = true; status.textContent = 'Removing…';
+        try {
+          const result = await apiFetch('/api/memory/remove', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({memory_id: memory.memory_id})});
+          if (!result.ok) throw new Error((await result.json()).error || 'Removal unavailable.');
+          await loadMemory();
+        } catch (error) { status.textContent = error.message || 'Removal unavailable.'; remove.disabled = false; }
+      });
+      section.append(content, metadata, edit, correct, remove, status); panel.append(section);
+    });
+  } catch (_) { panel.textContent = 'Memory is unavailable; no personal state was changed.'; }
 }
 async function loadFinance() {
   const panel = document.getElementById('detail'); panel.replaceChildren();

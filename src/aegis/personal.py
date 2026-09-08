@@ -208,6 +208,22 @@ class PostgresPersonalStateStore:
             raise PermissionError("personal Vault access denied")
         return self.load()
 
+    def remove_memory(self, principal: Principal, memory_id: UUID) -> None:
+        """Remove one current memory after checking the canonical Vault owner."""
+
+        row = self.connection.execute(
+            "SELECT 1 FROM vaults WHERE id = %s AND owner_principal_id = %s",
+            (self.vault_id, principal.id),
+        ).fetchone()
+        if row is None:
+            raise PermissionError("personal Vault access denied")
+        self.connection.execute(
+            "DELETE FROM personal_memories WHERE id = %s AND vault_id = %s "
+            "AND superseded_by IS NULL",
+            (str(memory_id), self.vault_id),
+        )
+        self.connection.commit()
+
 
 @dataclass
 class PersonalState:
@@ -279,6 +295,13 @@ class PersonalState:
         )
         original.superseded_by = corrected.memory_id
         return corrected
+
+    def remove_memory(self, memory_id: UUID) -> MemoryRecord:
+        memory = self.memories.get(memory_id)
+        if memory is None or memory.superseded_by is not None:
+            raise ValueError("memory is missing or already superseded")
+        del self.memories[memory_id]
+        return memory
 
     def memories_between(
         self, start: datetime, end: datetime, entity_id: UUID | None = None
