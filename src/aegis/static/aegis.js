@@ -196,7 +196,20 @@ function renderAttachments() {
   const list = document.getElementById('attachments');
   list.replaceChildren(...conversationAttachments.map(attachment => {
     const item = document.createElement('li');
-    item.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB`;
+    const label = document.createElement('span');
+    label.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB`;
+    const remove = document.createElement('button');
+    remove.type = 'button'; remove.className = 'attachment-remove';
+    remove.textContent = 'Remove';
+    remove.setAttribute('aria-label', `Remove ${attachment.original_filename} from the next message`);
+    remove.addEventListener('click', () => {
+      conversationAttachments = conversationAttachments.filter(itemRecord =>
+        itemRecord.attachment_id !== attachment.attachment_id);
+      renderAttachments();
+      document.getElementById('attachment-status').textContent =
+        'Attachment removed from the next message; stored file remains available in this conversation.';
+    });
+    item.append(label, remove);
     return item;
   }));
 }
