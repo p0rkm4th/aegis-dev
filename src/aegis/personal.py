@@ -435,6 +435,47 @@ class PersonalState:
         return cls(entities=entities, memories=memories, projects=projects, goals=goals)
 
 
+class ExplicitMemoryCapture:
+    """Capture only an unambiguous owner request for durable personal memory."""
+
+    _PREFIX = re.compile(r"^\s*remember(?:\s+that)?\s+(.+?)\s*[.!?]?\s*$", re.IGNORECASE)
+    _MAX_CONTENT = 2_000
+
+    def __init__(self, state: PersonalState, now: datetime | None = None) -> None:
+        self.state = state
+        self.now = now or datetime.now().astimezone()
+        if self.now.tzinfo is None:
+            raise ValueError("personal capture clock must be timezone-aware")
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        match = self._PREFIX.fullmatch(intent.utterance)
+        if match is None:
+            return None
+        content = match.group(1).strip()
+        if not content or len(content) > self._MAX_CONTENT:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="Please keep the memory under 2,000 characters.",
+                correlation_id=intent.correlation_id,
+            )
+        memory = self.state.add_memory(content, self.now, Provenance.EXPLICIT_USER)
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Remembered: {memory.content}",
+            evidence={
+                "memory": {
+                    "memory_id": str(memory.memory_id),
+                    "content": memory.content,
+                    "occurred_at": memory.occurred_at.isoformat(),
+                    "provenance": memory.provenance.value,
+                }
+            },
+            correlation_id=intent.correlation_id,
+        )
+
+
 class PersonalMemoryFastPath:
     """Deterministic read adapter for grounded personal-context questions."""
 
