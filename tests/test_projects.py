@@ -80,6 +80,56 @@ def test_project_registry_inspects_only_registered_relative_text(tmp_path: Path)
         registry.inspect_for_principal("alice", "aegis", "../secret.txt")
 
 
+@pytest.mark.parametrize("relative_path", ["/etc/passwd", "../outside.txt"])
+def test_project_registry_rejects_absolute_and_traversal_paths(
+    tmp_path: Path, relative_path: str
+) -> None:
+    repository = tmp_path / "repo"
+    (repository / "src").mkdir(parents=True)
+    config = tmp_path / "projects.json"
+    _write_registry(config, repository)
+    with pytest.raises(ProjectRegistryError):
+        ProjectRegistry(config).inspect_for_principal("alice", "aegis", relative_path)
+
+
+@pytest.mark.parametrize("kind", ["final", "parent", "outside_root", "broken", "loop"])
+def test_project_registry_rejects_symlinked_requested_paths(tmp_path: Path, kind: str) -> None:
+    repository = tmp_path / "repo"
+    (repository / "src").mkdir(parents=True)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    if kind == "final":
+        (repository / "src" / "link.txt").symlink_to(outside / "secret.txt")
+        requested = "src/link.txt"
+    elif kind == "parent":
+        (repository / "src" / "link").symlink_to(outside, target_is_directory=True)
+        requested = "src/link/secret.txt"
+    elif kind == "outside_root":
+        (repository / "src" / "nested").mkdir()
+        (repository / "src" / "nested" / "link").symlink_to(outside, target_is_directory=True)
+        requested = "src/nested/link/secret.txt"
+    elif kind == "broken":
+        (repository / "src" / "broken.txt").symlink_to(repository / "missing.txt")
+        requested = "src/broken.txt"
+    else:
+        (repository / "src" / "loop").symlink_to(repository / "src" / "loop")
+        requested = "src/loop"
+    config = tmp_path / f"projects-{kind}.json"
+    _write_registry(config, repository)
+    with pytest.raises(ProjectRegistryError):
+        ProjectRegistry(config).inspect_for_principal("alice", "aegis", requested)
+
+
+def test_project_registry_rejects_oversized_file_before_read(tmp_path: Path) -> None:
+    repository = tmp_path / "repo"
+    (repository / "src").mkdir(parents=True)
+    (repository / "src" / "large.txt").write_bytes(b"x" * 100_001)
+    config = tmp_path / "projects.json"
+    _write_registry(config, repository)
+    with pytest.raises(ProjectRegistryError, match="size bound"):
+        ProjectRegistry(config).inspect_for_principal("alice", "aegis", "src/large.txt")
+
+
 def test_project_registry_rejects_unscoped_or_invalid_registration(tmp_path: Path) -> None:
     config = tmp_path / "projects.json"
     config.write_text(json.dumps({"projects": [{"project_id": "aegis"}]}), encoding="utf-8")

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 _PROJECT_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
+MAX_PROJECT_FILE_BYTES = 100_000
 _PRIVATE_NAMES = {
     ".aws",
     ".git",
@@ -157,6 +158,11 @@ class ProjectRegistry:
             raise ProjectRegistryError("project file is unavailable")
         if _has_symlink_component(requested):
             raise ProjectRegistryError("project path is unavailable")
+        try:
+            if requested.stat().st_size > MAX_PROJECT_FILE_BYTES:
+                raise ProjectRegistryError("project file exceeds size bound")
+        except OSError as exc:
+            raise ProjectRegistryError("project file is unavailable") from exc
         allowed_roots = tuple(project.repository / item for item in project.allowed_paths)
         if allowed_roots and not any(
             requested == root or root in requested.parents for root in allowed_roots
@@ -166,7 +172,7 @@ class ProjectRegistry:
             content = requested.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as exc:
             raise ProjectRegistryError("project file is not readable text") from exc
-        bounded = content[:100_000]
+        bounded = content[:MAX_PROJECT_FILE_BYTES]
         return {
             "project_id": project.project_id,
             "name": project.name,

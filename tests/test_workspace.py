@@ -68,7 +68,8 @@ def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path
         "s=socket.socket(); s.settimeout(0.2); "
         "\ntry: s.connect(('127.0.0.1', 9)); print('network-open') "
         "\nexcept OSError: print('network-closed'); "
-        "subprocess.Popen(['python3','-c','import time; time.sleep(5)']); time.sleep(0.1)"
+        "child=subprocess.Popen(['python3','-c','import time; time.sleep(5)']); "
+        "Path('child.pid').write_text(str(child.pid)); time.sleep(0.1)"
     )
     result = workspace.run(("python3", "-c", script), uuid4())
     assert result.returncode == 0
@@ -76,6 +77,8 @@ def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path
     assert "network-closed" in result.stdout
     assert sentinel.read_text(encoding="utf-8") == "unchanged"
     assert (workspace.root / "validator-mutation.txt").read_text() == "only disposable"
+    child_pid = int((workspace.root / "child.pid").read_text())
+    assert not Path(f"/proc/{child_pid}").exists()
 
 
 @pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
