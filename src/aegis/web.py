@@ -37,6 +37,7 @@ SystemsDiscover = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 SystemsScopeConfigure = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 ProjectState = Callable[[Principal], dict[str, Any]]
 ProjectInspection = Callable[[Principal, str, str | None], dict[str, Any]]
+DeveloperInspect = Callable[[Principal, str, str], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -300,6 +301,7 @@ class BrowserApp:
         systems_scope_configure: SystemsScopeConfigure | None = None,
         project_state: ProjectState | None = None,
         project_inspection: ProjectInspection | None = None,
+        developer_inspect: DeveloperInspect | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -344,6 +346,7 @@ class BrowserApp:
         self.systems_scope_configure = systems_scope_configure
         self.project_state = project_state
         self.project_inspection = project_inspection
+        self.developer_inspect = developer_inspect
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -763,6 +766,36 @@ class BrowserApp:
                 )
             return self._json(HTTPStatus.OK, projects_projection)
         project_prefix = "/api/projects/"
+        if method == "POST" and route.startswith(project_prefix) and route.endswith("/inspect"):
+            if self.developer_inspect is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            project_id = route[len(project_prefix) : -len("/inspect")]
+            try:
+                payload = json.loads(body)
+                if (
+                    not project_id
+                    or not isinstance(payload, dict)
+                    or set(payload) != {"question"}
+                    or not isinstance(payload["question"], str)
+                    or not payload["question"].strip()
+                ):
+                    raise ValueError("invalid inspection request")
+                result = self.developer_inspect(principal, project_id, payload["question"])
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "project access denied"
+                )
+            except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid inspection request"
+                )
+            except Exception:
+                return self._error(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "developer_unavailable",
+                    "developer inspection unavailable",
+                )
+            return self._json(HTTPStatus.OK, result)
         if method == "GET" and route.startswith(project_prefix) and route.endswith("/inspect"):
             if self.project_inspection is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1356,6 +1389,7 @@ def serve(
     systems_scope_configure: SystemsScopeConfigure | None = None,
     project_state: ProjectState | None = None,
     project_inspection: ProjectInspection | None = None,
+    developer_inspect: DeveloperInspect | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -1403,6 +1437,7 @@ def serve(
         systems_scope_configure=systems_scope_configure,
         project_state=project_state,
         project_inspection=project_inspection,
+        developer_inspect=developer_inspect,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,

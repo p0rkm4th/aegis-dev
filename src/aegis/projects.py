@@ -114,6 +114,19 @@ class ProjectRegistry:
             "truncated": len(content) > len(bounded),
         }
 
+    def registered_for_principal(self, principal_id: str, project_id: str) -> RegisteredProject:
+        project = next(
+            (
+                item
+                for item in self._load()
+                if item.project_id == project_id and principal_id in item.principal_ids
+            ),
+            None,
+        )
+        if project is None:
+            raise PermissionError("project is not registered for principal")
+        return project
+
     def _load(self) -> tuple[RegisteredProject, ...]:
         try:
             raw = json.loads(self.config_path.read_text(encoding="utf-8"))
@@ -158,7 +171,10 @@ class ProjectRegistry:
                 or not isinstance(allowed_paths, list)
                 or len(allowed_paths) > 100
                 or any(
-                    not isinstance(item, str) or not item.strip() or item.startswith("/")
+                    not isinstance(item, str)
+                    or not item.strip()
+                    or item.startswith("/")
+                    or ".." in Path(item).parts
                     for item in allowed_paths
                 )
             ):
