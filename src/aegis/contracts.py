@@ -71,6 +71,33 @@ class RecoveryState(StrictModel):
     last_evidence_summary: str | None = Field(default=None, max_length=240)
 
 
+class LearningCandidateKind(StrEnum):
+    """Bounded kinds of candidate knowledge that Core may validate."""
+
+    OWNER_CORRECTION = "owner_correction"
+
+
+class LearningDisposition(StrEnum):
+    """Core decision for an ephemeral learning candidate."""
+
+    COMMIT = "commit"
+    CONFIRM = "confirm"
+    DISCARD = "discard"
+
+
+class LearningCandidate(StrictModel):
+    """Owner-grounded learning proposal; it carries no authority."""
+
+    kind: LearningCandidateKind
+    disposition: LearningDisposition
+    target_memory_id: UUID
+    old_text: str = Field(min_length=1, max_length=500)
+    replacement_text: str = Field(min_length=1, max_length=500)
+    owner_source_spans: tuple[tuple[int, int], ...] = Field(min_length=1)
+    correlation_id: UUID
+    candidate_entity_ids: tuple[UUID, ...] = ()
+
+
 class ExternalEffectAssurance(StrEnum):
     """Core-owned truth about a consequential external mutation."""
 

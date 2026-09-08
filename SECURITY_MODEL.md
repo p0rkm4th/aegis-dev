@@ -108,6 +108,12 @@ Important abuse paths include:
   stop recovery, consumed budgets survive persistence/restart, and owner
   blockage is emitted only when owner input can genuinely resolve the
   obstacle.
+- Treat learning candidates as untrusted proposals. Owner-correction content
+  must be grounded in the authenticated owner's source text and validated
+  against one current Vault-scoped memory before supersession. Learning never
+  grants Pack permission, approval, network scope, filesystem access, or
+  provider authority; assistant text and retrieved evidence cannot enter
+  canonical personal memory as owner evidence.
 
 ## Testable security invariants
 

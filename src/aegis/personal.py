@@ -10,9 +10,18 @@ from enum import StrEnum
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
 
-from .contracts import Context, IntentFrame, ObjectiveState, Principal, Result
+from .contracts import (
+    Context,
+    IntentFrame,
+    LearningCandidate,
+    LearningCandidateKind,
+    LearningDisposition,
+    ObjectiveState,
+    Principal,
+    Result,
+)
 from .embeddings import EmbeddingProvider, MemoryVectorIndex
-from .utterance import is_mutation_request
+from .utterance import is_correction_request, is_mutation_request
 
 
 class Provenance(StrEnum):
@@ -286,12 +295,19 @@ class PersonalState:
         self.memories[memory.memory_id] = memory
         return memory
 
-    def correct_memory(self, memory_id: UUID, content: str, corrected_at: datetime) -> MemoryRecord:
+    def correct_memory(
+        self,
+        memory_id: UUID,
+        content: str,
+        corrected_at: datetime,
+        entity_ids: tuple[UUID, ...] | None = None,
+    ) -> MemoryRecord:
         original = self.memories.get(memory_id)
         if original is None or original.superseded_by is not None:
             raise ValueError("memory is missing or already superseded")
+        replacement_entities = original.entity_ids if entity_ids is None else entity_ids
         corrected = self.add_memory(
-            content, corrected_at, Provenance.CORRECTED, original.entity_ids
+            content, corrected_at, Provenance.CORRECTED, replacement_entities
         )
         original.superseded_by = corrected.memory_id
         return corrected
@@ -497,6 +513,191 @@ class ExplicitMemoryCapture:
             },
             correlation_id=intent.correlation_id,
         )
+
+
+class OwnerCorrectionLearning:
+    """Validate a small owner correction against current personal memory."""
+
+    _CONTRAST = re.compile(
+        r"^\s*(?P<replacement>[^,.;!?]+?)\s+is\s+(?P<predicate>.+?),\s*not\s+"
+        r"(?P<old>[^.!?]+?)\s*[.!?]?\s*$",
+        re.IGNORECASE,
+    )
+    _MEANT_CONTRAST = re.compile(
+        r"^\s*i meant\s+(?P<replacement>[^,.;!?]+?),\s*not\s+(?P<old>[^.!?]+?)"
+        r"\s*[.!?]?\s*$",
+        re.IGNORECASE,
+    )
+    _PREFIX_FACT = re.compile(
+        r"^\s*(?:no\s*,?\s*|actually\s*,?\s*)(?P<fact>[^.!?]+?\s+is\s+[^.!?]+)"
+        r"\s*[.!?]?\s*$",
+        re.IGNORECASE,
+    )
+    _MAX_CANDIDATES = 5
+
+    def __init__(self, state: PersonalState, now: datetime | None = None) -> None:
+        self.state = state
+        self.now = now or datetime.now().astimezone()
+        if self.now.tzinfo is None:
+            raise ValueError("learning clock must be timezone-aware")
+
+    def resolve(self, intent: IntentFrame) -> Result | None:
+        if (
+            not is_correction_request(intent.utterance)
+            and self._CONTRAST.fullmatch(intent.utterance) is None
+        ):
+            return None
+        parsed = self._parse(intent.utterance)
+        if parsed is None:
+            return None
+        replacement, old_text, predicate, source_span = parsed
+        candidates = self._candidates(old_text, predicate)
+        if len(candidates) != 1:
+            if not candidates:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.BLOCKED,
+                    message=(
+                        "I could not find one current personal fact to correct, so I did not "
+                        "change memory."
+                    ),
+                    evidence={
+                        "learning": {
+                            "kind": LearningCandidateKind.OWNER_CORRECTION.value,
+                            "disposition": LearningDisposition.DISCARD.value,
+                            "candidate_count": 0,
+                        }
+                    },
+                    correlation_id=intent.correlation_id,
+                )
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I found more than one current personal fact that could match that "
+                    "correction. Which one should I update?"
+                ),
+                evidence={
+                    "learning": {
+                        "kind": LearningCandidateKind.OWNER_CORRECTION.value,
+                        "disposition": LearningDisposition.CONFIRM.value,
+                        "candidate_count": len(candidates),
+                        "candidate_memory_ids": [str(memory.memory_id) for memory in candidates],
+                    }
+                },
+                correlation_id=intent.correlation_id,
+            )
+        target = candidates[0]
+        grounded_old = old_text or self._infer_old_text(target.content, predicate)
+        if grounded_old is None or target.content.casefold().count(grounded_old.casefold()) != 1:
+            return Result(
+                objective_id=uuid4(),
+                state=ObjectiveState.BLOCKED,
+                message="I could not validate that correction against the current fact.",
+                evidence={
+                    "learning": {
+                        "kind": LearningCandidateKind.OWNER_CORRECTION.value,
+                        "disposition": LearningDisposition.DISCARD.value,
+                    }
+                },
+                correlation_id=intent.correlation_id,
+            )
+        corrected_content = self._corrected_content(target.content, grounded_old, replacement)
+        entity_ids = self._corrected_entity_ids(target, grounded_old, replacement)
+        candidate = LearningCandidate(
+            kind=LearningCandidateKind.OWNER_CORRECTION,
+            disposition=LearningDisposition.COMMIT,
+            target_memory_id=target.memory_id,
+            old_text=grounded_old,
+            replacement_text=replacement,
+            owner_source_spans=(source_span,),
+            correlation_id=intent.correlation_id,
+            candidate_entity_ids=entity_ids,
+        )
+        corrected = self.state.correct_memory(
+            target.memory_id,
+            corrected_content,
+            self.now,
+            entity_ids=entity_ids,
+        )
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.COMPLETED,
+            message=f"Got it. {corrected.content}",
+            evidence={
+                "learning": {
+                    "kind": candidate.kind.value,
+                    "disposition": candidate.disposition.value,
+                    "target_memory_id": str(target.memory_id),
+                    "new_memory_id": str(corrected.memory_id),
+                    "provenance": corrected.provenance.value,
+                    "source_correlation_id": str(intent.correlation_id),
+                }
+            },
+            correlation_id=intent.correlation_id,
+        )
+
+    def _parse(self, utterance: str) -> tuple[str, str | None, str, tuple[int, int]] | None:
+        match = self._CONTRAST.fullmatch(utterance) or self._MEANT_CONTRAST.fullmatch(utterance)
+        if match is not None:
+            replacement = " ".join(match.group("replacement").split()).strip(" .!?")
+            old_text = " ".join(match.group("old").split()).strip(" .!?")
+            predicate = " ".join(match.groupdict().get("predicate", "").split())
+            return replacement, old_text, predicate, match.span("replacement")
+        match = self._PREFIX_FACT.fullmatch(utterance)
+        if match is None:
+            return None
+        fact = " ".join(match.group("fact").split()).strip(" .!?")
+        subject, _, predicate = fact.partition(" is ")
+        if not subject.strip() or not predicate.strip():
+            return None
+        return subject.strip(), None, predicate.strip(), match.span("fact")
+
+    def _candidates(self, old_text: str | None, predicate: str) -> list[MemoryRecord]:
+        current = [
+            memory for memory in self.state.memories.values() if memory.superseded_by is None
+        ]
+        predicate_terms = tuple(
+            term for term in re.findall(r"[a-z0-9]+", predicate.casefold()) if len(term) > 2
+        )
+        candidates = []
+        for memory in current:
+            content = memory.content.casefold()
+            if old_text is not None and old_text.casefold() not in content:
+                continue
+            if predicate_terms and not any(term in content for term in predicate_terms):
+                continue
+            candidates.append(memory)
+        return candidates[: self._MAX_CANDIDATES]
+
+    @staticmethod
+    def _infer_old_text(content: str, predicate: str) -> str | None:
+        if not predicate:
+            return None
+        match = re.search(r"^(.+?)\s+is\s+", content, re.IGNORECASE)
+        return match.group(1).strip() if match else None
+
+    @staticmethod
+    def _corrected_content(content: str, old_text: str, replacement: str) -> str:
+        return re.sub(re.escape(old_text), replacement, content, count=1, flags=re.IGNORECASE)
+
+    def _corrected_entity_ids(
+        self, target: MemoryRecord, old_text: str, replacement: str
+    ) -> tuple[UUID, ...]:
+        old_entity = self.state.resolve_entity(old_text)
+        new_entity = self.state.resolve_entity(replacement)
+        if old_entity is None or old_entity.entity_id not in target.entity_ids:
+            return target.entity_ids
+        new_entity_id = new_entity.entity_id if new_entity is not None else None
+        if new_entity_id is None:
+            return tuple(
+                entity_id for entity_id in target.entity_ids if entity_id != old_entity.entity_id
+            )
+        replacement_ids = tuple(
+            new_entity_id if entity_id == old_entity.entity_id else entity_id
+            for entity_id in target.entity_ids
+        )
+        return tuple(dict.fromkeys(replacement_ids))
 
 
 class PersonalMemoryFastPath:
