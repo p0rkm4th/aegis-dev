@@ -210,6 +210,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .status-badge[data-state="canonical"] { border-color: var(--accent); color: var(--accent); }
 .status-badge[data-state="discovered"],
 .status-badge[data-state="reconciliation_candidate"] { border-color: var(--unknown); color: var(--unknown); }
+.today-developer-job { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .6rem; margin: .45rem 0; }
 .chat-progress { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem .75rem; min-height: 2rem; margin: .75rem 0 .35rem; }
 .chat-progress #activity, .chat-progress #step-status { flex: 1 1 100%; margin: 0; }
 .chat-progress .status-badge { margin: 0; }
