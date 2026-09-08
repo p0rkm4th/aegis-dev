@@ -22,8 +22,12 @@ class PostgresConversationStore:
         connection = self._connection()
         try:
             rows = connection.execute(
-                "SELECT id, created_at, updated_at FROM conversations "
-                "WHERE principal_id = %s ORDER BY updated_at DESC LIMIT %s",
+                "SELECT c.id, c.created_at, c.updated_at, "
+                "(SELECT LEFT(m.display_text, 96) FROM conversation_messages m "
+                "WHERE m.conversation_id = c.id AND m.principal_id = c.principal_id "
+                "AND m.role = 'owner' ORDER BY m.created_at ASC LIMIT 1) "
+                "FROM conversations c "
+                "WHERE c.principal_id = %s ORDER BY c.updated_at DESC LIMIT %s",
                 (principal_id, limit),
             ).fetchall()
             return [self._conversation_row(row) for row in rows]
@@ -111,6 +115,7 @@ class PostgresConversationStore:
             "conversation_id": str(row[0]),
             "created_at": _timestamp(row[1]),
             "updated_at": _timestamp(row[2]),
+            "title": row[3] if len(row) > 3 else None,
         }
 
 
