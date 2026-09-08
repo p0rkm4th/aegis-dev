@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
+  "state_basis_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
-  "deterministic_green_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
-  "last_pushed_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
-  "hosted_green_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
-  "hosted_ci_green_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
+  "repository_head_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
+  "deterministic_green_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
+  "last_pushed_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
+  "hosted_green_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
+  "hosted_ci_green_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
+    "commit_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
     "conclusion": "success",
-    "run_id": "34256250186",
-    "observed_at": "2026-09-08T17:17:00Z"
+    "run_id": "34256744698",
+    "observed_at": "2026-09-08T17:25:00Z"
   },
-  "installed_release_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
-  "running_release_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
-  "live_green_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4",
+  "installed_release_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
+  "running_release_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
+  "live_green_sha": "f13eed68aefdc4e3f64b4bc0b535e93673658361",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-acceptance-standby",
   "checkpoint_status": "owner_acceptance_pending",
@@ -59,7 +59,7 @@
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS now has an ordinary executable aegis owner status/doctor/open front door, with exact release discovery from the running service and safe private URL fallback; the Developer boundary remains exact-hosted-green and owner acceptance is still pending.",
+    "current": "Installed AEGIS now has an ordinary executable owner front door and a conversation-first composer dock that keeps message entry, attachments, draft state, and activity together on desktop and mobile; the Developer boundary remains exact-hosted-green and owner acceptance is still pending.",
     "remaining": "This is engineering evidence, not owner acceptance. Scotty still needs a natural integrated session; Codex remains RED until the owner exercises bounded review, and no commit/push/arbitrary shell authority exists."
   },
   "replacement_product_matrix": {
@@ -457,7 +457,7 @@
     "Attachment atomicity and migration source/package parity are installed exact-hosted-green; hostile owner-boundary evidence remains regression coverage.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at 22f05f7. Owner status/doctor/open now work as ordinary installed commands; the security checkpoint closes Developer MODIFY proposal/approval/apply, disposable validation, hostile isolation proof, explicit worker network denial, project containment, attachment atomicity, and migration packaging truth without adding commit, push, arbitrary shell, or new authority. Scotty remains the next source of acceptance evidence.",
+  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at f13eed6. Owner status/doctor/open work as ordinary installed commands, and the conversation composer is now anchored as one owner-facing dock with file, draft, activity, and send controls together. The security checkpoint closes Developer MODIFY proposal/approval/apply, disposable validation, hostile isolation proof, explicit worker network denial, project containment, attachment atomicity, and migration packaging truth without adding commit, push, arbitrary shell, or new authority. Scotty remains the next source of acceptance evidence.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
