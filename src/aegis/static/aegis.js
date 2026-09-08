@@ -279,8 +279,23 @@ async function loadChatProjects() {
       if (project.repository_state !== 'ready') return;
       selector.append(new Option(`${project.name} · read-only`, project.project_id));
     });
+    updateChatProjectContext();
   } catch (_) { /* Project context is optional. */ }
 }
+function updateChatProjectContext() {
+  const selector = document.getElementById('chat-project');
+  const status = document.getElementById('chat-project-status');
+  const clear = document.getElementById('clear-chat-project');
+  const option = selector.options[selector.selectedIndex];
+  const active = Boolean(selector.value);
+  status.textContent = active ? `Active: ${option?.textContent || 'read-only project'}` : '';
+  clear.hidden = !active;
+}
+document.getElementById('chat-project').addEventListener('change', updateChatProjectContext);
+document.getElementById('clear-chat-project').addEventListener('click', () => {
+  document.getElementById('chat-project').value = '';
+  updateChatProjectContext();
+});
 document.getElementById('new-conversation').addEventListener('click', async () => {
   const response = await apiFetch('/api/conversations', {method: 'POST'});
   const conversation = await response.json();
