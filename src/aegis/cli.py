@@ -10,8 +10,10 @@ import os
 import re
 import socket
 import sqlite3
+import subprocess
 import urllib.error
 import urllib.request
+import webbrowser
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
@@ -495,6 +497,136 @@ def _print_runtime_report(report: HealthReport, as_json: bool) -> int:
 
 def _print_json_error(code: str, message: str) -> None:
     print(json.dumps({"code": code, "error": message, "state": "failed"}))
+
+
+def _owner_service_value(property_name: str) -> str | None:
+    """Read one non-secret systemd user-service property for owner diagnostics."""
+
+    try:
+        result = subprocess.run(
+            ["systemctl", "--user", "show", "aegis-owner.service", f"--property={property_name}"],
+            check=False, capture_output=True, text=True, timeout=4,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:
+        return None
+    prefix = f"{property_name}="
+    for line in result.stdout.splitlines():
+        if line.startswith(prefix):
+            value = line[len(prefix):].strip()
+            return value or None
+    return None
+
+
+def _owner_release_truth() -> dict[str, Any]:
+    """Return release paths and hashes without exposing service environment secrets."""
+
+    state_path = os.environ.get("AEGIS_CURRENT_STATE_PATH")
+    service_environment = _owner_service_value("Environment") or ""
+    if not state_path:
+        for entry in service_environment.split():
+            if entry.startswith("AEGIS_CURRENT_STATE_PATH="):
+                state_path = entry.split("=", 1)[1]
+                break
+    state: dict[str, Any] = {}
+    if state_path:
+        try:
+            candidate = json.loads(Path(state_path).read_text(encoding="utf-8"))
+            if isinstance(candidate, dict):
+                state = candidate
+        except (OSError, ValueError):
+            pass
+    installed = state.get("installed_release_sha") or state.get("live_green_sha") or "unknown"
+    running = state.get("running_release_sha") or "unknown"
+    return {"installed_release": installed, "running_release": running}
+
+
+def _owner_http_probe(url: str, path: str) -> tuple[bool, str]:
+    try:
+        with urllib.request.urlopen(url.rstrip("/") + path, timeout=3) as response:
+            return response.status < 400, f"HTTP {response.status}"
+    except (OSError, urllib.error.URLError, ValueError) as exc:
+        return False, type(exc).__name__
+
+
+def _owner_url() -> tuple[str, bool]:
+    """Prefer a configured reachable private URL, then use the local service."""
+
+    configured = (
+        os.environ.get("AEGIS_PRIVATE_URL")
+        or os.environ.get("AEGIS_OWNER_URL")
+        or os.environ.get("AEGIS_TAILNET_URL")
+    )
+    if configured and _owner_http_probe(configured, "/api/ready")[0]:
+        return configured.rstrip("/") + "/", True
+    return f"http://127.0.0.1:{os.environ.get('AEGIS_OWNER_PORT', '18080')}/", False
+
+
+def _owner_operation(action: str, as_json: bool) -> int:
+    if action == "restart":
+        result = subprocess.run(
+            ["systemctl", "--user", "restart", "aegis-owner.service"],
+            check=False, capture_output=True, text=True, timeout=20,
+        )
+        if result.returncode:
+            message = "service restart failed; run `aegis owner doctor` for remediation"
+            if as_json:
+                _print_json_error("owner_restart_failed", message)
+            else:
+                print(f"Not completed — {message}")
+            return 1
+        print("AEGIS owner service restarted.")
+        return _owner_operation("status", as_json)
+    if action == "logs":
+        return subprocess.run(
+            ["journalctl", "--user", "-u", "aegis-owner.service", "-n", "40", "--no-pager"],
+            check=False, timeout=8,
+        ).returncode
+    if action == "open":
+        url, private = _owner_url()
+        if as_json:
+            print(json.dumps({"url": url, "private": private}))
+        elif webbrowser.open(url):
+            print(f"Opened AEGIS at {url}")
+        else:
+            print(f"Open AEGIS at {url}")
+        return 0
+
+    service_state = _owner_service_value("ActiveState") or "unavailable"
+    url, private = _owner_url()
+    ready, ready_detail = _owner_http_probe(url, "/api/ready")
+    truth = _owner_release_truth()
+    payload = {
+        **truth, "service": service_state, "ready": ready, "ready_detail": ready_detail,
+        "owner_url": url, "private_url": private,
+        "model": os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
+        "workspace": os.environ.get("AEGIS_WORKSPACE_ROOT", "configured by owner service"),
+    }
+    if action == "doctor":
+        payload["remediation"] = (
+            "No action needed." if service_state == "active" and ready
+            else (
+                "Run `aegis owner restart`, then `aegis owner logs`; "
+                "repair the failing readiness check."
+            )
+        )
+    if as_json:
+        print(json.dumps(payload))
+    else:
+        print(f"AEGIS owner {'doctor' if action == 'doctor' else 'status'}")
+        print(f"service: {service_state}")
+        print(
+            f"release: installed {truth['installed_release']} · "
+            f"running {truth['running_release']}"
+        )
+        print(f"readiness: {'READY' if ready else 'NOT READY'} ({ready_detail})")
+        print(f"owner URL: {url}{' (private)' if private else ''}")
+        print(f"model: {payload['model']}")
+        print(f"workspace: {payload['workspace']}")
+        if action == "doctor":
+            print(f"remediation: {payload['remediation']}")
+    return 0 if service_state == "active" and ready else 1
 
 
 def _constellation_state(principal: Principal) -> dict[str, Any]:
@@ -4163,8 +4295,20 @@ def main() -> int:
     )
     parser.add_argument("--host", default="127.0.0.1", help=argparse.SUPPRESS)
     parser.add_argument("--port", type=_port_value, default=8080, help="browser client port")
+    parser.add_argument("command", nargs="?", choices=("owner",), help=argparse.SUPPRESS)
+    parser.add_argument(
+        "owner_action", nargs="?",
+        choices=("status", "doctor", "open", "restart", "logs"),
+        help=argparse.SUPPRESS,
+    )
     args = parser.parse_args()
-    if args.json and not (args.check or args.once is not None or args.feedback):
+    if args.owner_action is not None and args.command != "owner":
+        parser.error("owner_action requires the owner command")
+    if args.command == "owner" and args.owner_action is None:
+        parser.error("owner requires one of: status, doctor, open, restart, logs")
+    if args.json and not (
+        args.check or args.once is not None or args.feedback or args.command == "owner"
+    ):
         parser.error("--json requires --check, --once, or --feedback")
     if args.web and (args.check or args.once is not None):
         parser.error("--web cannot be combined with --check or --once")
@@ -4199,6 +4343,10 @@ def main() -> int:
             else:
                 print(f"Not completed — invalid configuration: {exc}")
             return 1
+    if args.command == "owner":
+        if args.json and args.owner_action == "logs":
+            parser.error("--json is not supported with owner logs")
+        return _owner_operation(args.owner_action, args.json)
     if args.check:
         return _print_runtime_report(_runtime_report(), args.json)
     try:

@@ -19,10 +19,10 @@
   "running_release_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
   "live_green_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-reality-daily-driver",
+  "active_checkpoint": "owner-harness-H1-H2",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-reality-daily-driver",
-  "active_campaign": "AEGIS OWNER-REALITY DAILY DRIVER",
+  "current_checkpoint": "owner-harness-H1-H2",
+  "active_campaign": "AEGIS OWNER HARNESS / ACTUAL DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
   "experimental_lane": "Pack-first cognition tournament (isolated; production incumbent unchanged)",
@@ -43,6 +43,19 @@
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
     "release_sha": "cf242eca3a826efe4cfdf2fa1f28a962a9fdef74"
+  },
+  "owner_harness_matrix": {
+    "operations": {"status": "green", "doctor": "green", "open": "green", "restart": "green", "logs": "green"},
+    "conversation": {"desktop": "green", "reload": "red", "browser_reopen": "red", "service_restart": "red", "recent_resume": "red", "new_conversation": "red"},
+    "memory": "foundation; owner loop not yet verified",
+    "finance": "synthetic proof; actual owner import remains red",
+    "homelab": "authorized read proof; configuration UX remains partial",
+    "tasks": "persistent canonical state; reminder surfacing remains partial",
+    "research_workspace": "installed proof",
+    "unsupported": "foundation; owner UX remains partial",
+    "private_phone": "plumbing evidence; human phone acceptance pending",
+    "upgrade_rollback": "manual; owner wrapper pending",
+    "feedback": "installed foundation"
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -422,7 +435,8 @@
     ,"Owner-Reality OSS harvest on 09d5161 records bounded design/test reuse recommendations for Grocy, Mealie, Actual Budget, Firefly III Data Importer, ofxtools, and Nmap without adding runtime dependencies or authority"
   ],
   "current_blockers": [
-    "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only and do not block current Owner-Reality work."
+    "Conversation history is browser-session/DOM-only: reload, browser close, and owner-service restart lose the visible conversation; server-owned Principal-scoped persistence is the next P0 fix.",
+    "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
   "known_runtime_limits": [
@@ -483,7 +497,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Continue owner-real utility on the promoted cf242eca3 owner surface. Select the next bounded Food, Finance, Homelab, Forge, or UI slice from owner dogfood; use the OSS harvest as design/test input only, keep Pack-first experimental, and keep production cognition incumbent.",
+  "next_action": "Install the owner CLI operations on the next hosted-green release, then add the smallest PostgreSQL-backed Principal-scoped conversation store and browser load/resume/new flow; preserve Core semantics and validate reload, browser reopen, restart, authorization, and correlation idempotency.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
