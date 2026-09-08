@@ -19,9 +19,9 @@
   "running_release_sha": "1c34ad3735bbbde50236c9b035d7a966c83aa29b",
   "live_green_sha": "1c34ad3735bbbde50236c9b035d7a966c83aa29b",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-harness-H7-tasks-reminders",
+  "active_checkpoint": "owner-harness-H12-integrated-owner-walkthrough",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-harness-H7-tasks-reminders",
+  "current_checkpoint": "owner-harness-H12-integrated-owner-walkthrough",
   "active_campaign": "AEGIS OWNER HARNESS / ACTUAL DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -58,9 +58,9 @@
     "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
   },
   "owner_value_checkpoint": {
-    "previous": "Installed Today showed generic open-task attention but did not explicitly surface due reminders.",
-    "current": "Installed Today exposes a bounded Due reminders section derived from canonical timezone-aware task timestamps, while Tasks retains full records and mutation authority.",
-    "remaining": "Scotty must use a real reminder, reschedule/complete it, and complete the integrated memory, conversation, Finance, and phone walkthrough."
+    "previous": "Installed AEGIS had separate engineering-green conversation, memory, Finance, reminder, lifecycle, and private-access slices without one owner walkthrough.",
+    "current": "Installed AEGIS now has durable conversation, explicit memory controls, private Finance import surface, due reminders, safe upgrade/rollback, and verified tailnet access ready for one integrated owner session.",
+    "remaining": "Scotty must personally exercise the integrated memory, conversation, reminder, Finance, and phone workflows; no source-only proof can substitute for that acceptance."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
