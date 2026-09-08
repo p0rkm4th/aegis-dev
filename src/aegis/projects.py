@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -50,6 +51,68 @@ class ProjectRegistry:
                 }
             )
         return tuple(result)
+
+    def inspect_for_principal(
+        self, principal_id: str, project_id: str, relative_path: str | None = None
+    ) -> dict[str, Any]:
+        """Return bounded read-only inventory or text from an authorized project."""
+
+        project = next(
+            (
+                item
+                for item in self._load()
+                if item.project_id == project_id and principal_id in item.principal_ids
+            ),
+            None,
+        )
+        if project is None:
+            raise PermissionError("project is not registered for principal")
+        if not project.repository.is_dir() or project.repository.is_symlink():
+            raise ProjectRegistryError("registered project repository is unavailable")
+        if relative_path is None or not relative_path.strip():
+            files: list[str] = []
+            for allowed in project.allowed_paths or (".",):
+                root = project.repository / allowed
+                if root.is_file() and not root.is_symlink():
+                    files.append(str(root.relative_to(project.repository)))
+                elif root.is_dir() and not root.is_symlink():
+                    files.extend(
+                        str(path.relative_to(project.repository))
+                        for path in sorted(root.rglob("*"))
+                        if path.is_file() and not path.is_symlink()
+                    )
+                if len(files) >= 500:
+                    break
+            return {
+                "project_id": project.project_id,
+                "name": project.name,
+                "files": tuple(sorted(set(files))[:500]),
+                "truncated": len(files) > 500,
+            }
+        safe_path = Path(relative_path)
+        if safe_path.is_absolute() or ".." in safe_path.parts or "\\" in relative_path:
+            raise ProjectRegistryError("project path is outside the registered scope")
+        requested = project.repository / safe_path
+        if not requested.is_file() or requested.is_symlink():
+            raise ProjectRegistryError("project file is unavailable")
+        allowed_roots = tuple(project.repository / item for item in project.allowed_paths)
+        if allowed_roots and not any(
+            requested == root or root in requested.parents for root in allowed_roots
+        ):
+            raise PermissionError("project path is outside the registered scope")
+        try:
+            content = requested.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            raise ProjectRegistryError("project file is not readable text") from exc
+        bounded = content[:100_000]
+        return {
+            "project_id": project.project_id,
+            "name": project.name,
+            "path": str(safe_path),
+            "content": bounded,
+            "sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
+            "truncated": len(content) > len(bounded),
+        }
 
     def _load(self) -> tuple[RegisteredProject, ...]:
         try:
