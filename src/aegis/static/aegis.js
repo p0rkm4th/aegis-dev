@@ -195,6 +195,7 @@ function renderSourceBlock(sources) {
 function appendConversationMessage(kind, text, renderedHtml = null, sources = []) {
   const conversation = document.getElementById('conversation');
   conversation.querySelector('.conversation-empty')?.remove();
+  document.querySelector('.intro')?.setAttribute('hidden', '');
   const wasNearBottom = conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 80;
   const line = document.createElement('li');
   line.className = kind;
@@ -265,6 +266,8 @@ function encodeAttachment(bytes) {
 }
 function renderConversation(messages) {
   const conversation = document.getElementById('conversation');
+  const intro = document.querySelector('.intro');
+  if (intro) intro.hidden = messages.length > 0;
   conversation.replaceChildren();
   if (!messages.length) {
     const empty = document.createElement('li'); empty.className = 'conversation-empty';
