@@ -141,8 +141,8 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .status-badge[data-state="candidate"] { border-color: var(--warning); color: var(--warning); }
 
 @media (max-width: 36rem) {
-  #chat { align-items: stretch; flex-direction: column; }
-  #chat button { width: 100%; }
+  #chat { align-items: flex-end; flex-direction: row; }
+  #chat button { width: auto; flex: 0 0 auto; min-height: 3.25rem; }
   .conversation-tools { align-items: stretch; }
   .conversation-tools label { flex: 1 1 9rem; }
   #recent-conversations { flex: 1 1 9rem; }
