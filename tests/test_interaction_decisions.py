@@ -584,6 +584,42 @@ def test_unknown_consequential_clarification_hands_off_to_investigator() -> None
     assert calls[0][2][0].source_spans == ((0, len(intent.utterance)),)
 
 
+def test_unknown_consequential_request_investigates_without_task_wording() -> None:
+    calls = []
+
+    def investigate(intent, context, effects):
+        calls.append((intent, context, effects))
+        return Result(
+            objective_id=uuid4(),
+            state=ObjectiveState.BLOCKED,
+            message="I checked the installed capabilities and found no safe server procedure yet.",
+            evidence={"authoritative": False, "objective_open": True},
+            correlation_id=intent.correlation_id,
+        )
+
+    intent = IntentFrame(
+        principal=Principal(id="alice", vault_id="alice-vault"),
+        utterance="Spin up a Palworld server for the family on easy mode.",
+    )
+    result = resolve_fallback_decision(
+        Decision(
+            kind=DecisionKind.CLARIFY,
+            clarification=(
+                "The available capabilities currently cover Homelab health and inventory reports."
+            ),
+            semantic_mode="CLARIFY",
+        ),
+        intent,
+        Context(),
+        (),
+        investigate,
+    )
+
+    assert isinstance(result, Result)
+    assert "checked the installed capabilities" in result.message
+    assert len(calls) == 1
+
+
 def test_known_domain_clarification_is_not_reclassified_as_unknown() -> None:
     result = resolve_fallback_decision(
         Decision(
