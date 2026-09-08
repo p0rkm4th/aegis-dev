@@ -15,6 +15,7 @@ const maxRecoveryPolls = 60;
 let pendingCorrelationId = null;
 let pendingOutcomeUnknown = false;
 let conversationSessionId = null;
+let conversationLoaded = false;
 let conversationContextCorrelationId = null;
 let selectedNode = null;
 let renderedNodeCards = new Map();
@@ -128,6 +129,53 @@ function appendConversationMessage(kind, text) {
   if (wasNearBottom || kind === 'aegis-message')
     line.scrollIntoView({block: 'nearest', behavior: 'smooth'});
 }
+function renderConversation(messages) {
+  const conversation = document.getElementById('conversation');
+  conversation.replaceChildren();
+  if (!messages.length) {
+    const empty = document.createElement('li'); empty.className = 'conversation-empty';
+    empty.textContent = 'Your conversation will appear here.'; conversation.append(empty); return;
+  }
+  messages.forEach(message => appendConversationMessage(
+    message.role === 'owner' ? 'owner-message' : 'aegis-message',
+    `${message.role === 'owner' ? 'You' : 'AEGIS'}: ${message.display_text}`));
+}
+async function loadConversation(conversationId) {
+  const response = await apiFetch(`/api/conversations/${conversationId}`);
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error || 'conversation unavailable');
+  conversationSessionId = conversationId; conversationLoaded = true;
+  try { sessionStorage.setItem(sessionStorageKey, conversationId); } catch (_) { /* optional */ }
+  renderConversation(payload.messages || []);
+}
+async function initializeConversation() {
+  const response = await apiFetch('/api/conversations');
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error || 'conversation unavailable');
+  const conversations = payload.conversations || [];
+  const current = conversations[0] || (await (async () => {
+    const created = await apiFetch('/api/conversations', {method: 'POST'});
+    return created.json();
+  })());
+  const selector = document.getElementById('recent-conversations');
+  selector.replaceChildren(...conversations.map(item => {
+    const option = document.createElement('option'); option.value = item.conversation_id;
+    option.textContent = new Date(item.updated_at).toLocaleString(); return option;
+  }));
+  selector.value = current.conversation_id;
+  await loadConversation(current.conversation_id);
+}
+document.getElementById('new-conversation').addEventListener('click', async () => {
+  const response = await apiFetch('/api/conversations', {method: 'POST'});
+  const conversation = await response.json();
+  if (!response.ok) return;
+  await loadConversation(conversation.conversation_id);
+  document.getElementById('recent-conversations').append(new Option('New conversation', conversation.conversation_id));
+  document.getElementById('recent-conversations').value = conversation.conversation_id;
+});
+document.getElementById('recent-conversations').addEventListener('change', event => {
+  if (event.target.value) loadConversation(event.target.value).catch(() => {});
+});
 const composer = document.getElementById('utterance');
 composer.addEventListener('input', resizeComposer);
 composer.addEventListener('keydown', event => {
@@ -2877,7 +2925,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   event.preventDefault(); const form = event.currentTarget;
   const input = document.getElementById('utterance');
   const send = form.querySelector('button');
-  const utterance = input.value.trim(); if (!utterance || send.disabled) return;
+  const utterance = input.value.trim(); if (!utterance || send.disabled || !conversationLoaded) return;
   if (pendingOutcomeUnknown) {
     recoverPendingRequest();
     return;
@@ -3008,6 +3056,10 @@ document.querySelectorAll('[data-feedback]').forEach(button =>
 }));
 restorePendingRequest();
 recoverPendingRequest();
+initializeConversation().catch(() => {
+  document.getElementById('activity').textContent =
+    'Conversation history is unavailable; the owner service needs attention.';
+});
 
 // Small progressive enhancement for the owner shell. Core routing remains in
 // the existing bounded browser adapter; this only controls presentation.
