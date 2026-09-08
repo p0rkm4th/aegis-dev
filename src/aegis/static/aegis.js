@@ -169,6 +169,11 @@ function setChatControlsBusy(busy) {
     const control = document.getElementById(id);
     if (control) control.disabled = busy;
   });
+  const attachmentsBlocked = busy || Boolean(document.getElementById('chat-project')?.value);
+  ['attachment-file', 'attachment-dropzone'].forEach(id => {
+    const control = document.getElementById(id);
+    if (control) control.disabled = attachmentsBlocked;
+  });
   const form = document.getElementById('chat');
   if (form) form.dataset.busy = busy ? 'true' : 'false';
   const hint = document.getElementById('composer-hint');
@@ -348,8 +353,20 @@ function updateChatProjectContext() {
   const active = Boolean(selector.value);
   status.textContent = active ? `Active: ${option?.textContent || 'read-only project'}` : '';
   clear.hidden = !active;
+  const attachmentsBlocked = active || document.getElementById('chat')?.dataset.busy === 'true';
+  ['attachment-file', 'attachment-dropzone'].forEach(id => {
+    const control = document.getElementById(id);
+    if (control) control.disabled = attachmentsBlocked;
+  });
 }
-document.getElementById('chat-project').addEventListener('change', updateChatProjectContext);
+document.getElementById('chat-project').addEventListener('change', event => {
+  if (event.currentTarget.value && conversationAttachments.length) {
+    event.currentTarget.value = '';
+    document.getElementById('attachment-status').textContent =
+      'Remove attached files before using Project context.';
+  }
+  updateChatProjectContext();
+});
 document.getElementById('clear-chat-project').addEventListener('click', () => {
   document.getElementById('chat-project').value = '';
   updateChatProjectContext();

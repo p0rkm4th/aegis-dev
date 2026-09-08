@@ -5622,6 +5622,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Independent tests:" in _AEGIS_JS
     assert "attachment-dropzone" in _AEGIS_JS
     assert "Ready for next message" in _AEGIS_JS
+    assert "Remove attached files before using Project context." in _AEGIS_JS
+    assert "attachmentsBlocked" in _AEGIS_JS
     assert 'id="attachment-dropzone"' in _INDEX_HTML
     assert 'id="chat-project"' in _INDEX_HTML
     assert "project_id" in _AEGIS_JS
