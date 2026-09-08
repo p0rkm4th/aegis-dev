@@ -362,12 +362,14 @@ async function initializeConversation() {
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error || 'conversation unavailable');
   const conversations = payload.conversations || [];
-  const current = conversations[0] || (await (async () => {
+  const current = conversations.find(item => item.conversation_id === conversationSessionId) ||
+    conversations[0] || (await (async () => {
     const created = await apiFetch('/api/conversations', {method: 'POST'});
     return created.json();
   })());
   const selector = document.getElementById('recent-conversations');
-  selector.replaceChildren(...conversations.map(item => {
+  const availableConversations = conversations.length ? conversations : [current];
+  selector.replaceChildren(...availableConversations.map(item => {
     const option = document.createElement('option'); option.value = item.conversation_id;
     option.textContent = conversationOptionTitle(item); return option;
   }));
