@@ -99,7 +99,7 @@ from aegis.identity import (
     Vault,
 )
 from aegis.kernel import Kernel
-from aegis.migrations import validate_migrations
+from aegis.migrations import validate_migrations, validate_packaged_migrations
 from aegis.model_router import BaselineMetrics, ConfiguredModelRouter, ModelUnavailable
 from aegis.network import (
     AuthorizedNetworkScope,
@@ -6096,7 +6096,7 @@ def test_runtime_identity_does_not_expose_configuration_secrets(monkeypatch):
 
 
 def test_migration_manifest_is_contiguous_and_nonempty():
-    assert validate_migrations() == (
+    expected = (
         "001_initial.sql",
         "002_audit_hash_chain.sql",
         "003_pack_installations.sql",
@@ -6117,6 +6117,8 @@ def test_migration_manifest_is_contiguous_and_nonempty():
         "018_attachments.sql",
         "019_developer_jobs.sql",
     )
+    assert validate_migrations() == expected
+    assert validate_packaged_migrations() == expected
 
 
 def test_openclaw_ambient_adapter_preserves_correlation_and_idempotency():

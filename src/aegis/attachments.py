@@ -73,6 +73,9 @@ class PostgresAttachmentStore:
         digest = hashlib.sha256(content).hexdigest()
         bounded = extracted[:MAX_EXTRACTED_CHARS]
         connection = self._connection()
+        staged: Path | None = None
+        placed: Path | None = None
+        committed = False
         try:
             owned = connection.execute(
                 "SELECT 1 FROM conversations WHERE id = %s AND principal_id = %s",
@@ -80,17 +83,25 @@ class PostgresAttachmentStore:
             ).fetchone()
             if owned is None:
                 raise PermissionError("conversation is not owned by principal")
+            existing = connection.execute(
+                "SELECT id, original_filename, media_type, byte_size, sha256, "
+                "extraction_state, created_at FROM conversation_attachments "
+                "WHERE principal_id = %s AND conversation_id = %s AND sha256 = %s",
+                (principal_id, conversation_id, digest),
+            ).fetchone()
+            if existing is not None:
+                return self._row(existing)
             target_dir = self.root / "attachments" / principal_id / str(conversation_id)
             target_dir.mkdir(parents=True, exist_ok=True)
             target = target_dir / f"{attachment_id}{suffix}"
-            target.write_bytes(content)
+            staged = target_dir / f".{attachment_id}.upload"
+            staged.write_bytes(content)
             row = connection.execute(
                 "INSERT INTO conversation_attachments "
                 "(id, principal_id, conversation_id, original_filename, media_type, byte_size, "
                 "sha256, extraction_state, extracted_text) VALUES "
                 "(%s, %s, %s, %s, %s, %s, %s, 'extracted', %s) "
-                "ON CONFLICT (principal_id, conversation_id, sha256) DO UPDATE SET "
-                "original_filename = EXCLUDED.original_filename "
+                "ON CONFLICT (principal_id, conversation_id, sha256) DO NOTHING "
                 "RETURNING id, original_filename, media_type, byte_size, sha256, "
                 "extraction_state, created_at",
                 (
@@ -104,10 +115,36 @@ class PostgresAttachmentStore:
                     bounded,
                 ),
             ).fetchone()
+            if row is None:
+                row = connection.execute(
+                    "SELECT id, original_filename, media_type, byte_size, sha256, "
+                    "extraction_state, created_at FROM conversation_attachments "
+                    "WHERE principal_id = %s AND conversation_id = %s AND sha256 = %s",
+                    (principal_id, conversation_id, digest),
+                ).fetchone()
+                if row is None:
+                    raise AttachmentError("attachment conflict did not resolve to a canonical row")
+                connection.commit()
+                committed = True
+                return self._row(row)
+            target = target_dir / f"{row[0]}{suffix}"
+            staged.replace(target)
+            placed = target
             connection.commit()
+            committed = True
             assert row is not None
             return self._row(row)
+        except Exception:
+            try:
+                connection.rollback()
+            except Exception:
+                pass
+            raise
         finally:
+            if staged is not None and staged.exists():
+                staged.unlink()
+            if not committed and placed is not None and placed.exists():
+                placed.unlink()
             connection.close()
 
     def list(self, principal_id: str, conversation_id: UUID) -> builtin_list[dict[str, Any]]:

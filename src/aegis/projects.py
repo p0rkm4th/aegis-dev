@@ -10,6 +10,28 @@ from pathlib import Path
 from typing import Any
 
 _PROJECT_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
+_PRIVATE_NAMES = {".git", ".env", ".ssh"}
+
+
+def _has_symlink_component(path: Path) -> bool:
+    current = Path(path.anchor) if path.anchor else Path()
+    for part in path.parts[1:] if path.is_absolute() else path.parts:
+        current = current / part
+        if current.is_symlink():
+            return True
+    return False
+
+
+def _valid_relative_scope(value: str) -> bool:
+    path = Path(value)
+    return bool(
+        value.strip()
+        and not path.is_absolute()
+        and "\\" not in value
+        and ".." not in path.parts
+        and value not in {".", ".."}
+        and not any(part in _PRIVATE_NAMES or part.startswith(".env") for part in path.parts)
+    )
 
 
 class ProjectRegistryError(ValueError):
@@ -27,6 +49,20 @@ class RegisteredProject:
     principal_ids: tuple[str, ...]
 
 
+def validate_registered_project(project: RegisteredProject, *, require_scope: bool = True) -> None:
+    """Reject filesystem registrations whose authority can be redirected by symlinks."""
+
+    if not project.repository.is_absolute() or _has_symlink_component(project.repository):
+        raise ProjectRegistryError("project repository must be an absolute non-symlink path")
+    if require_scope and not project.allowed_paths:
+        raise ProjectRegistryError("project modification requires explicit allowed paths")
+    for relative in project.allowed_paths:
+        if not _valid_relative_scope(relative):
+            raise ProjectRegistryError("project scope is invalid")
+        if _has_symlink_component(project.repository / relative):
+            raise ProjectRegistryError("project scope cannot contain symlink components")
+
+
 class ProjectRegistry:
     """Load explicit project registrations without granting filesystem authority."""
 
@@ -39,7 +75,11 @@ class ProjectRegistry:
         for project in projects:
             if principal_id not in project.principal_ids:
                 continue
-            repository_exists = project.repository.is_dir() and not project.repository.is_symlink()
+            repository_exists = (
+                project.repository.is_dir()
+                and not project.repository.is_symlink()
+                and not _has_symlink_component(project.repository)
+            )
             result.append(
                 {
                     "project_id": project.project_id,
@@ -67,7 +107,11 @@ class ProjectRegistry:
         )
         if project is None:
             raise PermissionError("project is not registered for principal")
-        if not project.repository.is_dir() or project.repository.is_symlink():
+        if (
+            not project.repository.is_dir()
+            or project.repository.is_symlink()
+            or _has_symlink_component(project.repository)
+        ):
             raise ProjectRegistryError("registered project repository is unavailable")
         if relative_path is None or not relative_path.strip():
             files: list[str] = []
@@ -95,6 +139,8 @@ class ProjectRegistry:
         requested = project.repository / safe_path
         if not requested.is_file() or requested.is_symlink():
             raise ProjectRegistryError("project file is unavailable")
+        if _has_symlink_component(requested):
+            raise ProjectRegistryError("project path is unavailable")
         allowed_roots = tuple(project.repository / item for item in project.allowed_paths)
         if allowed_roots and not any(
             requested == root or root in requested.parents for root in allowed_roots
@@ -169,22 +215,26 @@ class ProjectRegistry:
                 or len(default_branch) > 200
                 or (remote is not None and (not isinstance(remote, str) or len(remote) > 2_000))
                 or not isinstance(allowed_paths, list)
+                or not allowed_paths
                 or len(allowed_paths) > 100
                 or any(
-                    not isinstance(item, str)
-                    or not item.strip()
-                    or item.startswith("/")
-                    or ".." in Path(item).parts
+                    not isinstance(item, str) or not _valid_relative_scope(item)
                     for item in allowed_paths
                 )
             ):
                 raise ProjectRegistryError("project registration is invalid")
+            repository_path = Path(repository)
+            if _has_symlink_component(repository_path):
+                raise ProjectRegistryError("project repository cannot contain symlink components")
+            for allowed in allowed_paths:
+                if _has_symlink_component(repository_path / allowed):
+                    raise ProjectRegistryError("project scope cannot contain symlink components")
             seen.add(project_id)
             projects.append(
                 RegisteredProject(
                     project_id,
                     name.strip(),
-                    Path(repository).resolve(),
+                    repository_path,
                     remote.strip() if isinstance(remote, str) and remote.strip() else None,
                     default_branch.strip(),
                     tuple(item.strip() for item in allowed_paths),
