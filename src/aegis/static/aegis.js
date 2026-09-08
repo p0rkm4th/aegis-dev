@@ -277,11 +277,11 @@ composer.addEventListener('keydown', event => {
   }
 });
 resizeComposer();
-document.getElementById('attachment-file').addEventListener('change', async event => {
-  const input = event.currentTarget; const file = input.files?.[0];
+async function uploadAttachment(file) {
   if (!file) return;
   const status = document.getElementById('attachment-status');
-  if (file.size > 200000) { status.textContent = 'File is over the 200 KB limit.'; input.value = ''; return; }
+  const input = document.getElementById('attachment-file');
+  if (file.size > 200000) { status.textContent = 'File is over the 200 KB limit.'; return; }
   status.textContent = 'Reading file…'; input.disabled = true;
   try {
     const content = encodeAttachment(new Uint8Array(await file.arrayBuffer()));
@@ -294,6 +294,23 @@ document.getElementById('attachment-file').addEventListener('change', async even
     status.textContent = 'Attached. Ask AEGIS about it.';
   } catch (error) { status.textContent = error.message || 'Attachment unavailable.'; }
   finally { input.disabled = false; input.value = ''; }
+}
+document.getElementById('attachment-file').addEventListener('change', event => {
+  uploadAttachment(event.currentTarget.files?.[0]);
+});
+const attachmentDropzone = document.getElementById('attachment-dropzone');
+attachmentDropzone.addEventListener('dragover', event => {
+  event.preventDefault(); attachmentDropzone.classList.add('is-dragging');
+});
+attachmentDropzone.addEventListener('dragleave', () => attachmentDropzone.classList.remove('is-dragging'));
+attachmentDropzone.addEventListener('drop', event => {
+  event.preventDefault(); attachmentDropzone.classList.remove('is-dragging');
+  uploadAttachment(event.dataTransfer?.files?.[0]);
+});
+attachmentDropzone.addEventListener('keydown', event => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault(); document.getElementById('attachment-file').click();
+  }
 });
 document.getElementById('jump-latest').addEventListener('click', () => {
   const conversation = document.getElementById('conversation');

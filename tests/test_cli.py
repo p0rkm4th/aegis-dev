@@ -5614,6 +5614,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Recent Developer jobs" in _AEGIS_JS
     assert "View job result" in _AEGIS_JS
     assert "Independent tests:" in _AEGIS_JS
+    assert "attachment-dropzone" in _AEGIS_JS
+    assert 'id="attachment-dropzone"' in _INDEX_HTML
     assert "pantry_low_items" in _AEGIS_JS
     assert "Canonical inventory" in _AEGIS_JS
     assert "Canonical and observed inventory" in _AEGIS_JS
