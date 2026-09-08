@@ -505,7 +505,10 @@ def _owner_service_value(property_name: str) -> str | None:
     try:
         result = subprocess.run(
             ["systemctl", "--user", "show", "aegis-owner.service", f"--property={property_name}"],
-            check=False, capture_output=True, text=True, timeout=4,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=4,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None
@@ -514,7 +517,7 @@ def _owner_service_value(property_name: str) -> str | None:
     prefix = f"{property_name}="
     for line in result.stdout.splitlines():
         if line.startswith(prefix):
-            value = line[len(prefix):].strip()
+            value = line[len(prefix) :].strip()
             return value or None
     return None
 
@@ -567,7 +570,10 @@ def _owner_operation(action: str, as_json: bool) -> int:
     if action == "restart":
         result = subprocess.run(
             ["systemctl", "--user", "restart", "aegis-owner.service"],
-            check=False, capture_output=True, text=True, timeout=20,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=20,
         )
         if result.returncode:
             message = "service restart failed; run `aegis owner doctor` for remediation"
@@ -581,7 +587,8 @@ def _owner_operation(action: str, as_json: bool) -> int:
     if action == "logs":
         return subprocess.run(
             ["journalctl", "--user", "-u", "aegis-owner.service", "-n", "40", "--no-pager"],
-            check=False, timeout=8,
+            check=False,
+            timeout=8,
         ).returncode
     if action == "open":
         url, private = _owner_url()
@@ -598,14 +605,19 @@ def _owner_operation(action: str, as_json: bool) -> int:
     ready, ready_detail = _owner_http_probe(url, "/api/ready")
     truth = _owner_release_truth()
     payload = {
-        **truth, "service": service_state, "ready": ready, "ready_detail": ready_detail,
-        "owner_url": url, "private_url": private,
+        **truth,
+        "service": service_state,
+        "ready": ready,
+        "ready_detail": ready_detail,
+        "owner_url": url,
+        "private_url": private,
         "model": os.environ.get("AEGIS_OLLAMA_MODEL", "qwen3:8b"),
         "workspace": os.environ.get("AEGIS_WORKSPACE_ROOT", "configured by owner service"),
     }
     if action == "doctor":
         payload["remediation"] = (
-            "No action needed." if service_state == "active" and ready
+            "No action needed."
+            if service_state == "active" and ready
             else (
                 "Run `aegis owner restart`, then `aegis owner logs`; "
                 "repair the failing readiness check."
@@ -617,8 +629,7 @@ def _owner_operation(action: str, as_json: bool) -> int:
         print(f"AEGIS owner {'doctor' if action == 'doctor' else 'status'}")
         print(f"service: {service_state}")
         print(
-            f"release: installed {truth['installed_release']} · "
-            f"running {truth['running_release']}"
+            f"release: installed {truth['installed_release']} · running {truth['running_release']}"
         )
         print(f"readiness: {'READY' if ready else 'NOT READY'} ({ready_detail})")
         print(f"owner URL: {url}{' (private)' if private else ''}")
@@ -4297,7 +4308,8 @@ def main() -> int:
     parser.add_argument("--port", type=_port_value, default=8080, help="browser client port")
     parser.add_argument("command", nargs="?", choices=("owner",), help=argparse.SUPPRESS)
     parser.add_argument(
-        "owner_action", nargs="?",
+        "owner_action",
+        nargs="?",
         choices=("status", "doctor", "open", "restart", "logs"),
         help=argparse.SUPPRESS,
     )
