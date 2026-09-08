@@ -72,6 +72,7 @@ from .pack_lifecycle import PackManager, PostgresPackStore
 from .pack_runtime import PackRuntimeRegistry
 from .personal import (
     ExplicitMemoryCapture,
+    OwnerCorrectionLearning,
     PersonalMemoryFastPath,
     PersonalState,
     PostgresPersonalStateStore,
@@ -2320,6 +2321,11 @@ def resolve_reference_fast_paths(
     personal_state = PostgresPersonalStateStore(connection, principal.vault_id).load_for_principal(
         principal
     )
+    correction = OwnerCorrectionLearning(personal_state).resolve(intent)
+    if correction is not None:
+        if correction.state is ObjectiveState.COMPLETED:
+            PostgresPersonalStateStore(connection, principal.vault_id).save(personal_state)
+        return correction
     memory_capture = ExplicitMemoryCapture(personal_state)
     result = memory_capture.resolve(intent)
     if result is not None:

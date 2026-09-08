@@ -46,3 +46,13 @@ without recovery metadata remains owner-visible and is never silently
 reawakened. Owner blockage is emitted only when bounded recovery cannot safely
 continue without owner input; recovery never changes Kernel authority,
 approval, verification, or external-unknown semantics.
+
+## Compounding owner corrections
+
+Interaction output may produce a bounded `OWNER_CORRECTION` learning
+candidate, but only Core-validated, provenance-bearing, Vault-scoped owner
+evidence enters canonical PersonalState. The correction path grounds
+replacement content in the current owner utterance, supersedes the old
+MemoryRecord, and reuses normal retrieval; transcripts, assistant prose, and
+retrieved evidence are not canonical memory. Learned context can inform
+identity, but never creates permission or authority.
