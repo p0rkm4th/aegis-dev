@@ -834,6 +834,10 @@ def _workspace_state(principal: Principal) -> dict[str, Any]:
 def _project_state(principal: Principal) -> dict[str, Any]:
     """Expose only explicitly registered, Principal-scoped project metadata."""
 
+    return {"projects": _project_registry().for_principal(principal.id)}
+
+
+def _project_registry() -> ProjectRegistry:
     configured = os.environ.get("AEGIS_PROJECTS_FILE")
     path = (
         Path(configured)
@@ -841,7 +845,13 @@ def _project_state(principal: Principal) -> dict[str, Any]:
         else Path(os.environ.get("AEGIS_WORKSPACE_ROOT", "/tmp/aegis-owner-workspaces"))
         / "projects.json"
     )
-    return {"projects": ProjectRegistry(path).for_principal(principal.id)}
+    return ProjectRegistry(path)
+
+
+def _project_inspection(
+    principal: Principal, project_id: str, relative_path: str | None
+) -> dict[str, Any]:
+    return _project_registry().inspect_for_principal(principal.id, project_id, relative_path)
 
 
 def _conversation_store() -> PostgresConversationStore:
@@ -4740,6 +4750,7 @@ def main() -> int:
                 systems_discover=_systems_discover,
                 systems_scope_configure=_systems_scope_configure,
                 project_state=_project_state,
+                project_inspection=_project_inspection,
                 weather_state=_weather_state,
                 air_quality_state=_air_quality_state,
                 today_state=_today_state,

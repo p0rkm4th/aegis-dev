@@ -993,6 +993,38 @@ async function loadProjects() {
         const scope = document.createElement('p'); scope.className = 'muted';
         scope.textContent = 'Read scope: repository root'; card.append(scope);
       }
+      if (project.repository_state === 'ready') {
+        const inspect = document.createElement('button');
+        inspect.type = 'button'; inspect.textContent = 'Inspect registered files';
+        inspect.addEventListener('click', async () => {
+          inspect.disabled = true;
+          try {
+            const response = await apiFetch(`/api/projects/${encodeURIComponent(project.project_id)}/inspect`);
+            const inventory = await response.json();
+            if (!response.ok) throw new Error(inventory.error || 'Project unavailable.');
+            const list = document.createElement('ul'); list.className = 'project-files';
+            (inventory.files || []).slice(0, 100).forEach(path => {
+              const item = document.createElement('li');
+              const file = document.createElement('button'); file.type = 'button';
+              file.textContent = `Read ${path}`;
+              file.addEventListener('click', async () => {
+                const fileResponse = await apiFetch(
+                  `/api/projects/${encodeURIComponent(project.project_id)}/inspect?path=${encodeURIComponent(path)}`);
+                const filePayload = await fileResponse.json();
+                if (!fileResponse.ok) { file.textContent = 'File unavailable'; return; }
+                const pre = document.createElement('pre'); pre.className = 'detail-card';
+                pre.textContent = filePayload.content || '';
+                item.append(pre); file.disabled = true;
+              });
+              item.append(file); list.append(item);
+            });
+            card.append(list);
+            inspect.textContent = inventory.truncated ? 'Registered files (first 100)' : 'Registered files';
+          } catch (_) { inspect.textContent = 'Project unavailable'; }
+          finally { inspect.disabled = false; }
+        });
+        card.append(inspect);
+      }
       panel.append(card);
     });
   } catch (_) {

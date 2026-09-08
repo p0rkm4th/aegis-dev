@@ -59,6 +59,25 @@ def test_project_registry_reports_missing_repository_without_exposing_path(tmp_p
     assert str(tmp_path / "missing") not in json.dumps(project)
 
 
+def test_project_registry_inspects_only_registered_relative_text(tmp_path: Path) -> None:
+    repository = tmp_path / "repo"
+    (repository / "src").mkdir(parents=True)
+    (repository / "src" / "main.py").write_text("print('safe')", encoding="utf-8")
+    (repository / "secret.txt").write_text("private", encoding="utf-8")
+    config = tmp_path / "projects.json"
+    _write_registry(config, repository)
+    registry = ProjectRegistry(config)
+
+    inventory = registry.inspect_for_principal("alice", "aegis")
+    assert inventory["files"] == ("src/main.py",)
+    file_projection = registry.inspect_for_principal("alice", "aegis", "src/main.py")
+    assert file_projection["content"] == "print('safe')"
+    with pytest.raises(PermissionError):
+        registry.inspect_for_principal("alice", "aegis", "secret.txt")
+    with pytest.raises(ValueError):
+        registry.inspect_for_principal("alice", "aegis", "../secret.txt")
+
+
 def test_project_registry_rejects_unscoped_or_invalid_registration(tmp_path: Path) -> None:
     config = tmp_path / "projects.json"
     config.write_text(json.dumps({"projects": [{"project_id": "aegis"}]}), encoding="utf-8")
@@ -81,3 +100,28 @@ def test_browser_projects_route_preserves_owner_boundary() -> None:
     )
     assert status == 200
     assert json.loads(payload) == {"projects": [{"name": "alice"}]}
+
+
+def test_browser_project_inspection_route_is_bounded() -> None:
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        project_inspection=lambda current, project_id, path: {
+            "project_id": project_id,
+            "path": path,
+            "principal": current.id,
+        },
+        session_token="session-secret",
+    )
+    status, _, payload = app.dispatch(
+        "GET",
+        "/api/projects/aegis/inspect?path=src%2Fmain.py",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 200
+    assert json.loads(payload) == {
+        "project_id": "aegis",
+        "path": "src/main.py",
+        "principal": "alice",
+    }

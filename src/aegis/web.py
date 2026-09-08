@@ -36,6 +36,7 @@ SystemsState = Callable[[Principal], dict[str, Any]]
 SystemsDiscover = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 SystemsScopeConfigure = Callable[[Principal, dict[str, Any]], dict[str, Any]]
 ProjectState = Callable[[Principal], dict[str, Any]]
+ProjectInspection = Callable[[Principal, str, str | None], dict[str, Any]]
 WeatherState = Callable[[Principal], dict[str, Any]]
 AirQualityState = Callable[[Principal], dict[str, Any]]
 
@@ -298,6 +299,7 @@ class BrowserApp:
         systems_discover: SystemsDiscover | None = None,
         systems_scope_configure: SystemsScopeConfigure | None = None,
         project_state: ProjectState | None = None,
+        project_inspection: ProjectInspection | None = None,
         weather_state: WeatherState | None = None,
         air_quality_state: AirQualityState | None = None,
         today_state: TodayState | None = None,
@@ -341,6 +343,7 @@ class BrowserApp:
         self.systems_discover = systems_discover
         self.systems_scope_configure = systems_scope_configure
         self.project_state = project_state
+        self.project_inspection = project_inspection
         self.weather_state = weather_state
         self.air_quality_state = air_quality_state
         self.today_state = today_state
@@ -759,6 +762,32 @@ class BrowserApp:
                     "Projects state unavailable",
                 )
             return self._json(HTTPStatus.OK, projects_projection)
+        project_prefix = "/api/projects/"
+        if method == "GET" and route.startswith(project_prefix) and route.endswith("/inspect"):
+            if self.project_inspection is None:
+                return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
+            project_id = route[len(project_prefix) : -len("/inspect")]
+            query = parse_qs(urlparse(path).query, keep_blank_values=True)
+            if (
+                not project_id
+                or set(query) - {"path"}
+                or any(len(values) != 1 for values in query.values())
+            ):
+                return self._error(
+                    HTTPStatus.BAD_REQUEST, "invalid_request", "invalid project request"
+                )
+            relative_path = query.get("path", [None])[0]
+            try:
+                project_projection = self.project_inspection(principal, project_id, relative_path)
+            except PermissionError:
+                return self._error(
+                    HTTPStatus.FORBIDDEN, "state_access_denied", "project access denied"
+                )
+            except (TypeError, ValueError, OSError):
+                return self._error(
+                    HTTPStatus.NOT_FOUND, "project_unavailable", "project is unavailable"
+                )
+            return self._json(HTTPStatus.OK, project_projection)
         if method == "POST" and route == "/api/systems/discover":
             if self.systems_discover is None:
                 return self._error(HTTPStatus.NOT_FOUND, "route_not_found", "route not found")
@@ -1326,6 +1355,7 @@ def serve(
     systems_discover: SystemsDiscover | None = None,
     systems_scope_configure: SystemsScopeConfigure | None = None,
     project_state: ProjectState | None = None,
+    project_inspection: ProjectInspection | None = None,
     weather_state: WeatherState | None = None,
     air_quality_state: AirQualityState | None = None,
     today_state: TodayState | None = None,
@@ -1372,6 +1402,7 @@ def serve(
         systems_discover=systems_discover,
         systems_scope_configure=systems_scope_configure,
         project_state=project_state,
+        project_inspection=project_inspection,
         weather_state=weather_state,
         air_quality_state=air_quality_state,
         today_state=today_state,
