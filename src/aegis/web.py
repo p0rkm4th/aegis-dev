@@ -256,11 +256,11 @@ _INDEX_HTML = """<!doctype html>
 <div class="conversation-tools"><button id="new-conversation" type="button">New conversation</button><label for="recent-conversations">Recent <select id="recent-conversations"><option value="">Current conversation</option></select></label><label for="chat-project">Project context <select id="chat-project"><option value="">None · normal AEGIS</option></select></label><span id="chat-project-status" class="muted" aria-live="polite"></span><button id="clear-chat-project" type="button" hidden>Clear context</button></div>
 <h2 class="sr-only">Conversation</h2><ol id="conversation" role="log" aria-live="polite" aria-relevant="additions text"><li class="conversation-empty">Your conversation will appear here.</li></ol><button id="jump-latest" class="jump-latest" type="button" hidden>Jump to latest</button>
 <div class="chat-progress" aria-live="polite"><p id="activity" class="muted" aria-atomic="true"></p><p id="step-status" class="muted"></p><p id="status-badge" class="status-badge" data-state="idle">Ready</p></div>
-<form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
+<div class="composer-dock" aria-label="Message composer"><form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><button>Send</button></form>
 <div class="attachment-tools"><label class="attachment-picker" for="attachment-file">Attach a file<input id="attachment-file" type="file" accept=".txt,.md,.csv,.json,.py,.js,.ts,.css,.html,.sql,.toml,.yaml,.yml,.ini,.cfg,.conf,.log" /></label><div id="attachment-dropzone" class="attachment-dropzone" role="button" tabindex="0" aria-label="Drop a text file to attach">Drop a text file here</div><span id="attachment-status" class="muted" aria-live="polite"></span><ul id="attachments" aria-label="Conversation attachments"></ul></div>
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
-<p id="draft-status" class="muted" aria-live="polite"></p>
+<p id="draft-status" class="muted" aria-live="polite"></p></div>
 <details class="chat-advanced"><summary>Response details</summary><p id="answer" class="muted" aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
 </details><p id="feedback" class="feedback-inline" hidden>Was this useful?
