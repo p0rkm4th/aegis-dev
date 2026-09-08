@@ -19,9 +19,9 @@
   "running_release_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
   "live_green_sha": "18961a3361faf6444ace115ddb456537a2e84eaf",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-harness-H9-unsupported-ux",
+  "active_checkpoint": "owner-harness-H12-integrated-owner-walkthrough",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-harness-H9-unsupported-ux",
+  "current_checkpoint": "owner-harness-H12-integrated-owner-walkthrough",
   "active_campaign": "AEGIS OWNER HARNESS / ACTUAL DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -55,12 +55,12 @@
     "unsupported": {"state": "ENGINEERING_GREEN", "basis_sha": "3c6003b5a33a5590590b63eb2cd267bc38979582", "owner_acceptance": "ordinary unsupported request must be exercised by Scotty; advanced CapabilityNeed/Forge detail remains available"},
     "private_phone": {"state": "ENGINEERING_GREEN", "basis_sha": "b84692e6a64d736d7efdeaf7f6cf1ae849758c58", "owner_acceptance": "pending Scotty opening the private URL on phone"},
     "upgrade_rollback": {"state": "ENGINEERING_GREEN", "basis_sha": "d5ca12db1736248d4141fb8980c1d3721f36414c", "owner_acceptance": "pending ordinary-owner upgrade/rollback walkthrough"},
-    "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
+    "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "18961a3361faf6444ace115ddb456537a2e84eaf", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
   },
   "owner_value_checkpoint": {
     "previous": "Unsupported chat responses were improved, but Today/Objectives still led with internal capability terminology.",
     "current": "Installed AEGIS uses owner language across chat, Today, and Objectives while retaining advanced Forge detail only in the review surface.",
-    "remaining": "Scotty must exercise one genuinely useful unsupported request and complete the integrated memory, conversation, reminder, Finance, Homelab, and phone walkthrough."
+    "remaining": "All engineering rows are installed-green; Scotty must complete the integrated memory, conversation, reminder, Finance, Homelab, unsupported, feedback, lifecycle, and phone walkthrough."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
