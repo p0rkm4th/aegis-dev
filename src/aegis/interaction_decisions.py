@@ -24,7 +24,6 @@ def _unknown_consequential_objective(intent: IntentFrame, clarification: str) ->
     """Recognize a domain-mismatch clarification without inventing an effect."""
 
     text = " ".join(intent.utterance.casefold().split())
-    clarification_text = clarification.casefold()
     action_language = (
         "spin up" in text
         or "set up" in text
@@ -50,8 +49,13 @@ def _unknown_consequential_objective(intent: IntentFrame, clarification: str) ->
             "network",
         )
     )
-    domain_mismatch = any(term in clarification_text for term in ("task", "chore", "event"))
-    return action_language and domain_mismatch and not known_domain
+    # An unsupported consequential request should reach the bounded
+    # capability investigator even when the model's clarification does not
+    # happen to mention one of the known domain nouns.  The owner utterance
+    # is the safer signal here: action language outside an existing domain
+    # means Core may have a missing capability to investigate, rather than an
+    # owner ambiguity to bounce back unchanged.
+    return action_language and not known_domain
 
 
 def resolve_fallback_decision(
