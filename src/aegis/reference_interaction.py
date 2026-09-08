@@ -2325,6 +2325,28 @@ def resolve_reference_fast_paths(
     if correction is not None:
         if correction.state is ObjectiveState.COMPLETED:
             PostgresPersonalStateStore(connection, principal.vault_id).save(personal_state)
+        learning = correction.evidence.get("learning")
+        if isinstance(learning, dict):
+            disposition = str(learning.get("disposition", "discard"))
+            event_type = {
+                "commit": "personal.learning_committed",
+                "confirm": "personal.learning_confirmation_required",
+            }.get(disposition, "personal.learning_discarded")
+            payload = {
+                "kind": learning.get("kind"),
+                "disposition": disposition,
+                "target_memory_id": learning.get("target_memory_id"),
+                "new_memory_id": learning.get("new_memory_id"),
+                "candidate_count": learning.get("candidate_count"),
+                "correlation_id": str(intent.correlation_id),
+            }
+            try:
+                PostgresAuditLog(connection).append(event_type, principal.id, payload)
+            except Exception:
+                try:
+                    connection.rollback()
+                except Exception:
+                    pass
         return correction
     memory_capture = ExplicitMemoryCapture(personal_state)
     result = memory_capture.resolve(intent)
