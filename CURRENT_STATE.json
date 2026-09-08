@@ -19,9 +19,9 @@
   "running_release_sha": "c87e534033c2fc9b4e774a5d3f19a3be80c68564",
   "live_green_sha": "c87e534033c2fc9b4e774a5d3f19a3be80c68564",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-harness-H1-H2",
+  "active_checkpoint": "owner-harness-H2-H3",
   "checkpoint_status": "in_progress",
-  "current_checkpoint": "owner-harness-H1-H2",
+  "current_checkpoint": "owner-harness-H2-H3",
   "active_campaign": "AEGIS OWNER HARNESS / ACTUAL DAILY DRIVER",
   "primary_proving_domains": ["Food / Pantry", "Finance", "Homelab / Network", "CapabilityNeed / Pack Forge"],
   "parallel_lane": "UI / UX",
@@ -56,6 +56,11 @@
     "private_phone": {"state": "RED", "blocker": "human phone acceptance pending"},
     "upgrade_rollback": {"state": "RED", "blocker": "manual release operations"},
     "feedback": {"state": "ENGINEERING_GREEN", "blocker": "normal owner feedback UX remains partial"}
+  },
+  "owner_value_checkpoint": {
+    "previous": "Browser chat existed but its visible transcript vanished on reload, browser reopen, or service restart.",
+    "current": "Installed AEGIS stores Principal-scoped bounded conversation turns in PostgreSQL and resumes them after owner-service restart.",
+    "remaining": "Scotty must personally confirm normal browser reload/close-reopen usability and a bounded follow-up before owner acceptance."
   },
   "current_capability_claims": {
     "external_effect_assurance": "Communications and Calendar preserve NOT_ATTEMPTED, DEFINITELY_REJECTED, PROVIDER_ACCEPTED, EFFECT_VERIFIED, and durable OUTCOME_UNKNOWN with no blind replay; installed owner proof reconciled one unknown send after restart with zero duplicate provider records",
@@ -435,7 +440,7 @@
     ,"Owner-Reality OSS harvest on 09d5161 records bounded design/test reuse recommendations for Grocy, Mealie, Actual Budget, Firefly III Data Importer, ofxtools, and Nmap without adding runtime dependencies or authority"
   ],
   "current_blockers": [
-    "Conversation history is browser-session/DOM-only: reload, browser close, and owner-service restart lose the visible conversation; server-owned Principal-scoped persistence is the next P0 fix.",
+    "H2/H3 engineering proof is installed; Scotty's human browser reload/close-reopen and bounded follow-up acceptance is still pending.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
   "daily_driver_checkpoint": "The installed owner projects objectives and CapabilityNeeds into Today/Constellation, offers Systems health → investigation tasks, keeps fresh tasks discoverable, creates independently verified Workspace briefs, and exposes truthful Pack approval boundaries for household exports; no observation-driven mutation or delivery claim is automatic.",
@@ -497,7 +502,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Install the owner CLI operations on the next hosted-green release, then add the smallest PostgreSQL-backed Principal-scoped conversation store and browser load/resume/new flow; preserve Core semantics and validate reload, browser reopen, restart, authorization, and correlation idempotency.",
+  "next_action": "Ask Scotty to open AEGIS normally, confirm the prior conversation is visible after reload/close-reopen, and send one harmless follow-up; do not ask him to restart services or use terminal commands.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }

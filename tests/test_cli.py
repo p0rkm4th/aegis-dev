@@ -5154,6 +5154,7 @@ def test_browser_app_uses_core_callbacks_for_state_and_messages():
 def test_browser_app_persists_principal_scoped_conversation_turns():
     principal = Principal(id="alice", vault_id="alice-vault")
     conversation_id = uuid4()
+    correlation_id = uuid4()
     rows: list[tuple[str, str, str]] = []
 
     def append(current, current_conversation, role, text, correlation):
@@ -5180,9 +5181,14 @@ def test_browser_app_persists_principal_scoped_conversation_turns():
         {
             "utterance": "hello",
             "session_id": str(conversation_id),
-            "correlation_id": str(uuid4()),
+            "correlation_id": str(correlation_id),
         }
     ).encode()
+    status, _, _ = app.dispatch(
+        "POST", "/api/message", body, headers={"X-Aegis-Session": "session-secret"}
+    )
+    assert status == 200
+    assert len(rows) == 2
     status, _, _ = app.dispatch(
         "POST", "/api/message", body, headers={"X-Aegis-Session": "session-secret"}
     )
@@ -5195,6 +5201,26 @@ def test_browser_app_persists_principal_scoped_conversation_turns():
     )
     assert status == 200
     assert json.loads(payload)["messages"][0]["display_text"] == "hello"
+
+
+def test_browser_app_denies_conversation_access_for_other_principal():
+    conversation_id = uuid4()
+    app = BrowserApp(
+        Principal(id="bob", vault_id="bob-vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": []},
+        session_token="session-secret",
+        conversation_messages=lambda _current, _conversation: (_ for _ in ()).throw(
+            PermissionError("wrong principal")
+        ),
+    )
+    status, _, payload = app.dispatch(
+        "GET",
+        f"/api/conversations/{conversation_id}",
+        headers={"X-Aegis-Session": "session-secret"},
+    )
+    assert status == 403
+    assert json.loads(payload)["code"] == "state_access_denied"
 
 
 def test_browser_app_exposes_principal_scoped_research_history():
