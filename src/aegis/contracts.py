@@ -40,6 +40,37 @@ class ObjectiveState(StrEnum):
     BLOCKED = "blocked"
 
 
+class RecoveryDisposition(StrEnum):
+    """Orthogonal recovery state; ObjectiveState remains the lifecycle truth."""
+
+    NONE = "none"
+    INTERNAL_BLOCKED = "internal_blocked"
+    OWNER_BLOCKED = "owner_blocked"
+
+
+class RecoveryReason(StrEnum):
+    MISSING_CONTEXT = "missing_context"
+    AMBIGUOUS_REFERENT = "ambiguous_referent"
+    INVALID_PROPOSAL = "invalid_proposal"
+    CAPABILITY_UNAVAILABLE = "capability_unavailable"
+    PROVIDER_UNAVAILABLE = "provider_unavailable"
+    VERIFICATION_MISMATCH = "verification_mismatch"
+    PERMISSION_OR_APPROVAL_REQUIRED = "permission_or_approval_required"
+    RECOVERY_BUDGET_EXHAUSTED = "recovery_budget_exhausted"
+
+
+class RecoveryState(StrictModel):
+    """Small persisted budget and classification for synchronous recovery."""
+
+    disposition: RecoveryDisposition = RecoveryDisposition.NONE
+    reason: RecoveryReason | None = None
+    steps_consumed: int = Field(default=0, ge=0, le=3)
+    capability_investigations_consumed: int = Field(default=0, ge=0, le=2)
+    provider_retries_consumed: int = Field(default=0, ge=0, le=1)
+    last_failure_fingerprint: str | None = Field(default=None, max_length=128)
+    last_evidence_summary: str | None = Field(default=None, max_length=240)
+
+
 class ExternalEffectAssurance(StrEnum):
     """Core-owned truth about a consequential external mutation."""
 
@@ -408,6 +439,7 @@ class Objective(StrictModel):
     objective_spec: ObjectiveSpec | None = None
     validated_plan: ValidatedPlan | None = None
     capability_needs: tuple[CapabilityNeed, ...] = Field(default=(), max_length=5)
+    recovery: RecoveryState = Field(default_factory=RecoveryState)
 
 
 class ModelRequest(StrictModel):

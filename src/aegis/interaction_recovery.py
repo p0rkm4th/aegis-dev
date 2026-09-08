@@ -22,6 +22,9 @@ from .contracts import (
     ObjectiveState,
     ProposalFailureEvidence,
     ProposalFailureKind,
+    RecoveryDisposition,
+    RecoveryReason,
+    RecoveryState,
     Result,
     WorkingSet,
 )
@@ -30,6 +33,178 @@ from .interaction_context import grounded_context_answer
 from .utterance import is_mutation_request, is_question_request
 
 T = TypeVar("T")
+
+
+@dataclass(frozen=True)
+class RecoveryClassification:
+    """Deterministic classification of an obstacle above the Kernel."""
+
+    disposition: RecoveryDisposition
+    reason: RecoveryReason | None
+    failure_fingerprint: str
+    evidence_summary: str
+    owner_actionable: bool = False
+
+
+def recovery_failure_fingerprint(
+    result: Result, failure: ProposalFailureEvidence | None = None
+) -> str:
+    """Hash bounded structured failure evidence, never raw private transcripts."""
+
+    evidence = result.evidence
+    payload = {
+        "state": result.state.value,
+        "failure_kind": failure.kind.value if failure is not None else None,
+        "failure_detail": failure.detail if failure is not None else None,
+        "failure_class": evidence.get("failure_class"),
+        "failure": evidence.get("failure"),
+        "objective_open": evidence.get("objective_open"),
+        "capability_needs": [
+            {
+                "need_id": item.get("need_id"),
+                "status": item.get("status"),
+                "requested_effect": item.get("requested_effect"),
+            }
+            for item in evidence.get("capability_needs", [])
+            if isinstance(item, dict)
+        ],
+    }
+    encoded = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def classify_recovery(
+    result: Result, failure: ProposalFailureEvidence | None = None
+) -> RecoveryClassification:
+    """Classify only typed Core evidence; this function grants no authority."""
+
+    evidence = result.evidence
+    fingerprint = recovery_failure_fingerprint(result, failure)
+    summary = str(
+        evidence.get("failure_reason")
+        or evidence.get("failure_class")
+        or (failure.detail if failure is not None else None)
+        or result.message
+    )[:240]
+    assurance = str(evidence.get("assurance", ""))
+    if assurance == "OUTCOME_UNKNOWN":
+        return RecoveryClassification(
+            RecoveryDisposition.NONE,
+            RecoveryReason.PROVIDER_UNAVAILABLE,
+            fingerprint,
+            "external outcome is unknown; reconcile before retrying",
+        )
+    if result.state not in {ObjectiveState.BLOCKED, ObjectiveState.FAILED}:
+        return RecoveryClassification(RecoveryDisposition.NONE, None, fingerprint, summary)
+
+    needs = [item for item in evidence.get("capability_needs", []) if isinstance(item, dict)]
+    owner_need = any(item.get("status") == "owner_input_required" for item in needs)
+    if evidence.get("requires_owner_input") is True or owner_need:
+        return RecoveryClassification(
+            RecoveryDisposition.OWNER_BLOCKED,
+            RecoveryReason.CAPABILITY_UNAVAILABLE,
+            fingerprint,
+            summary,
+            owner_actionable=True,
+        )
+    if evidence.get("clarification") or evidence.get("ambiguous_candidates"):
+        return RecoveryClassification(
+            RecoveryDisposition.OWNER_BLOCKED,
+            RecoveryReason.AMBIGUOUS_REFERENT,
+            fingerprint,
+            summary,
+            owner_actionable=True,
+        )
+    if failure is not None:
+        reason_map = {
+            ProposalFailureKind.AMBIGUOUS_ENTITY: RecoveryReason.AMBIGUOUS_REFERENT,
+            ProposalFailureKind.UNKNOWN_ENTITY: RecoveryReason.MISSING_CONTEXT,
+            ProposalFailureKind.MISSING_ARGUMENT: RecoveryReason.MISSING_CONTEXT,
+            ProposalFailureKind.INVALID_ARGUMENT: RecoveryReason.INVALID_PROPOSAL,
+            ProposalFailureKind.DECODER_SCHEMA_FAILURE: RecoveryReason.INVALID_PROPOSAL,
+            ProposalFailureKind.CAPABILITY_UNAVAILABLE: RecoveryReason.CAPABILITY_UNAVAILABLE,
+            ProposalFailureKind.UNSUPPORTED_REQUIREMENT: RecoveryReason.CAPABILITY_UNAVAILABLE,
+        }
+        reason = reason_map.get(failure.kind, RecoveryReason.INVALID_PROPOSAL)
+        return RecoveryClassification(
+            RecoveryDisposition.INTERNAL_BLOCKED,
+            reason,
+            fingerprint,
+            summary,
+        )
+    if evidence.get("objective_open") is True and evidence.get("authoritative") is False:
+        return RecoveryClassification(
+            RecoveryDisposition.INTERNAL_BLOCKED,
+            RecoveryReason.CAPABILITY_UNAVAILABLE,
+            fingerprint,
+            summary,
+        )
+    if result.retryable or evidence.get("failure_class") == "provider_unavailable":
+        return RecoveryClassification(
+            RecoveryDisposition.INTERNAL_BLOCKED,
+            RecoveryReason.PROVIDER_UNAVAILABLE,
+            fingerprint,
+            summary,
+        )
+    if evidence.get("verification") == "mismatch":
+        return RecoveryClassification(
+            RecoveryDisposition.INTERNAL_BLOCKED,
+            RecoveryReason.VERIFICATION_MISMATCH,
+            fingerprint,
+            summary,
+        )
+    return RecoveryClassification(RecoveryDisposition.NONE, None, fingerprint, summary)
+
+
+def advance_recovery(state: RecoveryState, classification: RecoveryClassification) -> RecoveryState:
+    """Consume one bounded step and stop repeated evidence from looping."""
+
+    if classification.disposition is RecoveryDisposition.NONE:
+        return state
+    repeated = state.last_failure_fingerprint == classification.failure_fingerprint
+    exhausted = state.steps_consumed >= 3
+    if repeated or exhausted:
+        disposition = (
+            RecoveryDisposition.OWNER_BLOCKED
+            if classification.owner_actionable
+            else RecoveryDisposition.NONE
+        )
+        return state.model_copy(
+            update={
+                "disposition": disposition,
+                "reason": RecoveryReason.RECOVERY_BUDGET_EXHAUSTED,
+                "last_failure_fingerprint": classification.failure_fingerprint,
+                "last_evidence_summary": classification.evidence_summary,
+            }
+        )
+    capability_count = state.capability_investigations_consumed
+    provider_count = state.provider_retries_consumed
+    if classification.reason is RecoveryReason.CAPABILITY_UNAVAILABLE:
+        capability_count += 1
+    if classification.reason is RecoveryReason.PROVIDER_UNAVAILABLE:
+        provider_count += 1
+    reason: RecoveryReason | None
+    if capability_count > 2 or provider_count > 1:
+        disposition = (
+            RecoveryDisposition.OWNER_BLOCKED
+            if classification.owner_actionable
+            else RecoveryDisposition.NONE
+        )
+        reason = RecoveryReason.RECOVERY_BUDGET_EXHAUSTED
+    else:
+        disposition = classification.disposition
+        reason = classification.reason
+    return state.model_copy(
+        update={
+            "disposition": disposition,
+            "reason": reason,
+            "steps_consumed": state.steps_consumed + 1,
+            "capability_investigations_consumed": capability_count,
+            "provider_retries_consumed": provider_count,
+            "last_failure_fingerprint": classification.failure_fingerprint,
+            "last_evidence_summary": classification.evidence_summary,
+        }
+    )
 
 
 @dataclass(frozen=True)
@@ -520,7 +695,9 @@ def recover_invalid_model_decision(
     return Result(
         objective_id=uuid4(),
         state=ObjectiveState.BLOCKED,
-        message="I could not safely interpret that request. Please rephrase it.",
+        message=(
+            "I could not safely interpret that attempt; no action was taken. You can try again."
+        ),
         evidence={
             "provenance": "model_boundary",
             "authoritative": False,

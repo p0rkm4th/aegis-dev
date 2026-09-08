@@ -34,3 +34,15 @@ Core may preserve an unresolved capability need and investigate or escalate
 it; it must not silently drop that requirement or declare the objective
 complete. Models and workers may propose a capability, procedure, or
 acquisition path, but may not install, enable, authorize, or verify it.
+
+## Recovery-first objective runtime
+
+An internal blockage is recovery input, not an automatic owner dead end.
+Objective JSON carries a small orthogonal recovery state with a bounded step
+budget, failure fingerprint, and capability/provider counters. Core-owned
+coordination may inspect already-authorized canonical or public evidence and
+re-enter the ordinary validation path. A persisted legacy `BLOCKED` objective
+without recovery metadata remains owner-visible and is never silently
+reawakened. Owner blockage is emitted only when bounded recovery cannot safely
+continue without owner input; recovery never changes Kernel authority,
+approval, verification, or external-unknown semantics.

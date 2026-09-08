@@ -27,6 +27,7 @@ from .contracts import (
     ObjectiveState,
     Principal,
     ProposedPlan,
+    RecoveryState,
     Result,
     StructuralCoverageSignal,
 )
@@ -44,6 +45,7 @@ from .interaction_context import authorized_context_evidence
 from .interaction_context import context_from_prior_result as _context_from_prior_result
 from .interaction_context import with_continuation_context as _with_continuation_context
 from .interaction_decisions import resolve_fallback_decision
+from .interaction_recovery import advance_recovery, classify_recovery
 from .kernel import Kernel, _FixedActionModel
 from .ollama import OllamaHttpTransport, OllamaProvider
 from .pack_lifecycle import PackManager, PostgresPackStore
@@ -533,13 +535,56 @@ class InteractionBoundary:
                     for item in evidence.get("capability_needs", ())
                     if isinstance(item, dict)
                 )
-                objective_store.save_objective(
+                save_objective = getattr(objective_store, "save_objective", None)
+                if not callable(save_objective):
+                    return result
+                get_objective = getattr(objective_store, "get_objective", None)
+                prior_objective = (
+                    get_objective(result.objective_id) if callable(get_objective) else None
+                )
+                recovery = advance_recovery(
+                    prior_objective.recovery if prior_objective is not None else RecoveryState(),
+                    classify_recovery(result),
+                )
+                if (
+                    recovery.disposition.value != "none"
+                    or recovery.reason is not None
+                    or prior_objective is not None
+                    and prior_objective.recovery.disposition.value != "none"
+                ):
+                    evidence["recovery"] = recovery.model_dump(mode="json")
+                    result = result.model_copy(update={"evidence": evidence})
+                    if connection.__class__.__module__.startswith("psycopg"):
+                        try:
+                            PostgresAuditLog(connection).append(
+                                "objective.owner_blocked"
+                                if recovery.disposition.value == "owner_blocked"
+                                else "objective.recovery_classified",
+                                principal.id,
+                                {
+                                    "disposition": recovery.disposition.value,
+                                    "reason": recovery.reason.value if recovery.reason else None,
+                                    "steps_consumed": recovery.steps_consumed,
+                                    "capability_investigations_consumed": (
+                                        recovery.capability_investigations_consumed
+                                    ),
+                                    "provider_retries_consumed": recovery.provider_retries_consumed,
+                                    "failure_fingerprint": recovery.last_failure_fingerprint,
+                                },
+                                objective_id=result.objective_id,
+                            )
+                        except Exception:
+                            # Recovery truth remains persisted even if audit storage is
+                            # temporarily unavailable; no authority is widened.
+                            pass
+                save_objective(
                     Objective(
                         id=result.objective_id,
                         intent=intent,
                         correlation_id=intent.correlation_id,
                         state=result.state,
                         capability_needs=capability_needs,
+                        recovery=recovery,
                     )
                 )
                 objective_store.save_result(f"interaction:{intent.correlation_id}", result)
@@ -834,7 +879,7 @@ class InteractionBoundary:
                 store=PostgresObjectiveStore(connection),
                 audit=PostgresAuditLog(connection),
             )
-            return kernel.run(intent, (card,), context=context)
+            return persist_fast_result(kernel.run(intent, (card,), context=context))
         finally:
             if runtime_cleanup is not None:
                 runtime_cleanup()

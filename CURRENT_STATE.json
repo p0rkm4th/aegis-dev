@@ -19,12 +19,12 @@
   "running_release_sha": "d24a0b98c08af0d6a5466a4edc00d9254b4d7f5b",
   "live_green_sha": "d24a0b98c08af0d6a5466a4edc00d9254b4d7f5b",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-acceptance-standby",
-  "checkpoint_status": "owner_acceptance_pending",
-  "current_checkpoint": "owner-acceptance-standby",
-  "active_campaign": "AEGIS REPLACEMENT-CLASS DAILY DRIVER",
-  "primary_proving_domains": ["Developer boundary hardening", "Attachment atomicity", "Owner acceptance"],
-  "parallel_lane": "Owner acceptance standby; Scotty is the next source of product evidence",
+  "active_checkpoint": "recovery-first-autonomy-v1",
+  "checkpoint_status": "in_progress",
+  "current_checkpoint": "recovery-first-autonomy-v1",
+  "active_campaign": "OBJECTIVE RUNTIME + RECOVERY-FIRST AUTONOMY",
+  "primary_proving_domains": ["Objective recovery coordination", "CapabilityNeed investigation", "Owner acceptance"],
+  "parallel_lane": "Recovery V1 bounded vertical slice; no Developer expansion",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -60,7 +60,7 @@
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
     "current": "Installed AEGIS now has an ordinary executable owner front door and a conversation-first composer dock that keeps message entry, attachments, draft state, and activity together on desktop and mobile; the Developer boundary remains exact-hosted-green and owner acceptance is still pending.",
-    "remaining": "This is engineering evidence, not owner acceptance. Scotty still needs a natural integrated session; Codex remains RED until the owner exercises bounded review, and no commit/push/arbitrary shell authority exists."
+    "remaining": "Recovery V1 is the active engineering slice: internal blockage is now typed, bounded, persisted, and separated from owner blockage without widening Kernel authority. Scotty remains the next source of owner evidence; Codex remains RED."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "d24a0b98c08af0d6a5466a4edc00d9254b4d7f5b", "blocker": "Installed Chat resumes the selected thread after reload, returns the newest bounded window, and keeps the composer/thread identity visible; Scotty can now perform the natural Chat and reload test."},
@@ -452,12 +452,11 @@
     ,"Owner-Reality OSS harvest on 09d5161 records bounded design/test reuse recommendations for Grocy, Mealie, Actual Budget, Firefly III Data Importer, ofxtools, and Nmap without adding runtime dependencies or authority"
   ],
   "current_blockers": [
-    "H2/H3 engineering proof is installed; Scotty's human browser reload/close-reopen and bounded follow-up acceptance is still pending.",
-    "Developer boundary hardening is installed exact-hosted-green at 22f05f7; final owner acceptance remains pending and Codex replacement stays RED until an owner exercises the bounded review flow.",
-    "Attachment atomicity and migration source/package parity are installed exact-hosted-green; hostile owner-boundary evidence remains regression coverage.",
+    "Recovery V1 still needs deterministic canaries for unique referent recovery, first-attempt proposal repair, hostile evidence, permission boundaries, external UNKNOWN, and restart persistence before promotion.",
+    "Owner acceptance remains pending for the existing harness and for the recovery owner-visible canary; no Developer expansion is authorized.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "Installed owner harness is exact-hosted-green at d24a0b9. Chat now resumes the browser-selected conversation after reload instead of silently switching to the newest thread; the long-thread bounded window remains green. The next source of evidence is Scotty's normal Chat/reload test. Codex remains RED.",
+  "daily_driver_checkpoint": "Recovery-first-autonomy-v1 is in progress. Objective JSON now carries bounded RecoveryState with INTERNAL_BLOCKED versus OWNER_BLOCKED classification, deterministic failure fingerprints, capability/provider counters, repeated-evidence stop behavior, and legacy BLOCKED compatibility. Existing proposal repair and CapabilityNeed investigation remain the recovery mechanisms; Kernel authority and external UNKNOWN semantics are unchanged.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
