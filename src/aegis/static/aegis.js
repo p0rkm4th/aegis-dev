@@ -966,8 +966,10 @@ async function loadProjects() {
   const panel = document.getElementById('detail');
   panel.replaceChildren();
   try {
-    const response = await apiFetch('/api/projects');
+    const [response, jobsResponse] = await Promise.all([
+      apiFetch('/api/projects'), apiFetch('/api/developer/jobs')]);
     const payload = await response.json();
+    const jobsPayload = await jobsResponse.json();
     if (!response.ok) throw new Error(payload.error || 'Projects unavailable.');
     const projects = payload.projects || [];
     const intro = document.createElement('p');
@@ -975,6 +977,25 @@ async function loadProjects() {
       ? 'Registered project context is read-only until a typed developer action is approved.'
       : 'No projects are registered yet. A project must be explicitly registered before AEGIS can inspect it.';
     panel.append(intro);
+    const jobs = jobsResponse.ok ? (jobsPayload.jobs || []) : [];
+    if (jobs.length) {
+      const jobsSection = document.createElement('section'); jobsSection.className = 'detail-card';
+      const jobsTitle = document.createElement('h3'); jobsTitle.textContent = 'Recent Developer jobs';
+      jobsSection.append(jobsTitle);
+      const jobsList = document.createElement('ul');
+      jobs.slice(0, 10).forEach(job => {
+        const item = document.createElement('li');
+        const badge = document.createElement('span'); badge.className = 'status-badge';
+        badge.dataset.state = job.state || 'unknown'; badge.textContent = job.state || 'unknown';
+        item.append(badge, document.createTextNode(` ${job.kind || 'job'} · ${job.objective || ''}`));
+        if (job.error) {
+          const error = document.createElement('p'); error.className = 'muted';
+          error.textContent = job.error; item.append(error);
+        }
+        jobsList.append(item);
+      });
+      jobsSection.append(jobsList); panel.append(jobsSection);
+    }
     projects.forEach(project => {
       const card = document.createElement('section'); card.className = 'detail-card';
       const title = document.createElement('h3'); title.textContent = project.name;

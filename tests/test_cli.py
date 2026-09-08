@@ -5610,6 +5610,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "Mark purchased" in _AEGIS_JS
     assert "Remove grocery item" in _AEGIS_JS
     assert "Grocery history" in _AEGIS_JS
+    assert "/api/developer/jobs" in _AEGIS_JS
+    assert "Recent Developer jobs" in _AEGIS_JS
     assert "pantry_low_items" in _AEGIS_JS
     assert "Canonical inventory" in _AEGIS_JS
     assert "Canonical and observed inventory" in _AEGIS_JS
