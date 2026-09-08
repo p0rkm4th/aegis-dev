@@ -217,6 +217,8 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .chat-advanced { margin-top: .75rem; color: var(--text-muted); font-size: .85rem; }
 .chat-advanced > summary { padding: .35rem 0; }
 .chat-advanced #answer { color: var(--text-muted); white-space: pre-wrap; }
+.feedback-inline { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; margin: .45rem 0 0; color: var(--text-muted); font-size: .82rem; }
+.feedback-inline button { min-height: 2.25rem; padding: .35rem .65rem; font-size: .8rem; }
 .attachment-tools { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem .7rem; margin: .25rem 0 .35rem; }
 .attachment-picker { display: inline-flex; align-items: center; min-height: 2.25rem; padding: .35rem .65rem; border: 1px solid var(--border); border-radius: .55rem; color: var(--text-muted); cursor: pointer; font-size: .8rem; }
 .attachment-picker:hover { border-color: var(--accent); color: var(--text-strong); }

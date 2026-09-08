@@ -262,10 +262,10 @@ placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><butt
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
 <details class="chat-advanced"><summary>Response details</summary><p id="answer" class="muted" aria-live="polite"></p><div id="detail" class="muted" role="region"
 aria-live="polite" aria-label="Selected node details"></div>
-<p id="feedback" hidden>Was this useful?
+</details><p id="feedback" class="feedback-inline" hidden>Was this useful?
 <button type="button" data-feedback="helpful">Helpful</button>
 <button type="button" data-feedback="not_helpful">Not helpful</button>
-<span id="feedback-status" class="muted" aria-live="polite"></span></p></details></section>
+<span id="feedback-status" class="muted" aria-live="polite"></span></p></section>
 <details class="secondary" aria-label="Canonical state"><summary>Canonical state</summary><div class="state-tools"><h2 class="sr-only">Canonical state</h2><button id="refresh" type="button">Refresh state</button></div>
 <p id="state-status" class="muted" aria-live="polite"></p>
 <label for="node-filter">Find a node <input id="node-filter" type="search"
