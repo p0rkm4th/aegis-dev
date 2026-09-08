@@ -524,6 +524,20 @@ def _owner_service_value(property_name: str) -> str | None:
     return None
 
 
+def _owner_environment_value(name: str) -> str | None:
+    """Read a non-secret AEGIS setting from the owner service when needed."""
+
+    direct = os.environ.get(name)
+    if direct:
+        return direct
+    environment = _owner_service_value("Environment") or ""
+    prefix = f"{name}="
+    for entry in environment.split():
+        if entry.startswith(prefix):
+            return entry[len(prefix) :] or None
+    return None
+
+
 def _owner_release_truth() -> dict[str, Any]:
     """Return release paths and hashes without exposing service environment secrets."""
 
@@ -705,9 +719,9 @@ def _owner_url() -> tuple[str, bool]:
     """Prefer a configured reachable private URL, then use the local service."""
 
     configured = (
-        os.environ.get("AEGIS_PRIVATE_URL")
-        or os.environ.get("AEGIS_OWNER_URL")
-        or os.environ.get("AEGIS_TAILNET_URL")
+        _owner_environment_value("AEGIS_PRIVATE_URL")
+        or _owner_environment_value("AEGIS_OWNER_URL")
+        or _owner_environment_value("AEGIS_TAILNET_URL")
     )
     if configured and _owner_http_probe(configured, "/api/ready")[0]:
         return configured.rstrip("/") + "/", True
