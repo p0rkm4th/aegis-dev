@@ -1569,11 +1569,11 @@ async function loadToday() {
       panel.append(objectivesButton);
     }
     const capabilityNeeds = payload.capability_needs || [];
-    appendTodaySection(panel, 'Capability needs requiring attention', capabilityNeeds.length
-      ? capabilityNeeds : 'No unresolved capability needs.');
+    appendTodaySection(panel, 'Requests needing your input', capabilityNeeds.length
+      ? capabilityNeeds : 'No requests need your input.');
     if (capabilityNeeds.length) {
       const needsButton = document.createElement('button'); needsButton.type = 'button';
-      needsButton.textContent = 'Review capability needs';
+      needsButton.textContent = 'Review possible approaches';
       needsButton.addEventListener('click', () => {
         const objectives = document.querySelector('[data-view="objectives"]');
         if (objectives) objectives.click();
@@ -2503,7 +2503,7 @@ async function loadObjectives() {
       const text = document.createElement('p'); text.textContent = objective.utterance || 'Objective without conversational text';
       card.append(title, text);
       if (objective.capability_needs?.length) {
-        const needs = document.createElement('h4'); needs.textContent = 'Capability needs'; card.append(needs);
+        const needs = document.createElement('h4'); needs.textContent = 'Possible ways to help'; card.append(needs);
         objective.capability_needs.forEach(need => {
           const needCard = document.createElement('section'); needCard.className = 'detail-card';
           const needTitle = document.createElement('h5');
