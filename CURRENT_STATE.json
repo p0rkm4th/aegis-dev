@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "state_basis_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
-  "deterministic_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
-  "last_pushed_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
-  "hosted_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
-  "hosted_ci_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "repository_head_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
+  "deterministic_green_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
+  "last_pushed_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
+  "hosted_green_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
+  "hosted_ci_green_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+    "commit_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
     "conclusion": "success",
-    "run_id": "34188434135",
+    "run_id": "34188688405",
     "observed_at": "2026-09-08T04:38:00Z"
   },
-  "installed_release_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
-  "running_release_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
-  "live_green_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb",
+  "installed_release_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
+  "running_release_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
+  "live_green_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "replacement-project-context-1",
   "checkpoint_status": "in_progress",
@@ -42,7 +42,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "cdb9164e5bea071d0624e46ea1978b6bd89818bb"
+    "release_sha": "ffc296a382630f148113dd7e4edb2c2da05211eb"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "8b200cfb24276555bf49f47479a1d57aa5a0f4bf"},
@@ -59,8 +59,8 @@
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS Chat now provides a conversation-first surface with safe Markdown/tables/fenced code, response copy, associated research sources, truthful activity states, jump-to-latest behavior, deterministic thread labels, a phone-visible composer/Send action, a bounded owner-file attachment boundary, and a Principal-scoped registered AEGIS Project view.",
-    "remaining": "Chat, files, and read-only Project context are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; the next engineering replacement gap is typed Project inspection and a supervised coding worker."
+    "current": "Installed AEGIS Chat now provides a conversation-first surface with safe Markdown/tables/fenced code, response copy, associated research sources, truthful activity states, jump-to-latest behavior, deterministic thread labels, a phone-visible composer/Send action, a bounded owner-file attachment boundary, and a Principal-scoped registered AEGIS Project view with bounded read-only inspection.",
+    "remaining": "Chat, files, and read-only Project inspection are ENGINEERING_GREEN, not OWNER_ACCEPTED. Scotty still needs to use a real file/project workflow and decide whether normal conversation still requires ChatGPT; the next engineering replacement gap is a supervised coding worker."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN", "basis_sha": "0310d378b4461a42e2722f8c19082a79a012bdf8", "blocker": "Coherent Chat tranche is installed with rich responses, copy/code/source UX, conversation-first layout, and mobile composer; Scotty must decide whether normal conversation still feels clunky."},
@@ -515,7 +515,7 @@
     "owner_workflows_completed": 100,
     "new_semantic_special_cases_per_session": 0
   },
-  "next_action": "Begin typed read-only inspection for the registered AEGIS Project using only allowed paths; keep worker execution, modification, commit, and push authority disabled until the inspect contract and independent verification path are proven. Keep Chat/files installed-green and do not ask Scotty to retest micro-patches.",
+  "next_action": "Design a supervised read-only Codex worker adapter for the registered AEGIS Project: explicit inspect objective, allowed paths, read-only sandbox, bounded JSON result, truthful interruption, and no modify/commit/push authority. Keep Chat/files/project inspection installed-green and do not ask Scotty to retest micro-patches.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
