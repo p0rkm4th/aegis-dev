@@ -528,6 +528,15 @@ def _owner_release_truth() -> dict[str, Any]:
 
     state_path = os.environ.get("AEGIS_CURRENT_STATE_PATH")
     service_environment = _owner_service_value("Environment") or ""
+    service_release = next(
+        (
+            Path(entry.split("=", 1)[1]).parent.name
+            for entry in service_environment.split()
+            if entry.startswith("PYTHONPATH=")
+            and re.fullmatch(r"[0-9a-f]{40}", Path(entry.split("=", 1)[1]).parent.name)
+        ),
+        None,
+    )
     if not state_path:
         for entry in service_environment.split():
             if entry.startswith("AEGIS_CURRENT_STATE_PATH="):
@@ -541,8 +550,13 @@ def _owner_release_truth() -> dict[str, Any]:
                 state = candidate
         except (OSError, ValueError):
             pass
-    installed = state.get("installed_release_sha") or state.get("live_green_sha") or "unknown"
-    running = state.get("running_release_sha") or "unknown"
+    installed = (
+        service_release
+        or state.get("installed_release_sha")
+        or state.get("live_green_sha")
+        or "unknown"
+    )
+    running = service_release or state.get("running_release_sha") or "unknown"
     return {"installed_release": installed, "running_release": running}
 
 
