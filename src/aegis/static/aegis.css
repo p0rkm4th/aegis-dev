@@ -176,6 +176,12 @@ body { background: var(--surface-0); color: var(--text-strong); }
   box-shadow: var(--elevation);
 }
 .product-nav button { text-align: left; border-color: transparent; }
+.product-nav button[aria-current="page"] {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface-1));
+  color: var(--text-strong);
+  font-weight: 650;
+}
 .nav-group { display: flex; flex-direction: column; gap: .15rem; }
 .nav-group + .nav-group { margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--line); }
 .nav-group-label {
