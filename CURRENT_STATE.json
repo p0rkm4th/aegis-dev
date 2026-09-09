@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
+  "state_basis_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
-  "deterministic_green_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
-  "last_pushed_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
-  "hosted_green_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
-  "hosted_ci_green_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
+  "repository_head_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
+  "deterministic_green_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
+  "last_pushed_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
+  "hosted_green_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
+  "hosted_ci_green_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
+    "commit_sha": "017b7ec11a401b5ddddce33bb4fc5cfb5d3371af",
     "conclusion": "success",
-    "run_id": "34300716392",
+    "run_id": "34301584109",
     "observed_at": "2026-09-09T00:45:00Z"
   },
   "installed_release_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
   "running_release_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
   "live_green_sha": "9b8074f50355feb1115f0ac29a8edbe93c7ff7c0",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "daily-driver-natural-outcome-set-presentation",
+  "active_checkpoint": "daily-driver-natural-outcome-set-followup-continuity",
   "checkpoint_status": "owner_acceptance_pending",
-  "current_checkpoint": "daily-driver-natural-outcome-set-presentation",
+  "current_checkpoint": "daily-driver-natural-outcome-set-followup-continuity",
   "active_campaign": "AEGIS AUTONOMOUS DAILY-DRIVER INTEGRITY + SEMANTICS",
   "primary_proving_domains": ["Correction provenance atomicity", "Natural outcome/set semantics", "Conversation-first owner surface"],
-  "parallel_lane": "Verified Grocery/Tasks set outcomes now use owner language; correction integrity remains installed-green; owner acceptance remains pending",
+  "parallel_lane": "Verified Grocery/Tasks set outcomes use owner language and persisted identifier follow-up context; owner acceptance pending switches work to the next bounded product lane",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -70,13 +70,14 @@
     "completion_fidelity": "ENGINEERING_GREEN installed; effect objectives cannot complete from answer-only fallback",
     "owner_blocker": "The supplied owner session remains OWNER_REJECTED; Scotty must exercise the installed natural outcome/set/compound workflows before owner acceptance can move.",
     "verified_collection_presentation": "ENGINEERING_GREEN installed; verified Grocery and Task set results use owner-facing outcomes instead of plan-step or stable-ID language.",
+    "introduced_concept_followup": "ENGINEERING_GREEN regression; the introduced internal-ID concept survives stored-result context round-trip and a one-word grocery follow-up resolves in the existing bounded context.",
     "correction_provenance": "P0 installed: canonical correction and required learning audit commit atomically; injected audit failure rolls back without a phantom audit event.",
     "correction_semantics": "Bounded copular facts now cover subject replacement, predicate/value replacement, and relation/object replacement using owner-grounded spans; arbitrary fact learning remains unclaimed."
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
     "current": "Installed AEGIS now translates bounded Grocery and Tasks outcomes into canonical sets, verifies the final state, keeps effect answers from falsely completing, and opens directly into Chat with Today secondary.",
-    "remaining": "Scotty's natural outcome/set/compound and conversation-first acceptance remain pending; next justified lane is owner evidence or a concrete installed escape. Codex remains RED."
+    "remaining": "Scotty's natural outcome/set/compound and conversation-first acceptance remain pending; pending acceptance is an active lane switch, so the next bounded installed product improvement should be selected from concrete owner friction. Codex remains RED."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_ACCEPTANCE_PENDING", "basis_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9", "blocker": "Installed Chat is the default surface with distinct Today navigation, persistent bounded threads, Markdown/source/copy support, and anchored composer; Scotty must decide whether it is no longer clunky enough to leave for ChatGPT."},
