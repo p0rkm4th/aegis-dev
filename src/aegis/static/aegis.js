@@ -994,6 +994,10 @@ async function loadState() {
     graph.setAttribute('aria-label', 'Authorized semantic relationship map');
     const positions = new Map();
     const categoryOrderForGraph = ['core', 'domain', 'capability', 'capability_need', 'objective', 'composition'];
+    const graphCategoryLabels = {
+      core: 'AEGIS', domain: 'Domains', capability: 'Capabilities',
+      capability_need: 'Needs', objective: 'Objectives', composition: 'Relationships'
+    };
     const groupedNodes = new Map();
     (state.nodes || []).forEach(node => {
       const category = categoryOrderForGraph.includes(node.category) ? node.category : 'domain';
@@ -1001,18 +1005,36 @@ async function loadState() {
       groupedNodes.get(category).push(node);
     });
     let cursorY = 58;
-    groupedNodes.forEach(items => {
+    const bands = [];
+    groupedNodes.forEach((items, category) => {
       const columns = Math.min(items.length, 5);
       const spacing = 180;
       const start = 480 - ((columns - 1) * spacing) / 2;
+      const rows = Math.ceil(items.length / columns);
+      bands.push({category, y: cursorY - 34, height: rows * 72 + 46});
       items.forEach((node, index) => {
         const row = Math.floor(index / columns);
         const column = index % columns;
         positions.set(node.id, {x: start + column * spacing, y: cursorY + row * 72});
       });
-      cursorY += Math.ceil(items.length / columns) * 84;
+      cursorY += rows * 84;
     });
     graph.setAttribute('viewBox', `0 0 960 ${Math.max(520, cursorY + 20)}`);
+    const bandLayer = document.createElementNS(svgNS, 'g');
+    bandLayer.setAttribute('aria-hidden', 'true');
+    bands.forEach(band => {
+      const background = document.createElementNS(svgNS, 'rect');
+      background.setAttribute('x', '18'); background.setAttribute('y', band.y);
+      background.setAttribute('width', '924'); background.setAttribute('height', band.height);
+      background.setAttribute('rx', '14'); background.dataset.category = band.category;
+      background.classList.add('constellation-cluster');
+      const label = document.createElementNS(svgNS, 'text');
+      label.setAttribute('x', '36'); label.setAttribute('y', band.y + 22);
+      label.classList.add('constellation-cluster-label');
+      label.textContent = graphCategoryLabels[band.category] || band.category;
+      bandLayer.append(background, label);
+    });
+    graph.append(bandLayer);
     const lineLayer = document.createElementNS(svgNS, 'g');
     lineLayer.setAttribute('aria-hidden', 'true');
     (state.edges || []).forEach(edge => {

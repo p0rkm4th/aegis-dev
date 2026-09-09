@@ -6519,6 +6519,8 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     assert 'id="constellation-graph"' in html
     assert "renderConstellationGraph" in html
     assert "constellation-edge" in html
+    assert "constellation-cluster" in html
+    assert "graphCategoryLabels" in html
 
 
 def test_browser_app_research_surface_exposes_research_to_workspace_composition():
