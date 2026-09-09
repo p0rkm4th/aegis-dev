@@ -1297,11 +1297,13 @@ def reference_format_result(result: Any) -> str:
         return str(result.message)
     steps = evidence.get("steps")
     if isinstance(steps, list) and steps:
-        collection_evidence = [
-            step.get("evidence")
-            for step in steps
-            if isinstance(step, dict) and isinstance(step.get("evidence"), dict)
-        ]
+        collection_evidence: list[dict[str, Any]] = []
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            step_evidence = step.get("evidence")
+            if isinstance(step_evidence, dict):
+                collection_evidence.append(step_evidence)
         if collection_evidence and all(
             item.get("collection") == "groceries" and "grocery_ids" in item
             for item in collection_evidence
