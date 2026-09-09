@@ -1,2 +1,6 @@
 Copyright 2026 p0rkm4th. Aegis original source is rights-reserved pending a
 formal owner-selected license. Third-party components retain their own terms.
+
+Cytoscape.js 3.34.3 is vendored at src/aegis/static/cytoscape-3.34.3.min.js
+under its MIT license. The corresponding license text is retained beside the
+asset in src/aegis/static/cytoscape-3.34.3.LICENSE.

@@ -45,6 +45,9 @@ AirQualityState = Callable[[Principal], dict[str, Any]]
 
 _AEGIS_CSS = (Path(__file__).with_name("static") / "aegis.css").read_text(encoding="utf-8")
 _AEGIS_JS = (Path(__file__).with_name("static") / "aegis.js").read_text(encoding="utf-8")
+_CYTOSCAPE_JS = (Path(__file__).with_name("static") / "cytoscape-3.34.3.min.js").read_text(
+    encoding="utf-8"
+)
 TodayState = Callable[[Principal], dict[str, Any]]
 ObjectivesState = Callable[[Principal], dict[str, Any]]
 CommunicationsState = Callable[[Principal], dict[str, Any]]
@@ -221,7 +224,7 @@ class MemoryRemovalRequest(BaseModel):
 
 _INDEX_HTML = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
+<meta name="aegis-session-token" content="__AEGIS_SESSION_TOKEN__"><link rel="stylesheet" href="/static/aegis.css"><script src="/static/cytoscape-3.34.3.min.js" defer></script><script src="/static/aegis.js" defer></script><title>AEGIS · Personal intelligence</title>
 </head><body><div class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><div class="eyebrow">Personal intelligence</div><h1>AEGIS</h1></div></div><button id="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button></header>
 <nav class="product-nav" aria-label="AEGIS views">
 <div class="nav-group nav-primary" aria-label="Everyday">
@@ -393,6 +396,8 @@ class BrowserApp:
             return HTTPStatus.OK, "text/css; charset=utf-8", _AEGIS_CSS.encode()
         if method == "GET" and route == "/static/aegis.js":
             return HTTPStatus.OK, "text/javascript; charset=utf-8", _AEGIS_JS.encode()
+        if method == "GET" and route == "/static/cytoscape-3.34.3.min.js":
+            return HTTPStatus.OK, "text/javascript; charset=utf-8", _CYTOSCAPE_JS.encode()
         if method == "GET" and route in {"/api/health", "/api/ready"}:
             if self.health is None:
                 payload: dict[str, Any] = {"healthy": True, "ready": True, "components": []}
