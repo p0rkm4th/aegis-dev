@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
+  "state_basis_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
-  "deterministic_green_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
-  "last_pushed_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
-  "hosted_green_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
-  "hosted_ci_green_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
+  "repository_head_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
+  "deterministic_green_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
+  "last_pushed_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
+  "hosted_green_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
+  "hosted_ci_green_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
+    "commit_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
     "conclusion": "success",
-    "run_id": "34310234406",
-    "observed_at": "2026-09-09T04:24:00Z"
+    "run_id": "34311208229",
+    "observed_at": "2026-09-09T04:36:00Z"
   },
-  "installed_release_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
-  "running_release_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
-  "live_green_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30",
+  "installed_release_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
+  "running_release_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
+  "live_green_sha": "56791d6b6792d141954f855dfa7388987aa1453b",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-feedback-visual-conversation-shell",
   "checkpoint_status": "owner_acceptance_pending",
@@ -43,7 +43,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30"
+    "release_sha": "56791d6b6792d141954f855dfa7388987aa1453b"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4", "owner_acceptance": "status, doctor, and open are available as ordinary installed commands; Scotty's normal-use acceptance remains pending"},
@@ -80,7 +80,7 @@
     "remaining": "Scotty reports the installed UI still feels clunky and not pretty; owner acceptance remains rejected/pending. The visual conversation shell is now ready for another natural owner judgment."
   },
   "replacement_product_matrix": {
-    "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_REJECTED", "basis_sha": "0f3c61a9ec0323cb53ceb317e5cab106029e5d30", "blocker": "Installed Chat now has a quieter premium shell, designed empty state, restrained response utilities, dominant conversation reading surface, low-chrome AEGIS answers, calmer navigation, an intentional anchored composer, and a reduced everyday rail with Calendar/Memory under Explore. Scotty's direct feedback is that the UI still sucks/is not pretty; another natural owner judgment is required."},
+    "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_REJECTED", "basis_sha": "56791d6b6792d141954f855dfa7388987aa1453b", "blocker": "Installed Chat now has a quieter premium shell, designed empty state, restrained response utilities, dominant conversation reading surface, low-chrome AEGIS answers, calmer navigation, an intentional anchored composer, a reduced everyday rail with Calendar/Memory under Explore, and a viewport-anchored mobile composer verified at 390px. Scotty's direct feedback is that the UI still sucks/is not pretty; another natural owner judgment is required."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
     "codex": {"state": "RED", "basis_sha": "12976378e980defd75cb7f661a44ccaf81d41a54", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, persists exact candidate bytes/hashes/diff digest in the durable job, explicitly disables worker network/config rules, and applies only an exact approval; hostile-validator proof covers host files/network/Git/background processes. Owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
