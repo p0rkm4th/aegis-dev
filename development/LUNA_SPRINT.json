@@ -180,18 +180,18 @@
       "title": "Make Constellation state and attention visually legible",
       "priority": 75,
       "dependencies": ["constellation-u4-chat-context-handoff"],
-      "status": "READY",
-      "attempts": 0,
+      "status": "ACTIVE",
+      "attempts": 1,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
       "max_identical_failure_repeats": 2,
       "failure_fingerprint": "",
-      "evidence": [],
-      "changed_paths": [],
-      "tests": [],
+      "evidence": ["Existing authorized node categories now have a compact map key and visually distinct attention/objective treatment; no state or authority semantics changed"],
+      "changed_paths": ["src/aegis/web.py", "src/aegis/static/aegis.js", "src/aegis/static/aegis.css", "tests/test_cli.py"],
+      "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q", "git diff --check"],
       "blocker": "",
       "created_at": "2026-09-09T20:20:00+00:00",
-      "updated_at": "2026-09-09T20:20:00+00:00"
+      "updated_at": "2026-09-09T20:35:00+00:00"
     },
     "chat-owner-retest": {
       "task_id": "chat-owner-retest",
@@ -213,7 +213,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": null,
+  "current_task": "constellation-u5-state-attention",
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",

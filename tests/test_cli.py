@@ -6525,6 +6525,8 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     assert 'id="chat-context-handoff"' in html
     assert "setChatContextHandoff" in html
     assert "From Constellation" in html
+    assert "constellation-legend" in html
+    assert "dataset.attention = 'true'" in html
     assert "candidate for" in html
 
 
