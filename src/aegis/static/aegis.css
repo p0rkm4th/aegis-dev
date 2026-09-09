@@ -740,4 +740,5 @@ body {
   .conversation-tools #new-conversation { order: 3; flex: 0 0 auto; }
   #conversation li.conversation-empty { padding: 2.25rem .75rem; }
   .composer-dock { bottom: 0; background: color-mix(in srgb, var(--panel) 98%, transparent); }
+  .conversation-empty .empty-suggestions { display: none; }
 }
