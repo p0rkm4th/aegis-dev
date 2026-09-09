@@ -93,7 +93,7 @@ const errorLabels = Object.freeze({
 });
 function errorLabel(code) { return errorLabels[code] || 'Request failed'; }
 const lifecycleLabels = Object.freeze({
-  proposed: 'Proposed', validated: 'Validated', authorized: 'Authorized',
+  proposed: 'Preparing', validated: 'Checking', authorized: 'Ready to act',
   approval_required: 'Approval required', executing: 'Working', observed: 'Checking',
   provider_accepted: 'Provider accepted', effect_verified: 'Effect verified',
   reconciliation_pending: 'Reconciliation pending', verified: 'Verified',
