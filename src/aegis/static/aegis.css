@@ -380,10 +380,12 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .conversation-panel { gap: .15rem; }
 .health-line { margin-bottom: .35rem; }
 .view-summary { margin-bottom: .5rem; }
-.conversation-tools { padding: .45rem .6rem; border: 1px solid var(--line); border-radius: .75rem; background: color-mix(in srgb, var(--surface-1) 70%, transparent); }
+.conversation-tools { padding: .25rem 0 .45rem; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; }
 .conversation-tools label { font-size: .8rem; color: var(--text-muted); }
 .conversation-tools select { max-width: 15rem; }
 .conversation-heading { flex-basis: 10rem; }
+.conversation-tools #new-conversation { border-color: color-mix(in srgb, var(--accent) 48%, var(--line)); color: var(--accent); background: transparent; }
+.conversation-tools #new-conversation:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .project-context { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .45rem; }
 .project-context summary { padding: .35rem .5rem; border: 1px solid var(--line); border-radius: .55rem; color: var(--text-muted); }
 .project-context[open] summary { border-color: var(--accent); color: var(--text-strong); }
