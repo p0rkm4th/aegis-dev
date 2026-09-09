@@ -2,20 +2,20 @@
   "schema_version": 1,
   "sprint_id": "aegis-automaton-harvest-2026-09-09",
   "objective": "Build the minimum durable Luna sprint control plane and use it for independent verified AEGIS product work.",
-  "status": "WAITING_EXTERNAL",
+  "status": "ACTIVE",
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "observed_head_sha": "8ad5d4811799ae86a8ffeb22059a4eb66bcba3b9",
-    "last_green_sha": "8ad5d4811799ae86a8ffeb22059a4eb66bcba3b9",
-    "installed_sha": "8ad5d4811799ae86a8ffeb22059a4eb66bcba3b9"
+    "observed_head_sha": "b692e3380947f10770e356d5312aed5823d08b6a",
+    "last_green_sha": "b692e3380947f10770e356d5312aed5823d08b6a",
+    "installed_sha": "b692e3380947f10770e356d5312aed5823d08b6a"
   },
   "lanes": {
     "AUTONOMY": {
       "lane_id": "AUTONOMY",
       "priority": 100,
-      "status": "WAITING_EXTERNAL",
-      "blocker": "Exact hosted validation run 34386876399 remains in progress",
+      "status": "COMPLETE",
+      "blocker": "",
       "evidence_needed": "focused scheduler and resume regressions"
     },
     "RELIABILITY_SECURITY": {
@@ -28,8 +28,8 @@
     "CONSTELLATION": {
       "lane_id": "CONSTELLATION",
       "priority": 80,
-      "status": "WAITING_EXTERNAL",
-      "blocker": "Exact hosted validation for U6 is still in progress",
+      "status": "READY",
+      "blocker": "",
       "evidence_needed": "rendered desktop/mobile proof"
     },
     "UI_UX": {
@@ -97,6 +97,25 @@
       "blocker": "",
       "created_at": "2026-09-09T17:00:00+00:00",
       "updated_at": "2026-09-09T17:30:00+00:00"
+    },
+    "constellation-u1-interactive-dogfood": {
+      "task_id": "constellation-u1-interactive-dogfood",
+      "lane_id": "CONSTELLATION",
+      "title": "Dogfood the installed interactive graph and harvest the highest-value U1 defect",
+      "priority": 85,
+      "dependencies": ["constellation-u6-mobile-accessibility"],
+      "status": "ACTIVE",
+      "attempts": 1,
+      "max_attempts": 2,
+      "identical_failure_repeats": 0,
+      "max_identical_failure_repeats": 1,
+      "failure_fingerprint": "",
+      "evidence": ["Installed b692e338 serves local Cytoscape 3.34.3 with the authorized structured fallback; visual browser tooling is unavailable in this environment, so the next task is static/runtime dogfood and defect harvest."],
+      "changed_paths": [],
+      "tests": ["installed /api/health", "installed /api/ready", "installed local Cytoscape asset"],
+      "blocker": "",
+      "created_at": "2026-09-09T20:40:00+00:00",
+      "updated_at": "2026-09-09T20:40:00+00:00"
     },
     "owner-proxy-dogfood": {
       "task_id": "owner-proxy-dogfood",
@@ -199,7 +218,7 @@
       "title": "Harden Constellation mobile and accessibility presentation",
       "priority": 70,
       "dependencies": ["constellation-u5-state-attention"],
-      "status": "WAITING_EXTERNAL",
+      "status": "COMPLETE",
       "attempts": 1,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
@@ -208,7 +227,7 @@
       "evidence": ["Phone-width Constellation no longer forces a 38rem SVG minimum; keyboard focus is visibly outlined without changing the accessible node list or authority boundary"],
       "changed_paths": ["src/aegis/static/aegis.css", "tests/test_cli.py"],
       "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q", "git diff --check"],
-      "blocker": "Exact hosted validation run 34386313313 remains in progress before promotion",
+      "blocker": "",
       "created_at": "2026-09-09T21:10:00+00:00",
       "updated_at": "2026-09-09T21:20:00+00:00"
     },
@@ -218,7 +237,7 @@
       "title": "Prove external blockers switch to independent sprint work",
       "priority": 90,
       "dependencies": ["sprint-substrate"],
-      "status": "WAITING_EXTERNAL",
+      "status": "COMPLETE",
       "attempts": 1,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
@@ -227,7 +246,7 @@
       "evidence": ["Added deterministic regression: WAITING_EXTERNAL persists its blocker and selects independent READY work"],
       "changed_paths": ["tests/test_luna_sprint.py"],
       "tests": ["PYTHONPATH=src .venv/bin/python -m pytest tests/test_luna_sprint.py -q"],
-      "blocker": "Exact hosted validation run 34386876399 remains in progress before checkpoint can be finalized",
+      "blocker": "",
       "created_at": "2026-09-10T00:00:00+00:00",
       "updated_at": "2026-09-10T00:05:00+00:00"
     },
@@ -251,7 +270,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": null,
+  "current_task": "constellation-u1-interactive-dogfood",
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",
@@ -262,12 +281,12 @@
   ],
   "hosted_validation": {
     "workflow": "validation",
-    "head_sha": "8ad5d4811799ae86a8ffeb22059a4eb66bcba3b9",
-    "run_id": "34385833695",
+    "head_sha": "b692e3380947f10770e356d5312aed5823d08b6a",
+    "run_id": "34401939003",
     "status": "completed",
     "conclusion": "success",
-    "installed_sha": "8ad5d4811799ae86a8ffeb22059a4eb66bcba3b9"
+    "installed_sha": "b692e3380947f10770e356d5312aed5823d08b6a"
   },
-  "next_ready_tasks": [],
-  "stop_reason": "All remaining meaningful work is externally blocked on GitHub Actions runs 34386313313 and 34386876399 remaining In progress; installed U5 release remains healthy. Resume by refreshing exact run status, then promote U6 or finalize the regression checkpoint."
+  "next_ready_tasks": ["constellation-u1-interactive-dogfood"],
+  "stop_reason": "Campaign active. U1 interactive graph is installed-green; next task is bounded installed visual/accessibility dogfood and defect harvest, independent of owner acceptance."
 }
