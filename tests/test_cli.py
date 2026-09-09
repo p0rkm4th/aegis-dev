@@ -5641,7 +5641,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "updateChatProjectContext" in _AEGIS_JS
     assert "setChatControlsBusy" in _AEGIS_JS
     assert "AEGIS is working… conversation controls are temporarily paused." in _AEGIS_JS
-    assert "intro.hidden = messages.length > 0" in _AEGIS_JS
+    assert "Start with a question, a plan, or something you want AEGIS to remember." in _AEGIS_JS
     assert "conversationOptionTitle" in _AEGIS_JS
     assert "Conversation · ${new Date(item.updated_at).toLocaleString()}" in _AEGIS_JS
     assert "aegis.chat.draft." in _AEGIS_JS
@@ -7800,7 +7800,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "constellation-layer" in _AEGIS_CSS
     assert "categoryLabels" in browser_source
     assert "provider acceptance is not delivery proof" in browser_source
-    assert 'class="intro"' in browser_source
+    assert 'class="intro"' not in browser_source
     assert 'id="status-badge"' in browser_source
     assert "setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state)" in browser_source
     assert "proposed: 'Preparing'" in browser_source
