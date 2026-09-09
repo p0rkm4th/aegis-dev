@@ -7689,6 +7689,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'data-view="home" aria-current="page"' in browser_source
     assert 'data-view="today" aria-current="false">Today</button>' in browser_source
     assert "home: ['Chat', 'A conversation with AEGIS.']" in browser_source
+    assert '<h2 id="view-title">Chat</h2>' in browser_source
+    assert '<p id="view-description">A conversation with AEGIS.</p>' in browser_source
     for view in (
         "Today",
         "Tasks",
