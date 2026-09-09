@@ -229,15 +229,15 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="home" aria-current="page">Chat</button>
 <button type="button" data-view="today" aria-current="false">Today</button>
 <button type="button" data-view="tasks">Tasks</button>
-<button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>
 <button type="button" data-view="finance">Finance</button>
-<button type="button" data-view="memory">Memory</button>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="documents">Documents</button>
 </div>
 <details class="nav-group nav-advanced" aria-label="Explore">
 <summary class="nav-group-label">Explore</summary>
+<button type="button" data-view="calendar">Calendar</button>
+<button type="button" data-view="memory">Memory</button>
 <button type="button" data-view="weather">Weather</button>
 <button type="button" data-view="air-quality">Air quality</button>
 <button type="button" data-view="devices">Devices</button>

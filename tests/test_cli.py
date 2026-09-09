@@ -7690,6 +7690,11 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert '<div class="nav-group nav-primary" aria-label="Everyday">' in browser_source
     assert '<details class="nav-group nav-advanced" aria-label="Explore">' in browser_source
     assert '<summary class="nav-group-label">Explore</summary>' in browser_source
+    assert browser_source.index('data-view="documents">Documents') < browser_source.index(
+        'data-view="calendar">Calendar'
+    )
+    assert 'class="empty-kicker">A quiet place to start' in browser_source
+    assert 'class="empty-suggestions"' in browser_source
     assert 'data-view="home" aria-current="page"' in browser_source
     assert 'data-view="today" aria-current="false">Today</button>' in browser_source
     assert "home: ['Chat', 'A conversation with AEGIS.']" in browser_source
