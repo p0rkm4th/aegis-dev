@@ -278,25 +278,29 @@ function renderAttachments() {
   const list = document.getElementById('attachments');
   list.replaceChildren(...conversationAttachments.map(attachment => {
     const item = document.createElement('li');
-    const label = document.createElement('span');
     const pending = pendingAttachmentIds.has(attachment.attachment_id);
     const extraction = attachment.extraction_state === 'extracted'
       ? 'Ready for next message'
       : `Extraction ${attachment.extraction_state || 'unknown'}`;
-    label.textContent = `${attachment.original_filename} · ${Math.ceil(attachment.byte_size / 1024)} KB · ${
-      pending ? extraction : 'Stored in this conversation'}`;
+    item.dataset.state = pending ? 'selected' : 'stored';
+    const label = document.createElement('span'); label.className = 'attachment-name';
+    label.textContent = attachment.original_filename; label.title = attachment.original_filename;
+    const meta = document.createElement('span'); meta.className = 'attachment-meta';
+    const storedLabel = 'Stored in this conversation';
+    meta.textContent = `${Math.ceil(attachment.byte_size / 1024)} KB · ${pending ? extraction : 'Stored'}`;
+    meta.title = pending ? extraction : storedLabel;
     const remove = document.createElement('button');
     remove.type = 'button'; remove.className = 'attachment-remove';
-    remove.textContent = pending ? 'Remove from next message' : 'Use in next message';
-    remove.setAttribute('aria-label', `${pending ? 'Remove' : 'Use'} ${attachment.original_filename} ${
-      pending ? 'from' : 'in'} the next message`);
+    remove.textContent = pending ? 'Remove' : 'Use next';
+    const actionLabel = pending ? 'Remove from next message' : 'Use in next message';
+    remove.setAttribute('aria-label', `${actionLabel}: ${attachment.original_filename}`);
     remove.addEventListener('click', () => {
       if (pending) pendingAttachmentIds.delete(attachment.attachment_id);
       else pendingAttachmentIds.add(attachment.attachment_id);
       persistPendingAttachments();
       renderAttachments();
     });
-    item.append(label, remove);
+    item.append(label, meta, remove);
     return item;
   }));
   const status = document.getElementById('attachment-status');
