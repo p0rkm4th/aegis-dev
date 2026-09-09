@@ -6,8 +6,8 @@
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "observed_head_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298",
-    "last_green_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298",
+    "observed_head_sha": "e37211f9af6cc0b2f5c9a26618dab52b67078455",
+    "last_green_sha": "e37211f9af6cc0b2f5c9a26618dab52b67078455",
     "installed_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298"
   },
   "lanes": {
@@ -181,12 +181,13 @@
   "last_progress_at": "2026-09-09T17:00:00+00:00",
   "lessons": [
     "Human-blocked UI acceptance is lane-local; it must not idle independent engineering.",
-    "Worker reports remain evidence; tests and hosted validation establish green."
+    "Worker reports remain evidence; tests and hosted validation establish green.",
+    "Hosted apt index refresh returned exit 100; required sandbox packages installed successfully from the runner's existing package metadata."
   ],
   "hosted_validation": {
     "workflow": "validation",
-    "head_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298",
-    "run_id": "34382847349",
+    "head_sha": "e37211f9af6cc0b2f5c9a26618dab52b67078455",
+    "run_id": "34384221248",
     "status": "completed",
     "conclusion": "success",
     "installed_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298"
