@@ -3536,6 +3536,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const feedback = document.getElementById('feedback');
   feedback.hidden = true;
   feedback.dataset.correlationId = '';
+  for (const item of document.querySelectorAll('[data-feedback]')) item.disabled = false;
   if (pendingOutcomeUnknown) {
     recoverPendingRequest();
     return;
