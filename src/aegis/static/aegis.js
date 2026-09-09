@@ -1,6 +1,9 @@
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
 const constellationGraph = document.getElementById('constellation-graph');
+const chatContextHandoff = document.getElementById('chat-context-handoff');
+const chatContextLabel = document.getElementById('chat-context-label');
+const clearChatContext = document.getElementById('clear-chat-context');
 const refresh = document.getElementById('refresh');
 const nodeFilter = document.getElementById('node-filter');
 const nodeFilterStatus = document.getElementById('node-filter-status');
@@ -33,6 +36,17 @@ let authorizedProjectionLoaded = false;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
 const themeToggle = document.getElementById('theme-toggle');
+function setChatContextHandoff(label, prompt) {
+  if (chatContextLabel) chatContextLabel.textContent = label;
+  if (chatContextHandoff) chatContextHandoff.hidden = false;
+  const input = document.getElementById('utterance');
+  input.value = prompt;
+  input.focus();
+}
+clearChatContext?.addEventListener('click', () => {
+  if (chatContextHandoff) chatContextHandoff.hidden = true;
+  document.getElementById('utterance').focus();
+});
 function applyTheme(theme) {
   const selected = theme === 'light' ? 'light' : 'dark';
   document.documentElement.dataset.theme = selected;
@@ -942,8 +956,9 @@ async function loadState() {
     const focus = document.createElement('button'); focus.type = 'button';
     focus.textContent = `Ask about ${node.label}`;
     focus.addEventListener('click', () => {
-      const input = document.getElementById('utterance');
-      input.value = `Tell me about ${node.label}`; input.focus();
+      const home = document.querySelector('[data-view="home"]');
+      if (home) home.click();
+      setChatContextHandoff(node.label, `Tell me about ${node.label}`);
     });
     panel.append(focus);
     if (Object.prototype.hasOwnProperty.call(details, node.id)) {

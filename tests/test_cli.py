@@ -6522,6 +6522,9 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     assert "constellation-cluster" in html
     assert "graphCategoryLabels" in html
     assert "constellationRelationshipMeaning" in html
+    assert 'id="chat-context-handoff"' in html
+    assert "setChatContextHandoff" in html
+    assert "From Constellation" in html
     assert "candidate for" in html
 
 
