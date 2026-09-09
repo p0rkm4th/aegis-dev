@@ -682,6 +682,17 @@ body {
   .conversation-panel { min-height: calc(100vh - 8.5rem); border-radius: 1rem; }
 }
 
+/* Keep long conversations scrollable without letting the composer cover their content. */
+@media (min-width: 53rem) {
+  .conversation-panel {
+    height: calc(100vh - 6rem);
+    min-height: 0;
+    max-height: calc(100vh - 6rem);
+    overflow: hidden;
+  }
+  #conversation { min-height: 0; max-height: none; overflow-y: auto; }
+}
+
 @media (max-width: 36rem) {
   .app-shell { padding-inline: .65rem !important; }
   .topbar { padding-bottom: .7rem !important; }
@@ -756,13 +767,19 @@ body {
   .conversation-tools label { flex: 1 1 11rem; }
   .conversation-tools #new-conversation { order: 3; flex: 0 0 auto; }
   #conversation li.conversation-empty { padding: 2.25rem .75rem; }
-  #conversation { padding-bottom: 9rem; }
+  .conversation-panel {
+    height: calc(100vh - 7.6rem);
+    min-height: 0;
+    max-height: calc(100vh - 7.6rem);
+    overflow: hidden;
+  }
+  #conversation { min-height: 0; max-height: none; overflow-y: auto; padding-bottom: 1rem; }
   .composer-dock {
-    position: fixed;
-    left: .65rem;
-    right: .65rem;
+    position: sticky;
+    left: auto;
+    right: auto;
     bottom: 0;
-    z-index: 10;
+    z-index: 2;
     margin: 0;
     padding: .6rem .8rem .75rem;
     border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
