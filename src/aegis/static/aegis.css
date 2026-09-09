@@ -723,6 +723,23 @@ body {
 }
 .message-sources summary { color: var(--text-muted); font-size: .78rem; }
 .message-sources a { color: var(--accent); }
+.feedback-inline[hidden] { display: none !important; }
+.attachment-tools { min-height: 1.4rem; align-items: center; }
+.attachment-dropzone {
+  min-height: 0;
+  padding: .15rem 0;
+  border: 0;
+  color: var(--text-muted);
+  font-size: .74rem;
+}
+.attachment-dropzone.is-dragging {
+  min-height: 2.25rem;
+  padding: .35rem .65rem;
+  border: 1px dashed var(--accent);
+  border-radius: .55rem;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--text-strong);
+}
 
 /* The empty thread is a welcome surface, not a placeholder sentence. */
 #conversation li.conversation-empty {
