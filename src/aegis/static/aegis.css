@@ -395,3 +395,22 @@ body { background: var(--surface-0); color: var(--text-strong); }
   #conversation { max-width: 66rem; width: 100%; align-self: center; }
   .composer-dock { padding-inline: clamp(0rem, 2vw, 1.5rem); }
 }
+
+/* Assistant answers are the primary reading surface, not another dashboard card. */
+#conversation li.aegis-message {
+  width: min(100%, 66rem);
+  max-width: 100%;
+  padding: .55rem 0 .9rem 1rem;
+  border: 0;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 38%, var(--line));
+  border-radius: 0;
+  background: transparent;
+}
+#conversation li.aegis-message .message-speaker { color: var(--accent); }
+#conversation li.aegis-message .message-content { max-width: 70ch; }
+
+@media (max-width: 36rem) {
+  #conversation li.aegis-message {
+    padding-left: .75rem;
+  }
+}
