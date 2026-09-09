@@ -34,17 +34,21 @@ jobs:
           python-version: "3.11"
       - name: Install and attest developer sandbox primitives
         run: |
-          installed=0
-          for attempt in 1 2 3; do
-            if sudo apt-get update && sudo apt-get install --yes bubblewrap util-linux; then
-              installed=1
-              break
-            fi
-            sleep 5
-          done
-          test "$installed" -eq 1
+          if ! command -v bwrap >/dev/null 2>&1 || ! command -v prlimit >/dev/null 2>&1; then
+            installed=0
+            for attempt in 1 2 3; do
+              if sudo apt-get update -o Acquire::Retries=3 && sudo apt-get install --yes -o Acquire::Retries=3 bubblewrap util-linux; then
+                installed=1
+                break
+              fi
+              sleep 5
+            done
+            test "$installed" -eq 1
+          fi
           if [[ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]]; then
-            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+            if ! sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0; then
+              echo "AppArmor userns sysctl is not writable; the bwrap attestation below remains authoritative."
+            fi
           fi
           command -v bwrap
           command -v prlimit
