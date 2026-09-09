@@ -63,6 +63,38 @@ def test_owner_correction_prefix_uses_owner_fact_without_model_prose() -> None:
     assert all("Scotty" not in memory.content for memory in state.memories.values())
 
 
+def test_owner_correction_supports_predicate_value_replacement() -> None:
+    state = PersonalState()
+    state.add_memory(
+        "Lyxa's vet is Banfield.",
+        datetime(2026, 9, 8, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+
+    result = OwnerCorrectionLearning(state).resolve(_intent("Actually, Lyxa's vet is VCA."))
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Got it. Lyxa's vet is VCA."
+    assert state.search_memories("Lyxa vet")[0].content == "Lyxa's vet is VCA."
+
+
+def test_owner_correction_supports_relation_object_replacement() -> None:
+    state = PersonalState()
+    state.add_memory(
+        "Hypnos is the game server.",
+        datetime(2026, 9, 8, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+
+    result = OwnerCorrectionLearning(state).resolve(_intent("Actually, the game server is Erebus."))
+
+    assert result is not None
+    assert result.state is ObjectiveState.COMPLETED
+    assert result.message == "Got it. Erebus is the game server."
+    assert state.search_memories("game server")[0].content == "Erebus is the game server."
+
+
 def test_ambiguous_owner_correction_does_not_mutate_memory() -> None:
     state = PersonalState()
     state.add_memory(
