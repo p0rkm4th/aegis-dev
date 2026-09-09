@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
+  "state_basis_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
-  "deterministic_green_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
-  "last_pushed_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
-  "hosted_green_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
-  "hosted_ci_green_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
+  "repository_head_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
+  "deterministic_green_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
+  "last_pushed_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
+  "hosted_green_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
+  "hosted_ci_green_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
+    "commit_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
     "conclusion": "success",
-    "run_id": "34309173679",
-    "observed_at": "2026-09-09T04:00:00Z"
+    "run_id": "34309684650",
+    "observed_at": "2026-09-09T04:08:00Z"
   },
-  "installed_release_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
-  "running_release_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
-  "live_green_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521",
+  "installed_release_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
+  "running_release_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
+  "live_green_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "owner-feedback-visual-conversation-shell",
   "checkpoint_status": "owner_acceptance_pending",
@@ -43,7 +43,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521"
+    "release_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4", "owner_acceptance": "status, doctor, and open are available as ordinary installed commands; Scotty's normal-use acceptance remains pending"},
@@ -76,11 +76,11 @@
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
-    "current": "Installed AEGIS now has a calmer conversation-first visual shell: Chat is the dominant reading surface, navigation is quieter, assistant answers are low-chrome and wider, the composer is a deliberate anchored control, and mobile keeps the conversation and composer primary. The exact release is healthy and running.",
-    "remaining": "Scotty reports the installed UI still feels clunky and not pretty; owner acceptance remains rejected/pending. The visual conversation shell is the active repair lane, while Core semantics and Codex remain unchanged."
+    "current": "Installed AEGIS now has a calmer conversation-first shell with a designed welcome state, quieter theme and response controls, dominant reading surface, and an intentional anchored composer across desktop and phone. The exact release is healthy and running.",
+    "remaining": "Scotty reports the installed UI still feels clunky and not pretty; owner acceptance remains rejected/pending. The visual conversation shell remains the active repair lane, while Core semantics and Codex remain unchanged."
   },
   "replacement_product_matrix": {
-    "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_REJECTED", "basis_sha": "ec19b3e06b9e2f983faf2f7dd7d6854b66280521", "blocker": "Installed Chat now has a quieter premium shell, dominant conversation reading surface, low-chrome AEGIS answers, calmer navigation, and a more intentional anchored composer across desktop and phone. Scotty's direct feedback is that the UI still sucks/is not pretty; another natural owner judgment is required after this coherent visual pass."},
+    "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_REJECTED", "basis_sha": "f620f1f57a75bdcff209a52c94737bdd907f2cfa", "blocker": "Installed Chat now has a quieter premium shell, designed empty state, restrained response utilities, dominant conversation reading surface, low-chrome AEGIS answers, calmer navigation, and a more intentional anchored composer across desktop and phone. Scotty's direct feedback is that the UI still sucks/is not pretty; another natural owner judgment is required after this coherent visual pass."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
     "codex": {"state": "RED", "basis_sha": "12976378e980defd75cb7f661a44ccaf81d41a54", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, persists exact candidate bytes/hashes/diff digest in the durable job, explicitly disables worker network/config rules, and applies only an exact approval; hostile-validator proof covers host files/network/Git/background processes. Owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
