@@ -34,8 +34,15 @@ jobs:
           python-version: "3.11"
       - name: Install and attest developer sandbox primitives
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes bubblewrap util-linux
+          installed=0
+          for attempt in 1 2 3; do
+            if sudo apt-get update && sudo apt-get install --yes bubblewrap util-linux; then
+              installed=1
+              break
+            fi
+            sleep 5
+          done
+          test "$installed" -eq 1
           if [[ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]]; then
             sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           fi
