@@ -536,6 +536,14 @@ class OwnerCorrectionLearning:
     )
     _MAX_CANDIDATES = 5
 
+    @dataclass(frozen=True)
+    class _Claim:
+        replacement: str
+        old_text: str | None
+        predicate: str
+        source_span: tuple[int, int]
+        value_span: tuple[int, int] | None = None
+
     def __init__(self, state: PersonalState, now: datetime | None = None) -> None:
         self.state = state
         self.now = now or datetime.now().astimezone()
@@ -551,8 +559,24 @@ class OwnerCorrectionLearning:
         parsed = self._parse(intent.utterance)
         if parsed is None:
             return None
-        replacement, old_text, predicate, source_span = parsed
+        replacement = parsed.replacement
+        old_text = parsed.old_text
+        predicate = parsed.predicate
+        source_span = parsed.source_span
+        correction_mode = "subject"
         candidates = self._candidates(old_text, predicate)
+        if not candidates and old_text is None and parsed.value_span is not None:
+            candidates = self._value_candidates(replacement)
+            if candidates:
+                correction_mode = "value"
+                replacement = predicate
+                source_span = parsed.value_span
+            else:
+                candidates = self._relation_candidates(replacement)
+                if candidates:
+                    correction_mode = "relation"
+                    replacement = predicate
+                    source_span = parsed.value_span
         if len(candidates) != 1:
             if not candidates:
                 return Result(
@@ -589,7 +613,14 @@ class OwnerCorrectionLearning:
                 correlation_id=intent.correlation_id,
             )
         target = candidates[0]
-        grounded_old = old_text or self._infer_old_text(target.content, predicate)
+        if correction_mode == "value":
+            fact = self._split_fact(target.content)
+            grounded_old = fact[1] if fact is not None else None
+        elif correction_mode == "relation":
+            fact = self._split_fact(target.content)
+            grounded_old = fact[0] if fact is not None else None
+        else:
+            grounded_old = old_text or self._infer_old_text(target.content, predicate)
         if grounded_old is None or target.content.casefold().count(grounded_old.casefold()) != 1:
             return Result(
                 objective_id=uuid4(),
@@ -603,7 +634,9 @@ class OwnerCorrectionLearning:
                 },
                 correlation_id=intent.correlation_id,
             )
-        corrected_content = self._corrected_content(target.content, grounded_old, replacement)
+        corrected_content = self._corrected_content(
+            target.content, grounded_old, replacement, correction_mode
+        )
         entity_ids = self._corrected_entity_ids(target, grounded_old, replacement)
         candidate = LearningCandidate(
             kind=LearningCandidateKind.OWNER_CORRECTION,
@@ -638,13 +671,13 @@ class OwnerCorrectionLearning:
             correlation_id=intent.correlation_id,
         )
 
-    def _parse(self, utterance: str) -> tuple[str, str | None, str, tuple[int, int]] | None:
+    def _parse(self, utterance: str) -> _Claim | None:
         match = self._CONTRAST.fullmatch(utterance) or self._MEANT_CONTRAST.fullmatch(utterance)
         if match is not None:
             replacement = " ".join(match.group("replacement").split()).strip(" .!?")
             old_text = " ".join(match.group("old").split()).strip(" .!?")
             predicate = " ".join(match.groupdict().get("predicate", "").split())
-            return replacement, old_text, predicate, match.span("replacement")
+            return self._Claim(replacement, old_text, predicate, match.span("replacement"))
         match = self._PREFIX_FACT.fullmatch(utterance)
         if match is None:
             return None
@@ -652,7 +685,15 @@ class OwnerCorrectionLearning:
         subject, _, predicate = fact.partition(" is ")
         if not subject.strip() or not predicate.strip():
             return None
-        return subject.strip(), None, predicate.strip(), match.span("fact")
+        fact_start, fact_end = match.span("fact")
+        separator = fact.casefold().find(" is ")
+        return self._Claim(
+            subject.strip(),
+            None,
+            predicate.strip(),
+            (fact_start, fact_start + separator),
+            (fact_start + separator + len(" is "), fact_end),
+        )
 
     def _candidates(self, old_text: str | None, predicate: str) -> list[MemoryRecord]:
         current = [
@@ -671,6 +712,33 @@ class OwnerCorrectionLearning:
             candidates.append(memory)
         return candidates[: self._MAX_CANDIDATES]
 
+    def _value_candidates(self, subject: str) -> list[MemoryRecord]:
+        normalized_subject = " ".join(subject.casefold().split())
+        return [
+            memory
+            for memory in self.state.memories.values()
+            if memory.superseded_by is None
+            and (fact := self._split_fact(memory.content)) is not None
+            and " ".join(fact[0].casefold().split()) == normalized_subject
+        ][: self._MAX_CANDIDATES]
+
+    def _relation_candidates(self, field: str) -> list[MemoryRecord]:
+        normalized_field = " ".join(field.casefold().split())
+        return [
+            memory
+            for memory in self.state.memories.values()
+            if memory.superseded_by is None
+            and (fact := self._split_fact(memory.content)) is not None
+            and " ".join(fact[1].casefold().split()) == normalized_field
+        ][: self._MAX_CANDIDATES]
+
+    @staticmethod
+    def _split_fact(content: str) -> tuple[str, str] | None:
+        match = re.fullmatch(r"\s*(.+?)\s+is\s+(.+?)([.!?])?\s*", content)
+        if match is None:
+            return None
+        return match.group(1).strip(), match.group(2).strip()
+
     @staticmethod
     def _infer_old_text(content: str, predicate: str) -> str | None:
         if not predicate:
@@ -679,8 +747,18 @@ class OwnerCorrectionLearning:
         return match.group(1).strip() if match else None
 
     @staticmethod
-    def _corrected_content(content: str, old_text: str, replacement: str) -> str:
-        return re.sub(re.escape(old_text), replacement, content, count=1, flags=re.IGNORECASE)
+    def _corrected_content(
+        content: str, old_text: str, replacement: str, correction_mode: str = "subject"
+    ) -> str:
+        if correction_mode == "subject":
+            return re.sub(re.escape(old_text), replacement, content, count=1, flags=re.IGNORECASE)
+        fact = OwnerCorrectionLearning._split_fact(content)
+        if fact is None:
+            return content
+        suffix = content.rstrip()[-1:] if content.rstrip()[-1:] in ".!?" else ""
+        if correction_mode == "value":
+            return f"{fact[0]} is {replacement}{suffix}"
+        return f"{replacement} is {fact[1]}{suffix}"
 
     def _corrected_entity_ids(
         self, target: MemoryRecord, old_text: str, replacement: str

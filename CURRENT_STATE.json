@@ -19,12 +19,12 @@
   "running_release_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
   "live_green_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
   "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "daily-driver-integrity-correction-provenance-p0",
+  "active_checkpoint": "daily-driver-integrity-correction-semantic-hardening",
   "checkpoint_status": "owner_acceptance_pending",
-  "current_checkpoint": "daily-driver-integrity-correction-provenance-p0",
+  "current_checkpoint": "daily-driver-integrity-correction-semantic-hardening",
   "active_campaign": "AEGIS AUTONOMOUS DAILY-DRIVER INTEGRITY + SEMANTICS",
   "primary_proving_domains": ["Correction provenance atomicity", "Natural outcome/set semantics", "Conversation-first owner surface"],
-  "parallel_lane": "P0 correction transaction integrity installed-green; owner acceptance remains pending while justified semantic regressions continue",
+  "parallel_lane": "Correction semantic hardening; P0 provenance atomicity installed-green; owner acceptance remains pending",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -50,6 +50,7 @@
     "objective_recovery": {"state": "ENGINEERING_GREEN", "basis_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d", "owner_acceptance": "installed recovery remains green; owner acceptance remains pending"},
     "compounding_utility": {"state": "ENGINEERING_GREEN", "basis_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2", "owner_acceptance": "grounded owner correction is installed, tested, and audit-linked; Scotty must provide one real correction before OWNER_ACCEPTED"},
     "correction_provenance_integrity": {"state": "ENGINEERING_GREEN / OWNER_PENDING", "basis_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d", "owner_acceptance": "canonical correction and required learning provenance now share one PostgreSQL transaction; Scotty acceptance remains pending"},
+    "correction_semantic_hardening": {"state": "ENGINEERING_ACTIVE", "basis_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d", "owner_acceptance": "subject replacement is proven; value and relation/object replacement are being added as one bounded structured path"},
     "conversation": {"state": "ENGINEERING_GREEN", "basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e", "owner_acceptance": "pending Scotty walkthrough"},
     "memory": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real remember/recall/correction/removal walkthrough"},
     "finance": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real CSV import and useful question walkthrough"},
@@ -68,7 +69,8 @@
     "compound_preflight": "ENGINEERING_GREEN installed; complete bounded plan is formed before local collection mutation",
     "completion_fidelity": "ENGINEERING_GREEN installed; effect objectives cannot complete from answer-only fallback",
     "owner_blocker": "The supplied owner session remains OWNER_REJECTED; Scotty must exercise the installed natural outcome/set/compound workflows before owner acceptance can move.",
-    "correction_provenance": "P0 installed: canonical correction and required learning audit commit atomically; injected audit failure rolls back without a phantom audit event."
+    "correction_provenance": "P0 installed: canonical correction and required learning audit commit atomically; injected audit failure rolls back without a phantom audit event.",
+    "correction_semantics": "Bounded copular facts now cover subject replacement, predicate/value replacement, and relation/object replacement using owner-grounded spans; arbitrary fact learning remains unclaimed."
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
