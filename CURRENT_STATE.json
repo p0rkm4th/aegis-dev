@@ -20,11 +20,11 @@
   "live_green_sha": "8ad5d4811799ae86a8ffeb22059a4eb66bcba3b9",
   "active_milestone": "AUTOMATON-AUTONOMOUS-SPRINTS",
   "active_checkpoint": "autonomy-waiting-external-regression",
-  "checkpoint_status": "engineering_green_owner_acceptance_pending",
+  "checkpoint_status": "waiting_external_hosted_validation_owner_acceptance_pending",
   "current_checkpoint": "autonomy-waiting-external-regression",
   "active_campaign": "AEGIS AUTOMATON HARVEST + PERSISTENT AUTONOMOUS LUNA",
   "primary_proving_domains": ["Durable Luna sprint state", "Independent lane switching", "Installed Constellation spatial map"],
-  "parallel_lane": "U6 mobile/accessibility promotion is WAITING_EXTERNAL on hosted run 34386313313; the autonomous sprint switched to an independent WAITING_EXTERNAL lane regression while Chat owner review remains WAITING_HUMAN",
+  "parallel_lane": "U6 promotion and the independent autonomy regression are both WAITING_EXTERNAL on hosted runs 34386313313 and 34386876399; no independent READY lane remains while Chat owner review is WAITING_HUMAN",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
