@@ -259,7 +259,7 @@ _INDEX_HTML = """<!doctype html>
 <div class="chat-progress" aria-live="polite"><p id="activity" class="muted" aria-atomic="true"></p><p id="step-status" class="muted"></p><p id="status-badge" class="status-badge" data-state="idle">Ready</p></div>
 <div class="composer-dock" aria-label="Message composer"><form id="chat"><label class="sr-only" for="utterance">Message AEGIS</label><textarea id="utterance" rows="2" autocomplete="off"
 placeholder="Talk to AEGIS…" aria-describedby="composer-hint"></textarea><label class="attachment-picker" for="attachment-file">Attach<input id="attachment-file" type="file" accept=".txt,.md,.csv,.json,.py,.js,.ts,.css,.html,.sql,.toml,.yaml,.yml,.ini,.cfg,.conf,.log" /></label><button>Send</button></form>
-<div class="attachment-tools"><div id="attachment-dropzone" class="attachment-dropzone" role="button" tabindex="0" aria-label="Drop a text file to attach">Drop files here</div><span id="attachment-status" class="muted" aria-live="polite"></span><ul id="attachments" aria-label="Conversation attachments"></ul></div>
+<div class="attachment-tools"><div id="attachment-dropzone" class="attachment-dropzone" role="button" tabindex="0" aria-label="Drop a text file to attach">Drop a file here</div><span id="attachment-status" class="muted" aria-live="polite"></span><ul id="attachments" aria-label="Conversation attachments"></ul></div>
 <p id="composer-hint" class="muted">Enter to send · Shift+Enter for a new line</p>
 <p id="draft-status" class="muted" aria-live="polite"></p></div>
 <details class="chat-advanced"><summary>Response details</summary><p id="answer" class="muted" aria-live="polite"></p><div id="detail" class="muted" role="region"
