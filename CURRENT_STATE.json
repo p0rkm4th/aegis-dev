@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
+  "state_basis_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
-  "deterministic_green_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
-  "last_pushed_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
-  "hosted_green_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
-  "hosted_ci_green_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
+  "repository_head_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
+  "deterministic_green_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
+  "last_pushed_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
+  "hosted_green_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
+  "hosted_ci_green_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
+    "commit_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
     "conclusion": "success",
     "run_id": "34294780667",
     "observed_at": "2026-09-09T00:45:00Z"
   },
-  "installed_release_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
-  "running_release_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
-  "live_green_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
+  "installed_release_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
+  "running_release_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
+  "live_green_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
   "active_milestone": "DAILY-DRIVER-ALPHA",
   "active_checkpoint": "daily-driver-integrity-correction-provenance-p0",
-  "checkpoint_status": "engineering_active",
+  "checkpoint_status": "owner_acceptance_pending",
   "current_checkpoint": "daily-driver-integrity-correction-provenance-p0",
   "active_campaign": "AEGIS AUTONOMOUS DAILY-DRIVER INTEGRITY + SEMANTICS",
   "primary_proving_domains": ["Correction provenance atomicity", "Natural outcome/set semantics", "Conversation-first owner surface"],
-  "parallel_lane": "P0 correction transaction integrity; owner acceptance remains pending but does not pause justified engineering",
+  "parallel_lane": "P0 correction transaction integrity installed-green; owner acceptance remains pending while justified semantic regressions continue",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -43,13 +43,13 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9"
+    "release_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4", "owner_acceptance": "status, doctor, and open are available as ordinary installed commands; Scotty's normal-use acceptance remains pending"},
     "objective_recovery": {"state": "ENGINEERING_GREEN", "basis_sha": "6beedb18833453030c3f8eee3d06f3e85dbe662d", "owner_acceptance": "installed recovery remains green; owner acceptance remains pending"},
     "compounding_utility": {"state": "ENGINEERING_GREEN", "basis_sha": "a828e21cb72a5fa1f7e34a091db3ae67022b93a2", "owner_acceptance": "grounded owner correction is installed, tested, and audit-linked; Scotty must provide one real correction before OWNER_ACCEPTED"},
-    "correction_provenance_integrity": {"state": "ENGINEERING_ACTIVE", "basis_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9", "owner_acceptance": "required correction provenance is being moved into the same PostgreSQL transaction as canonical memory mutation"},
+    "correction_provenance_integrity": {"state": "ENGINEERING_GREEN / OWNER_PENDING", "basis_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d", "owner_acceptance": "canonical correction and required learning provenance now share one PostgreSQL transaction; Scotty acceptance remains pending"},
     "conversation": {"state": "ENGINEERING_GREEN", "basis_sha": "70d84a87ce89b265e670ce398c28d1d04a01ab1e", "owner_acceptance": "pending Scotty walkthrough"},
     "memory": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real remember/recall/correction/removal walkthrough"},
     "finance": {"state": "ENGINEERING_GREEN", "basis_sha": "9f47b7be540f7c4740dfc230c37366bf4a4c036d", "owner_acceptance": "pending Scotty's real CSV import and useful question walkthrough"},
@@ -62,18 +62,18 @@
     "feedback": {"state": "ENGINEERING_GREEN", "basis_sha": "8f187735ef2ce42ffb7464ac5445b00ab710ffcc", "owner_acceptance": "pending Scotty marking one installed interaction helpful or not helpful"}
   },
   "daily_driver_semantics": {
-    "state": "ENGINEERING_ACTIVE; OWNER_ACCEPTANCE_PENDING",
-    "basis_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9",
+    "state": "ENGINEERING_GREEN / INSTALLED; OWNER_ACCEPTANCE_PENDING",
+    "basis_sha": "c07c8abb52dcea79a8dd9d81990cf23eacf9691d",
     "desired_state_sets": "ENGINEERING_GREEN installed for bounded Grocery and Tasks current-collection/all-matching/explicit-set planning with canonical preflight and postcondition verification; natural owner acceptance pending",
     "compound_preflight": "ENGINEERING_GREEN installed; complete bounded plan is formed before local collection mutation",
     "completion_fidelity": "ENGINEERING_GREEN installed; effect objectives cannot complete from answer-only fallback",
     "owner_blocker": "The supplied owner session remains OWNER_REJECTED; Scotty must exercise the installed natural outcome/set/compound workflows before owner acceptance can move.",
-    "correction_provenance": "P0 active: canonical correction and required learning audit must commit atomically; audit failure must leave old memory current."
+    "correction_provenance": "P0 installed: canonical correction and required learning audit commit atomically; injected audit failure rolls back without a phantom audit event."
   },
   "owner_value_checkpoint": {
     "previous": "Scotty still had to leave AEGIS for ChatGPT because installed Chat was clunky and rendered responses as plain text.",
     "current": "Installed AEGIS now translates bounded Grocery and Tasks outcomes into canonical sets, verifies the final state, keeps effect answers from falsely completing, and opens directly into Chat with Today secondary.",
-    "remaining": "P0 correction provenance atomicity is the active integrity repair; Scotty's natural outcome/set/compound and conversation-first acceptance remain pending. Codex remains RED."
+    "remaining": "Scotty's natural outcome/set/compound and conversation-first acceptance remain pending; next justified engineering lane is correction semantic hardening. Codex remains RED."
   },
   "replacement_product_matrix": {
     "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_ACCEPTANCE_PENDING", "basis_sha": "a23a4fba42f105643d13bc73e7aee6dab4009bd9", "blocker": "Installed Chat is the default surface with distinct Today navigation, persistent bounded threads, Markdown/source/copy support, and anchored composer; Scotty must decide whether it is no longer clunky enough to leave for ChatGPT."},
