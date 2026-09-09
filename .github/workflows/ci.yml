@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Bubblewrap's namespace attestation needs a stable runner kernel/AppArmor
+    # contract; do not silently vary it behind the moving ubuntu-latest alias.
+    runs-on: ubuntu-22.04
     services:
       postgres:
         image: pgvector/pgvector:pg16
