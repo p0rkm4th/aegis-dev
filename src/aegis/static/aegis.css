@@ -234,6 +234,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
   background: color-mix(in srgb, var(--panel) 96%, transparent);
 }
 .composer-dock #chat { margin: 0 0 .35rem; }
+.composer-dock #chat .attachment-picker { align-self: stretch; min-height: 3.25rem; padding-inline: .7rem; }
 .composer-dock #composer-hint,
 .composer-dock #draft-status { margin: .3rem 0 0; }
 .chat-advanced { margin-top: .75rem; color: var(--text-muted); font-size: .85rem; }

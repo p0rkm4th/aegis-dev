@@ -5630,6 +5630,7 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert "selected for the next message" in _AEGIS_JS
     assert "none will be sent automatically" in _AEGIS_JS
     assert 'id="attachment-dropzone"' in _INDEX_HTML
+    assert '<label class="attachment-picker" for="attachment-file">Attach' in _INDEX_HTML
     assert 'id="chat-project"' in _INDEX_HTML
     assert "project_id" in _AEGIS_JS
     assert "read-only" in _AEGIS_JS
