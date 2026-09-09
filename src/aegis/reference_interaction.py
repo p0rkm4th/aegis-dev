@@ -1295,6 +1295,40 @@ def reference_format_result(result: Any) -> str:
     evidence = result.evidence
     if evidence.get("provenance") == "model_generated":
         return str(result.message)
+    steps = evidence.get("steps")
+    if isinstance(steps, list) and steps:
+        collection_evidence = [
+            step.get("evidence")
+            for step in steps
+            if isinstance(step, dict) and isinstance(step.get("evidence"), dict)
+        ]
+        if collection_evidence and all(
+            item.get("collection") == "groceries" and "grocery_ids" in item
+            for item in collection_evidence
+        ):
+            count = sum(
+                len(item["grocery_ids"])
+                for item in collection_evidence
+                if isinstance(item.get("grocery_ids"), list)
+            )
+            remaining = [
+                item_id
+                for item in collection_evidence
+                for item_id in item.get("remaining_grounded_ids", [])
+                if isinstance(item_id, str)
+            ]
+            if not remaining:
+                return "Done — your grocery list is empty."
+            return f"Done — removed {count} grocery item{'s' if count != 1 else ''}."
+        if collection_evidence and all(
+            item.get("collection") == "tasks" and "task_ids" in item for item in collection_evidence
+        ):
+            count = sum(
+                len(item["task_ids"])
+                for item in collection_evidence
+                if isinstance(item.get("task_ids"), list)
+            )
+            return f"Done — completed {count} task{'s' if count != 1 else ''}."
     if evidence.get("referent") == "prior_result":
         return str(result.message)
     if evidence.get("grocery_status") is not None:

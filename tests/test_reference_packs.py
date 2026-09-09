@@ -109,6 +109,55 @@ def test_task_collection_action_completes_and_verifies_bounded_set() -> None:
     assert all(task.status is TaskStatus.COMPLETED for task in store.list(principal))
 
 
+def test_collection_result_is_rendered_as_owner_outcome() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Completed all 1 plan steps",
+        correlation_id=uuid4(),
+        evidence={
+            "steps": [
+                {
+                    "action_id": "kitchen.groceries.remove_set",
+                    "state": "completed",
+                    "evidence": {
+                        "collection": "groceries",
+                        "grocery_ids": ["rice-1", "milk-1"],
+                        "remaining_grounded_ids": [],
+                    },
+                }
+            ]
+        },
+    )
+
+    assert reference_format_result(result) == "Done — your grocery list is empty."
+
+
+def test_task_collection_result_uses_human_count_not_internal_ids() -> None:
+    result = Result(
+        objective_id=uuid4(),
+        state=ObjectiveState.COMPLETED,
+        message="Completed all 1 plan steps",
+        correlation_id=uuid4(),
+        evidence={
+            "steps": [
+                {
+                    "action_id": "tasks.complete_set",
+                    "state": "completed",
+                    "evidence": {
+                        "collection": "tasks",
+                        "task_ids": ["task-1", "task-2"],
+                    },
+                }
+            ]
+        },
+    )
+
+    rendered = reference_format_result(result)
+    assert rendered == "Done — completed 2 tasks."
+    assert "task-1" not in rendered
+
+
 def test_capability_needs_read_is_scoped_and_independently_reread() -> None:
     principal = Principal(id="alice", vault_id="alice-vault")
     need_id = "11111111-1111-4111-8111-111111111111"
