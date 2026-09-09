@@ -2,12 +2,20 @@ import shutil
 import socket
 import subprocess
 import textwrap
+import time
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
 from aegis.workspace import ScopedWorkspace, WorkspaceError, WorkspaceManager
+
+
+@pytest.fixture
+def required_sandbox_tools() -> None:
+    missing = [tool for tool in ("bwrap", "prlimit") if shutil.which(tool) is None]
+    if missing:
+        pytest.fail("sandbox attestation requires: " + ", ".join(missing))
 
 
 def test_workspace_writes_reads_and_lists_only_scoped_files(tmp_path: Path) -> None:
@@ -25,8 +33,9 @@ def test_workspace_rejects_host_path_escape(tmp_path: Path, relative: str) -> No
         workspace.write(relative, "no")
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
-def test_workspace_runs_allowlisted_command_without_network(tmp_path: Path) -> None:
+def test_workspace_runs_allowlisted_command_without_network(
+    tmp_path: Path, required_sandbox_tools: None
+) -> None:
     workspace = ScopedWorkspace(tmp_path / "owner", allowed_commands=("python3",))
     workspace.write("index.html", "<h1>ok</h1>")
     result = workspace.run(
@@ -37,8 +46,9 @@ def test_workspace_runs_allowlisted_command_without_network(tmp_path: Path) -> N
     assert "<h1>ok</h1>" in result.stdout
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
-def test_workspace_network_namespace_cannot_reach_parent_loopback(tmp_path: Path) -> None:
+def test_workspace_network_namespace_cannot_reach_parent_loopback(
+    tmp_path: Path, required_sandbox_tools: None
+) -> None:
     listener = socket.socket()
     listener.bind(("127.0.0.1", 0))
     listener.listen(1)
@@ -57,8 +67,52 @@ def test_workspace_network_namespace_cannot_reach_parent_loopback(tmp_path: Path
     assert result.stdout.strip() == "blocked"
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
-def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path: Path) -> None:
+def test_workspace_pid_namespace_hides_and_protects_host_sentinel(
+    tmp_path: Path, required_sandbox_tools: None
+) -> None:
+    sentinel = subprocess.Popen(("python3", "-c", "import time; time.sleep(10)"))
+    try:
+        workspace = ScopedWorkspace(tmp_path / "owner", allowed_commands=("python3",))
+        script = textwrap.dedent(
+            f"""
+            from pathlib import Path
+            import os
+
+            host_pid = {sentinel.pid}
+            visible = Path('/proc') / str(host_pid)
+            enumerated = any(
+                entry.name == str(host_pid)
+                for entry in Path('/proc').iterdir()
+                if entry.name.isdigit()
+            )
+            print(
+                'sentinel-hidden'
+                if not visible.exists() and not enumerated
+                else 'sentinel-visible'
+            )
+            try:
+                os.kill(host_pid, 0)
+            except ProcessLookupError:
+                print('sentinel-signal-blocked')
+            except PermissionError:
+                print('sentinel-signal-denied')
+            else:
+                print('sentinel-signal-visible')
+            """
+        )
+        result = workspace.run(("python3", "-c", script), uuid4())
+        assert result.returncode == 0
+        assert "sentinel-hidden" in result.stdout
+        assert "sentinel-signal-blocked" in result.stdout
+        assert sentinel.poll() is None
+    finally:
+        sentinel.terminate()
+        sentinel.wait(timeout=5)
+
+
+def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(
+    tmp_path: Path, required_sandbox_tools: None
+) -> None:
     sentinel = tmp_path / "host-sentinel.txt"
     sentinel.write_text("unchanged", encoding="utf-8")
     host_home = tmp_path / "host-home"
@@ -117,7 +171,14 @@ def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path
             print('network-open')
         except OSError:
             print('network-closed')
-        child = subprocess.Popen(['python3', '-c', 'import time; time.sleep(5)'])
+        child_code = (
+            "from pathlib import Path; import os, sys, time; "
+            "parent = int(sys.argv[1]); "
+            "[time.sleep(0.01) for _ in iter("
+            "lambda: 0 if os.getppid() == parent else 1, 1)]; "
+            "Path('child-escaped.txt').write_text('escaped')"
+        )
+        child = subprocess.Popen(['python3', '-c', child_code, str(os.getpid())])
         Path('child.pid').write_text(str(child.pid))
         time.sleep(0.1)
         """
@@ -144,8 +205,8 @@ def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path
         == before_git
     )
     assert (workspace.root / "validator-mutation.txt").read_text() == "only disposable"
-    child_pid = int((workspace.root / "child.pid").read_text())
-    assert not Path(f"/proc/{child_pid}").exists()
+    time.sleep(0.2)
+    assert not (workspace.root / "child-escaped.txt").exists()
 
     nonzero = workspace.run(
         (
@@ -165,9 +226,9 @@ def test_hostile_validator_is_disposable_and_cannot_reach_host_boundary(tmp_path
     assert (workspace.root / "zero.txt").read_text() == "kept"
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
-@pytest.mark.skipif(shutil.which("prlimit") is None, reason="prlimit is not installed")
-def test_workspace_run_applies_resource_limits_inside_sandbox(tmp_path: Path) -> None:
+def test_workspace_run_applies_resource_limits_inside_sandbox(
+    tmp_path: Path, required_sandbox_tools: None
+) -> None:
     workspace = ScopedWorkspace(
         tmp_path / "owner",
         max_cpu_seconds=3,
@@ -186,16 +247,16 @@ def test_workspace_run_applies_resource_limits_inside_sandbox(tmp_path: Path) ->
     assert result.stdout.strip() == "[3, 134217728, 17, 29, 4096]"
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
-def test_workspace_run_timeout_cleans_up_the_sandbox_process_group(tmp_path: Path) -> None:
+def test_workspace_run_timeout_cleans_up_the_sandbox_process_group(
+    tmp_path: Path, required_sandbox_tools: None
+) -> None:
     workspace = ScopedWorkspace(tmp_path / "owner", timeout_seconds=0.2)
     result = workspace.run(("python3", "-c", "import time; time.sleep(5)"), uuid4())
     assert result.timed_out is True
     assert result.returncode == 124
 
 
-@pytest.mark.skipif(shutil.which("bwrap") is None, reason="bubblewrap is not installed")
-def test_workspace_run_stops_file_abuse(tmp_path: Path) -> None:
+def test_workspace_run_stops_file_abuse(tmp_path: Path, required_sandbox_tools: None) -> None:
     workspace = ScopedWorkspace(tmp_path / "owner", max_workspace_files=2, max_workspace_bytes=1024)
     script = "from pathlib import Path; [Path(f'abuse-{i}').write_text('x') for i in range(20)]"
     result = workspace.run(("python3", "-c", script), uuid4())
