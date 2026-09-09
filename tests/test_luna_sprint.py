@@ -97,6 +97,17 @@ def test_waiting_human_task_switches_to_independent_ready_task():
     assert state.status is SprintStatus.ACTIVE
 
 
+def test_waiting_external_task_switches_to_independent_ready_task():
+    state = make_state(task("external-work", priority=100), task("safe-work", lane="reliability"))
+    assert state.select_next_task().task_id == "external-work"
+    state.mark_waiting_external(
+        "external-work", "hosted provider is unavailable", "next hosted run"
+    )
+    assert state.select_next_task().task_id == "safe-work"
+    assert state.tasks["external-work"].status is TaskStatus.WAITING_EXTERNAL
+    assert state.status is SprintStatus.ACTIVE
+
+
 def test_bounded_failure_blocks_dependents_but_not_independent_work():
     state = make_state(
         task("broken", priority=100, max_attempts=1),
