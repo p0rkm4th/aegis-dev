@@ -683,6 +683,11 @@ body {
 }
 
 /* Keep long conversations scrollable without letting the composer cover their content. */
+.health-line,
+.conversation-tools,
+.chat-progress,
+.composer-dock { flex: 0 0 auto; }
+
 @media (min-width: 53rem) {
   .conversation-panel {
     height: calc(100vh - 6rem);
