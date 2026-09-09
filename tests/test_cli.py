@@ -7801,6 +7801,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'class="intro"' in browser_source
     assert 'id="status-badge"' in browser_source
     assert "setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state)" in browser_source
+    assert "proposed: 'Preparing'" in browser_source
+    assert "validated: 'Checking'" in browser_source
+    assert "authorized: 'Ready to act'" in browser_source
     assert '<details class="secondary" aria-label="Canonical state">' in browser_source
     assert "<summary>Canonical state</summary>" in browser_source
     assert 'placeholder="Talk to AEGIS…"' in browser_source
