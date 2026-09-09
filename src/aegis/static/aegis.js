@@ -580,11 +580,9 @@ async function loadHealth() {
     const error = new Error(report.error || 'Runtime status unavailable.');
     error.code = report.code || 'health_unavailable'; throw error;
   }
-  const required = (report.components || []).filter(component => component.required);
-  const ready = report.ready ? 'READY' : 'NOT READY';
-  document.getElementById('health').textContent =
-    `Runtime: ${ready} · ${required.filter(component => component.healthy).length}` +
-    `/${required.length} required checks OK`;
+  document.getElementById('health').textContent = report.ready
+    ? 'AEGIS is ready'
+    : 'AEGIS needs attention';
   const healthDetails = document.getElementById('health-details');
   healthDetails.replaceChildren(...(report.components || []).map(component => {
     const item = document.createElement('li');
