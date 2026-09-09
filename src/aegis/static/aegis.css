@@ -334,6 +334,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
   .message-copy { min-height: 2.25rem; }
   .attachment-tools { align-items: stretch; }
   .attachment-picker { flex: 0 0 auto; }
+  .attachment-dropzone { display: none; }
   #detail dl { grid-template-columns: minmax(0, 1fr); }
 }
 
