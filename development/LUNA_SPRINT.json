@@ -6,9 +6,9 @@
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "observed_head_sha": "e37211f9af6cc0b2f5c9a26618dab52b67078455",
-    "last_green_sha": "e37211f9af6cc0b2f5c9a26618dab52b67078455",
-    "installed_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298"
+    "observed_head_sha": "d0909c37c91d44e4f52d7a1b015bbe341c358521",
+    "last_green_sha": "d0909c37c91d44e4f52d7a1b015bbe341c358521",
+    "installed_sha": "d0909c37c91d44e4f52d7a1b015bbe341c358521"
   },
   "lanes": {
     "AUTONOMY": {
@@ -161,7 +161,7 @@
       "title": "Hand selected Constellation context into Chat visibly",
       "priority": 80,
       "dependencies": ["constellation-u3-relationship-meaning"],
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "attempts": 1,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
@@ -172,7 +172,26 @@
       "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q", "git diff --check"],
       "blocker": "",
       "created_at": "2026-09-09T20:00:00+00:00",
-      "updated_at": "2026-09-09T20:05:00+00:00"
+      "updated_at": "2026-09-09T20:20:00+00:00"
+    },
+    "constellation-u5-state-attention": {
+      "task_id": "constellation-u5-state-attention",
+      "lane_id": "CONSTELLATION",
+      "title": "Make Constellation state and attention visually legible",
+      "priority": 75,
+      "dependencies": ["constellation-u4-chat-context-handoff"],
+      "status": "READY",
+      "attempts": 0,
+      "max_attempts": 3,
+      "identical_failure_repeats": 0,
+      "max_identical_failure_repeats": 2,
+      "failure_fingerprint": "",
+      "evidence": [],
+      "changed_paths": [],
+      "tests": [],
+      "blocker": "",
+      "created_at": "2026-09-09T20:20:00+00:00",
+      "updated_at": "2026-09-09T20:20:00+00:00"
     },
     "chat-owner-retest": {
       "task_id": "chat-owner-retest",
@@ -194,7 +213,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": "constellation-u4-chat-context-handoff",
+  "current_task": null,
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",
@@ -205,12 +224,12 @@
   ],
   "hosted_validation": {
     "workflow": "validation",
-    "head_sha": "e37211f9af6cc0b2f5c9a26618dab52b67078455",
-    "run_id": "34384221248",
+    "head_sha": "d0909c37c91d44e4f52d7a1b015bbe341c358521",
+    "run_id": "34385058270",
     "status": "completed",
     "conclusion": "success",
-    "installed_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298"
+    "installed_sha": "d0909c37c91d44e4f52d7a1b015bbe341c358521"
   },
-  "next_ready_tasks": [],
+  "next_ready_tasks": ["constellation-u5-state-attention"],
   "stop_reason": ""
 }
