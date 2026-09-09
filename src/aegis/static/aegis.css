@@ -184,6 +184,8 @@ body { background: var(--surface-0); color: var(--text-strong); }
   font-weight: 650;
 }
 .nav-group { display: flex; flex-direction: column; gap: .15rem; }
+.nav-advanced > summary { list-style: none; }
+.nav-advanced > summary::-webkit-details-marker { display: none; }
 .nav-group + .nav-group { margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--line); }
 .nav-group-label {
   padding: .35rem .75rem .25rem;

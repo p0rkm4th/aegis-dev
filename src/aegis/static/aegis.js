@@ -811,6 +811,7 @@ async function loadResearch() {
 nodeFilter.addEventListener('input', applyNodeFilter);
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
   activeView = button.dataset.view || 'home';
+  button.closest('.nav-advanced')?.setAttribute('open', '');
   document.querySelector('.workspace')?.setAttribute('data-view', activeView);
   document.querySelectorAll('[data-view]').forEach(item =>
     item.setAttribute('aria-current', item === button ? 'page' : 'false'));
@@ -3661,6 +3662,8 @@ document.addEventListener('DOMContentLoaded', () => {
   toggle.setAttribute('aria-expanded', 'false');
   toggle.addEventListener('click', () => {
     const expanded = nav.classList.toggle('show-advanced');
+    const advanced = nav.querySelector('.nav-advanced');
+    if (advanced) advanced.open = expanded;
     toggle.setAttribute('aria-expanded', String(expanded));
     toggle.textContent = expanded ? 'Fewer views' : 'More views';
   });

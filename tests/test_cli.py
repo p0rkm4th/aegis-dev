@@ -7687,7 +7687,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     )
     assert '<nav class="product-nav" aria-label="AEGIS views">' in browser_source
     assert '<div class="nav-group nav-primary" aria-label="Everyday">' in browser_source
-    assert '<div class="nav-group nav-advanced" aria-label="Explore">' in browser_source
+    assert '<details class="nav-group nav-advanced" aria-label="Explore">' in browser_source
+    assert '<summary class="nav-group-label">Explore</summary>' in browser_source
     assert 'data-view="home" aria-current="page"' in browser_source
     assert 'data-view="today" aria-current="false">Today</button>' in browser_source
     assert "home: ['Chat', 'A conversation with AEGIS.']" in browser_source
@@ -7696,6 +7697,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'data-view="home"' in browser_source
     assert '.workspace[data-view="home"] .view-summary' in _AEGIS_CSS
     assert "setAttribute('data-view', activeView)" in browser_source
+    assert "button.closest('.nav-advanced')?.setAttribute('open', '')" in browser_source
+    assert "advanced.open = expanded" in browser_source
     for view in (
         "Today",
         "Tasks",
