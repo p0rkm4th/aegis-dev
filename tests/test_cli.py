@@ -7822,6 +7822,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'id="conversation"' in browser_source
     assert 'id="activity"' in browser_source
     assert 'id="health-details"' in browser_source
+    assert "report.ready" in browser_source
+    assert "'AEGIS is ready'" in browser_source
+    assert "'AEGIS needs attention'" in browser_source
     assert 'id="node-filter"' in browser_source
     assert 'id="node-filter-status"' in browser_source
     assert 'aria-describedby="node-filter-status"' in browser_source
