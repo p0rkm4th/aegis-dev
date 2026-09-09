@@ -258,6 +258,7 @@ function appendConversationMessage(kind, text, renderedHtml = null, sources = []
   if (wasNearBottom || kind === 'owner-message')
     line.scrollIntoView({block: 'nearest', behavior: 'smooth'});
   else if (kind === 'aegis-message') document.getElementById('jump-latest').hidden = false;
+  return line;
 }
 function conversationTitle(messages, fallback = 'Current conversation') {
   const first = messages.find(message => message.role === 'owner' && message.display_text);
@@ -3531,6 +3532,9 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const input = document.getElementById('utterance');
   const send = form.querySelector('button');
   const utterance = input.value.trim(); if (!utterance || send.disabled || !conversationLoaded) return;
+  const feedback = document.getElementById('feedback');
+  feedback.hidden = true;
+  feedback.dataset.correlationId = '';
   if (pendingOutcomeUnknown) {
     recoverPendingRequest();
     return;
@@ -3558,7 +3562,8 @@ document.getElementById('chat').addEventListener('submit', async event => {
     const result = await response.json();
     const answer = result.message || result.error || 'No response';
     document.getElementById('answer').textContent = answer;
-    appendConversationMessage('aegis-message', `AEGIS: ${answer}`, result.rendered_html, result.sources || []);
+    const responseLine = appendConversationMessage('aegis-message',
+      `AEGIS: ${answer}`, result.rendered_html, result.sources || []);
     if (result.sources && result.sources.length) {
       latestResearch = {
         query: utterance,
@@ -3584,10 +3589,10 @@ document.getElementById('chat').addEventListener('submit', async event => {
       `Status: ${errorLabel(result.code)} (${result.code || 'request_failed'})`;
     }
     if (response.ok) {
-      const feedback = document.getElementById('feedback');
       feedback.hidden = !result.correlation_id;
       feedback.dataset.correlationId = result.correlation_id || '';
       document.getElementById('feedback-status').textContent = '';
+      if (!feedback.hidden && responseLine) responseLine.append(feedback);
       if (result.retryable === true) {
         pendingOutcomeUnknown = false;
         pendingCorrelationId = correlationId; send.textContent = 'Retry';
