@@ -54,7 +54,10 @@ body {
 .muted { color: var(--muted, var(--text-muted)); }
 .health-line { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; color: var(--muted, var(--text-muted)); font-size: .9rem; }
 .health-line strong { color: var(--text-strong); font-weight: 600; }
-.status-dot { display: inline-block; width: .5rem; height: .5rem; margin-right: .45rem; border-radius: 50%; background: #6fd18a; }
+.status-dot { display: inline-block; width: .5rem; height: .5rem; margin-right: .45rem; border-radius: 50%; background: var(--warning); }
+.health-line[data-state="ready"] .status-dot { background: var(--success); }
+.health-line[data-state="attention"] .status-dot { background: var(--warning); }
+.health-line[data-state="unavailable"] .status-dot { background: var(--danger); }
 details summary { cursor: pointer; color: var(--muted, var(--text-muted)); font-size: .85rem; }
 #health-details { margin: .5rem 0 0; padding-left: 1.2rem; font-size: .82rem; }
 #health-details:empty { display: none; }
