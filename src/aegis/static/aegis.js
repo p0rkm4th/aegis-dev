@@ -336,7 +336,14 @@ function renderConversation(messages) {
   if (!messages.length) {
     updateConversationTitle(messages);
     const empty = document.createElement('li'); empty.className = 'conversation-empty';
-    empty.textContent = 'Start with a question, a plan, or something you want AEGIS to remember.'; conversation.append(empty); return;
+    const kicker = document.createElement('span'); kicker.className = 'empty-kicker'; kicker.textContent = 'A quiet place to start';
+    const title = document.createElement('strong'); title.textContent = 'What should we work on?';
+    const copy = document.createElement('p'); copy.textContent = 'Ask a question, make a plan, or tell AEGIS something worth remembering.';
+    const suggestions = document.createElement('div'); suggestions.className = 'empty-suggestions'; suggestions.setAttribute('aria-hidden', 'true');
+    ['Ask anything', 'Make a plan', 'Remember something'].forEach(label => {
+      const item = document.createElement('span'); item.textContent = label; suggestions.append(item);
+    });
+    empty.append(kicker, title, copy, suggestions); conversation.append(empty); return;
   }
   messages.forEach(message => appendConversationMessage(
     message.role === 'owner' ? 'owner-message' : 'aegis-message',
