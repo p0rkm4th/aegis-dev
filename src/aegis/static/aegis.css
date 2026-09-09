@@ -382,6 +382,11 @@ body { background: var(--surface-0); color: var(--text-strong); }
 .conversation-tools label { font-size: .8rem; color: var(--text-muted); }
 .conversation-tools select { max-width: 15rem; }
 .conversation-heading { flex-basis: 10rem; }
+.project-context { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .45rem; }
+.project-context summary { padding: .35rem .5rem; border: 1px solid var(--line); border-radius: .55rem; color: var(--text-muted); }
+.project-context[open] summary { border-color: var(--accent); color: var(--text-strong); }
+.project-context #chat-project-status { font-size: .78rem; }
+.project-context #clear-chat-project { padding: .35rem .55rem; font-size: .78rem; }
 #conversation { border-top: 1px solid var(--line); padding-top: .85rem; }
 .secondary { opacity: .82; }
 
