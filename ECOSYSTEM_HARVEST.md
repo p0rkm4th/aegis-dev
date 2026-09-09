@@ -65,3 +65,24 @@ Current AEGIS reuse status: PostgreSQL, Pydantic, pytest, Ruff, mypy, and the
 OpenClaw runtime interface are already present and recorded in
 `THIRD_PARTY.md`/`provenance/SBOM.json`. No upstream implementation is copied
 by this audit.
+
+## Conway-Research/automaton orchestration harvest
+
+Audit date: 2026-09-09. Pinned revision: `d8f816881fd24b6f5e3d616e59edec387a447667`.
+Repository license: MIT, copyright Conway 2026. This is a design/test harvest;
+no Automaton runtime code or SQLite ownership is copied into AEGIS.
+
+| Pinned source path | Classification | Reuse decision |
+|---|---|---|
+| `src/orchestration/task-graph.ts` and `src/__tests__/orchestration/task-graph.test.ts` | DESIGN-HARVEST, TEST-HARVEST | Adapt DAG validation, dependency readiness, priority ordering, terminal results, and dependency-failure propagation into a small Python development-control contract. Reject revenue/cost ontology and SQLite ownership. |
+| `src/orchestration/orchestrator.ts`, `plan-mode.ts`, `planner.ts` and their tests | DESIGN-HARVEST, TEST-HARVEST | Adapt persisted phase/checkpoint thinking, bounded replanning, and failure evidence. Reject auto-approval, planner authority, treasury metadata, and worker self-report as verification. |
+| `src/orchestration/health-monitor.ts`, `src/heartbeat/scheduler.ts` and tests | DESIGN-HARVEST, TEST-HARVEST | Adapt stale-worker/error-loop detection, overlap guards, leases, expiry, and bounded retry history. Do not import survival/funding tiers or build a daemon in V1. |
+| `src/agent/harness-types.ts`, `harness-registry.ts`, `harnesses/base-harness.ts` and tests | TEST-HARVEST, DESIGN-HARVEST | Adapt bounded iteration/turn handling and loop detection only. Reject text-only response success and worker-created authority. |
+| `src/memory/agent-context-aggregator.ts`, `enhanced-retriever.ts` and tests | DESIGN-HARVEST | Adapt compact error/blocker/progress summaries and bounded relevant context. AEGIS retrieval and provenance remain authoritative. |
+| `src/orchestration/workspace.ts` and `src/setup/wizard.ts` | REJECT | AEGIS already owns stronger ScopedWorkspace/Developer boundaries; wallet, crypto, treasury, and survival setup are unrelated. |
+| `src/skills/loader.ts` and `src/__tests__/skills-hardening.test.ts` | TEST-HARVEST | Reuse the principle that loaded instructions remain untrusted and requirements are validated. AEGIS Pack/security contracts remain the only authority layer. |
+
+Planned AEGIS result: `development/luna_sprint.py` plus a durable JSON
+checkpoint, kept outside product Objective/Kernel state. The first translated
+acceptance tests are cycle rejection, ready-task selection, human-blocked lane
+switching, bounded failure isolation, and reload/resume.

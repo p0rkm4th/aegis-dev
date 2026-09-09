@@ -56,3 +56,16 @@ replacement content in the current owner utterance, supersedes the old
 MemoryRecord, and reuses normal retrieval; transcripts, assistant prose, and
 retrieved evidence are not canonical memory. Learned context can inform
 identity, but never creates permission or authority.
+
+## Development sprint control plane
+
+Luna's repo-associated development sprint state is a separate engineering
+control plane, not an AEGIS Objective and not canonical owner state. It may
+persist bounded task dependencies, evidence, failures, leases, and human
+blockers so work can resume without reconstructing a campaign from chat.
+
+A task that needs Scotty is persisted as `WAITING_HUMAN`; independent approved
+ready tasks remain runnable. Worker output is evidence only: deterministic
+tests, hosted validation, and installed checks establish engineering success.
+The sprint scheduler never grants product authority, changes Kernel semantics,
+or turns a model/worker report into completion.
