@@ -236,8 +236,8 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="systems">Systems</button>
 <button type="button" data-view="documents">Documents</button>
 </div>
-<div class="nav-group nav-advanced" aria-label="Explore">
-<span class="nav-group-label">Explore</span>
+<details class="nav-group nav-advanced" aria-label="Explore">
+<summary class="nav-group-label">Explore</summary>
 <button type="button" data-view="weather">Weather</button>
 <button type="button" data-view="air-quality">Air quality</button>
 <button type="button" data-view="devices">Devices</button>
@@ -250,7 +250,7 @@ _INDEX_HTML = """<!doctype html>
 <button type="button" data-view="constellation">Constellation</button>
 <button type="button" data-view="workspace">Workspace</button>
 <button type="button" data-view="compositions">Compositions</button>
-</div>
+</details>
 </nav>
 <div class="workspace" data-view="home"><section class="conversation-panel" aria-label="Conversation with AEGIS"><div class="health-line"><span><span class="status-dot" aria-hidden="true"></span><strong id="health" aria-live="polite">Checking readiness…</strong></span><details><summary>Runtime details</summary><ul id="health-details" class="muted" aria-live="polite"></ul></details></div>
 <div class="view-summary"><h2 id="view-title">Chat</h2><p id="view-description">A conversation with AEGIS.</p></div>
