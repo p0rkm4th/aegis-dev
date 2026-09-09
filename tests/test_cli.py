@@ -7807,6 +7807,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'class="intro"' not in browser_source
     assert 'id="status-badge"' in browser_source
     assert "setOutcomeStatus(outcomeUnknown ? 'unknown' : result.state)" in browser_source
+    assert '.chat-progress .status-badge[data-state="idle"] { display: none; }' in _AEGIS_CSS
     assert "proposed: 'Preparing'" in browser_source
     assert "validated: 'Checking'" in browser_source
     assert "authorized: 'Ready to act'" in browser_source
