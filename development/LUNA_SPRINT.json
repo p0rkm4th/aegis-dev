@@ -2,7 +2,7 @@
   "schema_version": 1,
   "sprint_id": "aegis-automaton-harvest-2026-09-09",
   "objective": "Build the minimum durable Luna sprint control plane and use it for independent verified AEGIS product work.",
-  "status": "ACTIVE",
+  "status": "WAITING_HUMAN",
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
@@ -98,6 +98,25 @@
       "created_at": "2026-09-09T17:00:00+00:00",
       "updated_at": "2026-09-09T17:30:00+00:00"
     },
+    "owner-proxy-dogfood": {
+      "task_id": "owner-proxy-dogfood",
+      "lane_id": "UI_UX",
+      "title": "Try to break the installed Constellation release without owner authority",
+      "priority": 40,
+      "dependencies": ["constellation-u1-real-graph"],
+      "status": "COMPLETE",
+      "attempts": 1,
+      "max_attempts": 1,
+      "identical_failure_repeats": 0,
+      "max_identical_failure_repeats": 1,
+      "failure_fingerprint": "",
+      "evidence": ["Installed route, authenticated Constellation projection, static graph hook, node/edge endpoint integrity, and JS/CSS graph safety smoke checked; no reproducible engineering defect found. This is not owner acceptance."],
+      "changed_paths": [],
+      "tests": ["installed /api/health", "installed /api/ready", "authenticated /api/constellation", "desktop/mobile CSS source inspection"],
+      "blocker": "",
+      "created_at": "2026-09-09T17:35:00+00:00",
+      "updated_at": "2026-09-09T17:40:00+00:00"
+    },
     "chat-owner-retest": {
       "task_id": "chat-owner-retest",
       "lane_id": "UI_UX",
@@ -135,5 +154,5 @@
     "installed_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1"
   },
   "next_ready_tasks": [],
-  "stop_reason": ""
+  "stop_reason": "Only remaining approved task is the human-only Chat product judgment; no safe READY engineering task remains after autonomous proxy dogfood."
 }
