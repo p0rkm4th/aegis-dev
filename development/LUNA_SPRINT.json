@@ -199,18 +199,18 @@
       "title": "Harden Constellation mobile and accessibility presentation",
       "priority": 70,
       "dependencies": ["constellation-u5-state-attention"],
-      "status": "READY",
-      "attempts": 0,
+      "status": "ACTIVE",
+      "attempts": 1,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
       "max_identical_failure_repeats": 2,
       "failure_fingerprint": "",
-      "evidence": [],
-      "changed_paths": [],
-      "tests": [],
+      "evidence": ["Phone-width Constellation no longer forces a 38rem SVG minimum; keyboard focus is visibly outlined without changing the accessible node list or authority boundary"],
+      "changed_paths": ["src/aegis/static/aegis.css", "tests/test_cli.py"],
+      "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q", "git diff --check"],
       "blocker": "",
       "created_at": "2026-09-09T21:10:00+00:00",
-      "updated_at": "2026-09-09T21:10:00+00:00"
+      "updated_at": "2026-09-09T21:20:00+00:00"
     },
     "chat-owner-retest": {
       "task_id": "chat-owner-retest",
@@ -232,7 +232,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": null,
+  "current_task": "constellation-u6-mobile-accessibility",
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",

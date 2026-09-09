@@ -46,7 +46,7 @@ from aegis.tasks import (
     TaskStatus,
     ground_task_due_at,
 )
-from aegis.web import _AEGIS_JS, BrowserApp
+from aegis.web import _AEGIS_CSS, _AEGIS_JS, BrowserApp
 
 
 def test_pantry_low_stock_projection_requires_explicit_known_thresholds():
@@ -6527,6 +6527,8 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     assert "From Constellation" in html
     assert "constellation-legend" in html
     assert "dataset.attention = 'true'" in html
+    assert "constellation-graph-node:focus-visible" in _AEGIS_CSS
+    assert ".constellation-graph svg { min-width: 0" in _AEGIS_CSS
     assert "candidate for" in html
 
 
