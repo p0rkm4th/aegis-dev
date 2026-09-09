@@ -6516,6 +6516,9 @@ def test_browser_app_constellation_exposes_conventional_navigation_and_bounded_f
     assert "Open ${targetNav?.textContent || targetView} view" in html
     assert "Ask about ${node.label}" in html
     assert "Tell me about ${node.label}" in html
+    assert 'id="constellation-graph"' in html
+    assert "renderConstellationGraph" in html
+    assert "constellation-edge" in html
 
 
 def test_browser_app_research_surface_exposes_research_to_workspace_composition():

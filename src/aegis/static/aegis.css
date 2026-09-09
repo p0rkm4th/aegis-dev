@@ -94,6 +94,17 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 #detail dt { font-weight: 600; }
 #detail dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 #nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; align-items: stretch; }
+.constellation-graph { margin: .9rem 0 1.25rem; padding: .8rem; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: color-mix(in srgb, var(--surface-0) 88%, var(--panel)); }
+.constellation-graph svg { display: block; width: 100%; min-width: 38rem; height: auto; min-height: 22rem; }
+.constellation-edge { stroke: color-mix(in srgb, var(--accent) 48%, var(--line)); stroke-width: 2; stroke-dasharray: 4 5; }
+.constellation-graph-node { cursor: pointer; outline: none; }
+.constellation-graph-node rect { fill: var(--panel-raised); stroke: var(--border); stroke-width: 1.5; transition: fill .15s ease, stroke .15s ease, filter .15s ease; }
+.constellation-graph-node rect[data-category="core"] { fill: color-mix(in srgb, var(--accent) 15%, var(--panel-raised)); stroke: var(--accent); }
+.constellation-graph-node rect[data-category="domain"] { stroke: color-mix(in srgb, var(--accent) 48%, var(--border)); }
+.constellation-graph-node rect[data-category="capability_need"] { fill: color-mix(in srgb, var(--warning) 9%, var(--panel-raised)); stroke: color-mix(in srgb, var(--warning) 60%, var(--border)); }
+.constellation-graph-node:hover rect, .constellation-graph-node:focus rect { stroke: var(--accent); filter: drop-shadow(0 0 .35rem color-mix(in srgb, var(--accent) 35%, transparent)); }
+.constellation-graph-label { fill: var(--text-strong); font-size: 13px; font-weight: 650; pointer-events: none; }
+.constellation-graph-detail { fill: var(--text-muted); font-size: 10px; pointer-events: none; }
 .constellation-layer { display: grid; gap: .55rem; }
 .constellation-layer + .constellation-layer { margin-top: .85rem; }
 .constellation-layer > h3 { margin: 0; color: var(--text-muted); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
