@@ -80,7 +80,7 @@ class PostgresPersonalStateStore:
         self.connection = connection
         self.vault_id = vault_id
 
-    def save(self, state: PersonalState) -> None:
+    def save(self, state: PersonalState, *, commit: bool = True) -> None:
         for entity in state.entities.values():
             self.connection.execute(
                 """INSERT INTO personal_entities (id, vault_id, canonical_name, aliases)
@@ -141,7 +141,8 @@ class PostgresPersonalStateStore:
                     "WHERE id = %s AND vault_id = %s",
                     (str(memory.superseded_by), str(memory.memory_id), self.vault_id),
                 )
-        self.connection.commit()
+        if commit:
+            self.connection.commit()
 
     def load(self) -> PersonalState:
         entities: dict[UUID, Entity] = {}

@@ -9,6 +9,36 @@ import pytest
 from aegis.audit import PostgresAuditLog
 
 
+def test_postgres_audit_can_join_caller_transaction_without_publishing_early():
+    class Head:
+        def fetchone(self):
+            return ("GENESIS",)
+
+    class Connection:
+        def __init__(self):
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            if query.startswith("SELECT head_hash"):
+                return Head()
+            return None
+
+        def commit(self):
+            self.commits += 1
+
+    connection = Connection()
+    audit = PostgresAuditLog(connection)
+    event = audit.append(
+        "personal.learning_committed", "alice", {"kind": "owner_correction"}, commit=False
+    )
+
+    assert connection.commits == 0
+    assert audit.events == []
+    connection.commit()
+    audit.record_committed(event)
+    assert audit.events == [event]
+
+
 @pytest.mark.skipif(
     not os.environ.get("AEGIS_TEST_DATABASE_URL"), reason="requires disposable PostgreSQL"
 )

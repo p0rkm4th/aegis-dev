@@ -3747,6 +3747,26 @@ def test_postgres_personal_store_writes_supersession_after_all_memory_rows():
     assert connection.commits == 1
 
 
+def test_postgres_personal_store_can_join_caller_transaction():
+    from datetime import datetime, timezone
+
+    class Connection:
+        def __init__(self):
+            self.commits = 0
+
+        def execute(self, query, params=()):
+            return None
+
+        def commit(self):
+            self.commits += 1
+
+    state = PersonalState()
+    state.add_memory("owner fact", datetime(2026, 8, 30, tzinfo=timezone.utc), Provenance.CORRECTED)
+    connection = Connection()
+    PostgresPersonalStateStore(connection, "alice-vault").save(state, commit=False)
+    assert connection.commits == 0
+
+
 def test_postgres_personal_store_rejects_non_owner_vault_read():
     class Result:
         def fetchone(self):

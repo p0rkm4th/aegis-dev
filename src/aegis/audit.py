@@ -198,6 +198,8 @@ class PostgresAuditLog(AuditLog):
         payload: dict[str, Any],
         objective_id: UUID | None = None,
         action_id: UUID | None = None,
+        *,
+        commit: bool = True,
     ) -> AuditEvent:
         if not event_type or not principal_id:
             raise AuditError("audit identity and event type are required")
@@ -250,9 +252,14 @@ class PostgresAuditLog(AuditLog):
             "UPDATE audit_chain_heads SET head_hash = %s, updated_at = now() WHERE chain_name = %s",
             (event.event_hash, "default"),
         )
-        self.connection.commit()
-        self.events.append(event)
+        if commit:
+            self.connection.commit()
+            self.events.append(event)
         return event
+
+    def record_committed(self, event: AuditEvent) -> None:
+        """Publish a transaction-owned event after its transaction commits."""
+        self.events.append(event)
 
     def verify(self) -> bool:
         """Verify the complete persisted chain without relying on local state."""
