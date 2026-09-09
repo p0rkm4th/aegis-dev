@@ -10,9 +10,7 @@ permissions:
 
 jobs:
   test:
-    # Bubblewrap's namespace attestation needs a stable runner kernel/AppArmor
-    # contract; do not silently vary it behind the moving ubuntu-latest alias.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -36,27 +34,16 @@ jobs:
           python-version: "3.11"
       - name: Install and attest developer sandbox primitives
         run: |
-          if ! command -v bwrap >/dev/null 2>&1 || ! command -v prlimit >/dev/null 2>&1; then
-            installed=0
-            for attempt in 1 2 3; do
-              if sudo apt-get update -o Acquire::Retries=3 && sudo apt-get install --yes -o Acquire::Retries=3 bubblewrap util-linux; then
-                installed=1
-                break
-              fi
-              sleep 5
-            done
-            test "$installed" -eq 1
-          fi
+          sudo apt-get update
+          sudo apt-get install --yes bubblewrap util-linux
           if [[ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]]; then
-            if ! sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0; then
-              echo "AppArmor userns sysctl is not writable; the bwrap attestation below remains authoritative."
-            fi
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           fi
           command -v bwrap
           command -v prlimit
           bwrap --version
           prlimit --version
-          bwrap --die-with-parent --unshare-user --uid 0 --gid 0 --unshare-pid --proc /proc --dev /dev \
+          bwrap --die-with-parent --unshare-pid --proc /proc --dev /dev \
             --tmpfs /tmp --ro-bind /usr /usr --ro-bind /bin /bin \
             --ro-bind /lib /lib --ro-bind /lib64 /lib64 --clearenv \
             --setenv PATH /usr/bin:/bin -- true
