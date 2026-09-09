@@ -197,6 +197,7 @@ body { background: var(--surface-0); color: var(--text-strong); }
   text-transform: uppercase;
 }
 .workspace { grid-column: 2 !important; grid-row: 2 !important; align-self: start; max-width: none !important; width: 100% !important; }
+.workspace[data-view="home"] .view-summary { display: none; }
 .conversation-panel { display: flex; flex-direction: column; min-height: min(78vh, 58rem); border-radius: 1.1rem; box-shadow: var(--elevation); }
 .status-badge[data-state="unknown"],
 .status-badge[data-state="reconciliation_pending"] {
