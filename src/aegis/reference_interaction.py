@@ -2329,8 +2329,6 @@ def resolve_reference_fast_paths(
     )
     correction = OwnerCorrectionLearning(personal_state).resolve(intent)
     if correction is not None:
-        if correction.state is ObjectiveState.COMPLETED:
-            PostgresPersonalStateStore(connection, principal.vault_id).save(personal_state)
         learning = correction.evidence.get("learning")
         if isinstance(learning, dict):
             disposition = str(learning.get("disposition", "discard"))
@@ -2346,13 +2344,35 @@ def resolve_reference_fast_paths(
                 "candidate_count": learning.get("candidate_count"),
                 "correlation_id": str(intent.correlation_id),
             }
-            try:
-                PostgresAuditLog(connection).append(event_type, principal.id, payload)
-            except Exception:
+            if correction.state is ObjectiveState.COMPLETED:
+                if not _persist_owner_correction_with_provenance(
+                    connection, principal, personal_state, event_type, payload
+                ):
+                    return Result(
+                        objective_id=correction.objective_id,
+                        state=ObjectiveState.BLOCKED,
+                        message=(
+                            "I could not safely save that correction and did not change "
+                            "your memory."
+                        ),
+                        evidence={
+                            "learning": {
+                                "kind": learning.get("kind"),
+                                "disposition": "discard",
+                                "persistence": "rolled_back",
+                                "source_correlation_id": str(intent.correlation_id),
+                            }
+                        },
+                        correlation_id=intent.correlation_id,
+                    )
+            else:
                 try:
-                    connection.rollback()
+                    PostgresAuditLog(connection).append(event_type, principal.id, payload)
                 except Exception:
-                    pass
+                    try:
+                        connection.rollback()
+                    except Exception:
+                        pass
         return correction
     memory_capture = ExplicitMemoryCapture(personal_state)
     result = memory_capture.resolve(intent)
@@ -2466,6 +2486,27 @@ def resolve_reference_fast_paths(
     if composed_title is None:
         return memory_fast_path.resolve(intent, context)
     return None
+
+
+def _persist_owner_correction_with_provenance(
+    connection: Any,
+    principal: Principal,
+    state: PersonalState,
+    event_type: str,
+    payload: dict[str, Any],
+) -> bool:
+    """Commit a correction and its required provenance as one database unit."""
+    store = PostgresPersonalStateStore(connection, principal.vault_id)
+    audit = PostgresAuditLog(connection)
+    try:
+        store.save(state, commit=False)
+        event = audit.append(event_type, principal.id, payload, commit=False)
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        return False
+    audit.record_committed(event)
+    return True
 
 
 def resolve_contextual_ordinal_read(intent: IntentFrame, context: Context) -> Result | None:

@@ -51,6 +51,7 @@ from aegis.planning import (
 )
 from aegis.reference_interaction import (
     _display_due_at,
+    _persist_owner_correction_with_provenance,
     _read_verified_homelab_services_health,
     ground_reference_action,
     reference_fallback_cards,
@@ -80,6 +81,96 @@ from aegis.reference_interaction import (
     rewrite_reference_decision,
 )
 from aegis.tasks import PostgresTaskStore, Task, requested_task_due_at
+
+
+def test_owner_correction_provenance_commits_with_personal_state(monkeypatch):
+    principal = Principal(id="alice", vault_id="alice-vault")
+    state = PersonalState()
+    calls = []
+
+    class Connection:
+        def commit(self):
+            calls.append("commit")
+
+        def rollback(self):
+            calls.append("rollback")
+
+    class Store:
+        def __init__(self, connection, vault_id):
+            assert vault_id == principal.vault_id
+
+        def save(self, saved_state, *, commit):
+            assert saved_state is state
+            assert commit is False
+            calls.append("state")
+
+    class Event:
+        pass
+
+    event = Event()
+
+    class Audit:
+        def __init__(self, connection):
+            pass
+
+        def append(self, event_type, principal_id, payload, *, commit):
+            assert event_type == "personal.learning_committed"
+            assert principal_id == principal.id
+            assert commit is False
+            calls.append("audit")
+            return event
+
+        def record_committed(self, recorded):
+            assert recorded is event
+            calls.append("published")
+
+    monkeypatch.setattr("aegis.reference_interaction.PostgresPersonalStateStore", Store)
+    monkeypatch.setattr("aegis.reference_interaction.PostgresAuditLog", Audit)
+
+    assert _persist_owner_correction_with_provenance(
+        Connection(), principal, state, "personal.learning_committed", {"kind": "owner_correction"}
+    )
+    assert calls == ["state", "audit", "commit", "published"]
+
+
+def test_owner_correction_provenance_rolls_back_without_publishing_audit(monkeypatch):
+    principal = Principal(id="alice", vault_id="alice-vault")
+    state = PersonalState()
+    calls = []
+
+    class Connection:
+        def commit(self):
+            calls.append("commit")
+
+        def rollback(self):
+            calls.append("rollback")
+
+    class Store:
+        def __init__(self, connection, vault_id):
+            pass
+
+        def save(self, saved_state, *, commit):
+            assert commit is False
+            calls.append("state")
+
+    class Audit:
+        def __init__(self, connection):
+            pass
+
+        def append(self, *args, **kwargs):
+            calls.append("audit")
+            raise RuntimeError("injected required provenance failure")
+
+        def record_committed(self, event):
+            calls.append("published")
+
+    monkeypatch.setattr("aegis.reference_interaction.PostgresPersonalStateStore", Store)
+    monkeypatch.setattr("aegis.reference_interaction.PostgresAuditLog", Audit)
+
+    assert not _persist_owner_correction_with_provenance(
+        Connection(), principal, state, "personal.learning_committed", {"kind": "owner_correction"}
+    )
+    assert calls == ["state", "audit", "rollback"]
 
 
 def test_follow_up_explains_internal_identifier_concept_without_resetting_domain():
