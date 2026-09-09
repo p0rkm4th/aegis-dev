@@ -507,6 +507,21 @@ def test_answer_is_deterministically_completed_without_execution():
     assert ex.calls == 0
 
 
+def test_kernel_does_not_complete_effect_answer_without_verified_action():
+    ex = Executor()
+    k = Kernel(
+        Model(object()),
+        Decoder(Decision(kind=DecisionKind.ANSWER, semantic_mode="ACTION", answer="done")),
+        Policy(PolicyDecision(allowed=True, reason="ok")),
+        ex,
+        Verifier(True),
+    )
+    result = k.run(intent())
+    assert result.state is ObjectiveState.BLOCKED
+    assert result.evidence["completion_blocked"] == "effect_requires_verified_action"
+    assert ex.calls == 0
+
+
 def test_kernel_run_sequence_replays_persisted_steps_without_duplicate_execution(tmp_path):
     from aegis.store import SqliteObjectiveStore
 

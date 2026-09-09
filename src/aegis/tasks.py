@@ -181,6 +181,43 @@ class PostgresTaskStore:
         self._write(completed)
         return completed
 
+    def complete_set(self, principal: Principal, task_ids: list[UUID]) -> tuple[Task, ...]:
+        """Complete a bounded, pre-grounded set after validating it in full."""
+
+        if not task_ids or len(task_ids) > 100 or len(set(task_ids)) != len(task_ids):
+            raise ValueError("task set is empty, oversized, or duplicated")
+        current = {task.task_id: task for task in self.list(principal)}
+        selected = [current.get(task_id) for task_id in task_ids]
+        if any(task is None or task.status is not TaskStatus.OPEN for task in selected):
+            raise KeyError("task set is no longer entirely open")
+        for task in selected:
+            assert task is not None
+            self.connection.execute(
+                "UPDATE tasks SET status = %s, updated_at = now() "
+                "WHERE id = %s AND space_id = %s AND status = %s",
+                (
+                    TaskStatus.COMPLETED.value,
+                    str(task.task_id),
+                    task.space_id,
+                    TaskStatus.OPEN.value,
+                ),
+            )
+        self.connection.commit()
+        return tuple(
+            Task(
+                task.task_id,
+                task.space_id,
+                task.title,
+                task.created_by,
+                task.assignee_id,
+                task.due_at,
+                TaskStatus.COMPLETED,
+                task.idempotency_key,
+            )
+            for task in selected
+            if task is not None
+        )
+
     def get(self, principal: Principal, task_id: UUID) -> Task | None:
         row = self.connection.execute(
             "SELECT id, space_id, title, created_by, assignee_id, due_at, status, idempotency_key "
@@ -359,6 +396,84 @@ class PostgresTaskExecutor:
             execution_id=request.action_id,
             evidence=evidence,
             command_succeeded=True,
+        )
+
+
+class PostgresTaskCollectionExecutor:
+    """Execute one authorized, pre-grounded bounded task set."""
+
+    def __init__(self, store: PostgresTaskStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def execute(self, request: ExecutionRequest) -> Observation:
+        if request.action.action_id != "tasks.complete_set":
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"unknown_action": request.action.action_id},
+                command_succeeded=False,
+            )
+        values = request.action.arguments.get("task_ids")
+        if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"collection": "tasks", "invalid_task_ids": True},
+                command_succeeded=False,
+            )
+        try:
+            tasks = self.store.complete_set(self.principal, [UUID(value) for value in values])
+        except (KeyError, PermissionError, ValueError):
+            return Observation(
+                execution_id=request.action_id,
+                evidence={"collection": "tasks", "task_set_unavailable": True},
+                command_succeeded=False,
+            )
+        return Observation(
+            execution_id=request.action_id,
+            evidence={
+                "collection": "tasks",
+                "task_ids": [str(task.task_id) for task in tasks],
+                "completed": [_task_projection(task) for task in tasks],
+            },
+            command_succeeded=True,
+        )
+
+
+class PostgresTaskCollectionVerifier:
+    """Verify every selected task is completed in canonical state."""
+
+    def __init__(self, store: PostgresTaskStore, principal: Principal) -> None:
+        self.store = store
+        self.principal = principal
+
+    def verify(
+        self, observation: Observation, contract: VerificationContract
+    ) -> VerificationResult:
+        if contract.kind != "readback" or not observation.command_succeeded:
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="task set completion failed"
+            )
+        raw_ids = observation.evidence.get("task_ids")
+        if not isinstance(raw_ids, list) or not all(isinstance(value, str) for value in raw_ids):
+            return VerificationResult(
+                verified=False, evidence=observation.evidence, reason="task set identity missing"
+            )
+        actual = {str(task.task_id): task for task in self.store.list(self.principal)}
+        verified = all(
+            task_id in actual and actual[task_id].status is TaskStatus.COMPLETED
+            for task_id in raw_ids
+        )
+        return VerificationResult(
+            verified=verified,
+            evidence={
+                **observation.evidence,
+                "canonical_statuses": {
+                    task_id: actual[task_id].status.value
+                    for task_id in raw_ids
+                    if task_id in actual
+                },
+            },
+            reason="canonical task set verified" if verified else "canonical task set changed",
         )
 
 
