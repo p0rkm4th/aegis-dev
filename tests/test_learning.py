@@ -95,6 +95,25 @@ def test_owner_correction_supports_relation_object_replacement() -> None:
     assert state.search_memories("game server")[0].content == "Erebus is the game server."
 
 
+def test_replaying_same_owner_correction_does_not_duplicate_canonical_memory() -> None:
+    state = PersonalState()
+    original = state.add_memory(
+        "Hypnos is the game server.",
+        datetime(2026, 9, 8, tzinfo=timezone.utc),
+        Provenance.EXPLICIT_USER,
+    )
+    intent = _intent("Erebus is the game server, not Hypnos.")
+
+    first = OwnerCorrectionLearning(state).resolve(intent)
+    second = OwnerCorrectionLearning(state).resolve(intent)
+
+    assert first is not None and first.state is ObjectiveState.COMPLETED
+    assert second is not None and second.state is ObjectiveState.BLOCKED
+    assert len(state.memories) == 2
+    assert original.superseded_by is not None
+    assert sum(memory.provenance is Provenance.CORRECTED for memory in state.memories.values()) == 1
+
+
 def test_ambiguous_owner_correction_does_not_mutate_memory() -> None:
     state = PersonalState()
     state.add_memory(
