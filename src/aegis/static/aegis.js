@@ -3532,6 +3532,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
   const input = document.getElementById('utterance');
   const send = form.querySelector('button');
   const utterance = input.value.trim(); if (!utterance || send.disabled || !conversationLoaded) return;
+  const restoreComposerFocus = document.activeElement === input || document.activeElement === send;
   const feedback = document.getElementById('feedback');
   feedback.hidden = true;
   feedback.dataset.correlationId = '';
@@ -3643,6 +3644,7 @@ document.getElementById('chat').addEventListener('submit', async event => {
     form.setAttribute('aria-busy', 'false');
     setChatControlsBusy(false);
     send.disabled = false; input.disabled = false;
+    if (restoreComposerFocus) (pendingCorrelationId ? send : input).focus();
   }
 });
 document.querySelectorAll('[data-feedback]').forEach(button =>
