@@ -6,9 +6,9 @@
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "observed_head_sha": "a12e5a630ad8658dc2c2ce3ce0cfd9931f6cf0a7",
-    "last_green_sha": "a12e5a630ad8658dc2c2ce3ce0cfd9931f6cf0a7",
-    "installed_sha": "df02016e4203f206b9f3e8baf3a31e3993639103"
+    "observed_head_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+    "last_green_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+    "installed_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1"
   },
   "lanes": {
     "AUTONOMY": {
@@ -85,18 +85,18 @@
       "title": "Make the authorized Constellation projection read as a spatial relationship map",
       "priority": 85,
       "dependencies": ["sprint-substrate"],
-      "status": "ACTIVE",
       "attempts": 0,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
       "max_identical_failure_repeats": 2,
       "failure_fingerprint": "",
-      "evidence": ["Authorized node/edge projection now renders as a keyboard-navigable SVG relationship map while the accessible list remains available"],
+      "status": "COMPLETE",
+      "evidence": ["Authorized node/edge projection now renders as a keyboard-navigable SVG relationship map while the accessible list remains available", "Exact hosted validation 34381069934 succeeded; installed release ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1 is healthy and serves the graph"],
       "changed_paths": ["src/aegis/static/aegis.js", "src/aegis/static/aegis.css", "src/aegis/web.py", "tests/test_cli.py"],
       "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q"],
       "blocker": "",
       "created_at": "2026-09-09T17:00:00+00:00",
-      "updated_at": "2026-09-09T17:00:00+00:00"
+      "updated_at": "2026-09-09T17:30:00+00:00"
     },
     "chat-owner-retest": {
       "task_id": "chat-owner-retest",
@@ -118,7 +118,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": "constellation-u1-real-graph",
+  "current_task": null,
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",
@@ -128,10 +128,11 @@
   ],
   "hosted_validation": {
     "workflow": "validation",
-    "head_sha": "a12e5a630ad8658dc2c2ce3ce0cfd9931f6cf0a7",
-    "run_id": "34380652265",
+    "head_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+    "run_id": "34381069934",
     "status": "completed",
-    "conclusion": "success"
+    "conclusion": "success",
+    "installed_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1"
   },
   "next_ready_tasks": [],
   "stop_reason": ""

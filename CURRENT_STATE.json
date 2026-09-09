@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+  "state_basis_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
-  "deterministic_green_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
-  "last_pushed_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
-  "hosted_green_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
-  "hosted_ci_green_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+  "repository_head_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "deterministic_green_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "last_pushed_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "hosted_green_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "hosted_ci_green_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+    "commit_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
     "conclusion": "success",
-    "run_id": "34354778764",
+    "run_id": "34381069934",
     "observed_at": "2026-09-09T08:20:00Z"
   },
-  "installed_release_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "running_release_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "live_green_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "active_milestone": "AUTONOMOUS-HARDENING",
-  "active_checkpoint": "developer-sandbox-resource-bounds",
-  "checkpoint_status": "engineering_green",
-  "current_checkpoint": "developer-sandbox-resource-bounds",
-  "active_campaign": "AEGIS AUTONOMOUS HARDENING",
-  "primary_proving_domains": ["PID namespace isolation", "Mandatory sandbox attestation", "Bounded Developer snapshots and diffs"],
-  "parallel_lane": "Chat/UI is frozen at ENGINEERING_GREEN / OWNER_RETEST_REQUIRED; owner retest is independent of the autonomous security-hardening lane",
+  "installed_release_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "running_release_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "live_green_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1",
+  "active_milestone": "AUTOMATON-AUTONOMOUS-SPRINTS",
+  "active_checkpoint": "constellation-u1-real-graph",
+  "checkpoint_status": "engineering_green_owner_acceptance_pending",
+  "current_checkpoint": "constellation-u1-real-graph",
+  "active_campaign": "AEGIS AUTOMATON HARVEST + PERSISTENT AUTONOMOUS LUNA",
+  "primary_proving_domains": ["Durable Luna sprint state", "Independent lane switching", "Installed Constellation spatial map"],
+  "parallel_lane": "Chat owner review remains WAITING_HUMAN; the autonomous sprint persisted that blocker and completed independent Constellation U1 work",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -43,7 +43,7 @@
     "postgresql": "healthy; persistent owner acceptance volume preserved",
     "structural_provider": "en_core_web_sm",
     "workspace_root": "/home/scootz/.local/share/aegis-owner/workspaces",
-    "release_sha": "df02016e4203f206b9f3e8baf3a31e3993639103"
+    "release_sha": "ff15852e477d4a0acf3e1a6ce7ba83e2717f82a1"
   },
   "owner_harness_matrix": {
     "operations": {"state": "ENGINEERING_GREEN", "basis_sha": "22f05f7383948a08e86bdc627dfb9cf11c61afd4", "owner_acceptance": "status, doctor, and open are available as ordinary installed commands; Scotty's normal-use acceptance remains pending"},
@@ -541,7 +541,7 @@
     "capability_need_resolutions": 5,
     "general_purpose_primitives": 2
   },
-  "next_action": "Continue only already-justified integrity/semantic regressions while owner acceptance is pending; next lane is natural outcome/set/compound and completion-fidelity installed regression, with Codex expansion parked.",
+  "next_action": "The durable Luna sprint has completed Automaton harvest, lane switching, and Constellation U1 installed-green work; leave Chat owner review WAITING_HUMAN and select another approved READY task when one is added.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
