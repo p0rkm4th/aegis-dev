@@ -22,8 +22,13 @@ from .workspace import ScopedWorkspace, WorkspaceError
 MAX_INSPECT_QUESTION = 2_000
 MAX_INSPECT_RESULT = 100_000
 MAX_MODIFY_OBJECTIVE = 2_000
-MAX_DIFF_RESULT = 100_000
+MAX_SOURCE_FILES = 2_000
+MAX_SOURCE_FILE_BYTES = 2_000_000
+MAX_SOURCE_TOTAL_BYTES = 50_000_000
 MAX_MODIFY_FILES = 50
+MAX_CHANGED_FILE_BYTES = 2_000_000
+MAX_CHANGED_TOTAL_BYTES = 10_000_000
+MAX_DIFF_BYTES = 100_000
 _PRIVATE_PARTS = {
     ".aws",
     ".env",
@@ -100,6 +105,7 @@ class ModifyProposal:
             for path, content in changed.items()
         ):
             raise DeveloperWorkerError("persisted modification hashes do not match candidate bytes")
+        CodexModifyWorker._validate_changed_payload(changed, deleted, proposal.diff)
         if hashlib.sha256(proposal.diff.encode("utf-8")).hexdigest() != proposal.diff_digest:
             raise DeveloperWorkerError("persisted modification diff digest does not match diff")
         return proposal
@@ -214,29 +220,55 @@ class CodexInspectWorker:
     def _copy_allowlist(project: RegisteredProject, destination: Path) -> None:
         if not project.allowed_paths:
             raise DeveloperWorkerError("modification requires explicit nonempty allowed paths")
-        paths = project.allowed_paths
-        copied = 0
-        for relative in paths:
-            source = project.repository / relative
+        files = CodexInspectWorker._bounded_files(
+            project.repository,
+            project.allowed_paths,
+            skip_private=True,
+        )
+        for relative, source in files.items():
+            target = destination / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+
+    @staticmethod
+    def _bounded_files(
+        root: Path,
+        allowed_paths: tuple[str, ...] | None = None,
+        *,
+        skip_private: bool,
+        excluded_parts: frozenset[str] = frozenset(),
+    ) -> dict[str, Path]:
+        """Collect a complete bounded file set before copying or reading bytes."""
+        candidates: dict[str, Path] = {}
+        roots = allowed_paths or (".",)
+        for relative_root in roots:
+            source = root / relative_root
             if source.is_file() and not source.is_symlink():
-                target = destination / relative
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(source, target)
-                copied += 1
+                candidates[str(source.relative_to(root))] = source
             elif source.is_dir() and not source.is_symlink():
                 for item in source.rglob("*"):
                     if item.is_symlink() or not item.is_file():
                         continue
-                    if any(
-                        _private_part(part) for part in item.relative_to(project.repository).parts
-                    ):
+                    relative = item.relative_to(root)
+                    if any(part in excluded_parts for part in relative.parts):
                         continue
-                    target = destination / item.relative_to(project.repository)
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copyfile(item, target)
-                    copied += 1
-                    if copied >= 2_000:
-                        return
+                    if skip_private and any(_private_part(part) for part in relative.parts):
+                        continue
+                    candidates[str(relative)] = item
+        if len(candidates) > MAX_SOURCE_FILES:
+            raise DeveloperWorkerError("registered project exceeds source file-count bound")
+        total_bytes = 0
+        for relative_name, source in candidates.items():
+            try:
+                size = source.stat().st_size
+            except OSError as exc:
+                raise DeveloperWorkerError(f"source file is unavailable: {relative_name}") from exc
+            if size > MAX_SOURCE_FILE_BYTES:
+                raise DeveloperWorkerError(f"source file exceeds size bound: {relative_name}")
+            total_bytes += size
+            if total_bytes > MAX_SOURCE_TOTAL_BYTES:
+                raise DeveloperWorkerError("registered project exceeds source byte bound")
+        return candidates
 
 
 class CodexModifyWorker(CodexInspectWorker):
@@ -345,9 +377,17 @@ class CodexModifyWorker(CodexInspectWorker):
                 raise DeveloperWorkerError("worker proposed no changes")
             if any(not self._allowed_relative(project, Path(path)) for path in changed):
                 raise DeveloperWorkerError("worker changed a path outside the registered scope")
+            self._validate_changed_payload(
+                {path: after[path] for path in changed if path in after},
+                tuple(path for path in changed if path not in after),
+                None,
+            )
             diff = self._diff(before, after, snapshot, changed)
-            if len(changed) > MAX_MODIFY_FILES:
-                raise DeveloperWorkerError("worker changed too many files")
+            self._validate_changed_payload(
+                {path: after[path] for path in changed if path in after},
+                tuple(path for path in changed if path not in after),
+                diff,
+            )
             self._validate_candidate(project, snapshot, changed)
             base_sha = self._git_revision(project.repository)
             changed_bytes = {path: after[path] for path in changed if path in after}
@@ -486,18 +526,18 @@ class CodexModifyWorker(CodexInspectWorker):
     @staticmethod
     def _copy_repository(repository: Path, destination: Path) -> None:
         ignored = {".venv", "__pycache__", "node_modules"}
-        for item in repository.rglob("*"):
-            relative = item.relative_to(repository)
-            if item.is_symlink() or any(
-                part in ignored or _private_part(part) for part in relative.parts
-            ):
+        files = CodexInspectWorker._bounded_files(
+            repository,
+            skip_private=True,
+            excluded_parts=frozenset({".venv", "__pycache__", "node_modules"}),
+        )
+        for relative_text, item in files.items():
+            relative = Path(relative_text)
+            if any(part in ignored for part in relative.parts):
                 continue
             target = destination / relative
-            if item.is_dir():
-                target.mkdir(parents=True, exist_ok=True)
-            elif item.is_file():
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(item, target)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, target)
 
     @staticmethod
     def _apply_exact(repository: Path, proposal: ModifyProposal) -> None:
@@ -548,11 +588,28 @@ class CodexModifyWorker(CodexInspectWorker):
 
     @staticmethod
     def _files(root: Path) -> dict[str, bytes]:
-        return {
-            str(path.relative_to(root)): path.read_bytes()
-            for path in root.rglob("*")
-            if path.is_file() and not path.is_symlink()
-        }
+        files = CodexInspectWorker._bounded_files(
+            root,
+            skip_private=True,
+            excluded_parts=frozenset({".venv", "__pycache__", "node_modules"}),
+        )
+        return {relative: source.read_bytes() for relative, source in files.items()}
+
+    @staticmethod
+    def _validate_changed_payload(
+        changed: dict[str, bytes], deleted: tuple[str, ...], diff: str | None
+    ) -> None:
+        if len(set(changed) | set(deleted)) > MAX_MODIFY_FILES:
+            raise DeveloperWorkerError("worker changed too many files")
+        total_bytes = 0
+        for relative, content in changed.items():
+            if len(content) > MAX_CHANGED_FILE_BYTES:
+                raise DeveloperWorkerError(f"changed file exceeds size bound: {relative}")
+            total_bytes += len(content)
+        if total_bytes > MAX_CHANGED_TOTAL_BYTES:
+            raise DeveloperWorkerError("worker changed too many bytes")
+        if diff is not None and len(diff.encode("utf-8")) > MAX_DIFF_BYTES:
+            raise DeveloperWorkerError("complete modification diff exceeds size bound")
 
     @staticmethod
     def _allowed_relative(project: RegisteredProject, relative: Path) -> bool:
@@ -568,7 +625,7 @@ class CodexModifyWorker(CodexInspectWorker):
             old = before.get(relative, b"").decode("utf-8", errors="replace").splitlines(True)
             new = after.get(relative, b"").decode("utf-8", errors="replace").splitlines(True)
             chunks.extend(unified_diff(old, new, fromfile=f"a/{relative}", tofile=f"b/{relative}"))
-        return "".join(chunks)[:MAX_DIFF_RESULT]
+        return "".join(chunks)
 
     @staticmethod
     def _apply(
