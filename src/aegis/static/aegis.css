@@ -95,6 +95,12 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 #detail dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 #nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; align-items: stretch; }
 .constellation-graph { margin: .9rem 0 1.25rem; padding: .8rem; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: color-mix(in srgb, var(--surface-0) 88%, var(--panel)); }
+.constellation-legend { display: flex; flex-wrap: wrap; gap: .45rem .8rem; margin: .7rem 0 .1rem; color: var(--text-muted); font-size: .76rem; }
+.constellation-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.constellation-legend i { display: inline-block; width: .65rem; height: .65rem; border: 1px solid var(--border); border-radius: 50%; background: var(--panel-raised); }
+.constellation-legend i[data-key="attention"] { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 38%, var(--panel-raised)); }
+.constellation-legend i[data-key="objective"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 32%, var(--panel-raised)); }
+.constellation-legend i[data-key="relationship"] { border-radius: .15rem; border-style: dashed; }
 .constellation-graph svg { display: block; width: 100%; min-width: 38rem; height: auto; min-height: 22rem; }
 .constellation-edge { stroke: color-mix(in srgb, var(--accent) 48%, var(--line)); stroke-width: 2; stroke-dasharray: 4 5; }
 .constellation-cluster { fill: color-mix(in srgb, var(--panel-raised) 76%, transparent); stroke: color-mix(in srgb, var(--line) 75%, transparent); stroke-width: 1; }
@@ -124,6 +130,8 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .node[data-category="capability"] { min-height: 5rem; font-size: .9rem; }
 .node[data-category="capability_need"] { min-height: 5rem; border-color: color-mix(in srgb, var(--warning) 55%, var(--border)); background: color-mix(in srgb, var(--warning) 7%, var(--panel-raised)); font-size: .9rem; }
 .node[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 .15rem color-mix(in srgb, var(--accent) 25%, transparent); }
+.node[data-attention="true"] { border-color: color-mix(in srgb, var(--warning) 62%, var(--border)); background: color-mix(in srgb, var(--warning) 7%, var(--panel-raised)); }
+.node[data-objective="true"] { border-color: color-mix(in srgb, var(--accent) 52%, var(--border)); }
 .view-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; }
 .view-summary h2 { margin: 0; font-size: 1rem; }
 .view-summary p { margin: 0; color: var(--muted, var(--text-muted)); font-size: .85rem; }

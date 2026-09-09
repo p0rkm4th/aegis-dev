@@ -986,6 +986,8 @@ async function loadState() {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     const category = node.category || 'domain';
     card.dataset.category = category;
+    if (category === 'capability_need') card.dataset.attention = 'true';
+    if (category === 'objective') card.dataset.objective = 'true';
     card.setAttribute('aria-pressed', 'false');
     card.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
     const title = document.createElement('h2'); title.textContent = node.label;
@@ -1087,6 +1089,9 @@ async function loadState() {
       group.setAttribute('tabindex', '0');
       group.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
       group.dataset.nodeId = node.id;
+      group.dataset.category = node.category || 'domain';
+      if (node.category === 'capability_need') group.dataset.attention = 'true';
+      if (node.category === 'objective') group.dataset.objective = 'true';
       group.setAttribute('transform', `translate(${position.x - 78}, ${position.y - 24})`);
       const rectangle = document.createElementNS(svgNS, 'rect');
       rectangle.setAttribute('width', '156'); rectangle.setAttribute('height', '48');
