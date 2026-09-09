@@ -7808,6 +7808,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "authorized: 'Ready to act'" in browser_source
     assert "context.open = active" in browser_source
     assert '<details class="secondary" aria-label="Canonical state">' in browser_source
+    assert ".nav-primary button:nth-of-type(n+4)" in _AEGIS_CSS
+    assert ".product-nav .nav-more { display: block; grid-column: auto;" in _AEGIS_CSS
     assert "<summary>Canonical state</summary>" in browser_source
     assert 'placeholder="Talk to AEGIS…"' in browser_source
     assert '<textarea id="utterance"' in browser_source
