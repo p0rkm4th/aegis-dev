@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "state_basis_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
+  "state_basis_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
   "active_branch": "aegis-dev",
-  "repository_head_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "deterministic_green_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "last_pushed_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "hosted_green_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "hosted_ci_green_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
+  "repository_head_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+  "deterministic_green_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+  "last_pushed_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+  "hosted_green_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
+  "hosted_ci_green_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
   "hosted_ci_attestation": {
     "provider": "github-actions",
     "workflow": "validation",
-    "commit_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
+    "commit_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239",
     "conclusion": "success",
-    "run_id": "34312308797",
-    "observed_at": "2026-09-09T05:00:00Z"
+    "run_id": "34354778764",
+    "observed_at": "2026-09-09T08:20:00Z"
   },
   "installed_release_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
   "running_release_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
   "live_green_sha": "df02016e4203f206b9f3e8baf3a31e3993639103",
-  "active_milestone": "DAILY-DRIVER-ALPHA",
-  "active_checkpoint": "owner-feedback-visual-conversation-shell",
-  "checkpoint_status": "owner_acceptance_pending",
-  "current_checkpoint": "owner-feedback-visual-conversation-shell",
-  "active_campaign": "AEGIS AUTONOMOUS DAILY-DRIVER INTEGRITY + SEMANTICS",
-  "primary_proving_domains": ["Correction provenance atomicity", "Natural outcome/set semantics", "Conversation-first owner surface"],
-  "parallel_lane": "Verified Grocery/Tasks set outcomes use owner language and persisted identifier follow-up context; Chat framing, progress, project context, empty-state chrome, navigation, attachment entry, idle status, readiness wording, assistant reading measure, truthful readiness indicator, quiet thread controls, compact attachment chips, dedicated mobile composer actions, Today signal hierarchy, quiet secondary Today signals, mobile attachment ergonomics, response-attached feedback, and keyboard focus continuity remain secondary to conversation",
+  "active_milestone": "AUTONOMOUS-HARDENING",
+  "active_checkpoint": "developer-sandbox-resource-bounds",
+  "checkpoint_status": "engineering_green",
+  "current_checkpoint": "developer-sandbox-resource-bounds",
+  "active_campaign": "AEGIS AUTONOMOUS HARDENING",
+  "primary_proving_domains": ["PID namespace isolation", "Mandatory sandbox attestation", "Bounded Developer snapshots and diffs"],
+  "parallel_lane": "Chat/UI is frozen at ENGINEERING_GREEN / OWNER_RETEST_REQUIRED; owner retest is independent of the autonomous security-hardening lane",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -80,9 +80,9 @@
     "remaining": "Scotty reports the installed UI still feels clunky and not pretty; owner acceptance remains rejected/pending. The visual conversation shell is now ready for another natural owner judgment."
   },
   "replacement_product_matrix": {
-    "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_REJECTED", "basis_sha": "df02016e4203f206b9f3e8baf3a31e3993639103", "blocker": "Installed Chat now has a quieter premium shell, designed empty state, restrained response utilities, dominant conversation reading surface, low-chrome AEGIS answers, calmer navigation, an intentional anchored composer, a reduced everyday rail with Calendar/Memory under Explore, a viewport-anchored mobile composer, hidden pre-response feedback, quieter desktop attachment presentation, and a bounded scroll region that keeps populated responses clear of the composer. Scotty's direct feedback is that the UI still sucks/is not pretty; another natural owner judgment is required."},
+    "chatgpt_desktop": {"state": "ENGINEERING_GREEN / OWNER_RETEST_REQUIRED", "basis_sha": "df02016e4203f206b9f3e8baf3a31e3993639103", "blocker": "Installed Chat has the conversation-first shell and mobile/populated-layout fixes; the historical UI rejection remains evidence, but the current build awaits one natural owner retest."},
     "files": {"state": "ENGINEERING_GREEN", "basis_sha": "49ef2392b78479a00ead0d3ba0f46175f083059a", "blocker": "Installed owner route supports picker, drag/drop, keyboard entry, and reversible removal from the next message while preserving bounded extraction and Principal/conversation scoping; Scotty still needs to use a real file and save an analysis through the existing Workspace flow."},
-    "codex": {"state": "RED", "basis_sha": "12976378e980defd75cb7f661a44ccaf81d41a54", "blocker": "Read-only inspection remains bounded. MODIFY now proposes and validates in disposable isolated state, persists exact candidate bytes/hashes/diff digest in the durable job, explicitly disables worker network/config rules, and applies only an exact approval; hostile-validator proof covers host files/network/Git/background processes. Owner exercise remains pending and commit/push/arbitrary shell remain disabled."},
+    "codex": {"state": "RED", "basis_sha": "e3958cbc8396efb177f5f6fe1afbdac986dce239", "blocker": "Developer authority remains frozen. The sandbox now has PID isolation, mandatory primitive attestation, bounded complete source snapshots, bounded candidate bytes, and complete non-truncated diffs; owner exercise and commit/push/arbitrary shell remain disabled."},
     "odysseus": {"state": "ENGINEERING_GREEN", "blocker": "Owner acceptance remains pending across memory, tasks, Finance, Homelab, research, Workspace, and phone workflows."}
   },
   "owner_escape_metric": {
@@ -92,7 +92,7 @@
     "next_evidence": "Exact visual shell release ec19b3e is installed and healthy; Scotty's next natural session should judge whether he can stay in AEGIS without leaving for ChatGPT."
   },
   "owner_daily_driver_semantics": "PRODUCT_RED / ACTIVE_REPAIR",
-  "owner_conversation_acceptance": "OWNER_REJECTED",
+  "owner_conversation_acceptance": "OWNER_RETEST_REQUIRED",
   "owner_acceptance_incident": {
     "application_escape": "ChatGPT",
     "classification": ["semantic_outcome", "set_selection", "compound_execution", "conversation_continuity", "ui"],
