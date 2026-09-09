@@ -113,6 +113,7 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .constellation-graph-node rect[data-category="domain"] { stroke: color-mix(in srgb, var(--accent) 48%, var(--border)); }
 .constellation-graph-node rect[data-category="capability_need"] { fill: color-mix(in srgb, var(--warning) 9%, var(--panel-raised)); stroke: color-mix(in srgb, var(--warning) 60%, var(--border)); }
 .constellation-graph-node:hover rect, .constellation-graph-node:focus rect { stroke: var(--accent); filter: drop-shadow(0 0 .35rem color-mix(in srgb, var(--accent) 35%, transparent)); }
+.constellation-graph-node:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .constellation-graph-label { fill: var(--text-strong); font-size: 13px; font-weight: 650; pointer-events: none; }
 .constellation-graph-detail { fill: var(--text-muted); font-size: 10px; pointer-events: none; }
 .constellation-layer { display: grid; gap: .55rem; }
@@ -171,6 +172,10 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
   #chat #utterance { flex: 1 0 100%; }
   #chat .attachment-picker { flex: 0 0 auto; margin-right: auto; }
   #chat button { width: auto; flex: 0 0 auto; min-height: 3.25rem; }
+  .constellation-graph { overflow-x: hidden; padding: .35rem; }
+  .constellation-graph svg { min-width: 0; width: 100%; min-height: 14rem; }
+  .constellation-graph-label { font-size: 11px; }
+  .constellation-graph-detail { font-size: 8px; }
   .conversation-tools { align-items: stretch; }
   .conversation-heading { flex: 1 1 100%; }
   .conversation-tools label { flex: 1 1 9rem; }
