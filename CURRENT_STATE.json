@@ -19,12 +19,12 @@
   "running_release_sha": "b692e3380947f10770e356d5312aed5823d08b6a",
   "live_green_sha": "b692e3380947f10770e356d5312aed5823d08b6a",
   "active_milestone": "AUTOMATON-AUTONOMOUS-SPRINTS",
-  "active_checkpoint": "constellation-u1-self-hosted-interactive-graph",
-  "checkpoint_status": "installed_green_owner_retest_required_campaign_active",
-  "current_checkpoint": "constellation-u1-self-hosted-interactive-graph",
-  "active_campaign": "AEGIS PERSISTENT AUTONOMOUS PRODUCT CAMPAIGN",
+  "active_checkpoint": "autonomous-campaign-halted-reference-only",
+  "checkpoint_status": "halted_reference_only",
+  "current_checkpoint": "autonomous-campaign-halted-reference-only",
+  "active_campaign": "AEGIS REFERENCE ONLY — AUTONOMOUS CAMPAIGN HALTED",
   "primary_proving_domains": ["Durable Luna sprint state", "Independent lane switching", "Installed Constellation spatial map"],
-  "parallel_lane": "Constellation U1 is installed-green with self-hosted Cytoscape.js 3.34.3, real pan/zoom, search highlighting, and the existing structured fallback; owner retest remains separate while the next product frontier is selected.",
+  "parallel_lane": "AEGIS autonomous product development is intentionally halted for the HADES transition campaign; prior task and owner-retest state remains preserved for historical recovery only.",
   "experimental_lane": "PARKED RESEARCH: Pack-first cognition tournament isolated; production incumbent unchanged",
   "current_model": {
     "provider": "ollama",
@@ -485,7 +485,7 @@
     "Natural Grocery/Tasks outcome-set/compound behavior and conversation-first Chat are engineering-green but remain owner-rejected until Scotty uses the installed product again.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "Installed b692e338 Constellation U1 now provides a self-hosted interactive authorized graph with pan/zoom and synchronized structured fallback. Natural outcome/set/compound semantics and Chat remain installed engineering-green; owner acceptance is pending and the product campaign remains active.",
+  "daily_driver_checkpoint": "AEGIS autonomous product campaign halted at installed b692e338 for the HADES transition. Constellation U1 and prior owner-harness work remain preserved reference material; no further AEGIS work is authorized in this campaign.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",

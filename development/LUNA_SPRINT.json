@@ -2,7 +2,7 @@
   "schema_version": 1,
   "sprint_id": "aegis-automaton-harvest-2026-09-09",
   "objective": "Build the minimum durable Luna sprint control plane and use it for independent verified AEGIS product work.",
-  "status": "ACTIVE",
+  "status": "COMPLETE",
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
@@ -270,7 +270,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": "constellation-u1-interactive-dogfood",
+  "current_task": null,
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",
@@ -288,5 +288,5 @@
     "installed_sha": "b692e3380947f10770e356d5312aed5823d08b6a"
   },
   "next_ready_tasks": ["constellation-u1-interactive-dogfood"],
-  "stop_reason": "Campaign active. U1 interactive graph is installed-green; next task is bounded installed visual/accessibility dogfood and defect harvest, independent of owner acceptance."
+  "stop_reason": "Autonomous AEGIS campaign halted by management transition directive. Task history, blockers, and next ready task are preserved for historical recovery; AEGIS is reference-only for subsequent HADES work."
 }
