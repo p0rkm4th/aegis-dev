@@ -54,7 +54,7 @@ jobs:
           command -v prlimit
           bwrap --version
           prlimit --version
-          bwrap --die-with-parent --unshare-pid --proc /proc --dev /dev \
+          bwrap --die-with-parent --unshare-user --uid 0 --gid 0 --unshare-pid --proc /proc --dev /dev \
             --tmpfs /tmp --ro-bind /usr /usr --ro-bind /bin /bin \
             --ro-bind /lib /lib --ro-bind /lib64 /lib64 --clearenv \
             --setenv PATH /usr/bin:/bin -- true
