@@ -2,13 +2,13 @@
   "schema_version": 1,
   "sprint_id": "aegis-automaton-harvest-2026-09-09",
   "objective": "Build the minimum durable Luna sprint control plane and use it for independent verified AEGIS product work.",
-  "status": "ACTIVE",
+  "status": "WAITING_HUMAN",
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "observed_head_sha": "f8d09416be92c745f477f71f1cb8fb9e9ad58814",
-    "last_green_sha": "f8d09416be92c745f477f71f1cb8fb9e9ad58814",
-    "installed_sha": "f8d09416be92c745f477f71f1cb8fb9e9ad58814"
+    "observed_head_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298",
+    "last_green_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298",
+    "installed_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298"
   },
   "lanes": {
     "AUTONOMY": {
@@ -28,7 +28,7 @@
     "CONSTELLATION": {
       "lane_id": "CONSTELLATION",
       "priority": 80,
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "blocker": "",
       "evidence_needed": "rendered desktop/mobile proof"
     },
@@ -142,18 +142,18 @@
       "title": "Expose bounded human-readable meaning for authorized Constellation links",
       "priority": 80,
       "dependencies": ["constellation-u2-semantic-clusters"],
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "attempts": 0,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
       "max_identical_failure_repeats": 2,
       "failure_fingerprint": "",
-      "evidence": ["Approved Constellation progression U3; relationship labels remain read-only presentation derived from existing node categories", "Authorized links now explain bounded meanings such as maps to, contains, supports, has need, and candidate for without changing the backend edge contract"],
+      "evidence": ["Approved Constellation progression U3; relationship labels remain read-only presentation derived from existing node categories", "Authorized links now explain bounded meanings such as maps to, contains, supports, has need, and candidate for without changing the backend edge contract", "Exact hosted validation 34382847349 succeeded; installed release c5f45d8eb649f29e6bffe12c1f74027f3591a298 is healthy"],
       "changed_paths": ["src/aegis/static/aegis.js", "tests/test_cli.py"],
       "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q"],
       "blocker": "",
       "created_at": "2026-09-09T19:00:00+00:00",
-      "updated_at": "2026-09-09T19:00:00+00:00"
+      "updated_at": "2026-09-09T19:30:00+00:00"
     },
     "chat-owner-retest": {
       "task_id": "chat-owner-retest",
@@ -175,7 +175,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": "constellation-u3-relationship-meaning",
+  "current_task": null,
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",
@@ -185,12 +185,12 @@
   ],
   "hosted_validation": {
     "workflow": "validation",
-    "head_sha": "f8d09416be92c745f477f71f1cb8fb9e9ad58814",
-    "run_id": "34382236180",
+    "head_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298",
+    "run_id": "34382847349",
     "status": "completed",
     "conclusion": "success",
-    "installed_sha": "f8d09416be92c745f477f71f1cb8fb9e9ad58814"
+    "installed_sha": "c5f45d8eb649f29e6bffe12c1f74027f3591a298"
   },
   "next_ready_tasks": [],
-  "stop_reason": "Only remaining approved task is the human-only Chat product judgment; no safe READY engineering task remains after autonomous Constellation U2 and proxy dogfood."
+  "stop_reason": "Only remaining approved task is the human-only Chat product judgment; no safe READY engineering task remains after autonomous Constellation U3 and proxy dogfood."
 }
