@@ -199,6 +199,51 @@ def test_follow_up_explains_internal_identifier_concept_without_resetting_domain
     assert "6 matching records" in result.message
 
 
+def test_introduced_identifier_concept_survives_prior_result_round_trip():
+    from aegis.interaction_context import context_from_prior_result
+
+    principal = Principal(id="alice", vault_id="alice-vault")
+    correlation_id = uuid4()
+    objective = type(
+        "Objective",
+        (),
+        {
+            "id": uuid4(),
+            "intent": type("Intent", (), {"utterance": "remove rice"})(),
+        },
+    )()
+    result = Result(
+        objective_id=objective.id,
+        state=ObjectiveState.COMPLETED,
+        message="Those are internal identifiers used for duplicate grocery records.",
+        evidence={
+            "introduced_concept": {
+                "kind": "record_identifier",
+                "collection": "grocery",
+                "count": 6,
+            }
+        },
+        correlation_id=correlation_id,
+    )
+
+    class Store:
+        def get_objective_by_correlation(self, _correlation_id, _principal):
+            return objective
+
+        def get_result_for_correlation(self, _correlation_id, _principal):
+            return result
+
+    context = context_from_prior_result(Store(), correlation_id, principal)
+    follow_up = resolve_introduced_concept_read(
+        IntentFrame(principal=principal, utterance="grocery"), context
+    )
+
+    assert follow_up is not None
+    assert follow_up.state is ObjectiveState.COMPLETED
+    assert "internal identifiers" in follow_up.message
+    assert "6 matching records" in follow_up.message
+
+
 def test_memory_fast_path_yields_to_standalone_general_subject_questions() -> None:
     fast_path = PersonalMemoryFastPath(PersonalState())
     for utterance in (
