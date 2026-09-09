@@ -5,8 +5,16 @@ from typing import Any
 
 import pytest
 
+import aegis.developer as developer
 from aegis.developer import (
     _PROPOSALS,
+    MAX_CHANGED_FILE_BYTES,
+    MAX_CHANGED_TOTAL_BYTES,
+    MAX_DIFF_BYTES,
+    MAX_MODIFY_FILES,
+    MAX_SOURCE_FILE_BYTES,
+    MAX_SOURCE_FILES,
+    MAX_SOURCE_TOTAL_BYTES,
     CodexInspectWorker,
     CodexModifyWorker,
     DeveloperWorkerError,
@@ -63,6 +71,63 @@ def test_codex_inspect_worker_uses_read_only_snapshot_and_sanitized_environment(
 def test_codex_inspect_worker_rejects_empty_question(tmp_path: Path) -> None:
     with pytest.raises(DeveloperWorkerError, match="question is required"):
         CodexInspectWorker().inspect(_project(tmp_path), " ")
+
+
+@pytest.mark.parametrize(
+    ("setting", "value", "message"),
+    [
+        ("MAX_SOURCE_FILES", 2, "file-count"),
+        ("MAX_SOURCE_FILE_BYTES", 4, "size bound"),
+        ("MAX_SOURCE_TOTAL_BYTES", 4, "byte bound"),
+    ],
+)
+def test_allowlist_rejects_incomplete_source_snapshot_before_copy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    setting: str,
+    value: int,
+    message: str,
+) -> None:
+    project = _project(tmp_path)
+    for name, content in (("a.py", "1234"), ("b.py", "5678"), ("c.py", "90ab")):
+        (project.repository / "src" / name).write_text(content, encoding="utf-8")
+    monkeypatch.setattr(developer, setting, value)
+    if setting == "MAX_SOURCE_TOTAL_BYTES":
+        monkeypatch.setattr(developer, "MAX_SOURCE_FILE_BYTES", 100)
+    destination = tmp_path / "snapshot"
+    with pytest.raises(DeveloperWorkerError, match=message):
+        CodexInspectWorker._copy_allowlist(project, destination)
+    assert not destination.exists()
+
+
+def test_changed_payload_accepts_exact_bounds_and_rejects_overflow(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(developer, "MAX_MODIFY_FILES", 2)
+    monkeypatch.setattr(developer, "MAX_CHANGED_FILE_BYTES", 4)
+    monkeypatch.setattr(developer, "MAX_CHANGED_TOTAL_BYTES", 8)
+    monkeypatch.setattr(developer, "MAX_DIFF_BYTES", 4)
+    CodexModifyWorker._validate_changed_payload({"a": b"1234", "b": b"5678"}, (), "1234")
+    with pytest.raises(DeveloperWorkerError, match="too many files"):
+        CodexModifyWorker._validate_changed_payload({"a": b"1", "b": b"2", "c": b"3"}, (), "1")
+    with pytest.raises(DeveloperWorkerError, match="changed file exceeds"):
+        CodexModifyWorker._validate_changed_payload({"a": b"12345"}, (), "1")
+    monkeypatch.setattr(developer, "MAX_CHANGED_TOTAL_BYTES", 7)
+    with pytest.raises(DeveloperWorkerError, match="too many bytes"):
+        CodexModifyWorker._validate_changed_payload({"a": b"1234", "b": b"5678"}, (), "1")
+    with pytest.raises(DeveloperWorkerError, match="diff exceeds"):
+        CodexModifyWorker._validate_changed_payload({"a": b"1"}, (), "12345")
+
+
+def test_diff_is_rejected_as_a_complete_oversized_representation() -> None:
+    before = {"main.py": b"old\n"}
+    after = {"main.py": b"new\n"}
+    diff = CodexModifyWorker._diff(before, after, Path("."), ["main.py"])
+    assert diff.startswith("--- a/main.py")
+    assert len(diff.encode()) <= MAX_DIFF_BYTES
+    assert MAX_SOURCE_FILES > MAX_MODIFY_FILES
+    assert MAX_SOURCE_FILE_BYTES >= MAX_CHANGED_FILE_BYTES
+    assert MAX_SOURCE_TOTAL_BYTES > MAX_CHANGED_TOTAL_BYTES
 
 
 def test_codex_modify_requires_confirmation_without_running_worker(tmp_path: Path) -> None:
