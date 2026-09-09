@@ -97,6 +97,10 @@ button:disabled, input:disabled, textarea:disabled { cursor: wait; opacity: .65;
 .constellation-graph { margin: .9rem 0 1.25rem; padding: .8rem; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: color-mix(in srgb, var(--surface-0) 88%, var(--panel)); }
 .constellation-graph svg { display: block; width: 100%; min-width: 38rem; height: auto; min-height: 22rem; }
 .constellation-edge { stroke: color-mix(in srgb, var(--accent) 48%, var(--line)); stroke-width: 2; stroke-dasharray: 4 5; }
+.constellation-cluster { fill: color-mix(in srgb, var(--panel-raised) 76%, transparent); stroke: color-mix(in srgb, var(--line) 75%, transparent); stroke-width: 1; }
+.constellation-cluster[data-category="core"] { fill: color-mix(in srgb, var(--accent) 5%, var(--panel-raised)); stroke: color-mix(in srgb, var(--accent) 32%, var(--line)); }
+.constellation-cluster[data-category="capability_need"] { fill: color-mix(in srgb, var(--warning) 4%, var(--panel-raised)); stroke: color-mix(in srgb, var(--warning) 28%, var(--line)); }
+.constellation-cluster-label { fill: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .constellation-graph-node { cursor: pointer; outline: none; }
 .constellation-graph-node rect { fill: var(--panel-raised); stroke: var(--border); stroke-width: 1.5; transition: fill .15s ease, stroke .15s ease, filter .15s ease; }
 .constellation-graph-node rect[data-category="core"] { fill: color-mix(in srgb, var(--accent) 15%, var(--panel-raised)); stroke: var(--accent); }
