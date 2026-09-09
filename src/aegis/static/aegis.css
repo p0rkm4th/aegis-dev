@@ -739,6 +739,20 @@ body {
   .conversation-tools label { flex: 1 1 11rem; }
   .conversation-tools #new-conversation { order: 3; flex: 0 0 auto; }
   #conversation li.conversation-empty { padding: 2.25rem .75rem; }
-  .composer-dock { bottom: 0; background: color-mix(in srgb, var(--panel) 98%, transparent); }
+  #conversation { padding-bottom: 9rem; }
+  .composer-dock {
+    position: fixed;
+    left: .65rem;
+    right: .65rem;
+    bottom: 0;
+    z-index: 10;
+    margin: 0;
+    padding: .6rem .8rem .75rem;
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    border-bottom: 0;
+    border-radius: .9rem .9rem 0 0;
+    background: color-mix(in srgb, var(--panel) 98%, transparent);
+    box-shadow: 0 -.6rem 1.8rem rgb(0 0 0 / .14);
+  }
   .conversation-empty .empty-suggestions { display: none; }
 }
