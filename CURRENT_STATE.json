@@ -87,7 +87,7 @@
     "state": "owner_feedback",
     "last_escape_application": "ChatGPT",
     "reason": "Owner grocery outcome/set/compound requests exposed internal IDs, rejected safe bounded actions, and lost the grocery concept during follow-up; installed Chat also remains clunky.",
-    "next_evidence": "Run the installed semantic canary and then one natural owner session; measure whether the owner can express an outcome without leaving for ChatGPT."
+    "next_evidence": "Engineering canaries are green; Scotty's next natural session must test correction, outcome/set/compound language, and whether Chat still drives an escape to ChatGPT."
   },
   "owner_daily_driver_semantics": "PRODUCT_RED / ACTIVE_REPAIR",
   "owner_conversation_acceptance": "OWNER_REJECTED",
@@ -478,11 +478,11 @@
     ,"Owner-Reality OSS harvest on 09d5161 records bounded design/test reuse recommendations for Grocy, Mealie, Actual Budget, Firefly III Data Importer, ofxtools, and Nmap without adding runtime dependencies or authority"
   ],
   "current_blockers": [
-    "Recovery V1 is installed-green with deterministic contract/persistence/budget proof; Scotty's owner-visible unsupported/investigable request remains the next evidence.",
-    "Owner acceptance remains pending for the existing harness and recovery canary; no Developer expansion is authorized.",
+    "Correction provenance atomicity and bounded semantic hardening are installed-green; owner acceptance remains pending.",
+    "Natural Grocery/Tasks outcome-set/compound behavior and conversation-first Chat are engineering-green but remain owner-rejected until Scotty uses the installed product again.",
     "Live OpenClaw outbound, owner grocery mutation execution, and Google Calendar write credentials remain unconfigured; those provider lanes are deferred/regression-only."
   ],
-  "daily_driver_checkpoint": "Recovery-first-autonomy-v1 is installed-green at c1bb0d6. Objective JSON carries bounded RecoveryState with INTERNAL_BLOCKED versus OWNER_BLOCKED classification, deterministic failure fingerprints, capability/provider counters, repeated-evidence stop behavior, and legacy BLOCKED compatibility. Existing proposal repair and CapabilityNeed investigation remain the recovery mechanisms; Kernel authority and external UNKNOWN semantics are unchanged.",
+  "daily_driver_checkpoint": "Installed b54c764 correction hardening preserves the Recovery V1 boundary, commits owner correction and required provenance atomically, and supports bounded subject, value, and relation/object correction from owner-grounded copular facts. Natural outcome/set/compound semantics and Chat remain installed engineering-green; owner acceptance is pending.",
   "known_runtime_limits": [
     "initial Ollama probe returned malformed Decision semantics and was correctly rejected; exact-card schema/prompt fix then passed live",
     "Qwen3:8B does not expose Ollama embeddings (HTTP 501); semantic retrieval uses separately pinned nomic-embed-text instead",
@@ -537,11 +537,9 @@
     "external_integrations": 4,
     "cross_domain_compositions": 75,
     "capability_need_resolutions": 5,
-    "general_purpose_primitives": 2,
-    "owner_workflows_completed": 100,
-    "new_semantic_special_cases_per_session": 0
+    "general_purpose_primitives": 2
   },
-  "next_action": "Owner-acceptance standby: Scotty can open the private URL, send one normal follow-up, use a real file/project question, or approve one bounded coding change. Keep automatic commit/push disabled and follow real escape evidence; do not add speculative architecture while waiting.",
+  "next_action": "Continue only already-justified integrity/semantic regressions while owner acceptance is pending; next lane is natural outcome/set/compound and completion-fidelity installed regression, with Codex expansion parked.",
   "history_artifact": "evidence/campaigns/external-effect-assurance-acceptance-ec90d0c.json",
   "migrated_at": "2026-09-06T14:20:00+00:00"
 }
