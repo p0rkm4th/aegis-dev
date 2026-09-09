@@ -812,6 +812,7 @@ async function loadResearch() {
 nodeFilter.addEventListener('input', applyNodeFilter);
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
   activeView = button.dataset.view || 'home';
+  document.querySelector('.workspace')?.setAttribute('data-view', activeView);
   document.querySelectorAll('[data-view]').forEach(item =>
     item.setAttribute('aria-current', item === button ? 'page' : 'false'));
   const input = document.getElementById('utterance');

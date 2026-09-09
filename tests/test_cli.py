@@ -7691,6 +7691,9 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "home: ['Chat', 'A conversation with AEGIS.']" in browser_source
     assert '<h2 id="view-title">Chat</h2>' in browser_source
     assert '<p id="view-description">A conversation with AEGIS.</p>' in browser_source
+    assert 'data-view="home"' in browser_source
+    assert '.workspace[data-view="home"] .view-summary' in _AEGIS_CSS
+    assert "setAttribute('data-view', activeView)" in browser_source
     for view in (
         "Today",
         "Tasks",
