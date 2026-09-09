@@ -7678,6 +7678,8 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert 'class="conversation-panel"' in browser_source
     assert 'class="composer-dock"' in browser_source
     assert 'id="conversation-title"' in browser_source
+    assert 'id="project-context" class="project-context"' in browser_source
+    assert "<summary>Context</summary>" in browser_source
     assert "function updateConversationTitle(messages)" in browser_source
     assert (
         "conversations.find(item => item.conversation_id === conversationSessionId)"
@@ -7804,6 +7806,7 @@ def test_browser_surface_has_transcript_and_duplicate_submission_guard():
     assert "proposed: 'Preparing'" in browser_source
     assert "validated: 'Checking'" in browser_source
     assert "authorized: 'Ready to act'" in browser_source
+    assert "context.open = active" in browser_source
     assert '<details class="secondary" aria-label="Canonical state">' in browser_source
     assert "<summary>Canonical state</summary>" in browser_source
     assert 'placeholder="Talk to AEGIS…"' in browser_source

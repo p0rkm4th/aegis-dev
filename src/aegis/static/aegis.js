@@ -393,10 +393,12 @@ function updateChatProjectContext() {
   const selector = document.getElementById('chat-project');
   const status = document.getElementById('chat-project-status');
   const clear = document.getElementById('clear-chat-project');
+  const context = document.getElementById('project-context');
   const option = selector.options[selector.selectedIndex];
   const active = Boolean(selector.value);
   status.textContent = active ? `Active: ${option?.textContent || 'read-only project'}` : '';
   clear.hidden = !active;
+  if (context) context.open = active;
   const attachmentsBlocked = active || document.getElementById('chat')?.dataset.busy === 'true';
   ['attachment-file', 'attachment-dropzone'].forEach(id => {
     const control = document.getElementById(id);
