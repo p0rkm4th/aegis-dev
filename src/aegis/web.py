@@ -274,7 +274,7 @@ aria-live="polite" aria-label="Selected node details"></div>
 autocomplete="off" aria-describedby="node-filter-status"
 placeholder="Filter authorized nodes"></label>
 <p id="node-filter-status" class="muted" aria-live="polite" aria-atomic="true"></p>
-<h2>Constellation</h2><p class="muted">AEGIS is the root of an authorized semantic map. Select a domain or capability for its conventional detail.</p><main id="nodes" role="group" aria-label="Authorized AEGIS constellation"><p>Loading state…</p></main>
+<h2>Constellation</h2><p class="muted">AEGIS is the root of an authorized semantic map. Select a domain or capability for its conventional detail.</p><div id="constellation-graph" class="constellation-graph" role="img" aria-label="Authorized semantic relationship map"></div><main id="nodes" role="group" aria-label="Authorized AEGIS constellation"><p>Loading state…</p></main>
 <h2>Relationships</h2><ul id="edges"><li>Loading relationships…</li></ul></details></div></div>
 </body></html>"""
 

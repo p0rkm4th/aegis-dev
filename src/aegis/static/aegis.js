@@ -1,5 +1,6 @@
 const nodes = document.getElementById('nodes');
 const edges = document.getElementById('edges');
+const constellationGraph = document.getElementById('constellation-graph');
 const refresh = document.getElementById('refresh');
 const nodeFilter = document.getElementById('node-filter');
 const nodeFilterStatus = document.getElementById('node-filter-status');
@@ -985,6 +986,79 @@ async function loadState() {
     if (!constellationGroups.has(category)) constellationGroups.set(category, []);
     constellationGroups.get(category).push(card);
   });
+  const renderConstellationGraph = () => {
+    if (!constellationGraph) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const graph = document.createElementNS(svgNS, 'svg');
+    graph.setAttribute('role', 'img');
+    graph.setAttribute('aria-label', 'Authorized semantic relationship map');
+    const positions = new Map();
+    const categoryOrderForGraph = ['core', 'domain', 'capability', 'capability_need', 'objective', 'composition'];
+    const groupedNodes = new Map();
+    (state.nodes || []).forEach(node => {
+      const category = categoryOrderForGraph.includes(node.category) ? node.category : 'domain';
+      if (!groupedNodes.has(category)) groupedNodes.set(category, []);
+      groupedNodes.get(category).push(node);
+    });
+    let cursorY = 58;
+    groupedNodes.forEach(items => {
+      const columns = Math.min(items.length, 5);
+      const spacing = 180;
+      const start = 480 - ((columns - 1) * spacing) / 2;
+      items.forEach((node, index) => {
+        const row = Math.floor(index / columns);
+        const column = index % columns;
+        positions.set(node.id, {x: start + column * spacing, y: cursorY + row * 72});
+      });
+      cursorY += Math.ceil(items.length / columns) * 84;
+    });
+    graph.setAttribute('viewBox', `0 0 960 ${Math.max(520, cursorY + 20)}`);
+    const lineLayer = document.createElementNS(svgNS, 'g');
+    lineLayer.setAttribute('aria-hidden', 'true');
+    (state.edges || []).forEach(edge => {
+      const source = positions.get(edge.source);
+      const target = positions.get(edge.target);
+      if (!source || !target) return;
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', source.x); line.setAttribute('y1', source.y + 24);
+      line.setAttribute('x2', target.x); line.setAttribute('y2', target.y - 24);
+      line.classList.add('constellation-edge');
+      lineLayer.append(line);
+    });
+    graph.append(lineLayer);
+    (state.nodes || []).forEach(node => {
+      const position = positions.get(node.id);
+      if (!position) return;
+      const group = document.createElementNS(svgNS, 'g');
+      group.classList.add('constellation-graph-node');
+      group.setAttribute('role', 'button');
+      group.setAttribute('tabindex', '0');
+      group.setAttribute('aria-label', `${node.label}: ${node.detail || 'No detail'}`);
+      group.dataset.nodeId = node.id;
+      group.setAttribute('transform', `translate(${position.x - 78}, ${position.y - 24})`);
+      const rectangle = document.createElementNS(svgNS, 'rect');
+      rectangle.setAttribute('width', '156'); rectangle.setAttribute('height', '48');
+      rectangle.setAttribute('rx', '12'); rectangle.dataset.category = node.category || 'domain';
+      const title = document.createElementNS(svgNS, 'text');
+      title.setAttribute('x', '78'); title.setAttribute('y', '20'); title.setAttribute('text-anchor', 'middle');
+      title.classList.add('constellation-graph-label'); title.textContent = node.label;
+      const detail = document.createElementNS(svgNS, 'text');
+      detail.setAttribute('x', '78'); detail.setAttribute('y', '36'); detail.setAttribute('text-anchor', 'middle');
+      detail.classList.add('constellation-graph-detail');
+      detail.textContent = (node.detail || node.category || '').slice(0, 25);
+      const activate = () => {
+        const card = nodeCards.get(node.id);
+        if (card) { card.focus(); card.click(); }
+      };
+      group.addEventListener('click', activate);
+      group.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(); }
+      });
+      group.append(rectangle, title, detail); graph.append(group);
+    });
+    constellationGraph.replaceChildren(graph);
+  };
+  renderConstellationGraph();
   const categoryLabels = {
     core: 'AEGIS', domain: 'Domains & Packs', capability: 'Semantic areas',
     capability_need: 'Capability needs', objective: 'Active objectives',

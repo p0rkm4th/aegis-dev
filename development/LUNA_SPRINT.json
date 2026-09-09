@@ -6,15 +6,15 @@
   "repo": {
     "branch": "aegis-dev",
     "starting_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "observed_head_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
-    "last_green_sha": "b8991be358f43f0b98a9877b51f8547ee98a0922",
+    "observed_head_sha": "a12e5a630ad8658dc2c2ce3ce0cfd9931f6cf0a7",
+    "last_green_sha": "a12e5a630ad8658dc2c2ce3ce0cfd9931f6cf0a7",
     "installed_sha": "df02016e4203f206b9f3e8baf3a31e3993639103"
   },
   "lanes": {
     "AUTONOMY": {
       "lane_id": "AUTONOMY",
       "priority": 100,
-      "status": "ACTIVE",
+      "status": "READY",
       "blocker": "",
       "evidence_needed": "focused scheduler and resume regressions"
     },
@@ -66,18 +66,18 @@
       "title": "Implement durable validated sprint state and ready-task scheduling",
       "priority": 100,
       "dependencies": ["automaton-harvest"],
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "attempts": 1,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
       "max_identical_failure_repeats": 2,
       "failure_fingerprint": "",
-      "evidence": ["Focused tests are green after repairing dependency propagation and priority persistence"],
+      "evidence": ["Focused tests are green after repairing dependency propagation and priority persistence", "Full deterministic gate and exact-head hosted validation 34380652265 succeeded"],
       "changed_paths": ["development/luna_sprint.py", "scripts/luna_sprint.py", "tests/test_luna_sprint.py"],
       "tests": ["PYTHONPATH=src .venv/bin/python -m pytest tests/test_luna_sprint.py -q"],
       "blocker": "",
       "created_at": "2026-09-09T17:00:00+00:00",
-      "updated_at": "2026-09-09T17:00:00+00:00"
+      "updated_at": "2026-09-09T17:10:00+00:00"
     },
     "constellation-u1-real-graph": {
       "task_id": "constellation-u1-real-graph",
@@ -85,15 +85,15 @@
       "title": "Make the authorized Constellation projection read as a spatial relationship map",
       "priority": 85,
       "dependencies": ["sprint-substrate"],
-      "status": "READY",
+      "status": "ACTIVE",
       "attempts": 0,
       "max_attempts": 3,
       "identical_failure_repeats": 0,
       "max_identical_failure_repeats": 2,
       "failure_fingerprint": "",
-      "evidence": [],
-      "changed_paths": [],
-      "tests": [],
+      "evidence": ["Authorized node/edge projection now renders as a keyboard-navigable SVG relationship map while the accessible list remains available"],
+      "changed_paths": ["src/aegis/static/aegis.js", "src/aegis/static/aegis.css", "src/aegis/web.py", "tests/test_cli.py"],
+      "tests": ["node --check src/aegis/static/aegis.js", "PYTHONPATH=src .venv/bin/python -m pytest tests/test_cli.py tests/test_luna_sprint.py -q"],
       "blocker": "",
       "created_at": "2026-09-09T17:00:00+00:00",
       "updated_at": "2026-09-09T17:00:00+00:00"
@@ -118,7 +118,7 @@
       "updated_at": "2026-09-09T17:00:00+00:00"
     }
   },
-  "current_task": "sprint-substrate",
+  "current_task": "constellation-u1-real-graph",
   "replan_count": 0,
   "max_replans": 5,
   "last_progress_at": "2026-09-09T17:00:00+00:00",
@@ -126,7 +126,13 @@
     "Human-blocked UI acceptance is lane-local; it must not idle independent engineering.",
     "Worker reports remain evidence; tests and hosted validation establish green."
   ],
-  "hosted_validation": {},
-  "next_ready_tasks": ["constellation-u1-real-graph"],
+  "hosted_validation": {
+    "workflow": "validation",
+    "head_sha": "a12e5a630ad8658dc2c2ce3ce0cfd9931f6cf0a7",
+    "run_id": "34380652265",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "next_ready_tasks": [],
   "stop_reason": ""
 }
