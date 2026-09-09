@@ -955,6 +955,18 @@ async function loadState() {
   renderedNodeViews = new Map();
   renderedEdgeRows = [];
   const constellationGroups = new Map();
+  const constellationNodesById = new Map((state.nodes || []).map(node => [node.id, node]));
+  const constellationRelationshipMeaning = (edge) => {
+    const source = constellationNodesById.get(edge.source);
+    const target = constellationNodesById.get(edge.target);
+    if (edge.source === 'aegis') return 'maps to';
+    if (target?.category === 'capability_need') return 'has need';
+    if (source?.category === 'capability_need') return 'candidate for';
+    if (target?.category === 'composition') return 'supports';
+    if (source?.category === 'domain' && target?.category === 'capability') return 'contains';
+    if (source?.category === 'objective' && target?.category === 'capability_need') return 'requires';
+    return 'relates to';
+  };
   (state.nodes || []).forEach(node => {
     const card = document.createElement('button'); card.className = 'node'; card.type = 'button';
     const category = node.category || 'domain';
@@ -1045,6 +1057,9 @@ async function loadState() {
       line.setAttribute('x1', source.x); line.setAttribute('y1', source.y + 24);
       line.setAttribute('x2', target.x); line.setAttribute('y2', target.y - 24);
       line.classList.add('constellation-edge');
+      const description = document.createElementNS(svgNS, 'title');
+      description.textContent = `${constellationNodesById.get(edge.source)?.label || 'Authorized node'} ${constellationRelationshipMeaning(edge)} ${constellationNodesById.get(edge.target)?.label || 'authorized node'}`;
+      line.append(description);
       lineLayer.append(line);
     });
     graph.append(lineLayer);
@@ -1101,8 +1116,9 @@ async function loadState() {
   edges.replaceChildren(...(state.edges || []).map(edge => {
     const item = document.createElement('li');
     const link = document.createElement('button'); link.type = 'button';
+    const meaning = constellationRelationshipMeaning(edge);
     link.textContent =
-      `${labels[edge.source] || 'Authorized node'} → ${labels[edge.target] || 'Authorized node'}`;
+      `${labels[edge.source] || 'Authorized node'} ${meaning} ${labels[edge.target] || 'Authorized node'}`;
     link.setAttribute(
       'aria-label', `Open relationship to ${labels[edge.target] || 'authorized node'}`);
     link.addEventListener('click', () => {
