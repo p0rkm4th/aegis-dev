@@ -580,6 +580,8 @@ async function loadHealth() {
     const error = new Error(report.error || 'Runtime status unavailable.');
     error.code = report.code || 'health_unavailable'; throw error;
   }
+  const healthLine = document.querySelector('.health-line');
+  if (healthLine) healthLine.dataset.state = report.ready ? 'ready' : 'attention';
   document.getElementById('health').textContent = report.ready
     ? 'AEGIS is ready'
     : 'AEGIS needs attention';
@@ -3486,6 +3488,7 @@ async function refreshState() {
       await loadHealth();
     } catch (error) {
       const code = error.code || 'health_unavailable';
+      document.querySelector('.health-line')?.setAttribute('data-state', 'unavailable');
       clearHealthDetails();
       document.getElementById('health').textContent =
         `${errorLabel(code)} (${code}).`;
