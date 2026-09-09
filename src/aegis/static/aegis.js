@@ -1934,9 +1934,16 @@ async function loadToday() {
     panel.append(heading);
     appendTodayOverview(panel, payload);
     appendTodayBrief(panel, payload);
+    const supportingSignals = document.createElement('details');
+    supportingSignals.className = 'detail-card today-supporting-signals';
+    const supportingSummary = document.createElement('summary');
+    supportingSummary.textContent = 'More signals';
+    const supportingContent = document.createElement('div');
+    supportingContent.className = 'today-supporting-content';
+    supportingSignals.append(supportingSummary, supportingContent);
     try {
       const financeResponse = await fetchWithTimeout('/api/finance');
-      if (financeResponse.ok) appendTodayFinanceSummary(panel, await financeResponse.json());
+      if (financeResponse.ok) appendTodayFinanceSummary(supportingContent, await financeResponse.json());
     } catch (_) { /* Finance is a bounded optional private Today slice. */ }
     try {
       const systemsResponse = await fetchWithTimeout('/api/systems');
@@ -1944,15 +1951,16 @@ async function loadToday() {
     } catch (_) { /* Systems is a bounded optional authorized Today slice. */ }
     try {
       const researchResponse = await fetchWithTimeout('/api/research');
-      if (researchResponse.ok) appendTodayResearchSummary(panel, await researchResponse.json());
+      if (researchResponse.ok) appendTodayResearchSummary(supportingContent, await researchResponse.json());
     } catch (_) { /* Research is a bounded optional public-evidence Today slice. */ }
     try {
       const developerResponse = await fetchWithTimeout('/api/developer/jobs');
       if (developerResponse.ok) {
         const developerPayload = await developerResponse.json();
-        appendTodayDeveloperJobs(panel, developerPayload.jobs || []);
+        appendTodayDeveloperJobs(supportingContent, developerPayload.jobs || []);
       }
     } catch (_) { /* Developer jobs are a bounded optional owner attention slice. */ }
+    if (supportingContent.children.length) panel.append(supportingSignals);
     const crossDomainReview = document.createElement('details');
     crossDomainReview.className = 'detail-card today-cross-domain-review';
     const crossDomainHeading = document.createElement('summary');
