@@ -33,6 +33,7 @@ let pendingCapabilityFocus = null;
 let latestResearch = null;
 let researchHistory = [];
 let authorizedProjectionLoaded = false;
+let constellationCy = null;
 let recoveryPollScheduled = false;
 let recoveryPollAttempts = 0;
 const themeToggle = document.getElementById('theme-toggle');
@@ -702,6 +703,22 @@ function applyNodeFilter() {
     item.hidden = renderedNodeCards.get(edge.source)?.hidden !== false
       && renderedNodeCards.get(edge.target)?.hidden !== false;
   });
+  if (constellationCy) {
+    constellationCy.nodes().removeClass('search-match');
+    constellationCy.nodes().removeClass('search-dim');
+    if (query) {
+      const matches = constellationCy.nodes().filter(node => {
+        const item = node.data();
+        return `${item.id} ${item.label || ''} ${item.detail || ''} ${item.category || ''}`
+          .toLowerCase().includes(query);
+      });
+      matches.addClass('search-match');
+      constellationCy.nodes().not(matches).addClass('search-dim');
+      if (matches.length) constellationCy.animate({fit: {eles: matches, padding: 48}}, {duration: 220});
+    } else {
+      constellationCy.fit(undefined, 48);
+    }
+  }
   nodeFilterStatus.textContent = activeView === 'research'
     ? 'Research is available through conversation; ask for current, sourced information.'
     : query
@@ -1115,7 +1132,54 @@ async function loadState() {
     });
     constellationGraph.replaceChildren(graph);
   };
-  renderConstellationGraph();
+  const renderCytoscapeGraph = () => {
+    if (!constellationGraph || typeof window.cytoscape !== 'function') return false;
+    const authorizedIds = new Set((state.nodes || []).map(node => node.id));
+    const elements = [
+      ...(state.nodes || []).map(node => ({data: {
+        id: node.id, label: node.label, detail: node.detail || '', category: node.category || 'domain',
+      }})),
+      ...(state.edges || []).filter(edge => authorizedIds.has(edge.source) && authorizedIds.has(edge.target))
+        .map(edge => ({data: {id: `${edge.source}→${edge.target}`, source: edge.source, target: edge.target}})),
+    ];
+    constellationGraph.replaceChildren();
+    constellationCy = window.cytoscape({
+      container: constellationGraph,
+      elements,
+      minZoom: 0.35,
+      maxZoom: 2.8,
+      wheelSensitivity: 0.18,
+      boxSelectionEnabled: false,
+      style: [
+        {selector: 'node', style: {
+          'background-color': '#253347', 'border-width': 1, 'border-color': '#60738c',
+          'color': '#f1f5f9', 'label': 'data(label)', 'font-size': 11, 'text-wrap': 'ellipsis',
+          'text-max-width': 130, 'text-valign': 'center', 'text-halign': 'center',
+          'width': 38, 'height': 38, 'overlay-opacity': 0,
+        }},
+        {selector: 'node[category = "core"]', style: {'background-color': '#2d648f', 'border-color': '#9bc9ff', 'width': 52, 'height': 52, 'font-size': 12}},
+        {selector: 'node[category = "capability_need"]', style: {'background-color': '#66502b', 'border-color': '#f0cd86'}},
+        {selector: 'node[category = "objective"]', style: {'background-color': '#3b4d76', 'border-color': '#9bc9ff'}},
+        {selector: 'node.search-match', style: {'border-width': 4, 'border-color': '#8fddb0', 'z-index': 10}},
+        {selector: 'node.search-dim', style: {'opacity': 0.22}},
+        {selector: 'node:selected', style: {'border-width': 4, 'border-color': '#8fddb0'}},
+        {selector: 'edge', style: {'width': 1.5, 'line-color': '#536b84', 'target-arrow-color': '#536b84', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'opacity': 0.82}},
+      ],
+      layout: {name: 'breadthfirst', directed: true, padding: 44, spacingFactor: 1.28, avoidOverlap: true},
+    });
+    constellationCy.on('tap', 'node', event => {
+      const node = (state.nodes || []).find(item => item.id === event.target.id());
+      const card = node && nodeCards.get(node.id);
+      if (node && card) { card.focus(); card.click(); }
+    });
+    constellationCy.on('layoutstop', () => constellationCy.fit(undefined, 44));
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(() => { if (constellationCy) constellationCy.resize(); });
+      observer.observe(constellationGraph);
+    }
+    return true;
+  };
+  if (!renderCytoscapeGraph()) renderConstellationGraph();
   const categoryLabels = {
     core: 'AEGIS', domain: 'Domains & Packs', capability: 'Semantic areas',
     capability_need: 'Capability needs', objective: 'Active objectives',

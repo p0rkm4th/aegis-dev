@@ -5600,6 +5600,8 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
 
     assert '<link rel="stylesheet" href="/static/aegis.css">' in _INDEX_HTML
     assert '<script src="/static/aegis.js" defer></script>' in _INDEX_HTML
+    assert '<script src="/static/cytoscape-3.34.3.min.js" defer></script>' in _INDEX_HTML
+    assert "https://" not in _INDEX_HTML.split('<script src="/static/cytoscape-3.34.3.min.js"')[0]
     assert "<script>\n" not in _INDEX_HTML
     assert _AEGIS_CSS.strip()
     assert _AEGIS_JS.strip()
@@ -5608,6 +5610,10 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
     assert '.nav-advanced button[aria-current="page"]' in _AEGIS_CSS
     assert "today-cross-domain-review" in _AEGIS_JS
     assert "const crossDomainReview = document.createElement('details')" in _AEGIS_JS
+    assert "typeof window.cytoscape" in _AEGIS_JS
+    assert "authorizedIds.has(edge.source) && authorizedIds.has(edge.target)" in _AEGIS_JS
+    assert "search-match" in _AEGIS_JS
+
     assert "todayMore.className = 'detail-card today-more'" in _AEGIS_JS
     assert "todayMoreSummary.textContent = 'More Today'" in _AEGIS_JS
     assert "Finance account" in _AEGIS_JS
@@ -5684,6 +5690,22 @@ def test_browser_static_assets_are_same_origin_and_not_inline_only():
         "style-src 'self' 'unsafe-inline'"
         in Path(__file__).parents[1].joinpath("src/aegis/web.py").read_text()
     )
+
+
+def test_browser_serves_pinned_local_constellation_library():
+    from aegis.web import _CYTOSCAPE_JS
+
+    app = BrowserApp(
+        Principal(id="alice", vault_id="vault"),
+        lambda *_: "unused",
+        lambda _: {"nodes": [], "edges": []},
+        session_token="session-secret",
+    )
+    status, content_type, payload = app.dispatch("GET", "/static/cytoscape-3.34.3.min.js")
+    assert status == 200
+    assert content_type == "text/javascript; charset=utf-8"
+    assert payload.decode() == _CYTOSCAPE_JS
+    assert len(payload) > 400_000
 
 
 def test_browser_app_preserves_unknown_as_reconciliation_not_retry():
