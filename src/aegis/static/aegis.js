@@ -2349,7 +2349,8 @@ function appendTodayOverview(panel, payload) {
   const overview = document.createElement('div');
   overview.className = 'today-overview';
   overview.setAttribute('aria-label', 'Today at a glance');
-  items.forEach(item => {
+  const visibleItems = items.filter(item => item.count > 0 || item.label === 'Up next');
+  visibleItems.forEach(item => {
     const button = document.createElement('button');
     button.type = 'button'; button.className = 'today-overview-card';
     if (item.attention) button.dataset.attention = String(item.attention);
