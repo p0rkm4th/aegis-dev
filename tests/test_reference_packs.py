@@ -69,7 +69,9 @@ def test_task_collection_action_completes_and_verifies_bounded_set() -> None:
         def list(self, _principal: Principal) -> tuple[Task, ...]:
             return tuple(self.tasks.values())
 
-        def complete_set(self, _principal: Principal, task_ids: list[UUID]) -> tuple[Task, ...]:
+        def complete_set(
+            self, _principal: Principal, task_ids: tuple[UUID, ...]
+        ) -> tuple[Task, ...]:
             completed = []
             for task_id in task_ids:
                 task = self.tasks[task_id]
