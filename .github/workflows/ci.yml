@@ -32,6 +32,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install and attest developer sandbox primitives
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes bubblewrap util-linux
+          if [[ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          command -v bwrap
+          command -v prlimit
+          bwrap --version
+          prlimit --version
+          bwrap --die-with-parent --unshare-pid --proc /proc --dev /dev \
+            --tmpfs /tmp --ro-bind /usr /usr --ro-bind /bin /bin \
+            --ro-bind /lib /lib --ro-bind /lib64 /lib64 --clearenv \
+            --setenv PATH /usr/bin:/bin -- true
       - name: Install project and development tools
         run: python -m pip install --upgrade pip && python -m pip install -e '.[dev,live]'
       - name: Run reproducible validation

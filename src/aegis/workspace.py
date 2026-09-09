@@ -186,10 +186,27 @@ class ScopedWorkspace:
         prlimit = shutil.which("prlimit")
         if prlimit is None:
             raise WorkspaceError("workspace resource limiter is unavailable")
+        process_wrapper = "\n".join(
+            (
+                "import ctypes, os, signal, subprocess, sys",
+                "child = subprocess.Popen(",
+                "    sys.argv[1:],",
+                "    start_new_session=True,",
+                "    preexec_fn=lambda: ctypes.CDLL(None).prctl(1, signal.SIGKILL),",
+                ")",
+                "returncode = child.wait()",
+                "try:",
+                "    os.killpg(child.pid, signal.SIGKILL)",
+                "except ProcessLookupError:",
+                "    pass",
+                "raise SystemExit(returncode)",
+            )
+        )
         command = [
             bubblewrap,
             "--die-with-parent",
             "--unshare-net",
+            "--unshare-pid",
             "--proc",
             "/proc",
             "--dev",
@@ -225,6 +242,9 @@ class ScopedWorkspace:
             f"--nofile={self.max_open_files}",
             f"--fsize={self.max_file_bytes}",
             "--",
+            "python3",
+            "-c",
+            process_wrapper,
             *argv,
         ]
         bind_args: list[str] = []
