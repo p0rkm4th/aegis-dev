@@ -1024,6 +1024,20 @@ def _reference_pack_specs() -> tuple[_ReferencePackSpec, ...]:
                 ),
                 ActionCard(
                     action=ActionSpec(
+                        action_id="tasks.complete_set",
+                        capability="tasks.complete_set",
+                        required_permissions=("tasks.write",),
+                        verification=VerificationContract(kind="readback"),
+                    ),
+                    summary="Complete a bounded set of already identified tasks",
+                    relevance=1,
+                    argument_keys=("task_ids",),
+                    argument_descriptions={
+                        "task_ids": "canonical IDs for the fully grounded task set"
+                    },
+                ),
+                ActionCard(
+                    action=ActionSpec(
                         action_id="tasks.chores.create",
                         capability="tasks.chores.create",
                         required_permissions=("tasks.write",),

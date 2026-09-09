@@ -227,7 +227,7 @@ _INDEX_HTML = """<!doctype html>
 <div class="nav-group nav-primary" aria-label="Everyday">
 <span class="nav-group-label">Everyday</span>
 <button type="button" data-view="home" aria-current="page">Chat</button>
-<button type="button" data-view="home" aria-current="page">Today</button>
+<button type="button" data-view="today" aria-current="false">Today</button>
 <button type="button" data-view="tasks">Tasks</button>
 <button type="button" data-view="calendar">Calendar</button>
 <button type="button" data-view="household">Household</button>

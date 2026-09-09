@@ -150,6 +150,30 @@ class Kernel:
                     objective_id=objective.id,
                 )
                 return result
+        if decision.kind is DecisionKind.ANSWER and (
+            decision.objective_spec is not None
+            or decision.semantic_mode == "ACTION"
+            or objective.objective_spec is not None
+        ):
+            self.audit.append(
+                "decision.answer_rejected",
+                intent.principal.id,
+                {"reason": "effect_objective_requires_verified_action"},
+                objective_id=objective.id,
+            )
+            return Result(
+                objective_id=objective.id,
+                state=ObjectiveState.BLOCKED,
+                message=(
+                    "I received an explanation, but the requested change is not verified. "
+                    "No action was completed."
+                ),
+                evidence={
+                    "authoritative": False,
+                    "completion_blocked": "effect_requires_verified_action",
+                },
+                correlation_id=intent.correlation_id,
+            )
         if decision.kind is not DecisionKind.ACTION:
             state = {
                 DecisionKind.ANSWER: ObjectiveState.COMPLETED,

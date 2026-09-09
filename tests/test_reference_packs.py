@@ -48,7 +48,63 @@ from aegis.reference_packs import (
     reference_packs,
 )
 from aegis.reference_runtime import default_runtime_registry
+from aegis.tasks import (
+    PostgresTaskCollectionExecutor,
+    PostgresTaskCollectionVerifier,
+    Task,
+    TaskStatus,
+)
 from aegis.workspace import WorkspaceManager
+
+
+def test_task_collection_action_completes_and_verifies_bounded_set() -> None:
+    principal = Principal(id="alice", vault_id="alice-vault")
+    first = Task(uuid4(), "home", "renew cert", "alice")
+    second = Task(uuid4(), "home", "inspect backups", "alice")
+
+    class Store:
+        def __init__(self) -> None:
+            self.tasks = {first.task_id: first, second.task_id: second}
+
+        def list(self, _principal: Principal) -> tuple[Task, ...]:
+            return tuple(self.tasks.values())
+
+        def complete_set(self, _principal: Principal, task_ids: list[UUID]) -> tuple[Task, ...]:
+            completed = []
+            for task_id in task_ids:
+                task = self.tasks[task_id]
+                completed_task = Task(
+                    task.task_id,
+                    task.space_id,
+                    task.title,
+                    task.created_by,
+                    task.assignee_id,
+                    task.due_at,
+                    TaskStatus.COMPLETED,
+                    task.idempotency_key,
+                )
+                self.tasks[task_id] = completed_task
+                completed.append(completed_task)
+            return tuple(completed)
+
+    store = Store()
+    action = ActionSpec(
+        action_id="tasks.complete_set",
+        capability="tasks.complete_set",
+        arguments={"task_ids": [str(first.task_id), str(second.task_id)]},
+        verification=VerificationContract(kind="readback"),
+    )
+    request = ExecutionRequest(
+        objective_id=uuid4(), action_id=uuid4(), action=action, idempotency_key="task-set-test"
+    )
+    observation = PostgresTaskCollectionExecutor(store, principal).execute(request)
+    verification = PostgresTaskCollectionVerifier(store, principal).verify(
+        observation, action.verification
+    )
+
+    assert observation.command_succeeded
+    assert verification.verified
+    assert all(task.status is TaskStatus.COMPLETED for task in store.list(principal))
 
 
 def test_capability_needs_read_is_scoped_and_independently_reread() -> None:

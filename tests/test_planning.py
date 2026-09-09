@@ -64,6 +64,36 @@ def test_collection_mutation_parser_preserves_owner_outcome_cardinality():
     assert explicit.selectors == ("rice", "milk", "doritos")
 
 
+def test_collection_mutation_parser_is_not_grocery_specific():
+    clear_tasks = parse_collection_mutation("clear the remaining test tasks")
+    assert clear_tasks is not None
+    assert clear_tasks.collection == "tasks"
+    assert clear_tasks.operation == "complete"
+    assert clear_tasks.cardinality is SelectionCardinality.CURRENT_COLLECTION
+
+    explicit_tasks = parse_collection_mutation(
+        "complete renew cert and inspect backups from my task list"
+    )
+    assert explicit_tasks is not None
+    assert explicit_tasks.collection == "tasks"
+    assert explicit_tasks.cardinality is SelectionCardinality.EXPLICIT_SET
+    assert explicit_tasks.selectors == ("renew cert", "inspect backups")
+
+    matching_tasks = parse_collection_mutation("complete all renew cert from my tasks")
+    assert matching_tasks is not None
+    assert matching_tasks.collection == "tasks"
+    assert matching_tasks.cardinality is SelectionCardinality.ALL_MATCHING
+
+    named_tasks = parse_collection_mutation("complete all test tasks named renew cert")
+    assert named_tasks is not None
+    assert named_tasks.selectors == ("renew cert",)
+
+    direct_tasks = parse_collection_mutation("complete test task A and test task B")
+    assert direct_tasks is not None
+    assert direct_tasks.cardinality is SelectionCardinality.EXPLICIT_SET
+    assert direct_tasks.selectors == ("test task a", "test task b")
+
+
 def test_proposed_plan_materializes_only_candidate_authority():
     task = card("tasks.create", "title")
     chore = card("chores.create", "title")

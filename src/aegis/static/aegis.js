@@ -817,7 +817,8 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   const input = document.getElementById('utterance');
   input.placeholder = activeView === 'research' ? 'Ask for sourced research…' : 'Talk to AEGIS…';
   const viewCopy = {
-    home: ['Today', 'Your conversation and authorized world at a glance.'],
+  home: ['Chat', 'A conversation with AEGIS.'],
+  today: ['Today', 'Your conversation and authorized world at a glance.'],
     tasks: ['Tasks', 'Open and completed work from authorized canonical state.'],
     calendar: ['Calendar', 'Events and appointments currently visible to you.'],
     household: ['Household', 'Shared chores, groceries, and obligations.'],
@@ -836,7 +837,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
     constellation: ['Constellation', 'The authorized semantic map: context and navigation, never authority.'],
     workspace: ['Workspace', 'Scoped artifacts and bounded digital work will appear here.']
     ,compositions: ['Compositions', 'Cross-capability workflows available through the trusted Core.']
-  }[activeView] || ['Today', 'Your conversation and authorized world at a glance.'];
+  }[activeView] || ['Chat', 'A conversation with AEGIS.'];
   document.getElementById('view-title').textContent = viewCopy[0];
   document.getElementById('view-description').textContent = viewCopy[1];
   if (activeView === 'research') { input.focus(); loadResearch(); }
@@ -852,7 +853,7 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
   if (activeView === 'systems') loadSystems();
   if (activeView === 'weather') loadWeather();
   if (activeView === 'air-quality') loadAirQuality();
-  if (activeView === 'home') loadToday();
+  if (activeView === 'today') loadToday();
   if (activeView === 'tasks') loadTasks();
   if (activeView === 'household') loadHousehold();
   if (activeView === 'finance') loadFinance();

@@ -149,6 +149,8 @@ from .reference_packs import (
     prepare_reference_action,
 )
 from .tasks import (
+    PostgresTaskCollectionExecutor,
+    PostgresTaskCollectionVerifier,
     PostgresTaskExecutor,
     PostgresTaskListExecutor,
     PostgresTaskListVerifier,
@@ -193,6 +195,15 @@ def default_runtime_registry(
             PostgresTaskExecutor(store, principal),
             PostgresTaskVerifier(store, principal),
             {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+        )
+
+    def task_collection_runtime(connection: Any, principal: Principal) -> ActionRuntime:
+        store = PostgresTaskStore(connection)
+        return ActionRuntime(
+            PostgresTaskCollectionExecutor(store, principal),
+            PostgresTaskCollectionVerifier(store, principal),
+            {"tasks.write": frozenset({Role.OWNER, Role.MEMBER})},
+            prepare=prepare_reference_action,
         )
 
     def task_list_runtime(connection: Any, principal: Principal) -> ActionRuntime:
@@ -886,6 +897,7 @@ def default_runtime_registry(
     factories: dict[str, Callable[[Any, Principal], ActionRuntime]] = {
         "tasks.create": task_runtime,
         "tasks.complete": task_runtime,
+        "tasks.complete_set": task_collection_runtime,
         "tasks.list": task_list_runtime,
         "capabilities.needs.list": capability_needs_runtime,
         "tasks.chores.create": household_runtime,

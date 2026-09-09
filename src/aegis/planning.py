@@ -53,27 +53,47 @@ def parse_collection_mutation(utterance: str) -> CollectionMutationSpec | None:
     """Parse bounded outcome/set language without selecting records or authority."""
 
     text = " ".join(utterance.casefold().strip().rstrip(".!?").split())
-    if not re.search(r"\b(?:grocery|groceries|shopping list)\b", text):
-        return None
-    if re.search(r"\b(?:clear|empty)\b", text) and re.search(
-        r"\b(?:grocery|groceries|shopping list)\b", text
-    ):
-        return CollectionMutationSpec(
-            "groceries", "remove", SelectionCardinality.CURRENT_COLLECTION
+    if re.search(r"\b(?:grocery|groceries|shopping list)\b", text):
+        collection, operation, collection_pattern = (
+            "groceries",
+            "remove",
+            r"(?:grocery|groceries|shopping list)",
         )
-    operation = "remove" if re.search(r"\b(?:remove|delete|take)\b", text) else None
-    if operation is None:
+    elif re.search(r"\b(?:task|tasks|todo|todos|to-do|to-dos)\b", text):
+        collection, operation, collection_pattern = (
+            "tasks",
+            "complete",
+            r"(?:task|tasks|todo|todos|to-do|to-dos)(?: list)?",
+        )
+    else:
         return None
-    all_match = re.search(r"\b(?:all|every|remaining)\s+(.+?)\s+from\b", text)
-    if all_match:
-        selector = all_match.group(1).strip()
-        if selector and selector not in {"items", "groceries"}:
+    if re.search(r"\b(?:clear|empty|wipe|reset)\b", text):
+        return CollectionMutationSpec(
+            collection, operation, SelectionCardinality.CURRENT_COLLECTION
+        )
+    operation_terms = r"remove|delete|take|complete|finish|mark"
+    if not re.search(rf"\b(?:{operation_terms})\b", text):
+        return None
+    all_match = re.search(
+        rf"\b(?:all|every|remaining)\s+(.+?)\s+(?:from|off|on|in)\s+"
+        rf"(?:my\s+)?{collection_pattern}\b",
+        text,
+    )
+    selector = all_match.group(1).strip() if all_match else None
+    if all_match is None:
+        named_all = re.search(
+            rf"\b(?:all|every|remaining)\s+(?:.+?\s+)?{collection_pattern}\s+named\s+(.+)$",
+            text,
+        )
+        selector = named_all.group(1).strip() if named_all else None
+    if selector:
+        if selector and selector not in {"items", "groceries", "tasks"}:
             return CollectionMutationSpec(
-                "groceries", operation, SelectionCardinality.ALL_MATCHING, (selector,)
+                collection, operation, SelectionCardinality.ALL_MATCHING, (selector,)
             )
     named = re.search(
-        r"\b(?:remove|delete|take)\s+(.+?)\s+from\s+"
-        r"(?:my\s+)?(?:grocery|groceries|shopping list)\b",
+        rf"\b(?:{operation_terms})\s+(.+?)\s+(?:from|off|on|in)\s+"
+        rf"(?:my\s+)?{collection_pattern}\b",
         text,
     )
     if named:
@@ -84,7 +104,19 @@ def parse_collection_mutation(utterance: str) -> CollectionMutationSpec | None:
             cardinality = (
                 SelectionCardinality.ONE if len(parts) == 1 else SelectionCardinality.EXPLICIT_SET
             )
-            return CollectionMutationSpec("groceries", operation, cardinality, tuple(parts))
+            return CollectionMutationSpec(collection, operation, cardinality, tuple(parts))
+    if collection == "tasks" and re.search(r"\b(?:complete|finish)\b", text):
+        direct = re.search(r"\b(?:complete|finish)\s+(?:the\s+)?(.+)$", text)
+        if direct and not re.search(r"\b(?:from|on|in)\s+(?:my\s+)?(?:task|todo)", text):
+            raw = re.sub(r"^(?:task|tasks)\s+", "", direct.group(1).strip())
+            parts = [part.strip() for part in re.split(r"\s*,\s*|\s+and\s+", raw) if part.strip()]
+            if parts:
+                cardinality = (
+                    SelectionCardinality.ONE
+                    if len(parts) == 1
+                    else SelectionCardinality.EXPLICIT_SET
+                )
+                return CollectionMutationSpec(collection, operation, cardinality, tuple(parts))
     return None
 
 

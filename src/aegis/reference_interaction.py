@@ -107,6 +107,7 @@ from .tasks import (
     TaskIntentClarificationFastPath,
     TaskPriorityFastPath,
     TaskReadFastPath,
+    TaskStatus,
     _task_projection,
     ground_task_due_at,
     requested_task_due_at,
@@ -4071,9 +4072,7 @@ def run_reference_plan(
     if recovered_plan_actions is not None:
         plan_actions = recovered_plan_actions
     elif (collection := parse_collection_mutation(intent.utterance)) is not None:
-        if collection.collection != "groceries":
-            plan_actions = None
-        else:
+        if collection.collection == "groceries":
             household_store = PostgresHouseholdStore(connection)
             needed = tuple(
                 item
@@ -4135,6 +4134,71 @@ def run_reference_plan(
                     }
                 ),
             )
+        elif collection.collection == "tasks":
+            task_store = PostgresTaskStore(connection)
+            open_tasks = tuple(
+                task for task in task_store.list(principal) if task.status is TaskStatus.OPEN
+            )
+            selected_tasks: tuple[Any, ...]
+            if collection.cardinality.value == "current_collection":
+                selected_tasks = open_tasks
+            elif collection.cardinality.value == "all_matching":
+                key = " ".join(collection.selectors[0].casefold().split())
+                selected_tasks = tuple(
+                    task for task in open_tasks if " ".join(task.title.casefold().split()) == key
+                )
+            else:
+                selected_task_items: list[Any] = []
+                for selector in collection.selectors:
+                    key = " ".join(selector.casefold().split())
+                    task_matches = tuple(
+                        task
+                        for task in open_tasks
+                        if " ".join(task.title.casefold().split()) == key
+                    )
+                    if len(task_matches) != 1:
+                        count = len(task_matches)
+                        return Result(
+                            objective_id=uuid4(),
+                            state=ObjectiveState.BLOCKED,
+                            message=(
+                                f"I found {count} open tasks named {selector!r}. "
+                                "Tell me which one you mean in human terms."
+                            )
+                            if count
+                            else f"I could not find open task {selector!r}.",
+                            correlation_id=intent.correlation_id,
+                        )
+                    selected_task_items.extend(task_matches)
+                selected_tasks = tuple(selected_task_items)
+            if not selected_tasks:
+                return Result(
+                    objective_id=uuid4(),
+                    state=ObjectiveState.COMPLETED,
+                    message="Those tasks are already complete.",
+                    correlation_id=intent.correlation_id,
+                )
+            collection_card = next(
+                card
+                for card in manager.enabled_cards()
+                if card.action.action_id == "tasks.complete_set"
+            )
+            plan_actions = (
+                collection_card.action.model_copy(
+                    update={
+                        "arguments": {"task_ids": [str(task.task_id) for task in selected_tasks]},
+                        "argument_provenance": {
+                            "task_ids": ArgumentProvenance(
+                                kind=ArgumentProvenanceKind.AUTHORIZED_CANONICAL_REFERENT,
+                                canonical_ref="tasks.open",
+                                derivation="reference.tasks.collection_selection.v1",
+                            )
+                        },
+                    }
+                ),
+            )
+        else:
+            plan_actions = None
     elif (plan_titles := MultiActionFastPath.task_chore_titles(intent.utterance)) is not None:
         task_card = next(
             card for card in manager.retrieve("tasks") if card.action.action_id == "tasks.create"
