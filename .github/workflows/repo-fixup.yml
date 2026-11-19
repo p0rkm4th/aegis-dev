@@ -1,0 +1,83 @@
+name: Repo Fixup (one-off)
+on:
+  workflow_dispatch:
+    inputs:
+      license_kind:
+        description: "LICENSE to add on the default branch (none = email rewrite only)"
+        type: choice
+        options: [none, apache, agpl, arr, mit]
+        default: none
+permissions:
+  contents: write
+jobs:
+  fixup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure identity
+        run: |
+          git config user.name "p0rkm4th"
+          git config user.email "33230231+p0rkm4th@users.noreply.github.com"
+      - name: Add LICENSE
+        if: inputs.license_kind != 'none'
+        run: |
+          case "${{ inputs.license_kind }}" in
+            apache) URL="https://raw.githubusercontent.com/p0rkm4th/hckrslsh-fieldos/main/LICENSE" ;;
+            agpl) URL="https://raw.githubusercontent.com/p0rkm4th/Odysseus-revamp/main/LICENSE" ;;
+            arr) URL="https://raw.githubusercontent.com/p0rkm4th/bitburner-ai-os/main/LICENSE" ;;
+            mit) URL="https://raw.githubusercontent.com/p0rkm4th/Starting-Simple/master/LICENSE" ;;
+          esac
+          curl -fsSL "$URL" -o LICENSE
+          test -s LICENSE
+          git add LICENSE
+          git commit -m "Add LICENSE (${{ inputs.license_kind }})" || echo "LICENSE unchanged"
+      - name: Collect all branches and tags
+        run: |
+          DEFAULT="${{ github.ref_name }}"
+          git checkout --detach HEAD
+          git fetch origin --tags --force '+refs/heads/*:refs/remotes/origin/*'
+          for ref in $(git for-each-ref --format='%(refname)' refs/remotes/origin/); do
+            b="${ref#refs/remotes/origin/}"
+            [ "$b" = "HEAD" ] && continue
+            if [ "$b" = "$DEFAULT" ]; then git branch -f "$b" HEAD; else git branch -f "$b" "$ref"; fi
+          done
+          git for-each-ref --format='%(refname)' refs/remotes/ | xargs -r -n1 git update-ref -d
+          git branch -a
+          git tag
+      - name: Before counts
+        run: |
+          echo "== Before =="
+          echo "commits with old email (all refs): $(git log --all --format='%ae%n%ce' | grep -c '^scott.greer@zoho.com$' || true)"
+      - name: Install git-filter-repo
+        run: pip install git-filter-repo
+      - name: Rewrite email across all history
+        run: |
+          git filter-repo --force \
+            --email-callback 'return b"33230231+p0rkm4th@users.noreply.github.com" if email == b"scott.greer@zoho.com" else email' \
+            --name-callback 'return b"p0rkm4th" if name == b"Scootz" else name'
+      - name: Verify
+        run: |
+          COUNT=$(git log --all --format='%ae%n%ce' | grep -c '^scott.greer@zoho.com$' || true)
+          echo "commits with old email after rewrite: $COUNT"
+          test "$COUNT" = "0"
+          if [ "${{ inputs.license_kind }}" != "none" ]; then
+            git cat-file -e "${{ github.ref_name }}:LICENSE" && echo "LICENSE present on ${{ github.ref_name }}"
+          fi
+      - name: Force-push all branches and tags
+        run: |
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" 2>/dev/null || git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push origin --force --all
+          git push origin --force --tags
+          echo "force-push complete"
+      - name: Delete this one-off workflow file
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA=$(gh api "repos/${{ github.repository }}/contents/.github/workflows/repo-fixup.yml" --jq .sha 2>/dev/null || true)
+          if [ -n "$SHA" ]; then
+            gh api -X DELETE "repos/${{ github.repository }}/contents/.github/workflows/repo-fixup.yml" -f message="Remove one-off fixup workflow (job done)" -f sha="$SHA" || true
+          fi
